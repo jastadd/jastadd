@@ -1,0 +1,14 @@
+#!/bin/sh
+# Create a new version of the JastAdd II tool
+VERSION=`date +%Y%m%d`
+echo New version is $VERSION
+echo Processing manifest
+sed -e '/Implementation-Version/s/Version: R......../Version: R'${VERSION}'/' manifest >manifest.new
+rm manifest
+mv manifest.new manifest
+echo Processing main program
+sed -e '/VERSION/s/version R......../version R'${VERSION}'/' jastadd/JastAdd.java >jastadd/JastAdd.java.new
+rm jastadd/JastAdd.java
+mv jastadd/JastAdd.java.new jastadd/JastAdd.java
+echo Version information embedded in source files
+
