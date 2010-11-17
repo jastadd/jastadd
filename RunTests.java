@@ -56,7 +56,6 @@ public class RunTests {
 			loadAndInvoke(className);
 			
 			// restore output stream
-			
 			if(verbose)
 				System.out.println(os.toString());
 			else
@@ -72,6 +71,7 @@ public class RunTests {
 				System.err.println(testName + ".java failed");
 				System.err.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
 			}
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -133,7 +133,7 @@ public class RunTests {
 	protected static boolean compileGeneratedFiles(String testName) {
 		try {
 			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("javac -cp " + System.getProperty("user.dir") + " " + testName + ".java");
+			Process process = runtime.exec("javac -implicit:class -cp " + System.getProperty("user.dir") + " " + testName + ".java");
 			int i = process.waitFor();
 			String s = null;
 			if (i == 0){
