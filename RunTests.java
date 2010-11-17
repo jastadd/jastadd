@@ -56,6 +56,7 @@ public class RunTests {
 			loadAndInvoke(className);
 			
 			// restore output stream
+			
 			if(verbose)
 				System.out.println(os.toString());
 			else
@@ -71,6 +72,7 @@ public class RunTests {
 				System.err.println(testName + ".java failed");
 				System.err.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
