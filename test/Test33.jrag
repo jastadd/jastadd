@@ -1,0 +1,10 @@
+aspect Test33 {
+  syn int A.value();
+  eq B.value() = 1;
+  eq C.value() = 2;
+
+  rewrite B {
+    when(value() == 1)
+    to A new C();
+  }
+}
