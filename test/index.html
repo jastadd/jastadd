@@ -40,5 +40,39 @@ AST: single token, explicit primitive type
 <b>FAILS</b> JastAdd2 can't find a root node in this grammar "Node ::= MyNode:Node;"
 </td></tr>
 
+<tr><td>9</td><td>
+<b>FAILS</b> Component name Node is not unique in production rule for Node.
+No root node available ("Node ::= Node Node;")
+</td></tr>
+
+<tr><td>10</td><td>
+<b>FAILS</b> Semantic error: No root node available("Node ::= Left:Node Right:Node;")
+</td></tr>
+
+<tr><td>11</td><td>
+<b>FAILS</b> Semantic error: No root node available("Node ::= Node*;")
+</td></tr>
+
+<tr><td>12</td><td>
+<b>FAILS</b> Semantic error: No root node available("Node ::= Node*;")
+</td></tr>
+
+<tr><td>13</td><td>
+<b>FAILS</b> Semantic error: No root node available("Node ::= Node* &lt;Name&gt;")
+</td></tr>
+
+<tr><td>14</td><td>
+<b>FAILS</b> Semantic error: No root node available("Node ::= [Node]")
+</td></tr>
+
+<tr><td>15</td><td>
+<b>FAILS</b> Semantic error: No root node available("Node ::= [MyNode:Node]")
+</td></tr>
+
+<tr><td>16</td><td>
+Syn: synthesized attribute with initializing equation
+</td></tr>
+
+
 </body>
 </html>

@@ -16,8 +16,9 @@ public class RunTests {
 		else if(args.length == 2 && args[1].equals("true"))
 			runTest(args[0], true);
 		else {
-			for(int i = 1; i < MAX_TESTS; i++)
-				runTest("test/Test" + i, false);
+//			for(int i = 1; i < MAX_TESTS; i++)
+//				runTest("test/Test" + i, false);
+			runTest("test/Test16", false);
 		}
 		
 	}
@@ -35,13 +36,11 @@ public class RunTests {
 			System.out.println(testName + ".java");
 
 			// redirect output stream
-			
 			PrintStream out = System.out;
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(os);
 			if(!verbose)
 				System.setOut(ps);
-			
 			
 			// run JastAdd to build .java files for test case
 			// TODO: There should be a success check after this call
@@ -58,7 +57,6 @@ public class RunTests {
 			loadAndInvoke(className);
 			
 			// restore output stream
-			
 			if(verbose)
 				System.out.println(os.toString());
 			else
@@ -74,7 +72,6 @@ public class RunTests {
 				System.err.println(testName + ".java failed");
 				System.err.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
 			}
-			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -115,6 +112,11 @@ public class RunTests {
 		
 		// add test case and jastadd run-time sources to command line arguments
 		list.add(testName + ".ast");
+		
+		// add aspect file if it exists
+		File aspectFile = new File(System.getProperty("user.dir") +  "/" + testName + ".jrag");
+		if (aspectFile.exists())
+			list.add(testName + ".jrag");
 
 		// create String[] from ArrayList
 		String[] args = new String[list.size()];
