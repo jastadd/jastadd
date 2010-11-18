@@ -1,0 +1,4 @@
+abstract Expr;
+Decl : Expr ::= <Type> <Name>;
+Use : Expr ::= <Name>;
+Program ::= Expr*;
