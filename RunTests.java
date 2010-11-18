@@ -8,7 +8,7 @@ import java.util.*;
 public class RunTests {
 
 	protected final static int MAX_TESTS = 100;
-	protected static boolean verbose = false;
+	protected static boolean verbose = true;
 
 	public static void main(String[] args) {
 		if(args.length == 1)
@@ -16,9 +16,9 @@ public class RunTests {
 		else if(args.length == 2 && args[1].equals("true"))
 			runTest(args[0], true);
 		else {
-//			for(int i = 1; i < MAX_TESTS; i++)
-//				runTest("test/Test" + i, false);
-			runTest("test/Test16", false);
+			for(int i = 1; i < MAX_TESTS; i++)
+				runTest("test/Test" + i, false);
+			//runTest("test/Test42", false);
 		}
 		
 	}
@@ -35,7 +35,10 @@ public class RunTests {
 		try {
 			System.out.println(testName + ".java");
 
+			removeGeneratedFiles();
+			
 			// redirect output stream
+			
 			PrintStream out = System.out;
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(os);
@@ -45,6 +48,7 @@ public class RunTests {
 			// run JastAdd to build .java files for test case
 			// TODO: There should be a success check after this call
 			new jastadd.JastAdd().compile(buildArgs(testName));
+			
 			
 			// Compile generated .java files using javac
 			if (!compileGeneratedFiles(testName)) {
@@ -107,11 +111,16 @@ public class RunTests {
 		// Package test.ast
 		list.add("--package=test.ast");
 		
+		// Turn on rewrites
+		list.add("--rewrite");
+		
 		// Generate output in test/src directory
 		list.add("--o=" + System.getProperty("user.dir"));
 		
 		// add test case and jastadd run-time sources to command line arguments
-		list.add(testName + ".ast");
+		File grammarFile = new File(System.getProperty("user.dir") +  "/" + testName + ".ast");
+		if (grammarFile.exists())
+			list.add(testName + ".ast");
 		
 		// add aspect file if it exists
 		File aspectFile = new File(System.getProperty("user.dir") +  "/" + testName + ".jrag");
@@ -128,8 +137,59 @@ public class RunTests {
 		return args;
 	}
 	
+	protected static boolean removeGeneratedFiles() {
+		try {
+			
+			// Compile java files in test/ast
+			StringBuffer buf = new StringBuffer();
+			File dir = new File(System.getProperty("user.dir") + "/test/ast");
+			FilenameFilter filter = new FilenameFilter() {
+			    public boolean accept(File dir, String name) {
+			        return name.endsWith(".java") || name.endsWith(".class");
+			    }
+			};
+			File[] files = dir.listFiles(filter);
+			for (int i = 0; i < files.length; i++) {
+				buf.append(files[i] + " ");
+			}
+			
+			Runtime runtime = Runtime.getRuntime();
+			Process process = runtime.exec("rm " + buf.toString());
+			int i = process.waitFor();
+			String s = null;
+			if (i == 0){
+				BufferedReader input = new
+				BufferedReader(new InputStreamReader(process.getInputStream()));
+				while ((s = input.readLine()) != null)
+				{
+					System.out.println(s);
+				}
+			} else {
+
+				// STDERR
+				BufferedReader stderr = new
+				BufferedReader(new InputStreamReader(process.getErrorStream()));
+				while ((s = stderr.readLine()) !=
+					null) {
+					System.out.println(s);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	
 	protected static boolean compileGeneratedFiles(String testName) {
 		try {
+			/*
+			Class[] classList = ClassScope.getLoadedClasses(ClassLoader.getSystemClassLoader());
+			for (int i = 0; i < classList.length; i++) {
+				System.out.println("\t1 loaded class\t" + classList[i].getName()); 
+			}
+			*/
 			
 			// Compile java files in test/ast
 			StringBuffer buf = new StringBuffer();
