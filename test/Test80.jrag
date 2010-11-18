@@ -1,0 +1,9 @@
+aspect Test80 {
+  interface X { }
+
+  /*static*/ class C { }
+
+  ASTNode implements X;
+  C implements X;
+  A implements X;
+}
