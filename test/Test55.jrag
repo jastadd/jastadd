@@ -1,0 +1,5 @@
+aspect Test55 {
+  syn boolean A.x() circular [false] = getB().y();
+  inh boolean B.y() circular [false];
+  eq A.getB().y() = x() || true;
+}
