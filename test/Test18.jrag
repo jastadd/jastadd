@@ -1,0 +1,9 @@
+aspect Test18 {
+	syn boolean Node.attr();
+	eq Node.attr() = true;
+	eq SubNode.attr() = false;
+
+	syn int Node.value();
+	eq Node.value() = 1;
+	eq SubNode.value() = 2;
+}
