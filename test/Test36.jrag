@@ -1,0 +1,7 @@
+aspect Test36 {
+  syn lazy B A.getNTAB() = new B();
+
+  inh int B.value();
+  eq A.getB().value() = 1;
+  eq A.getNTAB().value() = 2;
+}
