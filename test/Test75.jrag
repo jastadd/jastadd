@@ -1,0 +1,14 @@
+aspect Test75 {
+  syn lazy B A.getB() = new B();
+  syn lazy final B A.getBFinal() = new B();
+
+  syn nta B A.b() = new B();
+  syn nta B A.selectB(int i) = new B();
+
+  syn lazy Object A.object() = new Object();
+  syn lazy final Object A.objectFinal() = new Object();
+
+  inh int B.value();
+  eq A.getChild().value() = -1;
+  eq A.selectB(int i).value() = i;
+}
