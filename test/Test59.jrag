@@ -1,0 +1,34 @@
+aspect Test59 {
+	syn int A.c2_a() circular [1]  {
+		c2_acount++;
+		return c2_b();
+	}
+	
+	syn int A.c2_b() circular [1]  {
+		c2_bcount++;
+		int c = c2_a();
+		return c == 2 ? 2 : c + 1;
+	}
+	
+	syn int A.c3() {
+		c3count++;
+		return c2_a();
+	}
+	
+	syn int A.c1_a() circular [1]  {
+		c1_acount++;
+		int c = c1_b() + c3();
+		return c >= 5 ? 5 : c + 1;
+	}
+	
+	syn int A.c1_b() circular [1]  {
+		c1_bcount++;
+		return c1_a();
+	}
+	
+	public int A.c1_acount;
+	public int A.c1_bcount;
+	public int A.c3count;
+	public int A.c2_acount;
+	public int A.c2_bcount;
+}
