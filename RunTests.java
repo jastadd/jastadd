@@ -16,10 +16,8 @@ public class RunTests {
 		else if(args.length == 2 && args[1].equals("true"))
 			runTest(args[0], true);
 		else {
-			//for(int i = 1; i < MAX_TESTS; i++)
-			//	runTest("test/Test" + i, false);
-			runTest("test/Test5", false);
-			//runTest("test/Test6", false);
+			for(int i = 1; i < MAX_TESTS; i++)
+				runTest("test/Test" + i, false);
 		}
 		
 	}
@@ -37,13 +35,13 @@ public class RunTests {
 			System.out.println(testName + ".java");
 
 			// redirect output stream
-			/*
+			
 			PrintStream out = System.out;
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(os);
 			if(!verbose)
 				System.setOut(ps);
-			*/
+			
 			
 			// run JastAdd to build .java files for test case
 			// TODO: There should be a success check after this call
@@ -60,7 +58,7 @@ public class RunTests {
 			loadAndInvoke(className);
 			
 			// restore output stream
-			/*
+			
 			if(verbose)
 				System.out.println(os.toString());
 			else
@@ -76,7 +74,7 @@ public class RunTests {
 				System.err.println(testName + ".java failed");
 				System.err.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
 			}
-			*/
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -118,13 +116,6 @@ public class RunTests {
 		// add test case and jastadd run-time sources to command line arguments
 		list.add(testName + ".ast");
 
-		//if(verbose)
-		//	list.add("-verbose");
-
-		//list.add("-weave_inline");
-		//list.add("-inh_in_astnode");
-		
-
 		// create String[] from ArrayList
 		String[] args = new String[list.size()];
 		int count = 0;
@@ -137,8 +128,26 @@ public class RunTests {
 	
 	protected static boolean compileGeneratedFiles(String testName) {
 		try {
+			
+			// Compile java files in test/ast
+			StringBuffer buf = new StringBuffer();
+			File dir = new File(System.getProperty("user.dir") + "/test/ast");
+			FilenameFilter filter = new FilenameFilter() {
+			    public boolean accept(File dir, String name) {
+			        return name.endsWith(".java");
+			    }
+			};
+			File[] files = dir.listFiles(filter);
+			for (int i = 0; i < files.length; i++) {
+				String name = files[i].getName();
+				name = "test/ast/" + name;
+				buf.append(" " + name);
+			}
+			//System.out.println("\t java files in test/ast : " + buf.toString());
+
+			
 			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("javac -implicit:class -cp " + System.getProperty("user.dir") + " " + testName + ".java test/ast/*.java");
+			Process process = runtime.exec("javac -cp " + System.getProperty("user.dir") + " " + testName + ".java" + buf.toString());
 			int i = process.waitFor();
 			String s = null;
 			if (i == 0){
@@ -169,13 +178,13 @@ public class RunTests {
 		// load test class in a separate class loader and invoke main method
 		try {
 			ClassLoader loader = new URLClassLoader(new URL[] { new File(System.getProperty("user.dir")).toURL() }, null);
-			
 			Class clazz = loader.loadClass(className);
-			
+
+			// load all classes in test/ast
 			File dir = new File(System.getProperty("user.dir") + "/test/ast");
 			FilenameFilter filter = new FilenameFilter() {
 			    public boolean accept(File dir, String name) {
-			        return !name.endsWith(".class");
+			        return name.endsWith(".class");
 			    }
 			};
 			File[] files = dir.listFiles(filter);
@@ -183,31 +192,19 @@ public class RunTests {
 				String name = files[i].getName(); 
 				int index = name.lastIndexOf('.');
 				name = "test.ast." + name.substring(0,index);
-				System.out.println("\t file in test/ast : " + name);
-				if (!name.endsWith("List") || !name.endsWith("Opt"))
-					loader.loadClass(name);
+				//System.out.println("\t loading from test/ast : " + name);
+				loader.loadClass(name);
 			}
 
-			
+			/*
 			Class[] classList = ClassScope.getLoadedClasses(loader);
 			for (int i = 0; i < classList.length; i++) {
-				System.out.println("\t1 loaded class\t" + classList[i].getCanonicalName()); 
+				System.out.println("\t1 loaded class\t" + classList[i].getName()); 
 			}
+			*/
 			
 			Method m = clazz.getDeclaredMethod("main", new Class[] { String[].class });
-			
-			classList = ClassScope.getLoadedClasses(loader);
-			for (int i = 0; i < classList.length; i++) {
-				System.out.println("\t2 loaded class\t" + classList[i].getCanonicalName());
-			}
-			
 			m.invoke(clazz, new Object[] {new String[] {}});
-			
-			classList = ClassScope.getLoadedClasses(loader);
-			for (int i = 0; i < classList.length; i++) {
-				System.out.println("\t3 loaded class\t" + classList[i].getCanonicalName());
-			}
-			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
