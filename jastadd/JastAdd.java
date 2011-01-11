@@ -12,7 +12,7 @@ import jrag.*;
 
 public class JastAdd {
   
-    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20100416";
+    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110111";
     public static final String VERSIONINFO = "\n// Generated with " + VERSION + "\n\n";
 
     protected java.util.List files;
@@ -430,6 +430,23 @@ public class JastAdd {
 		System.out.println("  --cacheNone (cache no attributes, except NTAs)");
 		System.out.println("  --cacheImplicit (make caching implicit, .caching files have higher priority)");
 		System.out.println("  --ignoreLazy (ignore the \"lazy\" keyword)");
+		// EMMA_2011-01-11: Added help print-out for already supported flags
+		System.out.println("  --suppressWarnings (supress warnings when using Java 5)");
+		System.out.println("  --parentInterfaces (search equations for inherited attributes using interfaces)");
+		System.out.println("  --noComponentCheck (generate strongly connected component optimization for circular attributes)");
+		System.out.println("  --noInhEqCheck (disable check for inherited equations)");
+		System.out.println("  --j2me (generate for J2ME)");
+		System.out.println("  --java1.4 (generate for Java1.4)");
+		System.out.println("  --debug (generate run-time checks for debugging)");
+		System.out.println("  --doc (generate javadoc like .html pages from sources)");
+		System.out.println("  --deterministic (..)");
+		System.out.println("  --stagedRewrites (..)");
+		System.out.println("  --refineLegacy (..)");
+		System.out.println("  --noStatic (..)");
+		System.out.println("  --synch (..)");
+		System.out.println("  --defaultMap=MAP (use these datastructures to hold cached attributes)");
+		System.out.println("  --defaultSet=SET (use these datastructures to hold cached attributes)");
+		System.out.println("  --lazyMaps (use these datastructures to hold cached attributes)");
         System.out.println();
         System.out.println("Arguments:");
         System.out.println("Names of .ast, .jrag, .jadd and .caching source files");
