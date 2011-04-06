@@ -1,0 +1,209 @@
+--------------------------------------------------------
+HISTORY
+JastAdd2 was developed at Lund University by primarily the following people: Torbjörn Ekman, Görel Hedin, Eva Magnusson. For additional contributors, see the change logs.
+Since January 2011, JastAdd2 is hosted at the SVN server svn.cs.lth.se.
+Previously, it was hosted at the CVS server vitter.cs.lth.se.
+--------------------------------------------------------
+DEPENDENCIES
+JastAdd2 does not depend on other projects. You can check out the project in isolation. 
+It assumes preexistence of the following standard tools: Java and Ant.
+Non-standard tools that it uses are included in the project.
+--------------------------------------------------------
+BUILD
+
+Build is done by a makefile:
+
+- Ordinary build (generate and compile):
+  > make
+
+- Create a new jar file (jastadd2.jar)
+  > make jar
+
+- Create a new source jar file (jastadd2-src.jar)
+  > make source-jar
+
+- Make a new release (both a jar and a source jar file):
+  > make release
+
+- Clean away generated files
+  > make clean
+
+- Bootstrap jastadd (replace the jastadd used to build jastadd)
+   (For stability, bootstrap is done seldom and only with extra testing.)
+  > make bootstrap
+--------------------------------------------------------
+RUN REGRESSION TEST SUITE
+
+1. Make sure JastAdd is compiled
+> make
+
+2. Run the tests. You will get a lot of output.
+> java RunTests
+
+3. Run as a regression test. You will get no output if all tests do pass that should pass.
+
+> diff test/shouldpass <(java RunTests 2>/dev/null | grep "test/Test..\.java passed" )
+
+Explanation:
+The testcases are documented in test/index.html . Some should fail.
+The testcases that should pass are documented in test/shouldpass.
+Error messages from non-passing tests generate output on standard error, but this is redirected to /dev/null here.
+
+4. To update the shouldpass file (to reflect what tests currently pass):
+
+> java RunTests | grep "test/Test..\.java passed" > test/shouldpass
+--------------------------------------------------------
+TYPICAL BUGFIX PROCESS
+  1. Create a test that exposes the problem.
+  2. Change jastadd to fix the bug.
+  3. > make jar
+  4. Test the new jar on the problem
+  5. Run the regression test suite
+  6. Probably add a new test into the regression test suite.
+  7. Run the regression test suite
+  8. Update the ChangeLog file
+  9. > make clean
+ 10. Commit
+--------------------------------------------------------
+ADD A TEST CASE
+
+Niklas is currently refactoring the test suite, to merge the JastAdd2 and JastAdd3 suites. If we need to add new test cases to JastAdd2 before this refactoring is complete, I (Görel) suggest the following:
+
+1. Generalize RunTests.java to handle 200 tests instead of the current 100 tests. (I think this just involves changing a constant.)
+2. Add the new test cases by numbering them 101, ... So we can easily distinguish them from the ones copied from JastAdd3.
+
+How to actually add a test case, e.g., 101:
+a. Add files Test101.* as for the other tests.
+b. Run the regression test suite. You should get output saying that the new test passes.
+c. Update the shouldpass file.
+d. Run the regression test suite again. You should get no output.
+--------------------------------------------------------
+UPLOAD A NEW VERSION at JastAdd.org
+  1. Make sure the ChangeLog file contains appropriate content.
+  2. Create a new jar file (unless you are sure the jar file is up to date with the source):
+      > make jar
+  3. Create a source jar file
+      > make source-jar
+  4. Login to the jastadd.org site
+     a. Update the Download page with the jar file(s), the ChangeLog, and with appropriate explanatory text.
+     b. Add a note on the home page under Latest news.
+     c. Test by downloading the jar files and do some exploratory testing.
+  5. Manually remove the jastadd2-src.jar file from the directory.
+  6. If needed: make clean and commit.
+--------------------------------------------------------
+DIRECTORIES, FILES, TOOLS
+--------
+Special tools used (jars included in the tools-dir):
+  JastAdd2: The semantics are defined using JastAdd itself.
+  JavaCC:   For parsing and AST building
+  AspectJ:  Used for inserting unparsing code into generated files.
+            Also used for compiling ordinary Java files.
+
+Special libraries used (jars included in the tools-dir):
+  Ant jars: JastAdd includes an ant task implementation, so
+            these libraries are needed to compile JastAdd.
+
+General tools used (assumed to be available on your platform):
+  JVM:      A Java Virtual Machine
+  Make:     The Make program
+--------
+File types:
+  .ast      JastAdd abstract syntax tree files
+  .jrag     JastAdd semantics files. Usually declarative.
+  .jadd     JastAdd semantics files. Usually imperative.
+  .java     Either Java files or AspectJ files.
+  .jjt      JavaCC files, using the JJTree AST-building commands.
+--------  
+Directories and files:
+  README      This file.
+  ast         The AST structure and the specifications for .ast files.
+    AST           Generated Java files (not present on checkout)
+    Ast.ast       The abstract grammar for the AST
+                     (for both .ast and .jrag info)
+    Ast.jjt       The parser for .ast files
+    *.jrag        Semantics for the .ast files
+    Unparse.java  An AspectJ aspect that extends the class SimpleNode
+                     (which is generated by JavaCC).
+    errorcheck    ??? Empty dir. Can it be removed???
+    nameanalysis  ??? Empty dir. Can it be removed???
+
+  jrag        Specifications for the .jrag files
+    AST           Java files generated by JavaCC/JJTree.
+                  ??? Contains two classes on checkout:
+                      SimpleNode.java and Token.java.
+                      Why are these committed?
+                      Have they been changed after generation?
+    *.jrag        Semantics for the .jrag files. These extend the
+                  AST classes defined in ast/Ast.ast
+    Jrag.jjt      Parser for .jrag files. Obtained by tweaking an
+                  existing Java parser from the JavaCC project.
+    Unparse.java  An AspectJ aspect that extends the JavaCC generated
+                  files (in jrag/AST) with unparsing methods.
+    ClassBodyObject.java
+                  A class representing some kind of association between 
+                  a jrag/AST node and a .jrag file.
+    errorcheck    ??? Empty dir. Can it be removed???
+
+  jastadd      The jastadd main program and related top-level things.
+    JastAdd.java  The main class. Reads command line args and options.
+                  Compiles the .ast and .jrag files to Java files.
+    JastAdd.jrag  Extends the top AST node (Grammar) with methods for
+                  adding .ast and .jrag info.
+    CommandLineArguments.java
+                  A general class for reading in args and options
+                  from the cmd line.
+    JastAddCodeGen.java
+                  An AspectJ aspect that extends some top AST node classes
+                  (Grammar, ASTDecl, ...) with code generation methods.
+                  Could as well have been a .jadd file ???
+    JastAddTask.java
+                  Implements an ANT task for running jastadd, including
+                  support for various args and options.
+
+  test         Dir with regression tests.
+    ast           Dir for generated files. Empty on check out.
+    index.html    Description of the test cases.
+    testN.*       Files for the N'th test case.
+    shouldpass    List of currently passing tests.
+
+  RunTests.java
+               Program for running all the tests.
+               Uses JastAdd.java directly (not the JastAdd.jar file)
+  tools        Dir with special-purpose tools used when building.
+  org          Dir with aspectj class files, used when constructing the
+               jastadd2.jar file.
+  LICENSE      Text file with the jastadd LICENSE.
+  Makefile     For building JastAdd
+  manifest     Manifest file for building the jastadd2.jar file
+  newrelease   A script for patching two files with a new version
+               number: jastadd/JastAdd.java and manifest
+  ChangeLog    A textfile recording changes done to JastAdd, intended for
+               users of JastAdd (focusing on external behavior).
+  ChangeLogUntil2010.txt
+               A textfile containing cvs log messages until 2010 when the
+               system was moved to svn.
+--------------------------------------------------------
+UNDERSTANDING THE IMPLEMENTATION
+--------
+Overall behavior:
+Overall behavior when running JastAdd
+First, options are read and global flags are set.
+Then, an incomplete AST is built by parsing the .ast file.
+Then, the .jrag files are parsed, and their information is weaved into the AST.
+Now, the AST is complete, and attributes can be accessed.
+Then, possible errors are printed.
+Then, target AST classes are generated.
+--------
+Versions:
+To keep track of JastAdd versions, the version number (based on the current date) is patched into both the source file JastAdd.java, and the manifest file. The script doing this, newrelease, is called when building.
+--------
+Parsing:
+JavaCC and its tree-building extension, JJTree, are used for parsing. They assume top classes called Node and SimpleNode. Normally, JJTree generates its own AST node subclasses, but we "fool" it to use the AST classes generated by JastAdd instead (by generating them before we run JavaCC/JJTree).
+
+However, we let JJTree generate the AST classes for the Java code used inside equations in .jrag files. This is because these expressions are not analyzed by JastAdd. They are just unparsed at appropriate places in the generated Java code.
+--------------------------------------------------------
+UNDERSTANDING TESTING
+The test cases are copied and adapted from the JastAdd3 version developed at Oxford. The adaptation involved reorganizing each test case as a set of .ast and .jrag files instead of a .java file. (In JastAdd3, the .ast and .jrag info can be written in a .java file.)
+
+An index.html file in the test dir contains info about the test cases. Some are only relevant for JastAdd3, and therefore not included. Some fail and some pass.
+--------------------------------------------------------
