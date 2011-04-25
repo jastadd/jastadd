@@ -7,8 +7,8 @@ import java.util.*;
 
 public class RunTests {
 
-	protected final static int MAX_TESTS = 100;
-	protected static boolean verbose = true;
+	protected final static int MAX_TESTS = 200;
+	protected static boolean verbose = true; //TODO When verbose is true, all tests will be reported as failed. This should be fixed.
 
 	public static void main(String[] args) {
 		if(args.length == 1)
@@ -46,19 +46,21 @@ public class RunTests {
 				System.setOut(ps);
 			
 			// run JastAdd to build .java files for test case
-			// TODO: There should be a success check after this call
-			new jastadd.JastAdd().compile(buildArgs(testName));
-			
-			
+			// DONE: There should be a success check after this call
+			if (!generateJavaFiles(testName)) {
+				System.out.println("Error: Failed to generate java files from JastAdd specification");
+			}
+			else
 			// Compile generated .java files using javac
 			if (!compileGeneratedFiles(testName)) {
 				System.out.println("Error: Failed to compile generated .java files");
-				System.exit(3);
+				//System.exit(3);
 			}
-			
+			else {
 			// load test class in a separate class loader and invoke main method
-			String className = testName.replace('/', '.');	
-			loadAndInvoke(className);
+				String className = testName.replace('/', '.');	
+				loadAndInvoke(className);
+			}
 			
 			// restore output stream
 			if(verbose)
@@ -80,6 +82,15 @@ public class RunTests {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	protected static String flattenStringArray(String[] args) {
+		StringBuffer sb=new StringBuffer();
+		for (int i=0; i<args.length; i++) {
+		  if (i > 0) sb.append(" ");
+		  sb.append(args[i]);
+		}
+		return sb.toString();
 	}
 
 	protected static String[] buildArgs(String testName) {
@@ -180,6 +191,34 @@ public class RunTests {
 		}
 		return true;
 	}
+	
+	/**
+	 * Runs JastAdd to generate Java files for a testcase.
+	 * @param   testName name of the test case.
+	 * @return           false if there were errors in the JastAdd specification (or if JastAdd crashes).
+	 */
+	protected static boolean generateJavaFiles(String testName) {
+		// Previously: new jastadd.JastAdd().compile(buildArgs(testName));
+		// Now calls jastadd2.jar via an exec command instead.
+		// This allows testcases to be easily run on other versions of jastadd2.jar
+		try {
+			Runtime runtime = Runtime.getRuntime();
+			String cmd = "java -jar jastadd2.jar " + flattenStringArray(buildArgs(testName));
+			if (verbose) System.out.println("Generate files: " + cmd);
+			Process process = runtime.exec(cmd);
+			int i = process.waitFor();
+			String s = null;
+			BufferedReader input = new
+			BufferedReader(new InputStreamReader(process.getInputStream()));
+			while ((s = input.readLine()) != null) {
+				System.out.println(s);
+			}
+			return i == 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 	
 	protected static boolean compileGeneratedFiles(String testName) {
@@ -209,7 +248,9 @@ public class RunTests {
 
 			
 			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("javac -cp " + System.getProperty("user.dir") + " " + testName + ".java" + buf.toString());
+			String cmd = "javac -cp " + System.getProperty("user.dir") + " " + testName + ".java" + buf.toString();
+			if (verbose) System.out.println("Compile files: " + cmd);
+			Process process = runtime.exec(cmd);
 			int i = process.waitFor();
 			String s = null;
 			if (i == 0){

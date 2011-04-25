@@ -42,7 +42,7 @@ RUN REGRESSION TEST SUITE
 
 3. Run as a regression test. You will get no output if all tests do pass that should pass.
 
-> diff test/shouldpass <(java RunTests 2>/dev/null | grep "test/Test..\.java passed" )
+> diff test/shouldpass <(java RunTests 2>&1 | grep "test/Test[0-9]*\.java passed" )
 
 Explanation:
 The testcases are documented in test/index.html . Some should fail.
@@ -51,32 +51,40 @@ Error messages from non-passing tests generate output on standard error, but thi
 
 4. To update the shouldpass file (to reflect what tests currently pass):
 
-> java RunTests | grep "test/Test..\.java passed" > test/shouldpass
+> java RunTests 2>&1 | grep "test/Test[0-9]*\.java passed" > test/shouldpass
+
+5. Run an individual test case, e.g. 42:
+> java RunTests test/Test42
+
+6. Run a test case with verbose output:
+> java RunTests test/Test42 true
+(Note that when you run with verbose output, the test will reported as failed, even if it actually passes.
+This is because of a current bug in RunTests.)
+
+7. Sort and print the contents of the .info files for all the test cases:
+> awk 'BEGIN {OFS=": "} {print FILENAME,$0}' *.info | sort -n -k 1.5,1.9
 --------------------------------------------------------
 TYPICAL BUGFIX PROCESS
-  1. Create a test that exposes the problem.
+  1. Add a test case that exposes the problem.
   2. Change jastadd to fix the bug.
   3. > make jar
-  4. Test the new jar on the problem
-  5. Run the regression test suite
-  6. Probably add a new test into the regression test suite.
-  7. Run the regression test suite
+  4. Run the individual test case to verify that the test passes.
+  5. Run the regression test suite. An additional test now passes.
+  6. Update the shouldpass file, to reflect what tests currently pass.
+  7. Run the regression test suite. Exactly the tests in shouldpass should pass.
   8. Update the ChangeLog file
   9. > make clean
  10. Commit
 --------------------------------------------------------
 ADD A TEST CASE
+  1. The new test case should get the next free number, e.g., 142.
+  2. Check that this is a free number both for JastAdd2 and JastAdd3 so we use the same number for the same test.
+  3. Add files Test142.* as for the other tests.
+  4. Run the individual test case to verify that it fails.
+  5. Go on fixing the bug, as above.
 
-Niklas is currently refactoring the test suite, to merge the JastAdd2 and JastAdd3 suites. If we need to add new test cases to JastAdd2 before this refactoring is complete, I (Görel) suggest the following:
-
-1. Generalize RunTests.java to handle 200 tests instead of the current 100 tests. (I think this just involves changing a constant.)
-2. Add the new test cases by numbering them 101, ... So we can easily distinguish them from the ones copied from JastAdd3.
-
-How to actually add a test case, e.g., 101:
-a. Add files Test101.* as for the other tests.
-b. Run the regression test suite. You should get output saying that the new test passes.
-c. Update the shouldpass file.
-d. Run the regression test suite again. You should get no output.
+Possibly, the test suites for JastAdd2 and JastAdd3 could be merged at some point. Niklas is looking into this.
+For the time being, we keep them as separate suites, but with the same numbers for the same tests.
 --------------------------------------------------------
 UPLOAD A NEW VERSION at JastAdd.org
   1. Make sure the ChangeLog file contains appropriate content.
@@ -163,7 +171,13 @@ Directories and files:
   test         Dir with regression tests.
     ast           Dir for generated files. Empty on check out.
     index.html    Description of the test cases.
-    testN.*       Files for the N'th test case.
+    testN.*       Files for the N'th test case:
+      testN.java    Main program for the test case.
+      testN.ast     Abstract syntax for the test case.
+      testN.jrag    Attributes for the test case.
+      testN.options Options for running the test case, if other than the default ones.
+      testN.result  Expected result output from running the test.
+      testN.info    Description of the test case
     shouldpass    List of currently passing tests.
 
   RunTests.java
@@ -185,8 +199,7 @@ Directories and files:
 --------------------------------------------------------
 UNDERSTANDING THE IMPLEMENTATION
 --------
-Overall behavior:
-Overall behavior when running JastAdd
+Overall behavior when running JastAdd:
 First, options are read and global flags are set.
 Then, an incomplete AST is built by parsing the .ast file.
 Then, the .jrag files are parsed, and their information is weaved into the AST.
@@ -203,7 +216,12 @@ JavaCC and its tree-building extension, JJTree, are used for parsing. They assum
 However, we let JJTree generate the AST classes for the Java code used inside equations in .jrag files. This is because these expressions are not analyzed by JastAdd. They are just unparsed at appropriate places in the generated Java code.
 --------------------------------------------------------
 UNDERSTANDING TESTING
-The test cases are copied and adapted from the JastAdd3 version developed at Oxford. The adaptation involved reorganizing each test case as a set of .ast and .jrag files instead of a .java file. (In JastAdd3, the .ast and .jrag info can be written in a .java file.)
+The test cases are copied and adapted from the JastAdd3 version developed at Oxford.
+The adaptation involved reorganizing each test case as a set of .ast and .jrag files
+instead of a .java file. (In JastAdd3, the .ast and .jrag info can be written in a .java file.)
+Also, the options have been adapted since they are different in JastAdd2 and JastAdd3.
+Test cases that are irrelevant for JastAdd2, e.g., using full aspects with local ast specs, have been removed.
+The Oxford suite included test/Test1 - test/Test81. New tests are added starting at test/Test101.
 
-An index.html file in the test dir contains info about the test cases. Some are only relevant for JastAdd3, and therefore not included. Some fail and some pass.
+An index.html file in the test dir contains info about the test cases, in particular some info about why certain tests fail.
 --------------------------------------------------------

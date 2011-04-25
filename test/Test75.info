@@ -1,0 +1,5 @@
+Attr: By default, a "lazy" attribute will not be cached until its parent is "final" (finally rewritten).
+Attr: An attribute can be declared "final", meaning that it will be cached immediately, regardless of its parent's final status.
+NTA: An /X/-declared nta that is declared "lazy" but not "final" will not be cached until its parent is "final" (finally rewritten).
+NTA: An /X/-declared nta that is declared "lazy" and "final" will be cached immediately, regardless of its parent's final status.
+NTA: An "nta"-declared nta behaves as a lazy and final /X/ nta, i.e. it is cached immediately, regardless of its parent's final status.
