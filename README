@@ -19,10 +19,10 @@ Build is done by a makefile:
 - Create a new jar file (jastadd2.jar)
   > make jar
 
-- Create a new source jar file (jastadd2-src.jar)
-  > make source-jar
+- Create a new source zip file (jastadd2-src.zip)
+  > make source-zip
 
-- Make a new release (both a jar and a source jar file):
+- Make a new release (both a jar and a source zip file):
   > make release
 
 - Clean away generated files
@@ -72,7 +72,7 @@ TYPICAL BUGFIX PROCESS
   5. Run the regression test suite. An additional test now passes.
   6. Update the shouldpass file, to reflect what tests currently pass.
   7. Run the regression test suite. Exactly the tests in shouldpass should pass.
-  8. Update the ChangeLog file
+  8. Update the ChangeLog file, and the reference-manual if needed.
   9. > make clean
  10. Commit
 --------------------------------------------------------
@@ -86,18 +86,22 @@ ADD A TEST CASE
 Possibly, the test suites for JastAdd2 and JastAdd3 could be merged at some point. Niklas is looking into this.
 For the time being, we keep them as separate suites, but with the same numbers for the same tests.
 --------------------------------------------------------
-UPLOAD A NEW VERSION at JastAdd.org
-  1. Make sure the ChangeLog file contains appropriate content.
-  2. Create a new jar file (unless you are sure the jar file is up to date with the source):
+MAKE A NEW RELEASE at JastAdd.org
+  1. Make sure the ChangeLog, reference manual, and the release-notes.html contains appropriate content.
+  2. Create a new jar file:
       > make jar
-  3. Create a source jar file
-      > make source-jar
-  4. Login to the jastadd.org site
-     a. Update the Download page with the jar file(s), the ChangeLog, and with appropriate explanatory text.
-     b. Add a note on the home page under Latest news.
-     c. Test by downloading the jar files and do some exploratory testing.
-  5. Manually remove the jastadd2-src.jar file from the directory.
-  6. If needed: make clean and commit.
+  3. Run all test cases.
+  4. Make clean and commit.
+  5. Run the release script which will show you commands for doing the release.
+     > ./release
+     This will involve:
+     - Creating a new tagged version R20110506 (or other appropriate date)
+     - Creating a zip file jastadd2-src.zip for the source distribution
+     - Creating a zip file jastadd2-bin.zip for the binary distribution.
+     - Upload the zip files and appropriate documentation to jastadd.org
+     - Cleaning up
+  6. Browse to jastadd.org/releases/jastadd2/R20110506 and check the content.
+  7. Update the web pages to reflect the new release on the download and news pages. 
 --------------------------------------------------------
 DIRECTORIES, FILES, TOOLS
 --------
@@ -124,6 +128,11 @@ File types:
 --------  
 Directories and files:
   README      This file.
+  doc         Documentation html files.
+    reference-manual.html   The reference manual
+    release-notes.html      The release nodes
+    index.html              For download from the web
+    *.php                   Helper files for browsing uploaded files on the web
   ast         The AST structure and the specifications for .ast files.
     AST           Generated Java files (not present on checkout)
     Ast.ast       The abstract grammar for the AST

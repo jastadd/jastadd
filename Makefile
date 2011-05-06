@@ -28,18 +28,33 @@ jrag/AST/Jrag.jj : jrag/Jrag.jjt
 jar : all
 	jar -cmf manifest jastadd2.jar LICENSE ast/*.class ast/AST/*.class jastadd/*.class jrag/*.class jrag/AST/*.class org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class
 
-source-jar: all
-	jar -cmf manifest jastadd2-src.jar LICENSE manifest ast/*.ast ast/*.jjt ast/*.jrag ast/*.java jrag/*.jrag jrag/*.java jrag/*.jjt jrag/AST/SimpleNode.java jastadd/*.java jastadd/*.jrag Makefile newrelease org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class tools/*.jar jrag/AST/Token.java
+#source-jar: all
+#	jar -cmf manifest jastadd2-src.jar LICENSE manifest ast/*.ast ast/*.jjt ast/*.jrag ast/*.java jrag/*.jrag jrag/*.java jrag/*.jjt jrag/AST/SimpleNode.java jastadd/*.java jastadd/*.jrag Makefile newrelease org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class tools/*.jar jrag/AST/Token.java doc/reference-manual.html doc/release-notes.html
+#	mkdir jastadd2-src
+#	cd jastadd2-src && jar -xf ../jastadd2-src.jar && cd ..
+#	jar -cmf manifest jastadd2-src.jar jastadd2-src
+#	rm -rf jastadd2-src
+
+source-zip: all
+	jar -cmf manifest jastadd2-src-temp.jar LICENSE manifest ast/*.ast ast/*.jjt ast/*.jrag ast/*.java jrag/*.jrag jrag/*.java jrag/*.jjt jrag/AST/SimpleNode.java jastadd/*.java jastadd/*.jrag Makefile newrelease org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class tools/*.jar jrag/AST/Token.java doc/reference-manual.html doc/release-notes.html
 	mkdir jastadd2-src
-	cd jastadd2-src && jar -xf ../jastadd2-src.jar && cd ..
-	jar -cmf manifest jastadd2-src.jar jastadd2-src
+	cd jastadd2-src && jar -xf ../jastadd2-src-temp.jar && cd ..
+	rm jastadd2-src-temp.jar
+	zip -r jastadd2-src jastadd2-src
 	rm -rf jastadd2-src
+
+bin-zip: jar
+	mkdir jastadd2-bin
+	cp -p jastadd2.jar jastadd2-bin
+	cp -p doc/reference-manual.html doc/release-notes.html jastadd2-bin
+	zip -r jastadd2-bin jastadd2-bin
+	rm -rf jastadd2-bin
 
 bootstrap : jar
 	cp -f jastadd2.jar tools/
 
-release: jar source-jar
-	@echo "new release compiled into jastadd2.jar and jastadd2-src.jar"
+release: jar source-zip
+	@echo "new release compiled into jastadd2.jar and jastadd2-src.zip"
 
 clean :
 	/bin/rm -f jastadd/*.class ast/AST/* jrag/*.class jrag/AST/*.class jrag/AST/AST* jrag/AST/Jrag.jj jrag/AST/JragParser* jrag/AST/JJT* jrag/AST/Node.* jrag/AST/JavaCharStream* jrag/AST/ParseException*
