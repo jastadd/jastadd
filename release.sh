@@ -30,3 +30,12 @@ echo scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php log
 # Cleaning up
 echo rm -f jastadd2-bin.zip jastadd2-src.zip
 #rm -f jastadd2-bin.zip jastadd2-src.zip
+
+# Check that it works
+echo ------------------------------------------------------
+echo Browse to the website and check that everything works.
+echo Then make clean and commit.
+echo ------------------------------------------------------
+
+# Tag in SVN
+echo "svn copy http://svn.cs.lth.se/svn/jastadd/trunk/JastAdd2 http://svn.cs.lth.se/svn/jastadd/tags/JastAdd2/${VERSION} -m \"Release ${VERSION} of JastAdd2\" "
