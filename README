@@ -87,20 +87,24 @@ Possibly, the test suites for JastAdd2 and JastAdd3 could be merged at some poin
 For the time being, we keep them as separate suites, but with the same numbers for the same tests.
 --------------------------------------------------------
 MAKE A NEW RELEASE at JastAdd.org
-  1. Make sure the ChangeLog, reference manual, and the release-notes.html contains appropriate content.
+  1  Make sure the following files have appropriate content:
+     - ChangeLog
+     - doc/reference-manual.html
+     - doc/release-notes.html
   2. Create a new jar file:
       > make jar
   3. Run all test cases.
-  4. Make clean and commit.
-  5. Run the release script which will show you commands for doing the release.
-     > ./release
+  4. Run the release script which will show you commands for doing the release.
+     > ./release.sh
      This will involve:
      - Creating a new tagged version R20110506 (or other appropriate date)
+     - Patching html files with version R20110506
      - Creating a zip file jastadd2-src.zip for the source distribution
      - Creating a zip file jastadd2-bin.zip for the binary distribution.
      - Upload the zip files and appropriate documentation to jastadd.org
      - Cleaning up
-  6. Browse to jastadd.org/releases/jastadd2/R20110506 and check the content.
+  5. Browse to jastadd.org/releases/jastadd2/R20110506 and check the content.
+  6. Make clean and commit
   7. Update the web pages to reflect the new release on the download and news pages. 
 --------------------------------------------------------
 DIRECTORIES, FILES, TOOLS
@@ -200,6 +204,7 @@ Directories and files:
   manifest     Manifest file for building the jastadd2.jar file
   newrelease   A script for patching two files with a new version
                number: jastadd/JastAdd.java and manifest
+  release.sh   A script printing the commands for doing a release.
   ChangeLog    A textfile recording changes done to JastAdd, intended for
                users of JastAdd (focusing on external behavior).
   ChangeLogUntil2010.txt
