@@ -1,6 +1,13 @@
 --------------------------------------------------------
 Newest log first
 --------------------------------------------------------
+2011-05-09: (JO) ASTNode Java error fixed
+Changed type of node parameter in setChild and insertChild to ASTNode.
+This change fixes Java errors that previously were undetected by javac,
+but with the latest JDK7 versions from Oracle these errors are reported.
+The error was access of childIndex in a context where that field is not
+visible.
+--------------------------------------------------------
 2011-05-06: (GH) Added reference-manual, release-notes, and release script.
 --------------------------------------------------------
 2011-04-25: (GH) Revised tests

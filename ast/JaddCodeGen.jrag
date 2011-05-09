@@ -576,10 +576,7 @@ aspect JaddCodeGen {
         if(ASTNode.block) stream.print(ASTNode.blockEnd);
         stream.println("  }");
 
-        if(ASTNode.java5)
-          stream.println("  public void ASTNode.setChild(T node, int i) {");
-        else
-          stream.println("  public void ASTNode.setChild(ASTNode node, int i) {");
+        stream.println("  public void ASTNode.setChild(ASTNode node, int i) {");
         if(ASTNode.block) stream.print(ASTNode.blockBegin);
         if(debugMode)
           stream.println("        debugNodeAttachment(node);");
@@ -596,10 +593,7 @@ aspect JaddCodeGen {
         if(ASTNode.block) stream.print(ASTNode.blockEnd);
         stream.println("  }");
 
-        if(ASTNode.java5)
-          stream.println("  public void ASTNode.insertChild(T node, int i) {");
-        else
-          stream.println("  public void ASTNode.insertChild(ASTNode node, int i) {");
+        stream.println("  public void ASTNode.insertChild(ASTNode node, int i) {");
         if(ASTNode.block) stream.print(ASTNode.blockBegin);
         if(debugMode)
           stream.println("        debugNodeAttachment(node);");
@@ -1054,10 +1048,7 @@ aspect JaddCodeGen {
       stream.println("          return this;");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
       stream.println("     }\n");
-      if(ASTNode.java5)
-        stream.println("     public void List.insertChild(T node, int i) {");
-      else
-        stream.println("     public void List.insertChild(ASTNode node, int i) {");
+      stream.println("     public void List.insertChild(ASTNode node, int i) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
       stream.println("          list$touched = true;");
       stream.println("          super.insertChild(node, i);");
