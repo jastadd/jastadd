@@ -31,6 +31,16 @@ Build is done by a makefile:
 - Bootstrap jastadd (replace the jastadd used to build jastadd)
    (For stability, bootstrap is done seldom and only with extra testing.)
   > make bootstrap
+
+WINDOWS / CYGWIN
+
+In Cygwin, since you are running the Windows version of Java and it can not
+understand the classpath arguments given in the AspectJ invocation,
+you need to modify the second line of the Makefile so that it looks
+something like this:
+
+ASPECTJ=java -classpath "$(shell cygpath -wp tools/aspectj-1.5.3/aspectjlib.jar:tools/aspectj-1.5.3/aspectjrt.jar:tools/aspectj-1.5.3/aspectjtools.jar:tools/aspectj-1.5.3/aspectjweaver.jar:$(ANTPATH))" org.aspectj.tools.ajc.Main -source 1.4
+
 --------------------------------------------------------
 RUN REGRESSION TEST SUITE
 
