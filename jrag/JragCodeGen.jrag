@@ -9,7 +9,35 @@ import jrag.AST.ASTBlock;
 
 import jastadd.JastAdd;
 
+aspect AttributeKind {
+        syn String AttrDecl.attributeKind();
+        eq SynDecl.attributeKind() = isNTA() ? "syn nta" : "syn";
+        eq InhDecl.attributeKind() = "inh";
+        eq CollDecl.attributeKind() = "coll";
+}
+
 aspect JragCodeGen {
+
+    public static String ASTNode.ind = "  ";
+    public static Map ASTNode.indMap = new HashMap();
+
+    /**
+     * Builds an indentation string equal to count levels of
+     * indentation.
+     */
+    public static final String ASTNode.ind(int count) {
+        Integer key = new Integer(count);
+        if (indMap.containsKey(key))
+            return (String) indMap.get(key);
+        else {
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < count; ++i)
+                sb.append(ind);
+            String indentation = sb.toString();
+            indMap.put(key, indentation);
+            return indentation;
+        }
+    }
 
   public static boolean ASTNode.jjtree;
   public static boolean ASTNode.beaver;
@@ -48,11 +76,11 @@ aspect JragCodeGen {
   public static boolean ASTNode.debugMode = false;
 
   public static boolean ASTNode.block = false;
-  public static String ASTNode.blockBegin = "        synchronized(ASTNode.class) {\n";
-  public static String ASTNode.blockEnd =   "        }\n";
+  public static String ASTNode.blockBegin = "synchronized(ASTNode.class) {\n";
+  public static String ASTNode.blockEnd =   "}\n";
 
   public static boolean ASTNode.noStatic = false;
-  
+
   public static String ASTNode.createDefaultMap = "new java.util.HashMap(4)";
   public static String ASTNode.createDefaultSet = "new java.util.HashSet(4)";
   public static String ASTNode.typeDefaultMap = "java.util.Map";
@@ -73,7 +101,7 @@ aspect JragCodeGen {
 
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine Ast public boolean AttrDecl.getLazy() {
-    if (cacheAll) 
+    if (cacheAll)
       return true;
     if (cacheNone)
       return declaredNTA();
@@ -81,7 +109,7 @@ aspect JragCodeGen {
 //    return (Ast.AttrDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean SynDecl.getLazy() {
-    if (cacheAll) 
+    if (cacheAll)
       return true;
     if (cacheNone)
       return declaredNTA();
@@ -89,7 +117,7 @@ aspect JragCodeGen {
 //    return (Ast.SynDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean InhDecl.getLazy() {
-    if (cacheAll) 
+    if (cacheAll)
       return true;
     if (cacheNone)
       return declaredNTA();
@@ -97,7 +125,7 @@ aspect JragCodeGen {
 //    return (Ast.InhDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean CollDecl.getLazy() {
-    if (cacheAll) 
+    if (cacheAll)
       return true;
     if (cacheNone)
       return false;
@@ -108,7 +136,7 @@ aspect JragCodeGen {
 
   public void Grammar.genAGCode(PrintStream s, String aspectName) {
     aspectJ = true;
-    
+
     s.print(genImportsList());
     s.print("aspect " + aspectName + " {\n");
     for(int i = 0; i < getNumTypeDecl(); i++) {
@@ -119,7 +147,7 @@ aspect JragCodeGen {
 
   public void TypeDecl.genAGCode(PrintStream s) {
   }
-  
+
   public void ASTDecl.genAGCode(PrintStream s) {
     s.print(genImplementsList());
     s.print(genMembers());
@@ -130,13 +158,13 @@ aspect JragCodeGen {
   }
 
   public String Grammar.genImportsList() {
-    LinkedHashSet set = new LinkedHashSet();
+    Set set = new LinkedHashSet();
     for(Iterator iter = getCompUnits(); iter.hasNext(); ) {
         jrag.AST.ASTCompilationUnit u = (jrag.AST.ASTCompilationUnit)iter.next();
         String[] imports = u.getImports().split(";");
         for(int i = 0; i < imports.length; i++)
           if(imports[i] != null && !imports[i].equals(""))
-            set.add(imports[i] + ";");
+            set.add(imports[i] + ";\n");
     }
     StringBuffer buf = new StringBuffer();
     for(Iterator iter = set.iterator(); iter.hasNext(); )
@@ -154,7 +182,7 @@ aspect JragCodeGen {
         while(iter.hasNext()) {
           buf.append(", Defines_" + (String)iter.next());
         }
-        buf.append(";\n\n");
+        buf.append(";\n");
       }
       return buf.toString();
     }
@@ -167,7 +195,7 @@ aspect JragCodeGen {
     for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
       ClassBodyObject o = (ClassBodyObject)iter.next();
       jrag.AST.SimpleNode n = o.node;
-      buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
+      //buf.append(ind + "// Declared in " + o.fileName + " at line " + o.line + "\n");
       if(n instanceof jrag.AST.ASTAspectMethodDeclaration) {
         try {
         jrag.AST.ASTAspectMethodDeclaration decl = (jrag.AST.ASTAspectMethodDeclaration)n;
@@ -187,44 +215,83 @@ aspect JragCodeGen {
               }
       }
       else if(n instanceof jrag.AST.ASTBlock) {
-    	  // do not emit refined implementations
+        // do not emit refined implementations
       }
       else {
         if(!o.comments.equals(""))
           buf.append(o.comments + " ");
         n.unparseClassBodyDeclaration(buf, name(), aspectJ);
       }
-      buf.append("\n\n");
+      buf.append("\n");
     }
     return buf.toString();
   }
 
   public String TypeDecl.genMembers() { return ""; }
 
+  public String ASTDecl.javadocComment(ClassBodyObject obj) {
+    String comment = obj.comments;
+    if (comment == null)
+      return ind + augmentComment(obj,
+                            "/**\n" +
+                            ind + " */");
+    comment.trim();
+    if (comment.length() < 5)
+      return ind + augmentComment(obj,
+                            "/**\n" +
+                            ind + " */");
+
+    int end = comment.lastIndexOf("*/");
+    int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
+
+    if (start != -1)
+      return ind +
+        augmentComment(obj, comment.substring(start, end+2));
+    else {
+      return ind + augmentComment(obj,
+                       "/**\n" +
+                       ind + " */");
+    }
+  }
+
+  public String ASTDecl.augmentComment(ClassBodyObject obj, String comment) {
+    StringBuffer sb = new StringBuffer();
+    sb.append(comment.substring(0, comment.length()-2));
+    sb.append("* @ast method \n");
+    if (obj.aspectName() != null && obj.aspectName().length() > 0)
+      sb.append(ind + " * @aspect " + obj.aspectName() + "\n");
+    sb.append(ind + " * @declaredat " + obj.getFileName() + ":" + obj.getStartLine() + "\n");
+    sb.append(ind + " */\n");
+    return sb.toString();
+  }
+
   public String ASTDecl.genMembers() {
     StringBuffer buf = new StringBuffer();
     for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
-      ClassBodyObject o = (ClassBodyObject)iter.next();
-      jrag.AST.SimpleNode n = o.node;
-      buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
-      if(!o.comments.equals(""))
-        buf.append(o.comments + " ");
-      n.unparseClassBodyDeclaration(buf, name(), aspectJ);
-      buf.append("\n\n");
+      ClassBodyObject obj = (ClassBodyObject)iter.next();
+      jrag.AST.SimpleNode node = obj.node;
+      //buf.append(ind + "// Declared in " + obj.fileName + " at line " + obj.line + "\n");
+      //if (!obj.comments.equals(""))
+        //buf.append(obj.comments + " ");
+      buf.append(javadocComment(obj));
+      buf.append(ind);
+      node.unparseClassBodyDeclaration(buf, name(), aspectJ);
+      buf.append("\n");
     }
     return buf.toString();
   }
 
   public static String ASTNode.suppressWarnings() {
-    return (suppressWarnings || java5) ? " @SuppressWarnings({\"unchecked\", \"cast\"}) " : "";
+    return (suppressWarnings || java5) ?
+      ind + "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
   }
-  
+
   public String TypeDecl.genAbstractSyns() {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      String s = attr.hostFileComment() + suppressWarnings() +
-      "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
+      String s = attr.hostFileComment(ind) + suppressWarnings() +
+      ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
       if(!aspectJ)
@@ -237,7 +304,6 @@ aspect JragCodeGen {
     }
     return buf.toString();
   }
-  
 
   public String ASTDecl.genAbstractSyns() {
     StringBuffer buf = new StringBuffer();
@@ -251,8 +317,8 @@ aspect JragCodeGen {
       }
       if(!equ) {
         String s;
-        s = attr.hostFileComment() + suppressWarnings() + 
-        "    public abstract #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
+        s = attr.hostFileComment(ind) + suppressWarnings() +
+        ind + "public abstract #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
         s = s.replaceAll("#TYPE#", attr.getType());
         s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
         if(!aspectJ)
@@ -266,7 +332,7 @@ aspect JragCodeGen {
     }
     return buf.toString();
   }
-  
+
   public String AttrDecl.attributeSignature() {
     if(getNumParameter() == 0)
       return getName();
@@ -281,7 +347,7 @@ aspect JragCodeGen {
   public String AttrDecl.attributeName() {
     return getName();
   }
-  
+
   public String AttrEq.attributeSignature() {
     if(getNumParameter() == 0)
       return getName();
@@ -296,83 +362,115 @@ aspect JragCodeGen {
   public String AttrEq.attributeName() {
     return getName();
   }
-  
-  public String AttrDecl.hostFileComment() {
-    String comment = getComment().trim();
-    if(doxygen) {
-      String s = comment;
-      String extraString = "#LINE# \\ingroup aspect_" + getAspectName();
-      if(s.length() == 0) {
-        s = "/**\n * Attribute " + getName() + "\n" + extraString.replaceAll("#LINE#", " * ") + "\n */\n";
-      }
-      else {
-        int index = s.lastIndexOf("*/");
-        if(index == -1) {
-          s = s + "\n" + extraString.replaceAll("#LINE#", " // ") + "\n";
-        }
-        else {
-          s = s.substring(0, index) + "\n" + extraString.replaceAll("#LINE#", " * ") + "\n" + s.substring(index, s.length());
-        }
-      }
-      return s + "\n";
-    }
-    else {
-      if(comment.equals("") || comment.indexOf("/**") == -1)
-        return "    // Declared in " + getFileName() + " at line " + getStartLine() + "\n";
-      else {
-        int index = comment.indexOf("*/");
-        StringBuffer res = new StringBuffer();
-        res.append(comment.substring(0, index));
-        res.append("\n");
-        res.append("    Declared in " + getFileName() + " at line " + getStartLine() + "\n");
-        res.append(comment.substring(index, comment.length()));
-        res.append("\n");
-        return res.toString();
-      }
-    }
+
+  public String AttrDecl.hostFileComment(String ind) {
+    if(doxygen)
+      return doxygenFileComment(ind);
+    else
+      return javadocFileComment(ind);
   }
-  public String AttrEq.hostFileComment() {
+
+  public String AttrDecl.doxygenFileComment(String ind) {
     String comment = getComment().trim();
-    if(comment.equals(""))
-      comment = decl().getComment().trim();
-    if(comment.equals("") || comment.indexOf("/**") != 0)
-      return "    // Declared in " + getFileName() + " at line " + getStartLine() + "\n";
+    String extraString = " * #LINE# \\ingroup aspect_" + getAspectName();
+    if(comment.length() == 0) {
+      comment =
+        ind + "/**\n" +
+        ind + " * Attribute " + getName() + "\n" +
+        ind + extraString.replaceAll("#LINE#", " * ") + "\n" +
+        ind + " */\n";
+    }
     else {
-      int index = comment.indexOf("*/");
+      int index = comment.lastIndexOf("*/");
+      if(index == -1) {
+        comment = ind + comment + "\n" + extraString.replaceAll("#LINE#", " // ") + "\n";
+      }
+      else {
+        comment = ind + comment.substring(0, index) + "\n" + extraString.replaceAll("#LINE#", " * ") + "\n" + comment.substring(index, comment.length());
+      }
+    }
+    return comment + "\n";
+  }
+
+  public String AttrDecl.javadocFileComment(String ind) {
+    String comment = getComment().trim();
+    if (comment.length() >= 5 &&
+        comment.charAt(0) == '/' &&
+        comment.charAt(1) == '*' &&
+        comment.charAt(1) == '*') {
       StringBuffer res = new StringBuffer();
-      res.append(comment.substring(0, index));
-      res.append("\n");
-      res.append("    Declared in " + getFileName() + " at line " + getStartLine() + "\n");
-      res.append(comment.substring(index, comment.length()));
-      res.append("\n");
+      res.append(ind);
+      res.append(comment.substring(0, comment.indexOf("*/")));
+      res.append("* @attribute " + attributeKind() + "\n");
+      res.append(ind + " * @aspect " + getAspectName() + "\n");
+      res.append(ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+      res.append(ind + " */\n");
       return res.toString();
     }
+    else {
+      return ind + "/**\n" +
+             ind + " * @attribute " + attributeKind() + "\n" +
+             ind + " * @aspect " + getAspectName() + "\n" +
+             ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+             ind + " */\n";
+    }
   }
-  
+
+  public String AttrEq.hostFileComment(String ind, AttrDecl decl) {
+    String comment = getComment().trim();
+
+    if(comment.equals(""))
+      comment = decl().getComment().trim();
+
+    if (comment.length() >= 5 &&
+        comment.charAt(0) == '/' &&
+        comment.charAt(1) == '*' &&
+        comment.charAt(1) == '*') {
+      StringBuffer res = new StringBuffer();
+      res.append(ind);
+      res.append(comment.substring(0, comment.indexOf("*/")));
+      res.append("* @attribute " + decl.attributeKind() + "\n");
+      res.append(ind + " * @aspect " + getAspectName() + "\n");
+      res.append(ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+      res.append(ind + " */\n");
+      return res.toString();
+    }
+    else {
+      return ind + "/**\n" +
+             ind + " * @attribute " + decl.attributeKind() + "\n" +
+             ind + " * @aspect " + getAspectName() + "\n" +
+             ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+             ind + " */\n";
+    }
+  }
+
   public String AttrDecl.initLazyMaps() {
     StringBuffer s = new StringBuffer();
     if(ASTNode.lazyMaps) {
       if(!isCircular()) {
         if(getNumParameter() != 0 && visitCheckEnabled() && rewriteEnabled) {
-          s.append("if(#NAME#_visited == null) #NAME#_visited = " + createDefaultMap + ";\n");
+          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + createDefaultMap + ";\n");
         }
         else if(getNumParameter() != 0 && visitCheckEnabled()) {
-          s.append("if(#NAME#_visited == null) #NAME#_visited = " + createDefaultSet + ";\n");
+          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + createDefaultSet + ";\n");
         }
       }
       if(getNumParameter() != 0 && (getLazy() || isCircular())) {
-        s.append("if(#NAME#_values == null) #NAME#_values = " + createDefaultMap + ";\n");
+        s.append(ind(2) + "if(#NAME#_values == null) #NAME#_values = " + createDefaultMap + ";\n");
       }
     }
     return s.toString();
   }
 
   syn boolean AttrDecl.visitCheckEnabled() = visitCheckEnabled;
-  
+
   public String AttrDecl.visitedDeclarations() {
     if(isCircular()) {
       if(getNumParameter() == 0)
-        return "    protected int #CLASS#.#NAME#_visited = -1;\n";
+        return ind + "/**\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */\n" +
+               ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
       else {
         // the visited flag is part of the State$Value object
         return "";
@@ -381,36 +479,54 @@ aspect JragCodeGen {
     if(!visitCheckEnabled() && !isCircular()) return "";
     if(rewriteEnabled) {
       if(getNumParameter() == 0)
-        return "    protected int #CLASS#.#NAME#_visited = -1;\n";
+        return ind + "/**\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */\n" +
+               ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
       else {
         if(ASTNode.lazyMaps)
-          return "    protected " + typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
+          return ind + "/**\n" +
+                 ind + " * @apilvl internal\n" +
+                 ind + " */\n" +
+                 ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
         else
-          return "    protected " + typeDefaultMap + " #CLASS#.#NAME#_visited = " + createDefaultMap + ";\n";
+          return ind + "/**\n" +
+                 ind + " * @apilvl internal\n" +
+                 ind + " */\n" +
+                 ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_visited = " + createDefaultMap + ";\n";
       }
     }
     if(getNumParameter() == 0)
-      return "    protected boolean #CLASS#.#NAME#_visited = false;\n";
+      return ind + "/**\n" +
+             ind + " * @apilvl internal\n" +
+             ind + " */\n" +
+             ind + "protected boolean #CLASS#.#NAME#_visited = false;\n";
     else {
       if(ASTNode.lazyMaps)
-        return "    protected " + typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
+        return ind + "/**\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */\n" +
+               ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
       else
-        return "    protected " + typeDefaultSet + " #CLASS#.#NAME#_visited = " + createDefaultSet + ";\n";
+        return ind + "/**\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */\n" +
+               ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_visited = " + createDefaultSet + ";\n";
     }
   }
-  
+
   public String AttrDecl.visitedException() {
     if(!visitCheckEnabled()) return "";
     if(!traceVisitCheck)
-      return "            throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: #CLASS#.\");\n";
+      return ind(3) + "throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: #CLASS#.\");\n";
     else
-      return "            System.out.println(\"Circular definition of attr: #METHODNAME# in class: \" + getClass().getName());\n";
+      return ind(3) + "System.out.println(\"Circular definition of attr: #METHODNAME# in class: \" + getClass().getName());\n";
   }
-      
+
   public String AttrDecl.resetVisit() {
     if(isCircular()) {
       if(getNumParameter() == 0)
-        return "        #NAME#_visited = -1;\n";
+        return ind(2) + "#NAME#_visited = -1;\n";
       else {
         // visited is handled in value object
         return "";
@@ -419,98 +535,110 @@ aspect JragCodeGen {
     if(!visitCheckEnabled()) return "";
     else if(rewriteEnabled) {
       if(getNumParameter() == 0)
-        return "        #NAME#_visited = -1;\n";
+        return ind(2) + "#NAME#_visited = -1;\n";
       else {
         if(ASTNode.lazyMaps)
-          return "        #NAME#_visited = null;\n";
+          return ind(2) + "#NAME#_visited = null;\n";
         else
-          return "        #NAME#_visited = " + createDefaultMap + ";\n";
+          return ind(2) + "#NAME#_visited = " + createDefaultMap + ";\n";
       }
     }
     if(getNumParameter() == 0)
-      return "        #NAME#_visited = false;\n";
+      return ind(2) + "#NAME#_visited = false;\n";
     else {
       if(ASTNode.lazyMaps)
-        return "        #NAME#_visited = null;\n";
+        return ind(2) + "#NAME#_visited = null;\n";
       else
-        return "        #NAME#_visited = " + createDefaultSet + ";\n";
+        return ind(2) + "#NAME#_visited = " + createDefaultSet + ";\n";
     }
   }
-      
+
   public String AttrDecl.visitedCheck() {
     if(!visitCheckEnabled()) return "";
     if(rewriteEnabled) {
       if(getNumParameter() == 0)
-        return "        if(#NAME#_visited == state().boundariesCrossed)\n" + 
+        return ind(2) + "if(#NAME#_visited == state().boundariesCrossed)\n" +
                           visitedException();
       else {
         if(ASTNode.java5)
-          return "        if(Integer.valueOf(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" + 
+          return ind(2) + "if(Integer.valueOf(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" +
                           visitedException();
         else
-          return "        if(new Integer(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" + 
+          return ind(2) + "if(new Integer(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" +
                           visitedException();
       }
     }
     if(getNumParameter() == 0)
-      return "        if(#NAME#_visited)\n" + 
+      return ind(2) + "if(#NAME#_visited)\n" +
                           visitedException();
     else
-      return "        if(#NAME#_visited.contains(_parameters))\n" + 
+      return ind(2) + "if(#NAME#_visited.contains(_parameters))\n" +
                           visitedException();
   }
-  
+
   public String AttrDecl.setVisited() {
     if(!visitCheckEnabled() && !isCircular()) return "";
     if(rewriteEnabled) {
       if(getNumParameter() == 0)
-        return "        #NAME#_visited = state().boundariesCrossed;\n";
+        return ind(2) + "#NAME#_visited = state().boundariesCrossed;\n";
       else {
         if(ASTNode.java5)
-            return "        #NAME#_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));\n";
+            return ind(2) + "#NAME#_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));\n";
         else
-            return "        #NAME#_visited.put(_parameters, new Integer(state().boundariesCrossed));\n";
+            return ind(2) + "#NAME#_visited.put(_parameters, new Integer(state().boundariesCrossed));\n";
       }
     }
     if(getNumParameter() == 0)
-      return "        #NAME#_visited = true;\n";
+      return ind(2) + "#NAME#_visited = true;\n";
     else
-      return "        #NAME#_visited.add(_parameters);\n";
+      return ind(2) + "#NAME#_visited.add(_parameters);\n";
   }
-  
+
   public String AttrDecl.clearVisited() {
     if(!visitCheckEnabled() && !isCircular()) return "";
     if(rewriteEnabled) {
       if(getNumParameter() == 0)
-        return "        #NAME#_visited = -1;\n";
+        return ind(2) + "#NAME#_visited = -1;\n";
       else
-        return "        #NAME#_visited.remove(_parameters);\n";
+        return ind(2) + "#NAME#_visited.remove(_parameters);\n";
     }
     if(getNumParameter() == 0)
-      return "        #NAME#_visited = false;\n";
+      return ind(2) + "#NAME#_visited = false;\n";
     else
-      return "        #NAME#_visited.remove(_parameters);\n";
-  }  
-  
+      return ind(2) + "#NAME#_visited.remove(_parameters);\n";
+  }
+
   public String AttrDecl.cacheDeclarations() {
     if(!getLazy())
       return "";
     if(getNumParameter() == 0)
-      return "    protected boolean #CLASS#.#NAME#_computed = false;\n" + 
-             "    protected #TYPE# #CLASS#.#NAME#_value;\n";
+      return ind + "/**\n" +
+             ind + " * @apilvl internal\n" +
+             ind + " */\n" +
+             ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
+             ind + "/**\n" +
+             ind + " * @apilvl internal\n" +
+             ind + " */\n" +
+             ind + "protected #TYPE# #CLASS#.#NAME#_value;\n";
     else if(declaredNTA()) {
       if(ASTNode.lazyMaps)
-        return "    protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
-               "    protected List #CLASS#.#NAME#_list;\n";
+        return ind + "/**\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */\n" +
+               ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
+               ind + "protected List #CLASS#.#NAME#_list;\n";
       else
-        return "    protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
-               "    protected List #CLASS#.#NAME#_list;\n";
+        return ind + "/**\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */\n" +
+               ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
+               ind + "protected List #CLASS#.#NAME#_list;\n";
     }
     else {
       if(ASTNode.lazyMaps)
-        return "    protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n";
+        return ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n";
       else
-        return "    protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n";
+        return ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n";
     }
   }
   syn boolean AttrDecl.declaredNTA() = false;
@@ -523,37 +651,37 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       if(isCircular()) {
         if(isPrimitive())
-          return "        #NAME#_computed = false;\n" +
-                 "        #NAME#_initialized = false;\n";
+          return ind(2) + "#NAME#_computed = false;\n" +
+                 ind(2) + "#NAME#_initialized = false;\n";
         else
-          return "        #NAME#_computed = false;\n" +
-                 "        #NAME#_initialized = false;\n" +
-                 "        #NAME#_value = null;\n";
+          return ind(2) + "#NAME#_computed = false;\n" +
+                 ind(2) + "#NAME#_initialized = false;\n" +
+                 ind(2) + "#NAME#_value = null;\n";
       }
       if(isPrimitive())
-        return "        #NAME#_computed = false;\n";
+        return ind(2) + "#NAME#_computed = false;\n";
       else
-        return "        #NAME#_computed = false;\n" +
-               "        #NAME#_value = null;\n";
+        return ind(2) + "#NAME#_computed = false;\n" +
+               ind(2) + "#NAME#_value = null;\n";
     }
     else if(isCircular()) {
         if(ASTNode.lazyMaps)
-          return "        #NAME#_values = null;\n";
+          return ind(2) + "#NAME#_values = null;\n";
         else
-          return "        #NAME#_values = " + createDefaultMap + ";\n";
+          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
     }
     else {
       if(ASTNode.lazyMaps)
-        return "        #NAME#_values = null;\n";
+        return ind(2) + "#NAME#_values = null;\n";
       else
-        return "        #NAME#_values = " + createDefaultMap + ";\n";
+        return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
     }
   }
-  
+
   public String Parameter.toReferenceType() {
     return toReferenceType(getName(), getType());
   }
-  
+
   public String ASTNode.toReferenceType(String value, String type) {
     if(type.equals("int"))
       return java5 ? "Integer.valueOf(" + value + ")" : "new Integer(" + value + ")";
@@ -571,7 +699,7 @@ aspect JragCodeGen {
       return java5 ? "Character.valueOf(" + value + ")" : "new Character(" + value + ")";
     else return value;
   }
-  
+
   public String ASTNode.fromReferenceType(String value, String type) {
     if(type.equals("int"))
       return "((Integer)" + value + ").intValue()";
@@ -592,99 +720,99 @@ aspect JragCodeGen {
   }
 
   public boolean AttrDecl.isPrimitive() {
-	String type = getType();
-	return type.equals("int") || type.equals("short") || type.equals("long") || 
-	       type.equals("float") || type.equals("double") || type.equals("boolean") ||
-	       type.equals("char") || type.equals("byte");
+    String type = getType();
+    return type.equals("int") || type.equals("short") || type.equals("long") ||
+      type.equals("float") || type.equals("double") || type.equals("boolean") ||
+      type.equals("char") || type.equals("byte");
   }
   public boolean AttrDecl.isPrimitive(String type) {
-	  return type.equals("int") || type.equals("short") || type.equals("long") || 
-	       type.equals("float") || type.equals("double") || type.equals("boolean") ||
-	       type.equals("char") || type.equals("byte");
+    return type.equals("int") || type.equals("short") || type.equals("long") ||
+      type.equals("float") || type.equals("double") || type.equals("boolean") ||
+      type.equals("char") || type.equals("byte");
   }
-  
+
   public String AttrDecl.cacheCheck() {
     if(!getLazy() && !isCircular())
       return "";
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
       if(getNumParameter() == 0)
-        return "        if(#NAME#_computed) {\n" +
+        return ind(2) + "if(#NAME#_computed) {\n" +
                traceEndCachedAttr() +
-               "            return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
-               "        }\n";
+               ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
+               ind(2) + "}\n";
       else
-        return "        if(#NAME#_values.containsKey(_parameters)) {\n" + 
+        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               "            return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition()));\n" +
-               "        }\n";
+               ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition()));\n" +
+               ind(2) + "}\n";
     }
     if(getNumParameter() == 0)
-      return "        if(#NAME#_computed) {\n" + 
+      return ind(2) + "if(#NAME#_computed) {\n" +
              traceEndCachedAttr() +
-             "            return #NAME#_value;\n" +
-             "        }\n";
+             ind(3) + "return #NAME#_value;\n" +
+             ind(2) + "}\n";
     else {
       if(isCircular())
-        return "        if(#NAME#_values.containsKey(_parameters)) {\n" + 
-               "            Object _o = #NAME#_values.get(_parameters);\n" +
-               "            if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
+        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+               ind(3) + "Object _o = #NAME#_values.get(_parameters);\n" +
+               ind(3) + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
                traceEndCachedAttr() +
-               "                return " + fromReferenceType("_o", getType()) + ";\n" +
-               "            }\n" +
-               "            else\n" +
-               "                _value = (ASTNode$State.CircularValue)_o;\n" +
-               "        }\n";
+               ind(4) + "return " + fromReferenceType("_o", getType()) + ";\n" +
+               ind(3) + "}\n" +
+               ind(3) + "else\n" +
+               ind(4) + "_value = (ASTNode$State.CircularValue)_o;\n" +
+               ind(2) + "}\n";
       else
-        return "        if(#NAME#_values.containsKey(_parameters)) {\n" + 
+        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               "            return " + fromReferenceType("#NAME#_values.get(_parameters)", getType()) + ";\n" +
-               "        }\n";
+               ind(3) + "return " + fromReferenceType("#NAME#_values.get(_parameters)", getType()) + ";\n" +
+               ind(2) + "}\n";
     }
   }
-  
+
   public String AttrDecl.parameterStructure() {
     if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !visitCheckEnabled()))
       return "";
     else if(getNumParameter() == 1)
-      return "        Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
+      return ind(2) + "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
     else {
       StringBuffer s = new StringBuffer();
       if(j2me)
-        s.append("        java.util.Vector _parameters = new java.util.Vector(" + getNumParameter() + ");\n");
+        s.append(ind(2) + "java.util.Vector _parameters = new java.util.Vector(" + getNumParameter() + ");\n");
       else
-        s.append("        java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
+        s.append(ind(2) + "java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
       for(int i = 0; i < getNumParameter(); i++) {
         if(j2me)
-          s.append("        _parameters.addElement(" + getParameter(i).toReferenceType() + ");\n");
+          s.append(ind(2) + "_parameters.addElement(" + getParameter(i).toReferenceType() + ");\n");
         else
-          s.append("        _parameters.add(" + getParameter(i).toReferenceType() + ");\n");
+          s.append(ind(2) + "_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
       }
       return s.toString();
     }
   }
-  
-  public String AttrDecl.cacheInit() {
+
+  public String AttrDecl.cacheInit(String ind) {
     if(!getLazy())
       return "";
-    return cacheInitRewrite();
+    return cacheInitRewrite(ind);
   }
-  
-  public String AttrDecl.cacheInitRewrite() {
+
+  public String AttrDecl.cacheInitRewrite(String ind) {
     if(!ASTNode.rewriteEnabled) {
       return "";
     }
     else {
-      return "        int num = state.boundariesCrossed;\n" + 
-             "        boolean isFinal = this.is$Final();\n";
+      return ind + "int num = state.boundariesCrossed;\n" +
+             ind + "boolean isFinal = this.is$Final();\n";
     }
   }
-  
+
   public String AttrDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0)
-      return "        #NAME#_value = #METHODNAME#_compute(#PARM#);\n";
-    else 
-      return "        #TYPE# #NAME#_value = #METHODNAME#_compute(#PARM#);\n";
+      return ind(2) + "#NAME#_value = #METHODNAME#_compute(#PARM#);\n";
+    else
+      return ind(2) + "#TYPE# #NAME#_value = #METHODNAME#_compute(#PARM#);\n";
   }
 
   // TODO: INH
@@ -693,75 +821,87 @@ aspect JragCodeGen {
       return super.callCompute();
     else {
       if(getLazy() && getNumParameter() == 0)
-        return inhDebugString() + 
-               "        #NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
-      else 
-        return inhDebugString() + 
-               "        #TYPE# #NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
+        return inhDebugString() +
+               ind(2) + "#NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
+      else
+        return inhDebugString() +
+               ind(2) + "#TYPE# #NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
     }
   }
-  
+
   public String AttrDecl.cacheStoreRewrite() {
     if(!ASTNode.rewriteEnabled || getFinal())
-      return   "        if(true)\n";
+      return "if(true)";
     else
-      return   "        if(isFinal && num == state().boundariesCrossed)\n";
+      return "if(isFinal && num == state().boundariesCrossed)";
   }
 
   public String AttrDecl.cacheStore() {
     if(!getLazy())
       return "";
-	if(getNumParameter() == 0)
-	  return cacheStoreRewrite() +
-	         "            #NAME#_computed = true;\n";
-	else
-	  return cacheStoreRewrite() + 
-             "            #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + ");\n";
+  if(getNumParameter() == 0)
+    return cacheStoreRewrite() +
+           " #NAME#_computed = true;\n";
+  else
+    return cacheStoreRewrite() +
+             " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + ");\n";
   }
-  
+
   public String AttrDecl.returnStmt() {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
-      return "        return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
+      return "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
     }
-    return "        return #NAME#_value;\n";
+    return "return #NAME#_value;\n";
   }
-  
+
   public String AttrEq.computeMethod() {
     return "";
   }
-  
+
   public String SynEq.computeMethod() {
     if(getRHS() instanceof ASTBlock) // Block
-      return "    private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + getRHS().unparse() + "\n\n";
+      return
+        ind + "/**\n" +
+        ind + " * @apilvl internal\n" +
+        ind + " */\n" +
+        ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + getRHS().unparse() + "\n";
     else // Expr
-      return "    private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {  return " + getRHS().unparse() + ";  }\n\n";
+      return
+        ind + "/**\n" +
+        ind + " * @apilvl internal\n" +
+        ind + " */\n" +
+        ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {  return " + getRHS().unparse() + ";  }\n";
   }
-  
+
   public String AttrDecl.computeMethod() {
     // TODO: INH
     if(!ASTNode.parentInterface)
       return  "";
-    return  "    private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
-            "            ASTNode n = getParent();\n" + 
-            "            ASTNode caller = this;\n" + 
-            "            ASTNode child = null;\n" + 
-            "            while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#) && n != null) {\n" +
-            "                child = caller;\n" + 
-            "                caller = n;\n" + 
-            "                n = n.getParent();\n" + 
-            "            }\n" +
-            inhDebugString() +
-            "            return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" + 
-            "    }\n\n";
+    return
+        ind + "/**\n" +
+        ind + " * @apilvl internal\n" +
+        ind + " */\n" +
+        ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+        ind(2) + "ASTNode n = getParent();\n" +
+        ind(2) + "ASTNode caller = this;\n" +
+        ind(2) + "ASTNode child = null;\n" +
+        ind(2) + "while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#) && n != null) {\n" +
+        ind(3) + "child = caller;\n" +
+        ind(3) + "caller = n;\n" +
+        ind(3) + "n = n.getParent();\n" +
+        ind(2) + "}\n" +
+        inhDebugString() +
+        ind(2) + "return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
+        ind + "}\n";
   }
 
   syn String AttrDecl.inhDebugString() {
     if(!debugMode) return "";
     if(ASTNode.parentInterface)
-      return "        if(n == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
+      return ind(2) + "if(n == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
     else
-      return "        if(getParent() == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
+      return ind(2) + "if(getParent() == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
   }
 
   public boolean TypeDecl.hasLazySynEqFor(AttrDecl attr) {
@@ -775,191 +915,200 @@ aspect JragCodeGen {
   syn String AttrDecl.cycleLimitCheck() = "";
    // TODO: fixme cycleLimit > 0 ?
    //    "if(state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
-  
+
   public String ASTDecl.genEquation(AttrDecl attr, String comment) {
     boolean needsCacheDeclaration = true;
     if(attr instanceof SynDecl)
       needsCacheDeclaration = superClass() == null || !superClass().hasLazySynEqFor(attr);
     if (!attr.isCircular()) {
       return
-           (needsCacheDeclaration ? (attr.visitedDeclarations() + attr.cacheDeclarations()) : "") + 
+           (needsCacheDeclaration ? (attr.visitedDeclarations() + attr.cacheDeclarations()) : "") +
            comment +
            suppressWarnings() +
-           "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" + 
-           (ASTNode.block ? ASTNode.blockBegin : "") +
+           ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+           (ASTNode.block ? ind(2) + ASTNode.blockBegin : "") +
            attr.parameterStructure() +
            attr.traceBeginAttr() +
            attr.initLazyMaps() +
-           attr.cacheCheck() + 
-           (ASTNode.rewriteEnabled ? "        ASTNode$State state = state();\n" : "") +
+           attr.cacheCheck() +
+           (ASTNode.rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
            attr.addInterruptedCircleDeclaration() +
-           attr.visitedCheck() + 
+           attr.visitedCheck() +
            attr.setVisited() +
            attr.addCheckInterruptedCircle() +
-           attr.cacheInit() + 
-           attr.callCompute() + 
-           attr.higherOrderAttributeCode() + 
-           attr.cacheStore() + 
+           attr.cacheInit(ind) +
+           attr.callCompute() +
+           attr.higherOrderAttributeCode() +
+           attr.cacheStore() +
            attr.clearVisited() +
            attr.addClearInterruptedCircle() +
            attr.traceEndAttr() +
-           attr.returnStmt() + 
-           (ASTNode.block ? ASTNode.blockEnd : "") +
-           "    }\n\n";
+           ind(2) + attr.returnStmt() +
+           (ASTNode.block ? ind(2) + ASTNode.blockEnd : "") +
+           ind + "}\n";
     }
-    else {   
+    else {
       if(attr.getNumParameter() == 0) {
         if(!needsCacheDeclaration && attr instanceof SynDecl &&
           superClass() != null && superClass().lookupSynEq(attr.signature()) != null
           && !superClass().lookupSynEq(attr.signature()).decl().isCircular())
           needsCacheDeclaration = true;
-        return 
+        return
            (needsCacheDeclaration ?
            (
-             attr.visitedDeclarations() + 
-             "    protected boolean #CLASS#.#NAME#_computed = false;\n" + 
-             "    protected boolean #CLASS#.#NAME#_initialized = false;\n" +
-             "    protected #TYPE# #CLASS#.#NAME#_value;\n"
+             attr.visitedDeclarations() +
+             ind + "/**\n" +
+             ind + " * @apilvl internal\n" +
+             ind + " */\n" +
+             ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
+             ind + "/**\n" +
+             ind + " * @apilvl internal\n" +
+             ind + " */\n" +
+             ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
+             ind + "/**\n" +
+             ind + " * @apilvl internal\n" +
+             ind + " */\n" +
+             ind + "protected #TYPE# #CLASS#.#NAME#_value;\n"
            ) : "" ) +
            comment +
            suppressWarnings() +
-           "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" + 
+           ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
            (ASTNode.block ? ASTNode.blockBegin : "") +
            attr.traceComputeContext() +
-           attr.parameterStructure() + 
+           attr.parameterStructure() +
            attr.cacheCheck() +
-           "        ASTNode$State state = state();\n" +
+           ind(2) + "ASTNode$State state = state();\n" +
            attr.addComponentCheck() +
-           "        if (!#NAME#_initialized) {\n" +
-           "            #NAME#_initialized = true;\n" + 
-           "            #NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
-           "        }\n" +
-           "        if (!state.IN_CIRCLE) {\n" +
-           "            state.IN_CIRCLE = true;\n" +
+           ind(2) + "if (!#NAME#_initialized) {\n" +
+           ind(3) + "#NAME#_initialized = true;\n" +
+           ind(3) + "#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+           ind(2) + "}\n" +
+           ind(2) + "if (!state.IN_CIRCLE) {\n" +
+           ind(3) + "state.IN_CIRCLE = true;\n" +
            attr.tracePrintCycleBeginString() +
            attr.addAddToComponent() +
-           "    " + attr.cacheInitRewrite() + 
-        //   "            state().CIRCLE_INDEX = 1;\n" + // TODO: fixme
-           "            do {\n" +
-           "                #NAME#_visited = state.CIRCLE_INDEX;\n" +
-           "                state.CHANGE = false;\n" +
+           attr.cacheInitRewrite(ind(2)) +
+        //   ind(3) + "state().CIRCLE_INDEX = 1;\n" + // TODO: fixme
+           ind(3) + "do {\n" +
+           ind(4) + "#NAME#_visited = state.CIRCLE_INDEX;\n" +
+           ind(4) + "state.CHANGE = false;\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
-           "                #TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
-           "                if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
-           "                    state.CHANGE = true;\n" +
-           "                #NAME#_value = new_#NAME#_value; \n" +
-           "                state.CIRCLE_INDEX++;\n" +
+           ind(4) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
+           ind(5) + "state.CHANGE = true;\n" +
+           ind(4) + "#NAME#_value = new_#NAME#_value; \n" +
+           ind(4) + "state.CIRCLE_INDEX++;\n" +
            attr.tracePrintStartingCycle() +
            attr.cycleLimitCheck() +
-           "            } while (state.CHANGE);\n" +
-           "    " + attr.cacheStoreRewrite() + "{\n" +
-           "            #NAME#_computed = true;\n" +
+           ind(3) + "} while (state.CHANGE);\n" +
+           ind(3) + attr.cacheStoreRewrite() + " {\n" +
+           ind(3) + "#NAME#_computed = true;\n" +
            attr.cacheCycleInit() +
-           "            }\n" +
-           "            else {\n" +
+           ind(3) + "}\n" +
+           ind(3) + "else {\n" +
            attr.resetCycleInit() +
-	         "              #NAME#_computed = false;\n" +
-           "              #NAME#_initialized = false;\n" + 
-           "            }\n" +                
-           "            state.IN_CIRCLE = false; \n" +
+           ind(4) + "#NAME#_computed = false;\n" +
+           ind(4) + "#NAME#_initialized = false;\n" +
+           ind(3) + "}\n" +
+           ind(3) + "state.IN_CIRCLE = false; \n" +
            attr.tracePrintReturnNewValue("#NAME#_value") +
            attr.tracePrintCycleEndString() +
-           "    " + attr.returnStmt() +
-           "        }\n" +
-           "        if(#NAME#_visited != state.CIRCLE_INDEX) {\n" +
-           "            #NAME#_visited = state.CIRCLE_INDEX;\n" +
+           ind(3) + attr.returnStmt() +
+           ind(2) + "}\n" +
+           ind(2) + "if(#NAME#_visited != state.CIRCLE_INDEX) {\n" +
+           ind(3) + "#NAME#_visited = state.CIRCLE_INDEX;\n" +
            attr.cacheCycleCheck() +
            attr.resetCycleCheck() +
            attr.addAddToComponent() +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
-           "            #TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
-           "            if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
-           "                state.CHANGE = true;\n" +
-           "            #NAME#_value = new_#NAME#_value; \n" +
+           ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
+           ind(4) + "state.CHANGE = true;\n" +
+           ind(3) + "#NAME#_value = new_#NAME#_value; \n" +
            attr.tracePrintReturnNewValue("#NAME#_value") +
-           "    " + attr.returnStmt() +
-           "        }\n" +
+           ind(3) + attr.returnStmt() +
+           ind(2) + "}\n" +
            attr.tracePrintReturnPreviousValue("#NAME#_value") +
-           attr.returnStmt() + 
+           ind(2) + attr.returnStmt() +
            (ASTNode.block ? ASTNode.blockEnd : "") +
-           "    }\n\n";
+           ind + "}\n";
       }
       else
         return
            (needsCacheDeclaration ?
-           ( attr.visitedDeclarations() + 
-             "    protected " + typeDefaultMap + " #CLASS#.#NAME#_values" + (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
+           ( attr.visitedDeclarations() +
+             ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values" + (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
            ) : "" ) +
            comment +
-           suppressWarnings() + 
-           "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" + 
+           suppressWarnings() +
+           ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
            (ASTNode.block ? ASTNode.blockBegin : "") +
            attr.traceComputeContext() +
-           attr.parameterStructure() + 
+           attr.parameterStructure() +
            attr.initLazyMaps() +
-           "        ASTNode$State.CircularValue _value;\n" +
-           attr.cacheCheck() + 
-           "        else {\n" +
-           "            _value = new ASTNode$State.CircularValue();\n" +
-           "            #NAME#_values.put(_parameters, _value);\n" +
-           "            _value.value = " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ";\n" + 
-           "        }\n" +
-           "        ASTNode$State state = state();\n" +
+           ind(2) + "ASTNode$State.CircularValue _value;\n" +
+           attr.cacheCheck() +
+           ind(2) + "else {\n" +
+           ind(3) + "_value = new ASTNode$State.CircularValue();\n" +
+           ind(3) + "#NAME#_values.put(_parameters, _value);\n" +
+           ind(3) + "_value.value = " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ";\n" +
+           ind(2) + "}\n" +
+           ind(2) + "ASTNode$State state = state();\n" +
            attr.addComponentCheck() +
-           "        if (!state.IN_CIRCLE) {\n" +
-           "            state.IN_CIRCLE = true;\n" +
+           ind(2) + "if (!state.IN_CIRCLE) {\n" +
+           ind(3) + "state.IN_CIRCLE = true;\n" +
            attr.tracePrintCycleBeginString() +
-           "    " + attr.cacheInitRewrite() +
+           attr.cacheInitRewrite(ind(3)) +
            attr.addAddToComponent() +
-  // TODO: fixme         "            state().CIRCLE_INDEX = 1;\n" +
-           "            #TYPE# new_#NAME#_value;\n" + 
-           "            do {\n" +
-           "                _value.visited = new Integer(state.CIRCLE_INDEX);\n" +
-           "                state.CHANGE = false;\n" +
+  // TODO: fixme         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
+           ind(3) + "#TYPE# new_#NAME#_value;\n" +
+           ind(3) + "do {\n" +
+           ind(4) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n" +
+           ind(4) + "state.CHANGE = false;\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
-           "                new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
-           "                if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
-           "                    state.CHANGE = true;\n" +
-           "                    _value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" +
-           "                }\n" +
-           "                state.CIRCLE_INDEX++;\n" +
+           ind(4) + "new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
+           ind(5) + "state.CHANGE = true;\n" +
+           ind(5) + "_value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" +
+           ind(4) + "}\n" +
+           ind(4) + "state.CIRCLE_INDEX++;\n" +
            attr.tracePrintStartingCycle() +
            attr.cycleLimitCheck() +
-           "            } while (state.CHANGE);\n" +
-           "    " + attr.cacheStoreRewrite() + "{\n" +
-           "                #NAME#_values.put(_parameters, new_#NAME#_value);\n" +
+           ind(3) + "} while (state.CHANGE);\n" +
+           ind(3) + attr.cacheStoreRewrite() + " {\n" +
+           ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n" +
            attr.cacheCycleInit() +
-           "            }\n" +
-           "            else {\n" +
-           "                #NAME#_values.remove(_parameters);\n" + 
+           ind(3) + "}\n" +
+           ind(3) + "else {\n" +
+           ind(4) + "#NAME#_values.remove(_parameters);\n" +
            attr.resetCycleInit() +
-           "            }\n" +                
-           "            state.IN_CIRCLE = false; \n" +
+           ind(3) + "}\n" +
+           ind(3) + "state.IN_CIRCLE = false; \n" +
            attr.tracePrintReturnNewValue("new_#NAME#_value") +
            attr.tracePrintCycleEndString() +
-           "            return new_#NAME#_value;\n" + 
-           "        }\n" +
-           "        if(!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {\n" +
-           "            _value.visited = new Integer(state.CIRCLE_INDEX);\n" +
+           ind(3) + "return new_#NAME#_value;\n" +
+           ind(2) + "}\n" +
+           ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {\n" +
+           ind(3) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
-           "            #TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
            attr.cacheCycleCheck() +
            attr.resetCycleCheck() +
-           "            else if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
-           "                state.CHANGE = true;\n" +
-           "                _value.value = new_#NAME#_value;\n" +
-           "            }\n" +
+           ind(3) + "else if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
+           ind(4) + "state.CHANGE = true;\n" +
+           ind(4) + "_value.value = new_#NAME#_value;\n" +
+           ind(3) + "}\n" +
            attr.tracePrintReturnNewValue("new_#NAME#_value") +
-           "            return new_#NAME#_value;\n" + 
-           "        }\n" +
+           ind(3) + "return new_#NAME#_value;\n" +
+           ind(2) + "}\n" +
            attr.tracePrintReturnPreviousValue(fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType())) +
-           "        return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" + 
+           ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
            (ASTNode.block ? ASTNode.blockEnd : "") +
-           "    }\n\n";
+           ind + "}\n";
     }
   }
 
@@ -971,55 +1120,55 @@ aspect JragCodeGen {
     else
       return "#METHODNAME#_compute(#PARM#)";
   }
-  
+
   public String AttrDecl.resetCycleInit() {
      return
-        "            state.RESET_CYCLE = true;\n" +
+        ind(3) + "state.RESET_CYCLE = true;\n" +
         inhDebugString() +
-        "            " + circularComputeCall() + ";\n" +
-        "            state.RESET_CYCLE = false;\n";
+        ind(3) + circularComputeCall() + ";\n" +
+        ind(3) + "state.RESET_CYCLE = false;\n";
   }
 
   public String AttrDecl.resetCycleCheck() {
      if(getNumParameter() == 0)
        return
-         "            if (state.RESET_CYCLE) {\n" +
-         "                #NAME#_computed = false;\n" +
-         "                #NAME#_initialized = false;\n" + 
-         "                #NAME#_visited = -1;\n" +
-         "        " + returnStmt() + 
-         "            }\n";
+         ind(3) + "if (state.RESET_CYCLE) {\n" +
+         ind(4) + "#NAME#_computed = false;\n" +
+         ind(4) + "#NAME#_initialized = false;\n" +
+         ind(4) + "#NAME#_visited = -1;\n" +
+         ind(4) + returnStmt() +
+         ind(3) + "}\n";
      else
        return
-         "            if (state.RESET_CYCLE) {\n" +
-         "                #NAME#_values.remove(_parameters);\n" + 
-         "            }\n";
+         ind(3) + "if (state.RESET_CYCLE) {\n" +
+         ind(4) + "#NAME#_values.remove(_parameters);\n" +
+         ind(3) + "}\n";
   }
 
   public String AttrDecl.cacheCycleInit() {
      if (! cacheCycle) return "";
      return
-        "            state.LAST_CYCLE = true;\n" +
+        ind(3) + "state.LAST_CYCLE = true;\n" +
         inhDebugString() +
-        "            " + circularComputeCall() + ";\n" +
-        "            state.LAST_CYCLE = false;\n";
+        ind(3) + circularComputeCall() + ";\n" +
+        ind(3) + "state.LAST_CYCLE = false;\n";
   }
 
   public String AttrDecl.cacheCycleCheck() {
      if (! cacheCycle) return "";
      if(getNumParameter() == 0)
        return
-         "            if (state.LAST_CYCLE) {\n" +
-         "                #NAME#_computed = true;\n" +
+         ind(3) + "if (state.LAST_CYCLE) {\n" +
+         ind(4) + "#NAME#_computed = true;\n" +
          inhDebugString() +
-         "                return " + circularComputeCall() + ";\n" +
-         "            }\n";
+         ind(4) + "return " + circularComputeCall() + ";\n" +
+         ind(3) + "}\n";
      else
        return
-         "            if (state.LAST_CYCLE) {\n" +
+         ind(3) + "if (state.LAST_CYCLE) {\n" +
          inhDebugString() +
-         "                #NAME#_values.put(_parameters, new_#NAME#_value);\n" +
-         "            }\n";
+         ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n" +
+         ind(3) + "}\n";
   }
 
   public String AttrDecl.addComponentCheck() {
@@ -1027,23 +1176,23 @@ aspect JragCodeGen {
     String arg = getNumParameter() == 0 ? "null" : "_parameters";
     if(getNumParameter() == 0) {
       if(rewriteEnabled)
-        return 
-        "     if(#NAME#_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
-        "       throw new java.lang.RuntimeException(\"XXX\");\n";
+        return
+        ind(2) + "if(#NAME#_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
+        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
-        return 
-        "     if(#NAME#_visited && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
-        "       throw new java.lang.RuntimeException(\"XXX\");\n";
+        return
+        ind(2) + "if(#NAME#_visited && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
+        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
       if(rewriteEnabled)
         return
-        "     if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
-        "       throw new java.lang.RuntimeException(\"XXX\");\n";
+        ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        "     if(_value.visited && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
-        "       throw new java.lang.RuntimeException(\"XXX\");\n";
+        ind(2) + "if(_value.visited && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
 
@@ -1051,10 +1200,10 @@ aspect JragCodeGen {
     if(!componentCheck || !visitCheckEnabled) return "";
     if(getNumParameter() == 0)
       return
-        "     state.addEvalEntry(this, \"#NAME#\", null);\n";
+        ind(2) + "state.addEvalEntry(this, \"#NAME#\", null);\n";
     else
       return
-        "     state.addEvalEntry(this, \"#NAME#\", _parameters);\n";
+        ind(2) + "state.addEvalEntry(this, \"#NAME#\", _parameters);\n";
   }
 
   public String AttrDecl.addInterruptedCircleDeclaration() {
@@ -1064,36 +1213,36 @@ aspect JragCodeGen {
 
   public String AttrDecl.addCheckInterruptedCircle() {
     if(!componentCheck) return "";
-    return 
-      "if(state.IN_CIRCLE) {\n" + 
-      "  interruptedCircle = true;\n" +
-      "  state.IN_CIRCLE = false;\n" +
-      "  state.pushEvalStack();\n" +
-      "}\n";
+    return
+      ind(2) + "if(state.IN_CIRCLE) {\n" +
+      ind(3) + "interruptedCircle = true;\n" +
+      ind(3) + "state.IN_CIRCLE = false;\n" +
+      ind(3) + "state.pushEvalStack();\n" +
+      ind(2) + "}\n";
   }
 
   public String AttrDecl.addClearInterruptedCircle() {
     if(!componentCheck) return "";
-    return 
-      "if(interruptedCircle) {\n" + 
-      "  state.IN_CIRCLE = true;\n" +
-      "  state.popEvalStack();\n" +
-      "}\n";
+    return
+      ind(2) + "if(interruptedCircle) {\n" +
+      ind(3) + "state.IN_CIRCLE = true;\n" +
+      ind(3) + "state.popEvalStack();\n" +
+      ind(2) + "}\n";
   }
-  
+
   public String AttrDecl.differs(String s1, String s2) {
     if (isPrimitive())
       return s1 + "!=" + s2;
     else
       return "(" + s1 + "==null && " + s2 + "!=null)" + " || " + "(" + s1 + "!=null && " + "!" + s1 + ".equals(" + s2 + ")" + ")";
   }
-  
+
   public String ASTDecl.genSynEquations() {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumSynEq(); i++) {
        AttrEq equ = getSynEq(i);;
        AttrDecl attr = equ.decl();
-       String s = genEquation(attr, equ.hostFileComment()) + equ.computeMethod();
+       String s = genEquation(attr, equ.hostFileComment(ind, attr)) + equ.computeMethod();
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
@@ -1109,7 +1258,7 @@ aspect JragCodeGen {
     return buf.toString();
   }
 
-  
+
   public boolean AttrDecl.isNTA() {
     return false;
   }
@@ -1160,51 +1309,51 @@ aspect JragCodeGen {
     }
     return null;
   }
-  
+
   public String AttrDecl.higherOrderAttributeCode() {
     return "";
   }
-  
+
   public String SynDecl.higherOrderAttributeCode() {
     StringBuffer result = new StringBuffer();
     if(getNTA()) {
       if(ASTNode.rewriteEnabled) {
         if(ASTNode.stagedRewrites) {
           if(getNumParameter() == 0)
-            return "        #NAME#_value.setParent(this);\n" +
-              "        #NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
-          else 
-            return "        if(#NAME#_list == null) {\n" +
-              "            #NAME#_list = new List();\n" +
-              "            #NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
-              "            #NAME#_list.setParent(this);\n" + 
-              "        }\n" +
-              "        #NAME#_list.add(#NAME#_value);\n" + 
-              "        #NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
+            return ind(2) + "#NAME#_value.setParent(this);\n" +
+                   ind(2) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
+          else
+            return ind(2) + "if(#NAME#_list == null) {\n" +
+                   ind(3) + "#NAME#_list = new List();\n" +
+                   ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
+                   ind(3) + "#NAME#_list.setParent(this);\n" +
+                   ind(2) + "}\n" +
+                   ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
+                   ind(2) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
         }
         else {
           if(getNumParameter() == 0)
-            return "        #NAME#_value.setParent(this);\n" +
-              "        #NAME#_value.is$Final = true;\n";
-          else 
-            return "        if(#NAME#_list == null) {\n" +
-              "            #NAME#_list = new List();\n" +
-              "            #NAME#_list.is$Final = true;\n" +
-              "            #NAME#_list.setParent(this);\n" + 
-              "        }\n" +
-              "        #NAME#_list.add(#NAME#_value);\n" + 
-              "        #NAME#_value.is$Final = true;\n";
+            return ind(2) + "#NAME#_value.setParent(this);\n" +
+                   ind(2) + "#NAME#_value.is$Final = true;\n";
+          else
+            return ind(2) + "if(#NAME#_list == null) {\n" +
+                   ind(3) + "#NAME#_list = new List();\n" +
+                   ind(3) + "#NAME#_list.is$Final = true;\n" +
+                   ind(3) + "#NAME#_list.setParent(this);\n" +
+                   ind(2) + "}\n" +
+                   ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
+                   ind(2) + "#NAME#_value.is$Final = true;\n";
         }
-      } 
+      }
       else {
         if(getNumParameter() == 0)
-          return "        #NAME#_value.setParent(this);\n";
-        else 
-          return "        if(#NAME#_list == null) {\n" +
-            "            #NAME#_list = new List();\n" +
-            "            #NAME#_list.setParent(this);\n" + 
-            "        }\n" +
-            "        #NAME#_list.add(#NAME#_value);\n";
+          return ind(2) + "#NAME#_value.setParent(this);\n";
+        else
+          return ind(2) + "if(#NAME#_list == null) {\n" +
+                 ind(3) + "#NAME#_list = new List();\n" +
+                 ind(3) + "#NAME#_list.setParent(this);\n" +
+                 ind(2) + "}\n" +
+                 ind(2) + "#NAME#_list.add(#NAME#_value);\n";
       }
     }
     Components comp = findCorrespondingNTA();
@@ -1214,25 +1363,25 @@ aspect JragCodeGen {
             comp instanceof OptionalComponentNTA
             || comp instanceof TokenComponentNTA
             || comp instanceof AggregateComponentsNTA )) {
-        result.append("            set" + attrName + "(#NAME#_value);\n");
+        result.append(ind(3) + "set" + attrName + "(#NAME#_value);\n");
       }
       if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-        result.append("        set" + attrName + "(#NAME#_value);\n");
+        result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
       }
       if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-        result.append("        set" + attrName + "(#NAME#_value);\n");
+        result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
       }
     }
     return result.toString();
-  }    
+  }
 
   public String TypeDecl.genInhDeclarations() {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       buf.append(attr.hostFileComment());
-       
-       String s = "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
+       buf.append(attr.hostFileComment(ind));
+
+       String s = ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
@@ -1248,12 +1397,12 @@ aspect JragCodeGen {
     }
     return buf.toString();
   }
-  
+
   public String ASTDecl.genInhDeclarations() {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       String s = genEquation(attr, attr.hostFileComment()) + attr.computeMethod();
+       String s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
@@ -1295,7 +1444,7 @@ aspect JragCodeGen {
     if(decl == null) decl = hostClass().lookupInhDeclPrefix(sonName());
     return decl;
   }
-  
+
   syn SynDecl TypeDecl.lookupSynDeclPrefix(String signature) {
     for(int i = 0; i < getNumSynDecl(); i++)
       if(getSynDecl(i).signature().equals(signature) || getSynDecl(i).signature().startsWith(signature + "_"))
@@ -1331,8 +1480,11 @@ aspect JragCodeGen {
       InhDecl decl = (InhDecl)equ.decl();
 
       String s;
-      buf.append("    // Declared in " + equ.getFileName() + " at line " + equ.getStartLine() + "\n");
-      s = "    public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
+      buf.append(ind + "/**\n");
+      buf.append(ind + " * @declaredat " + equ.getFileName() + ":" + equ.getStartLine() + "\n");
+      buf.append(ind + " * @apilvl internal\n");
+      buf.append(ind + " */\n");
+      s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
       s = s.replaceAll("#TYPE#", decl.type());
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
       if(!aspectJ)
@@ -1344,29 +1496,29 @@ aspect JragCodeGen {
       s = s.replaceAll("#PARMDECL#", decl.parametersDecl());
       s = s.replaceAll("#INTERFACEPARMDECL#", decl.interfaceParametersDecl());
       buf.append(s);
-      
+
       do {
         Components c = equ.getComponents();
         if(c instanceof ListComponents) {
-          s = "        if(caller == get#NAME#ListNoTransform())";
+          s = ind(2) + "if(caller == get#NAME#ListNoTransform())";
         }
         else if(c instanceof OptionalComponent) {
-          s = "        if(caller == get#NAME#OptNoTransform())";
+          s = ind(2) + "if(caller == get#NAME#OptNoTransform())";
         }
         else if(c != null) {
-          s = "        if(caller == get#NAME#NoTransform())";
+          s = ind(2) + "if(caller == get#NAME#NoTransform())";
         }
         else if(equ.getSonName().equals("getChild")) {
-          s = "        if(true)";
+          s = ind(2) + "if(true)";
         }
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
           if(attrDecl.getNumParameter() == 0)
-            s = "        if(caller == #NAME#_value)";
+            s = ind(2) + "if(caller == #NAME#_value)";
           else
-            s = "        if(caller == " + attrDecl.signature() + "_list)";
+            s = ind(2) + "if(caller == " + attrDecl.signature() + "_list)";
         }
-        
+
         s = s.replaceAll("#NAME#", String.valueOf(equ.sonName()));
         if(c instanceof ListComponents) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
@@ -1375,21 +1527,21 @@ aspect JragCodeGen {
                     equ.getRHS().unparse() + "\n}\n";
           }
           else { // Expr
-            s = s + " {\n" + 
-                  "      int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-                  "            return " + equ.getRHS().unparse() + ";\n" +
-                  "        }\n";
+            s = s + " {\n" +
+                  ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
+                  ind(3) + "return " + equ.getRHS().unparse() + ";\n" +
+                  ind(2) + "}\n";
           }
-          
+
         }
         else if(c != null) {
           if(equ.getRHS() instanceof ASTBlock) { // Block
             s = s + equ.getRHS().unparse() + "\n";
           }
           else { // Expr
-            s = s + " {\n" + 
-              "            return " + equ.getRHS().unparse() + ";\n" +
-              "        }\n";
+            s = s + " {\n" +
+              ind(3) + "return " + equ.getRHS().unparse() + ";\n" +
+              ind(2) + "}\n";
           }
         }
         else if(equ.getSonName().equals("getChild")) {
@@ -1399,10 +1551,10 @@ aspect JragCodeGen {
                     equ.getRHS().unparse() + "\n}\n";
           }
           else { // Expr
-            s = s + " {\n" + 
-                  "      int " + childIndex + " = this.getIndexOfChild(caller);\n" +
-                  "            return " + equ.getRHS().unparse() + ";\n" +
-                  "        }\n";
+            s = s + " {\n" +
+                  ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);\n" +
+                  ind(3) + "return " + equ.getRHS().unparse() + ";\n" +
+                  ind(2) + "}\n";
           }
         }
         else {
@@ -1410,14 +1562,14 @@ aspect JragCodeGen {
           s = s + "{\n";
           if(attrDecl.getNumParameter() != 0) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-          s = s + "   int " + childIndex + " = caller.getIndexOfChild(child);\n";
+          s = s + ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);\n";
           }
           if(equ.getRHS() instanceof ASTBlock) { // Block
             s = s + equ.getRHS().unparse() + "\n}\n";
           }
           else { // Expr
-            s = s + "            return " + equ.getRHS().unparse() + ";\n" +
-                    "        }\n";
+            s = s + ind(3) + "return " + equ.getRHS().unparse() + ";\n" +
+                    ind(2) + "}\n";
           }
         }
         buf.append(s);
@@ -1429,29 +1581,29 @@ aspect JragCodeGen {
           equ = null;
         }
       } while(equ != null);
-      
+
       if(superClass() != null && superClass().hasInhEq(decl.name())) {
-        s = "        return super.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" + 
-            "    }\n\n";
+        s = ind(2) + "return super.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
+            ind + "}\n";
       }
       else {
         // TODO: INH
         if(!ASTNode.parentInterface)
-        s = decl.inhDebugString() + 
-            "        return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + decl.interfaceParametersContinue() + ");\n" +
-            "    }\n\n";
+        s = decl.inhDebugString() +
+            ind(2) + "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + decl.interfaceParametersContinue() + ");\n" +
+            ind + "}\n";
         else
-        s = "        ASTNode n = getParent();\n" + 
-            "        caller = this;\n" + 
-            "        child = null;\n" + 
-            "        while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#)) {\n" +
-            "            child = caller;\n" + 
-            "            caller = n;\n" + 
-            "            n = n.getParent();\n" + 
-            "        }\n" +
+        s = ind(2) + "ASTNode n = getParent();\n" +
+            ind(2) + "caller = this;\n" +
+            ind(2) + "child = null;\n" +
+            ind(2) + "while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#)) {\n" +
+            ind(3) + "child = caller;\n" +
+            ind(3) + "caller = n;\n" +
+            ind(3) + "n = n.getParent();\n" +
+            ind(2) + "}\n" +
             decl.inhDebugString() +
-            "        return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" + 
-            "    }\n\n";
+            ind(2) + "return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
+            ind + "}\n";
       }
       s = s.replaceAll("#NAME#", decl.attributeSignature());
       s = s.replaceAll("#METHODNAME#", decl.attributeName());
@@ -1500,17 +1652,19 @@ aspect JragCodeGen {
       name = name.substring(0, name.length() - 5);
     else if(name.endsWith(".ast"))
       name = name.substring(0, name.length() - 4);
-    return name;
+    String pattern = File.separator.equals("\\") ? pattern = "\\\\" : File.separator;
+    String[] names = name.split(pattern);
+    return names[names.length-1];
   }
 
   public void Grammar.genResetDuringCounters(PrintWriter out) {
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
       String name = (String)iter.next();
-      String s = 
-                 "        if(during" + name + " != 0) {\n" + 
-                 "            System.out.println(\"Warning: resetting during" + name + "\");\n" +
-                 "            during" + name + " = 0;\n" +
-                 "        }\n";
+      String s =
+                 ind(2) + "if(during" + name + " != 0) {\n" +
+                 ind(3) + "System.out.println(\"Warning: resetting during" + name + "\");\n" +
+                 ind(3) + "during" + name + " = 0;\n" +
+                 ind(2) + "}\n";
       out.print(s);
     }
 
@@ -1519,34 +1673,35 @@ aspect JragCodeGen {
   public void Grammar.genRewriteOrderChecks(PrintWriter out) {
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
       String name = (String)iter.next();
-      String s = "    protected int ASTNode$State.during" + name + " = 0;\n" +
-                 "    protected boolean ASTNode.during" + name + "() {\n" + 
-                 "        if(state().during" + name + " == 0) {\n" + 
-                 "            return false;\n" +
-                 "        }\n" + 
-                 "        else {\n" + 
-                 "            state().pop();\n" +
-                 "            state().push(ASTNode$State.REWRITE_INTERRUPT);\n" +
-                 "            return true;\n" +
-                 "        }\n" + 
-                 "    }\n";
+      String s = ind + "protected int ASTNode$State.during" + name + " = 0;\n" +
+                 ind + "protected boolean ASTNode.during" + name + "() {\n" +
+                 ind(2) + "if(state().during" + name + " == 0) {\n" +
+                 ind(3) + "return false;\n" +
+                 ind(2) + "}\n" +
+                 ind(2) + "else {\n" +
+                 ind(3) + "state().pop();\n" +
+                 ind(3) + "state().push(ASTNode$State.REWRITE_INTERRUPT);\n" +
+                 ind(3) + "return true;\n" +
+                 ind(2) + "}\n" +
+                 ind + "}\n";
       out.print(s);
     }
   }
-  
-    
-  
+
   public String ASTDecl.genRewrites() {
     StringBuffer buf = new StringBuffer();
     boolean unconditional = false;
-    buf.append("public ASTNode rewriteTo() {\n");
+    buf.append(ind + "/**\n");
+    buf.append(ind + " * @apilvl internal\n");
+    buf.append(ind + " */\n");
+    buf.append(ind + "public ASTNode rewriteTo() {\n");
     if(name().equals("List")) {
-      buf.append("    if(list$touched) {\n");
-      buf.append("        for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
-      buf.append("            getChild(i);\n");
-      buf.append("        list$touched = false;\n");
-      buf.append("        return this;\n");
-      buf.append("    }\n");
+      buf.append(ind(2) + "if(list$touched) {\n");
+      buf.append(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
+      buf.append(ind(4) + "getChild(i);\n");
+      buf.append(ind(3) + "list$touched = false;\n");
+      buf.append(ind(3) + "return this;\n");
+      buf.append(ind(2) + "}\n");
     }
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
@@ -1554,15 +1709,15 @@ aspect JragCodeGen {
         unconditional = true;
     }
     if(name().equals("ASTNode")) {
-      buf.append("    if(state().peek() == ASTNode$State.REWRITE_CHANGE) {\n");
-      buf.append("        state().pop();\n");
-      buf.append("        state().push(ASTNode$State.REWRITE_NOCHANGE);\n");
-      buf.append("    }\n");
-      buf.append("    return this;\n");
+      buf.append(ind(2) + "if(state().peek() == ASTNode$State.REWRITE_CHANGE) {\n");
+      buf.append(ind(3) + "state().pop();\n");
+      buf.append(ind(3) + "state().push(ASTNode$State.REWRITE_NOCHANGE);\n");
+      buf.append(ind(2) + "}\n");
+      buf.append(ind(2) + "return this;\n");
     }
     else if(!unconditional)
-      buf.append("    return super.rewriteTo();\n");
-    buf.append("}\n\n");
+      buf.append(ind(2) + "return super.rewriteTo();\n");
+    buf.append(ind + "}\n");
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
       r.genRewritesExtra(buf, i);
@@ -1571,30 +1726,29 @@ aspect JragCodeGen {
   }
 
   public boolean Rewrite.genRewrite(StringBuffer buf, int index) {
-      buf.append("    // Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+      buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
       if(getCondition() != null) {
-        buf.append("    if(" + getCondition().unparse() + ") {\n");
-        buf.append("        state().during" + aspectName() + "++;\n");
-        buf.append("        ASTNode result = rewriteRule" + index + "();\n");
-        buf.append("        state().during" + aspectName() + "--;\n");
-        buf.append("        return result;\n");
-        buf.append("    }\n");
-        
+        buf.append(ind(2) + "if(" + getCondition().unparse() + ") {\n");
+        buf.append(ind(3) + "state().during" + aspectName() + "++;\n");
+        buf.append(ind(3) + "ASTNode result = rewriteRule" + index + "();\n");
+        buf.append(ind(3) + "state().during" + aspectName() + "--;\n");
+        buf.append(ind(3) + "return result;\n");
+        buf.append(ind(2) + "}\n");
         buf.append("\n");
         return false;
       }
       else {
-        buf.append("        state().during" + aspectName() + "++;\n");
-        buf.append("        ASTNode result = rewriteRule" + index + "();\n");
-        buf.append("        state().during" + aspectName() + "--;\n");
-        buf.append("        return result;\n");
+        buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
+        buf.append(ind(2) + "ASTNode result = rewriteRule" + index + "();\n");
+        buf.append(ind(2) + "state().during" + aspectName() + "--;\n");
+        buf.append(ind(2) + "return result;\n");
         return true;
       }
   }
   public boolean RewriteList.genRewrite(StringBuffer buf, int index) {
-      buf.append("    // Declared in " + getFileName() + " at line " + getStartLine() + "\n");
-      buf.append("    if(getParent().getParent() instanceof " + getParentName() + " && \n");
-      buf.append("        ((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
+      buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+      buf.append(ind(2) + "if(getParent().getParent() instanceof " + getParentName() + " && \n");
+      buf.append(ind(3) + "((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
       if(getCondition() != null) {
         buf.append(" && " + getCondition().unparse() + ") {\n");
       }
@@ -1602,58 +1756,61 @@ aspect JragCodeGen {
         buf.append(") {\n");
       }
 
-      buf.append("        state().during" + aspectName() + "++;\n");
-      
-      buf.append("      List list = (List)getParent();\n");
-      buf.append("      int i = list.getIndexOfChild(this);\n");
-      buf.append("      List newList = rewrite" + getParentName() + "_" + getChildName() + "();\n");
+      buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
+      buf.append(ind(3) + "List list = (List)getParent();\n");
+      buf.append(ind(3) + "int i = list.getIndexOfChild(this);\n");
+      buf.append(ind(3) + "List newList = rewrite" + getParentName() + "_" + getChildName() + "();\n");
       // the first child is set by the normal rewrite loop
-      //buf.append("      list.setChild(newList.getChildNoTransform(0), i);\n");
-      buf.append("      for(int j = 1; j < newList.getNumChildNoTransform(); j++)\n");
-      buf.append("        list.insertChild(newList.getChildNoTransform(j), ++i);\n");
+      //buf.append(ind(3) + "list.setChild(newList.getChildNoTransform(0), i);\n");
+      buf.append(ind(3) + "for(int j = 1; j < newList.getNumChildNoTransform(); j++)\n");
+      buf.append(ind(4) + "list.insertChild(newList.getChildNoTransform(j), ++i);\n");
 
-      buf.append("        state().during" + aspectName() + "--;\n");
-      
-      buf.append("      return newList.getChildNoTransform(0);\n");
-      buf.append("    }\n");
+      buf.append(ind(4) + "state().during" + aspectName() + "--;\n");
+      buf.append(ind(3) + "return newList.getChildNoTransform(0);\n");
+      buf.append(ind(2) + "}\n");
       return false;
   }
 
   public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
-    buf.append("    // Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+    buf.append(ind + "/**\n" +
+               ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
-      buf.append("    private " + getReturnType() + " rewriteRule" + index + "() {\n");
+      buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
       if(rewriteLimit > 0)
-        buf.append("         debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
       buf.append(getResult().unparse());
-      buf.append("    }\n");
+      buf.append(ind + "}\n");
     }
     else {
-      buf.append("    private " + getReturnType() + " rewriteRule" + index + "() {\n");
+      buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
       if(rewriteLimit > 0)
-        buf.append("         debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
-      buf.append("        return " + getResult().unparse() + ";\n");
-      buf.append("    }\n");
+        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+      buf.append(ind(2) + "return " + getResult().unparse() + ";\n");
+      buf.append(ind + "}\n");
     }
   }
   public void RewriteList.genRewritesExtra(StringBuffer buf, int index) {
-    buf.append("    // Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+    buf.append(ind + "/**\n" +
+               ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+               ind + " * @apilvl internal\n" +
+               ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
-      buf.append("    private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
+      buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
       if(rewriteLimit > 0)
-        buf.append("         debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
       buf.append(getResult().unparse());
-      buf.append("    }\n");
+      buf.append(ind + "}\n");
     }
     else {
-      buf.append("    private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
+      buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
       if(rewriteLimit > 0)
-        buf.append("         debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
-      buf.append("        return " + getResult().unparse() + ";\n");
-      buf.append("    }\n");
+        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+      buf.append(ind(2) + "return " + getResult().unparse() + ";\n");
+      buf.append(ind + "}\n");
     }
   }
-  
 
   public void Grammar.createInterfaces(File outputDir, String pack)
     throws FileNotFoundException {
@@ -1665,24 +1822,27 @@ aspect JragCodeGen {
       AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
       String interfaceName;
       if(pack.equals("")) {
-        interfaceName = "Defines_" + attrId;                                                                                                                      
-      }                                                                                                                                                           
-      else {                                                                                                                                                      
-        interfaceName = pack.replace('.', File.separatorChar) + File.separator +                                                                                  
-          "Defines_" + attrId;                                                                                                                                    
-      }                                                                                                                                                           
-      File file = new File(outputDir, interfaceName + ".java");                                                                                                   
-          PrintStream p = new PrintStream(new FileOutputStream(file));                                                                                            
-          if(!pack.equals("")) {                                                                                                                                  
-            p.println("package " + pack + ";");                                                                                                                   
-            p.println();                                                                                                                                          
-          }                                                                                                                                                       
-                                                                                                                                                                  
-      p.print(genImportsList());                                                                                                                                  
-                                                                                                                                                                  
-      String s;                                                                                                                                                   
-      s = "public interface Defines_#TYPEINSIGNATURE#_#NAME# {\n" +                                                                                               
-          "    public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#);\n" +                                                                     
+        interfaceName = "Defines_" + attrId;
+      }
+      else {
+        interfaceName = pack.replace('.', File.separatorChar) + File.separator +
+          "Defines_" + attrId;
+      }
+      File file = new File(outputDir, interfaceName + ".java");
+          PrintStream p = new PrintStream(new FileOutputStream(file));
+          if(!pack.equals("")) {
+            p.println("package " + pack + ";");
+            p.println();
+          }
+
+      p.print(genImportsList());
+
+      String s;
+      s = "/**\n" +
+          " * @apilvl internal\n" +
+          " */\n" +
+          "public interface Defines_#TYPEINSIGNATURE#_#NAME# {\n" +
+          ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#);\n" +
           "}\n";
       s = s.replaceAll("#TYPE#", attr.type());
       s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
@@ -1707,10 +1867,13 @@ aspect JragCodeGen {
         AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
         if(!hasInhEq(attr.decl().name())) {
           String s =
-            "    public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
+            ind + "/**\n" +
+            ind + " * @apilvl internal\n" +
+            ind + " */\n" +
+            ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
             attr.decl().inhDebugString() +
-            "        return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + attr.interfaceParametersContinue() + ");\n" +
-            "    }\n";
+            ind(2) + "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + attr.interfaceParametersContinue() + ");\n" +
+            ind + "}\n";
           s = s.replaceAll("#TYPE#", attr.type());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
           s = s.replaceAll("#NAME#", attr.attributeSignature());
@@ -1749,16 +1912,19 @@ aspect JragCodeGen {
       boolean isLazy = attr.getLazy();
       attr.setLazy(true);
       String s =
-           attr.cacheDeclarations() + 
-           "    public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" + 
-           attr.parameterStructure() + 
+           attr.cacheDeclarations() +
+           ind + "/**\n" +
+           ind + " * @apilvl internal\n" +
+           ind + " */\n" +
+           ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
+           attr.parameterStructure() +
            attr.initLazyMaps() +
-           attr.cacheCheck() + 
-           attr.cacheInit() + 
-           attr.callCompute() + 
-           attr.cacheStore() + 
-           attr.returnStmt() + 
-           "    }\n\n";
+           attr.cacheCheck() +
+           attr.cacheInit(ind) +
+           attr.callCompute() +
+           attr.cacheStore() +
+           ind(2) + attr.returnStmt() +
+           ind + "}\n";
        attr.setLazy(isLazy);
        return s;
     }
@@ -1781,13 +1947,13 @@ aspect JragCodeGen {
       b.append("syn ");
     if(this instanceof InhDecl)
       b.append("inh ");
-	if (this instanceof CollDecl) 
-	  b.append("coll ");
+    if (this instanceof CollDecl)
+      b.append("coll ");
     if(getLazy())
       b.append("lazy ");
     if(isCircular())
       b.append(" circular");
-    
+
     b.append(getType());
     b.append(" ");
     b.append(hostClass().name());
@@ -1835,6 +2001,4 @@ aspect JragCodeGen {
   syn String AttrDecl.traceEndCachedAttr() =
     trace("end cached " + traceSignature());
 
-
-  
 }

@@ -23,7 +23,7 @@ public class JastAdd {
     protected File outputDir;
     protected String grammar;
     protected boolean publicModifier;
-	
+
     public static void main(String[] args) {
       new JastAdd().compile(args);
       Runtime.getRuntime().gc();
@@ -33,14 +33,15 @@ public class JastAdd {
       try {
            files = new ArrayList();
            cacheFiles = new ArrayList();
- 	         if (readArgs(args)) System.exit(1);;
+           if (readArgs(args)) System.exit(1);;
 
            long time = System.currentTimeMillis();
            
            root = new Grammar();
            root.abstractAncestors();
            
- 	         // Parse ast-grammar
+           // Parse ast-grammar
+           //System.out.println("parsing grammars");
            Collection errors = new ArrayList();
            for(Iterator iter = files.iterator(); iter.hasNext(); ) {
              String fileName = (String)iter.next();
@@ -74,9 +75,9 @@ public class JastAdd {
                System.out.println(iter.next());
              System.exit(1);
            }
-            
+
             long astParseTime = System.currentTimeMillis() - time;
-           
+
             String astErrors = root.astErrors();
 
             long astErrorTime = System.currentTimeMillis() - time - astParseTime;
@@ -90,9 +91,10 @@ public class JastAdd {
             ASTNode.resetGlobalErrors();
 
             {
+                //System.out.println("generating ASTNode");
                 java.io.StringWriter writer = new java.io.StringWriter();
                 root.jjtGenASTNode$State(new PrintWriter(writer), grammar, ASTNode.jjtree, ASTNode.rewriteEnabled);
-      
+
                 jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
                 jp.root = root;
                 jp.setFileName("ASTNode");
@@ -102,12 +104,12 @@ public class JastAdd {
                   while(true)
                     jp.AspectBodyDeclaration();
                 } catch (Exception e) {
-                	String s = e.getMessage();
+                    String s = e.getMessage();
                 }
                 jp.popTopLevelOrAspect();
             }
 
-     	      // Parse all jrag files and build tables
+            // Parse all jrag files and build tables
             for(Iterator iter = files.iterator(); iter.hasNext(); ) {
                 String fileName = (String)iter.next();
                 if(fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
@@ -116,7 +118,8 @@ public class JastAdd {
                     JragParser jp = new JragParser(inputStream);
                     jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
                     jp.root = root;
-                    jp.setFileName(new File(fileName).getName());
+                    //jp.setFileName(new File(fileName).getName());
+                    jp.setFileName(fileName);
                     ASTCompilationUnit au = jp.CompilationUnit();
                     root.addCompUnit(au);
                   } catch (jrag.AST.ParseException e) {
@@ -128,18 +131,22 @@ public class JastAdd {
                   } catch (FileNotFoundException e) {
                     System.out.println("File error: Aspect file " + fileName + " not found");
                     System.exit(1);
+                  } catch (Throwable e) {
+                    System.err.println("Exception occurred while parsing " + fileName);
+                    e.printStackTrace();
                   }
                 }
             }
                
             long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
+            //System.out.println("weaving aspect and attribute definitions");
             for(int i = 0; i < root.getNumTypeDecl(); i++) {
               if(root.getTypeDecl(i) instanceof ASTDecl) {
                 ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
                 java.io.StringWriter writer = new java.io.StringWriter();
                 decl.jjtGen(new PrintWriter(writer), grammar, ASTNode.jjtree, ASTNode.rewriteEnabled);
-      
+
                 jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
                 jp.root = root;
                 jp.setFileName(decl.getFileName());
@@ -149,7 +156,7 @@ public class JastAdd {
                   while(true)
                     jp.AspectBodyDeclaration();
                 } catch (Exception e) {
-                	String s = e.getMessage();
+                    String s = e.getMessage();
                 }
                 jp.popTopLevelOrAspect();
 
@@ -169,12 +176,13 @@ public class JastAdd {
               }
             }
 
+            //System.out.println("processing refinements");
             root.processRefinements();
             root.weaveInterfaceIntroductions();
 
             for(Iterator iter = cacheFiles.iterator(); iter.hasNext(); ) {
               String fileName = (String)iter.next();
-              System.out.println("Processing cache file: " + fileName);
+              //System.out.println("Processing cache file: " + fileName);
                   try {
                     FileInputStream inputStream = new FileInputStream(fileName);
                     JragParser jp = new JragParser(inputStream);
@@ -194,6 +202,7 @@ public class JastAdd {
                   }
             }
 
+            //System.out.println("weaving collection attributes");
             root.weaveCollectionAttributes();
             
             String err = root.errors();
@@ -203,7 +212,7 @@ public class JastAdd {
             }
 
             long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
-	    
+
             root.jastAddGen(outputDir, grammar, pack, publicModifier);
             try {
               root.createInterfaces(outputDir, pack);
@@ -212,7 +221,7 @@ public class JastAdd {
               System.exit(1);
           }
             long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
-	    
+
             //System.out.println("AST parse time: " + astParseTime + ", AST error check: " + astErrorTime + ", JRAG parse time: " + 
             //    jragParseTime + ", JRAG error time: " + jragErrorTime + ", Code generation: " + codegenTime);
       }
@@ -289,7 +298,7 @@ public class JastAdd {
         ASTNode.block = cla.hasLongOption("synch");
 
         ASTNode.noStatic = cla.hasLongOption("noStatic");
-  
+
         ASTNode.deterministic = cla.hasLongOption("deterministic");
         if(ASTNode.deterministic) {
           ASTNode.createDefaultMap = "new java.util.LinkedHashMap(4)";
@@ -297,7 +306,7 @@ public class JastAdd {
         }
 
         ASTNode.j2me = cla.hasLongOption("j2me");
-        
+
         String outputDirName = cla.getLongOptionValue("o", System.getProperty("user.dir"));
         outputDir = new File(outputDirName);
 
@@ -345,11 +354,11 @@ public class JastAdd {
         ASTNode.ignoreLazy = cla.hasLongOption("ignoreLazy"); 
         
         pack = cla.getLongOptionValue("package", "").replace('/', '.');
-	      int n = cla.getNumOperands();
-	      for (int k=0; k<n; k++) {
+        int n = cla.getNumOperands();
+        for (int k=0; k<n; k++) {
           String fileName = cla.getOperand(k);
           if(fileName.endsWith(".ast") || fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
-    	      files.add(fileName);
+              files.add(fileName);
           }
           else if(fileName.endsWith(".caching")) {
             cacheFiles.add(fileName);
@@ -370,7 +379,7 @@ public class JastAdd {
             printHelp();
             return true;
         }
-	      return false;
+        return false;
     }
 
 
@@ -380,7 +389,7 @@ public class JastAdd {
       char[] cbuf = new char[1024];
       int i = 0;
       while((i = reader.read(cbuf)) != -1)
-        buf.append(String.valueOf(cbuf, 0, i));	
+        buf.append(String.valueOf(cbuf, 0, i)); 
       reader.close();
       return buf.toString();
     }
@@ -424,29 +433,29 @@ public class JastAdd {
         System.out.println("  --noCacheCycle (disable cache cyle optimization for circular attributes)");
         System.out.println("  --license=LICENSE (include the file LICENSE in each generated file)");
         System.out.println("  --doxygen (enhance navigation and documentation when using doxygen)");
-		// EMMA_2009-11-17: Adding info about cache and trace flags
-		System.out.println("  --tracing (weaves in code generating a cache trace)");
-		System.out.println("  --cacheAll (cache all attributes)");
-		System.out.println("  --cacheNone (cache no attributes, except NTAs)");
-		System.out.println("  --cacheImplicit (make caching implicit, .caching files have higher priority)");
-		System.out.println("  --ignoreLazy (ignore the \"lazy\" keyword)");
-		// EMMA_2011-01-11: Added help print-out for already supported flags
-		System.out.println("  --suppressWarnings (supress warnings when using Java 5)");
-		System.out.println("  --parentInterfaces (search equations for inherited attributes using interfaces)");
-		System.out.println("  --noComponentCheck (generate strongly connected component optimization for circular attributes)");
-		System.out.println("  --noInhEqCheck (disable check for inherited equations)");
-		System.out.println("  --j2me (generate for J2ME)");
-		System.out.println("  --java1.4 (generate for Java1.4)");
-		System.out.println("  --debug (generate run-time checks for debugging)");
-		System.out.println("  --doc (generate javadoc like .html pages from sources)");
-		System.out.println("  --deterministic (..)");
-		System.out.println("  --stagedRewrites (..)");
-		System.out.println("  --refineLegacy (..)");
-		System.out.println("  --noStatic (..)");
-		System.out.println("  --synch (..)");
-		System.out.println("  --defaultMap=MAP (use these datastructures to hold cached attributes)");
-		System.out.println("  --defaultSet=SET (use these datastructures to hold cached attributes)");
-		System.out.println("  --lazyMaps (use these datastructures to hold cached attributes)");
+        // EMMA_2009-11-17: Adding info about cache and trace flags
+        System.out.println("  --tracing (weaves in code generating a cache trace)");
+        System.out.println("  --cacheAll (cache all attributes)");
+        System.out.println("  --cacheNone (cache no attributes, except NTAs)");
+        System.out.println("  --cacheImplicit (make caching implicit, .caching files have higher priority)");
+        System.out.println("  --ignoreLazy (ignore the \"lazy\" keyword)");
+        // EMMA_2011-01-11: Added help print-out for already supported flags
+        System.out.println("  --suppressWarnings (supress warnings when using Java 5)");
+        System.out.println("  --parentInterfaces (search equations for inherited attributes using interfaces)");
+        System.out.println("  --noComponentCheck (generate strongly connected component optimization for circular attributes)");
+        System.out.println("  --noInhEqCheck (disable check for inherited equations)");
+        System.out.println("  --j2me (generate for J2ME)");
+        System.out.println("  --java1.4 (generate for Java1.4)");
+        System.out.println("  --debug (generate run-time checks for debugging)");
+        System.out.println("  --doc (generate javadoc like .html pages from sources)");
+        System.out.println("  --deterministic (..)");
+        System.out.println("  --stagedRewrites (..)");
+        System.out.println("  --refineLegacy (..)");
+        System.out.println("  --noStatic (..)");
+        System.out.println("  --synch (..)");
+        System.out.println("  --defaultMap=MAP (use these datastructures to hold cached attributes)");
+        System.out.println("  --defaultSet=SET (use these datastructures to hold cached attributes)");
+        System.out.println("  --lazyMaps (use these datastructures to hold cached attributes)");
         System.out.println();
         System.out.println("Arguments:");
         System.out.println("Names of .ast, .jrag, .jadd and .caching source files");

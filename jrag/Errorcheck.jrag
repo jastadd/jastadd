@@ -51,15 +51,14 @@ aspect ErrorCollector {
     }
     
     for(int i = 0; i < getNumCollDecl(); i++) {
-    	  CollDecl decl  = getCollDecl(i);
-    	  result.append(decl.error());
-    	}
-    	
-    	for(int i = 0; i < getNumCollEq(); i++) {
-    	  CollEq equ = getCollEq(i);
-    	  result.append(equ.error());
-    	}
-    	
+      CollDecl decl  = getCollDecl(i);
+      result.append(decl.error());
+    }
+
+    for(int i = 0; i < getNumCollEq(); i++) {
+      CollEq equ = getCollEq(i);
+      result.append(equ.error());
+    }
 
     checkInhEquations(result);
     
@@ -131,8 +130,8 @@ aspect Errorcheck {
       if(r.length() != 0) {
         result.append(getFileName() + ":" + getStartLine() + " ");
         result.append("Syn eq for " + name() + " missing in the following classes:");
-	result.append(r.toString());
-	result.append("\n");
+        result.append(r.toString());
+        result.append("\n");
       }
     }
     String[] types = type().split("<");
@@ -160,7 +159,7 @@ aspect Errorcheck {
         ASTDecl decl = (ASTDecl)iter.next();
         if(!decl.checkSynEqs(signature, result)) {
           found = false;
-	}
+        }
       }
       success = found;
     }

@@ -80,7 +80,7 @@ public aspect Attributes {
           }
           if(paramOK) {
 
-			if (shouldBeCached && s.getLazy()) {
+            if (shouldBeCached && s.getLazy()) {
                 System.out.println("Warning: syn attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
@@ -88,10 +88,10 @@ public aspect Attributes {
                     " defined in aspect " + aspectName + " is already not lazy");
             } else {
 
-				s.setLazy(shouldBeCached);
-            	System.out.println("Making syn attribute " + name + " in " + className + 
+              s.setLazy(shouldBeCached);
+              System.out.println("Making syn attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + (shouldBeCached?"":" not") + " lazy");
-			}
+            }
 
             return;
           }
@@ -127,10 +127,10 @@ public aspect Attributes {
                     " defined in aspect " + aspectName + " is already not lazy");
             } else {
 
-				s.setLazy(shouldBeCached);
-            	System.out.println("Making inh attribute " + name + " in " + className + 
+              s.setLazy(shouldBeCached);
+              System.out.println("Making inh attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + (shouldBeCached?"":" not") + " lazy");
-			}
+            }
 
 /*
             if (shouldBeCached) {
@@ -166,9 +166,9 @@ public aspect Attributes {
 
 
   public void Grammar.addSynDecl(String name, String type, String className, boolean isLazy, 
-  		String fileName, int startLine, int endLine, ast.AST.List parameterList, 
-        ASTExpression bottomValue, boolean isFinal, boolean isNTA, jrag.AST.SimpleNode node, 
-        String aspectName) {
+      String fileName, int startLine, int endLine, ast.AST.List parameterList, 
+      ASTExpression bottomValue, boolean isFinal, boolean isNTA, jrag.AST.SimpleNode node, 
+      String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null) {
       SynDecl decl = new SynDecl(
@@ -288,7 +288,13 @@ public aspect Attributes {
   }
 
   public void Grammar.addClassBodyDecl(jrag.AST.SimpleNode n, String className, String fileName, String aspectName) {
-    addClassBodyDecl(n, className, fileName, "", aspectName);
+    TypeDecl c = lookup(className);
+    if(c != null) {
+      c.classBodyDecls.add(new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName));
+    }
+    else {
+      error("Can not add member to unknown class " + className + " in " + fileName + " at line " + n.firstToken.beginLine);
+    }
   }
 
   public void Grammar.addClassBodyDecl(jrag.AST.SimpleNode n, String className, String fileName, String comments, String aspectName) {

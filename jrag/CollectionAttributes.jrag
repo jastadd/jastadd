@@ -11,7 +11,7 @@ aspect CollectionAttributes {
       CollDecl attr = getCollDecl(i);
       String s = attr.resetVisit() + attr.resetCache();
       if(!attr.separateEvaluation() && !attr.onePhase())
-        s += "    #NAME#_contributors = " + (lazyMaps ? "null" : ASTNode.createContributorSet) + ";\n";
+        s += ind(2) + "#NAME#_contributors = " + (lazyMaps ? "null" : ASTNode.createContributorSet) + ";\n";
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       res.append(s);
 
@@ -26,9 +26,9 @@ aspect CollectionAttributes {
       CollDecl attr = getCollDecl(i);
       String s;
       if(attr.circularCollection())
-        s = genCircular(attr, attr.hostFileComment()) + attr.combineMethod();
+        s = genCircular(attr, attr.hostFileComment(ind)) + attr.combineMethod();
       else
-        s = genEquation(attr, attr.hostFileComment()) + attr.computeMethod();
+        s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
@@ -50,7 +50,10 @@ aspect CollectionAttributes {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       if(!attr.separateEvaluation() && (attr.isCircular() || !attr.onePhase())) {
-        buf.append("    public " + typeDefaultSet + " " + attr.attributeSignature() + "_contributors();\n");
+        buf.append(ind + "/**\n");
+        buf.append(ind + " * @apilvl internal\n");
+        buf.append(ind + " */\n");
+        buf.append(ind + "public " + typeDefaultSet + " " + attr.attributeSignature() + "_contributors();\n");
       }
     }
     return buf.toString();
@@ -63,7 +66,7 @@ aspect CollectionAttributes {
     if(!debugMode)
       return "";
     else
-      return "        if(node == null) throw new RuntimeException(\"Trying to evaluate collection attribute in subtree not attached to main tree\");";
+      return "if(node == null) throw new RuntimeException(\"Trying to evaluate collection attribute in subtree not attached to main tree\");";
   }
 
   // only used by circular collection attributes
@@ -72,138 +75,157 @@ aspect CollectionAttributes {
     boolean separateEvaluation = attr.separateEvaluation();
     String rootType = attr.root().name();
     if(attr.getNumParameter() == 0)
-      return attr.visitedDeclarations() + 
-         "    protected boolean #CLASS#.#NAME#_computed = false;\n" + 
-         "    protected boolean #CLASS#.#NAME#_initialized = false;\n" +
-         "    protected #TYPE# #CLASS#.#NAME#_value;\n" + 
-         (separateEvaluation ? "    protected #TYPE# #CLASS#.new_#NAME#_value;\n" : "") + 
+      return attr.visitedDeclarations() +
+         ind + "/**\n" +
+         ind + " * @apilvl internal\n" +
+         ind + " */\n" +
+         ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
+         ind + "/**\n" +
+         ind + " * @apilvl internal\n" +
+         ind + " */\n" +
+         ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
+         ind + "/**\n" +
+         ind + " * @apilvl internal\n" +
+         ind + " */\n" +
+         ind + "protected #TYPE# #CLASS#.#NAME#_value;\n" +
+         (separateEvaluation ? ind + "protected #TYPE# #CLASS#.new_#NAME#_value;\n" : "") +
          comment + suppressWarnings() +
-         "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" + 
+         ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
          (ASTNode.block ? ASTNode.blockBegin : "") +
-         attr.parameterStructure() + 
+         attr.parameterStructure() +
          attr.cacheCheck() +
-         "        ASTNode node = this;\n" +
-         "        while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
-         "            node = node.getParent();\n" +
-         attr.collDebugString() +
-         "        " + rootType + " root = (" + rootType + ")node;\n" +
+         ind(2) + "ASTNode node = this;\n" +
+         ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
+         ind(3) + "node = node.getParent();\n" +
+         ind(2) + attr.collDebugString() +
+         ind(2) + rootType + " root = (" + rootType + ")node;\n" +
          (separateEvaluation ? "" :
-         ("        if(root.collecting_contributors_#COLLECTINGSIGNATURE#)\n" +
-         "            throw new RuntimeException(\"Circularity during phase 1\");\n")) +
+         (ind(2) + "if(root.collecting_contributors_#COLLECTINGSIGNATURE#)\n" +
+         ind(3) + "throw new RuntimeException(\"Circularity during phase 1\");\n")) +
          attr.addComponentCheck() +
-         (separateEvaluation ? "" : "        root.collect_contributors_#COLLECTINGSIGNATURE#();\n") + 
-         "        if (!#NAME#_initialized) {\n" +
-         "            #NAME#_initialized = true;\n" + 
-         "            #NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
-         "        }\n" +
-         "        if (!state().IN_CIRCLE) {\n" +
-         "            state().IN_CIRCLE = true;\n" +
+         (separateEvaluation ? "" :
+         ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n") +
+         ind(2) + "if (!#NAME#_initialized) {\n" +
+         ind(3) + "#NAME#_initialized = true;\n" +
+         ind(3) + "#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+         ind(2) + "}\n" +
+         ind(2) + "if (!state().IN_CIRCLE) {\n" +
+         ind(3) + "state().IN_CIRCLE = true;\n" +
          attr.addAddToComponent() +
-         "    " + attr.cacheInitRewrite() + 
-         "            state().CIRCLE_INDEX = 1;\n" +
-         "            do {\n" +
-         "                #NAME#_visited = state().CIRCLE_INDEX;\n" +
-         "                state().CHANGE = false;\n" +
+         attr.cacheInitRewrite(ind(3)) +
+         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
+         ind(3) + "do {\n" +
+         ind(4) + "#NAME#_visited = state().CIRCLE_INDEX;\n" +
+         ind(4) + "state().CHANGE = false;\n" +
          (separateEvaluation ?
-         "                new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" :
-         "                #TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n") +
+         ind(4) + "new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" :
+         ind(4) + "#TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n") +
          (separateEvaluation ? "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" :
-         "                combine_#NAME#_contributions(new_#NAME#_value);\n") +
-         "                if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
-         "                    state().CHANGE = true;\n" +
-         "                #NAME#_value = new_#NAME#_value; \n" +
-         "                state().CIRCLE_INDEX++;\n" +
+         ind(4) + "combine_#NAME#_contributions(new_#NAME#_value);\n") +
+         ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
+         ind(5) + "state().CHANGE = true;\n" +
+         ind(4) + "#NAME#_value = new_#NAME#_value; \n" +
+         ind(4) + "state().CIRCLE_INDEX++;\n" +
          attr.cycleLimitCheck() +
-         "            } while (state().CHANGE);\n" +
-         "    " + attr.cacheStoreRewrite() + "{\n" +
-         "            #NAME#_computed = true;\n" +
+         ind(3) + "} while (state().CHANGE);\n" +
+         ind(3) + attr.cacheStoreRewrite() + "{\n" +
+         ind(3) + "#NAME#_computed = true;\n" +
          attr.cacheCycleInit() +
-         "            }\n" +
-         "            else {\n" +
+         ind(2) + "}\n" +
+         ind(2) + "else {\n" +
          attr.resetCycleInit() +
-         "              #NAME#_computed = false;\n" +
-         "              #NAME#_initialized = false;\n" + 
-         "            }\n" +                
-         "            state().IN_CIRCLE = false; \n" +
-         "    " + attr.returnStmt() +
-         "        }\n" +
-         "        if(#NAME#_visited != state().CIRCLE_INDEX) {\n" +
-         "            #NAME#_visited = state().CIRCLE_INDEX;\n" +
+         ind(3) + "#NAME#_computed = false;\n" +
+         ind(3) + "#NAME#_initialized = false;\n" +
+         ind(2) + "}\n" +
+         ind(2) + "state().IN_CIRCLE = false; \n" +
+         ind(2) + attr.returnStmt() +
+         ind(2) + "}\n" +
+         ind(2) + "if(#NAME#_visited != state().CIRCLE_INDEX) {\n" +
+         ind(3) + "#NAME#_visited = state().CIRCLE_INDEX;\n" +
          attr.cacheCycleCheck() +
          attr.resetCycleCheck() +
          attr.addAddToComponent() +
          (separateEvaluation ?
-         "            new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" :
-         "            #TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n") +
+         ind(3) + "new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" :
+         ind(3) + "#TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n") +
          (separateEvaluation ? "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" :
-         "            combine_#NAME#_contributions(new_#NAME#_value);\n") +
-         "            if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
-         "                state().CHANGE = true;\n" +
-         "            #NAME#_value = new_#NAME#_value; \n" +
-         "    " + attr.returnStmt() +
-         "        }\n" +
-         attr.returnStmt() + 
+         ind(3) + "combine_#NAME#_contributions(new_#NAME#_value);\n") +
+         ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
+         ind(4) + "state().CHANGE = true;\n" +
+         ind(3) + "#NAME#_value = new_#NAME#_value; \n" +
+         ind(3) + attr.returnStmt() +
+         ind(2) + "}\n" +
+         ind(2) + attr.returnStmt() +
          (ASTNode.block ? ASTNode.blockEnd : "") +
-         "    }\n\n";
+         ind + "}\n\n";
     else
-      return attr.visitedDeclarations() + 
-         "    protected " + typeDefaultSet + " #CLASS#.#NAME#_computed = " + createDefaultSet + ";\n" + 
-         "    protected " + typeDefaultSet + " #CLASS#.#NAME#_initialized = " + createDefaultSet + ";\n" +
-         "    protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
-         comment + suppressWarnings() + 
-         "    public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" + 
+      return attr.visitedDeclarations() +
+         ind + "/**\n" +
+         ind + " * @apilvl internal\n" +
+         ind + " */\n" +
+         ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_computed = " + createDefaultSet + ";\n" +
+         ind + "/**\n" +
+         ind + " * @apilvl internal\n" +
+         ind + " */\n" +
+         ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_initialized = " + createDefaultSet + ";\n" +
+         ind + "/**\n" +
+         ind + " * @apilvl internal\n" +
+         ind + " */\n" +
+         ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
+         comment + suppressWarnings() +
+         ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
          (ASTNode.block ? ASTNode.blockBegin : "") +
-         attr.parameterStructure() + 
+         attr.parameterStructure() +
          attr.initLazyMaps() +
-         attr.cacheCheck() + 
+         attr.cacheCheck() +
          attr.addComponentCheck() +
-         "        if (!#NAME#_initialized.contains(_parameters)) {\n" +
-         "            #NAME#_initialized.add(_parameters);\n" + 
-         "            #NAME#_values.put(_parameters, " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ");\n" + 
-         "        }\n" +
-         "        if (!state().IN_CIRCLE) {\n" +
-         "            state().IN_CIRCLE = true;\n" +
-         "    " + attr.cacheInitRewrite() + 
+         ind(2) + "if (!#NAME#_initialized.contains(_parameters)) {\n" +
+         ind(3) + "#NAME#_initialized.add(_parameters);\n" +
+         ind(3) + "#NAME#_values.put(_parameters, " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ");\n" +
+         ind(2) + "}\n" +
+         ind(2) + "if (!state().IN_CIRCLE) {\n" +
+         ind(3) + "state().IN_CIRCLE = true;\n" +
+         attr.cacheInitRewrite(ind(2)) +
          attr.addAddToComponent() +
-         "            state().CIRCLE_INDEX = 1;\n" +
-         "            #TYPE# new_#NAME#_value;\n" + 
-         "            do {\n" +
-         "                #NAME#_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));\n" +
-         "                state().CHANGE = false;\n" +
-         "                new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
-         "                combine_#NAME#_contributions(new_#NAME#_value);\n" +
-         "                if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
-         "                    state().CHANGE = true;\n" +
-         "                #NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n" +
-         "                state().CIRCLE_INDEX++;\n" +
+         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
+         ind(3) + "#TYPE# new_#NAME#_value;\n" +
+         ind(3) + "do {\n" +
+         ind(4) + "#NAME#_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));\n" +
+         ind(4) + "state().CHANGE = false;\n" +
+         ind(4) + "new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+         ind(4) + "combine_#NAME#_contributions(new_#NAME#_value);\n" +
+         ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
+         ind(5) + "state().CHANGE = true;\n" +
+         ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n" +
+         ind(4) + "state().CIRCLE_INDEX++;\n" +
          attr.cycleLimitCheck() +
-         "            } while (state().CHANGE);\n" +
-         "    " + attr.cacheStoreRewrite() + "{\n" +
-         "            #NAME#_computed.add(_parameters);\n" +
+         ind(3) + "} while (state().CHANGE);\n" +
+         ind(3) +  attr.cacheStoreRewrite() + "{\n" +
+         ind(3) + "#NAME#_computed.add(_parameters);\n" +
          attr.cacheCycleInit() +
-         "            }\n" +
-         "            else {\n" +
+         ind(3) + "}\n" +
+         ind(3) + "else {\n" +
          attr.resetCycleInit() +
-         "            #NAME#_computed.remove(_parameters);\n" +
-         "            #NAME#_initialized.remove(_parameters);\n" + 
-         "            }\n" +                
-         "            state().IN_CIRCLE = false; \n" +
-         "            return new_#NAME#_value;\n" + 
-         "        }\n" +
-         "        if(!new Interger(state().CIRCLE_INDEX).equals(#NAME#_visited.get(_parameters))) {\n" +
-         "            #NAME#_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));\n" +
+         ind(3) + "#NAME#_computed.remove(_parameters);\n" +
+         ind(3) + "#NAME#_initialized.remove(_parameters);\n" +
+         ind(3) + "}\n" +
+         ind(3) + "state().IN_CIRCLE = false; \n" +
+         ind(3) + "return new_#NAME#_value;\n" +
+         ind(2) + "}\n" +
+         ind(2) + "if(!new Interger(state().CIRCLE_INDEX).equals(#NAME#_visited.get(_parameters))) {\n" +
+         ind(3) + "#NAME#_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));\n" +
          attr.cacheCycleCheck() +
          attr.resetCycleCheck() +
-         "            #TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
-         "            combine_#NAME#_contributions(new_#NAME#_value);\n" +
-         "            if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
-         "                state().CHANGE = true;\n" +
-         "            #NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n" +
-         "            return new_#NAME#_value;\n" + 
-         "        }\n" +
-         "        return " + fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType()) + ";\n" + 
+         ind(3) + "#TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+         ind(3) + "combine_#NAME#_contributions(new_#NAME#_value);\n" +
+         ind(3) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
+         ind(4) + "state().CHANGE = true;\n" +
+         ind(3) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n" +
+         ind(3) + "return new_#NAME#_value;\n" +
+         ind(2) + "}\n" +
+         ind(2) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType()) + ";\n" +
          (ASTNode.block ? ASTNode.blockEnd : "") +
-         "    }\n\n";
+         ind + "}\n\n";
   }
 
   public String CollDecl.cacheCycleCheck() {
@@ -212,22 +234,22 @@ aspect CollectionAttributes {
     if (!cacheCycle) return "";
     if(getNumParameter() == 0)
       return
-         "            if (state().LAST_CYCLE) {\n" +
+         ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
          clearVisited() +
-         "                #NAME#_computed = true;\n" +
-         "                return #NAME#_value;\n" +
-         "            }\n";
+         ind(4) + "#NAME#_computed = true;\n" +
+         ind(4) + "return #NAME#_value;\n" +
+         ind(3) + "}\n";
      else
        return
-         "            if (state().LAST_CYCLE) {\n" +
+         ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
-         circularComputeCall() + ";\n" + 
+         circularComputeCall() + ";\n" +
          clearVisited() +
-         "                #NAME#_computed.add(_parameters);\n" +
-         "                return " + fromReferenceType("#NAME#_values.get(_parameters)" , getType()) + ";\n" + 
-         "            }\n";
+         ind(4) + "#NAME#_computed.add(_parameters);\n" +
+         ind(4) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , getType()) + ";\n" +
+         ind(3) + "}\n";
   }
 
   // only used by circular collection attributes
@@ -242,76 +264,85 @@ aspect CollectionAttributes {
   public String CollDecl.computeMethod() {
     String rootType = root().name();
     if(separateEvaluation()) // TODO: replace naive() with separateEvaluation()
-      return 
-      "    private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
-      "        ASTNode node = this;\n" +
-      "        while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
-      "            node = node.getParent();\n" +
+      return
+      ind + "/**\n" +
+      ind + " * @apilvl internal\n" +
+      ind + " */\n" +
+      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+      ind(2) + "ASTNode node = this;\n" +
+      ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
+      ind(3) + "node = node.getParent();\n" +
       collDebugString() +
-      "        " + rootType + " root = (" + rootType + ")node;\n" +
-      "        #NAME#_value = " + getBottomValue().unparse() + ";\n" +
-      "        root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" +
-      "        return #NAME#_value;\n" +
-      "    }\n\n";
+      ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
+      ind(2) + "#NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      ind(2) + "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" +
+      ind(2) + "return #NAME#_value;\n" +
+      ind + "}\n\n";
     else if(onePhase())
-      return 
-      "    private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
-      "        ASTNode node = this;\n" +
-      "        while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
-      "            node = node.getParent();\n" +
+      return
+      ind + "/**\n" +
+      ind + " * @apilvl internal\n" +
+      ind + " */\n" +
+      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+      ind(2) + "ASTNode node = this;\n" +
+      ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
+      ind(3) + "node = node.getParent();\n" +
       collDebugString() +
-      "        " + rootType + " root = (" + rootType + ")node;\n" +
-      "        root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-      "        if(#NAME#_value == null) #NAME#_value = " + getBottomValue().unparse() + ";\n" +
-      "        return #NAME#_value;\n" +
-      "    }\n\n";
+      ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
+      ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
+      ind(2) + "if(#NAME#_value == null) #NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      ind(2) + "return #NAME#_value;\n" +
+      ind + "}\n\n";
     else
-      return 
-      "    " + typeDefaultSet + " #CLASS#.#NAME#_contributors" + (lazyMaps ? "" : (" = " + ASTNode.createContributorSet)) + ";\n" +
-      "    public " + typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
-      (lazyMaps ? ("        if(#NAME#_contributors == null) #NAME#_contributors  = " + ASTNode.createContributorSet + ";\n") : "") +
-      "        return #NAME#_contributors;\n" +
-      "    }\n" +
-      "    private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
-      "        ASTNode node = this;\n" +
-      "        while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
-      "            node = node.getParent();\n" +
+      return
+      ind + typeDefaultSet + " #CLASS#.#NAME#_contributors" + (lazyMaps ? "" : (" = " + ASTNode.createContributorSet)) + ";\n" +
+      ind + "public " + typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
+      (lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + ASTNode.createContributorSet + ";\n") : "") +
+      ind(2) + "return #NAME#_contributors;\n" +
+      ind + "}\n" +
+      ind + "/**\n" +
+      ind + " * @apilvl internal\n" +
+      ind + " */\n" +
+      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+      ind(2) + "ASTNode node = this;\n" +
+      ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
+      ind(3) + "node = node.getParent();\n" +
       collDebugString() +
-      "        " + rootType + " root = (" + rootType + ")node;\n" +
-      "        root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-      "        #NAME#_value = " + getBottomValue().unparse() + ";\n" +
-      (lazyMaps ? "        if(#NAME#_contributors != null)\n" : "") +
-      "        for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
-      "            ASTNode contributor = (ASTNode)iter.next();\n" +
-      "            contributor.contributeTo_" + getTarget() + "_#NAME#(#NAME#_value);\n" +
-      "        }\n" +
+      ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
+      ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
+      ind(2) + "#NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      (lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
+      ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
+      ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
+      ind(3) + "contributor.contributeTo_" + getTarget() + "_#NAME#(#NAME#_value);\n" +
+      ind(2) + "}\n" +
       // TODO: disabled temporarily since collections may not be cached
-      //(lazyMaps ? "        #NAME#_contributors = null;\n" : "") +
-      "        return #NAME#_value;\n" +
-      "    }\n\n";
+      //(lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
+      ind(2) + "return #NAME#_value;\n" +
+      ind + "}\n\n";
   }
   // only used by circular collection attributes
   public String CollDecl.combineMethod() {
     if(separateEvaluation())
       return "";
-    
+
     String rootType = root().name();
-    String s = 
-      "    " + typeDefaultSet + " #CLASS#.#NAME#_contributors" + (lazyMaps ? "" : (" = " + ASTNode.createContributorSet)) + ";\n" +
-      "    public " + typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
-      (lazyMaps ? ("        if(#NAME#_contributors == null) #NAME#_contributors  = " + ASTNode.createContributorSet + ";\n") : "") +
-      "        return #NAME#_contributors;\n" +
-      "    }\n" +
-      "    private #TYPE# #CLASS#.combine_#NAME#_contributions(#TYPE# h) {\n" +
-      (lazyMaps ? "        if(#NAME#_contributors != null)\n" : "") +
-      "        for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
-      "            ASTNode contributor = (ASTNode)iter.next();\n" +
-      "            contributor.contributeTo_" + getTarget() + "_#NAME#(h);\n" +
-      "        }\n" +
+    String s =
+      ind + typeDefaultSet + " #CLASS#.#NAME#_contributors" + (lazyMaps ? "" : (" = " + ASTNode.createContributorSet)) + ";\n" +
+      ind + "public " + typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
+      (lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + ASTNode.createContributorSet + ";\n") : "") +
+      ind(2) + "return #NAME#_contributors;\n" +
+      ind + "}\n" +
+      ind + "private #TYPE# #CLASS#.combine_#NAME#_contributions(#TYPE# h) {\n" +
+      (lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
+      ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
+      ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
+      ind(3) + "contributor.contributeTo_" + getTarget() + "_#NAME#(h);\n" +
+      ind(2) + "}\n" +
       // TODO: disabled temporarily since collections may not be cached
-      //(lazyMaps ? "        #NAME#_contributors = null;\n" : "") +
-      "        return h;\n" +
-      "    }\n\n";
+      //(lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
+      ind(2) + "return h;\n" +
+      ind + "}\n\n";
       return s;
   }
 
@@ -325,7 +356,7 @@ aspect CollectionAttributes {
   }
 
   syn lazy String CollEq.contributionSignature() = ((CollDecl)decl()).getTarget() + "_" + attributeSignature();
-    
+
   syn boolean AttrDecl.separateEvaluation() = hasAnnotation("@SeparateEvaluation") || naive();
   syn boolean AttrEq.separateEvaluation() = decl().separateEvaluation();
   syn boolean AttrDecl.lazyCondition() = hasAnnotation("@LazyCondition");
@@ -380,77 +411,77 @@ aspect CollectionAttributes {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
       StringBuffer buf = new StringBuffer();
-      buf.append("    protected void #CLASS#.collect_contributors_" + key + "() {\n"); // once per group
+      buf.append(ind + "protected void #CLASS#.collect_contributors_" + key + "() {\n"); // once per group
 
       if(isRootNode()) {
-        buf.append("        if(collect_contributors_" + key + ") return;\n");
+        buf.append(ind(2) + "if(collect_contributors_" + key + ") return;\n");
       }
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         CollEq attr = (CollEq)i2.next();
         CollDecl decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        buf.append("    " + attr.hostFileComment());
+        buf.append(ind + attr.hostFileComment(ind, decl));
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(decl.onePhase() || decl.separateEvaluation()) { // TODO: add || decl.separateEvaluation()
             if(c.getCondition() != null)
-              buf.append("        if(" + c.getCondition().trim() + ") {\n");
+              buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
             if(attr.getRefSet()) {
-                buf.append("            for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-                buf.append("                " + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-                buf.append("                if(ref != null) {\n");
-                buf.append("                  if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + decl.getBottomValue().unparse() + ";\n");
-                buf.append("                  ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append("                }\n");
-                buf.append("            }\n");
+                buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
+                buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
+                buf.append(ind(4) + "if(ref != null) {\n");
+                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + decl.getBottomValue().unparse() + ";\n");
+                buf.append(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                buf.append(ind(4) + "}\n");
+                buf.append(ind(3) + "}\n");
             }
             else {
-                buf.append("            {\n");
-                buf.append("                " + attr.getTargetName() + " ref = " + attr.getReference() + ";\n");
-                buf.append("                if(ref != null) {\n");
-                buf.append("                  if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + decl.getBottomValue().unparse() + ";\n");
-                buf.append("                  ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append("                }\n");
-                buf.append("            }\n");
+                buf.append(ind(3) + "{\n");
+                buf.append(ind(4) + attr.getTargetName() + " ref = " + attr.getReference() + ";\n");
+                buf.append(ind(4) + "if(ref != null) {\n");
+                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + decl.getBottomValue().unparse() + ";\n");
+                buf.append(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                buf.append(ind(4) + "}\n");
+                buf.append(ind(3) + "}\n");
             }
             if(c.getCondition() != null)
-              buf.append("        }\n");
+              buf.append(ind(2) + "}\n");
           }
           else {
             if(c.getCondition() != null && !decl.lazyCondition())
-              buf.append("        if(" + c.getCondition().trim() + ") {\n");
+              buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
 
             if(attr.getRefSet()) {
-              buf.append("        for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-              buf.append("            " + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-              buf.append("            if(ref != null)\n");
-              buf.append("            ref." + NAME + "_contributors().add(this);\n"); // one name per collection attribute
-              buf.append("        }\n");
+              buf.append(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
+              buf.append(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
+              buf.append(ind(3) + "if(ref != null)\n");
+              buf.append(ind(3) + "ref." + NAME + "_contributors().add(this);\n"); // one name per collection attribute
+              buf.append(ind(2) + "}\n");
             }
             else {
-              buf.append("        {\n");
-              buf.append("            " + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")(" + attr.getReference().trim() + ");\n");
-              buf.append("            if(ref != null)\n");
-              buf.append("                ref." + NAME + "_contributors().add(this);\n"); // one name per collection attribute
-              buf.append("        }\n");
+              buf.append(ind(2) + "{\n");
+              buf.append(ind(3) + "" + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")(" + attr.getReference().trim() + ");\n");
+              buf.append(ind(3) + "if(ref != null)\n");
+              buf.append(ind(4) + "ref." + NAME + "_contributors().add(this);\n"); // one name per collection attribute
+              buf.append(ind(3) + "}");
             }
 
-            if(c.getCondition() != null && !decl.lazyCondition())            
-              buf.append("        }\n");
+            if(c.getCondition() != null && !decl.lazyCondition())
+              buf.append(ind(2) + "}\n");
           }
         }
       }
       if(isASTNode()) {
-        buf.append("        for(int i = 0; i < getNumChild(); i++)\n");
-        buf.append("            getChild(i).collect_contributors_" + key + "();\n"); // once per group
+        buf.append(ind(2) + "for(int i = 0; i < getNumChild(); i++)\n");
+        buf.append(ind(3) + "getChild(i).collect_contributors_" + key + "();\n"); // once per group
       }
       else {
-        buf.append("        super.collect_contributors_" + key + "();\n");
+        buf.append(ind(2) + "super.collect_contributors_" + key + "();\n");
         if(isRootNode()) {
-          buf.append("        collect_contributors_" + key + " = true;\n");
+          buf.append(ind(2) + "collect_contributors_" + key + " = true;\n");
         }
       }
-      buf.append("    }\n");
+      buf.append(ind + "}\n");
       String s = buf.toString();
       if(!aspectJ)
         s = s.replaceAll("#CLASS#\\.", "");
@@ -477,22 +508,22 @@ aspect CollectionAttributes {
       CollDecl decl = (CollDecl)iter.next();
       ArrayList list = (ArrayList)map.get(decl);
       StringBuffer buf = new StringBuffer();
-      buf.append("    protected void #CLASS#.contributeTo_#TYPEINSIGNATURE#_#NAME#(" + decl.getType() + " collection) {\n");
-      buf.append("        super.contributeTo_#TYPEINSIGNATURE#_#NAME#(collection);\n");
+      buf.append(ind + "protected void #CLASS#.contributeTo_#TYPEINSIGNATURE#_#NAME#(" + decl.getType() + " collection) {\n");
+      buf.append(ind(2) + "super.contributeTo_#TYPEINSIGNATURE#_#NAME#(collection);\n");
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         CollEq attr = (CollEq)i2.next();
       for(int j = 0; j < attr.getNumContribution(); j++) {
         Contribution c = attr.getContribution(j);
         if(c.getCondition() != null/* && attr.getNumContribution() > 1*/) {
-          buf.append("        if(" + c.getCondition().trim() + ")\n");
-          buf.append("            collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+          buf.append(ind(2) + "if(" + c.getCondition().trim() + ")\n");
+          buf.append(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
         }
         else {
-          buf.append("        collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+          buf.append(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
         }
       }
       }
-      buf.append("    }\n\n");
+      buf.append(ind + "}\n\n");
       String s = buf.toString();
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
@@ -523,61 +554,61 @@ aspect CollectionAttributes {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
       StringBuffer buf = new StringBuffer();
-      buf.append("    protected void #CLASS#.#TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n");
+      buf.append(ind + "protected void #CLASS#.#TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n");
       CollDecl decl = null;
       CollEq attr = null;
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         attr = (CollEq)i2.next();
         decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        buf.append("    " + attr.hostFileComment());
+        buf.append(ind + attr.hostFileComment(ind, decl));
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(c.getCondition() != null) {
             if(attr.lazyCondition()) {
               if(attr.getRefSet()) {
-                buf.append("            for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-                buf.append("                " + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-                buf.append("                if(ref == n && (" + c.getCondition().trim() + ")) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append("            }\n");
+                buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
+                buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
+                buf.append(ind(4) + "if(ref == n && (" + c.getCondition().trim() + ")) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                buf.append(ind(3) + "}\n");
               }
               else {
-                buf.append("            if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                buf.append(ind(3) + "if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
               }
             }
             else {
-              buf.append("        if(" + c.getCondition().trim() + ") {\n");
+              buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
               if(attr.getRefSet()) {
-                buf.append("            for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-                buf.append("                " + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-                buf.append("                if(ref == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append("            }\n");
+                buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
+                buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
+                buf.append(ind(4) + "if(ref == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                buf.append(ind(3) + "}\n");
               }
               else {
-                buf.append("            if(" + attr.getReference() + " == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                buf.append(ind(3) + "if(" + attr.getReference() + " == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
               }
-              buf.append("        }\n");
+              buf.append(ind(2) + "}\n");
             }
           }
           else {
             if(attr.getRefSet()) {
-              buf.append("        for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-              buf.append("            " + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-              buf.append("            if(ref == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-              buf.append("        }\n");
+              buf.append(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
+              buf.append(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
+              buf.append(ind(3) + "if(ref == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+              buf.append(ind(2) + "}\n");
             }
             else
-              buf.append("        if(" + attr.getReference() + " == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+              buf.append(ind(2) + "if(" + attr.getReference() + " == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
           }
         }
       }
       if(isASTNode()) {
-        buf.append("        for(int i = 0; i < getNumChild(); i++)\n");
-        buf.append("            getChild(i).#TYPEINSIGNATURE#_#NAME#_next_Iteration(n);\n"); // once per group
+        buf.append(ind(2) + "for(int i = 0; i < getNumChild(); i++)\n");
+        buf.append(ind(3) + "getChild(i).#TYPEINSIGNATURE#_#NAME#_next_Iteration(n);\n"); // once per group
       }
       else
-        buf.append("        super.#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n");
-      buf.append("    }\n");
+        buf.append(ind(3) + "r.#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n");
+      buf.append(ind + "}\n");
       String s = buf.toString();
       if(decl != null && !decl.isCircular()) { // TODO:replace decl.naive() with !decl.isCircular()
         s = s.replaceAll("n.new_", "n.");
@@ -653,21 +684,21 @@ aspect CollectionAttributes {
         if(!astDecl.hasCollEq(attr) && process) {
           if(separateEvaluation)
             s =
-            "    protected void #CLASS#.#TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n" +
-            "        for(int i = 0; i < getNumChild(); i++)\n" +
-            "            getChild(i).#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n" +
-            "    }\n\n";
+            ind + "protected void #CLASS#.#TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n" +
+            ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
+            ind(3) + "getChild(i).#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n" +
+            ind + "}\n\n";
           if(process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) // TODO: replace !attr.naive() with !(!attr.isCircular() && separateEvaluation)
-            s = s + 
-            "    protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
-            "        for(int i = 0; i < getNumChild(); i++)\n" +
-            "            getChild(i).collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-            "    }\n\n";
+            s = s +
+            ind + "protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
+            ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
+            ind(3) + "getChild(i).collect_contributors_#COLLECTINGSIGNATURE#();\n" +
+            ind + "}\n\n";
 
           if(!separateEvaluation && (attr.isCircular() || !attr.onePhase())) // TODO: add && !attr.separateEvaluation()
           s = s +
-            "    protected void #CLASS#.contributeTo_#TYPEINSIGNATURE#_#NAME#(" + attr.getType() + " collection) {\n" +
-            "    }\n";
+            ind + "protected void #CLASS#.contributeTo_#TYPEINSIGNATURE#_#NAME#(" + attr.getType() + " collection) {\n" +
+            ind + "}\n";
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
@@ -686,35 +717,35 @@ aspect CollectionAttributes {
           s = "";
           String flush = "";
           if(attr.circularCollection() && !separateEvaluation) { // TODO: remove && !attr.naive()
-            s = 
-              "    private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              "    public boolean #CLASS#.collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              "    protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
-              "        if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
-              "        collecting_contributors_#COLLECTINGSIGNATURE# = true;\n" +
-              "        super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-              "        collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              "        collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
-              "    }\n\n";
+            s =
+              ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "public boolean #CLASS#.collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
+              ind(2) + "if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
+              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = true;\n" +
+              ind(2) + "super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
+              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
+              ind + "}\n\n";
             flush =
-              "    collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              "    collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) { // TODO: replace !attr.naive() with !attr.separateEvaluation()
             if(!rootDecl.hasCollEq(attr)) {
-              s = 
-              "    private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              "    protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
-              "        if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
-              "        super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-              "        collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
-              "    }\n\n";
+              s =
+              ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
+              ind(2) + "if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
+              ind(2) + "super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
+              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
+              ind + "}\n\n";
             }
             else {
-              s = 
-              "    private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              s =
+              ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
             }
-            flush = 
-              "    collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+            flush =
+              ind + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
           }
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
@@ -790,13 +821,13 @@ aspect CollectionAttributes {
 
   public boolean AttrDecl.hasAnnotation(String s) { return false; }
   public boolean CollDecl.hasAnnotation(String s) {
-  	if(annotations == null) return false;
-  	for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
-  		String a = (String)iter.next();
-  		if(a.equals(s) || a.startsWith(s + "("))
-  			return true;
-  	}
-  	return false;
+    if(annotations == null) return false;
+    for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
+      String a = (String)iter.next();
+      if(a.equals(s) || a.startsWith(s + "("))
+        return true;
+    }
+    return false;
   }
   public String CollDecl.getAnnotationValue(String s) {
     for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
@@ -838,8 +869,8 @@ aspect CollectionAttributes {
   public void CollDecl.setCircularCollection(boolean b) { circularCollection = b; }
   public boolean CollDecl.circularCollection() { return circularCollection; }
   public boolean CollDecl.isCircular() { return circularCollection(); }
-  
-  
+
+
   eq CollDecl.error() {
     StringBuffer result = new StringBuffer();
     for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
@@ -857,7 +888,7 @@ aspect CollectionAttributes {
         result.append(getFileName() + ":" + getStartLine() + " CollectionGroup argument can not be empty\n");
       else if(!isValidIdentifierPart(value))
         result.append(getFileName() + ":" + getStartLine() + " CollectionGroup argument must be a valid identifier part\n");
-    } 
+    }
     if(root == null && hostClass().env().roots().size() != 1) {
       result.append(getFileName() + ":" + getStartLine() + " Multiple tree roots to search for contributions. Please explicitly select one of");
       for(Iterator iter = hostClass().env().roots().iterator(); iter.hasNext(); ) {
@@ -877,7 +908,7 @@ aspect CollectionAttributes {
         return false;
     return true;
   }
-  
+
   syn boolean CollDecl.knownAnnotation(String s) {
     if(s.equals("@OnePhase"))
       return true;
@@ -893,14 +924,14 @@ aspect CollectionAttributes {
       return true;
     return false;
   }
-    
+
   eq CollEq.error() {
     StringBuffer result = new StringBuffer();
-	if(decl() == null) {
+  if(decl() == null) {
       result.append(getFileName() + ":" + getStartLine() + " ");
       result.append("Undeclared collection attribute " + "\n");
-	}
+  }
     return result.toString();
   }
-  
+
 }

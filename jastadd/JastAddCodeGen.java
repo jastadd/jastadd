@@ -34,8 +34,8 @@ aspect JastAddCodeGen {
                         dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                 }
                 else if(o.node instanceof ASTAspectRefineMethodDeclaration) {
-                	ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
-                	object.refinesAspect = o.refinesAspect;
+                  ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
+                  object.refinesAspect = o.refinesAspect;
                     dest.classBodyDecls.add(object);
                 }
                 else if(o.node instanceof ASTBlock) {
@@ -49,8 +49,8 @@ aspect JastAddCodeGen {
                           dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                   }
                   else if(o.node instanceof ASTAspectRefineMethodDeclaration) {
-                  	ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
-                	object.refinesAspect = o.refinesAspect;
+                    ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
+                  object.refinesAspect = o.refinesAspect;
                     dest.refinedClassBodyDecls.add(object);
                   }
                   else if(o.node instanceof ASTBlock) {
@@ -135,10 +135,46 @@ aspect JastAddCodeGen {
       return modifiers() + "interface " + getIdDecl().getID() + typeParameters + " extends " + s + " {";
   }
 
-  public String TypeDecl.javaDocComment() {
-    if(!doxygen) {
-      return getComment() != null ? (getComment() + "\n") : "";
+  public String TypeDecl.classComment() {
+    if(doxygen)
+      return doxygenComment();
+    else
+      return javadocComment();
+  }
+
+  public abstract String TypeDecl.javadocTag();
+  public String ClassDecl.javadocTag() { return "@ast class"; }
+  public String InterfaceDecl.javadocTag() { return "@ast interface"; }
+  public String ASTDecl.javadocTag() { return "@ast node"; }
+
+  public String TypeDecl.javadocComment() {
+    String comment = getComment();
+    if (comment == null)
+      return augmentClassComment("/**\n */");
+    comment.trim();
+    if (comment.length() < 5)
+      return augmentClassComment("/**\n */");
+
+    int end = comment.lastIndexOf("*/");
+    int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
+
+    if (start != -1)
+      return augmentClassComment(comment.substring(start, end+2));
+    else {
+      return "\n" + augmentClassComment("/**\n */");
     }
+  }
+
+  public String TypeDecl.augmentClassComment(String comment) {
+    StringBuffer sb = new StringBuffer();
+    sb.append(comment.substring(0, comment.length()-2));
+    sb.append("* " + javadocTag() + "\n");
+    sb.append(" * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+    sb.append(" */\n");
+    return sb.toString();
+  }
+
+  public String TypeDecl.doxygenComment() {
     String extraString = "#LINE# \\file " + getFileName() + "\n#LINE# \\brief Declared in " + getFileName() + " at line " + getStartLine();
     String s = getComment();
     if(s != null)
@@ -173,15 +209,15 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
-
-      if(license != null) stream.println(license);
+      if(license != null && license.length() > 0)
+        stream.println(license);
 
       if(packageName != null && !packageName.equals("")) {
-        stream.println("package " + packageName + ";");
+        stream.println("package " + packageName + ";\n");
       }
 
       stream.print(env().genImportsList());
-      stream.print(javaDocComment());
+      stream.print(classComment());
       stream.println(typeDeclarationString());
 
       /*
@@ -224,25 +260,26 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
-      if(license != null) stream.println(license);
+      if(license != null && license.length() > 0)
+        stream.println(license);
 
       if(packageName != null && !packageName.equals("")) {
-        stream.println("package " + packageName + ";");
+        stream.println("package " + packageName + ";\n");
       }
 
       stream.print(env().genImportsList());
-      stream.print(javaDocComment());
+      stream.print(classComment());
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
       for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;
         
-          buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
-          if(!o.comments.equals(""))
-            buf.append(o.comments + " ");
-          n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
-          buf.append("\n\n");
+        //buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
+        //if(!o.comments.equals(""))
+          //buf.append(o.comments + " ");
+        n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
+        buf.append("\n\n");
       }
       stream.println(buf.toString());
 
@@ -271,10 +308,11 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
-      if(license != null) stream.println(license);
+      if(license != null && license.length() > 0)
+        stream.println(license);
 
       if(packageName != null && !packageName.equals("")) {
-        stream.println("package " + packageName + ";");
+        stream.println("package " + packageName + ";\n");
       }
 
       stream.print(env().genImportsList());
@@ -312,7 +350,7 @@ aspect JastAddCodeGen {
         }
       }
     
-      stream.print(javaDocComment());
+      stream.print(classComment());
       stream.print("public ");
       if(hasAbstract()) {
         stream.print("abstract ");

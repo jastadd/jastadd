@@ -62,8 +62,7 @@ aspect JaddCodeGen {
     if(!getComponents().hasNext())
       return "";
     StringBuffer s = new StringBuffer();
-    s.append("    // Declared in " + getFileName() + " line " + getStartLine() + "\n");
-    s.append("    public #ID#.#ID#(");
+    s.append(ind + "public #ID#.#ID#(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
@@ -82,37 +81,37 @@ aspect JaddCodeGen {
       if(!c.isNTA()) {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
-          s.append("        set" + t.getTokenId().getID() + "(p" + i + ");\n");
+          s.append(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");\n");
         }
         else {
-          s.append("        setChild(p" + String.valueOf(i) + ", " + j + ");\n");
+          s.append(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");\n");
           j++;
         }
         i++;
       }
       else {
         if(c instanceof ListComponents) {
-          s.append("        setChild(new List(), " + j + ");\n");
+          s.append(ind(2) + "setChild(new List(), " + j + ");\n");
           j++;
         }
         else if(c instanceof OptionalComponent) {
-          s.append("        setChild(new Opt(), " + j + ");\n");
+          s.append(ind(2) + "setChild(new Opt(), " + j + ");\n");
           j++;
         }
         else if(c instanceof AggregateComponents) {
-          s.append("        setChild(null, " + j + ");\n");
+          s.append(ind(2) + "setChild(null, " + j + ");\n");
           j++;
         }
       }
     }
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        s.append("        is$Final(java.lang.Integer.MAX_VALUE);\n");
+        s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
       else
-        s.append("        is$Final(true);\n");
+        s.append(ind(2) + "is$Final(true);\n");
     }
     if(ASTNode.block) s.append(ASTNode.blockEnd);
-    s.append("    }\n\n");
+    s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
   }
 
@@ -130,8 +129,7 @@ aspect JaddCodeGen {
     if(!stringArg) return "";
 
     StringBuffer s = new StringBuffer();
-    s.append("    // Declared in " + getFileName() + " line " + getStartLine() + "\n");
-    s.append("    public #ID#.#ID#(");
+    s.append(ind + "public #ID#.#ID#(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
@@ -153,522 +151,708 @@ aspect JaddCodeGen {
       if(!c.isNTA()) {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
-          s.append("        set" + t.getTokenId().getID() + "(p" + i + ");\n");
+          s.append(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");\n");
         }
         else {
-          s.append("        setChild(p" + String.valueOf(i) + ", " + j + ");\n");
+          s.append(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");\n");
           j++;
         }
         i++;
       }
       else {
         if(c instanceof ListComponents) {
-          s.append("        setChild(new List(), " + j + ");\n");
+          s.append(ind(2) + "setChild(new List(), " + j + ");\n");
           j++;
         }
         else if(c instanceof OptionalComponent) {
-          s.append("        setChild(new Opt(), " + j + ");\n");
+          s.append(ind(2) + "setChild(new Opt(), " + j + ");\n");
           j++;
         }
         else if(c instanceof AggregateComponents) {
-          s.append("        setChild(null, " + j + ");\n");
+          s.append(ind(2) + "setChild(null, " + j + ");\n");
           j++;
         }
       }
     }
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        s.append("        is$Final(java.lang.Integer.MAX_VALUE);\n");
+        s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
       else
-        s.append("        is$Final(true);\n");
+        s.append(ind(2) + "is$Final(true);\n");
     }
     if(ASTNode.block) s.append(ASTNode.blockEnd);
-    s.append("    }\n\n");
+    s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
   }
 
   public void Grammar.genReset(PrintWriter stream) {
-    stream.println("    public void ASTNode$State.reset() {");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode$State.reset() {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
     if(circularEnabled) {
-      stream.println("        IN_CIRCLE = false;");
-      stream.println("        CIRCLE_INDEX = 1;"); // TOBBE
-      stream.println("        CHANGE = false;");
+      stream.println(ind(2) + "IN_CIRCLE = false;");
+      stream.println(ind(2) + "CIRCLE_INDEX = 1;"); // TOBBE
+      stream.println(ind(2) + "CHANGE = false;");
       if(cacheCycle)
-          stream.println("        LAST_CYCLE = false;");
+          stream.println(ind(2) + "LAST_CYCLE = false;");
       if(componentCheck) {
-          stream.println("        circularEvalSet = " + ASTNode.createDefaultSet + ";");
-          stream.println("        circularEvalStack = new java.util.Stack();");
+          stream.println(ind(2) + "circularEvalSet = " + ASTNode.createDefaultSet + ";");
+          stream.println(ind(2) + "circularEvalStack = new java.util.Stack();");
       }
     }
     if(rewriteEnabled) {
-      stream.println("        boundariesCrossed = 0;");
+      stream.println(ind(2) + "boundariesCrossed = 0;");
       genResetDuringCounters(stream);
       if(rewriteLimit > 0)
-        stream.println("        debugRewrite = " + ASTNode.createDefaultMap + ";\n");
+        stream.println(ind(2) + "debugRewrite = " + ASTNode.createDefaultMap + ";\n");
       if(stagedRewrites)
-        stream.println("        rewritePhase = 1;\n");
+        stream.println(ind(2) + "rewritePhase = 1;\n");
     }
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
-    stream.println("    }");
+    stream.println(ind + "}");
   }
 
   public void Grammar.jjtGenASTNode$State(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
-      stream.println("   static public class ASTNode$State {");
-      if(circularEnabled) {
-         stream.println("  public boolean IN_CIRCLE = false;");
-         stream.println("  public int CIRCLE_INDEX = 1;");
-         stream.println("  public boolean CHANGE = false;");
-         if(cacheCycle) {
-            stream.println("  public boolean LAST_CYCLE = false;");
-         }
-         stream.println("  public boolean RESET_CYCLE = false;");
-
-         stream.println("  static public class CircularValue {");
-         stream.println("    Object value;");
-         stream.println("    int visited = -1;");
-         stream.println("  }");
-
-         if(componentCheck) {
-           stream.println("  public " + ASTNode.typeDefaultSet + " circularEvalSet = " + ASTNode.createDefaultSet + ";");
-           stream.println("  public java.util.Stack circularEvalStack = new java.util.Stack();");
-
-           stream.println("  static class CircularEvalEntry {");
-           stream.println("  	 ASTNode node;");
-           stream.println("  	 String attrName;");
-           stream.println("  	 Object parameters;");
-
-           stream.println("  	 public CircularEvalEntry(ASTNode node, String attrName, Object parameters) {");
-           stream.println("  	   this.node = node;");
-           stream.println("   	 this.attrName = attrName;");
-           stream.println("  		 this.parameters = parameters;");
-           stream.println("  	 }");
-
-           stream.println("  	 public boolean equals(Object rhs) {");
-           stream.println("  	   CircularEvalEntry s = (CircularEvalEntry) rhs;");
-           stream.println("  		 if (parameters == null && s.parameters == null)");
-           stream.println("  			 return node == s.node && attrName.equals(s.attrName);");
-           stream.println("  		 else if (parameters != null && s.parameters != null)");
-           stream.println("  			 return node == s.node && attrName.equals(s.attrName) && parameters.equals(s.parameters);");
-           stream.println("  		 else");
-           stream.println("  			 return false;");
-           stream.println("  	 }");
-
-           stream.println("  	 public int hashCode() {");
-           stream.println("  		 return node.hashCode();");
-           stream.println("  	 }");
-           stream.println("  }");
-
-           stream.println("  public void addEvalEntry(ASTNode node, String attrName, Object parameters) {");
-           stream.println("    circularEvalSet.add(new CircularEvalEntry(node,attrName,parameters));");
-           stream.println("  }");
-
-           stream.println("  public boolean containsEvalEntry(ASTNode node, String attrName, Object parameters) {");
-           stream.println("    return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));");
-           stream.println("  }");
-
-           stream.println("  static class CircularStackEntry {");
-           stream.println("    " + ASTNode.typeDefaultSet + " circularEvalSet;");
-           stream.println("  	 boolean changeValue;");
-
-           stream.println("  	 public CircularStackEntry(" + ASTNode.typeDefaultSet + " set, boolean change) {");
-           stream.println("  		 circularEvalSet = set;");
-           stream.println("  		 changeValue = change;");
-           stream.println("  	 }");
-           stream.println("  }");
-
-           stream.println("  public void pushEvalStack() {");
-           stream.println("  	 circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));");
-           stream.println("  	 circularEvalSet = " + ASTNode.createDefaultSet + ";");
-           stream.println("  	 CHANGE = false;");
-           stream.println("  }");
-
-           stream.println("  public void popEvalStack() {");
-           stream.println("  	 CircularStackEntry c = (CircularStackEntry) circularEvalStack.pop();");
-           stream.println("  	 circularEvalSet = c.circularEvalSet;");
-           stream.println("  	 CHANGE = c.changeValue;");
-           stream.println("  }");
-
-         }
+    stream.println("/**");
+    stream.println(" * @apilvl internal");
+    stream.println(" */");
+    stream.println("static public class ASTNode$State {");
+    if(circularEnabled) {
+      stream.println("/**");
+      stream.println(" * @apilvl internal");
+      stream.println(" */");
+      stream.println(ind + "public boolean IN_CIRCLE = false;");
+      stream.println("/**");
+      stream.println(" * @apilvl internal");
+      stream.println(" */");
+      stream.println(ind + "public int CIRCLE_INDEX = 1;");
+      stream.println("/**");
+      stream.println(" * @apilvl internal");
+      stream.println(" */");
+      stream.println(ind + "public boolean CHANGE = false;");
+      if(cacheCycle) {
+        stream.println("/**");
+        stream.println(" * @apilvl internal");
+        stream.println(" */");
+        stream.println(ind + "public boolean LAST_CYCLE = false;");
       }
-      if(rewriteEnabled) {
-        stream.println("  public static final int REWRITE_CHANGE = 1;");
-        stream.println("  public static final int REWRITE_NOCHANGE = 2;");
-        stream.println("  public static final int REWRITE_INTERRUPT = 3;");
-        if(rewriteLimit > 0) {
-          stream.println("  public java.util.HashMap debugRewrite = " + ASTNode.createDefaultMap + ";\n");
-        }
-        stream.println("  public int boundariesCrossed = 0;\n");
-        if(stagedRewrites)
-          stream.println("public int rewritePhase = 1;");
-        // state code
-        stream.println("   private int[] stack;");
-        stream.println("   private int pos;");
-        stream.println("   public ASTNode$State() {");
-        stream.println("     stack = new int[64];");
-        stream.println("     pos = 0;");
-        stream.println("   }");
-        stream.println("   private void ensureSize(int size) {");
-        stream.println("     if(size < stack.length)");
-        stream.println("       return;");
-        stream.println("     int[] newStack = new int[stack.length * 2];");
-        stream.println("     System.arraycopy(stack, 0, newStack, 0, stack.length);");
-        stream.println("     stack = newStack;");
-        stream.println("   }");
-        stream.println("   public void push(int i) {");
-        stream.println("     ensureSize(pos+1);");
-        stream.println("     stack[pos++] = i;");
-        stream.println("   }");
-        stream.println("   public int pop() {");
-        stream.println("     return stack[--pos];");
-        stream.println("   }");
-        stream.println("   public int peek() {");
-        stream.println("     return stack[pos-1];");
-        stream.println("   }");
-      }
+      stream.println("/**");
+      stream.println(" * @apilvl internal");
+      stream.println(" */");
+      stream.println(ind + "public boolean RESET_CYCLE = false;");
 
-      if(j2me) {
-        stream.println("  static class HashtableBasedSet  {");
-        stream.println("    public HashtableBasedSet(int initialCapacity) {");
-        stream.println("      map = new java.util.Hashtable(initialCapacity);");
-        stream.println("    }");
-        stream.println("    private java.util.Hashtable map;");
-        stream.println("    private static final Object PRESENT = new Object();");
-        stream.println("    public java.util.Enumeration elements() { return map.keys(); }");
-        stream.println("    public int size() { return map.size(); }");
-        stream.println("    public boolean isEmpty() { return map.isEmpty(); }");
-        stream.println("    public boolean contains(Object o) { return map.containsKey(o); }");
-        stream.println("    public boolean add(Object o) { return map.put(o, PRESENT)==null; }");
-        stream.println("    public boolean remove(Object o) { return map.remove(o)==PRESENT; }");
-        stream.println("    public void clear() { map.clear(); }");
-        stream.println("  }");
-      }
-      else if(deterministic) {
-        stream.println("  static class IdentityHashSet extends java.util.LinkedHashSet {");
-        stream.println("    public IdentityHashSet(int initialCapacity) { super(initialCapacity); }");
-        stream.println("    public java.util.Iterator iterator() {");
-        stream.println("      final java.util.Iterator i = super.iterator();");
-        stream.println("      return new java.util.Iterator() {");
-        stream.println("        public boolean hasNext() { return i.hasNext(); }");
-        stream.println("        public Object next() { return ((Wrapper)i.next()).o; }");
-        stream.println("        public void remove() { i.remove(); }");
-        stream.println("      };");
-        stream.println("    }");
-        stream.println("    public boolean contains(Object o) { return super.contains(wrap(o)); }");
-        stream.println("    public boolean add(Object o) { return super.add(wrap(o)); }");
-        stream.println("    public boolean remove(Object o) { return super.remove(wrap(o)); }");
-        stream.println("    private Wrapper wrap(Object o) { return new Wrapper(o); }");
-        stream.println("    private static class Wrapper {");
-        stream.println("      private Object o;");
-        stream.println("      private Wrapper(Object o) { this.o = o; }");
-        stream.println("      public boolean equals(Object other) { return other instanceof Wrapper && ((Wrapper)other).o == o; }");
-        stream.println("      public int hashCode() { return System.identityHashCode(o); }");
-        stream.println("    }");
-        stream.println("  }");
-      }
-      else {
-        stream.println("  static class IdentityHashSet extends java.util.AbstractSet implements java.util.Set {");
-        stream.println("    public IdentityHashSet(int initialCapacity) {");
-        stream.println("      map = new java.util.IdentityHashMap(initialCapacity);");
-        stream.println("    }");
-        stream.println("    private java.util.IdentityHashMap map;");
-        stream.println("    private static final Object PRESENT = new Object();");
-        stream.println("    public java.util.Iterator iterator() { return map.keySet().iterator(); }");
-        stream.println("    public int size() { return map.size(); }");
-        stream.println("    public boolean isEmpty() { return map.isEmpty(); }");
-        stream.println("    public boolean contains(Object o) { return map.containsKey(o); }");
-        stream.println("    public boolean add(Object o) { return map.put(o, PRESENT)==null; }");
-        stream.println("    public boolean remove(Object o) { return map.remove(o)==PRESENT; }");
-        stream.println("    public void clear() { map.clear(); }");
-        stream.println("  }");
-      }
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "static public class CircularValue {");
+      stream.println(ind(2) + "Object value;");
+      stream.println(ind(2) + "int visited = -1;");
+      stream.println(ind + "}");
 
-      stream.println("  }"); // End ASTNode$State
+      if(componentCheck) {
+        stream.println(ind + "public " + ASTNode.typeDefaultSet + " circularEvalSet = " + ASTNode.createDefaultSet + ";");
+        stream.println(ind + "public java.util.Stack circularEvalStack = new java.util.Stack();");
+
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "static class CircularEvalEntry {");
+        stream.println(ind(2) + "ASTNode node;");
+        stream.println(ind(2) + "String attrName;");
+        stream.println(ind(2) + "Object parameters;");
+
+        stream.println(ind(2) + "public CircularEvalEntry(ASTNode node, String attrName, Object parameters) {");
+        stream.println(ind(3) + "this.node = node;");
+        stream.println(ind(3) + "this.attrName = attrName;");
+        stream.println(ind(3) + "this.parameters = parameters;");
+        stream.println(ind(2) + "}");
+
+        stream.println(ind(2) + "public boolean equals(Object rhs) {");
+        stream.println(ind(3) + "CircularEvalEntry s = (CircularEvalEntry) rhs;");
+        stream.println(ind(3) + "if (parameters == null && s.parameters == null)");
+        stream.println(ind(4) + "return node == s.node && attrName.equals(s.attrName);");
+        stream.println(ind(3) + "else if (parameters != null && s.parameters != null)");
+        stream.println(ind(4) + "return node == s.node && attrName.equals(s.attrName) && parameters.equals(s.parameters);");
+        stream.println(ind(3) + "else");
+        stream.println(ind(4) + "return false;");
+        stream.println(ind(2) + "}");
+
+        stream.println(ind(2) + "public int hashCode() {");
+        stream.println(ind(3) + "return node.hashCode();");
+        stream.println(ind(2) + "}");
+        stream.println(ind + "}");
+
+        stream.println(ind + "public void addEvalEntry(ASTNode node, String attrName, Object parameters) {");
+        stream.println(ind(2) + "circularEvalSet.add(new CircularEvalEntry(node,attrName,parameters));");
+        stream.println(ind + "}");
+
+        stream.println(ind + "public boolean containsEvalEntry(ASTNode node, String attrName, Object parameters) {");
+        stream.println(ind(2) + "return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));");
+        stream.println(ind + "}");
+
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "static class CircularStackEntry {");
+        stream.println(ind(2) + "" + ASTNode.typeDefaultSet + " circularEvalSet;");
+        stream.println(ind(2) + "boolean changeValue;");
+
+        stream.println(ind(2) + "public CircularStackEntry(" + ASTNode.typeDefaultSet + " set, boolean change) {");
+        stream.println(ind(3) + "circularEvalSet = set;");
+        stream.println(ind(3) + "changeValue = change;");
+        stream.println(ind(2) + "}");
+        stream.println(ind + "}");
+
+        stream.println(ind + "public void pushEvalStack() {");
+        stream.println(ind(2) + "circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));");
+        stream.println(ind(2) + "circularEvalSet = " + ASTNode.createDefaultSet + ";");
+        stream.println(ind(2) + "CHANGE = false;");
+        stream.println(ind + "}");
+
+        stream.println(ind + "public void popEvalStack() {");
+        stream.println(ind(2) + "CircularStackEntry c = (CircularStackEntry) circularEvalStack.pop();");
+        stream.println(ind(2) + "circularEvalSet = c.circularEvalSet;");
+        stream.println(ind(2) + "CHANGE = c.changeValue;");
+        stream.println(ind + "}");
+
+      }
+    }
+    if(rewriteEnabled) {
+      stream.println(ind + "public static final int REWRITE_CHANGE = 1;");
+      stream.println(ind + "public static final int REWRITE_NOCHANGE = 2;");
+      stream.println(ind + "public static final int REWRITE_INTERRUPT = 3;");
+      if(rewriteLimit > 0) {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public java.util.HashMap debugRewrite = " + ASTNode.createDefaultMap + ";\n");
+      }
+      stream.println(ind + "public int boundariesCrossed = 0;\n");
+      if(stagedRewrites)
+        stream.println(ind + "public int rewritePhase = 1;");
+      // state code
+      stream.println(ind + "private int[] stack;");
+      stream.println(ind + "private int pos;");
+      stream.println(ind + "public ASTNode$State() {");
+      stream.println(ind(3) + "stack = new int[64];");
+      stream.println(ind(3) + "pos = 0;");
+      stream.println(ind + "}");
+      stream.println(ind + "private void ensureSize(int size) {");
+      stream.println(ind(3) + "if(size < stack.length)");
+      stream.println(ind(4) + "return;");
+      stream.println(ind(3) + "int[] newStack = new int[stack.length * 2];");
+      stream.println(ind(3) + "System.arraycopy(stack, 0, newStack, 0, stack.length);");
+      stream.println(ind(3) + "stack = newStack;");
+      stream.println(ind + "}");
+      stream.println(ind + "public void push(int i) {");
+      stream.println(ind(2) + "ensureSize(pos+1);");
+      stream.println(ind(2) + "stack[pos++] = i;");
+      stream.println(ind + "}");
+      stream.println(ind + "public int pop() {");
+      stream.println(ind(2) + "return stack[--pos];");
+      stream.println(ind + "}");
+      stream.println(ind + "public int peek() {");
+      stream.println(ind(2) + "return stack[pos-1];");
+      stream.println(ind + "}");
+    }
+
+    if(j2me) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "static class HashtableBasedSet  {");
+      stream.println(ind(2) + "public HashtableBasedSet(int initialCapacity) {");
+      stream.println(ind(3) + "map = new java.util.Hashtable(initialCapacity);");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "private java.util.Hashtable map;");
+      stream.println(ind(2) + "private static final Object PRESENT = new Object();");
+      stream.println(ind(2) + "public java.util.Enumeration elements() { return map.keys(); }");
+      stream.println(ind(2) + "public int size() { return map.size(); }");
+      stream.println(ind(2) + "public boolean isEmpty() { return map.isEmpty(); }");
+      stream.println(ind(2) + "public boolean contains(Object o) { return map.containsKey(o); }");
+      stream.println(ind(2) + "public boolean add(Object o) { return map.put(o, PRESENT)==null; }");
+      stream.println(ind(2) + "public boolean remove(Object o) { return map.remove(o)==PRESENT; }");
+      stream.println(ind(2) + "public void clear() { map.clear(); }");
+      stream.println(ind + "}");
+    }
+    else if(deterministic) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "static class IdentityHashSet extends java.util.LinkedHashSet {");
+      stream.println(ind(2) + "public IdentityHashSet(int initialCapacity) { super(initialCapacity); }");
+      stream.println(ind(2) + "/**");
+      stream.println(ind(2) + " * @apilvl internal");
+      stream.println(ind(2) + " */");
+      stream.println(ind(2) + "public java.util.Iterator iterator() {");
+      stream.println(ind(3) + "final java.util.Iterator i = super.iterator();");
+      stream.println(ind(3) + "return new java.util.Iterator() {");
+      stream.println(ind(4) + "public boolean hasNext() { return i.hasNext(); }");
+      stream.println(ind(4) + "public Object next() { return ((Wrapper)i.next()).o; }");
+      stream.println(ind(4) + "public void remove() { i.remove(); }");
+      stream.println(ind(3) + "};");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "public boolean contains(Object o) { return super.contains(wrap(o)); }");
+      stream.println(ind(2) + "public boolean add(Object o) { return super.add(wrap(o)); }");
+      stream.println(ind(2) + "public boolean remove(Object o) { return super.remove(wrap(o)); }");
+      stream.println(ind(2) + "private Wrapper wrap(Object o) { return new Wrapper(o); }");
+      stream.println(ind(2) + "/**");
+      stream.println(ind(2) + " * @apilvl internal");
+      stream.println(ind(2) + " */");
+      stream.println(ind(2) + "private static class Wrapper {");
+      stream.println(ind(3) + "private Object o;");
+      stream.println(ind(3) + "private Wrapper(Object o) { this.o = o; }");
+      stream.println(ind(3) + "public boolean equals(Object other) { return other instanceof Wrapper && ((Wrapper)other).o == o; }");
+      stream.println(ind(3) + "public int hashCode() { return System.identityHashCode(o); }");
+      stream.println(ind(2) + "}");
+      stream.println(ind + "}");
+    }
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "static class IdentityHashSet extends java.util.AbstractSet implements java.util.Set {");
+      stream.println(ind(2) + "public IdentityHashSet(int initialCapacity) {");
+      stream.println(ind(3) + "map = new java.util.IdentityHashMap(initialCapacity);");
+      stream.println(ind(3) + "}");
+      stream.println(ind(2) + "private java.util.IdentityHashMap map;");
+      stream.println(ind(2) + "private static final Object PRESENT = new Object();");
+      stream.println(ind(2) + "public java.util.Iterator iterator() { return map.keySet().iterator(); }");
+      stream.println(ind(2) + "public int size() { return map.size(); }");
+      stream.println(ind(2) + "public boolean isEmpty() { return map.isEmpty(); }");
+      stream.println(ind(2) + "public boolean contains(Object o) { return map.containsKey(o); }");
+      stream.println(ind(2) + "public boolean add(Object o) { return map.put(o, PRESENT)==null; }");
+      stream.println(ind(2) + "public boolean remove(Object o) { return map.remove(o)==PRESENT; }");
+      stream.println(ind(2) + "public void clear() { map.clear(); }");
+      stream.println(ind + "}");
+    }
+
+    stream.println("}"); // End ASTNode$State
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
-      stream.println("   public static final boolean ASTNode.generatedWithCircularEnabled = " + ASTNode.circularEnabled + ";");
-      stream.println("   public static final boolean ASTNode.generatedWithCacheCycle = " + ASTNode.cacheCycle + ";");
-      stream.println("   public static final boolean ASTNode.generatedWithComponentCheck = " + ASTNode.componentCheck + ";");
-      if(ASTNode.noStatic) {
-        stream.println("    protected ASTNode$State ASTNode.state = null;");
-        stream.println("    public final ASTNode$State ASTNode.state() {");
-        stream.println("        if(state == null) {");
-        stream.println("            if(parent == null) {");
-        stream.println("                 state = new ASTNode$State();");
-        if(ASTNode.debugMode) {
-          // check if a new state object is created for a node that is not a root node
-          StringBuffer s = new StringBuffer();
-          s.append("if(");
-          boolean first = true;
-          for(Iterator iter = env().roots().iterator(); iter.hasNext(); ) {
-            ASTDecl root = (ASTDecl)iter.next();
-            if(!first)
-              s.append(" && ");
-            first = false;
-            s.append("!(this instanceof " + root.name() + ")");
-          }
-          s.append(") throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
-          stream.println(s.toString());
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " */");
+    stream.println(ind + "public static final boolean ASTNode.generatedWithCircularEnabled = " + ASTNode.circularEnabled + ";");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " */");
+    stream.println(ind + "public static final boolean ASTNode.generatedWithCacheCycle = " + ASTNode.cacheCycle + ";");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " */");
+    stream.println(ind + "public static final boolean ASTNode.generatedWithComponentCheck = " + ASTNode.componentCheck + ";");
+    if(ASTNode.noStatic) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "protected ASTNode$State ASTNode.state = null;");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "public final ASTNode$State ASTNode.state() {");
+      stream.println(ind(2) + "if(state == null) {");
+      stream.println(ind(3) + "if(parent == null) {");
+      stream.println(ind(4) + "state = new ASTNode$State();");
+      if(ASTNode.debugMode) {
+        // check if a new state object is created for a node that is not a root node
+        StringBuffer s = new StringBuffer();
+        s.append("if(");
+        boolean first = true;
+        for(Iterator iter = env().roots().iterator(); iter.hasNext(); ) {
+          ASTDecl root = (ASTDecl)iter.next();
+          if(!first)
+            s.append(" && ");
+          first = false;
+          s.append("!(this instanceof " + root.name() + ")");
         }
-        stream.println("            }");
-        stream.println("            else {");
-        stream.println("                state = parent.state();");
-        stream.println("            }");
-        stream.println("        }");
-        stream.println("        return state;");
-        stream.println("    }");
+        s.append(") throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
+        stream.println(s.toString());
       }
-      else {
-        stream.println("   protected static ASTNode$State ASTNode.state = new ASTNode$State();");
-        stream.println("   public final ASTNode$State ASTNode.state() { return state; }");
-      }
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "else {");
+      stream.println(ind(4) + "tate = parent.state();");
+      stream.println(ind(3) + "}");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "return state;");
+      stream.println(ind + "}");
+    }
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "protected static ASTNode$State ASTNode.state = new ASTNode$State();");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "public final ASTNode$State ASTNode.state() { return state; }");
+    }
 
-      if(rewriteEnabled) {
-        if(rewriteLimit > 0) {
-          stream.println("  public void ASTNode.debugRewrite(String info) {");
-          stream.println("    if(!parent.is$Final()) return;");
-          stream.println("    java.util.ArrayList key = new java.util.ArrayList(2);");
-          stream.println("    key.add(getParent());");
-          stream.println("    key.add(new Integer(getParent().getIndexOfChild(this)));");
-          stream.println("    java.util.ArrayList list;");
-          stream.println("    if(state().debugRewrite.containsKey(key))");
-          stream.println("      list = (java.util.ArrayList)state().debugRewrite.get(key);");
-          stream.println("    else {");
-          stream.println("      list = new java.util.ArrayList();");
-          stream.println("      state().debugRewrite.put(key, list);");
-          stream.println("    }");
-          stream.println("    list.add(info);");
-          stream.println("    if(list.size() > " + rewriteLimit + ") {");
-          stream.println("      StringBuffer buf = new StringBuffer(\"Iteration count exceeded for rewrite:\");");
-          stream.println("      for(java.util.Iterator iter = list.iterator(); iter.hasNext(); ) buf.append(\"\\n\" + iter.next());");
-          stream.println("      throw new RuntimeException(buf.toString());");
-          stream.println("    }");
-          stream.println("  }");
-          stream.println("  public void ASTNode.debugRewriteRemove() {");
-          stream.println("    java.util.ArrayList key = new java.util.ArrayList(2);");
-          stream.println("    key.add(getParent());");
-          stream.println("    key.add(new Integer(getParent().getIndexOfChild(this)));");
-          stream.println("    state().debugRewrite.remove(key);");
-          stream.println("  }\n");
-        }
-        stream.println("  public boolean ASTNode.in$Circle = false;");
-        stream.println("  public boolean ASTNode.in$Circle() { return in$Circle; }");
-        stream.println("  public void ASTNode.in$Circle(boolean b) { in$Circle = b; }");
-        if(ASTNode.stagedRewrites) {
-          stream.println("  public int ASTNode.is$Final = 0;");
-          stream.println("  public boolean ASTNode.is$Final() { return is$Final >= state().rewritePhase; }");
-          stream.println("  public void ASTNode.is$Final(int phase) { is$Final = phase; }");
-          stream.println("  public void ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }");
-          stream.println("  public boolean ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }");
-        }
-        else {
-          stream.println("  public boolean ASTNode.is$Final = false;");
-          stream.println("  public boolean ASTNode.is$Final() { return is$Final; }");
-          stream.println("  public void ASTNode.is$Final(boolean b) { is$Final = b; }");
-        }
-        if(ASTNode.java5) {
-          stream.println("  @SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-          stream.println("    return (T)ASTNode.getChild(this, i);");
-          stream.println("  }");
-        }
-        else {
-          stream.println("  public ASTNode ASTNode.getChild(int i) {");
-          stream.println("    return ASTNode.getChild(this, i);");
-          stream.println("  }");
-        }
-        stream.println("  public static ASTNode ASTNode.getChild(ASTNode that, int i) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        stream.println("    ASTNode node = that.getChildNoTransform(i);");
-        stream.println("    if(node.is$Final()) return node;");
-       stream.println("    if(!node.mayHaveRewrite()) {");
-        if(ASTNode.stagedRewrites)
-          stream.println("      node.is$Final(that.is$Final);");
-        else
-          stream.println("      node.is$Final(that.is$Final());");
-        stream.println("      return node;");
-        stream.println("    }");
-        stream.println("    if(!node.in$Circle()) {");
-        stream.println("      int rewriteState;");
-        stream.println("      int num = that.state().boundariesCrossed;");
-        stream.println("      do {");
-        stream.println("        that.state().push(ASTNode$State.REWRITE_CHANGE);");
-        stream.println("        ASTNode oldNode = node;");
-        stream.println("        oldNode.in$Circle(true);");
-        stream.println("        node = node.rewriteTo();");
-        stream.println("        if(node != oldNode)");
-        stream.println("          that.setChild(node, i);");
-        stream.println("        oldNode.in$Circle(false);");
-        stream.println("        rewriteState = that.state().pop();");
-        stream.println("      } while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
-        stream.println("      if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && that.is$Final()) {");
-        if(ASTNode.stagedRewrites)
-          stream.println("        node.is$Final(that.state().rewritePhase);");
-        else
-          stream.println("        node.is$Final(true);");
-        stream.println("        that.state().boundariesCrossed = num;");
-        if(rewriteLimit > 0)
-          stream.println("        node.debugRewriteRemove();");
-        stream.println("      }");
-        stream.println("    }");
-        stream.println("    else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
-        stream.println("    return node;");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
+    if(rewriteEnabled) {
+      if(rewriteLimit > 0) {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public void ASTNode.debugRewrite(String info) {");
+        stream.println(ind(2) + "if(!parent.is$Final()) return;");
+        stream.println(ind(2) + "java.util.ArrayList key = new java.util.ArrayList(2);");
+        stream.println(ind(2) + "key.add(getParent());");
+        stream.println(ind(2) + "key.add(new Integer(getParent().getIndexOfChild(this)));");
+        stream.println(ind(2) + "java.util.ArrayList list;");
+        stream.println(ind(2) + "if(state().debugRewrite.containsKey(key))");
+        stream.println(ind(3) + "list = (java.util.ArrayList)state().debugRewrite.get(key);");
+        stream.println(ind(2) + "else {");
+        stream.println(ind(3) + "list = new java.util.ArrayList();");
+        stream.println(ind(3) + "state().debugRewrite.put(key, list);");
+        stream.println(ind(2) + "}");
+        stream.println(ind(2) + "list.add(info);");
+        stream.println(ind(2) + "if(list.size() > " + rewriteLimit + ") {");
+        stream.println(ind(3) + "StringBuffer buf = new StringBuffer(\"Iteration count exceeded for rewrite:\");");
+        stream.println(ind(3) + "for(java.util.Iterator iter = list.iterator(); iter.hasNext(); ) buf.append(\"\\n\" + iter.next());");
+        stream.println(ind(3) + "throw new RuntimeException(buf.toString());");
+        stream.println(ind(2) + "}");
+        stream.println(ind + "}");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public void ASTNode.debugRewriteRemove() {");
+        stream.println(ind(2) + "java.util.ArrayList key = new java.util.ArrayList(2);");
+        stream.println(ind(2) + "key.add(getParent());");
+        stream.println(ind(2) + "key.add(new Integer(getParent().getIndexOfChild(this)));");
+        stream.println(ind(2) + "state().debugRewrite.remove(key);");
+        stream.println(ind + "}\n");
+      }
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "public boolean ASTNode.in$Circle = false;");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "public boolean ASTNode.in$Circle() { return in$Circle; }");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "public void ASTNode.in$Circle(boolean b) { in$Circle = b; }");
+      if(ASTNode.stagedRewrites) {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public int ASTNode.is$Final = 0;");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public boolean ASTNode.is$Final() { return is$Final >= state().rewritePhase; }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public void ASTNode.is$Final(int phase) { is$Final = phase; }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public void ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public boolean ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }");
       }
       else {
-        if(ASTNode.java5) {
-          stream.println("  @SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-          stream.println("    return (T)getChildNoTransform(i);");
-          stream.println("  }");
-        }
-        else {
-          stream.println("  public ASTNode ASTNode.getChild(int i) {");
-          stream.println("    return getChildNoTransform(i);");
-          stream.println("  }");
-        }
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public boolean ASTNode.is$Final = false;");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public boolean ASTNode.is$Final() { return is$Final; }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "public void ASTNode.is$Final(boolean b) { is$Final = b; }");
       }
-      stream.println("  private int ASTNode.childIndex;");
-      stream.println("  public int ASTNode.getIndexOfChild(ASTNode node) {");
-      stream.println("    if(node != null && node.childIndex < getNumChildNoTransform() && node == getChildNoTransform(node.childIndex))");
-      stream.println("      return node.childIndex;");
-      stream.println("    for(int i = 0; i < getNumChildNoTransform(); i++)");
-      stream.println("      if(getChildNoTransform(i) == node) {");
-      stream.println("        node.childIndex = i;");
-      stream.println("        return i;");
-      stream.println("      }");
-      stream.println("    return -1;");
-      stream.println("  }\n");
-      if(ASTNode.java5)
-        stream.println("  public void ASTNode.addChild(T node) {");
+      if(ASTNode.java5) {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
+        stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
+        stream.println(ind + "}");
+      }
+      else {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+        stream.println(ind(2) + "return ASTNode.getChild(this, i);");
+        stream.println(ind + "}");
+      }
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "public static ASTNode ASTNode.getChild(ASTNode that, int i) {");
+      if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      stream.println(ind(2) + "ASTNode node = that.getChildNoTransform(i);");
+      stream.println(ind(2) + "if(node.is$Final()) return node;");
+      stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
+      if(ASTNode.stagedRewrites)
+        stream.println(ind(3) + "node.is$Final(that.is$Final);");
       else
-        stream.println("  public void ASTNode.addChild(ASTNode node) {");
-      stream.println("    setChild(node, getNumChildNoTransform());");
-      stream.println("  }");
-
-
-        if(ASTNode.java5) {
-          stream.println("  @SuppressWarnings(\"cast\") public final T ASTNode.getChildNoTransform(int i) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-          stream.println("    return (T)children[i];");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-          stream.println("  }");
-        }
-        else {
-          stream.println("  public final ASTNode ASTNode.getChildNoTransform(int i) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-          stream.println("    return (ASTNode)children[i];");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-          stream.println("  }");
-        }
-        stream.println("  protected int ASTNode.numChildren;"); // added
-        stream.println("  protected int ASTNode.numChildren() {");
-        stream.println("    return numChildren;");
-        stream.println("  }");
-        stream.println("  public int ASTNode.getNumChild() {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        stream.println("    return numChildren();");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-        stream.println("  public final int ASTNode.getNumChildNoTransform() {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        stream.println("    return numChildren();");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-
-        stream.println("  public void ASTNode.setChild(ASTNode node, int i) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        if(debugMode)
-          stream.println("        debugNodeAttachment(node);");
-        stream.println("    if(children == null) {");
-        stream.println("      children = new ASTNode[i + 1];");
-        stream.println("    } else if (i >= children.length) {");
-        stream.println("      ASTNode c[] = new ASTNode[i << 1];");
-        stream.println("      System.arraycopy(children, 0, c, 0, children.length);");
-        stream.println("      children = c;");
-        stream.println("    }");
-        stream.println("    children[i] = node;");
-        stream.println("    if(i >= numChildren) numChildren = i+1;");
-        stream.println("    if(node != null) { node.setParent(this); node.childIndex = i; }");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-
-        stream.println("  public void ASTNode.insertChild(ASTNode node, int i) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        if(debugMode)
-          stream.println("        debugNodeAttachment(node);");
-        stream.println("    if(children == null) {");
-        stream.println("      children = new ASTNode[i + 1];");
-        stream.println("      children[i] = node;");
-        stream.println("    } else {");
-        stream.println("      ASTNode c[] = new ASTNode[children.length + 1];");
-        stream.println("      System.arraycopy(children, 0, c, 0, i);");
-        stream.println("      c[i] = node;");
-        stream.println("      if(i < children.length)");
-        stream.println("        System.arraycopy(children, i, c, i+1, children.length-i);");
-        stream.println("      children = c;");
-        stream.println("    }");
-        stream.println("    numChildren++;");
-        stream.println("    if(node != null) { node.setParent(this); node.childIndex = i; }");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-
-        stream.println("  public void ASTNode.removeChild(int i) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        stream.println("    if(children != null) {");
-        stream.println("      ASTNode child = (ASTNode)children[i];");
-        stream.println("      if(child != null) {");
-        stream.println("        child.setParent(null);");
-        stream.println("        child.childIndex = -1;");
-        stream.println("      }");
-        stream.println("      System.arraycopy(children, i+1, children, i, children.length-i-1);");
-        stream.println("      numChildren--;");
-        stream.println("    }");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-
-        stream.println("  public ASTNode ASTNode.getParent() {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        if(rewriteEnabled) {
-          stream.println("    if(parent != null && ((ASTNode)parent).is$Final() != is$Final()) {");
-          stream.println("      state().boundariesCrossed++;");
-          stream.println("    }");
-        }
-        stream.println("    return (ASTNode)parent;");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-        stream.println("  public void ASTNode.setParent(ASTNode node) {");
-        if(ASTNode.block) stream.print(ASTNode.blockBegin);
-        stream.println("    parent = node;");
-        if(ASTNode.block) stream.print(ASTNode.blockEnd);
-        stream.println("  }");
-
-      if(!jjtree) {
-        stream.println("  protected ASTNode ASTNode.parent;");
-        stream.println("  protected ASTNode[] ASTNode.children;");
+        stream.println(ind(3) + "node.is$Final(that.is$Final());");
+      stream.println(ind(3) + "return node;");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "if(!node.in$Circle()) {");
+      stream.println(ind(3) + "int rewriteState;");
+      stream.println(ind(3) + "int num = that.state().boundariesCrossed;");
+      stream.println(ind(3) + "do {");
+      stream.println(ind(4) + "that.state().push(ASTNode$State.REWRITE_CHANGE);");
+      stream.println(ind(4) + "ASTNode oldNode = node;");
+      stream.println(ind(4) + "oldNode.in$Circle(true);");
+      stream.println(ind(4) + "node = node.rewriteTo();");
+      stream.println(ind(4) + "if(node != oldNode)");
+      stream.println(ind(5) + "that.setChild(node, i);");
+      stream.println(ind(4) + "oldNode.in$Circle(false);");
+      stream.println(ind(4) + "rewriteState = that.state().pop();");
+      stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
+      stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && that.is$Final()) {");
+      if(ASTNode.stagedRewrites)
+        stream.println(ind(4) + "node.is$Final(that.state().rewritePhase);");
+      else
+        stream.println(ind(4) + "node.is$Final(true);");
+      stream.println(ind(4) + "that.state().boundariesCrossed = num;");
+      if(rewriteLimit > 0)
+        stream.println(ind(4) + "node.debugRewriteRemove();");
+      stream.println(ind(3) + "}");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
+      stream.println(ind(2) + "return node;");
+      if(ASTNode.block) stream.print(ASTNode.blockEnd);
+      stream.println(ind + "}");
+    }
+    else {
+      if(ASTNode.java5) {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "@SuppressWarnings(\"cast\")");
+        stream.println(ind + "public T ASTNode.getChild(int i) {");
+        stream.println(ind(2) + "return (T)getChildNoTransform(i);");
+        stream.println(ind + "}");
       }
-      if(debugMode) {
-        stream.println("    protected boolean ASTNode.debugNodeAttachmentIsRoot() { return false; }");
-        stream.println("    private static void ASTNode.debugNodeAttachment(ASTNode node) {");
-        stream.println("        if(node == null) throw new RuntimeException(\"Trying to assign null to a tree child node\");");
-        stream.println("        while(node != null && !node.debugNodeAttachmentIsRoot()) {");
-        if(rewriteEnabled)
-          stream.println("            if(node.in$Circle()) return;");
-        stream.println("            ASTNode parent = (ASTNode)node.parent;");
-        stream.println("            if(parent != null && parent.getIndexOfChild(node) == -1) return;");
-        stream.println("            node = parent;");
-        stream.println("        }");
-        stream.println("        if(node == null) return;");
-        stream.println("        throw new RuntimeException(\"Trying to insert the same tree at multiple tree locations\");");
-        stream.println("    }");
+      else {
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+        stream.println(ind(2) + "return getChildNoTransform(i);");
+        stream.println(ind + "}");
       }
+    }
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " */");
+    stream.println(ind + "private int ASTNode.childIndex;");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public int ASTNode.getIndexOfChild(ASTNode node) {");
+    stream.println(ind(2) + "if(node != null && node.childIndex < getNumChildNoTransform() && node == getChildNoTransform(node.childIndex))");
+    stream.println(ind(3) + "return node.childIndex;");
+    stream.println(ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
+    stream.println(ind(3) + "if(getChildNoTransform(i) == node) {");
+    stream.println(ind(4) + "node.childIndex = i;");
+    stream.println(ind(4) + "return i;");
+    stream.println(ind(3) + "}");
+    stream.println(ind(2) + "return -1;");
+    stream.println(ind + "}\n");
+    if(ASTNode.java5) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "public void ASTNode.addChild(T node) {");
+    } else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "public void ASTNode.addChild(ASTNode node) {");
+    }
+    stream.println(ind(2) + "setChild(node, getNumChildNoTransform());");
+    stream.println(ind + "}");
+
+
+    if(ASTNode.java5) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "@SuppressWarnings(\"cast\")");
+      stream.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
+      if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      stream.println(ind(2) + "return (T)children[i];");
+      if(ASTNode.block) stream.print(ASTNode.blockEnd);
+      stream.println(ind + "}");
+    }
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
+      if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      stream.println(ind(2) + "return (ASTNode)children[i];");
+      if(ASTNode.block) stream.print(ASTNode.blockEnd);
+      stream.println(ind + "}");
+    }
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "protected int ASTNode.numChildren;"); // added
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "protected int ASTNode.numChildren() {");
+    stream.println(ind(2) + "return numChildren;");
+    stream.println(ind + "}");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public int ASTNode.getNumChild() {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    stream.println(ind(2) + "return numChildren();");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public final int ASTNode.getNumChildNoTransform() {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    stream.println(ind(2) + "return numChildren();");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.setChild(ASTNode node, int i) {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    if(debugMode)
+      stream.println(ind(2) + "debugNodeAttachment(node);");
+    stream.println(ind + "if(children == null) {");
+    stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    stream.println(ind + "} else if (i >= children.length) {");
+    stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
+    stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
+    stream.println(ind(3) + "children = c;");
+    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "children[i] = node;");
+    stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
+    stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.insertChild(ASTNode node, int i) {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    if(debugMode)
+      stream.println(ind(2) + "debugNodeAttachment(node);");
+    stream.println(ind(2) + "if(children == null) {");
+    stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    stream.println(ind(3) + "children[i] = node;");
+    stream.println(ind(2) + "} else {");
+    stream.println(ind(3) + "ASTNode c[] = new ASTNode[children.length + 1];");
+    stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, i);");
+    stream.println(ind(3) + "c[i] = node;");
+    stream.println(ind(3) + "if(i < children.length)");
+    stream.println(ind(4) + "System.arraycopy(children, i, c, i+1, children.length-i);");
+    stream.println(ind(3) + "children = c;");
+    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "numChildren++;");
+    stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.removeChild(int i) {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    stream.println(ind(2) + "if(children != null) {");
+    stream.println(ind(3) + "ASTNode child = (ASTNode)children[i];");
+    stream.println(ind(3) + "if(child != null) {");
+    stream.println(ind(4) + "child.setParent(null);");
+    stream.println(ind(4) + "child.childIndex = -1;");
+    stream.println(ind(3) + "}");
+    stream.println(ind(3) + "System.arraycopy(children, i+1, children, i, children.length-i-1);");
+    stream.println(ind(3) + "numChildren--;");
+    stream.println(ind(2) + "}");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public ASTNode ASTNode.getParent() {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    if(rewriteEnabled) {
+      stream.println(ind(2) + "if(parent != null && ((ASTNode)parent).is$Final() != is$Final()) {");
+      stream.println(ind(3) + "state().boundariesCrossed++;");
+      stream.println(ind(2) + "}");
+    }
+    stream.println(ind(2) + "return (ASTNode)parent;");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.setParent(ASTNode node) {");
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    stream.println(ind(2) + "parent = node;");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.println(ind + "}");
+
+    if(!jjtree) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "protected ASTNode ASTNode.parent;");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "protected ASTNode[] ASTNode.children;");
+    }
+    if(debugMode) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "protected boolean ASTNode.debugNodeAttachmentIsRoot() { return false; }");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "private static void ASTNode.debugNodeAttachment(ASTNode node) {");
+      stream.println(ind(2) + "if(node == null) throw new RuntimeException(\"Trying to assign null to a tree child node\");");
+      stream.println(ind(2) + "while(node != null && !node.debugNodeAttachmentIsRoot()) {");
+      if(rewriteEnabled)
+        stream.println(ind(3) + "if(node.in$Circle()) return;");
+      stream.println(ind(3) + "ASTNode parent = (ASTNode)node.parent;");
+      stream.println(ind(3) + "if(parent != null && parent.getIndexOfChild(node) == -1) return;");
+      stream.println(ind(3) + "node = parent;");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "if(node == null) return;");
+      stream.println(ind(2) + "throw new RuntimeException(\"Trying to insert the same tree at multiple tree locations\");");
+      stream.println(ind + "}");
+    }
   }
 
   public void ASTDecl.jjtGenFlushCache(PrintWriter stream) {
-    stream.print("    public void flushCache() {\n");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " */");
+    stream.print(ind + "public void flushCache() {\n");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
     if(!name().equals("ASTNode"))
-      stream.print("        super.flushCache();\n");
+      stream.print(ind(2) + "super.flushCache();\n");
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
       AttrDecl attr = equ.decl();
@@ -685,18 +869,24 @@ aspect JaddCodeGen {
     stream.print(flushCollectionCache());
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
 
-    stream.print("    }\n");
-    stream.print("    public void flushCollectionCache() {\n");
+    stream.print(ind + "}\n");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " */");
+    stream.print(ind + "public void flushCollectionCache() {\n");
     if(!name().equals("ASTNode"))
-      stream.print("        super.flushCollectionCache();\n");
+      stream.print(ind(2) + "super.flushCollectionCache();\n");
     stream.print(flushCollectionCache());
-    stream.print("    }\n");
+    stream.print(ind + "}\n");
   }
-  
+
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     if(j2me) {
-      stream.print("    public void init$copy(Object o) {\n");
-      stream.print("        " + name() + " node = (" + name() + ")o;\n");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.print(ind + "public void init$copy(Object o) {\n");
+      stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
 
       for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
@@ -708,19 +898,19 @@ aspect JaddCodeGen {
           n.unparseClassBodyDeclaration(buf, name(), aspectJ);
           String field = buf.toString();
           if(field.indexOf("static") == -1 && field.indexOf("final") == -1)
-            stream.print("        node." + name + " = " + name + ";\n");
+            stream.print(ind(2) + "node." + name + " = " + name + ";\n");
         }
       }
 
       if(name().equals("ASTNode")) {
-        stream.print("        if(children != null) {\n");
-        stream.print("            node.children = new ASTNode[children.length];\n");
-        stream.print("            for(int i = 0; i < children.length; i++)\n");
-        stream.print("                node.children[i] = children[i];\n");
-        stream.print("        }\n");
+        stream.print(ind(2) + "if(children != null) {\n");
+        stream.print(ind(3) + "node.children = new ASTNode[children.length];\n");
+        stream.print(ind(3) + "for(int i = 0; i < children.length; i++)\n");
+        stream.print(ind(4) + "node.children[i] = children[i];\n");
+        stream.print(ind(2) + "}\n");
       }
       else {
-        stream.print("        super.init$copy(o);\n");
+        stream.print(ind(2) + "super.init$copy(o);\n");
       }
 
     }
@@ -729,14 +919,21 @@ aspect JaddCodeGen {
       String name = name();
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
         name = name + "<T>";
-      stream.print("    " + ASTNode.suppressWarnings() + " public " + name + " clone() throws CloneNotSupportedException {\n");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ASTNode.suppressWarnings() + ind + "public " + name + " clone() throws CloneNotSupportedException {");
     }
-    else
-      stream.print("    " + ASTNode.suppressWarnings() + " public Object clone() throws CloneNotSupportedException {\n");
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ASTNode.suppressWarnings() + ind + "public Object clone() throws CloneNotSupportedException {");
+    }
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
 
     if(!j2me)
-      stream.print("        " + name() + " node = (" + name() + ")super.clone();\n");
+      stream.print(ind(2) + name() + " node = (" + name() + ")super.clone();\n");
 
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
@@ -753,58 +950,67 @@ aspect JaddCodeGen {
     }
 
     if(ASTNode.rewriteEnabled) {
-      stream.print("        node.in$Circle(false);\n");
+      stream.print(ind(2) + "node.in$Circle(false);\n");
       if(ASTNode.stagedRewrites)
-        stream.print("        node.is$Final(0);\n");
+        stream.print(ind(2) + "node.is$Final(0);\n");
       else
-        stream.print("        node.is$Final(false);\n");
+        stream.print(ind(2) + "node.is$Final(false);\n");
     }
 
     // I'd like to set the parent to null, but this would change the interface of fullCopy,
     // and existing applications might depend on the copy to still be parented by the original
     // AST. So I don't do it. Yet. 20100416/GH.
-    // stream.print("        node.parent = null;\n");
-    
+    // stream.print(ind(2) + "node.parent = null;\n");
+
     if(!j2me)
-      stream.print("        return node;\n");
+      stream.print(ind(2) + "return node;\n");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
-    stream.print("    }\n");
-    
+    stream.print(ind + "}\n");
+
     if(!hasAbstract()) {
       String copyBody;
       if(j2me) {
         copyBody =
-          "      #CLASS# node = new #CLASS#();\n" +
-          "      this.init$copy(node);\n" +
-          "      return node;\n";
+          ind(3) + "#CLASS# node = new #CLASS#();\n" +
+          ind(3) + "this.init$copy(node);\n" +
+          ind(3) + "return node;\n";
       }
       else {
         copyBody =
-          "      try {\n" +
-          "          #CLASS# node = (#CLASS#)clone();\n" +
-          "          if(children != null) node.children = (ASTNode[])children.clone();\n" +
-          "          return node;\n" +
-          "      } catch (CloneNotSupportedException e) {\n" +
-          "      }\n" +
-          "      System.err.println(\"Error: Could not clone node of type \" + getClass().getName() + \"!\");\n" +
-          "      return null;\n";
+          ind(3) + "try {\n" +
+          ind(4) + "#CLASS# node = (#CLASS#)clone();\n" +
+          ind(4) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
+          ind(4) + "return node;\n" +
+          ind(3) + "} catch (CloneNotSupportedException e) {\n" +
+          ind(3) + "}\n" +
+          ind(3) + "System.err.println(\"Error: Could not clone node of type \" + getClass().getName() + \"!\");\n" +
+          ind(3) + "return null;\n";
       }
 
-      String s = "    #ANNOTATIONS# public #RETURN# copy() {\n" + 
-          (ASTNode.block ? ASTNode.blockBegin : "") +
-          copyBody +
-          (ASTNode.block ? ASTNode.blockEnd : "") +
-          "    }\n" +
-          "    #ANNOTATIONS# public #RETURN# fullCopy() {\n" + 
-          (ASTNode.block ? ASTNode.blockBegin : "") +
-          "        #ID# res = (#ID#)copy();\n" +
-          "        for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
-          "          ASTNode node = getChildNoTransform(i);\n" +
-          "          if(node != null) node = node.fullCopy();\n" +
-          "          res.setChild(node, i);\n" +
-          "        }\n" +
-          "        return res;\n    }\n" +
-          (ASTNode.block ? ASTNode.blockEnd : "");
+      String s =
+        ind + "/**\n" +
+        ind + " * @apilvl internal\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #RETURN# copy() {\n" + 
+        (ASTNode.block ? ASTNode.blockBegin : "") +
+        copyBody +
+        (ASTNode.block ? ASTNode.blockEnd : "") +
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #RETURN# fullCopy() {\n" + 
+        (ASTNode.block ? ASTNode.blockBegin : "") +
+        ind(2) + "#ID# res = (#ID#)copy();\n" +
+        ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
+        ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
+        ind(3) + "if(node != null) node = node.fullCopy();\n" +
+        ind(3) + "res.setChild(node, i);\n" +
+        ind(2) + "}\n" +
+        ind(2) + "return res;\n    }\n" +
+        (ASTNode.block ? ASTNode.blockEnd : "");
 
       String returnName = name();
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
@@ -816,29 +1022,29 @@ aspect JaddCodeGen {
       stream.print(s);
     }
   }
-  
+
   public void ASTDecl.jjtGenCheckTreeStructure(PrintWriter stream) {
-    stream.println("public void " + name() + ".jjtAddChild(Node n, int i) {");
-    stream.println("  checkChild(n, i);");
+    stream.println(ind + "public void " + name() + ".jjtAddChild(Node n, int i) {");
+    stream.println(ind(2) + "checkChild(n, i);");
     if(name().equals("ASTNode")) {
-      stream.println("  if(i >= numChildren) numChildren = i+1;");
+      stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
     }
-    stream.println("  super.jjtAddChild(n, i);");
+    stream.println(ind(2) + "super.jjtAddChild(n, i);");
     stream.println("}\n");
     if(name().equals("Opt")) {
-      stream.println("public void Opt.checkChild(Node n, int i) {");
-      stream.println("  if(i > 0) throw new Error(\"Optional nodes can only have one child\");");
-      stream.println("  if(!(n instanceof ASTNode)) throw new Error(\"Node type must be an instance of ASTNode\");");
-      stream.println("}\n");
+      stream.println(ind + "public void Opt.checkChild(Node n, int i) {");
+      stream.println(ind(2) + "if(i > 0) throw new Error(\"Optional nodes can only have one child\");");
+      stream.println(ind(2) + "if(!(n instanceof ASTNode)) throw new Error(\"Node type must be an instance of ASTNode\");");
+      stream.println(ind + "}\n");
     }
     else if(name().equals("List")) {
-      stream.println("public void List.checkChild(Node n, int i) {");
-      stream.println("  if(!(n instanceof ASTNode)) throw new Error(\"The node type of child \" + i + \" must be an instance of ASTNode\");");
-      stream.println("}\n");
+      stream.println(ind + "public void List.checkChild(Node n, int i) {");
+      stream.println(ind(2) + "if(!(n instanceof ASTNode)) throw new Error(\"The node type of child \" + i + \" must be an instance of ASTNode\");");
+      stream.println(ind + "}\n");
     }
     else {
       int j = 0;
-      stream.println("public void " + name() + ".checkChild(Node n, int i) {");
+      stream.println(ind + "public void " + name() + ".checkChild(Node n, int i) {");
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
         c.jjtGenCheckTreeStructure(stream, j);
@@ -846,44 +1052,48 @@ aspect JaddCodeGen {
           j++;
         }
       }
-      stream.println("}\n");
+      stream.println(ind + "}\n");
     }
   }
   public void Components.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
   }
   public void ListComponents.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
-    stream.println("  if(i == " + j + ") {");
-    stream.println("    if(!(n instanceof List))" + 
-        " throw new Error(\"Child number " + j + " of " + hostClass().name() + 
+    stream.println(ind(2) + "if(i == " + j + ") {");
+    stream.println(
+        ind(3) + "if(!(n instanceof List))\n" + 
+        ind(4) + "throw new Error(\"Child number " + j + " of " + hostClass().name() + 
         " has the type \" + n.getClass().getName() + \" which is not an instance of List\");");
-    stream.println("    for(int k = 0; k < ((List)n).getNumChildNoTransform(); k++)");
-    stream.println("      if(!(((List)n).getChildNoTransform(k) instanceof " + type() + "))" + 
-        " throw new Error(\"Child number \" + k + \" in " + name() + "List" + 
+    stream.println(ind(3) + "for(int k = 0; k < ((List)n).getNumChildNoTransform(); k++)");
+    stream.println(
+        ind(3) + "if(!(((List)n).getChildNoTransform(k) instanceof " + type() + "))\n" + 
+        ind(4) + "throw new Error(\"Child number \" + k + \" in " + name() + "List" + 
         " has the type \" + ((List)n).getChildNoTransform(k).getClass().getName() + \" which is not an instance of " +
         type() + "\");");
-    stream.println("  }");
+    stream.println(ind(2) + "}");
   }
   public void OptionalComponent.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
-    stream.println("  if(i == " + j + ") {");
-    stream.println("    if(!(n instanceof Opt))" + 
-        " throw new Error(\"Child number " + j + " of " + hostClass().name() +
+    stream.println(ind(2) + "if(i == " + j + ") {");
+    stream.println(
+        ind(3) + "if(!(n instanceof Opt))\n" + 
+        ind(4) + "throw new Error(\"Child number " + j + " of " + hostClass().name() +
         " has the type \" + n.getClass().getName() + \" which is not an instance of Opt\");");
-    stream.println("    if(((Opt)n).getNumChildNoTransform() != 0 && !(((Opt)n).getChildNoTransform(0) instanceof " + type() + "))" +
-        " throw new Error(\"Optional " + name() + 
+    stream.println(
+        ind(3) + "if(((Opt)n).getNumChildNoTransform() != 0 && !(((Opt)n).getChildNoTransform(0) instanceof " + type() + "))\n" +
+        ind(4) + "throw new Error(\"Optional " + name() + 
         " has the type \" + ((Opt)n).getChildNoTransform(0).getClass().getName() + \" which is not an instance of " +
         type() + "\");");
-    stream.println("  }");
+    stream.println(ind(2) + "}");
   }
   public void AggregateComponents.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
-    stream.println("  if(i == " + j + " && !(n instanceof " + type() + ")) " + 
+    stream.println(ind(2) + "if(i == " + j + " && !(n instanceof " + type() + ")) " + 
         " throw new Error(\"Child number " + j + " of " + hostClass().name() +
         " has the type \" + n.getClass().getName() + \" which is not an instance of " + type() + "\");");
   }
-  
+
   public void ASTDecl.jjtGenDumpTree(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     StringBuffer sb = new StringBuffer();
-    sb.append("    public void " + name() + ".dumpTree(String indent, java.io.PrintStream pStream) {\n" + 
-        "        pStream.println(indent + \"" + name() + "\"");
+    sb.append(ind + "public void " + name() + ".dumpTree(String indent, java.io.PrintStream pStream) {\n" + 
+        ind(2) + "pStream.println(indent + \"" + name() + "\"");
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof TokenComponent) {
@@ -893,59 +1103,58 @@ aspect JaddCodeGen {
       }
     }
     sb.append(");\n        String childIndent = indent + \"  \";\n" + 
-        "        for(int i = 0; i < getNumChild(); i++)\n" + 
-        "            getChild(i).dumpTree(childIndent, pStream);\n" +
-        "    }\n");
+        ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" + 
+        ind(3) + "getChild(i).dumpTree(childIndent, pStream);\n" +
+        ind + "}\n");
     stream.println(sb.toString());
   }
-  
+
   public void ASTDecl.jjtGenVisitor(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
-    stream.println("    public Object " + name() + ".jjtAccept(" + parserName + "Visitor visitor, Object data) {\n" +
-          "        return visitor.visit(this, data);\n" + 
-          "    }\n");
+    stream.println(ind + "public Object " + name() + ".jjtAccept(" + parserName + "Visitor visitor, Object data) {\n" +
+        ind(2) + "return visitor.visit(this, data);\n" + 
+        ind + "}\n");
   }
-  
+
   public void ASTDecl.jjtGenConstructor(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     String finalInit = "";
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        finalInit = "        is$Final(state().rewritePhase);\n";
+        finalInit = ind(2) + "is$Final(state().rewritePhase);\n";
       else
-        finalInit = "        is$Final(true);\n";
+        finalInit = ind(2) + "is$Final(true);\n";
     }
-    stream.println("    // Declared in " + getFileName() + " line " + getStartLine() + "\n");
     String s;
     if(jjtree) {
-      s = "    public #ID#.#ID#(int i) {\n" +
-          "        super(i);\n" + finalInit +
-          "    }\n" +
-          "    public #ID#.#ID#(" + parserName + " p, int i) {\n" +
-          "        this(i);\n" +
-          "        parser = p;\n" + finalInit +
-          "    }\n" +
-          "    public #ID#.#ID#() {\n" + 
-          "        this(0);\n" + 
-          "#NTA#";
+      s = ind + "public #ID#.#ID#(int i) {\n" +
+        ind(2) + "super(i);\n" + finalInit +
+        ind + "}\n" +
+        ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
+        ind(2) + "this(i);\n" +
+        ind(2) + "parser = p;\n" + finalInit +
+        ind + "}\n" +
+        ind + "public #ID#.#ID#() {\n" + 
+        ind(2) + "this(0);\n" + 
+        "#NTA#";
     }
     else {
-      s = "    public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
-          "        super();\n" + 
-          "#NTA#";
+      s = ind + "public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
+        ind(2) + "super();\n" + 
+        "#NTA#";
     }
     String t = new String();
     int i = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof ListComponentsNTA) {
-        //t = t + "        setChild(null, " + String.valueOf(i) + ");\n";
+        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
         i++;
       }
       if(c instanceof OptionalComponentNTA) {
-        //t = t + "        setChild(new Opt(), " + String.valueOf(i) + ");\n";
+        //t = t + ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");\n";
         i++;
       }
       if(c instanceof AggregateComponentsNTA) {
-        //t = t + "        setChild(null, " + String.valueOf(i) + ");\n";
+        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
         i++;
       }
     }
@@ -957,38 +1166,38 @@ aspect JaddCodeGen {
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof ListComponents) {
-        stream.println("        setChild(new List(), " + String.valueOf(i) + ");");
+        stream.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
         i++;
       }
       else if(c instanceof OptionalComponent) {
-        stream.println("        setChild(new Opt(), " + String.valueOf(i) + ");");
+        stream.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
         i++;
       }
       else if(c instanceof AggregateComponents) {
-        //stream.println("        setChild(null, " + String.valueOf(i) + ");");
+        //stream.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
         i++;
       }
     }
     stream.println(finalInit);
-    stream.println("    }\n");
+    stream.println(ind + "}\n");
 
     if(numNonNTAComponents() != 0) {
       stream.print(buildingConstructor());
       if(ASTNode.beaver)
         stream.print(buildingSymbolConstructor());
     }
-    
+
     if(name().equals("Opt")) {
       if(ASTNode.java5)
-        stream.println("     public Opt.Opt(T opt) {");
+        stream.println(ind + "public Opt.Opt(T opt) {");
       else
-        stream.println("     public Opt.Opt(ASTNode opt) {");
-      stream.println("         setChild(opt, 0);");
-      stream.println("     }\n");
+        stream.println(ind + "public Opt.Opt(ASTNode opt) {");
+      stream.println(ind(2) + "setChild(opt, 0);");
+      stream.println(ind + "}\n");
     }
 
   }
-  
+
   public void ASTDecl.jjtGen(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     String s;
 
@@ -1004,125 +1213,143 @@ aspect JaddCodeGen {
         e.printStackTrace();
       }
     }
-    
+
     // Generate code common for all nodes by adding them to ASTNode
     if(name().equals("ASTNode")) {
       jjtGenASTNode(stream, parserName, jjtree, rewriteEnabled);
       env().genRewriteOrderChecks(stream);
       env().genReset(stream);
       if(ASTNode.java5) {
-        stream.println("    public java.util.Iterator<T> ASTNode.iterator() {");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "public java.util.Iterator<T> ASTNode.iterator() {");
         if(ASTNode.block) stream.append(ASTNode.blockBegin);
-        stream.println("        return new java.util.Iterator<T>() {");
-        stream.println("            private int counter = 0;");
-        stream.println("            public boolean hasNext() {");
-        stream.println("                return counter < getNumChild();");
-        stream.println("            }");
-        stream.println("            @SuppressWarnings(\"unchecked\") public T next() {");
-        stream.println("                if(hasNext())");
-        stream.println("                    return (T)getChild(counter++);");
-        stream.println("                else");
-        stream.println("                    return null;");
-        stream.println("            }");
-        stream.println("            public void remove() {");
-        stream.println("                throw new UnsupportedOperationException();");
-        stream.println("            }");
-        stream.println("        };");
+        stream.println(ind + "return new java.util.Iterator<T>() {");
+        stream.println(ind(3) + "private int counter = 0;");
+        stream.println(ind(3) + "public boolean hasNext() {");
+        stream.println(ind(4) + "return counter < getNumChild();");
+        stream.println(ind(3) + "}");
+        stream.println(ind(3) + "@SuppressWarnings(\"unchecked\") public T next() {");
+        stream.println(ind(4) + "if(hasNext())");
+        stream.println(ind(5) + "return (T)getChild(counter++);");
+        stream.println(ind(4) + "else");
+        stream.println(ind(5) + "return null;");
+        stream.println(ind(3) + "}");
+        stream.println(ind(3) + "public void remove() {");
+        stream.println(ind(4) + "throw new UnsupportedOperationException();");
+        stream.println(ind(3) + "}");
+        stream.println(ind + "};");
         if(ASTNode.block) stream.append(ASTNode.blockEnd);
-        stream.println("    }");
+        stream.println(ind + "}");
       }
     }
     else if(name().equals("List")) {
       if(ASTNode.java5)
-        stream.println("     public List<T> List.add(T node) {");
+        stream.println(ind + "public List<T> List.add(T node) {");
       else
-        stream.println("     public List List.add(ASTNode node) {");
+        stream.println(ind + "public List List.add(ASTNode node) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
       if(debugMode) {
-        stream.println("        if(node instanceof List)");
-        stream.println("            throw new RuntimeException(\"Lists can not have children of type List\");");
-        stream.println("        if(node instanceof Opt)");
-        stream.println("            throw new RuntimeException(\"Lists can not have children of type Opt\");");
+        stream.println(ind(2) + "if(node instanceof List)");
+        stream.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type List\");");
+        stream.println(ind(2) + "if(node instanceof Opt)");
+        stream.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type Opt\");");
       }
-      stream.println("          addChild(node);");
-      stream.println("          return this;");
+      stream.println(ind(2) + "addChild(node);");
+      stream.println(ind(2) + "return this;");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
-      stream.println("     }\n");
-      stream.println("     public void List.insertChild(ASTNode node, int i) {");
+      stream.println(ind + "}\n");
+      stream.println(ind + "public void List.insertChild(ASTNode node, int i) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
-      stream.println("          list$touched = true;");
-      stream.println("          super.insertChild(node, i);");
+      stream.println(ind(2) + "list$touched = true;");
+      stream.println(ind(2) + "super.insertChild(node, i);");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
-      stream.println("     }");
+      stream.println(ind + "}");
       if(ASTNode.java5)
-        stream.println("     public void List.addChild(T node) {");
+        stream.println(ind + "public void List.addChild(T node) {");
       else
-        stream.println("     public void List.addChild(ASTNode node) {");
+        stream.println(ind + "public void List.addChild(ASTNode node) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
-      stream.println("          list$touched = true;");
-      stream.println("          super.addChild(node);");
+      stream.println(ind(2) + "list$touched = true;");
+      stream.println(ind(2) + "super.addChild(node);");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
-      stream.println("     }");
-      stream.println("     public void List.removeChild(int i) {");
+      stream.println(ind + "}");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "public void List.removeChild(int i) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
-      stream.println("          list$touched = true;");
-      stream.println("          super.removeChild(i);");
+      stream.println(ind(2) + "list$touched = true;");
+      stream.println(ind(2) + "super.removeChild(i);");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
-      stream.println("     }");
-      stream.println("     public int List.getNumChild() {");
+      stream.println(ind + "}");
+      stream.println(ind + "public int List.getNumChild() {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
-      stream.println("          if(list$touched) {");
-      stream.println("              for(int i = 0; i < getNumChildNoTransform(); i++)");
-      stream.println("                  getChild(i);");
-      stream.println("              list$touched = false;");
-      stream.println("          }");
-      stream.println("          return getNumChildNoTransform();");
+      stream.println(ind(2) + "if(list$touched) {");
+      stream.println(ind(3) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
+      stream.println(ind(4) + "getChild(i);");
+      stream.println(ind(4) + "list$touched = false;");
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "return getNumChildNoTransform();");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
-      stream.println("     }");
-      stream.println("     private boolean List.list$touched = true;");
+      stream.println(ind + "}");
+      stream.println(ind + "private boolean List.list$touched = true;");
     }
     else if(name().equals("Opt")) {
       // do not override getNumChild with implementation below
     }
     else {
-      
+
       if(jjtree) {
-        stream.println("  public int " + name() + ".getNumChild() {");
-        stream.println("    return " + numRegularChildren() + ";");
-        stream.println("  }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "public int " + name() + ".getNumChild() {");
+        stream.println(ind(2) + "return " + numRegularChildren() + ";");
+        stream.println(ind + "}");
       }
       else {
-        stream.println("  protected int " +name() + ".numChildren() {");
-        stream.println("    return " + numRegularChildren() + ";");
-        stream.println("  }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " */");
+        stream.println(ind + "protected int " +name() + ".numChildren() {");
+        stream.println(ind(2) + "return " + numRegularChildren() + ";");
+        stream.println(ind + "}");
       }
       if(debugMode && isRootNode()) {
-        stream.println("    protected boolean " + name() + ".debugNodeAttachmentIsRoot() { return true; }");
+        stream.println(ind + "/**");
+        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " */");
+        stream.println(ind + "protected boolean " + name() + ".debugNodeAttachmentIsRoot() { return true; }");
       }
     }
     if(rewriteEnabled) {
-      stream.println("    public boolean " + name() + ".mayHaveRewrite() {");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " */");
+      stream.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
       if(name().equals("List"))
-        stream.println("        return true;");
+        stream.println(ind(2) + "return true;");
       else if(!hasRewrites())
-        stream.println("        return false;");
+        stream.println(ind(2) + "return false;");
       else if(!stagedRewrites || rewriteWithNoPhaseCondition())
-        stream.println("        return true;");
+        stream.println(ind(2) + "return true;");
       else {
         for(Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
           String condition = (String)iter.next();
-          stream.println("        if(" + condition + ") return true;");
+          stream.println(ind(2) + "if(" + condition + ") return true;");
         }
-        stream.println("        return false;");
+        stream.println(ind(2) + "return false;");
       }
-      stream.println("    }");
+      stream.println(ind + "}");
     }
   }
 
   syn boolean ASTDecl.rewriteWithNoPhaseCondition() {
     for(int i = 0; i < getNumRewrite(); i++) {
       if(getRewrite(i).getCondition() == null)
-       return true;
+        return true;
       String condition = getRewrite(i).getCondition().unparse();
       if(condition.indexOf("inRewritePhase") == -1 && condition.indexOf("inExactRewritePhase") == -1)
         return true;
@@ -1151,58 +1378,40 @@ aspect JaddCodeGen {
   public abstract void Components.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl);
 
   String ListComponents.setNameListComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Setter for #NAME#List\n" +
-             "     */\n";
-    }
-    else 
-      return "    // Declared in " + hostClass().getFileName() + " line " + hostClass().getStartLine() + "\n";
+    return ind + "/**\n" +
+      ind + " * Setter for #NAME#List\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String ListComponents.getNumNameComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Getter for number of children in #NAME#List\n" +
-             "     */\n";
-    }
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * @return number of children in #NAME#List\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String ListComponents.getNameComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Getter for child in list #NAME#List\n" +
-             "     */\n";
-    }
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Getter for child in list #NAME#List\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String ListComponents.addNameComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Add element to list #NAME#List\n" +
-             "     */\n";
-    }
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Add element to list #NAME#List\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String ListComponents.setNameComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Setter for child in list #NAME#List\n" +
-             "     */\n";
-    }
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Setter for child in list #NAME#List\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String ListComponents.getNameListComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Getter for list #NAME#List\n" +
-             "     */\n";
-    }
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Getter for list #NAME#List\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
 
 
@@ -1211,83 +1420,105 @@ aspect JaddCodeGen {
     String name = decl.name();
     // Generate getNum- and get-method for the list component
     s = setNameListComment() +
-        "    public void #HOST#.set#NAME#List(#LISTTYPE# list) {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        setChild(list, #INDEX#);\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        //"    private int #HOST#.getNum#NAME# = 0;\n" +
-        getNumNameComment() +
-        "    public int #HOST#.getNum#NAME#() {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return get#NAME#List().getNumChild();\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        getNameComment() +
-        "    #ANNOTATIONS# public #TYPE# #HOST#.get#NAME#(int i) {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#TYPE#)get#NAME#List().getChild(i);\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        addNameComment() +
-        "    public void #HOST#.add#NAME#(#TYPE# node) {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        #LISTTYPE# list = (parent == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
-        "        list.addChild(node);\n" + 
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        "    public void #HOST#.add#NAME#NoTransform(#TYPE# node) {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        #LISTTYPE# list = get#NAME#ListNoTransform();\n" +
-        "        list.addChild(node);\n" + 
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        setNameComment() +
-        "    public void #HOST#.set#NAME#(#TYPE# node, int i) {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        #LISTTYPE# list = get#NAME#List();\n" +
-        "        list.setChild(node, i);\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n";
+      ind + "public void #HOST#.set#NAME#List(#LISTTYPE# list) {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "setChild(list, #INDEX#);\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" +
+      //ind + "private int #HOST#.getNum#NAME# = 0;\n" +
+      getNumNameComment() +
+      ind + "public int #HOST#.getNum#NAME#() {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "return get#NAME#List().getNumChild();\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" +
+      getNameComment() +
+      "#ANNOTATIONS#" +
+      ind + "public #TYPE# #HOST#.get#NAME#(int i) {\n" +
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "return (#TYPE#)get#NAME#List().getChild(i);\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" + 
+      addNameComment() +
+      ind + "public void #HOST#.add#NAME#(#TYPE# node) {\n" +
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "#LISTTYPE# list = (parent == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
+      ind(2) + "list.addChild(node);\n" + 
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" + 
+      ind + "/**\n" +
+      ind + " * @apilvl low-level\n" +
+      ind + " */\n" +
+      ind + "public void #HOST#.add#NAME#NoTransform(#TYPE# node) {\n" +
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "#LISTTYPE# list = get#NAME#ListNoTransform();\n" +
+      ind(2) + "list.addChild(node);\n" + 
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" + 
+      setNameComment() +
+      ind + "public void #HOST#.set#NAME#(#TYPE# node, int i) {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "#LISTTYPE# list = get#NAME#List();\n" +
+      ind(2) + "list.setChild(node, i);\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n";
     if(ASTNode.java5) {
-      s = s +
-        "    public #LISTTYPE# #HOST#.get#NAME#s() {\n" + 
+      s +=
+        ind + "/**\n" +
+        ind + " * Getter for #NAME# list.\n" +
+        ind + " * @apilvl high-level\n" +
+        ind + " */\n" +
+        ind + "public #LISTTYPE# #HOST#.get#NAME#s() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return get#NAME#List();\n" + 
+        ind(2) + "return get#NAME#List();\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n" +
-        "    public #LISTTYPE# #HOST#.get#NAME#sNoTransform() {\n" + 
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "public #LISTTYPE# #HOST#.get#NAME#sNoTransform() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return get#NAME#ListNoTransform();\n" + 
+        ind(2) + "return get#NAME#ListNoTransform();\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n";
+        ind + "}\n";
     }
     if(!isNTA()) {
-      s = s +
+      s +=
         getNameListComment() +
-        "    #ANNOTATIONS# public #LISTTYPE# #HOST#.get#NAME#List() {\n" + 
+        "#ANNOTATIONS#" +
+        ind + "public #LISTTYPE# #HOST#.get#NAME#List() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        #LISTTYPE# list = (#LISTTYPE#)getChild(#INDEX#);\n" +
-        "        list.getNumChild();\n" +
-        "        return list;\n" + 
+        ind(2) + "#LISTTYPE# list = (#LISTTYPE#)getChild(#INDEX#);\n" +
+        ind(2) + "list.getNumChild();\n" +
+        ind(2) + "return list;\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        "    #ANNOTATIONS# public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
+        ind + "}\n" + 
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
+        ind(2) + "return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n";
+        ind + "}\n";
     }
     else {
-      s = s +
-        "    public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
+      s +=
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
+        ind(2) + "return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        "    protected int #HOST#.get#NAME#ListChildPosition() {\n" +
-        "        return #INDEX#;\n" +
-        "    }\n\n";
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "protected int #HOST#.get#NAME#ListChildPosition() {\n" +
+        ind(2) + "return #INDEX#;\n" +
+        ind + "}\n";
     }
     s = s.replaceAll("#LISTTYPE#", ASTNode.java5 ? "List<" + getId().type() + ">" : "List");
     s = s.replaceAll("#ANNOTATIONS#", ASTNode.suppressWarnings());
@@ -1296,51 +1527,40 @@ aspect JaddCodeGen {
     s = s.replaceAll("#INDEX#", String.valueOf(index));
     s = s.replaceAll("#HOST#", name);
     if(!publicModifier)
-      s = s.replaceAll("    public ", "    private ");
+      s = s.replaceAll(ind + "public ", ind + "private ");
     //stream.println(s);
     parse(s);
   }
 
   String OptionalComponent.setNameOptComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Setter for #NAME#Opt\n" +
-             "     */\n";
-    }
-    else 
-      return "    // Declared in " + hostClass().getFileName() + " line " + hostClass().getStartLine() + "\n";
+    return ind + "/**\n" +
+      ind + " * Setter for #NAME#Opt\n" +
+      ind + " * @apilvl low-level\n" +
+      ind + " */\n";
   }
   String OptionalComponent.hasNameComment() {
-    if(doxygen)
-      return "    /**\n" +
-             "     * Does this node have a #NAME# child?\n" +
-             "     */\n";
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Does this node have a #NAME# child?\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String OptionalComponent.getNameComment() {
-    if(doxygen)
-      return "    /**\n" +
-             "     * Getter for optional child #NAME#\n" +
-             "     */\n";
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Getter for optional child #NAME#\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String OptionalComponent.setNameComment() {
-    if(doxygen)
-      return "    /**\n" +
-             "     * Setter for optional child #NAME#\n" +
-             "     */\n";
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Setter for optional child #NAME#\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String OptionalComponent.getNameOptComment() {
-    if(doxygen)
-      return "    /**\n" +
-             "     * Getter for #NAME#Opt\n" +
-             "     */\n";
-    else
-      return "";
+    return ind + "/**\n" +
+      ind + " * Getter for #NAME#Opt\n" +
+      ind + " * @apilvl low-level\n" +
+      ind + " */\n";
   }
 
   public void OptionalComponent.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
@@ -1348,52 +1568,69 @@ aspect JaddCodeGen {
     String s;
     // Generate has- and get-method for the optional component
     s = setNameOptComment() +
-        "    public void #HOST#.set#NAME#Opt(#OPTTYPE# opt) {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        setChild(opt, #INDEX#);\n" + 
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        hasNameComment() +
-        "    public boolean #HOST#.has#NAME#() {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return get#NAME#Opt().getNumChild() != 0;\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        getNameComment() +
-        "    #ANNOTATIONS# public #TYPE# #HOST#.get#NAME#() {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#TYPE#)get#NAME#Opt().getChild(0);\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        setNameComment() +
-        "    public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        get#NAME#Opt().setChild(node, 0);\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n";
+      ind + "public void #HOST#.set#NAME#Opt(#OPTTYPE# opt) {\n" +
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "setChild(opt, #INDEX#);\n" + 
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" + 
+      hasNameComment() +
+      ind + "public boolean #HOST#.has#NAME#() {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "return get#NAME#Opt().getNumChild() != 0;\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" +
+      getNameComment() +
+      "#ANNOTATIONS#" +
+      ind + "public #TYPE# #HOST#.get#NAME#() {\n" +
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "return (#TYPE#)get#NAME#Opt().getChild(0);\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" + 
+      setNameComment() +
+      ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "get#NAME#Opt().setChild(node, 0);\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n";
     if(!isNTA()) {
-      s = s +
+      s +=
         getNameOptComment() +
-        "    #ANNOTATIONS# public #OPTTYPE# #HOST#.get#NAME#Opt() {\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #OPTTYPE# #HOST#.get#NAME#Opt() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#OPTTYPE#)getChild(#INDEX#);\n" +
+        ind(2) + "return (#OPTTYPE#)getChild(#INDEX#);\n" +
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        "    #ANNOTATIONS# public #OPTTYPE# #HOST#.get#NAME#OptNoTransform() {\n" +
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #OPTTYPE# #HOST#.get#NAME#OptNoTransform() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#OPTTYPE#)getChildNoTransform(#INDEX#);\n" +
+        ind(2) + "return (#OPTTYPE#)getChildNoTransform(#INDEX#);\n" +
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n";
+        ind + "}\n";
     }
     else {
-        s = s + "    #ANNOTATIONS# public #OPTTYPE# #HOST#.get#NAME#OptNoTransform() {\n" +
+      s +=
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #OPTTYPE# #HOST#.get#NAME#OptNoTransform() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#OPTTYPE#)getChildNoTransform(#INDEX#);\n" +
+        ind(2) + "return (#OPTTYPE#)getChildNoTransform(#INDEX#);\n" +
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        "    protected int #HOST#.get#NAME#OptChildPosition() {\n" +
-        "        return #INDEX#;\n" +
-        "    }\n\n";
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "protected int #HOST#.get#NAME#OptChildPosition() {\n" +
+        ind(2) + "return #INDEX#;\n" +
+        ind + "}\n";
     }
     s = s.replaceAll("#OPTTYPE#", ASTNode.java5 ? "Opt<" + getId().type() + ">" : "Opt");
     s = s.replaceAll("#ANNOTATIONS#", ASTNode.suppressWarnings());
@@ -1402,29 +1639,23 @@ aspect JaddCodeGen {
     s = s.replaceAll("#INDEX#", String.valueOf(index));
     s = s.replaceAll("#HOST#", name);
     if(!publicModifier)
-      s = s.replaceAll("    public ", "    private ");
+      s = s.replaceAll(ind + "public ", ind + "private ");
     //stream.println(s);
     parse(s);
   }
 
 
   String TokenComponent.setIDComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Setter for lexeme #ID#\n" +
-             "     */\n";
-    }
-    else 
-      return "    // Declared in " + hostClass().getFileName() + " line " + hostClass().getStartLine() + "\n";
+    return ind + "/**\n" +
+      ind + " * Setter for lexeme #ID#\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String TokenComponent.getIDComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Getter for lexeme #ID#\n" +
-             "     */\n";
-    }
-    else 
-      return "";
+    return ind + "/**\n" +
+      ind + " * Getter for lexeme #ID#\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   private boolean TokenComponent.called = false;
   public void TokenComponent.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
@@ -1433,52 +1664,55 @@ aspect JaddCodeGen {
     buf.append(setIDComment());
     // Generate attribute, get- and set-method for the token string
     buf.append(
-        "    public void #HOST#.set#ID#(#TYPE# value) {\n" +
+        ind + "public void #HOST#.set#ID#(#TYPE# value) {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        token#TYPEINSIGNATURE#_#ID# = value;\n" +
+        ind(2) + "token#TYPEINSIGNATURE#_#ID# = value;\n" +
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n"
-    );
+        ind + "}\n"
+        );
     if(decl.redefinesTokenComponent(this)) {
-        buf.append("    protected #TYPE# #HOST#.token#TYPEINSIGNATURE#_#ID#;\n");
+      buf.append(ind + "/**");
+      buf.append(ind + " * @apilvl internal");
+      buf.append(ind + " */");
+      buf.append(ind + "protected #TYPE# #HOST#.token#TYPEINSIGNATURE#_#ID#;\n");
     }
     if(!isNTA()) {
       boolean isStringToken = getTokenId().getTYPE().equals("String") || getTokenId().getTYPE().equals("java.lang.String");
       if(isStringToken && ASTNode.beaver) {
         if(decl.redefinesTokenComponent(this)) {
           buf.append(
-          "    public int #HOST#.#ID#start;\n" +
-          "    public int #HOST#.#ID#end;\n"
-          );
+              ind + "public int #HOST#.#ID#start;\n" +
+              ind + "public int #HOST#.#ID#end;\n"
+              );
         }
         buf.append(
-        "    public void #HOST#.set#ID#(beaver.Symbol symbol) {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        if(symbol.value != null && !(symbol.value instanceof String))\n" +
-        "          throw new UnsupportedOperationException(\"set#ID# is only valid for String lexemes\");\n" +
-        "        token#TYPEINSIGNATURE#_#ID# = (String)symbol.value;\n" +
-        "        #ID#start = symbol.getStart();\n" +
-        "        #ID#end = symbol.getEnd();\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n"
-        );
+            ind + "public void #HOST#.set#ID#(beaver.Symbol symbol) {\n" +
+            (ASTNode.block ? ASTNode.blockBegin : "") +
+            ind(2) + "if(symbol.value != null && !(symbol.value instanceof String))\n" +
+            ind(3) + "throw new UnsupportedOperationException(\"set#ID# is only valid for String lexemes\");\n" +
+            ind(2) + "token#TYPEINSIGNATURE#_#ID# = (String)symbol.value;\n" +
+            ind(2) + "#ID#start = symbol.getStart();\n" +
+            ind(2) + "#ID#end = symbol.getEnd();\n" +
+            (ASTNode.block ? ASTNode.blockEnd : "") +
+            ind + "}\n"
+            );
       }
       if(isStringToken)
         buf.append(
-        getIDComment() +
-        "    public #TYPE# #HOST#.get#ID#() {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return token#TYPEINSIGNATURE#_#ID# != null ? token#TYPEINSIGNATURE#_#ID# : \"\";\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n");
+            getIDComment() +
+            ind + "public #TYPE# #HOST#.get#ID#() {\n" +
+            (ASTNode.block ? ASTNode.blockBegin : "") +
+            ind(2) + "return token#TYPEINSIGNATURE#_#ID# != null ? token#TYPEINSIGNATURE#_#ID# : \"\";\n" +
+            (ASTNode.block ? ASTNode.blockEnd : "") +
+            ind + "}\n");
       else
         buf.append(
-        getIDComment() +
-        "    public #TYPE# #HOST#.get#ID#() {\n" +
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return token#TYPEINSIGNATURE#_#ID#;\n" +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n");
+            getIDComment() +
+            ind + "public #TYPE# #HOST#.get#ID#() {\n" +
+            (ASTNode.block ? ASTNode.blockBegin : "") +
+            ind(2) + "return token#TYPEINSIGNATURE#_#ID#;\n" +
+            (ASTNode.block ? ASTNode.blockEnd : "") +
+            ind + "}\n");
     }
     String s = buf.toString();
     s = s.replaceAll("#ID#", getTokenId().getID());
@@ -1486,29 +1720,23 @@ aspect JaddCodeGen {
     s = s.replaceAll("#TYPEINSIGNATURE#", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
     s = s.replaceAll("#HOST#", name);
     if(!publicModifier)
-      s = s.replaceAll("    public ", "    private ");
+      s = s.replaceAll(ind + "public ", ind + "private ");
     //stream.println(s);
     parse(s);
 
   }
 
   String AggregateComponents.setNameComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Setter for #NAME#\n" +
-             "     */\n";
-    }
-    else 
-      return "    // Declared in " + hostClass().getFileName() + " line " + hostClass().getStartLine() + "\n";
+    return ind + "/**\n" +
+      ind + " * Setter for #NAME#\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
   String AggregateComponents.getNameComment() {
-    if(doxygen) {
-      return "    /**\n" +
-             "     * Getter for #NAME#\n" +
-             "     */\n";
-    }
-    else 
-      return "";
+    return ind + "/**\n" +
+      ind + " * Getter for #NAME#\n" +
+      ind + " * @apilvl high-level\n" +
+      ind + " */\n";
   }
 
   public void AggregateComponents.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
@@ -1516,41 +1744,51 @@ aspect JaddCodeGen {
     String s;
     // Generate get-method for component
     s = setNameComment() +
-        "    public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        setChild(node, #INDEX#);\n" + 
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n";
+      ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "setChild(node, #INDEX#);\n" + 
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n";
     if(!isNTA()) {
-      s = s +
+      s +=
         getNameComment() +
-        "    public #TYPE# #HOST#.get#NAME#() {\n" +
+        ind + "public #TYPE# #HOST#.get#NAME#() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#TYPE#)getChild(#INDEX#);\n" + 
+        ind(2) + "return (#TYPE#)getChild(#INDEX#);\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" + 
-        "    public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
+        ind + "}\n" + 
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#TYPE#)getChildNoTransform(#INDEX#);\n" + 
+        ind(2) + "return (#TYPE#)getChildNoTransform(#INDEX#);\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n";
+        ind + "}\n";
     }
     else {
-        s = s + "    public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
+      s +=
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        "        return (#TYPE#)getChildNoTransform(#INDEX#);\n" + 
+        ind(2) + "return (#TYPE#)getChildNoTransform(#INDEX#);\n" + 
         (ASTNode.block ? ASTNode.blockEnd : "") +
-        "    }\n\n" +
-        "    protected int #HOST#.get#NAME#ChildPosition() {\n" +
-        "        return #INDEX#;\n" +
-        "    }\n\n";
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * @apilvl low-level\n" +
+        ind + " */\n" +
+        ind + "protected int #HOST#.get#NAME#ChildPosition() {\n" +
+        ind(2) + "return #INDEX#;\n" +
+        ind + "}\n";
     }
     s = s.replaceAll("#TYPE#", getId().type());
     s = s.replaceAll("#NAME#", getId().name());
     s = s.replaceAll("#INDEX#", String.valueOf(index));
     s = s.replaceAll("#HOST#", name);
     if(!publicModifier)
-      s = s.replaceAll("    public ", "    private ");
+      s = s.replaceAll(ind + "public ", ind + "private ");
     //stream.println(s);
     parse(s);
   }

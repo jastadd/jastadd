@@ -35,9 +35,8 @@ public aspect Unparse {
   public void SimpleNode.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
 
-      Token t1 = firstToken;
       Token t = new Token();
-      t.next = t1;
+      t.next = firstToken;
 
       SimpleNode n;
       for(int i = 0; i < jjtGetNumChildren(); i++) {
@@ -60,10 +59,13 @@ public aspect Unparse {
   
   public void ASTMethodDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+    // Ditch the comment, if one exists
+    //firstToken.specialToken = null;
+
     // MethodDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
 
-	  jrag.AST.Node node = this;
+    jrag.AST.Node node = this;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
@@ -86,6 +88,10 @@ public aspect Unparse {
   
   public void ASTAspectMethodDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+
+    // Ditch the comment, if one exists
+    firstToken.specialToken = null;
+
     // MethodDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     jrag.AST.Node node = this;
@@ -146,6 +152,9 @@ public aspect Unparse {
   }
   public void ASTAspectRefineMethodDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+    // Ditch the comment, if one exists
+    firstToken.specialToken = null;
+
     // MethodDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     jrag.AST.Node node = this;
@@ -207,6 +216,9 @@ public aspect Unparse {
   
   public void ASTAspectConstructorDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+    // Ditch the comment, if one exists
+    firstToken.specialToken = null;
+
     // ConstructorDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     jrag.AST.Node node = this;
@@ -229,6 +241,9 @@ public aspect Unparse {
 
   public void ASTAspectRefineConstructorDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+    // Ditch the comment, if one exists
+    firstToken.specialToken = null;
+
     // ConstructorDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     jrag.AST.Node node = this;
@@ -251,12 +266,15 @@ public aspect Unparse {
 
 
   public void ASTModifiers.unparseClassBodyDeclaration(StringBuffer buf, String className, boolean aspectJ) {
-	  buf.append(unparse());
-	  buf.append(" ");
+    buf.append(unparse());
+    buf.append(" ");
   }
   
   public void ASTFieldDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+    // Ditch the comment, if one exists
+    //firstToken.specialToken = null;
+
     // FieldDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     jrag.AST.Node node = this;
@@ -282,6 +300,9 @@ public aspect Unparse {
   
   public void ASTAspectFieldDeclaration.unparseClassBodyDeclaration(StringBuffer buf,
     String className, boolean aspectJ) {
+    // Ditch the comment, if one exists
+    //firstToken.specialToken = null;
+
     // FieldDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     jrag.AST.Node node = this;
