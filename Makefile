@@ -58,3 +58,14 @@ release: jar source-zip
 
 clean :
 	/bin/rm -f jastadd/*.class ast/AST/* jrag/*.class jrag/AST/*.class jrag/AST/AST* jrag/AST/Jrag.jj jrag/AST/JragParser* jrag/AST/JJT* jrag/AST/Node.* jrag/AST/JavaCharStream* jrag/AST/ParseException*
+
+RunTests.class: RunTests.java
+	javac $^
+
+test: all RunTests.class
+	@echo "==================="
+	@echo Running unit tests!
+	@java RunTests | grep "test/Test[0-9]*\.java passed" > passed
+	@echo "======================"
+	@echo Comparing test results
+	@diff -s test/shouldpass passed
