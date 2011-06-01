@@ -220,6 +220,7 @@ aspect JragCodeGen {
       else {
         if(!o.comments.equals(""))
           buf.append(o.comments + " ");
+        buf.append(o.modifiers);
         n.unparseClassBodyDeclaration(buf, name(), aspectJ);
       }
       buf.append("\n");
@@ -273,6 +274,7 @@ aspect JragCodeGen {
       //buf.append(ind + "// Declared in " + obj.fileName + " at line " + obj.line + "\n");
       //if (!obj.comments.equals(""))
         //buf.append(obj.comments + " ");
+      buf.append(obj.modifiers);
       buf.append(javadocComment(obj));
       buf.append(ind);
       node.unparseClassBodyDeclaration(buf, name(), aspectJ);

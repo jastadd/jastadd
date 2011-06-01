@@ -1522,7 +1522,10 @@ void MethodDeclaration(String modifiers) :
   [ TypeParameters() ]
   ResultType()  MethodDeclarator() [ "throws" NameList() ]
   ( Block() | ";" ) 
-  { if(inTopLevelOrAspect()) root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect); }
+  { if(inTopLevelOrAspect()) {
+      root.addMethodDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
+    }
+  }
 }
 
 void MethodDeclarator() :

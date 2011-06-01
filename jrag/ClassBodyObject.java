@@ -16,6 +16,7 @@ public class ClassBodyObject {
     public String refinesAspect;
     public String replaceAspect;
     public String comments;
+    public String modifiers = "";
     public String aspectName;
     
     public ClassBodyObject(SimpleNode node, String fileName, int line, String comments, String aspectName) {

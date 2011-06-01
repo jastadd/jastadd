@@ -278,6 +278,7 @@ aspect JastAddCodeGen {
         //buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
         //if(!o.comments.equals(""))
           //buf.append(o.comments + " ");
+        buf.append(o.modifiers);
         n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
         buf.append("\n\n");
       }
