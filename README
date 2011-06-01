@@ -52,6 +52,8 @@ RUN REGRESSION TEST SUITE
 
 3. Run as a regression test. You will get no output if all tests do pass that should pass.
 
+> make test
+*OR*
 > diff test/shouldpass <(java RunTests 2>&1 | grep "test/Test[0-9]*\.java passed" )
 
 Explanation:
