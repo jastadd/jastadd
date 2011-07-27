@@ -12,7 +12,7 @@ import jrag.*;
 
 public class JastAdd {
   
-    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110601";
+    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110727";
     public static final String VERSIONINFO = "\n// Generated with " + VERSION + "\n\n";
 
     protected java.util.List files;

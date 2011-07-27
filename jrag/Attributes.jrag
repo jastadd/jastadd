@@ -297,7 +297,8 @@ public aspect Attributes {
     }
   }
 
-  public void Grammar.addMethodDecl(jrag.AST.SimpleNode n, String className, String fileName, String modifiers, String aspectName) {
+  public void Grammar.addMethodDecl(jrag.AST.SimpleNode n, String className,
+      String fileName, String modifiers, String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null) {
       ClassBodyObject obj = new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName);
@@ -309,10 +310,14 @@ public aspect Attributes {
     }
   }
 
-  public void Grammar.addClassBodyDecl(jrag.AST.SimpleNode n, String className, String fileName, String comments, String aspectName) {
+  public void Grammar.addClassBodyDecl(jrag.AST.SimpleNode n, String className,
+      String fileName, String modifiers, String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null) {
-      c.classBodyDecls.add(new ClassBodyObject(n, fileName, n.firstToken.beginLine, comments, aspectName));
+      ClassBodyObject obj = new ClassBodyObject(n, fileName,
+          n.firstToken.beginLine, aspectName);
+      obj.modifiers = modifiers;
+      c.classBodyDecls.add(obj);
     }
     else {
       error("Can not add member to unknown class " + className + " in " + fileName + " at line " + n.firstToken.beginLine);
