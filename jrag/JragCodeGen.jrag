@@ -374,7 +374,7 @@ aspect JragCodeGen {
 
   public String AttrDecl.doxygenFileComment(String ind) {
     String comment = getComment().trim();
-    String extraString = " * #LINE# \\ingroup aspect_" + getAspectName();
+    String extraString = "#LINE# \\ingroup aspect_" + getAspectName();
     if(comment.length() == 0) {
       comment =
         ind + "/**\n" +
