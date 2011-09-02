@@ -51,7 +51,7 @@ aspect CollectionAttributes {
       CollDecl attr = getCollDecl(i);
       if(!attr.separateEvaluation() && (attr.isCircular() || !attr.onePhase())) {
         buf.append(ind + "/**\n");
-        buf.append(ind + " * @apilvl internal\n");
+        buf.append(ind + " * @apilevel internal\n");
         buf.append(ind + " */\n");
         buf.append(ind + "public " + typeDefaultSet + " " + attr.attributeSignature() + "_contributors();\n");
       }
@@ -77,15 +77,15 @@ aspect CollectionAttributes {
     if(attr.getNumParameter() == 0)
       return attr.visitedDeclarations() +
          ind + "/**\n" +
-         ind + " * @apilvl internal\n" +
+         ind + " * @apilevel internal\n" +
          ind + " */\n" +
          ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
          ind + "/**\n" +
-         ind + " * @apilvl internal\n" +
+         ind + " * @apilevel internal\n" +
          ind + " */\n" +
          ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
          ind + "/**\n" +
-         ind + " * @apilvl internal\n" +
+         ind + " * @apilevel internal\n" +
          ind + " */\n" +
          ind + "protected #TYPE# #CLASS#.#NAME#_value;\n" +
          (separateEvaluation ? ind + "protected #TYPE# #CLASS#.new_#NAME#_value;\n" : "") +
@@ -161,15 +161,15 @@ aspect CollectionAttributes {
     else
       return attr.visitedDeclarations() +
          ind + "/**\n" +
-         ind + " * @apilvl internal\n" +
+         ind + " * @apilevel internal\n" +
          ind + " */\n" +
          ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_computed = " + createDefaultSet + ";\n" +
          ind + "/**\n" +
-         ind + " * @apilvl internal\n" +
+         ind + " * @apilevel internal\n" +
          ind + " */\n" +
          ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_initialized = " + createDefaultSet + ";\n" +
          ind + "/**\n" +
-         ind + " * @apilvl internal\n" +
+         ind + " * @apilevel internal\n" +
          ind + " */\n" +
          ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
          comment + suppressWarnings() +
@@ -266,7 +266,7 @@ aspect CollectionAttributes {
     if(separateEvaluation()) // TODO: replace naive() with separateEvaluation()
       return
       ind + "/**\n" +
-      ind + " * @apilvl internal\n" +
+      ind + " * @apilevel internal\n" +
       ind + " */\n" +
       ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
@@ -281,7 +281,7 @@ aspect CollectionAttributes {
     else if(onePhase())
       return
       ind + "/**\n" +
-      ind + " * @apilvl internal\n" +
+      ind + " * @apilevel internal\n" +
       ind + " */\n" +
       ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
@@ -301,7 +301,7 @@ aspect CollectionAttributes {
       ind(2) + "return #NAME#_contributors;\n" +
       ind + "}\n" +
       ind + "/**\n" +
-      ind + " * @apilvl internal\n" +
+      ind + " * @apilevel internal\n" +
       ind + " */\n" +
       ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +

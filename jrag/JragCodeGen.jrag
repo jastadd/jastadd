@@ -470,7 +470,7 @@ aspect JragCodeGen {
     if(isCircular()) {
       if(getNumParameter() == 0)
         return ind + "/**\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
       else {
@@ -482,36 +482,36 @@ aspect JragCodeGen {
     if(rewriteEnabled) {
       if(getNumParameter() == 0)
         return ind + "/**\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
       else {
         if(ASTNode.lazyMaps)
           return ind + "/**\n" +
-                 ind + " * @apilvl internal\n" +
+                 ind + " * @apilevel internal\n" +
                  ind + " */\n" +
                  ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
         else
           return ind + "/**\n" +
-                 ind + " * @apilvl internal\n" +
+                 ind + " * @apilevel internal\n" +
                  ind + " */\n" +
                  ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_visited = " + createDefaultMap + ";\n";
       }
     }
     if(getNumParameter() == 0)
       return ind + "/**\n" +
-             ind + " * @apilvl internal\n" +
+             ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected boolean #CLASS#.#NAME#_visited = false;\n";
     else {
       if(ASTNode.lazyMaps)
         return ind + "/**\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
       else
         return ind + "/**\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_visited = " + createDefaultSet + ";\n";
     }
@@ -615,23 +615,23 @@ aspect JragCodeGen {
       return "";
     if(getNumParameter() == 0)
       return ind + "/**\n" +
-             ind + " * @apilvl internal\n" +
+             ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
              ind + "/**\n" +
-             ind + " * @apilvl internal\n" +
+             ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected #TYPE# #CLASS#.#NAME#_value;\n";
     else if(declaredNTA()) {
       if(ASTNode.lazyMaps)
         return ind + "/**\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
       else
         return ind + "/**\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
@@ -865,13 +865,13 @@ aspect JragCodeGen {
     if(getRHS() instanceof ASTBlock) // Block
       return
         ind + "/**\n" +
-        ind + " * @apilvl internal\n" +
+        ind + " * @apilevel internal\n" +
         ind + " */\n" +
         ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + getRHS().unparse() + "\n";
     else // Expr
       return
         ind + "/**\n" +
-        ind + " * @apilvl internal\n" +
+        ind + " * @apilevel internal\n" +
         ind + " */\n" +
         ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {  return " + getRHS().unparse() + ";  }\n";
   }
@@ -882,7 +882,7 @@ aspect JragCodeGen {
       return  "";
     return
         ind + "/**\n" +
-        ind + " * @apilvl internal\n" +
+        ind + " * @apilevel internal\n" +
         ind + " */\n" +
         ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
         ind(2) + "ASTNode n = getParent();\n" +
@@ -960,15 +960,15 @@ aspect JragCodeGen {
            (
              attr.visitedDeclarations() +
              ind + "/**\n" +
-             ind + " * @apilvl internal\n" +
+             ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
              ind + "/**\n" +
-             ind + " * @apilvl internal\n" +
+             ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
              ind + "/**\n" +
-             ind + " * @apilvl internal\n" +
+             ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected #TYPE# #CLASS#.#NAME#_value;\n"
            ) : "" ) +
@@ -1484,7 +1484,7 @@ aspect JragCodeGen {
       String s;
       buf.append(ind + "/**\n");
       buf.append(ind + " * @declaredat " + equ.getFileName() + ":" + equ.getStartLine() + "\n");
-      buf.append(ind + " * @apilvl internal\n");
+      buf.append(ind + " * @apilevel internal\n");
       buf.append(ind + " */\n");
       s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
       s = s.replaceAll("#TYPE#", decl.type());
@@ -1694,7 +1694,7 @@ aspect JragCodeGen {
     StringBuffer buf = new StringBuffer();
     boolean unconditional = false;
     buf.append(ind + "/**\n");
-    buf.append(ind + " * @apilvl internal\n");
+    buf.append(ind + " * @apilevel internal\n");
     buf.append(ind + " */\n");
     buf.append(ind + "public ASTNode rewriteTo() {\n");
     if(name().equals("List")) {
@@ -1776,7 +1776,7 @@ aspect JragCodeGen {
   public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
                ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
       buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
@@ -1796,7 +1796,7 @@ aspect JragCodeGen {
   public void RewriteList.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
                ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
-               ind + " * @apilvl internal\n" +
+               ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
       buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
@@ -1841,7 +1841,7 @@ aspect JragCodeGen {
 
       String s;
       s = "/**\n" +
-          " * @apilvl internal\n" +
+          " * @apilevel internal\n" +
           " */\n" +
           "public interface Defines_#TYPEINSIGNATURE#_#NAME# {\n" +
           ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#);\n" +
@@ -1870,7 +1870,7 @@ aspect JragCodeGen {
         if(!hasInhEq(attr.decl().name())) {
           String s =
             ind + "/**\n" +
-            ind + " * @apilvl internal\n" +
+            ind + " * @apilevel internal\n" +
             ind + " */\n" +
             ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
             attr.decl().inhDebugString() +
@@ -1916,7 +1916,7 @@ aspect JragCodeGen {
       String s =
            attr.cacheDeclarations() +
            ind + "/**\n" +
-           ind + " * @apilvl internal\n" +
+           ind + " * @apilevel internal\n" +
            ind + " */\n" +
            ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
            attr.parameterStructure() +

@@ -187,7 +187,7 @@ aspect JaddCodeGen {
 
   public void Grammar.genReset(PrintWriter stream) {
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.println(ind + "public void ASTNode$State.reset() {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -216,35 +216,35 @@ aspect JaddCodeGen {
 
   public void Grammar.jjtGenASTNode$State(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     stream.println("/**");
-    stream.println(" * @apilvl internal");
+    stream.println(" * @apilevel internal");
     stream.println(" */");
     stream.println("static public class ASTNode$State {");
     if(circularEnabled) {
       stream.println("/**");
-      stream.println(" * @apilvl internal");
+      stream.println(" * @apilevel internal");
       stream.println(" */");
       stream.println(ind + "public boolean IN_CIRCLE = false;");
       stream.println("/**");
-      stream.println(" * @apilvl internal");
+      stream.println(" * @apilevel internal");
       stream.println(" */");
       stream.println(ind + "public int CIRCLE_INDEX = 1;");
       stream.println("/**");
-      stream.println(" * @apilvl internal");
+      stream.println(" * @apilevel internal");
       stream.println(" */");
       stream.println(ind + "public boolean CHANGE = false;");
       if(cacheCycle) {
         stream.println("/**");
-        stream.println(" * @apilvl internal");
+        stream.println(" * @apilevel internal");
         stream.println(" */");
         stream.println(ind + "public boolean LAST_CYCLE = false;");
       }
       stream.println("/**");
-      stream.println(" * @apilvl internal");
+      stream.println(" * @apilevel internal");
       stream.println(" */");
       stream.println(ind + "public boolean RESET_CYCLE = false;");
 
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "static public class CircularValue {");
       stream.println(ind(2) + "Object value;");
@@ -256,7 +256,7 @@ aspect JaddCodeGen {
         stream.println(ind + "public java.util.Stack circularEvalStack = new java.util.Stack();");
 
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "static class CircularEvalEntry {");
         stream.println(ind(2) + "ASTNode node;");
@@ -293,7 +293,7 @@ aspect JaddCodeGen {
         stream.println(ind + "}");
 
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "static class CircularStackEntry {");
         stream.println(ind(2) + "" + ASTNode.typeDefaultSet + " circularEvalSet;");
@@ -325,7 +325,7 @@ aspect JaddCodeGen {
       stream.println(ind + "public static final int REWRITE_INTERRUPT = 3;");
       if(rewriteLimit > 0) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public java.util.HashMap debugRewrite = " + ASTNode.createDefaultMap + ";\n");
       }
@@ -360,7 +360,7 @@ aspect JaddCodeGen {
 
     if(j2me) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "static class HashtableBasedSet  {");
       stream.println(ind(2) + "public HashtableBasedSet(int initialCapacity) {");
@@ -379,12 +379,12 @@ aspect JaddCodeGen {
     }
     else if(deterministic) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "static class IdentityHashSet extends java.util.LinkedHashSet {");
       stream.println(ind(2) + "public IdentityHashSet(int initialCapacity) { super(initialCapacity); }");
       stream.println(ind(2) + "/**");
-      stream.println(ind(2) + " * @apilvl internal");
+      stream.println(ind(2) + " * @apilevel internal");
       stream.println(ind(2) + " */");
       stream.println(ind(2) + "public java.util.Iterator iterator() {");
       stream.println(ind(3) + "final java.util.Iterator i = super.iterator();");
@@ -399,7 +399,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "public boolean remove(Object o) { return super.remove(wrap(o)); }");
       stream.println(ind(2) + "private Wrapper wrap(Object o) { return new Wrapper(o); }");
       stream.println(ind(2) + "/**");
-      stream.println(ind(2) + " * @apilvl internal");
+      stream.println(ind(2) + " * @apilevel internal");
       stream.println(ind(2) + " */");
       stream.println(ind(2) + "private static class Wrapper {");
       stream.println(ind(3) + "private Object o;");
@@ -411,7 +411,7 @@ aspect JaddCodeGen {
     }
     else {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "static class IdentityHashSet extends java.util.AbstractSet implements java.util.Set {");
       stream.println(ind(2) + "public IdentityHashSet(int initialCapacity) {");
@@ -434,24 +434,24 @@ aspect JaddCodeGen {
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.println(ind + "public static final boolean ASTNode.generatedWithCircularEnabled = " + ASTNode.circularEnabled + ";");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.println(ind + "public static final boolean ASTNode.generatedWithCacheCycle = " + ASTNode.cacheCycle + ";");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.println(ind + "public static final boolean ASTNode.generatedWithComponentCheck = " + ASTNode.componentCheck + ";");
     if(ASTNode.noStatic) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "protected ASTNode$State ASTNode.state = null;");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public final ASTNode$State ASTNode.state() {");
       stream.println(ind(2) + "if(state == null) {");
@@ -482,11 +482,11 @@ aspect JaddCodeGen {
     }
     else {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "protected static ASTNode$State ASTNode.state = new ASTNode$State();");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public final ASTNode$State ASTNode.state() { return state; }");
     }
@@ -494,7 +494,7 @@ aspect JaddCodeGen {
     if(rewriteEnabled) {
       if(rewriteLimit > 0) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public void ASTNode.debugRewrite(String info) {");
         stream.println(ind(2) + "if(!parent.is$Final()) return;");
@@ -516,7 +516,7 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "}");
         stream.println(ind + "}");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public void ASTNode.debugRewriteRemove() {");
         stream.println(ind(2) + "java.util.ArrayList key = new java.util.ArrayList(2);");
@@ -526,56 +526,56 @@ aspect JaddCodeGen {
         stream.println(ind + "}\n");
       }
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public boolean ASTNode.in$Circle = false;");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public boolean ASTNode.in$Circle() { return in$Circle; }");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public void ASTNode.in$Circle(boolean b) { in$Circle = b; }");
       if(ASTNode.stagedRewrites) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public int ASTNode.is$Final = 0;");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public boolean ASTNode.is$Final() { return is$Final >= state().rewritePhase; }");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public void ASTNode.is$Final(int phase) { is$Final = phase; }");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public void ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public boolean ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }");
       }
       else {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public boolean ASTNode.is$Final = false;");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public boolean ASTNode.is$Final() { return is$Final; }");
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "public void ASTNode.is$Final(boolean b) { is$Final = b; }");
       }
       if(ASTNode.java5) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
@@ -583,14 +583,14 @@ aspect JaddCodeGen {
       }
       else {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
         stream.println(ind(2) + "return ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public static ASTNode ASTNode.getChild(ASTNode that, int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -634,7 +634,7 @@ aspect JaddCodeGen {
     else {
       if(ASTNode.java5) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\")");
         stream.println(ind + "public T ASTNode.getChild(int i) {");
@@ -643,7 +643,7 @@ aspect JaddCodeGen {
       }
       else {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
         stream.println(ind(2) + "return getChildNoTransform(i);");
@@ -651,11 +651,11 @@ aspect JaddCodeGen {
       }
     }
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.println(ind + "private int ASTNode.childIndex;");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public int ASTNode.getIndexOfChild(ASTNode node) {");
     stream.println(ind(2) + "if(node != null && node.childIndex < getNumChildNoTransform() && node == getChildNoTransform(node.childIndex))");
@@ -669,12 +669,12 @@ aspect JaddCodeGen {
     stream.println(ind + "}\n");
     if(ASTNode.java5) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public void ASTNode.addChild(T node) {");
     } else {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public void ASTNode.addChild(ASTNode node) {");
     }
@@ -684,7 +684,7 @@ aspect JaddCodeGen {
 
     if(ASTNode.java5) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "@SuppressWarnings(\"cast\")");
       stream.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
@@ -695,7 +695,7 @@ aspect JaddCodeGen {
     }
     else {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -704,17 +704,17 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "protected int ASTNode.numChildren;"); // added
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "protected int ASTNode.numChildren() {");
     stream.println(ind(2) + "return numChildren;");
     stream.println(ind + "}");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public int ASTNode.getNumChild() {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -722,7 +722,7 @@ aspect JaddCodeGen {
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public final int ASTNode.getNumChildNoTransform() {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -731,7 +731,7 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
 
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public void ASTNode.setChild(ASTNode node, int i) {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -751,7 +751,7 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
 
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public void ASTNode.insertChild(ASTNode node, int i) {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -774,7 +774,7 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
 
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public void ASTNode.removeChild(int i) {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -791,7 +791,7 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
 
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public ASTNode ASTNode.getParent() {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -804,7 +804,7 @@ aspect JaddCodeGen {
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public void ASTNode.setParent(ASTNode node) {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -814,21 +814,21 @@ aspect JaddCodeGen {
 
     if(!jjtree) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "protected ASTNode ASTNode.parent;");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "protected ASTNode[] ASTNode.children;");
     }
     if(debugMode) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "protected boolean ASTNode.debugNodeAttachmentIsRoot() { return false; }");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "private static void ASTNode.debugNodeAttachment(ASTNode node) {");
       stream.println(ind(2) + "if(node == null) throw new RuntimeException(\"Trying to assign null to a tree child node\");");
@@ -847,7 +847,7 @@ aspect JaddCodeGen {
 
   public void ASTDecl.jjtGenFlushCache(PrintWriter stream) {
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl low-level");
+    stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.print(ind + "public void flushCache() {\n");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
@@ -871,7 +871,7 @@ aspect JaddCodeGen {
 
     stream.print(ind + "}\n");
     stream.println(ind + "/**");
-    stream.println(ind + " * @apilvl internal");
+    stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.print(ind + "public void flushCollectionCache() {\n");
     if(!name().equals("ASTNode"))
@@ -883,7 +883,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     if(j2me) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.print(ind + "public void init$copy(Object o) {\n");
       stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
@@ -920,13 +920,13 @@ aspect JaddCodeGen {
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
         name = name + "<T>";
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ASTNode.suppressWarnings() + ind + "public " + name + " clone() throws CloneNotSupportedException {");
     }
     else {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ASTNode.suppressWarnings() + ind + "public Object clone() throws CloneNotSupportedException {");
     }
@@ -989,7 +989,7 @@ aspect JaddCodeGen {
 
       String s =
         ind + "/**\n" +
-        ind + " * @apilvl internal\n" +
+        ind + " * @apilevel internal\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #RETURN# copy() {\n" + 
@@ -998,7 +998,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #RETURN# fullCopy() {\n" + 
@@ -1221,7 +1221,7 @@ aspect JaddCodeGen {
       env().genReset(stream);
       if(ASTNode.java5) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public java.util.Iterator<T> ASTNode.iterator() {");
         if(ASTNode.block) stream.append(ASTNode.blockBegin);
@@ -1276,7 +1276,7 @@ aspect JaddCodeGen {
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
       stream.println(ind + "}");
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl low-level");
+      stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public void List.removeChild(int i) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
@@ -1303,7 +1303,7 @@ aspect JaddCodeGen {
 
       if(jjtree) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public int " + name() + ".getNumChild() {");
         stream.println(ind(2) + "return " + numRegularChildren() + ";");
@@ -1311,7 +1311,7 @@ aspect JaddCodeGen {
       }
       else {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl low-level");
+        stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "protected int " +name() + ".numChildren() {");
         stream.println(ind(2) + "return " + numRegularChildren() + ";");
@@ -1319,14 +1319,14 @@ aspect JaddCodeGen {
       }
       if(debugMode && isRootNode()) {
         stream.println(ind + "/**");
-        stream.println(ind + " * @apilvl internal");
+        stream.println(ind + " * @apilevel internal");
         stream.println(ind + " */");
         stream.println(ind + "protected boolean " + name() + ".debugNodeAttachmentIsRoot() { return true; }");
       }
     }
     if(rewriteEnabled) {
       stream.println(ind + "/**");
-      stream.println(ind + " * @apilvl internal");
+      stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
       if(name().equals("List"))
@@ -1380,37 +1380,37 @@ aspect JaddCodeGen {
   String ListComponents.setNameListComment() {
     return ind + "/**\n" +
       ind + " * Setter for #NAME#List\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.getNumNameComment() {
     return ind + "/**\n" +
       ind + " * @return number of children in #NAME#List\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.getNameComment() {
     return ind + "/**\n" +
       ind + " * Getter for child in list #NAME#List\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.addNameComment() {
     return ind + "/**\n" +
       ind + " * Add element to list #NAME#List\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.setNameComment() {
     return ind + "/**\n" +
       ind + " * Setter for child in list #NAME#List\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.getNameListComment() {
     return ind + "/**\n" +
       ind + " * Getter for list #NAME#List\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
 
@@ -1447,7 +1447,7 @@ aspect JaddCodeGen {
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n" + 
       ind + "/**\n" +
-      ind + " * @apilvl low-level\n" +
+      ind + " * @apilevel low-level\n" +
       ind + " */\n" +
       ind + "public void #HOST#.add#NAME#NoTransform(#TYPE# node) {\n" +
       (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1466,7 +1466,7 @@ aspect JaddCodeGen {
       s +=
         ind + "/**\n" +
         ind + " * Getter for #NAME# list.\n" +
-        ind + " * @apilvl high-level\n" +
+        ind + " * @apilevel high-level\n" +
         ind + " */\n" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#s() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1474,7 +1474,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#sNoTransform() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1494,7 +1494,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" + 
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
@@ -1506,7 +1506,7 @@ aspect JaddCodeGen {
     else {
       s +=
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1514,7 +1514,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "protected int #HOST#.get#NAME#ListChildPosition() {\n" +
         ind(2) + "return #INDEX#;\n" +
@@ -1535,31 +1535,31 @@ aspect JaddCodeGen {
   String OptionalComponent.setNameOptComment() {
     return ind + "/**\n" +
       ind + " * Setter for #NAME#Opt\n" +
-      ind + " * @apilvl low-level\n" +
+      ind + " * @apilevel low-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.hasNameComment() {
     return ind + "/**\n" +
       ind + " * Does this node have a #NAME# child?\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.getNameComment() {
     return ind + "/**\n" +
       ind + " * Getter for optional child #NAME#\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.setNameComment() {
     return ind + "/**\n" +
       ind + " * Setter for optional child #NAME#\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.getNameOptComment() {
     return ind + "/**\n" +
       ind + " * Getter for #NAME#Opt\n" +
-      ind + " * @apilvl low-level\n" +
+      ind + " * @apilevel low-level\n" +
       ind + " */\n";
   }
 
@@ -1596,7 +1596,7 @@ aspect JaddCodeGen {
       s +=
         getNameOptComment() +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #OPTTYPE# #HOST#.get#NAME#Opt() {\n" +
@@ -1605,7 +1605,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #OPTTYPE# #HOST#.get#NAME#OptNoTransform() {\n" +
@@ -1617,7 +1617,7 @@ aspect JaddCodeGen {
     else {
       s +=
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #OPTTYPE# #HOST#.get#NAME#OptNoTransform() {\n" +
@@ -1626,7 +1626,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "protected int #HOST#.get#NAME#OptChildPosition() {\n" +
         ind(2) + "return #INDEX#;\n" +
@@ -1648,13 +1648,13 @@ aspect JaddCodeGen {
   String TokenComponent.setIDComment() {
     return ind + "/**\n" +
       ind + " * Setter for lexeme #ID#\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String TokenComponent.getIDComment() {
     return ind + "/**\n" +
       ind + " * Getter for lexeme #ID#\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   private boolean TokenComponent.called = false;
@@ -1672,7 +1672,7 @@ aspect JaddCodeGen {
         );
     if(decl.redefinesTokenComponent(this)) {
       buf.append(ind + "/**");
-      buf.append(ind + " * @apilvl internal");
+      buf.append(ind + " * @apilevel internal");
       buf.append(ind + " */");
       buf.append(ind + "protected #TYPE# #HOST#.token#TYPEINSIGNATURE#_#ID#;\n");
     }
@@ -1729,13 +1729,13 @@ aspect JaddCodeGen {
   String AggregateComponents.setNameComment() {
     return ind + "/**\n" +
       ind + " * Setter for #NAME#\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String AggregateComponents.getNameComment() {
     return ind + "/**\n" +
       ind + " * Getter for #NAME#\n" +
-      ind + " * @apilvl high-level\n" +
+      ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
 
@@ -1758,7 +1758,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" + 
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1769,7 +1769,7 @@ aspect JaddCodeGen {
     else {
       s +=
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1777,7 +1777,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
-        ind + " * @apilvl low-level\n" +
+        ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "protected int #HOST#.get#NAME#ChildPosition() {\n" +
         ind(2) + "return #INDEX#;\n" +
