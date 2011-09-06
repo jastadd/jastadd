@@ -98,6 +98,17 @@ aspect JragCodeGen {
   public static boolean ASTNode.cacheImplicit = false;
   public static boolean ASTNode.ignoreLazy = false;
 
+  // EMMA_2011-09-06: Adding flag for incremental evalution
+  //   The flag is defined as a String to easily allow for various 
+  //   configurations of the incremental evaluation.
+  //   For example, "increamental=attribute+mark" would
+  //   define the incremental evaluation to take place on attribute
+  //   level, and only mark values as invalid instead of flushing them
+  //   directly.
+  public static boolean ASTNode.incremental = false;
+  public static boolean ASTNode.incrementalArgAttribute = false;
+  public static boolean ASTNode.incrementalArgLimit = false;
+  public static boolean ASTNode.incrementalArgMark = false;
 
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine Ast public boolean AttrDecl.getLazy() {

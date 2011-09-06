@@ -12,7 +12,7 @@ import jrag.*;
 
 public class JastAdd {
   
-    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110902";
+    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110906";
     public static final String VERSIONINFO = "\n// Generated with " + VERSION + "\n\n";
 
     protected java.util.List files;
@@ -105,6 +105,25 @@ public class JastAdd {
                     jp.AspectBodyDeclaration();
                 } catch (Exception e) {
                     String s = e.getMessage();
+                }
+                jp.popTopLevelOrAspect();
+            }
+
+            // EMMA_2011-09-06: Incremental evaluation
+            if (ASTNode.incremental) {
+                java.io.StringWriter writer = new java.io.StringWriter();
+                root.jjtGenASTNode$Handler(new PrintWriter(writer), grammar);
+                jrag.AST.JragParser jp = new jrag.AST.JragParser(
+                      new java.io.StringReader(writer.toString()));
+                jp.root = root;
+                jp.setFileName("ASTNode");
+                jp.className = "ASTNode";
+                jp.pushTopLevelOrAspect(true);
+                try {
+                   while(true)
+                     jp.AspectBodyDeclaration();
+                } catch (Exception e) {
+                   String s = e.getMessage();
                 }
                 jp.popTopLevelOrAspect();
             }
@@ -348,10 +367,18 @@ public class JastAdd {
         ASTNode.noCaching = cla.hasLongOption("noCaching");
         ASTNode.doxygen = cla.hasLongOption("doxygen");
 
-        // EMMA_2009-11-16: Handle new flags
+        // EMMA_2009-11-16: Handle caching flags
         ASTNode.cacheNone = cla.hasLongOption("cacheNone");
         ASTNode.cacheImplicit = cla.hasLongOption("cacheImplicit");
         ASTNode.ignoreLazy = cla.hasLongOption("ignoreLazy"); 
+
+        // EMMA_2011-09-06: Handle incremental flag
+        ASTNode.incremental = cla.hasLongOption("incremental");
+        String incrementalConfig = cla.getLongOptionValue("incremental", "");
+        Map incrementalArgMap = parseIncrementalConfig(incrementalConfig);
+        ASTNode.incrementalArgAttribute = incrementalArgMap.containsKey("attribute");
+        ASTNode.incrementalArgLimit = incrementalArgMap.containsKey("limit");
+        ASTNode.incrementalArgMark = incrementalArgMap.containsKey("mark");
         
         pack = cla.getLongOptionValue("package", "").replace('/', '.');
         int n = cla.getNumOperands();
@@ -382,6 +409,17 @@ public class JastAdd {
         return false;
     }
 
+    // EMMA_2011-09-06: Incremental evaluation
+    //   Method parsing the incremental configuration argument given to
+    //   the flag turning on incremental evaluation.
+    private Map parseIncrementalConfig(String str) {
+      Map map = new HashMap();
+      StringTokenizer st = new StringTokenizer(str, "+");
+      while (st.hasMoreTokens()) {
+        map.put(st.nextToken().trim(), "");
+      }
+      return map;
+    }
 
     private String readFile(String name) throws java.io.IOException {
       StringBuffer buf = new StringBuffer();

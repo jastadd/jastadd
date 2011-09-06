@@ -214,6 +214,53 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
   }
 
+
+  // EMMA_2011-09-06: Incremental evaluation
+  //   Adding generation of a handler class for incremental evaluation
+  public void Grammar.jjtGenASTNode$Handler(PrintWriter stream, String parserName) {
+      stream.println("  static public class ASTNode$Handler {");
+	  stream.println("    protected ASTNode fNode;");
+	  stream.println("    protected String fAttrID;");
+	  stream.println("    protected Object fParams;");
+	  stream.println("    public java.util.HashSet<ASTNode$Handler> fDependantSet = " +
+                     "        new java.util.HashSet<ASTNode$Handler>();");
+      stream.println("    public ASTNode$Handler(ASTNode node, String attrID, Object params) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = attrID;");
+      stream.println("      fParams = params;");
+      stream.println("    }");
+      stream.println("    public void addDependant(ASTNode$Handler handler) {");
+      stream.println("      if (handler != this) {");
+      stream.println("        fDependantSet.add(handler);");
+      stream.println("      }");
+      stream.println("    }");
+      stream.println("    public boolean hasDependants() {");
+      stream.println("        return !fDependantSet.isEmpty();");
+      stream.println("    }");      
+      stream.println("    protected void notifyDependencies() {");
+      stream.println("      java.util.HashSet<ASTNode$Handler> l = fDependantSet;");
+      stream.println("      fDependantSet = new java.util.HashSet<ASTNode$Handler>();");
+      stream.println("      for (ASTNode$Handler handler : l) {");
+      stream.println("        handler.dependencyChanged();");
+      stream.println("      }");
+      stream.println("    }");
+      stream.println("    public void dependencyChanged() {");
+      stream.println("      fNode.flushAttribute(fAttrID, fParams);");
+      stream.println("      notifyDependencies();");
+      stream.println("    }");
+      stream.println("    public void dumpDeps() {");
+      stream.println("      for (ASTNode$Handler handler : fDependantSet) {");
+      stream.println("        System.out.println(\"dep(\" + handler + \" -> \" + this + \")\");");
+      stream.println("      }");
+      stream.println("    }");
+      stream.println("    public String toString() {");
+      stream.println("      return fNode.relativeNodeID() + \"_\" + fAttrID + (fParams != null ? (\"[\" + (fParams instanceof ASTNode ? ((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
+      stream.println("    }");
+      stream.println("  }"); // End ASTNode$Handler
+  }
+  //
+
+
   public void Grammar.jjtGenASTNode$State(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     stream.println("/**");
     stream.println(" * @apilevel internal");

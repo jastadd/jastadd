@@ -148,6 +148,10 @@ public class JastAddTask extends Task {
   private boolean ignoreLazy = false;
   public void setIgnoreLazy(boolean b) { ignoreLazy = true; }
 
+  // EMMA_2011-09-06: Adding flag for incremental evaluation
+  private String incremental = "";
+  public void setIncremental(String s) { incremental = s; }
+
   public void execute() throws BuildException {
     if(jjtree && grammar == null)
       throw new BuildException("JJTree option requires grammar to be set");
@@ -236,6 +240,9 @@ public class JastAddTask extends Task {
 	if (cacheNone) args.add("--cacheNone");
 	if (cacheImplicit) args.add("--cacheImplicit");
     if (ignoreLazy) args.add("--ignoreLazy");
+
+    // EMMA_2011-09-06: Adding incremental attribute as JastAdd arguments
+    if (!incremental.equals("")) args.add("--incremental=" + incremental);
 
     args.addAll(files);
 
