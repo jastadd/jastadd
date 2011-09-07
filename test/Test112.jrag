@@ -1,0 +1,21 @@
+
+aspect A1 {
+    syn String X.m();
+    eq X.m() {
+      System.out.println("X.m() in A1");
+      return "";
+    }
+
+    syn int X.n() = 2;
+}
+
+
+aspect A2 {
+    refine A1 eq X.m() {
+      System.out.println("X.m() in A2");
+      return A1.X.m();
+    }
+    refine A1 eq X.n() {
+      return A1.X.n() + 1;
+    }
+}
