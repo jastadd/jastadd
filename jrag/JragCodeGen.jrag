@@ -105,7 +105,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return declaredNTA();
-    return declaredNTA() || Ast.AttrDecl.getLazy();
+    return declaredNTA() || Ast.AttrDecl.getLazy(); //refined(); 
 //    return (Ast.AttrDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean SynDecl.getLazy() {
@@ -113,7 +113,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return declaredNTA();
-    return declaredNTA() || Ast.SynDecl.getLazy();
+    return declaredNTA() || Ast.SynDecl.getLazy(); //refined(); 
 //    return (Ast.SynDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean InhDecl.getLazy() {
@@ -121,7 +121,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return declaredNTA();
-    return declaredNTA() || Ast.InhDecl.getLazy();
+    return declaredNTA() || Ast.InhDecl.getLazy(); //refined(); 
 //    return (Ast.InhDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean CollDecl.getLazy() {
@@ -129,7 +129,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return false;
-    return declaredNTA() || Ast.CollDecl.getLazy();
+    return declaredNTA() || Ast.CollDecl.getLazy(); //refined(); 
 //    return (Ast.CollDecl.getLazy() || cacheAll) && !noCaching;
   }
 
@@ -1058,7 +1058,7 @@ aspect JragCodeGen {
            ind(3) + "_value.value = " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ";\n" +
            ind(2) + "}\n" +
            ind(2) + "ASTNode$State state = state();\n" +
-           attr.addComponentCheck() +
+           attr.addComponentCheck() + 
            ind(2) + "if (!state.IN_CIRCLE) {\n" +
            ind(3) + "state.IN_CIRCLE = true;\n" +
            attr.tracePrintCycleBeginString() +
@@ -1066,8 +1066,13 @@ aspect JragCodeGen {
            attr.addAddToComponent() +
   // TODO: fixme         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
            ind(3) + "#TYPE# new_#NAME#_value;\n" +
-           ind(3) + "do {\n" +
-           ind(4) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n" +
+           ind(3) + "do {\n" + 
+           // EMMA_2011-09-08: Adding java1.4 code
+           (ASTNode.java5 ? 
+             ind(4) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
+           :
+             ind(4) + "_value.visited = state.CIRCLE_INDEX;\n"
+           ) +
            ind(4) + "state.CHANGE = false;\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
@@ -1081,7 +1086,12 @@ aspect JragCodeGen {
            attr.cycleLimitCheck() +
            ind(3) + "} while (state.CHANGE);\n" +
            ind(3) + attr.cacheStoreRewrite() + " {\n" +
-           ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n" +
+           // EMMA_2011-09-08: Adding java1.4 code
+           (ASTNode.java5 ?
+             ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n"
+           : 
+             ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n"
+           ) +
            attr.cacheCycleInit() +
            ind(3) + "}\n" +
            ind(3) + "else {\n" +
@@ -1093,16 +1103,31 @@ aspect JragCodeGen {
            attr.tracePrintCycleEndString() +
            ind(3) + "return new_#NAME#_value;\n" +
            ind(2) + "}\n" +
-           ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {\n" +
-           ind(3) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n" +
+           // EMMA_2011-09-08: Adding java1.4 code
+           (ASTNode.java5 ?
+             ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {\n"
+           :
+             ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {\n"
+           ) +
+           // EMMA_2011-09-08: Adding java1.4 code
+           (ASTNode.java5 ?
+             ind(3) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
+           :
+             ind(3) + "_value.visited = state.CIRCLE_INDEX;\n" 
+            ) +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
-           attr.cacheCycleCheck() +
+           attr.cacheCycleCheck() + 
            attr.resetCycleCheck() +
            ind(3) + "else if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
            ind(4) + "state.CHANGE = true;\n" +
-           ind(4) + "_value.value = new_#NAME#_value;\n" +
+           // EMMA_2011-09-08: Adding java1.4 code
+           (ASTNode.java5 ?
+             ind(4) + "_value.value = new_#NAME#_value;\n" 
+           :
+             ind(4) + "_value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" 
+           ) +
            ind(3) + "}\n" +
            attr.tracePrintReturnNewValue("new_#NAME#_value") +
            ind(3) + "return new_#NAME#_value;\n" +
@@ -1165,12 +1190,21 @@ aspect JragCodeGen {
          inhDebugString() +
          ind(4) + "return " + circularComputeCall() + ";\n" +
          ind(3) + "}\n";
-     else
-       return
-         ind(3) + "if (state.LAST_CYCLE) {\n" +
-         inhDebugString() +
-         ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n" +
-         ind(3) + "}\n";
+     else {
+       // EMMA_2011-09-08: Adding java1.4 code
+       if (ASTNode.java5) 
+         return
+           ind(3) + "if (state.LAST_CYCLE) {\n" +
+           inhDebugString() +
+           ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n" +
+           ind(3) + "}\n";
+       else
+         return
+           ind(3) + "if (state.LAST_CYCLE) {\n" +
+           inhDebugString() +
+           ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", getType()) + ");\n" +
+           ind(3) + "}\n";
+     }
   }
 
   public String AttrDecl.addComponentCheck() {
@@ -1187,11 +1221,17 @@ aspect JragCodeGen {
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
-      if(rewriteEnabled)
-        return
-        ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
-        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
-      else
+      if(rewriteEnabled) {
+        // EMMA_2011-09-08: Adding support for java5
+        if (ASTNode.java5) 
+          return
+          ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+          ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
+        else 
+          return
+          ind(2) + "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+          ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";    
+      } else
         return
         ind(2) + "if(_value.visited && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
