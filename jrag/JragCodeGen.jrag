@@ -105,7 +105,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return declaredNTA();
-    return declaredNTA() || refined(); //Ast.AttrDecl.getLazy();
+    return declaredNTA() || Ast.AttrDecl.getLazy();
 //    return (Ast.AttrDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean SynDecl.getLazy() {
@@ -113,7 +113,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return declaredNTA();
-    return declaredNTA() || refined(); //Ast.SynDecl.getLazy();
+    return declaredNTA() || Ast.SynDecl.getLazy();
 //    return (Ast.SynDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean InhDecl.getLazy() {
@@ -121,7 +121,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return declaredNTA();
-    return declaredNTA() || refined(); //Ast.InhDecl.getLazy();
+    return declaredNTA() || Ast.InhDecl.getLazy();
 //    return (Ast.InhDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
   refine Ast public boolean CollDecl.getLazy() {
@@ -129,7 +129,7 @@ aspect JragCodeGen {
       return true;
     if (cacheNone)
       return false;
-    return declaredNTA() || refined(); //Ast.CollDecl.getLazy();
+    return declaredNTA() || Ast.CollDecl.getLazy();
 //    return (Ast.CollDecl.getLazy() || cacheAll) && !noCaching;
   }
 
