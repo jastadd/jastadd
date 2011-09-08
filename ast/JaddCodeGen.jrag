@@ -866,7 +866,7 @@ aspect JaddCodeGen {
       u = u.replaceAll("#NAME#", attr.attributeSignature());
       stream.print(u);
     }
-    stream.print(flushCollectionCache());
+    stream.print(flushCollectionCacheString());
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
 
     stream.print(ind + "}\n");
@@ -876,7 +876,7 @@ aspect JaddCodeGen {
     stream.print(ind + "public void flushCollectionCache() {\n");
     if(!name().equals("ASTNode"))
       stream.print(ind(2) + "super.flushCollectionCache();\n");
-    stream.print(flushCollectionCache());
+    stream.print(flushCollectionCacheString());
     stream.print(ind + "}\n");
   }
 
