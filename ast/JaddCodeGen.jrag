@@ -888,7 +888,7 @@ aspect JaddCodeGen {
       stream.print(ind + "public void init$copy(Object o) {\n");
       stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
 
-      for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+      for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;
         if(n instanceof jrag.AST.ASTAspectFieldDeclaration) {

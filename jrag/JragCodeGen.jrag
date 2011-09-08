@@ -192,7 +192,7 @@ aspect JragCodeGen {
 
   public String InterfaceDecl.genMembers() {
     StringBuffer buf = new StringBuffer();
-    for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+    for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject o = (ClassBodyObject)iter.next();
       jrag.AST.SimpleNode n = o.node;
       //buf.append(ind + "// Declared in " + o.fileName + " at line " + o.line + "\n");
@@ -268,7 +268,7 @@ aspect JragCodeGen {
 
   public String ASTDecl.genMembers() {
     StringBuffer buf = new StringBuffer();
-    for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+    for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       jrag.AST.SimpleNode node = obj.node;
       //buf.append(ind + "// Declared in " + obj.fileName + " at line " + obj.line + "\n");
@@ -1222,7 +1222,7 @@ aspect JragCodeGen {
     }
     else {
       if(rewriteEnabled) {
-        // EMMA_2011-09-08: Adding support for java5
+        // EMMA_2011-09-08: Adding support for java1.4
         if (ASTNode.java5) 
           return
           ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +

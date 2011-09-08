@@ -1,5 +1,15 @@
 Newest log first
 --------------------------------------------------------
+2011-09-08: (ES) Update of generated code for java5
+There was a name collison when generating java5 code
+due to an added method with a generic return type.
+The offending method "Iterator ASTDecl.getClassBodyDecls"
+was renamed to "Iterator ASTDecl.getClassBodyDeclsItr".
+The java5 generated method could have been used with
+some adjustments (it generates a list which could be
+used to get an iterator) but this would not work for
+java1.4 code.
+--------------------------------------------------------
 2011-09-08: (ES) First bootstrap step
 Did a bootstrap with the java1.4 flag on. Updated the
 refinement syntax in JragCodeGen.jrag and hand to rename
