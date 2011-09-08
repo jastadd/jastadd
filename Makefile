@@ -2,7 +2,7 @@ ANTPATH=./tools/ant.jar:./tools/ant-launcher.jar
 ASPECTJ=java -classpath tools/aspectj-1.5.3/aspectjlib.jar:tools/aspectj-1.5.3/aspectjrt.jar:tools/aspectj-1.5.3/aspectjtools.jar:tools/aspectj-1.5.3/aspectjweaver.jar:$(ANTPATH) org.aspectj.tools.ajc.Main -source 1.4
 JAVACC=java -classpath tools/JavaCC.jar org.javacc.parser.Main -JDK_VERSION=1.4
 JJTREE=java -classpath tools/JavaCC.jar org.javacc.jjtree.Main -JDK_VERSION=1.4
-JASTADD=java -jar tools/jastadd2.jar
+JASTADD=java -jar tools/jastadd2.jar --java1.4
 
 JRAGFILES=ast/ClassRelations.jrag ast/ComponentsUtil.jrag ast/Errorcheck.jrag ast/JaddCodeGen.jrag ast/NameBinding.jrag \
  jrag/Attributes.jrag jrag/Circular.jrag jrag/CollectionAttributes.jrag jrag/Errorcheck.jrag jrag/JragCodeGen.jrag jrag/NameBinding.jrag
