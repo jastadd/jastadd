@@ -13,9 +13,9 @@ aspect A1 {
 aspect A2 {
     refine A1 eq X.m(String str) {
       System.out.println(str + ": X.m(String) in A2");
-      return refined();
+      return refined(str);
     }
     refine A1 eq X.n(int a, int b) {
-      return refined() + 1;
+      return refined(a, b) + 1;
     }
 }
