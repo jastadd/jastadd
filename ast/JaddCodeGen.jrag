@@ -870,6 +870,7 @@ aspect JaddCodeGen {
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
 
     stream.print(ind + "}\n");
+
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
@@ -878,6 +879,7 @@ aspect JaddCodeGen {
       stream.print(ind(2) + "super.flushCollectionCache();\n");
     stream.print(flushCollectionCacheString());
     stream.print(ind + "}\n");
+
   }
 
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
@@ -887,7 +889,6 @@ aspect JaddCodeGen {
       stream.println(ind + " */");
       stream.print(ind + "public void init$copy(Object o) {\n");
       stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
-
       for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;

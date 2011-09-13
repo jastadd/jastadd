@@ -1,4 +1,12 @@
 Newest log first
+-------------------------------------------------------
+2011-09-13: (ES) Update of the first bootstrap step
+There was a bug in the generation of visited flags
+missed in the last update. The test target of the
+Makefile has been updated to prevent this in the future.
+It know depends on the "jar" target and not only the
+"all" target. Test 117 was added to expose the bug in
+the previous bootstrapping attempt.
 --------------------------------------------------------
 2011-09-08: (ES) Update of generated code for java5
 There was a name collison when generating java5 code

@@ -62,7 +62,7 @@ clean :
 RunTests.class: RunTests.java
 	javac $^
 
-test: all RunTests.class
+test: jar RunTests.class
 	@echo "==================="
 	@echo Running unit tests!
 	@java RunTests | grep "test/Test[0-9]*\.java passed" > passed

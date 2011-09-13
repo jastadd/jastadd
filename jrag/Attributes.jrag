@@ -364,7 +364,7 @@ public aspect Attributes {
       }
     }
   }
-  
+
   public Iterator TypeDecl.getClassBodyDeclsItr() {
     return classBodyDecls.iterator();
   }
@@ -727,6 +727,7 @@ public aspect Attributes {
   public void TypeDecl.processRefinedClassBodyDecls() {
     boolean change = true;
     ArrayList list = new ArrayList();
+
     while(change && !refinedClassBodyDecls.isEmpty()) {
       change = false;
       for(Iterator iter = classBodyDecls.iterator(); iter.hasNext(); ) {
@@ -734,7 +735,13 @@ public aspect Attributes {
         ClassBodyObject refinedDecl = null;
         for(Iterator outerIter = refinedClassBodyDecls.iterator(); outerIter.hasNext(); ) {
           ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
+
           boolean legacyCondition = ASTNode.refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+        // EMMA: Handle refinements of methods generated from .ast files. For example, getB in A.getB for a production A ::= B.
+//        boolean refineAstAspect = decl.aspectName().equals("") && refinedCandidate.refinesAspect.equals("Ast");
+        //
+  //        if(decl.signature().equals(refinedCandidate.signature()) 
+    //         && (decl.aspectName().equals(refinedCandidate.refinesAspect) || refineAstAspect || legacyCondition)) {
           if(decl.signature().equals(refinedCandidate.signature()) 
              && (decl.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
