@@ -98,17 +98,15 @@ aspect JragCodeGen {
   public static boolean ASTNode.cacheImplicit = false;
   public static boolean ASTNode.ignoreLazy = false;
 
-  // EMMA_2011-09-06: Adding flag for incremental evalution
-  //   The flag is defined as a String to easily allow for various 
-  //   configurations of the incremental evaluation.
-  //   For example, "increamental=attribute+mark" would
-  //   define the incremental evaluation to take place on attribute
-  //   level, and only mark values as invalid instead of flushing them
-  //   directly.
-  public static boolean ASTNode.incremental = false;
-  public static boolean ASTNode.incrementalArgAttribute = false;
-  public static boolean ASTNode.incrementalArgLimit = false;
-  public static boolean ASTNode.incrementalArgMark = false;
+  // EMMA_2011-09-19: Adding attribute fields for incremental evalution
+  public static boolean ASTNode.incremental = false; // the flag
+  public static boolean ASTNode.incrementalLevelAttr = false; // track on attribute level
+  public static boolean ASTNode.incrementalLevelNode = false; // track on node level
+  public static boolean ASTNode.incrementalChangeFlush = false; // invalidate with flush
+  public static boolean ASTNode.incrementalChangeMark = false; // invalidate with mark
+  public static boolean ASTNode.incrementalPropFull = false; // full propagation of change
+  public static boolean ASTNode.incrementalPropLimit = false; // limited propagation of change
+  public static boolean ASTNode.incrementalDebug = false; // debugging
 
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine Ast public boolean AttrDecl.getLazy() {
@@ -382,6 +380,31 @@ aspect JragCodeGen {
     else
       return javadocFileComment(ind);
   }
+
+  // EMMA_2011-09-19: Dumping cached value for comparison, fine incremental evaluation
+  public String AttrDecl.dumpCache() {
+    if(!getLazy() && !isCircular())
+      return "";
+    if(getNumParameter() == 0) {
+      return "        if (#NAME#_computed) {\n" +
+             "          writer.println(\"value(\" + relativeNodeID() + \":#NAME#, \" + " + 
+      		(isPrimitive() || getType().equals("String") ? "#NAME#_value" : "(#NAME#_value instanceof ASTNode ? ((ASTNode)#NAME#_value).relativeNodeID() : #NAME#_value)") + "+ \")\");\n" +
+      		 "        }\n";
+    }
+    else {
+      return "        if (#NAME#_values != null) {\n" +
+             "          for (java.util.Iterator itr = #NAME#_values.keySet().iterator();itr.hasNext();) {\n" +
+             "            Object key = (Object)itr.next();\n" + 
+             "            Object value = #NAME#_values.get(key);\n" +
+             "            writer.println(\"value(\" + relativeNodeID() + \":#NAME#[\" + \n" +
+             "                 (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : (key instanceof java.util.List ? printParamList((java.util.List)key) : key)) + \"], \" + \n" + 
+             "                 (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : value) + \")\");\n" +
+             "          }\n" +
+             "        }\n";
+    }
+  }
+  //
+
 
   public String AttrDecl.doxygenFileComment(String ind) {
     String comment = getComment().trim();

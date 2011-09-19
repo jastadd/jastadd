@@ -69,3 +69,14 @@ test: jar RunTests.class
 	@echo "======================"
 	@echo Comparing test results
 	@diff -s test/shouldpass passed
+
+RunTestsExternal.class: RunTestsExternal.java
+	javac $^
+
+test-external: jar RunTestsExternal.class
+	@echo "==================="
+	@echo Running unit tests with external scripit!
+	@java RunTestsExternal | grep "test/Test[0-9]*\.java passed" > passed
+	@echo "======================"
+	@echo Comparing test results
+	@diff -s test/shouldpass passed

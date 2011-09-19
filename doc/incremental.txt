@@ -1,0 +1,53 @@
+
+=== Flag
+
+jastadd2.jar --incremental="attr,mark,limit"
+
+Adding a configurable flag to simplify testing of incremental configurations and
+to avoid adding of a lot of flags. The flag takes a comma separated list of attributes.
+
+?? Can there be white spaces in the comma separated list? If not, will apostrophes help?
+
+The occurence of this flag is represented as a boolean static field in ASTNode
+(defined in jrag/JragCodeGen.jrag): ASTNode.incremental
+
+(Changes in jastadd/JastAddTask.java, jastadd/JastAdd.java, jrag/JragCodeGen.jrag)
+
+==== Flag Attributes
+
+The flag attribute string should be a comma separated list of the following attributes:
+
+1) "attr"  | "node"  - The level on which to track dynamic dependencies. 
+                       Only one can be choosen. Default is "attr".
+
+2) "flush" | "mark"  - The invalidation strategy. Only one can be chosen. Defaul is "flush".
+
+3) "full"  | "limit" - The propagation strategy. Only one can be chosen. Default is "nolimit".
+
+The values of these attributes are represented as boolean public static fiels on ASTNode
+(defined in jrag/JragCodeGen.jrag). Each attribute is given its own boolean static field.
+
+"attr"    : ASTNode.incrementalLevelAttr 
+"node"    : ASTNode.incrementalLevelNode
+"flush"   : ASTNode.incrementalChangeFlush
+"mark"    : ASTNode.incrementalChangeMark
+"full"    : ASTNode.incrementalPropFull
+"limit"   : ASTNode.incrementalPropLimit
+
+(Changes in jastadd/JastAdd.java)
+
+
+==== Dependency Graph Node
+
+We call this a "handler" and this is a generic construct that can be placed on attribute level, 
+node level, and node group level.
+
+It is created as an innerclass of ASTNode.
+
+(Changes in ast/JaddCodeGen.jrag)
+
+
+
+==== Dependency tracking
+
+
