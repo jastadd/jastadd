@@ -1,0 +1,21 @@
+
+aspect A1 {
+    syn String X.m(String str);
+    eq X.m(String str) {
+      System.out.println(str + ": X.m(String) in A1");
+      return "";
+    }
+
+    syn int X.n(int a, int b) = 2 + a + b;
+}
+
+
+aspect A2 {
+    refine A1 eq X.m(String str) {
+      System.out.println(str + ": X.m(String) in A2");
+      return refined(str);
+    }
+    refine A1 eq X.n(int a, int b) {
+      return refined(a, b) + 1;
+    }
+}

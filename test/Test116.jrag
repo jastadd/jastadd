@@ -1,0 +1,20 @@
+
+aspect Ast {
+    public String X.m() {
+      System.out.println("X.m() in Ast");
+      return "";
+    }
+
+    public int X.n() { return 2; }
+}
+
+
+aspect A2 {
+    refine Ast public String X.m() {
+      System.out.println("X.m() in A2");
+      return refined();
+    }
+    refine Ast public int X.n() {
+      return refined() + 1;
+    }
+}

@@ -5,7 +5,7 @@ aspect CollectionAttributes {
   // code generation
   //eq CollDecl.visitCheckEnabled() = true;
 
-  public String ASTDecl.flushCollectionCache() {
+  public String ASTDecl.flushCollectionCacheString() {
     StringBuffer res = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);

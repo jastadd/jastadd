@@ -913,18 +913,20 @@ aspect JaddCodeGen {
       u = u.replaceAll("#NAME#", attr.attributeSignature());
       stream.print(u);
     }
-    stream.print(flushCollectionCache());
+    stream.print(flushCollectionCacheString());
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
 
     stream.print(ind + "}\n");
+
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");
     stream.print(ind + "public void flushCollectionCache() {\n");
     if(!name().equals("ASTNode"))
       stream.print(ind(2) + "super.flushCollectionCache();\n");
-    stream.print(flushCollectionCache());
+    stream.print(flushCollectionCacheString());
     stream.print(ind + "}\n");
+
   }
 
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
@@ -934,8 +936,7 @@ aspect JaddCodeGen {
       stream.println(ind + " */");
       stream.print(ind + "public void init$copy(Object o) {\n");
       stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
-
-      for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+      for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;
         if(n instanceof jrag.AST.ASTAspectFieldDeclaration) {
@@ -1844,6 +1845,12 @@ aspect JaddCodeGen {
     jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(s));
     jp.root = hostClass().env();
     jp.setFileName(hostClass().getFileName());
+
+    // EMMA_2011-09-08: Adding this to give .ast generated methods an enclosing 
+    // aspect "Ast" which allows for refinement of these methods. For example,
+    // "getA" generated from "B ::= A" can be refined using the "Ast" aspect.
+    jp.enclosingAspect = "Ast";
+
     try {
       while(true)
         jp.AspectBodyDeclaration();

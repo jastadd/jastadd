@@ -1,4 +1,46 @@
 Newest log first
+-------------------------------------------------------
+2011-09-13: (ES) Update of the first bootstrap step
+There was a bug in the generation of visited flags
+missed in the last update. The test target of the
+Makefile has been updated to prevent this in the future.
+It know depends on the "jar" target and not only the
+"all" target. Test 117 was added to expose the bug in
+the previous bootstrapping attempt.
+--------------------------------------------------------
+2011-09-08: (ES) Update of generated code for java5
+There was a name collison when generating java5 code
+due to an added method with a generic return type.
+The offending method "Iterator ASTDecl.getClassBodyDecls"
+was renamed to "Iterator ASTDecl.getClassBodyDeclsItr".
+The java5 generated method could have been used with
+some adjustments (it generates a list which could be
+used to get an iterator) but this would not work for
+java1.4 code.
+--------------------------------------------------------
+2011-09-08: (ES) First bootstrap step
+Did a bootstrap with the java1.4 flag on. Updated the
+refinement syntax in JragCodeGen.jrag and hand to rename
+the "String ASTDecl.flushCollectionCache" to 
+"String ASTDecl.flushCollectionCacheString" to prevent
+a collision with the now generated 
+"void ASTDecl.flushCollectionCache".
+--------------------------------------------------------
+2011-09-08: (ES) Added generation of java1.4 code
+The previous generation of java1.4 code for circular attributes
+resulted in java5 code.
+--------------------------------------------------------
+2011-09-08: (ES) Preparing for boostrap
+Changed the Makefile so that jastadd is run with the "--java1.4"
+flag to avoid version related compile errors.
+Changed the use of "refine" in JragCodeGen.jrag to use
+the "refined()" construct instead of the "A.C.m()" construct.
+The tests for the latter alternative fails.
+--------------------------------------------------------
+2011-09-08: (ES) Added support for refinement of grammar generated methods
+(from .ast) via an "Ast" aspect. 
+--------------------------------------------------------
+2011-09-08: (ES) Added tests for refine (110-116)
 --------------------------------------------------------
 2011-09-02: (JO) Changed the name of the RagDoll tag
 apilvl to apilevel

@@ -27,7 +27,7 @@ aspect JastAddCodeGen {
             ASTDecl dest = (ASTDecl)getTypeDecl(j);
             if(dest.implementsInterface(name)) {
               //System.out.println("  implemented by " + dest.name());
-              for(Iterator iter = d.getClassBodyDecls(); iter.hasNext(); ) {
+              for(Iterator iter = d.getClassBodyDeclsItr(); iter.hasNext(); ) {
                 ClassBodyObject o = (ClassBodyObject)iter.next();
                 if(o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
                     if(!dest.hasClassBodyDecl(o.signature()))
@@ -88,7 +88,7 @@ aspect JastAddCodeGen {
   }
 
   public boolean ASTDecl.hasClassBodyDecl(String signature) {
-    for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+    for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject o = (ClassBodyObject)iter.next();
       if(o.signature().equals(signature))
         return true;
@@ -222,7 +222,7 @@ aspect JastAddCodeGen {
 
       /*
       StringBuffer buf = new StringBuffer();
-      for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+      for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;
         
@@ -271,7 +271,7 @@ aspect JastAddCodeGen {
       stream.print(classComment());
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
-      for(Iterator iter = getClassBodyDecls(); iter.hasNext(); ) {
+      for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;
         
