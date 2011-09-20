@@ -1502,14 +1502,32 @@ aspect JaddCodeGen {
 
       // Method: notifyForRemove
       stream.println("    public void ASTNode.notifyForRemove() {");
-      stream.println("      getParent_handler.notifyDependencies();");
-      stream.println("      numChildren_handler.notifyDependencies();");
-      stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
-      stream.println("        if (getChild_handler[i].hasDependants()) {");
-      stream.println("          getChildNoTransform(i).notifyForRemove();");
-      stream.println("          getChild_handler[i].notifyDependencies();");
-      stream.println("        }");
-      stream.println("      }");
+      if (ASTNode.incrementalLevelParam) {
+        stream.println("      getParent_handler.notifyDependencies();");
+        stream.println("      numChildren_handler.notifyDependencies();");
+        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println("        if (getChild_handler[i].hasDependants()) {");
+        stream.println("          getChildNoTransform(i).notifyForRemove();");
+        stream.println("          getChild_handler[i].notifyDependencies();");
+        stream.println("        }");
+        stream.println("      }");
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        stream.println("      getParent_handler.notifyDependencies();");
+        stream.println("      numChildren_handler.notifyDependencies();");
+        stream.println("      if (getChild_handler.hasDependants()) {");
+        stream.println("        getChild_handler.notifyDependencies();");
+        stream.println("        for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println("          getChildNoTransform(i).notifyForRemove();");
+        stream.println("        }");
+        stream.println("      }");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        stream.println("      handler.notifyDependencies();");
+        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println("        getChildNoTransform(i).notifyForRemove();");
+        stream.println("      }");
+      }
       // Collect attributes: syn then inh
       ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynEq(); k++) {
