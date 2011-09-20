@@ -443,12 +443,6 @@ public class JastAdd {
         if (!ASTNode.incrementalLevelAttr && !ASTNode.incrementalLevelNode && !ASTNode.incrementalLevelParam) {
             ASTNode.incrementalLevelAttr = true;
         }
-        // check level: currently not supporting node level -- "node"
-        if (ASTNode.incrementalLevelNode) {
-            System.err.println("error: Unsupported incremental evaluation configuration: " +
-                "\"node\".");
-            return false;            
-        }
     
         // check invalidate: only one strategy at a time
         if (ASTNode.incrementalChangeFlush && ASTNode.incrementalChangeMark) {

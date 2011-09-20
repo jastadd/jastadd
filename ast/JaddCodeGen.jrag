@@ -1543,17 +1543,27 @@ aspect JaddCodeGen {
       // Add attribute code: propagate change of all cached values being removed
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        if (attr.getNumParameter() > 0) {
-    	    stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
+
+        if (ASTNode.incrementalLevelParam) {
+          if (attr.getNumParameter() > 0) {
+    	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                        "_handler.values().iterator(); itr.hasNext();) {");
-          stream.println("        ASTNode$Handler h = (ASTNode$Handler)itr.next();");
-          stream.println("        h.notifyDependencies();");
-          stream.println("      }");
-    	  } else {
+            stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
+            stream.println("        h.notifyDependencies();");
+            stream.println("      }");
+    	    } else {
+    	      stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+    	      stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
+     	      stream.println("      }");
+     	    }
+        }
+
+        if (ASTNode.incrementalLevelAttr) {
     	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
     	    stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
      	    stream.println("      }");
-     	  }
+        }
+
     	}
       // end method
       stream.println("    }");
