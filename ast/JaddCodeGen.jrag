@@ -990,7 +990,8 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");  
     }
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "state().addHandlerDepTo(child.handler);");
+      stream.println(ind(2) + "if (child != null)");
+      stream.println(ind(3) + "  state().addHandlerDepTo(child.handler);");
     }
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getParent
@@ -1146,6 +1147,9 @@ aspect JaddCodeGen {
       u = u.replaceAll("#NAME#", attr.attributeSignature());
       stream.print(u);
     }
+    // ES_2011-09-20: Code generation for incremental evaluation, flush cache
+    if (ASTNode.incremental) jjtGenIncrementalFlushCache(stream);
+    //
     stream.print(flushCollectionCacheString());
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
 
@@ -1160,6 +1164,49 @@ aspect JaddCodeGen {
     stream.print(flushCollectionCacheString());
     stream.print(ind + "}\n");
 
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, flush cache
+  public void ASTDecl.jjtGenIncrementalFlushCache(PrintWriter stream) {
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "handler.notifyDependencies();");
+    }
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      // Collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrDecl attr = getSynEq(k).decl();
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      // Generate attribute code
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+        if (attr.getNumParameter() == 0) {
+          stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
+        } else {
+          if (ASTNode.incrementalLevelParam) {
+            stream.println(ind(3) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                          "_handler.keySet().iterator(); itr.hasNext();) {");
+            stream.println(ind(4) +   "Object key = itr.next();");
+            stream.println(ind(4) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + 
+                                          attr.attributeSignature() + "_handler.get(key);");
+            stream.println(ind(4) +   "handler.notifyDependencies();");
+            stream.println(ind(3) + "}");
+          }
+          if (ASTNode.incrementalLevelAttr) {
+            stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
+          }
+        }
+        stream.println(ind(2) + "}");
+      }
+    }
   }
 
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
@@ -1588,6 +1635,9 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public int " + name() + ".getNumChild() {");
+        // ES_2011-09-20: Code generation for incremental evaluation, tracking numChild
+        if (ASTNode.incremental) jjtGenIncrementalTrackNumChild(stream);
+        // 
         stream.println(ind(2) + "return " + numRegularChildren() + ";");
         stream.println(ind + "}");
       }
@@ -1596,6 +1646,9 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "protected int " +name() + ".numChildren() {");
+        // ES_2011-09-20: Code generation for incremental evaluation, tracking numChild
+        if (ASTNode.incremental) jjtGenIncrementalTrackNumChild(stream);
+        // 
         stream.println(ind(2) + "return " + numRegularChildren() + ";");
         stream.println(ind + "}");
       }
@@ -1633,7 +1686,6 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
-
     jjtGenIncrementalHandlers(stream);
     jjtGenIncrementalReactToChange(stream);
     jjtGenIncrementalReactToASTChange(stream);
@@ -1642,14 +1694,14 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation, initialization of handlers
   public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
-    if (name().equals("ASTNode")) {
-
-      // dependency graph nodes for syn attributes on ASTNode
-      // (ASTNode cannot have inheritaed attributes)
-      // level node for ASTNode: one handler per node
-      if (ASTNode.incrementalLevelNode) {
-        stream.println("  protected ASTNode$DepGraphNode ASTNode.handler;");                    
-      } else {
+    // level node: one handler per node
+    if (ASTNode.incrementalLevelNode) {
+      stream.println("  protected ASTNode$DepGraphNode ASTNode.handler;");                    
+    } 
+    // level param, attr: at least one handler per attribute
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      // handlers specific for ASTNode
+      if (name().equals("ASTNode")) {
         if (ASTNode.incrementalLevelParam) {
           stream.println("  protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
               "new ASTNode$DepGraphNode(this, \"getParent\", null);");
@@ -1665,122 +1717,139 @@ aspect JaddCodeGen {
           stream.println("  protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
               "new ASTNode$DepGraphNode(this, \"getChild\");");
         }
-
-        // level attr or param for ASTNode
-        for(int k = 0; k < getNumSynDecl(); k++) {
- 	  	    AttrDecl attr = getSynDecl(k);
-          // only consider lazy attributes (and circular since their values are stored)
-        	if (attr.getLazy() || attr.isCircular()) {
-            if (ASTNode.incrementalLevelParam) {
-              // level param: check if this is a parameterized attribute
-        	    if (attr.getNumParameter() > 0) {
-        	      stream.println("  protected java.util.Map ASTNode." + attr.attributeSignature() + 
-                      "_handler = new java.util.HashMap(4);");
-        	    } else {
- 	  		        stream.println("  protected ASTNode$DepGraphNode ASTNode." + 
-                      attr.attributeSignature() + "_handler;");
- 	  		      }
-            }
-            // level attr: Add one handler per attribute
-            if (ASTNode.incrementalLevelAttr) {
- 	  		        stream.println("  protected ASTNode$DepGraphNode ASTNode." + 
-                      attr.attributeSignature() + "_handler;");            
-            }
+      }
+      // collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynDecl(); k++) {
+ 	      AttrDecl attr = getSynDecl(k);
+        // only consider lazy attributes (and circular since their values are stored)
+      	if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+    	for(int k = 0; k < getNumInhDecl(); k++) {
+      	  AttrDecl attr = getInhDecl(k);
+      	  if (attr.getLazy() || attr.isCircular()) 
+            list.add(attr);
+      }
+      // attribute code 
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (ASTNode.incrementalLevelParam) {
+          // level param: check if this is a parameterized attribute
+    	    if (attr.getNumParameter() > 0) {
+    	      stream.println("  protected java.util.Map " + name() + "." + attr.attributeSignature() + 
+                  "_handler = new java.util.HashMap(4);");
+    	    } else {
+            stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
+                  attr.attributeSignature() + "_handler;");
           }
-      	}
+        }
+        // level attr: Add one handler per attribute
+        if (ASTNode.incrementalLevelAttr) {
+  		      stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
+                  attr.attributeSignature() + "_handler;");            
+        }
       }
     }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, react to change
   public void ASTDecl.jjtGenIncrementalReactToChange(PrintWriter stream) {
-    if (name().equals("ASTNode")) {
+    // Method: reactToDependencyChange
+    if (ASTNode.incrementalLevelParam)
+      stream.println("    public void " + name() + ".reactToDependencyChange(String attrID, Object _parameters) {");      
+    if (ASTNode.incrementalLevelAttr) 
+      stream.println("    public void " + name() + ".reactToDependencyChange(String attrID) {");      
+    if (ASTNode.incrementalLevelNode) 
+      stream.println("    public void " + name() + ".reactToDependencyChange() {");      
 
-      // Method: reactToDependencyChange
+    if (ASTNode.incrementalChangeFlush) 
+      jjtGenIncrementalChangeFlush(stream);
+
+    // super class if not ASTNode
+    if (!name().equals("ASTNode")) {
       if (ASTNode.incrementalLevelParam)
-        stream.println("    public void ASTNode.reactToDependencyChange(String attrID, Object _parameters) {");      
+        stream.println("      super.reactToDependencyChange(attrID, _parameters);");      
       if (ASTNode.incrementalLevelAttr) 
-        stream.println("    public void ASTNode.reactToDependencyChange(String attrID) {");      
+        stream.println("      super.reactToDependencyChange(attrID);");      
       if (ASTNode.incrementalLevelNode) 
-        stream.println("    public void ASTNode.reactToDependencyChange() {");      
-      if (ASTNode.incrementalChangeFlush) 
-        jjtGenIncrementalChangeFlush(stream);
-      // end method
-      stream.println("    }");
-
+        stream.println("      super.reactToDependencyChange();");      
     }
+    // end method
+    stream.println("    }");
   }
 
-  // ES_2011-09-20: Code generation for incremental evaluation, change strategy flush
+  // ES_2011-09-20: Code generation for incremental evaluation, change strategy: flush
   public void ASTDecl.jjtGenIncrementalChangeFlush(PrintWriter stream) {
-    if (name().equals("ASTNode")) {
 
-        // old code for handling of rewritten children in case of a flush
-        //stream.println("      if (attrID.equals(\"getChild\")) {");
-        //stream.println("        int i = (Integer)_parameters;");
-        //stream.println("        if (init_children != null && init_children[i] != null) {");
-        //stream.println("          getChild(i).notifyForRemove();");
-        //stream.println("          children[i] = init_children[i];");
-        //stream.println("          init_children[i] = null;");
-        //stream.println("        }");
-        //stream.println("      }");
+    // ES_TODO Add change propagation !
 
-      // Collect attributes: syn then inh
-      ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynEq(); k++) {
-        AttrDecl attr = getSynEq(k).decl();
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      for(int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      // Add attribute code: flush attributes
-      boolean first = true;
-      for(Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-        // start match attribute statement
-        if (ASTNode.incrementalLevelParam)
-          stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
-              (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + ") {");
-        if (ASTNode.incrementalLevelAttr) 
-          stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")) {");
-        if (ASTNode.incrementalLevelNode)
-          stream.println("     {"); // nothing to match, all cached attributes are included
-        // handle parameterized attributes
-        if (attr.getNumParameter() > 0) {
-          if (ASTNode.incrementalLevelParam) {
-            stream.println("       " + attr.attributeSignature() + "_values.remove(_parameters);"); 
-            stream.println("       " + attr.attributeSignature() + "_visited.remove(_parameters);"); 
-          } else {
-            String u = attr.resetVisit() + attr.resetCache();
-            u = u.replaceAll("#NAME#", attr.attributeSignature());
-            stream.print(u);              
-          }
+    // old code for handling of rewritten children in case of a flush
+    //stream.println("      if (attrID.equals(\"getChild\")) {");
+    //stream.println("        int i = (Integer)_parameters;");
+    //stream.println("        if (init_children != null && init_children[i] != null) {");
+    //stream.println("          getChild(i).notifyForRemove();");
+    //stream.println("          children[i] = init_children[i];");
+    //stream.println("          init_children[i] = null;");
+    //stream.println("        }");
+    //stream.println("      }");
+
+    // Collect attributes: syn then inh
+    ArrayList list = new ArrayList();
+    for(int k = 0; k < getNumSynEq(); k++) {
+      AttrDecl attr = getSynEq(k).decl();
+      if (attr.getLazy() || attr.isCircular()) 
+        list.add(attr);
+    }
+    for(int k = 0; k < getNumInhDecl(); k++) {
+      AttrDecl attr = getInhDecl(k);
+      if (attr.getLazy() || attr.isCircular()) 
+        list.add(attr);
+    }
+    // Add attribute code: flush attributes
+    boolean first = true;
+    for(Iterator itr = list.iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      // start match attribute statement
+      if (ASTNode.incrementalLevelParam)
+        stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
+            (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + ") {");
+      if (ASTNode.incrementalLevelAttr) 
+        stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")) {");
+      if (ASTNode.incrementalLevelNode)
+        stream.println("     {"); // nothing to match, all cached attributes are included
+      // handle parameterized attributes
+      if (attr.getNumParameter() > 0) {
+        if (ASTNode.incrementalLevelParam) {
+          stream.println("       " + attr.attributeSignature() + "_values.remove(_parameters);"); 
         } else {
-          // handle NTAs
-          if (attr.isNTA()) {
-            stream.println("       " + attr.attributeSignature() + "_value.notifyForRemove();");
-          }
           String u = attr.resetVisit() + attr.resetCache();
           u = u.replaceAll("#NAME#", attr.attributeSignature());
-          stream.print(u);
+          stream.print(u);              
         }
-        // end match statement
-        stream.println("     }");
-        first = false;
+      } else {
+        // handle NTAs
+        if (attr.isNTA()) {
+          stream.println("       " + attr.attributeSignature() + "_value.notifyForRemove();");
+        }
+        String u = attr.resetVisit() + attr.resetCache();
+        u = u.replaceAll("#NAME#", attr.attributeSignature());
+        stream.print(u);
       }
+
+
+      // end match statement
+      stream.println("     }");
+      first = false;
     }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, 
   public void ASTDecl.jjtGenIncrementalReactToASTChange(PrintWriter stream) {
-    if (name().equals("ASTNode")) {
 
-      // Method: notifyForRemove
-      stream.println("    public void ASTNode.notifyForRemove() {");
+    // Method: notifyForRemove
+    stream.println("    public void " + name() + ".notifyForRemove() {");
+    if (name().equals("ASTNode")) {
       if (ASTNode.incrementalLevelParam) {
         stream.println("      getParent_handler.notifyDependencies();");
         stream.println("      numChildren_handler.notifyDependencies();");
@@ -1807,52 +1876,61 @@ aspect JaddCodeGen {
         stream.println("        getChildNoTransform(i).notifyForRemove();");
         stream.println("      }");
       }
-      // Collect attributes: syn then inh
-      ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynEq(); k++) {
-   	    AttrDecl attr = getSynDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      for(int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      // Add attribute code: propagate change of all cached values being removed
-      for(Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-
-        if (ASTNode.incrementalLevelParam) {
-          if (attr.getNumParameter() > 0) {
-    	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                       "_handler.values().iterator(); itr.hasNext();) {");
-            stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
-            stream.println("        h.notifyDependencies();");
-            stream.println("      }");
-    	    } else {
-    	      stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-    	      stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
-     	      stream.println("      }");
-     	    }
+    } else {
+      stream.println("      super.notifyForRemove();");
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        // tokens
+        for (int c = 0; c < getNumComponents(); c++) {
+ 	    		Components comp = getComponents(c);
+ 	    		if (comp instanceof TokenComponent) {
+	    			stream.println("    get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                "_handler.notifyDependencies();");
+ 	    		}
+ 	    	}
+        // Collect attributes: syn then inh
+        ArrayList list = new ArrayList();
+        for(int k = 0; k < getNumSynEq(); k++) {
+          AttrDecl attr = getSynEq(k).decl();
+          if (attr.getLazy() || attr.isCircular()) 
+            list.add(attr);
         }
-
-        if (ASTNode.incrementalLevelAttr) {
-    	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-    	    stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
-     	    stream.println("      }");
+        for(int k = 0; k < getNumInhDecl(); k++) {
+          AttrDecl attr = getInhDecl(k);
+          if (attr.getLazy() || attr.isCircular()) 
+            list.add(attr);
         }
-
-    	}
-      // end method
-      stream.println("    }");
+        // Attribute code: propagate change of all cached values being removed
+        for(Iterator itr = list.iterator(); itr.hasNext();) {
+          AttrDecl attr = (AttrDecl)itr.next();
+          if (ASTNode.incrementalLevelParam) {
+            if (attr.getNumParameter() > 0) {
+      	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                    "_handler.values().iterator(); itr.hasNext();) {");
+              stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
+              stream.println("        h.notifyDependencies();");
+              stream.println("      }");
+            } else {
+              stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+              stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
+      	      stream.println("      }");
+      	    }
+          }
+          if (ASTNode.incrementalLevelAttr) {
+      	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+      	    stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
+       	    stream.println("      }");
+          }
+    	  }
+      }
     }
+    // end method
+    stream.println("    }");
   }
+  
 
   // ES_2011-09-20: Debug code generation for incremental evaluation
   public void ASTDecl.jjtGenIncrementalDebug(PrintWriter stream) {
     if (name().equals("ASTNode")) {
-      
       // Relative ID          
       stream.println("    public String ASTNode.relativeNodeID() {");
       stream.println("      ASTNode parent = getParent();");
@@ -1869,55 +1947,6 @@ aspect JaddCodeGen {
       stream.println("      return buf.toString();");
       stream.println("    }");
 
-      // dumpCachedValues
-      stream.println("    public void ASTNode.dumpCachedValues(java.io.PrintWriter writer) {");
-      //stream.println("      for (int k = 0; init_children != null && k < init_children.length; k++) {");
-      //stream.println("        if (init_children[k] != null) {");
-      //stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
-      //                                  "\" rewritten from \" + init_children[k].relativeNodeID());");
-      //stream.println("        }");
-      //stream.println("      }");
-      for(int k = 0; k < getNumSynEq(); k++) {
- 	      AttrEq attrEq = getSynEq(k);
-      	AttrDecl attr = attrEq.decl();
-        String u = attr.dumpCache();
-        u = u.replaceAll("#NAME#", attr.attributeSignature());
-        stream.println(u);
-      }
-		  stream.println("        // TODO: dump collection values");
-      stream.println("    }");          
-      
-      // dumpDependencies
-      stream.println("    public void ASTNode.dumpDependencies() {");
-      stream.println("      getParent_handler.dumpDeps();");
-      stream.println("      numChildren_handler.dumpDeps();");
-      stream.println("      for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
-      stream.println("        if (getChild_handler[k] != null) {");
-      stream.println("          getChild_handler[k].dumpDeps();");
-      stream.println("        }");
-      stream.println("      }");
-      for(int k = 0; k < getNumSynEq(); k++) {
-  	    AttrEq attrEq = getSynEq(k);
-   	    AttrDecl attr = attrEq.decl();
-   	    if (attr.getLazy()) {
-          if (attr.getNumParameter() == 0) {
-            stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
-                                    attr.attributeSignature() + "_handler.dumpDeps();");
-          } else {
-            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-            stream.println("        for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                                    "_handler.keySet().iterator(); itr.hasNext();) {");
-            stream.println("          Object key = itr.next();");
-            stream.println("          Object value = " + attr.attributeSignature() + "_handler.get(key);");
-            stream.println("          ((ASTNode$Handler)value).dumpDeps();");
-            stream.println("        }");
-            stream.println("      }");
-          }
-        }
-      }
-		  stream.println("        // TODO: dump collection values");
-      stream.println("    }");
-
       // printParamList
       stream.println("  protected String ASTNode.printParamList(java.util.List paramList) {");
       stream.println("    StringBuffer buf = new StringBuffer();");
@@ -1932,7 +1961,109 @@ aspect JaddCodeGen {
       stream.println("    }");
       stream.println("    return buf.toString();");
       stream.println("  }");
+
     }
+    
+    // dumpCachedValues
+    stream.println("    public void " + name() + ".dumpCachedValues(java.io.PrintWriter writer) {");
+    //stream.println("      for (int k = 0; init_children != null && k < init_children.length; k++) {");
+    //stream.println("        if (init_children[k] != null) {");
+    //stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
+    //                                  "\" rewritten from \" + init_children[k].relativeNodeID());");
+    //stream.println("        }");
+    //stream.println("      }");
+    for(int k = 0; k < getNumSynEq(); k++) {
+      AttrEq attrEq = getSynEq(k);
+    	AttrDecl attr = attrEq.decl();
+      String u = attr.dumpCache();
+      u = u.replaceAll("#NAME#", attr.attributeSignature());
+      stream.println(u);
+    }
+    for(int k = 0; k < getNumInhDecl(); k++) {
+      InhDecl attr = getInhDecl(k);
+      String u = attr.dumpCache();
+      u = u.replaceAll("#NAME#", attr.attributeSignature());
+      stream.print(u);
+    }
+    stream.println("        // TODO: dump collection values");
+    if (!name().equals("ASTNode")) 
+      stream.println("        super.dumpCachedValues(writer);");
+    stream.println("    }");          
+      
+    // dumpDependencies
+    stream.println("    public void " + name() + ".dumpDependencies() {");
+    if (name().equals("ASTNode")) {
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        stream.println("      getParent_handler.dumpDeps();");
+        stream.println("      numChildren_handler.dumpDeps();");
+        if (ASTNode.incrementalLevelParam) {
+          stream.println("      for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
+          stream.println("        if (getChild_handler[k] != null) {");
+          stream.println("          getChild_handler[k].dumpDeps();");
+          stream.println("        }");
+          stream.println("      }");
+        }
+        if (ASTNode.incrementalLevelAttr) {
+          stream.println("      getChild_handler.dumpDeps();");
+        }
+      }
+      if (ASTNode.incrementalLevelNode) {
+        stream.println("      handler.dumpDeps();");
+      }
+    } else {
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        for (int c = 0; c < getNumComponents(); c++) {
+ 	    	  Components comp = getComponents(c);
+ 	  		  if (comp instanceof TokenComponent) {
+	  			  stream.println("    get" + ((TokenComponent)comp).getTokenId().getID() + "_handler.dumpDeps();");
+ 	  		  }
+ 	  	  }
+      }
+    }
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      // Collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+ 	      AttrDecl attr = getSynEq(k).decl();
+ 	      if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+     	  InhDecl attr = getInhDecl(k);
+ 	      if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      // attribute code
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (attr.getNumParameter() == 0) {
+          stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
+                                  attr.attributeSignature() + "_handler.dumpDeps();");
+        } else {
+          if (ASTNode.incrementalLevelParam) {
+            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println("        for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                                    "_handler.keySet().iterator(); itr.hasNext();) {");
+            stream.println("          Object key = itr.next();");
+            stream.println("          Object value = " + attr.attributeSignature() + "_handler.get(key);");
+            stream.println("          ((ASTNode$Handler)value).dumpDeps();");
+            stream.println("        }");
+            stream.println("      }");
+          } 
+          if (ASTNode.incrementalLevelAttr) {
+            stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
+                                  attr.attributeSignature() + "_handler.dumpDeps();");            
+          }
+        }
+      }
+    }
+    stream.println("        // TODO: dump collection values");
+    // super call
+    if (!name().equals("ASTNode")) {
+      stream.println("        super.dumpDependencies();");
+    }
+    // end method
+    stream.println("    }");  
   }
 
   // ES_2011-09-06: Code generation for incremental evaluation, dependency node class / handler class
@@ -2326,9 +2457,15 @@ aspect JaddCodeGen {
     buf.append(setIDComment());
     // Generate attribute, get- and set-method for the token string
     buf.append(
+        // ES_2011-09-20: Code generation for incremental evaluation
+        (ASTNode.incremental ? jaddGenIncrementalTokenHandler() : "") +
+        //
         ind + "public void #HOST#.set#ID#(#TYPE# value) {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
         ind(2) + "token#TYPEINSIGNATURE#_#ID# = value;\n" +
+        // ES_2011-09-20: Code generation for incremental evaluation
+        (ASTNode.incremental ? jaddGenIncrementalTokenChange() : "") +
+        //
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n"
         );
@@ -2355,6 +2492,9 @@ aspect JaddCodeGen {
             ind(2) + "token#TYPEINSIGNATURE#_#ID# = (String)symbol.value;\n" +
             ind(2) + "#ID#start = symbol.getStart();\n" +
             ind(2) + "#ID#end = symbol.getEnd();\n" +
+            // ES_2011-09-20: Code generation for incremental evaluation, tokens
+            (ASTNode.incremental ? jaddGenIncrementalTokenChange() : "") + 
+            //
             (ASTNode.block ? ASTNode.blockEnd : "") +
             ind + "}\n"
             );
@@ -2364,6 +2504,9 @@ aspect JaddCodeGen {
             getIDComment() +
             ind + "public #TYPE# #HOST#.get#ID#() {\n" +
             (ASTNode.block ? ASTNode.blockBegin : "") +
+            // ES_2011-09-20: Code generation for incremental evaluation, tokens
+            (ASTNode.incremental ? jaddGenIncrementalTokenTrack() : "") +
+            //
             ind(2) + "return token#TYPEINSIGNATURE#_#ID# != null ? token#TYPEINSIGNATURE#_#ID# : \"\";\n" +
             (ASTNode.block ? ASTNode.blockEnd : "") +
             ind + "}\n");
@@ -2372,6 +2515,9 @@ aspect JaddCodeGen {
             getIDComment() +
             ind + "public #TYPE# #HOST#.get#ID#() {\n" +
             (ASTNode.block ? ASTNode.blockBegin : "") +
+            // ES_2011-09-20: Code generation for incremental evaluation, tokens
+            (ASTNode.incremental ? jaddGenIncrementalTokenTrack() : "") +
+            //
             ind(2) + "return token#TYPEINSIGNATURE#_#ID#;\n" +
             (ASTNode.block ? ASTNode.blockEnd : "") +
             ind + "}\n");
@@ -2386,6 +2532,30 @@ aspect JaddCodeGen {
     //stream.println(s);
     parse(s);
 
+  }
+
+
+  // ES_2011-09-20: Code generation for incremental evaluation
+  String TokenComponent.jaddGenIncrementalTokenHandler() {
+    if (ASTNode.incrementalLevelParam)
+      return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                 "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
+    if (ASTNode.incrementalLevelAttr)
+      return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                 "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
+    return ""; // ASTNode.incrementalLevelNode
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation
+  String TokenComponent.jaddGenIncrementalTokenChange() {
+    if (ASTNode.incrementalLevelNode) // TODO: invalidate cache?
+      return "        handler.notifyDependencies();";
+    return "        get#ID#_handler.notifyDependencies();\n";
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation
+  String TokenComponent.jaddGenIncrementalTokenTrack() {
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
+      return "        state().addHandlerDepTo(get#ID#_handler);\n";
+    return "        state().addHandlerDepTo(handler);\n"; // ASTNode.incrementalLevelNode
   }
 
   String AggregateComponents.setNameComment() {
