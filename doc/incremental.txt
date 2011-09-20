@@ -17,7 +17,7 @@ The occurence of this flag is represented as a boolean static field in ASTNode
 
 The flag attribute string should be a comma separated list of the following attributes:
 
-1) "attr"  | "node"  - The level on which to track dynamic dependencies. 
+1) "param" | "attr"  | "node"  - The level on which to track dynamic dependencies. 
                        Only one can be choosen. Default is "attr".
 
 2) "flush" | "mark"  - The invalidation strategy. Only one can be chosen. Defaul is "flush".
@@ -27,6 +27,7 @@ The flag attribute string should be a comma separated list of the following attr
 The values of these attributes are represented as boolean public static fiels on ASTNode
 (defined in jrag/JragCodeGen.jrag). Each attribute is given its own boolean static field.
 
+"param"   : ASTNode.incrementalLevelParam
 "attr"    : ASTNode.incrementalLevelAttr 
 "node"    : ASTNode.incrementalLevelNode
 "flush"   : ASTNode.incrementalChangeFlush
@@ -39,10 +40,12 @@ The values of these attributes are represented as boolean public static fiels on
 
 ==== Dependency Graph Node
 
-We call this a "handler" and this is a generic construct that can be placed on attribute level, 
-node level, and node group level.
+We call this a "handler" and this is a generic construct that can be placed on parameter level, 
+attribute level, node level, and node group level.
 
 It is created as an innerclass of ASTNode.
+
+
 
 (Changes in ast/JaddCodeGen.jrag)
 

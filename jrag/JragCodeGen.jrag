@@ -100,6 +100,7 @@ aspect JragCodeGen {
 
   // EMMA_2011-09-19: Adding attribute fields for incremental evalution
   public static boolean ASTNode.incremental = false; // the flag
+  public static boolean ASTNode.incrementalLevelParam = false; // track on param level
   public static boolean ASTNode.incrementalLevelAttr = false; // track on attribute level
   public static boolean ASTNode.incrementalLevelNode = false; // track on node level
   public static boolean ASTNode.incrementalChangeFlush = false; // invalidate with flush

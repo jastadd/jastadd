@@ -148,7 +148,7 @@ public class JastAddTask extends Task {
   private boolean ignoreLazy = false;
   public void setIgnoreLazy(boolean b) { ignoreLazy = true; }
 
-  // EMMA_2011-09-06: Adding flag for incremental evaluation
+  // ES_2011-09-06: Adding flag for incremental evaluation
   private String incremental = "";
   public void setIncremental(String s) { incremental = s; }
 
@@ -236,12 +236,12 @@ public class JastAddTask extends Task {
       args.add("--doxygen");
     }
 
-	// EMMA_2009-11-16: Adding ant task attributes as JastAdd arguments
-	if (cacheNone) args.add("--cacheNone");
-	if (cacheImplicit) args.add("--cacheImplicit");
+  	// EMMA_2009-11-16: Adding ant task attributes as JastAdd arguments
+	  if (cacheNone) args.add("--cacheNone");
+	  if (cacheImplicit) args.add("--cacheImplicit");
     if (ignoreLazy) args.add("--ignoreLazy");
 
-    // EMMA_2011-09-06: Adding incremental attribute as JastAdd arguments
+    // ES_2011-09-06: Adding incremental attribute as JastAdd arguments
     if (!incremental.equals("")) args.add("--incremental=" + incremental);
 
     args.addAll(files);

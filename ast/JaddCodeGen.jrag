@@ -214,63 +214,6 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
   }
 
-
-  // EMMA_2011-09-06: Incremental evaluation
-  //   Adding generation of a handler class for incremental evaluation
-  public void Grammar.jjtGenASTNode$Handler(PrintWriter stream, String parserName) {
-      stream.println("  static public class ASTNode$Handler {");
-	  stream.println("    protected ASTNode fNode;");
-	  stream.println("    protected String fAttrID;");
-	  stream.println("    protected Object fParams;");
-	  stream.println("    public java.util.HashSet<ASTNode$Handler> fDependantSet = " +
-                     "        new java.util.HashSet<ASTNode$Handler>();");
-      stream.println("    public ASTNode$Handler(ASTNode node, String attrID, Object params) {");
-      stream.println("      fNode = node;");
-      stream.println("      fAttrID = attrID;");
-      stream.println("      fParams = params;");
-      stream.println("    }");
-      stream.println("    public boolean hasDependants() {");
-      stream.println("        return !fDependantSet.isEmpty();");
-      stream.println("    }");
-        // Graph construction:
-      stream.println("    public void addDependant(ASTNode$Handler handler) {");
-      stream.println("      if (handler != this) {");
-      stream.println("        fDependantSet.add(handler);");
-      stream.println("      }");
-      stream.println("    }");
-        // Propagation:      
-      stream.println("    protected void notifyDependencies() {");
-      stream.println("      java.util.HashSet<ASTNode$Handler> l = fDependantSet;");
-      stream.println("      fDependantSet = new java.util.HashSet<ASTNode$Handler>();");
-      stream.println("      for (ASTNode$Handler handler : l) {");
-      stream.println("        handler.dependencyChanged();");
-      stream.println("      }");
-      stream.println("    }");
-        // What to do on change:
-      stream.println("    public void dependencyChanged() {");
-        if (ASTNode.incrementalChangeFlush) {
-      stream.println("      fNode.flushAttribute(fAttrID, fParams);");
-        }
-        if (ASTNode.incrementalPropFull) {
-      stream.println("      notifyDependencies();");
-        }
-      stream.println("    }");
-        // Debugging methods:
-        if (ASTNode.incrementalDebug) {
-      stream.println("    public void dumpDeps() {");
-      stream.println("      for (ASTNode$Handler handler : fDependantSet) {");
-      stream.println("        System.out.println(\"dep(\" + handler + \" -> \" + this + \")\");");
-      stream.println("      }");
-      stream.println("    }");
-      stream.println("    public String toString() {");
-      stream.println("      return fNode.relativeNodeID() + \"_\" + fAttrID + (fParams != null ? (\"[\" + (fParams instanceof ASTNode ? ((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
-      stream.println("    }");
-        }
-      stream.println("  }"); // End ASTNode$Handler
-  }
-  //
-
-
   public void Grammar.jjtGenASTNode$State(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     stream.println("/**");
     stream.println(" * @apilevel internal");
@@ -548,29 +491,6 @@ aspect JaddCodeGen {
       stream.println(ind + "public final ASTNode$State ASTNode.state() { return state; }");
     }
 
-      // EMMA_2011-05-12: Code generation for fine incremental evaluation
-      if (ASTNode.incremental) {
-        //stream.println("  protected ASTNode[] ASTNode.init_children;");
-        stream.println("  protected ASTNode$Handler[] ASTNode.getChild_handler;");
-		stream.println("  protected ASTNode$Handler ASTNode.getParent_handler = new ASTNode$Handler(this, \"getParent\", null);");
-        stream.println("  protected ASTNode$Handler ASTNode.numChildren_handler = new ASTNode$Handler(this, \"numChildren\", null);");
-        if (ASTNode.incrementalDebug) {
-        stream.println("  protected String ASTNode.printParamList(java.util.List paramList) {");
-        stream.println("    StringBuffer buf = new StringBuffer();");
-        stream.println("    for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {");
-        stream.println("      Object o = itr.next();");
-        stream.println("      if (o instanceof ASTNode) {");
-        stream.println("        buf.append(((ASTNode)o).relativeNodeID());");
-        stream.println("      } else {");
-        stream.println("        buf.append(o.toString());");
-        stream.println("      }");
-        stream.println("      buf.append(\",\");");
-        stream.println("    }");
-        stream.println("    return buf.toString();");
-        stream.println("  }");
-        }
-      }
-      //
 
     if(rewriteEnabled) {
       if(rewriteLimit > 0) {
@@ -1325,180 +1245,7 @@ aspect JaddCodeGen {
         if(ASTNode.block) stream.append(ASTNode.blockEnd);
         stream.println(ind + "}");
       }
-
-        // EMMA_2011-09-19: Code generation for incremental evaluation
-        if (ASTNode.incremental) {
-         // handlers
-         for(int k = 0; k < getNumSynDecl(); k++) {
- 		    AttrDecl attr = getSynDecl(k);
-      	    if (attr.getLazy() || attr.isCircular()) {
-      	      if (attr.getNumParameter() > 0) {
-      	        stream.println("  protected java.util.Map ASTNode." + attr.attributeSignature() + 
-                                              "_handler = new java.util.HashMap(4);");
-      	      } else {
- 			    stream.println("  protected ASTNode$Handler ASTNode." + attr.attributeSignature() + "_handler;");
- 			  }
-            }
-    	  }
-          // flushAttribute
-          stream.println("    public void ASTNode.flushAttribute(String attrID, Object _parameters) {");
-          //stream.println("      if (attrID.equals(\"getChild\")) {");
-          //stream.println("        int i = (Integer)_parameters;");
-          //stream.println("        if (init_children != null && init_children[i] != null) {");
-          //stream.println("          getChild(i).notifyForRemove();");
-          //stream.println("          children[i] = init_children[i];");
-          //stream.println("          init_children[i] = null;");
-          //stream.println("        }");
-          //stream.println("      }");
-          boolean first = true;
-          for(int k = 0; k < getNumSynEq(); k++) {
-            AttrEq attrEq = getSynEq(k);
-            AttrDecl attr = attrEq.decl();
-            if (attr.getLazy() || attr.isCircular()) {
-              stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
-              	(attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + ") {");
-              if (attr.getNumParameter() > 0) {
-                stream.println("       " + attr.attributeSignature() + "_values.remove(_parameters);"); 
-              } else {
-                if (attr.isNTA()) {
-                  stream.println("       " + attr.attributeSignature() + "_value.notifyForRemove();");
-                }
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
-              }
-              stream.println("     }");
-              first = false;
-            }
-          }
-          for(int k = 0; k < getNumInhDecl(); k++) {
-            AttrDecl attr = getInhDecl(k);
-            if (attr.getLazy() || attr.isCircular()) {
-              stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
-              (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + ") {");
-              if (attr.getNumParameter() > 0) {
-                stream.println("       " + attr.attributeSignature() + "_values.remove(_parameters);"); 
-              } else {
-                if (attr.isNTA()) {
-                  stream.println("       " + attr.attributeSignature() + "_value.notifyForRemove();");
-                }
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
-              }
-              stream.println("     }");
-              first = false;
-            }
-          }
-          stream.println("    }");
-          // notifyForRemove
-          stream.println("    public void ASTNode.notifyForRemove() {");
-          stream.println("      getParent_handler.notifyDependencies();");
-   	      stream.println("      numChildren_handler.notifyDependencies();");
-          stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
-          stream.println("        if (getChild_handler[i].hasDependants()) {");
-          stream.println("          getChildNoTransform(i).notifyForRemove();");
-          stream.println("          getChild_handler[i].notifyDependencies();");
-          stream.println("        }");
-          stream.println("      }");
-          for(int k = 0; k < getNumSynDecl(); k++) {
-      	    AttrDecl attr = getSynDecl(k);
-      	    if (attr.getLazy() || attr.isCircular()) {
-      	      if (attr.getNumParameter() > 0) {
-      	        stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                            "_handler.values().iterator(); itr.hasNext();) {");
-                stream.println("        ASTNode$Handler h = (ASTNode$Handler)itr.next();");
-                stream.println("        h.notifyDependencies();");
-                stream.println("      }");
-      	      } else {
-      	        stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-      	        stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
-      	        stream.println("      }");
-      	      }
-      	    }
-    	  }
-    	  for(int k = 0; k < getNumInhDecl(); k++) {
-      	    AttrDecl attr = getInhDecl(k);
-      	    if (attr.getLazy() || attr.isCircular()) {
-      	      if (attr.getNumParameter() > 0) {
-      	        stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                               "_handler.values().iterator(); itr.hasNext();) {");
-                stream.println("        ASTNode$Handler h = (ASTNode$Handler)itr.next();");
-                stream.println("        h.notifyDependencies();");
-                stream.println("      }");
-      	      } else {
-      	        stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-      	        stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
-      	        stream.println("      }");
-      	      }
-      	    }
-    	  }
-          stream.println("    }");
-            if (ASTNode.incrementalDebug) {
-			// Relative ID          
-          stream.println("    public String ASTNode.relativeNodeID() {");
-          stream.println("      ASTNode parent = getParent();");
-          stream.println("      StringBuffer buf = new StringBuffer();");
-          stream.println("      int index = -1;");
-          stream.println("      if (parent != null) {");
-          stream.println("        buf.append(parent.relativeNodeID() + \"/\");");
-          stream.println("        index = parent.getIndexOfChild(this);");
-          stream.println("      }");
-          stream.println("      buf.append(getClass().getSimpleName());");
-          stream.println("      if (index > -1) {");
-          stream.println("        buf.append(\"[\" + index + \"]\");");
-          stream.println("      }");
-          stream.println("      return buf.toString();");
-          stream.println("    }");
-          // dumpCachedValues
-          stream.println("    public void ASTNode.dumpCachedValues(java.io.PrintWriter writer) {");
-          //stream.println("      for (int k = 0; init_children != null && k < init_children.length; k++) {");
-          //stream.println("        if (init_children[k] != null) {");
-          //stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
-          //                                  "\" rewritten from \" + init_children[k].relativeNodeID());");
-          //stream.println("        }");
-          //stream.println("      }");
-          for(int k = 0; k < getNumSynEq(); k++) {
-      	    AttrEq attrEq = getSynEq(k);
-      	    AttrDecl attr = attrEq.decl();
-            String u = attr.dumpCache();
-            u = u.replaceAll("#NAME#", attr.attributeSignature());
-          stream.println(u);
-          }
-		  stream.println("        // TODO: dump collection values");
-          stream.println("    }");          
-          // dumpDependencies
-          stream.println("    public void ASTNode.dumpDependencies() {");
-          stream.println("      getParent_handler.dumpDeps();");
-          stream.println("      numChildren_handler.dumpDeps();");
-          stream.println("      for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
-          stream.println("        if (getChild_handler[k] != null) {");
-          stream.println("          getChild_handler[k].dumpDeps();");
-          stream.println("        }");
-          stream.println("      }");
-          for(int k = 0; k < getNumSynEq(); k++) {
-      	    AttrEq attrEq = getSynEq(k);
-      	    AttrDecl attr = attrEq.decl();
-      	    if (attr.getLazy()) {
-      	      if (attr.getNumParameter() == 0) {
-          stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
-                                    attr.attributeSignature() + "_handler.dumpDeps();");
-              } else {
-          stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-          stream.println("        for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                                    "_handler.keySet().iterator(); itr.hasNext();) {");
-          stream.println("          Object key = itr.next();");
-          stream.println("          Object value = " + attr.attributeSignature() + "_handler.get(key);");
-          stream.println("          ((ASTNode$Handler)value).dumpDeps();");
-          stream.println("        }");
-          stream.println("      }");
-              }
-            }
-          }
-		  stream.println("        // TODO: dump collection values");
-          stream.println("    }");
-            }
-        }
+      
     }
     else if(name().equals("List")) {
       if(ASTNode.java5)
@@ -1600,7 +1347,359 @@ aspect JaddCodeGen {
       }
       stream.println(ind + "}");
     }
+
+    // ES_2011-09-19: Code generation for incremental evaluation
+    if (ASTNode.incremental) jjtGenIncremental(stream);
   }
+
+  // ES_2011-09-20: Code generation for incremental evaluation
+  public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
+
+    jjtGenIncrementalHandlers(stream);
+    jjtGenIncrementalReactToChange(stream);
+    jjtGenIncrementalReactToASTChange(stream);
+    if (ASTNode.incrementalDebug) jjtGenIncrementalDebug(stream);
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, initialization of handlers
+  public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
+    if (name().equals("ASTNode")) {
+
+      // dependency graph nodes for syn attributes on ASTNode
+      // (ASTNode cannot have inheritaed attributes)
+      // level node for ASTNode: one handler per node
+      if (ASTNode.incrementalLevelNode) {
+        stream.println("  protected ASTNode$DepGraphNode ASTNode.handler;");                    
+      } else {
+        if (ASTNode.incrementalLevelParam) {
+          stream.println("  protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+              "new ASTNode$DepGraphNode(this, \"getParent\", null);");
+          stream.println("  protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+              "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
+          stream.println("  protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
+        } 
+        if (ASTNode.incrementalLevelAttr) {
+          stream.println("  protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+              "new ASTNode$DepGraphNode(this, \"getParent\");");
+          stream.println("  protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+              "new ASTNode$DepGraphNode(this, \"numChildren\");");
+          stream.println("  protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
+              "new ASTNode$DepGraphNode(this, \"getChild\");");
+        }
+
+        // level attr or param for ASTNode
+        for(int k = 0; k < getNumSynDecl(); k++) {
+ 	  	    AttrDecl attr = getSynDecl(k);
+          // only consider lazy attributes (and circular since their values are stored)
+        	if (attr.getLazy() || attr.isCircular()) {
+            if (ASTNode.incrementalLevelParam) {
+              // level param: check if this is a parameterized attribute
+        	    if (attr.getNumParameter() > 0) {
+        	      stream.println("  protected java.util.Map ASTNode." + attr.attributeSignature() + 
+                      "_handler = new java.util.HashMap(4);");
+        	    } else {
+ 	  		        stream.println("  protected ASTNode$DepGraphNode ASTNode." + 
+                      attr.attributeSignature() + "_handler;");
+ 	  		      }
+            }
+            // level attr: Add one handler per attribute
+            if (ASTNode.incrementalLevelAttr) {
+ 	  		        stream.println("  protected ASTNode$DepGraphNode ASTNode." + 
+                      attr.attributeSignature() + "_handler;");            
+            }
+          }
+      	}
+      }
+    }
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, react to change
+  public void ASTDecl.jjtGenIncrementalReactToChange(PrintWriter stream) {
+    if (name().equals("ASTNode")) {
+
+      // Method: reactToDependencyChange
+      if (ASTNode.incrementalLevelParam)
+        stream.println("    public void ASTNode.reactToDependencyChange(String attrID, Object _parameters) {");      
+      if (ASTNode.incrementalLevelAttr) 
+        stream.println("    public void ASTNode.reactToDependencyChange(String attrID) {");      
+      if (ASTNode.incrementalLevelNode) 
+        stream.println("    public void ASTNode.reactToDependencyChange() {");      
+      if (ASTNode.incrementalChangeFlush) 
+        jjtGenIncrementalChangeFlush(stream);
+      // end method
+      stream.println("    }");
+
+    }
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, change strategy flush
+  public void ASTDecl.jjtGenIncrementalChangeFlush(PrintWriter stream) {
+    if (name().equals("ASTNode")) {
+
+        // old code for handling of rewritten children in case of a flush
+        //stream.println("      if (attrID.equals(\"getChild\")) {");
+        //stream.println("        int i = (Integer)_parameters;");
+        //stream.println("        if (init_children != null && init_children[i] != null) {");
+        //stream.println("          getChild(i).notifyForRemove();");
+        //stream.println("          children[i] = init_children[i];");
+        //stream.println("          init_children[i] = null;");
+        //stream.println("        }");
+        //stream.println("      }");
+
+      // Collect attributes: syn then inh
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrDecl attr = getSynEq(k).decl();
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      // Add attribute code: flush attributes
+      boolean first = true;
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        // start match attribute statement
+        if (ASTNode.incrementalLevelParam)
+          stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
+              (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + ") {");
+        if (ASTNode.incrementalLevelAttr) 
+          stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")) {");
+        if (ASTNode.incrementalLevelNode)
+          stream.println("     {"); // nothing to match, all cached attributes are included
+        // handle parameterized attributes
+        if (attr.getNumParameter() > 0) {
+          if (ASTNode.incrementalLevelParam) {
+            stream.println("       " + attr.attributeSignature() + "_values.remove(_parameters);"); 
+            stream.println("       " + attr.attributeSignature() + "_visited.remove(_parameters);"); 
+          } else {
+            String u = attr.resetVisit() + attr.resetCache();
+            u = u.replaceAll("#NAME#", attr.attributeSignature());
+            stream.print(u);              
+          }
+        } else {
+          // handle NTAs
+          if (attr.isNTA()) {
+            stream.println("       " + attr.attributeSignature() + "_value.notifyForRemove();");
+          }
+          String u = attr.resetVisit() + attr.resetCache();
+          u = u.replaceAll("#NAME#", attr.attributeSignature());
+          stream.print(u);
+        }
+        // end match statement
+        stream.println("     }");
+        first = false;
+      }
+    }
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, 
+  public void ASTDecl.jjtGenIncrementalReactToASTChange(PrintWriter stream) {
+    if (name().equals("ASTNode")) {
+
+      // Method: notifyForRemove
+      stream.println("    public void ASTNode.notifyForRemove() {");
+      stream.println("      getParent_handler.notifyDependencies();");
+      stream.println("      numChildren_handler.notifyDependencies();");
+      stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
+      stream.println("        if (getChild_handler[i].hasDependants()) {");
+      stream.println("          getChildNoTransform(i).notifyForRemove();");
+      stream.println("          getChild_handler[i].notifyDependencies();");
+      stream.println("        }");
+      stream.println("      }");
+      // Collect attributes: syn then inh
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+   	    AttrDecl attr = getSynDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      // Add attribute code: propagate change of all cached values being removed
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (attr.getNumParameter() > 0) {
+    	    stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                       "_handler.values().iterator(); itr.hasNext();) {");
+          stream.println("        ASTNode$Handler h = (ASTNode$Handler)itr.next();");
+          stream.println("        h.notifyDependencies();");
+          stream.println("      }");
+    	  } else {
+    	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+    	    stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
+     	    stream.println("      }");
+     	  }
+    	}
+      // end method
+      stream.println("    }");
+    }
+  }
+
+  // ES_2011-09-20: Debug code generation for incremental evaluation
+  public void ASTDecl.jjtGenIncrementalDebug(PrintWriter stream) {
+    if (name().equals("ASTNode")) {
+      
+      // Relative ID          
+      stream.println("    public String ASTNode.relativeNodeID() {");
+      stream.println("      ASTNode parent = getParent();");
+      stream.println("      StringBuffer buf = new StringBuffer();");
+      stream.println("      int index = -1;");
+      stream.println("      if (parent != null) {");
+      stream.println("        buf.append(parent.relativeNodeID() + \"/\");");
+      stream.println("        index = parent.getIndexOfChild(this);");
+      stream.println("      }");
+      stream.println("      buf.append(getClass().getSimpleName());");
+      stream.println("      if (index > -1) {");
+      stream.println("        buf.append(\"[\" + index + \"]\");");
+      stream.println("      }");
+      stream.println("      return buf.toString();");
+      stream.println("    }");
+
+      // dumpCachedValues
+      stream.println("    public void ASTNode.dumpCachedValues(java.io.PrintWriter writer) {");
+      //stream.println("      for (int k = 0; init_children != null && k < init_children.length; k++) {");
+      //stream.println("        if (init_children[k] != null) {");
+      //stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
+      //                                  "\" rewritten from \" + init_children[k].relativeNodeID());");
+      //stream.println("        }");
+      //stream.println("      }");
+      for(int k = 0; k < getNumSynEq(); k++) {
+ 	      AttrEq attrEq = getSynEq(k);
+      	AttrDecl attr = attrEq.decl();
+        String u = attr.dumpCache();
+        u = u.replaceAll("#NAME#", attr.attributeSignature());
+        stream.println(u);
+      }
+		  stream.println("        // TODO: dump collection values");
+      stream.println("    }");          
+      
+      // dumpDependencies
+      stream.println("    public void ASTNode.dumpDependencies() {");
+      stream.println("      getParent_handler.dumpDeps();");
+      stream.println("      numChildren_handler.dumpDeps();");
+      stream.println("      for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
+      stream.println("        if (getChild_handler[k] != null) {");
+      stream.println("          getChild_handler[k].dumpDeps();");
+      stream.println("        }");
+      stream.println("      }");
+      for(int k = 0; k < getNumSynEq(); k++) {
+  	    AttrEq attrEq = getSynEq(k);
+   	    AttrDecl attr = attrEq.decl();
+   	    if (attr.getLazy()) {
+          if (attr.getNumParameter() == 0) {
+            stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
+                                    attr.attributeSignature() + "_handler.dumpDeps();");
+          } else {
+            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println("        for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                                    "_handler.keySet().iterator(); itr.hasNext();) {");
+            stream.println("          Object key = itr.next();");
+            stream.println("          Object value = " + attr.attributeSignature() + "_handler.get(key);");
+            stream.println("          ((ASTNode$Handler)value).dumpDeps();");
+            stream.println("        }");
+            stream.println("      }");
+          }
+        }
+      }
+		  stream.println("        // TODO: dump collection values");
+      stream.println("    }");
+
+      // printParamList
+      stream.println("  protected String ASTNode.printParamList(java.util.List paramList) {");
+      stream.println("    StringBuffer buf = new StringBuffer();");
+      stream.println("    for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {");
+      stream.println("      Object o = itr.next();");
+      stream.println("      if (o instanceof ASTNode) {");
+      stream.println("        buf.append(((ASTNode)o).relativeNodeID());");
+      stream.println("      } else {");
+      stream.println("        buf.append(o.toString());");
+      stream.println("      }");
+      stream.println("      buf.append(\",\");");
+      stream.println("    }");
+      stream.println("    return buf.toString();");
+      stream.println("  }");
+    }
+  }
+
+  // ES_2011-09-06: Code generation for incremental evaluation, dependency node class / handler class
+  public void Grammar.jjtGenASTNode$DepGraphNode(PrintWriter stream, String parserName) {
+    // Class: ASTNode$DepGraphNode
+    stream.println("  static public class ASTNode$DepGraphNode {");
+    // level: node, attr, param all need a node to store the dependency node in
+	  stream.println("    protected ASTNode fNode;");
+    // level: attr also needs an attr ID 
+    if (ASTNode.incrementalLevelAttr) {
+	    stream.println("    protected String fAttrID;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = attrID;");
+      stream.println("    }");
+    }
+    // level: param needs both an attr ID and a param ID
+    if (ASTNode.incrementalLevelParam) {
+	    stream.println("    protected String fAttrID;");
+	    stream.println("    protected Object fParams;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = attrID;");
+      stream.println("      fParams = params;");
+      stream.println("    }");
+    }
+    // behavior generic for any kind of dependency region
+	  stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependantSet = " +
+                   "        new java.util.HashSet<ASTNode$DepGraphNode>();");
+    stream.println("    public boolean hasDependants() {");
+    stream.println("        return !fDependantSet.isEmpty();");
+    stream.println("    }");
+    stream.println("    public void addDependant(ASTNode$DepGraphNode node) {");
+    stream.println("      if (node != this) {");
+    stream.println("        fDependantSet.add(node);");
+    stream.println("      }");
+    stream.println("    }");
+    stream.println("    public void notifyDependencies() {");
+    stream.println("      java.util.HashSet<ASTNode$DepGraphNode> l = fDependantSet;");
+    stream.println("      fDependantSet = new java.util.HashSet<ASTNode$DepGraphNode>();");
+    stream.println("      for (ASTNode$DepGraphNode node : l) {");
+    stream.println("        node.dependencyChanged();");
+    stream.println("      }");
+    stream.println("    }");
+    // React to change
+    stream.println("    public void dependencyChanged() {");
+    if (ASTNode.incrementalLevelParam)
+      stream.println("      fNode.reactToDependencyChange(fAttrID, fParams);");
+    if (ASTNode.incrementalLevelAttr) 
+      stream.println("      fNode.reactToDependencyChange(fAttrID);");
+    if (ASTNode.incrementalLevelNode)
+      stream.println("      fNode.reactToDependencyChange();");
+    stream.println("    }");
+    // Debugging methods:
+    if (ASTNode.incrementalDebug) {
+      stream.println("    public void dumpDeps() {");
+      stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
+      stream.println("        System.out.println(\"dep(\" + node + \" -> \" + this + \")\");");
+      stream.println("      }");
+      stream.println("    }");
+      stream.println("    public String toString() {");
+      if (ASTNode.incrementalLevelParam) 
+        stream.println("      return fNode.relativeNodeID() + \"_\" + fAttrID + " +
+            "(fParams != null ? (\"[\" + (fParams instanceof ASTNode ? " +
+            "((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
+      if (ASTNode.incrementalLevelAttr)
+        stream.println("      return fNode.relativeNodeID() + \"_\" + fAttrID;");
+      if (ASTNode.incrementalLevelNode)
+        stream.println("      return fNode.relativeNodeID();");
+      stream.println("    }");
+    }
+    stream.println("  }"); // End ASTNode$DepGraphNode
+  }
+
 
   syn boolean ASTDecl.rewriteWithNoPhaseCondition() {
     for(int i = 0; i < getNumRewrite(); i++) {
