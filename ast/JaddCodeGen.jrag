@@ -429,7 +429,64 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
 
+    // ES_2011-09-20: Code generation for incremental evaluation, evaluation stack
+    if (ASTNode.incremental) jjtGenIncrementalEvaluationStack(stream);
+
     stream.println("}"); // End ASTNode$State
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, evaluation stack
+  public void Grammar.jjtGenIncrementalEvaluationStack(PrintWriter stream) {
+    stream.println(ind + "protected java.util.Stack handlerAttrStack = new java.util.Stack();");
+    stream.println(ind + "protected java.util.Stack handlerRewriteStack = new java.util.Stack();");
+    stream.println(ind + "public void addHandlerDepTo(ASTNode$DepGraphNode handler) {");
+    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL && !IN_REWRITE_EVAL || handler == null) {");
+    stream.println(ind(3) +   "return;");
+    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "java.util.Stack handlerStack = handlerAttrStack;");
+    stream.println(ind(2) + "if (IN_REWRITE_EVAL) ");
+    stream.println(ind(3) +   "handlerStack = handlerRewriteStack;");
+    stream.println(ind(2) + "if (!handlerStack.isEmpty()) {");
+    stream.println(ind(3) +   "//throw new Error(\"Handler stack is empty at addition of dependency!\");");
+    stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
+    stream.println(ind(3) +   "handler.addDependant(top);");
+    stream.println(ind(2) + "}");
+    stream.println(ind + "}");
+    stream.println(ind + "public boolean IN_ATTR_STORE_EVAL = false;");
+    stream.println(ind + "public void enterAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
+    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
+    stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = true;");
+    stream.println(ind(3) +   "pushHandler(handlerAttrStack, handler);");
+    stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public void exitAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
+    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
+    stream.println(ind(3) +   "popHandler(handlerAttrStack, handler);");
+    stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = !handlerAttrStack.isEmpty();");
+    stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public boolean IN_REWRITE_EVAL = false;");
+    stream.println(ind + "public void enterRewriteEval(ASTNode$DepGraphNode handler) {"); 
+    stream.println(ind(2) + "IN_REWRITE_EVAL = true;");
+    stream.println(ind(2) + "pushHandler(handlerRewriteStack, handler);");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public void exitRewriteEval(ASTNode$DepGraphNode handler) {"); 
+    stream.println(ind(2) + "if (IN_REWRITE_EVAL) {");
+    stream.println(ind(3) +   "popHandler(handlerRewriteStack, handler);");
+    stream.println(ind(3) +   "IN_REWRITE_EVAL = !handlerRewriteStack.isEmpty();");
+    stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+    stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
+    stream.println(ind(2) + "stack.push(handler);");
+    stream.println(ind + "}");        
+    stream.println(ind + "protected ASTNode$DepGraphNode popHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
+    stream.println(ind(2) + "if (stack.isEmpty())");
+    stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
+    stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
+    stream.println(ind(2) + "if (h != handler)");
+    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop!\");");
+    stream.println(ind(2) + "return h;");
+    stream.println(ind + "}");
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
