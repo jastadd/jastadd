@@ -636,6 +636,13 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
+        // ES_2011-09-20: Code generation for incremental evaluation
+        if (ASTNode.incremental) {
+          stream.println(ind(2) + "T child = (T)ASTNode.getChild(this, i);");
+          jjtGenIncrementalTrackGetChild(stream);
+          stream.println(ind(2) + "return child;");        
+        } else 
+        //
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
@@ -644,6 +651,13 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+        // ES_2011-09-20: Code generation for incremental evaluation
+        if (ASTNode.incremental) { 
+          stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
+          jjtGenIncrementalTrackGetChild(stream);
+          stream.println(ind(2) + "return child;");
+        } else 
+        //
         stream.println(ind(2) + "return ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
@@ -696,6 +710,13 @@ aspect JaddCodeGen {
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\")");
         stream.println(ind + "public T ASTNode.getChild(int i) {");
+        // ES_2011-09-20: Code generation for incremental evaluation
+        if (ASTNode.incremental) {
+          stream.println(ind(2) + "T child = (T)getChildNoTransform(i);");
+          jjtGenIncrementalTrackGetChild(stream);
+          stream.println(ind(2) + "return child;");        
+        } else 
+        //
         stream.println(ind(2) + "return (T)getChildNoTransform(i);");
         stream.println(ind + "}");
       }
@@ -704,6 +725,13 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+        // ES_2011-09-20: Code generation for incremental evaluation
+        if (ASTNode.incremental) {
+          stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
+          jjtGenIncrementalTrackGetChild(stream);
+          stream.println(ind(2) + "return child;");        
+        } else 
+        //
         stream.println(ind(2) + "return getChildNoTransform(i);");
         stream.println(ind + "}");
       }
@@ -747,6 +775,13 @@ aspect JaddCodeGen {
       stream.println(ind + "@SuppressWarnings(\"cast\")");
       stream.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      // ES_2011-09-20: Code generation for incremental evaluation
+      if (ASTNode.incremental) {
+        stream.println(ind(2) + "T child = (T)children[i];");
+        jjtGenIncrementalTrackGetChild(stream);
+        stream.println(ind(2) + "return child;");        
+      } else 
+      //
       stream.println(ind(2) + "return (T)children[i];");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
@@ -757,6 +792,13 @@ aspect JaddCodeGen {
       stream.println(ind + " */");
       stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      // ES_2011-09-20: Code generation for incremental evaluation
+      if (ASTNode.incremental) {
+        stream.println(ind(2) + "ASTNode child = (ASTNode)children[i];");
+        jjtGenIncrementalTrackGetChild(stream);
+        stream.println(ind(2) + "return child;");        
+      } else 
+      //
       stream.println(ind(2) + "return (ASTNode)children[i];");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
@@ -776,6 +818,8 @@ aspect JaddCodeGen {
     stream.println(ind + " */");
     stream.println(ind + "public int ASTNode.getNumChild() {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    // ES_2011-09-20: Code generation for incremental evaluation
+    if (ASTNode.incremental) jjtGenIncrementalTrackNumChild(stream);
     stream.println(ind(2) + "return numChildren();");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
@@ -797,14 +841,26 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "debugNodeAttachment(node);");
     stream.println(ind + "if(children == null) {");
     stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild1(stream);
+    //
     stream.println(ind + "} else if (i >= children.length) {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
     stream.println(ind(3) + "children = c;");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild2(stream);
+    //
     stream.println(ind(2) + "}");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild3(stream);
+    //
     stream.println(ind(2) + "children[i] = node;");
     stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
     stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild4(stream);
+    //
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
 
@@ -818,6 +874,9 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "if(children == null) {");
     stream.println(ind(3) + "children = new ASTNode[i + 1];");
     stream.println(ind(3) + "children[i] = node;");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild1(stream);
+    //
     stream.println(ind(2) + "} else {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[children.length + 1];");
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, i);");
@@ -825,9 +884,18 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "if(i < children.length)");
     stream.println(ind(4) + "System.arraycopy(children, i, c, i+1, children.length-i);");
     stream.println(ind(3) + "children = c;");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild2(stream);
+    //
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "numChildren++;");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild3(stream);
+    //
     stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild4(stream);
+    //
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
 
@@ -844,6 +912,9 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "}");
     stream.println(ind(3) + "System.arraycopy(children, i+1, children, i, children.length-i-1);");
     stream.println(ind(3) + "numChildren--;");
+    // ES_2011-09-20: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeRemoveChild(stream);
+    //
     stream.println(ind(2) + "}");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
@@ -858,6 +929,9 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "state().boundariesCrossed++;");
       stream.println(ind(2) + "}");
     }
+    // ES_2011-09-20: Code generation for incremental evaluation, track getParent
+    if (ASTNode.incremental) jjtGenIncrementalTrackGetParent(stream);
+    //
     stream.println(ind(2) + "return (ASTNode)parent;");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
@@ -900,6 +974,154 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "if(node == null) return;");
       stream.println(ind(2) + "throw new RuntimeException(\"Trying to insert the same tree at multiple tree locations\");");
       stream.println(ind + "}");
+    }
+  }
+
+
+  // ES_2011-09-20: Code generation for incremental evaluation, tracking getChild
+  public void ASTDecl.jjtGenIncrementalTrackGetChild(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "if (getChild_handler[i] == null) {");
+      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");  
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "state().addHandlerDepTo(child.handler);");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, tracking getParent
+  public void ASTDecl.jjtGenIncrementalTrackGetParent(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(getParent_handler);");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "if (parent != null)");
+      stream.println(ind(3) +   "state().addHandlerDepTo(((ASTNode)parent).handler);");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, tracking numChildren
+  public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {  
+    stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
+  }
+
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set parent
+  public void ASTDecl.jjtGenIncrementalSetParent(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "getParent_handler.notifyDependencies();");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "handler.notifyDependencies();");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 1
+  public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) 
+      stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i + 1];");
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 2
+  public void ASTDecl.jjtGenIncrementalASTChangeSetChild2(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "if (getChild_handler != null) {");
+      stream.println(ind(3) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[i << 1];");
+      stream.println(ind(3) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
+      stream.println(ind(3) +   "getChild_handler = h;");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 3
+  public void ASTDecl.jjtGenIncrementalASTChangeSetChild3(PrintWriter stream) {
+    stream.println(ind(2) + "if (children[i] != null) {");
+    stream.println(ind(3) +   "children[i].notifyForRemove();");
+    stream.println(ind(2) + "}");
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 4
+  public void ASTDecl.jjtGenIncrementalASTChangeSetChild4(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "for (int k = 0; k < children.length; k++) {");
+      stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
+      stream.println(ind(4) +     "getChild_handler[k].notifyDependencies();");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(2) + "}");	
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "getChild.notifyDependendies();");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "handler.notifyDependencies();");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 1
+  public void ASTDecl.jjtGenIncrementalASTChangeInsertChild1(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i + 1];");
+      stream.println(ind(3) + "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 2
+  public void ASTDecl.jjtGenIncrementalASTChangeInsertChild2(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "if (getChild_handler != null) {");
+      stream.println(ind(3) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[i << 1];");
+      stream.println(ind(3) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
+      stream.println(ind(3) +   "if (i < getChild_handler.length) {");
+      stream.println(ind(4) +     "System.arraycopy(getChild_handler, i, h, i+1, getChild_handler.length);");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(3) +   "getChild_handler = h;");
+      stream.println(ind(2) + "}");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 3
+  public void ASTDecl.jjtGenIncrementalASTChangeInsertChild3(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
+      stream.println(ind(2) + "numChildren_handler.notifyDependencies();");
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 4
+  public void ASTDecl.jjtGenIncrementalASTChangeInsertChild4(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "for (int k = 0; k < children.length; k++) {");
+      stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
+      stream.println(ind(4) +     "getChild_handler[k].notifyDependencies();");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(2) + "}");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "getChild_handler.notifyDependencies();");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "handler.notifyDependencies();");
+    }
+  }
+  // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, remove child 1
+  public void ASTDecl.jjtGenIncrementalASTChangeRemoveChild(PrintWriter stream) {
+    stream.println(ind(3) + "child.notifyForRemove();");
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(3) + "if (getChild_handler != null) {");
+      stream.println(ind(4) +   "if (getChild_handler[i] != null) {");
+      stream.println(ind(5) +     "getChild_handler[i].notifyDependencies();");
+      stream.println(ind(5) +     "getChild_handler[i] = null;");
+      stream.println(ind(4) +   "}");
+      stream.println(ind(4) +   "System.arraycopy(getChild_handler, i+1, " + 
+          "getChild_handler, i, getChild_handler.length-i-1);");
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "for (int k = 0; k < children.length; k++) {");
+      stream.println(ind(4) +   "if (getChild_handler[k] != null) {");
+      stream.println(ind(5) +     "getChild_handler[k].notifyDependencies();");
+      stream.println(ind(4) +   "}");
+      stream.println(ind(3) + "}");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(3) + "getChild_handler.notifyDependencies();");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(3) + "handler.notifyDependencies();");
     }
   }
 
