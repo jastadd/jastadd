@@ -1,6 +1,6 @@
 
 aspect A {
-    refine Ast public boolean X.getLazy() {
+    refine public boolean X.getLazy() {
       return false;
     }
 }

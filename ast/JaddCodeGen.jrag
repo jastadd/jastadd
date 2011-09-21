@@ -1802,7 +1802,7 @@ aspect JaddCodeGen {
     // EMMA_2011-09-08: Adding this to give .ast generated methods an enclosing 
     // aspect "Ast" which allows for refinement of these methods. For example,
     // "getA" generated from "B ::= A" can be refined using the "Ast" aspect.
-    jp.enclosingAspect = "Ast";
+    //jp.enclosingAspect = "Ast";
 
     try {
       while(true)

@@ -737,11 +737,6 @@ public aspect Attributes {
           ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
 
           boolean legacyCondition = ASTNode.refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
-        // EMMA: Handle refinements of methods generated from .ast files. For example, getB in A.getB for a production A ::= B.
-//        boolean refineAstAspect = decl.aspectName().equals("") && refinedCandidate.refinesAspect.equals("Ast");
-        //
-  //        if(decl.signature().equals(refinedCandidate.signature()) 
-    //         && (decl.aspectName().equals(refinedCandidate.refinesAspect) || refineAstAspect || legacyCondition)) {
           if(decl.signature().equals(refinedCandidate.signature()) 
              && (decl.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;

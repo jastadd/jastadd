@@ -100,7 +100,7 @@ aspect JragCodeGen {
 
 
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
-  refine Ast public boolean AttrDecl.getLazy() {
+  refine  public boolean AttrDecl.getLazy() {
     if (cacheAll)
       return true;
     if (cacheNone)
@@ -108,7 +108,7 @@ aspect JragCodeGen {
     return declaredNTA() || refined(); //Ast.AttrDecl.getLazy(); 
 //    return (Ast.AttrDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
-  refine Ast public boolean SynDecl.getLazy() {
+  refine  public boolean SynDecl.getLazy() {
     if (cacheAll)
       return true;
     if (cacheNone)
@@ -116,7 +116,7 @@ aspect JragCodeGen {
     return declaredNTA() || refined(); //Ast.SynDecl.getLazy();
 //    return (Ast.SynDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
-  refine Ast public boolean InhDecl.getLazy() {
+  refine  public boolean InhDecl.getLazy() {
     if (cacheAll)
       return true;
     if (cacheNone)
@@ -124,7 +124,7 @@ aspect JragCodeGen {
     return declaredNTA() || refined(); //Ast.InhDecl.getLazy(); 
 //    return (Ast.InhDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
   }
-  refine Ast public boolean CollDecl.getLazy() {
+  refine  public boolean CollDecl.getLazy() {
     if (cacheAll)
       return true;
     if (cacheNone)
