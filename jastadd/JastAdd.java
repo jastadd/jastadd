@@ -12,7 +12,7 @@ import jrag.*;
 
 public class JastAdd {
   
-    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110920";
+    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110922";
     public static final String VERSIONINFO = "\n// Generated with " + VERSION + "\n\n";
 
     protected java.util.List files;
@@ -105,25 +105,6 @@ public class JastAdd {
                     jp.AspectBodyDeclaration();
                 } catch (Exception e) {
                     String s = e.getMessage();
-                }
-                jp.popTopLevelOrAspect();
-            }
-
-            // ES_2011-09-06: Incremental evaluation
-            if (ASTNode.incremental) {
-                java.io.StringWriter writer = new java.io.StringWriter();
-                root.jjtGenASTNode$DepGraphNode(new PrintWriter(writer), grammar);
-                jrag.AST.JragParser jp = new jrag.AST.JragParser(
-                      new java.io.StringReader(writer.toString()));
-                jp.root = root;
-                jp.setFileName("ASTNode");
-                jp.className = "ASTNode";
-                jp.pushTopLevelOrAspect(true);
-                try {
-                   while(true)
-                     jp.AspectBodyDeclaration();
-                } catch (Exception e) {
-                   String s = e.getMessage();
                 }
                 jp.popTopLevelOrAspect();
             }
@@ -367,26 +348,10 @@ public class JastAdd {
         ASTNode.noCaching = cla.hasLongOption("noCaching");
         ASTNode.doxygen = cla.hasLongOption("doxygen");
 
-        // EMMA_2009-11-16: Handle caching flags
+        // EMMA_2009-11-16: Handle new flags
         ASTNode.cacheNone = cla.hasLongOption("cacheNone");
         ASTNode.cacheImplicit = cla.hasLongOption("cacheImplicit");
         ASTNode.ignoreLazy = cla.hasLongOption("ignoreLazy"); 
-
-        // ES_2011-09-06: Handle incremental flag
-        ASTNode.incremental = cla.hasLongOption("incremental");
-        String incrementalConfig = cla.getLongOptionValue("incremental", "");
-        Map incrementalArgMap = parseIncrementalConfig(incrementalConfig);
-        ASTNode.incrementalLevelParam = incrementalArgMap.containsKey("param");
-        ASTNode.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
-        ASTNode.incrementalLevelNode = incrementalArgMap.containsKey("node");
-        ASTNode.incrementalChangeFlush = incrementalArgMap.containsKey("flush");
-        ASTNode.incrementalChangeMark = incrementalArgMap.containsKey("mark");
-        ASTNode.incrementalPropFull = incrementalArgMap.containsKey("full");
-        ASTNode.incrementalPropLimit = incrementalArgMap.containsKey("limit");
-        ASTNode.incrementalDebug = incrementalArgMap.containsKey("debug");
-        if (!checkIncrementalConfig()) {
-            return true;
-        }
         
         pack = cla.getLongOptionValue("package", "").replace('/', '.');
         int n = cla.getNumOperands();
@@ -417,69 +382,6 @@ public class JastAdd {
         return false;
     }
 
-    // ES_2011-09-06: Incremental evaluation
-    //   Method parsing the incremental configuration argument given to
-    //   the flag turning on incremental evaluation.
-    private Map parseIncrementalConfig(String str) {
-      Map map = new HashMap();
-      StringTokenizer st = new StringTokenizer(str, ",");
-      while (st.hasMoreTokens()) {
-        map.put(st.nextToken().trim(), "");
-      }
-      return map;
-    }
-    // ES_2011-09-19: Check of incremental configuration.
-    private boolean checkIncrementalConfig() {
-
-        // check level: only one level at a time
-        if (ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelNode ||
-            ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelParam ||
-            ASTNode.incrementalLevelNode && ASTNode.incrementalLevelParam) {
-            System.err.println("error: Conflict in incremental evaluation configuration. " +
-                "Cannot combine \"param\", \"attr\" and \"node\".");
-            return false;
-        }
-        // check level: no chosen level means default -- "attr"
-        if (!ASTNode.incrementalLevelAttr && !ASTNode.incrementalLevelNode && !ASTNode.incrementalLevelParam) {
-            ASTNode.incrementalLevelAttr = true;
-        }
-    
-        // check invalidate: only one strategy at a time
-        if (ASTNode.incrementalChangeFlush && ASTNode.incrementalChangeMark) {
-            System.err.println("error: Conflict in incremental evaluation configuration. " +
-                "Cannot combine \"flush\" and \"mark\".");
-            return false;            
-        }
-        // check invalidate: no chosen strategy means default -- "flush"
-        if (!ASTNode.incrementalChangeFlush && !ASTNode.incrementalChangeMark) {
-            ASTNode.incrementalChangeFlush = true;
-        }
-        // check invalidate: currently not supporting mark startegy -- "mark"
-        if (ASTNode.incrementalChangeMark) {
-            System.err.println("error: Unsupported incremental evaluation configuration: " +
-                "\"mark\".");
-            return false;            
-        }
-
-        // check propagation: only one strategy at a time
-        if (ASTNode.incrementalPropFull && ASTNode.incrementalPropLimit) {
-            System.err.println("error: Conflict in incremental evaluation configuration. " +
-                "Cannot combine \"full\" and \"limit\".");
-            return false;                    
-        }
-        // check propagation: no chosen strategy means default -- "full"
-        if (!ASTNode.incrementalPropFull && !ASTNode.incrementalPropLimit) {
-            ASTNode.incrementalPropFull = true;
-        }
-        // check propagration: currently not supporting limit strategy -- "limit"
-        if (ASTNode.incrementalPropLimit) {
-            System.err.println("error: Unsupported incremental evaluation configuration: " +
-                "\"limit\".");
-            return false;                        
-        }
-
-        return true;
-    }
 
     private String readFile(String name) throws java.io.IOException {
       StringBuffer buf = new StringBuffer();
@@ -537,17 +439,6 @@ public class JastAdd {
         System.out.println("  --cacheNone (cache no attributes, except NTAs)");
         System.out.println("  --cacheImplicit (make caching implicit, .caching files have higher priority)");
         System.out.println("  --ignoreLazy (ignore the \"lazy\" keyword)");
-        // ES_2011-09-19: Adding info about incremental flags
-        System.out.println("  --incremental=CONFIGURATION  (turns on incremental evaluation with the given configuration)");
-        System.out.println("    CONFIGURATION: ATTRIBUTE(,ATTRIBUTE)* (comma separated list of attributes)");
-        System.out.println("    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable with attr, node)");
-        System.out.println("    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not combinable with param, attr)");
-        System.out.println("    ATTRIBUTE: node  (dependency tracking on node level, not combinable with attr, NOT SUPPORTED YET)");
-        System.out.println("    ATTRIBUTE: flush (invalidate with flush, default, not combinable with mark)");
-        System.out.println("    ATTRIBUTE: mark  (invalidate with mark, not combinable with flush, NOT SUPPORTED YET)");
-        System.out.println("    ATTRIBUTE: full  (full change propagation, default, not combinable with limit)");
-        System.out.println("    ATTRIBUTE: limit (limited change propagation, not combinable with full, NOT SUPPORTED YET)");
-        System.out.println("    ATTRIBUTE: debug (generate code for debugging and dumping of dependencies)");
         // EMMA_2011-01-11: Added help print-out for already supported flags
         System.out.println("  --suppressWarnings (supress warnings when using Java 5)");
         System.out.println("  --parentInterfaces (search equations for inherited attributes using interfaces)");

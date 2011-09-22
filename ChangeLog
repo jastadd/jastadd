@@ -1,4 +1,10 @@
 Newest log first
+2011-09-21: (ES) New bootstrap with nameless Ast aspect
+This is basically a revert back to a nameless .ast aspect
+which requires less maintenance since there is no aspect
+name that may collide with user defined aspect names.
+This revert requires a boostrap since it includes an
+update of the refines in the jastadd2 code base.
 -------------------------------------------------------
 2011-09-13: (ES) Update of the first bootstrap step
 There was a bug in the generation of visited flags
