@@ -389,7 +389,9 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       return "        if (#NAME#_computed) {\n" +
              "          writer.println(\"value(\" + relativeNodeID() + \":#NAME#, \" + " + 
-      		(isPrimitive() || getType().equals("String") ? "#NAME#_value" : "(#NAME#_value instanceof ASTNode ? ((ASTNode)#NAME#_value).relativeNodeID() : #NAME#_value)") + "+ \")\");\n" +
+      		(isPrimitive() || getType().equals("String") ? "#NAME#_value" : 
+          "(#NAME#_value instanceof ASTNode ? ((ASTNode)#NAME#_value).relativeNodeID() : #NAME#_value)") + 
+          "+ \")\");\n" +
       		 "        }\n";
     }
     else {
@@ -398,13 +400,13 @@ aspect JragCodeGen {
              "            Object key = (Object)itr.next();\n" + 
              "            Object value = #NAME#_values.get(key);\n" +
              "            writer.println(\"value(\" + relativeNodeID() + \":#NAME#[\" + \n" +
-             "                 (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : (key instanceof java.util.List ? printParamList((java.util.List)key) : key)) + \"], \" + \n" + 
+             "                 (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : " +
+                "(key instanceof java.util.List ? printParamList((java.util.List)key) : key)) + \"], \" + \n" + 
              "                 (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : value) + \")\");\n" +
              "          }\n" +
              "        }\n";
     }
   }
-  //
 
 
   public String AttrDecl.doxygenFileComment(String ind) {
@@ -774,24 +776,36 @@ aspect JragCodeGen {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
       if(getNumParameter() == 0)
-        return ind(2) + "if(#NAME#_computed) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+                //
+               ind(2) + "if(#NAME#_computed) {\n" +
                traceEndCachedAttr() +
                ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
                ind(2) + "}\n";
       else
-        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+                //
+               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
                ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition()));\n" +
                ind(2) + "}\n";
     }
     if(getNumParameter() == 0)
-      return ind(2) + "if(#NAME#_computed) {\n" +
+      return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+             (ASTNode.incremental ? genIncrementalTracking() : "") +
+             //
+             ind(2) + "if(#NAME#_computed) {\n" +
              traceEndCachedAttr() +
              ind(3) + "return #NAME#_value;\n" +
              ind(2) + "}\n";
     else {
       if(isCircular())
-        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               //
+               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                ind(3) + "Object _o = #NAME#_values.get(_parameters);\n" +
                ind(3) + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
                traceEndCachedAttr() +
@@ -801,11 +815,43 @@ aspect JragCodeGen {
                ind(4) + "_value = (ASTNode$State.CircularValue)_o;\n" +
                ind(2) + "}\n";
       else
-        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               //
+               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
                ind(3) + "return " + fromReferenceType("#NAME#_values.get(_parameters)", getType()) + ";\n" +
                ind(2) + "}\n";
     }
+  }
+
+  // ES_2011-09-22: Code generation for incremental evaluation, tracking
+  public String AttrDecl.genIncrementalTracking() {
+    StringBuffer buf = new StringBuffer();
+    if (ASTNode.incrementalLevelParam) {
+      if (getNumParameter() == 0) {
+        buf.append(ind(2) + "if (#NAME#_handler == null) {\n");
+        buf.append(ind(3) +   "#NAME#_handler = new ASTNode$DepGraphNode(this, \"#NAME#\", null);\n");
+        buf.append(ind(2) + "}\n");
+        buf.append(ind(2) + "state().addHandlerDepTo(#NAME#_handler);\n");
+      } else {
+        buf.append(ind(2) + "if (!#NAME#_handler.containsKey(_parameters)) {\n");
+        buf.append(ind(3) +   "#NAME#_handler.put(_parameters, new ASTNode$DepGraphNode(this," +
+              " \"#NAME#\", _parameters));\n");
+        buf.append(ind(2) + "}\n");
+        buf.append(ind(2) + "state().addHandlerDepTo((ASTNode$Handler)#NAME#_handler.get(_parameters));\n");
+      }
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      buf.append(ind(2) + "if (#NAME#_handler == null) {\n");
+      buf.append(ind(3) +   "#NAME#_handler = new ASTNode$DepGraphNode(this, \"#NAME#\");\n");
+      buf.append(ind(2) + "}\n");
+      buf.append(ind(2) + "state().addHandlerDepTo(#NAME#_handler);\n");
+    }
+    if (ASTNode.incrementalLevelNode) {
+        buf.append(ind(2) + "state().addHandlerDepTo(handler);\n");
+    }
+    return buf.toString();
   }
 
   public String AttrDecl.parameterStructure() {
@@ -887,9 +933,18 @@ aspect JragCodeGen {
   public String AttrDecl.returnStmt() {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
-      return "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
+      // ES_2011-09-22: Code generation for incremental evaluation, stack
+      return getType() + " node = (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
+          (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+          ind(2) + "return node;\n";
+      // OLD: return "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
+      //
     }
-    return "return #NAME#_value;\n";
+    // ES_2011-09-22: Code generation for incremental evaluation, stack
+    return (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+        "return #NAME#_value;\n";
+    // OLD: return "return #NAME#_value;\n";
+    //
   }
 
   public String AttrEq.computeMethod() {
@@ -972,6 +1027,9 @@ aspect JragCodeGen {
            attr.traceBeginAttr() +
            attr.initLazyMaps() +
            attr.cacheCheck() +
+           // ES_2011-09-22: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter() : "") + 
+           //
            (ASTNode.rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
            attr.addInterruptedCircleDeclaration() +
            attr.visitedCheck() +
@@ -1018,6 +1076,9 @@ aspect JragCodeGen {
            attr.traceComputeContext() +
            attr.parameterStructure() +
            attr.cacheCheck() +
+           // ES_2011-09-22: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter() : "") + 
+           //
            ind(2) + "ASTNode$State state = state();\n" +
            attr.addComponentCheck() +
            ind(2) + "if (!#NAME#_initialized) {\n" +
@@ -1096,6 +1157,9 @@ aspect JragCodeGen {
            ind(3) + "#NAME#_values.put(_parameters, _value);\n" +
            ind(3) + "_value.value = " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ";\n" +
            ind(2) + "}\n" +
+           // ES_2011-09-22: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter() : "") + 
+           //
            ind(2) + "ASTNode$State state = state();\n" +
            attr.addComponentCheck() + 
            ind(2) + "if (!state.IN_CIRCLE) {\n" +
@@ -1172,10 +1236,57 @@ aspect JragCodeGen {
            ind(3) + "return new_#NAME#_value;\n" +
            ind(2) + "}\n" +
            attr.tracePrintReturnPreviousValue(fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType())) +
+           // ES_2011-09-22: Code generation for incremental evaluation, stack
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit() : "") +
+           //
            ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
            (ASTNode.block ? ASTNode.blockEnd : "") +
            ind + "}\n";
     }
+  }
+
+  // ES_2011-09-22: Code generation for incremental evaluation, tracking
+  public String AttrDecl.genIncrementalTrackingStackEnter() {
+    StringBuffer buf = new StringBuffer();
+    if (getLazy() || isCircular()) {
+      if (ASTNode.incrementalLevelParam) {
+        if (getNumParameter() == 0) {
+          buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);");
+        } else {
+          buf.append(ind(2) + "state().enterAttrStoreEval(" + 
+              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameter));");
+        }
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        buf.append(ind(2) + "state().enterAttrStoreEval(handler);");
+      }
+    }
+    return buf.toString();
+  }
+
+  // ES_2011-09-22: Code generation for incremental evaluation, tracking
+  public String AttrDecl.genIncrementalTrackingStackExit() {
+    StringBuffer buf = new StringBuffer();
+    if (getLazy() || isCircular()) {
+      if (ASTNode.incrementalLevelParam) {
+        if (getNumParameter() == 0) {
+          buf.append(ind(2) + "state().exitAttrStoreEval(#NAME#_handler);");
+        } else {
+          buf.append(ind(2) + "state().exitAttrStoreEval(" + 
+              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
+        }
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        buf.append(ind(2) + "state().exitAttrStoreEval(#NAME#_handler);");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        buf.append(ind(2) + "state().exitAttrStoreEval(handler);");
+      }
+    }
+    return buf.toString();
   }
 
   public String AttrDecl.circularComputeCall() { return ""; }

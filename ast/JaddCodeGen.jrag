@@ -1696,7 +1696,8 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
     // level node: one handler per node
     if (ASTNode.incrementalLevelNode) {
-      stream.println("  protected ASTNode$DepGraphNode ASTNode.handler;");                    
+      stream.println("  protected ASTNode$DepGraphNode ASTNode.handler = " + 
+          "new ASTNode$DepGraphNode(this);");                    
     } 
     // level param, attr: at least one handler per attribute
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
