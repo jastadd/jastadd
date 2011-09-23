@@ -486,7 +486,8 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
     stream.println(ind(2) + "if (h != handler)");
-    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop! [\" + handler.fAttrID + \"]\");");
+    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop!\");");
+//    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop! [\" + handler.fAttrID + \"]\");");
     stream.println(ind(2) + "return h;");
     stream.println(ind + "}");
   }
@@ -1008,7 +1009,12 @@ aspect JaddCodeGen {
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking numChildren
   public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {  
-    stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "state().addHandlerDepTo(handler);");
+    }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set parent
@@ -1703,8 +1709,10 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
     // level node: one handler per node
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.handler = " + 
-          "new ASTNode$DepGraphNode(this);");                    
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.handler = " + 
+            "new ASTNode$DepGraphNode(this);");                    
+      }
     } 
     // level param, attr: at least one handler per attribute
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
@@ -1861,11 +1869,13 @@ aspect JaddCodeGen {
       // start match attribute statement
       if (ASTNode.incrementalLevelParam)
         stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
-            (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + ") {");
+            (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + " && " +
+            attr.attributeSignature() + "_values.contains(_parameters)) {");
       if (ASTNode.incrementalLevelAttr) 
-        stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")) {");
+        stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\") && " +
+            attr.attributeSignature() + "_computed) {");
       if (ASTNode.incrementalLevelNode)
-        stream.println("     {"); // nothing to match, all cached attributes are included
+        stream.println("     if (" + attr.attributeSignature() + (attr.getNumParameter() > 0 ? ":values != null" : "_computed") + ") {"); 
       // handle parameterized attributes
       if (attr.getNumParameter() > 0) {
         if (ASTNode.incrementalLevelParam) {
@@ -2120,14 +2130,6 @@ aspect JaddCodeGen {
     stream.println("  static public class ASTNode$DepGraphNode {");
     // level: node, attr, param all need a node to store the dependency node in
 	  stream.println("    protected ASTNode fNode;");
-    // level: attr also needs an attr ID 
-    if (ASTNode.incrementalLevelAttr) {
-	    stream.println("    public String fAttrID;");
-      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
-      stream.println("      fNode = node;");
-      stream.println("      fAttrID = attrID;");
-      stream.println("    }");
-    }
     // level: param needs both an attr ID and a param ID
     if (ASTNode.incrementalLevelParam) {
 	    stream.println("    protected String fAttrID;");
@@ -2137,6 +2139,20 @@ aspect JaddCodeGen {
       stream.println("      fAttrID = attrID;");
       stream.println("      fParams = params;");
       stream.println("    }");
+    }
+    // level: attr also needs an attr ID 
+    if (ASTNode.incrementalLevelAttr) {
+	    stream.println("    public String fAttrID;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = attrID;");
+      stream.println("    }");
+    }
+    // level: node
+    if (ASTNode.incrementalLevelNode) {
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("    }");    
     }
     // behavior generic for any kind of dependency region
 	  stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependantSet = " +
