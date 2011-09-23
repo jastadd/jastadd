@@ -1251,17 +1251,17 @@ aspect JragCodeGen {
     if (getLazy() || isCircular()) {
       if (ASTNode.incrementalLevelParam) {
         if (getNumParameter() == 0) {
-          buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);");
+          buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
         } else {
           buf.append(ind(2) + "state().enterAttrStoreEval(" + 
-              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));");
+              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
         }
       }
       if (ASTNode.incrementalLevelAttr) {
-        buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);");
+        buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
       }
       if (ASTNode.incrementalLevelNode) {
-        buf.append(ind(2) + "state().enterAttrStoreEval(handler);");
+        buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
       }
     }
     return buf.toString();
@@ -1273,17 +1273,17 @@ aspect JragCodeGen {
     if (getLazy() || isCircular()) {
       if (ASTNode.incrementalLevelParam) {
         if (getNumParameter() == 0) {
-          buf.append(ind(2) + "state().exitAttrStoreEval(#NAME#_handler);");
+          buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
         } else {
-          buf.append(ind(2) + "state().exitAttrStoreEval(" + 
+          buf.append("state().exitAttrStoreEval(" + 
               "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
         }
       }
       if (ASTNode.incrementalLevelAttr) {
-        buf.append(ind(2) + "state().exitAttrStoreEval(#NAME#_handler);");
+        buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
       }
       if (ASTNode.incrementalLevelNode) {
-        buf.append(ind(2) + "state().exitAttrStoreEval(handler);");
+        buf.append("state().exitAttrStoreEval(handler);\n");
       }
     }
     return buf.toString();
@@ -1338,7 +1338,13 @@ aspect JragCodeGen {
          ind(3) + "if (state.LAST_CYCLE) {\n" +
          ind(4) + "#NAME#_computed = true;\n" +
          inhDebugString() +
-         ind(4) + "return " + circularComputeCall() + ";\n" +
+         // ES_2011-09-23: Code generation for incremental evaluation, 
+         // separating return stmt to place a tracking statement in the middle 
+         ind(4) + "#TYPE# new_#NAME#_value = " + circularComputeCall() + ";\n" +
+         (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+         ind(4) + "return new_#NAME#_value;\n" +
+         // OLD: ind(4) + "return " + circularComputeCall() + ";\n" +
+         //
          ind(3) + "}\n";
      else {
        // EMMA_2011-09-08: Adding java1.4 code

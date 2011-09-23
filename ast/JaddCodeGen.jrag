@@ -456,12 +456,14 @@ aspect JaddCodeGen {
     stream.println(ind + "public void enterAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
     stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
     stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = true;");
+    stream.println(ind(3) +   "//System.out.println(\"attr eval stack enter: \" + handler.fAttrID);");
     stream.println(ind(3) +   "pushHandler(handlerAttrStack, handler);");
     stream.println(ind(2) + "}");
     stream.println(ind + "}"); 
     stream.println(ind + "public void exitAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
     stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
     stream.println(ind(3) +   "popHandler(handlerAttrStack, handler);");
+    stream.println(ind(3) +   "//System.out.println(\"attr eval stack exit: \" + handler.fAttrID);");
     stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = !handlerAttrStack.isEmpty();");
     stream.println(ind(2) + "}");
     stream.println(ind + "}"); 
@@ -484,7 +486,7 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
     stream.println(ind(2) + "if (h != handler)");
-    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop!\");");
+    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop! [\" + handler.fAttrID + \"]\");");
     stream.println(ind(2) + "return h;");
     stream.println(ind + "}");
   }
@@ -1734,6 +1736,10 @@ aspect JaddCodeGen {
     	  if (attr.getLazy() || attr.isCircular()) 
           list.add(attr);
       }
+      for (int k = 0; k < getNumCollDecl(); k++) {
+    	  CollDecl attr = getCollDecl(k);
+        list.add(attr);      
+      }
       // attribute code 
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
@@ -2114,7 +2120,7 @@ aspect JaddCodeGen {
 	  stream.println("    protected ASTNode fNode;");
     // level: attr also needs an attr ID 
     if (ASTNode.incrementalLevelAttr) {
-	    stream.println("    protected String fAttrID;");
+	    stream.println("    public String fAttrID;");
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
       stream.println("      fNode = node;");
       stream.println("      fAttrID = attrID;");
