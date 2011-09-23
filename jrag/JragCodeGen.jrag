@@ -839,7 +839,7 @@ aspect JragCodeGen {
         buf.append(ind(3) +   "#NAME#_handler.put(_parameters, new ASTNode$DepGraphNode(this," +
               " \"#NAME#\", _parameters));\n");
         buf.append(ind(2) + "}\n");
-        buf.append(ind(2) + "state().addHandlerDepTo((ASTNode$Handler)#NAME#_handler.get(_parameters));\n");
+        buf.append(ind(2) + "state().addHandlerDepTo((ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
       }
     }
     if (ASTNode.incrementalLevelAttr) {
@@ -1254,7 +1254,7 @@ aspect JragCodeGen {
           buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);");
         } else {
           buf.append(ind(2) + "state().enterAttrStoreEval(" + 
-              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameter));");
+              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));");
         }
       }
       if (ASTNode.incrementalLevelAttr) {

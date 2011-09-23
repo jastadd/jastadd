@@ -54,3 +54,8 @@ It is created as an innerclass of ASTNode.
 ==== Dependency tracking
 
 
+== Tree modifications
+
+setChild: notify all sibling children if they are ordinary children accessible via a getNumChild iteration.
+Do NOT notify NTA children. They do not have the same dependency to the child list. They are accessed independently.
+

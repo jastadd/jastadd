@@ -1046,11 +1046,13 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 4
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild4(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(2) + "for (int k = 0; k < children.length; k++) {");
-      stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
-      stream.println(ind(4) +     "getChild_handler[k].notifyDependencies();");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(2) + "}");	
+      stream.println(ind(2) + "if (!childIsNTA(i)) {");
+      stream.println(ind(3) +   "for (int k = 0; k < children.length; k++) {");
+      stream.println(ind(4) +     "if (getChild_handler[k] != null && !childIsNTA(k)) {");
+      stream.println(ind(5) +       "getChild_handler[k].notifyDependencies();");
+      stream.println(ind(4) +     "}");
+      stream.println(ind(3) +   "}");	
+      stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelAttr) {
       stream.println(ind(2) + "getChild.notifyDependendies();");
@@ -1687,6 +1689,7 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
     jjtGenIncrementalHandlers(stream);
+    jjtGenIncrementalNTAChildCheck(stream);
     jjtGenIncrementalReactToChange(stream);
     jjtGenIncrementalReactToASTChange(stream);
     if (ASTNode.incrementalDebug) jjtGenIncrementalDebug(stream);
@@ -1696,7 +1699,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
     // level node: one handler per node
     if (ASTNode.incrementalLevelNode) {
-      stream.println("  protected ASTNode$DepGraphNode ASTNode.handler = " + 
+      stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.handler = " + 
           "new ASTNode$DepGraphNode(this);");                    
     } 
     // level param, attr: at least one handler per attribute
@@ -1704,18 +1707,18 @@ aspect JaddCodeGen {
       // handlers specific for ASTNode
       if (name().equals("ASTNode")) {
         if (ASTNode.incrementalLevelParam) {
-          stream.println("  protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
               "new ASTNode$DepGraphNode(this, \"getParent\", null);");
-          stream.println("  protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
               "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
-          stream.println("  protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
+          stream.println(ind + "protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
         } 
         if (ASTNode.incrementalLevelAttr) {
-          stream.println("  protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
               "new ASTNode$DepGraphNode(this, \"getParent\");");
-          stream.println("  protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
               "new ASTNode$DepGraphNode(this, \"numChildren\");");
-          stream.println("  protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
               "new ASTNode$DepGraphNode(this, \"getChild\");");
         }
       }
@@ -1723,14 +1726,13 @@ aspect JaddCodeGen {
       ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynDecl(); k++) {
  	      AttrDecl attr = getSynDecl(k);
-        // only consider lazy attributes (and circular since their values are stored)
       	if (attr.getLazy() || attr.isCircular()) 
           list.add(attr);
       }
     	for(int k = 0; k < getNumInhDecl(); k++) {
-      	  AttrDecl attr = getInhDecl(k);
-      	  if (attr.getLazy() || attr.isCircular()) 
-            list.add(attr);
+    	  AttrDecl attr = getInhDecl(k);
+    	  if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
       }
       // attribute code 
       for (Iterator itr = list.iterator(); itr.hasNext();) {
@@ -1738,7 +1740,7 @@ aspect JaddCodeGen {
         if (ASTNode.incrementalLevelParam) {
           // level param: check if this is a parameterized attribute
     	    if (attr.getNumParameter() > 0) {
-    	      stream.println("  protected java.util.Map " + name() + "." + attr.attributeSignature() + 
+    	      stream.println(ind + "protected java.util.Map " + name() + "." + attr.attributeSignature() + 
                   "_handler = new java.util.HashMap(4);");
     	    } else {
             stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
@@ -1747,11 +1749,48 @@ aspect JaddCodeGen {
         }
         // level attr: Add one handler per attribute
         if (ASTNode.incrementalLevelAttr) {
-  		      stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
+  		      stream.println(ind + "protected ASTNode$DepGraphNode " + name() + "." + 
                   attr.attributeSignature() + "_handler;");            
         }
       }
     }
+  }
+
+  // ES_2011-09-23: Code generation for incremental evaluation, check if NTA child
+  public void ASTDecl.jjtGenIncrementalNTAChildCheck(PrintWriter stream) {
+    // collect attributes
+    ArrayList list = new ArrayList();
+    for(int k = 0; k < getNumSynDecl(); k++) {
+      AttrDecl attr = getSynDecl(k);
+    	if (attr.isNTA()) 
+        list.add(attr);
+    }
+  	for(int k = 0; k < getNumInhDecl(); k++) {
+  	  AttrDecl attr = getInhDecl(k);
+  	  if (attr.isNTA()) 
+        list.add(attr);
+    }
+    // method signature
+    stream.println(ind + "protected boolean " + name() + ".childIsNTA(int index) {");
+    // attribute code
+    boolean first = true;
+    for (Iterator itr = list.iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      if (first) {
+        stream.print(ind(2) + "if (");
+        first = false;
+      } else stream.print(" || ");
+      stream.print("index == " +  attr.indexNTAchild());
+    }
+    if (!first) {
+      stream.println(")");
+      stream.println(ind(3) + "return true;");
+    }
+    // method end
+    if (name().equals("ASTNode"))
+      stream.println(ind(2) + "return false;");
+    else stream.println(ind(2) + "return super.childIsNTA(index);");
+    stream.println(ind + "}");
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, react to change
