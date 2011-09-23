@@ -1057,7 +1057,9 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "getChild.notifyDependendies();");
+      stream.println(ind(2) + "if (!childIsNTA(i)) {");
+      stream.println(ind(3) +   "getChild_handler.notifyDependencies();");
+      stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "handler.notifyDependencies();");
