@@ -942,7 +942,7 @@ aspect JragCodeGen {
     }
     // ES_2011-09-22: Code generation for incremental evaluation, stack
     return (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
-        "return #NAME#_value;\n";
+        ind(2) + "return #NAME#_value;\n";
     // OLD: return "return #NAME#_value;\n";
     //
   }

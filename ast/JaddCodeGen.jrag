@@ -1867,10 +1867,15 @@ aspect JaddCodeGen {
     for(Iterator itr = list.iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       // start match attribute statement
-      if (ASTNode.incrementalLevelParam)
-        stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\")" + 
-            (attr.getNumParameter() > 0 ? " && " + attr.attributeSignature() + "_values != null" : "") + " && " +
-            attr.attributeSignature() + "_values.contains(_parameters)) {");
+      if (ASTNode.incrementalLevelParam) {
+        stream.print("     " + (first ? "" : "else "));
+        stream.print("if (attrID.equals(\"" + attr.attributeSignature() + "\")");
+        if (attr.getNumParameter() > 0) 
+          stream.print(" && " + attr.attributeSignature() + "_values != null" + 
+            " && " + attr.attributeSignature() + "_values.containsKey(_parameters)");
+        else stream.print(" && " + attr.attributeSignature() + "_computed");
+        stream.println(") {");
+      }
       if (ASTNode.incrementalLevelAttr) 
         stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\") && " +
             attr.attributeSignature() + "_computed) {");
@@ -1945,41 +1950,41 @@ aspect JaddCodeGen {
                                 "_handler.notifyDependencies();");
  	    		}
  	    	}
-        // Collect attributes: syn then inh
-        ArrayList list = new ArrayList();
-        for(int k = 0; k < getNumSynEq(); k++) {
-          AttrDecl attr = getSynEq(k).decl();
-          if (attr.getLazy() || attr.isCircular()) 
-            list.add(attr);
-        }
-        for(int k = 0; k < getNumInhDecl(); k++) {
-          AttrDecl attr = getInhDecl(k);
-          if (attr.getLazy() || attr.isCircular()) 
-            list.add(attr);
-        }
-        // Attribute code: propagate change of all cached values being removed
-        for(Iterator itr = list.iterator(); itr.hasNext();) {
-          AttrDecl attr = (AttrDecl)itr.next();
-          if (ASTNode.incrementalLevelParam) {
-            if (attr.getNumParameter() > 0) {
-      	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                    "_handler.values().iterator(); itr.hasNext();) {");
-              stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
-              stream.println("        h.notifyDependencies();");
-              stream.println("      }");
-            } else {
-              stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-              stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
-      	      stream.println("      }");
-      	    }
-          }
-          if (ASTNode.incrementalLevelAttr) {
-      	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-      	    stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
-       	    stream.println("      }");
-          }
-    	  }
       }
+      // Collect attributes: syn then inh
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrDecl attr = getSynEq(k).decl();
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      // Attribute code: propagate change of all cached values being removed
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (ASTNode.incrementalLevelParam) {
+          if (attr.getNumParameter() > 0) {
+    	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                  "_handler.values().iterator(); itr.hasNext();) {");
+            stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
+            stream.println("        h.notifyDependencies();");
+            stream.println("      }");
+          } else {
+            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
+    	      stream.println("      }");
+    	    }
+        }
+        if (ASTNode.incrementalLevelAttr) {
+    	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+    	    stream.println("        " + attr.attributeSignature() + "_handler.notifyDependencies();");
+     	    stream.println("      }");
+        }
+  	  }    
     }
     // end method
     stream.println("    }");
