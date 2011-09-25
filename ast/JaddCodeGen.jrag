@@ -1877,9 +1877,14 @@ aspect JaddCodeGen {
         else stream.print(" && " + attr.attributeSignature() + "_computed");
         stream.println(") {");
       }
-      if (ASTNode.incrementalLevelAttr) 
-        stream.println("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\") && " +
-            attr.attributeSignature() + "_computed) {");
+      if (ASTNode.incrementalLevelAttr) {
+        stream.print("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\") && ");
+        if (attr.getNumParameter() > 0) {
+          stream.print(" && " + attr.attributeSignature() + "_values != null" + 
+            " && !" + attr.attributeSignature() + "_values.isEmpty()");  
+        } else stream.println(attr.attributeSignature() + "_computed");
+        stream.println(") {");
+      }
       if (ASTNode.incrementalLevelNode)
         stream.println("     if (" + attr.attributeSignature() + (attr.getNumParameter() > 0 ? ":values != null" : "_computed") + ") {"); 
       // handle parameterized attributes
