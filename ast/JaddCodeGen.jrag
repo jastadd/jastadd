@@ -1878,15 +1878,23 @@ aspect JaddCodeGen {
         stream.println(") {");
       }
       if (ASTNode.incrementalLevelAttr) {
-        stream.print("     " + (first ? "" : "else ") + "if (attrID.equals(\"" + attr.attributeSignature() + "\") && ");
+        stream.print("     " + (first ? "" : "else "));
+        stream.print("if (attrID.equals(\"" + attr.attributeSignature() + "\")");
         if (attr.getNumParameter() > 0) {
           stream.print(" && " + attr.attributeSignature() + "_values != null" + 
+            " && !" + attr.attributeSignature() + "_values.isEmpty()");  
+        } else stream.println(" && " + attr.attributeSignature() + "_computed");
+        stream.println(") {");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        stream.print("     " + (first ? "" : "else "));
+        stream.print("if (");    
+        if (attr.getNumParameter() > 0) {
+          stream.print(attr.attributeSignature() + "_values != null" + 
             " && !" + attr.attributeSignature() + "_values.isEmpty()");  
         } else stream.println(attr.attributeSignature() + "_computed");
         stream.println(") {");
       }
-      if (ASTNode.incrementalLevelNode)
-        stream.println("     if (" + attr.attributeSignature() + (attr.getNumParameter() > 0 ? ":values != null" : "_computed") + ") {"); 
       // handle parameterized attributes
       if (attr.getNumParameter() > 0) {
         if (ASTNode.incrementalLevelParam) {
@@ -2033,7 +2041,7 @@ aspect JaddCodeGen {
     }
     
     // dumpCachedValues
-    stream.println("    public void " + name() + ".dumpCachedValues(java.io.PrintWriter writer) {");
+    stream.println("    public void " + name() + ".dumpCachedValues() {");
     //stream.println("      for (int k = 0; init_children != null && k < init_children.length; k++) {");
     //stream.println("        if (init_children[k] != null) {");
     //stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
@@ -2055,7 +2063,7 @@ aspect JaddCodeGen {
     }
     stream.println("        // TODO: dump collection values");
     if (!name().equals("ASTNode")) 
-      stream.println("        super.dumpCachedValues(writer);");
+      stream.println("        super.dumpCachedValues();");
     stream.println("    }");          
       
     // dumpDependencies
@@ -2114,7 +2122,7 @@ aspect JaddCodeGen {
                                                     "_handler.keySet().iterator(); itr.hasNext();) {");
             stream.println("          Object key = itr.next();");
             stream.println("          Object value = " + attr.attributeSignature() + "_handler.get(key);");
-            stream.println("          ((ASTNode$Handler)value).dumpDeps();");
+            stream.println("          ((ASTNode$DepGraphNode)value).dumpDeps();");
             stream.println("        }");
             stream.println("      }");
           } 
@@ -2194,17 +2202,21 @@ aspect JaddCodeGen {
     // Debugging methods:
     if (ASTNode.incrementalDebug) {
       stream.println("    public void dumpDeps() {");
+      stream.println("      TreeSet<String> sorted = new TreeSet<String>();");
       stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
-      stream.println("        System.out.println(\"dep(\" + node + \" -> \" + this + \")\");");
+      stream.println("        sorted.add(node.toString());");
+      stream.println("      }");
+      stream.println("      for (String s : sorted) {");
+      stream.println("        System.out.println(\"dep(\" + s + \" -> \" + this + \")\");");
       stream.println("      }");
       stream.println("    }");
       stream.println("    public String toString() {");
       if (ASTNode.incrementalLevelParam) 
-        stream.println("      return fNode.relativeNodeID() + \"_\" + fAttrID + " +
+        stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID + " +
             "(fParams != null ? (\"[\" + (fParams instanceof ASTNode ? " +
             "((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
       if (ASTNode.incrementalLevelAttr)
-        stream.println("      return fNode.relativeNodeID() + \"_\" + fAttrID;");
+        stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID;");
       if (ASTNode.incrementalLevelNode)
         stream.println("      return fNode.relativeNodeID();");
       stream.println("    }");

@@ -388,7 +388,7 @@ aspect JragCodeGen {
       return "";
     if(getNumParameter() == 0) {
       return "        if (#NAME#_computed) {\n" +
-             "          writer.println(\"value(\" + relativeNodeID() + \":#NAME#, \" + " + 
+             "          System.out.println(\"value(\" + relativeNodeID() + \":#NAME#, \" + " + 
       		(isPrimitive() || getType().equals("String") ? "#NAME#_value" : 
           "(#NAME#_value instanceof ASTNode ? ((ASTNode)#NAME#_value).relativeNodeID() : #NAME#_value)") + 
           "+ \")\");\n" +
@@ -399,7 +399,7 @@ aspect JragCodeGen {
              "          for (java.util.Iterator itr = #NAME#_values.keySet().iterator();itr.hasNext();) {\n" +
              "            Object key = (Object)itr.next();\n" + 
              "            Object value = #NAME#_values.get(key);\n" +
-             "            writer.println(\"value(\" + relativeNodeID() + \":#NAME#[\" + \n" +
+             "            System.out.println(\"value(\" + relativeNodeID() + \":#NAME#[\" + \n" +
              "                 (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : " +
                 "(key instanceof java.util.List ? printParamList((java.util.List)key) : key)) + \"], \" + \n" + 
              "                 (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : value) + \")\");\n" +

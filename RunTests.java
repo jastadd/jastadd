@@ -101,6 +101,18 @@ public class RunTests {
 			try {
 				StreamTokenizer st = new StreamTokenizer(new FileInputStream(file));
 				st.resetSyntax();
+
+				st.wordChars('a', 'z');
+				st.wordChars('A', 'Z');
+				st.wordChars(128 + 32, 255);
+				st.whitespaceChars(0, ' ');
+				st.wordChars('"', '"');
+				st.wordChars(',', ',');
+				st.wordChars('0', '9');
+				st.wordChars('_', '_');
+				st.wordChars('-', '-');
+        st.wordChars('=', '=');
+/*
 				st.wordChars('a', 'z');
 				st.wordChars('A', 'Z');
 				st.wordChars(128 + 32, 255);
@@ -109,6 +121,7 @@ public class RunTests {
 				st.wordChars('0', '9');
 				st.wordChars('_', '_');
 				st.wordChars('-', '-');
+*/
 				while(st.nextToken() != StreamTokenizer.TT_EOF) {
 					if(st.ttype == StreamTokenizer.TT_WORD) {
 						list.add(st.sval);

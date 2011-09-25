@@ -1,0 +1,11 @@
+Dependencies:
+dep(A:c_String[a] -> A:getName)
+dep(A:c_String[b] -> A:getName)
+dep(A:a1 -> A:c_String[b])
+dep(A:a0 -> A:c_String[a])
+Cached values:
+value(A:a0, false)
+value(A:a1, true)
+value(A:c_String[b], true)
+value(A:c_String[a], false)
+
