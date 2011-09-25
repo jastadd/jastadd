@@ -424,7 +424,7 @@ aspect CollectionAttributes {
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(decl.onePhase() || decl.separateEvaluation()) { // TODO: add || decl.separateEvaluation()
-            if(c.getCondition() != null)
+            if(c.getCondition() != null && c.getCondition().trim().length()>0)
               buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
             if(attr.getRefSet()) {
                 buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
@@ -444,11 +444,11 @@ aspect CollectionAttributes {
                 buf.append(ind(4) + "}\n");
                 buf.append(ind(3) + "}\n");
             }
-            if(c.getCondition() != null)
+            if(c.getCondition() != null && c.getCondition().trim().length()>0)
               buf.append(ind(2) + "}\n");
           }
           else {
-            if(c.getCondition() != null && !decl.lazyCondition())
+            if(c.getCondition() != null && c.getCondition().trim().length()>0 && !decl.lazyCondition())
               buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
 
             if(attr.getRefSet()) {
@@ -466,7 +466,7 @@ aspect CollectionAttributes {
               buf.append(ind(3) + "}");
             }
 
-            if(c.getCondition() != null && !decl.lazyCondition())
+            if(c.getCondition() != null  && c.getCondition().trim().length()>0 && !decl.lazyCondition())
               buf.append(ind(2) + "}\n");
           }
         }
@@ -514,7 +514,7 @@ aspect CollectionAttributes {
         CollEq attr = (CollEq)i2.next();
       for(int j = 0; j < attr.getNumContribution(); j++) {
         Contribution c = attr.getContribution(j);
-        if(c.getCondition() != null/* && attr.getNumContribution() > 1*/) {
+        if(c.getCondition() != null && c.getCondition().trim().length()>0 /* && attr.getNumContribution() > 1*/) {
           buf.append(ind(2) + "if(" + c.getCondition().trim() + ")\n");
           buf.append(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
         }
@@ -564,7 +564,7 @@ aspect CollectionAttributes {
         buf.append(ind + attr.hostFileComment(ind, decl));
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
-          if(c.getCondition() != null) {
+          if(c.getCondition() != null && c.getCondition().trim().length()>0) {
             if(attr.lazyCondition()) {
               if(attr.getRefSet()) {
                 buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");

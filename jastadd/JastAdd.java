@@ -12,7 +12,7 @@ import jrag.*;
 
 public class JastAdd {
   
-    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110923";
+    public static final String VERSION = "JastAdd II (http://jastadd.org) version R20110925";
     public static final String VERSIONINFO = "\n// Generated with " + VERSION + "\n\n";
 
     protected java.util.List files;
@@ -159,6 +159,8 @@ public class JastAdd {
                
             long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
+            root.weaveInterfaceIntroductions();
+
             //System.out.println("weaving aspect and attribute definitions");
             for(int i = 0; i < root.getNumTypeDecl(); i++) {
               if(root.getTypeDecl(i) instanceof ASTDecl) {
@@ -197,7 +199,7 @@ public class JastAdd {
 
             //System.out.println("processing refinements");
             root.processRefinements();
-            root.weaveInterfaceIntroductions();
+
 
             for(Iterator iter = cacheFiles.iterator(); iter.hasNext(); ) {
               String fileName = (String)iter.next();

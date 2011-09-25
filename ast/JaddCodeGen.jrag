@@ -1851,15 +1851,16 @@ aspect JaddCodeGen {
     //stream.println("      }");
 
     // Collect attributes: syn then inh
+    
     ArrayList list = new ArrayList();
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrDecl attr = getSynEq(k).decl();
-      if (attr.getLazy() || attr.isCircular()) 
+      if (attr != null && (attr.getLazy() || attr.isCircular())) 
         list.add(attr);
     }
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
-      if (attr.getLazy() || attr.isCircular()) 
+      if (attr != null && (attr.getLazy() || attr.isCircular())) 
         list.add(attr);
     }
     // Add attribute code: flush attributes
@@ -1900,11 +1901,10 @@ aspect JaddCodeGen {
         stream.print(u);
       }
 
-
       // end match statement
       stream.println("     }");
       first = false;
-    }
+    }    
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, 
@@ -1955,12 +1955,12 @@ aspect JaddCodeGen {
       ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynEq(); k++) {
         AttrDecl attr = getSynEq(k).decl();
-        if (attr.getLazy() || attr.isCircular()) 
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
           list.add(attr);
       }
       for(int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
           list.add(attr);
       }
       // Attribute code: propagate change of all cached values being removed

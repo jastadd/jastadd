@@ -1,4 +1,14 @@
 Newest log first
+2011-09-24: (ES/JO) Fix of missing "when" problem
+There was a bug for contributes classes missing a when
+part: an if statement with no condition was generated.
+This is now checked in Test119 and a fix is added in
+jrag/CollectionAttributes.jrag. The Contribute.getCondition
+method probably used to return null but now returns
+an empty string when there is no condition. The code
+now checks the length of the string in addition to a
+null check.
+-------------------------------------------------------
 2011-09-21: (ES) New bootstrap with nameless Ast aspect
 This is basically a revert back to a nameless .ast aspect
 which requires less maintenance since there is no aspect

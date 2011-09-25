@@ -75,7 +75,7 @@ RunTestsExternal.class: RunTestsExternal.java
 
 test-external: jar RunTestsExternal.class
 	@echo "==================="
-	@echo Running unit tests with external scripit!
+	@echo Running unit tests with external jastadd arguments from jastadd2.options!
 	@java RunTestsExternal | grep "test/Test[0-9]*\.java passed" > passed
 	@echo "======================"
 	@echo Comparing test results
