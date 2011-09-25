@@ -1,4 +1,15 @@
 Newest log first
+2011-09-25: (ES) Moved weaving of interfaces to earlier
+Weaving of interfaces after the weaving of attribute/aspect
+definitions prevents the second phase to access certain
+cached attributes. Attributes that cache their declaration
+and which have their declaration in an interface will not
+find their declaration until after the interface has been
+weaved in. If this attribute is called before this happens
+null will be cached eventhough the definition is available
+after the interface weaving phase. This causes an error
+and prevents generation of Java files.
+-------------------------------------------------------
 2011-09-24: (ES/JO) Fix of missing "when" problem
 There was a bug for contributes classes missing a when
 part: an if statement with no condition was generated.
