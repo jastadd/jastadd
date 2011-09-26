@@ -1082,10 +1082,10 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild2(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler != null) {");
-      stream.println(ind(3) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[i << 1];");
+      stream.println(ind(3) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[getChild_handler.length + 1];");
       stream.println(ind(3) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
       stream.println(ind(3) +   "if (i < getChild_handler.length) {");
-      stream.println(ind(4) +     "System.arraycopy(getChild_handler, i, h, i+1, getChild_handler.length);");
+      stream.println(ind(4) +     "System.arraycopy(getChild_handler, i, h, i+1, getChild_handler.length - 1);");
       stream.println(ind(3) +   "}");
       stream.println(ind(3) +   "getChild_handler = h;");
       stream.println(ind(2) + "}");
