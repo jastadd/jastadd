@@ -9,7 +9,7 @@ aspect Test128 {
   eq C.doRewrite() = false;
 
   rewrite B {
-    when ( name().equals("a") && doRewrite() ) to C {
+    when ( name().equals("b") && doRewrite() ) to C {
       return new C();
     }
   }

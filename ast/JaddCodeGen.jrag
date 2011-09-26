@@ -1904,14 +1904,16 @@ aspect JaddCodeGen {
     // ES_TODO Add change propagation !
 
     // rewrite code
-    stream.println("      if (attrID.equals(\"getChild\")) {");
-    stream.println("        int i = (Integer)_parameters;");
-    stream.println("        if (init_children != null && init_children[i] != null) {");
-    stream.println("          getChild(i).notifyForRemove();");
-    stream.println("          children[i] = init_children[i];");
-    stream.println("          init_children[i] = null;");
-    stream.println("        }");
-    stream.println("      }");
+    if (name().equals("ASTNode")) {
+      stream.println("      if (attrID.equals(\"getChild\")) {");
+      stream.println("        int i = (Integer)_parameters;");
+      stream.println("        if (init_children != null && init_children[i] != null) {");
+      stream.println("          getChild(i).notifyForRemove();");
+      stream.println("          children[i] = init_children[i];");
+      stream.println("          init_children[i] = null;");
+      stream.println("        }");
+      stream.println("      }");
+    }
     // 
 
     // Collect attributes: syn then inh
