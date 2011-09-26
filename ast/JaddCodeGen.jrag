@@ -2173,17 +2173,31 @@ aspect JaddCodeGen {
       stream.println("    }");    
     }
     // behavior generic for any kind of dependency region
+	  stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependencySet = " +
+                   "        new java.util.HashSet<ASTNode$DepGraphNode>();");
 	  stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependantSet = " +
                    "        new java.util.HashSet<ASTNode$DepGraphNode>();");
     stream.println("    public boolean hasDependants() {");
     stream.println("        return !fDependantSet.isEmpty();");
     stream.println("    }");
+    stream.println("    public void addDependency(ASTNode$DepGraphNode node) {");
+    stream.println("      if (node != this) {");
+    stream.println("        fDependencySet.add(node);");
+    stream.println("      }");
+    stream.println("    }");
     stream.println("    public void addDependant(ASTNode$DepGraphNode node) {");
     stream.println("      if (node != this) {");
     stream.println("        fDependantSet.add(node);");
+    stream.println("        node.addDependency(this);");
+    stream.println("      }");
+    stream.println("    }");
+    stream.println("    public void removeDependant(ASTNode$DepGraphNode node) {");
+    stream.println("      if (node != this) {");
+    stream.println("        fDependantSet.remove(node);");
     stream.println("      }");
     stream.println("    }");
     stream.println("    public void notifyDependencies() {");
+    stream.println("      // Notify and remove dependants");
     stream.println("      java.util.HashSet<ASTNode$DepGraphNode> l = fDependantSet;");
     stream.println("      fDependantSet = new java.util.HashSet<ASTNode$DepGraphNode>();");
     stream.println("      for (ASTNode$DepGraphNode node : l) {");
@@ -2192,6 +2206,12 @@ aspect JaddCodeGen {
     stream.println("    }");
     // React to change
     stream.println("    public void dependencyChanged() {");
+    stream.println("      // Remove dependencies");
+    stream.println("      java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
+    stream.println("      fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>();");
+    stream.println("      for (ASTNode$DepGraphNode node : k) {");
+    stream.println("        node.removeDependant(this);");
+    stream.println("      }");
     if (ASTNode.incrementalLevelParam)
       stream.println("      fNode.reactToDependencyChange(fAttrID, fParams);");
     if (ASTNode.incrementalLevelAttr) 
