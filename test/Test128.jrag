@@ -1,0 +1,17 @@
+import java.util.*;
+
+aspect Test128 {
+
+  inh String B.name();
+  eq A.getB().name() = getName();
+
+  syn boolean B.doRewrite() = true;
+  eq C.doRewrite() = false;
+
+  rewrite B {
+    when ( name().equals("a") && doRewrite() ) to C {
+      return new C();
+    }
+  }
+
+}
