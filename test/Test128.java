@@ -7,7 +7,7 @@ public class Test128 {
 
   public static void main(String[] args) {
 
-    A a = new A(new B(), "a");
+    A a = new A(new B(), "b");
 
     // Activate rewrite
 //    B bOld = a.getBNoTransform();
