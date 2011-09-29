@@ -59,3 +59,11 @@ It is created as an innerclass of ASTNode.
 setChild: notify all sibling children if they are ordinary children accessible via a getNumChild iteration.
 Do NOT notify NTA children. They do not have the same dependency to the child list. They are accessed independently.
 
+
+
+======= Rewrites
+
+init_child is saved when a static rewrite is investigated. This must not lead to a real rewrite -- the condition
+may be false. Regardless of if there is an actual rewrite the initial child will at this point be stored. This will
+cause a cache dump to write out that a rewrite has happend. It may then be hard to determine if there was a rewrite
+if the root of the rewritten tree is the same as that of the initial tree.
