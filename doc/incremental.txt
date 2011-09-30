@@ -74,3 +74,7 @@ tracking during rewrites. The implementation of "clearDepsInTree" should not inv
 For this reason, the looping over child nodes uses the "numChildren" attribute directly to circumvent a call to "getNumChild"
 or "getNumChildNoTransform".
 
+There is a default rewrite on List included to allow for the "rewrite A in B" construct allowing rewrites affecting siblings
+in a list. The typical (only?) example is the rewrite of "int x,y;" to "int x; int y;", or similar.
+
+

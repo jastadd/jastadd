@@ -1101,6 +1101,9 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 4
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild4(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "if (getChild_handler[i] == null) {");
+      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      stream.println(ind(2) + "}");
       stream.println(ind(2) + "if (!state().IN_REWRITE_EVAL && !childIsNTA(i)) {");
       stream.println(ind(3) +   "for (int k = 0; k < children.length; k++) {");
       stream.println(ind(4) +     "if (getChild_handler[k] != null && !childIsNTA(k)) {");
@@ -2101,8 +2104,8 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelParam) {
         stream.println("      getParent_handler.notifyDependencies();");
         stream.println("      numChildren_handler.notifyDependencies();");
-        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
-        stream.println("        if (getChild_handler[i].hasDependants()) {");
+        stream.println("      for (int i = 0; i < numChildren; i++) {");
+        stream.println("        if (!childIsNTA(i) && getChild_handler[i].hasDependants()) {");
         stream.println("          getChildNoTransform(i).notifyForRemove();");
         stream.println("          getChild_handler[i].notifyDependencies();");
         stream.println("        }");
