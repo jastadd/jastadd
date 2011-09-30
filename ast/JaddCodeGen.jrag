@@ -1262,8 +1262,27 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, flush cache
   public void ASTDecl.jjtGenIncrementalFlushCache(PrintWriter stream) {
 
-    // ES_TODO: Add flush of rewrites
+    // flush of rewrites
+    if (name().equals("ASTNode")) {
+      if (ASTNode.incrementalLevelParam) {
+        stream.println(ind(3) + "for (int i = 0; i < numChildren; i++) {");
+        stream.println(ind(4) +   "if (!childIsNTA(i) && rewritten_children != null && rewritten_children[i]) {");
+        stream.println(ind(5) +     "getChild(i).notifyForRemove();");
+        stream.println(ind(5) +     "children[i] = init_children[i];");
+        stream.println(ind(5) +     "rewritten_children[i] = false;");
+        stream.println(ind(5) +     "init_children[i] = null;");
+      }
+      if (ASTNode.incrementalLevelParam) {
+        stream.println(ind(5) +     "getChild_handler[i].notifyDependencies();");    
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        stream.println(ind(5) +     "getChild_handler.notifyDependencies();");    
+      }
+      stream.println(ind(4) +     "}");
+      stream.println(ind(3) +   "}");
+    }
 
+    // flush of attributes
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "handler.notifyDependencies();");
     }
@@ -1941,6 +1960,15 @@ aspect JaddCodeGen {
       stream.println("          children[i] = init_children[i];");
       stream.println("          rewritten_children[i] = false;");
       stream.println("          init_children[i] = null;");
+      if (ASTNode.incrementalLevelParam) {
+      stream.println("          getChild_handler[i].notifyDependencies();");    
+      }
+      if (ASTNode.incrementalLevelAttr) {
+      stream.println("          getChild_handler.notifyDependencies();");    
+      }
+      if (ASTNode.incrementalLevelNode) {
+      stream.println("          handler.notifyDependencies();");    
+      }
       stream.println("        }");
       stream.println("      }");
     }
@@ -1999,6 +2027,7 @@ aspect JaddCodeGen {
           u = u.replaceAll("#NAME#", attr.attributeSignature());
           stream.print(u);              
         }
+
       } else {
         // handle NTAs
         if (attr.isNTA()) {
@@ -2008,7 +2037,22 @@ aspect JaddCodeGen {
         u = u.replaceAll("#NAME#", attr.attributeSignature());
         stream.print(u);
       }
-
+      // notify
+      if (ASTNode.incrementalLevelParam) {
+        if (attr.getNumParameter() > 0) {
+          stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + 
+                                      attr.attributeSignature() + "_handler.get(key);");
+          stream.println(ind(3) +   "handler.notifyDependencies();");
+        } else {
+          stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
+        }
+      } 
+      if (ASTNode.incrementalLevelAttr) {
+        stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        stream.println(ind(3) + "handler.notifyDependencies();");
+      }
       // end match statement
       stream.println("     }");
       first = false;
