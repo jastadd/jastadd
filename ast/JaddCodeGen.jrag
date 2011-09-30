@@ -2041,7 +2041,7 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelParam) {
         if (attr.getNumParameter() > 0) {
           stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + 
-                                      attr.attributeSignature() + "_handler.get(key);");
+                                      attr.attributeSignature() + "_handler.get(_parameters);");
           stream.println(ind(3) +   "handler.notifyDependencies();");
         } else {
           stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
