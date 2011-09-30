@@ -1079,8 +1079,10 @@ aspect JaddCodeGen {
   }
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 3
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild3(PrintWriter stream) {
-    stream.println(ind(2) + "if (!state().IN_REWRITE_EVAL && children[i] != null) {");
-    stream.println(ind(3) +   "children[i].notifyForRemove();");
+    stream.println(ind(2) + "if (children[i] != null) {");
+    stream.println(ind(3) +   "if (!state().IN_REWRITE_EVAL)");
+    stream.println(ind(4) +     "children[i].notifyForRemove();");
+    stream.println(ind(3) +   "else children[i].clearDepsInTree();");
     stream.println(ind(2) + "}");
   }
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 4
@@ -1990,6 +1992,86 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, 
   public void ASTDecl.jjtGenIncrementalReactToASTChange(PrintWriter stream) {
 
+    // Method: clearDepsInTree
+    stream.println("    public void " + name() + ".clearDepsInTree() {");
+    if (name().equals("ASTNode")) {
+      if (ASTNode.incrementalLevelParam) {
+        stream.println("      getParent_handler.clearDependants();");
+        stream.println("      numChildren_handler.clearDependants();");
+        stream.println("      for (int i = 0; i < numChildren; i++) {");
+        stream.println("        if (!childIsNTA(i) && getChild_handler[i].hasDependants()) {");
+        stream.println("          getChildNoTransform(i).clearDepsInTree();");
+        stream.println("          getChild_handler[i].clearDependants();");
+        stream.println("        }");
+        stream.println("      }");
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        stream.println("      getParent_handler.clearDependants();");
+        stream.println("      numChildren_handler.clearDependants();");
+        stream.println("      if (getChild_handler.hasDependants()) {");
+        stream.println("        getChild_handler.clearDependants();");
+        stream.println("        for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println("          getChildNoTransform(i).clearDepsInTree();");
+        stream.println("        }");
+        stream.println("      }");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        stream.println("      handler.clearDependants();");
+        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println("        getChildNoTransform(i).clearDepsInTree();");
+        stream.println("      }");
+      }
+    } else {
+      stream.println("      super.clearDepsInTree();");
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        // tokens
+        for (int c = 0; c < getNumComponents(); c++) {
+ 	    		Components comp = getComponents(c);
+ 	    		if (comp instanceof TokenComponent) {
+	    			stream.println("    get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                "_handler.clearDependants();");
+ 	    		}
+ 	    	}
+      }
+      // Collect attributes: syn then inh
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrDecl attr = getSynEq(k).decl();
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      // Attribute code: propagate change of all cached values being removed
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (ASTNode.incrementalLevelParam) {
+          if (attr.getNumParameter() > 0) {
+    	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                  "_handler.values().iterator(); itr.hasNext();) {");
+            stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
+            stream.println("        h.clearDependants();");
+            stream.println("      }");
+          } else {
+            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println("        " + attr.attributeSignature() + "_handler.clearDependants();");
+    	      stream.println("      }");
+    	    }
+        }
+        if (ASTNode.incrementalLevelAttr) {
+    	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
+    	    stream.println("        " + attr.attributeSignature() + "_handler.clearDependants();");
+     	    stream.println("      }");
+        }
+  	  }    
+    }
+    // end method
+    stream.println("    }");
+
+
     // Method: notifyForRemove
     stream.println("    public void " + name() + ".notifyForRemove() {");
     if (name().equals("ASTNode")) {
@@ -2251,6 +2333,12 @@ aspect JaddCodeGen {
     stream.println("    public boolean hasDependants() {");
     stream.println("        return !fDependantSet.isEmpty();");
     stream.println("    }");
+    stream.println("    public void clearDependants() {");
+    stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
+    stream.println("        node.removeDependant(this);");
+    stream.println("      }");
+    stream.println("      fDependantSet.clear();");
+    stream.println("    }");
     stream.println("    public void addDependency(ASTNode$DepGraphNode node) {");
     stream.println("      if (node != this) {");
     stream.println("        fDependencySet.add(node);");
@@ -2294,11 +2382,11 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalDebug) {
       stream.println("    public void dumpDeps() {");
       stream.println("      TreeSet<String> sorted = new TreeSet<String>();");
-      stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
+      stream.println("      for (ASTNode$DepGraphNode node : fDependencySet) {");
       stream.println("        sorted.add(node.toString());");
       stream.println("      }");
       stream.println("      for (String s : sorted) {");
-      stream.println("        System.out.println(\"dep(\" + s + \" -> \" + this + \")\");");
+      stream.println("        System.out.println(\"dep(\" + this + \" -> \" + s + \")\");");
       stream.println("      }");
       stream.println("    }");
       stream.println("    public String toString() {");

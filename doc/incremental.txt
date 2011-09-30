@@ -67,3 +67,10 @@ init_child is saved when a static rewrite is investigated. This must not lead to
 may be false. Regardless of if there is an actual rewrite the initial child will at this point be stored. This will
 cause a cache dump to write out that a rewrite has happend. It may then be hard to determine if there was a rewrite
 if the root of the rewritten tree is the same as that of the initial tree.
+
+Dependants in the initial rewritten AST will be preserved at rewrite unless all dependants are removed. This is currently
+done during set via the "clearDependants" in the handler class. This is a temporary solution until we move on to full
+tracking during rewrites. The implementation of "clearDepsInTree" should not invoke new dependencies during its execution.
+For this reason, the looping over child nodes uses the "numChildren" attribute directly to circumvent a call to "getNumChild"
+or "getNumChildNoTransform".
+
