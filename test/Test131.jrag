@@ -1,0 +1,10 @@
+import java.util.*;
+
+aspect Test131 {
+
+  syn nta B A.makeB() = getName().equals("a") ? new B() : new C();
+
+  syn lazy int B.a() = b();
+  syn lazy int B.b() = 3;
+
+}
