@@ -1,6 +1,8 @@
 import java.util.*;
 
-aspect Test131 {
+aspect Test132 {
+
+  syn lazy String A.getName() = "a";
 
   inh lazy int B.c();
   eq A.getChild().c() = 5;

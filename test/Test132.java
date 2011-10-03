@@ -3,11 +3,11 @@ package test;
 import java.util.*;
 import test.ast.*;
 
-public class Test131 {
+public class Test132 {
 
   public static void main(String[] args) {
 
-    A a = new A("a", new B());
+    A a = new A(new B());
 
     // Activate rewrite
     a.d();
