@@ -9,7 +9,7 @@ public class Test132 {
 
     A a = new A(new B());
 
-    // Activate rewrite
+    // Compute NTAs
     a.d();
     B b = a.makeB();
     b.a();
