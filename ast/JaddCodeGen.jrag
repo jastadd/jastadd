@@ -2886,9 +2886,14 @@ aspect JaddCodeGen {
   }
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenChange() {
+    StringBuffer buf = new StringBuffer();
+    if (isNTA()) {
+      buf.append("        get#ID#_computed = false;\n");
+    }
     if (ASTNode.incrementalLevelNode) // TODO: invalidate cache?
-      return "        handler.notifyDependencies();";
-    return "        get#ID#_handler.notifyDependencies();\n";
+      buf.append("        handler.notifyDependencies();\n");
+    else buf.append("        get#ID#_handler.notifyDependencies();\n");
+    return buf.toString();
   }
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenTrack() {
