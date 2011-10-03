@@ -2029,6 +2029,7 @@ aspect JaddCodeGen {
         }
 
       } else {
+        // ES_TODO: Check if the NTA is an AST type
         // handle NTAs
         if (attr.isNTA()) {
           stream.println("       " + attr.attributeSignature() + "_value.notifyForRemove();");
@@ -2872,12 +2873,14 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenHandler() {
+    if (!isNTA()) {
     if (ASTNode.incrementalLevelParam)
       return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
                  "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
     if (ASTNode.incrementalLevelAttr)
       return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
                  "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
+    }
     return ""; // ASTNode.incrementalLevelNode
   }
   // ES_2011-09-20: Code generation for incremental evaluation
