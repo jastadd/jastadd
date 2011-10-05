@@ -17,11 +17,11 @@ public class Test126 {
 
     System.out.println("Dependencies/Cache after b1.decl and b2.decl:");
     a.dumpDependencies();
-    a.getChild(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpDependencies();
     b1.dumpDependencies();
     b2.dumpDependencies();
     a.dumpCachedValues();
-    a.getChild(0).dumpCachedValues();
+    a.getChildNoTransform(0).dumpCachedValues();
     b1.dumpCachedValues();
     b2.dumpCachedValues();
     
@@ -29,10 +29,10 @@ public class Test126 {
   
     System.out.println("Dependencies/Cache after a.removeChild(0):");
     a.dumpDependencies();
-    a.getChild(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpDependencies();
     b2.dumpDependencies();
     a.dumpCachedValues();
-    a.getChild(0).dumpCachedValues();
+    a.getChildNoTransform(0).dumpCachedValues();
     b2.dumpCachedValues();
     System.out.println("Dependencies/Cache in removed child:");
     b1.dumpDependencies();

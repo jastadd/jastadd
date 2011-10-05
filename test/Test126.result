@@ -29,9 +29,10 @@ value(A/List[0]/B[1]:a, false)
 value(A/List[0]/B[1]:b, false)
 Dependencies/Cache after a.removeChild(0):
 dep(A/List/B[0]:a -> A/List/B[0]:b)
-A/List[0] rewritten from A/List
 value(A/List/B[0]:a, false)
 value(A/List/B[0]:b, false)
 Dependencies/Cache in removed child:
+dep(B:a -> B:b)
+value(B:a, false)
 value(B:b, false)
 
