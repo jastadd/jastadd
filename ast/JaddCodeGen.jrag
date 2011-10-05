@@ -1113,14 +1113,17 @@ aspect JaddCodeGen {
       stream.println(ind(3) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
       stream.println(ind(3) +   "getChild_handler = h;");
       stream.println(ind(2) + "}");
-      stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
+      //stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
     }
-    if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
-    }
+    //if (ASTNode.incrementalLevelAttr) {
+    //  stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
+    //}
   }
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 3
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild3(PrintWriter stream) {
+    stream.println(ind(2) + "if (rewritten_children != null) {");
+    stream.println(ind(3) +   "rewritten_children[i] = false;"); 
+    stream.println(ind(2) + "}");   
     stream.println(ind(2) + "if (children[i] != null) {");
     stream.println(ind(3) +   "if (!state().IN_REWRITE_EVAL)");
     stream.println(ind(4) +     "children[i].notifyForRemove();");
@@ -2194,35 +2197,39 @@ aspect JaddCodeGen {
     }
 
     // Method: notifyForRemove
-    stream.println("    public void " + name() + ".notifyForRemove() {");
     if (name().equals("ASTNode")) {
+      stream.println("    public void " + name() + ".notifyForRemove() {");
       if (ASTNode.incrementalLevelParam) {
         stream.println("      getParent_handler.notifyDependencies();");
-        stream.println("      numChildren_handler.notifyDependencies();");
-        stream.println("      for (int i = 0; i < numChildren; i++) {");
-        stream.println("        if (!childIsNTA(i) && getChild_handler[i].hasDependants()) {");
-        stream.println("          getChildNoTransform(i).notifyForRemove();");
-        stream.println("          getChild_handler[i].notifyDependencies();");
-        stream.println("        }");
-        stream.println("      }");
+        //stream.println("      numChildren_handler.notifyDependencies();");
+        //stream.println("      for (int i = 0; i < numChildren; i++) {");
+        //stream.println("        if (!childIsNTA(i) && getChild_handler[i].hasDependants()) {");
+        //stream.println("          getChildNoTransform(i).notifyForRemove();");
+        //stream.println("          getChild_handler[i].notifyDependencies();");
+        //stream.println("        }");
+        //stream.println("      }");
       }
       if (ASTNode.incrementalLevelAttr) {
         stream.println("      getParent_handler.notifyDependencies();");
-        stream.println("      numChildren_handler.notifyDependencies();");
-        stream.println("      if (getChild_handler.hasDependants()) {");
-        stream.println("        getChild_handler.notifyDependencies();");
-        stream.println("        for (int i = 0; i < getNumChildNoTransform(); i++) {");
-        stream.println("          getChildNoTransform(i).notifyForRemove();");
-        stream.println("        }");
-        stream.println("      }");
+        //stream.println("      numChildren_handler.notifyDependencies();");
+        //stream.println("      if (getChild_handler.hasDependants()) {");
+        //stream.println("        getChild_handler.notifyDependencies();");
+        //stream.println("        for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        //stream.println("          getChildNoTransform(i).notifyForRemove();");
+        //stream.println("        }");
+        //stream.println("      }");
       }
       if (ASTNode.incrementalLevelNode) {
         stream.println("      handler.notifyDependencies();");
-        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
-        stream.println("        getChildNoTransform(i).notifyForRemove();");
-        stream.println("      }");
+        //stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        //stream.println("        getChildNoTransform(i).notifyForRemove();");
+        //stream.println("      }");
       }
-    } else {
+      // end method
+      stream.println("    }");
+    } 
+      /*
+    else {
       stream.println("      super.notifyForRemove();");
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
         // tokens
@@ -2269,8 +2276,7 @@ aspect JaddCodeGen {
         }
   	  }    
     }
-    // end method
-    stream.println("    }");
+    */
   }
   
 
@@ -2946,16 +2952,18 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenChange() {
     StringBuffer buf = new StringBuffer();
+    buf.append("    if (!state().IN_CONSTRUCTION) {\n");
     if (isNTA()) {
-      buf.append("   if (get#ID#_computed) {\n");
-      buf.append("     get#ID#_computed = false;\n");
-      buf.append("     get#ID#_handler.notifyDependencies();\n");
-      buf.append("   }\n");
+      buf.append("     if (get#ID#_computed) {\n");
+      buf.append("       get#ID#_computed = false;\n");
+      buf.append("       get#ID#_handler.notifyDependencies();\n");
+      buf.append("     }\n");
     } else {
       if (ASTNode.incrementalLevelNode) // TODO: invalidate cache?
         buf.append("        handler.notifyDependencies();\n");
       else buf.append("        get#ID#_handler.notifyDependencies();\n");
     }
+    buf.append("    }\n");
     return buf.toString();
   }
   // ES_2011-09-20: Code generation for incremental evaluation

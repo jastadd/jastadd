@@ -8,9 +8,8 @@ public class Test124 {
 
     B b1 = new B("b", "a");
     B b2 = new B("a", "b");    
-
     A a = new A(new test.ast.List().add(b1).add(b2));
-
+    
     b1 = a.getB(0);
     b2 = a.getB(1);
     
@@ -19,11 +18,11 @@ public class Test124 {
     b2.decl();
     System.out.println("Dependencies/Cache after b1.decl and b2.decl:");
     a.dumpDependencies();
-    a.getChild(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpDependencies();
     b1.dumpDependencies();
     b2.dumpDependencies();
     a.dumpCachedValues();
-    a.getChild(0).dumpCachedValues();
+    a.getChildNoTransform(0).dumpCachedValues();
     b1.dumpCachedValues();
     b2.dumpCachedValues();
 
@@ -33,11 +32,11 @@ public class Test124 {
   
     System.out.println("Dependencies/Cache after a.setChild(1):");
     a.dumpDependencies();
-    a.getChild(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpDependencies();
     b1.dumpDependencies();
     b3.dumpDependencies();
     a.dumpCachedValues();
-    a.getChild(0).dumpCachedValues();
+    a.getChildNoTransform(0).dumpCachedValues();
     b1.dumpCachedValues();
     b3.dumpCachedValues();
 
