@@ -17,11 +17,11 @@ public class Test125 {
 
     System.out.println("Dependencies/Cache after b1.decl and b2.decl:");
     a.dumpDependencies();
-    a.getChild(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpDependencies();
     b1.dumpDependencies();
     b2.dumpDependencies();
     a.dumpCachedValues();
-    a.getChild(0).dumpCachedValues();
+    a.getChildNoTransform(0).dumpCachedValues();
     b1.dumpCachedValues();
     b2.dumpCachedValues();
 
@@ -30,12 +30,12 @@ public class Test125 {
   
     System.out.println("Dependencies/Cache after a.addChild():");
     a.dumpDependencies();
-    a.getChild(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpDependencies();
     b1.dumpDependencies();
     b2.dumpDependencies();
     b3.dumpDependencies();
     a.dumpCachedValues();
-    a.getChild(0).dumpCachedValues();
+    a.getChildNoTransform(0).dumpCachedValues();
     b1.dumpCachedValues();
     b2.dumpCachedValues();
     b3.dumpCachedValues();

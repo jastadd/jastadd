@@ -1112,6 +1112,9 @@ aspect JaddCodeGen {
       stream.println(ind(3) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[i << 1];");
       stream.println(ind(3) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
       stream.println(ind(3) +   "getChild_handler = h;");
+      stream.println(ind(3) +   "if (i > 0 && getChild_handler[i-1] != null) {");
+      stream.println(ind(4) +     "getChild_handler[i-1].notifyDependencies();");
+      stream.println(ind(3) +   "}");
       stream.println(ind(2) + "}");
       //stream.println(ind(2) + "numChildren_handler.notifyDependencies();");        
     }
