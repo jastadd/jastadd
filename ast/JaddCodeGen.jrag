@@ -74,6 +74,9 @@ aspect JaddCodeGen {
     }
     s.append(") {\n");
     if(ASTNode.block) s.append(ASTNode.blockBegin);
+    // ES_2011-10-05: Code generation for incremental evaluation  
+    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
+    //
     i = 0;
     int j = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -110,6 +113,9 @@ aspect JaddCodeGen {
       else
         s.append(ind(2) + "is$Final(true);\n");
     }
+    // ES_2011-10-05: Code generation for incremental evaluation  
+    if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
+    //
     if(ASTNode.block) s.append(ASTNode.blockEnd);
     s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
@@ -144,6 +150,9 @@ aspect JaddCodeGen {
     }
     s.append(") {\n");
     if(ASTNode.block) s.append(ASTNode.blockBegin);
+    // ES_2011-10-05: Code generation for incremental evaluation, construction 
+    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
+    //
     i = 0;
     int j = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -180,9 +189,22 @@ aspect JaddCodeGen {
       else
         s.append(ind(2) + "is$Final(true);\n");
     }
+    // ES_2011-10-05: Code generation for incremental evaluation, construction
+    if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
+    //
     if(ASTNode.block) s.append(ASTNode.blockEnd);
     s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
+  }
+
+  // ES_2011-10-05: Code generation for incremental evaluation, enter construction
+  public String ASTDecl.genIncrementalConstructorStartConstruction() {
+    return ind(2) + "state().enterConstruction();\n";
+  }
+
+  // ES_2011-10-05: Code generation for incremental evaluation, end construction
+  public String ASTDecl.genIncrementalConstructorEndConstruction() {
+    return ind(2) + "state().exitConstruction();\n";
   }
 
   public void Grammar.genReset(PrintWriter stream) {
@@ -477,6 +499,13 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "popHandler(handlerRewriteStack, handler);");
     stream.println(ind(3) +   "IN_REWRITE_EVAL = !handlerRewriteStack.isEmpty();");
     stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public boolean IN_CONSTRUCTION = false;");
+    stream.println(ind + "public void enterConstruction() {"); 
+    stream.println(ind(2) + "IN_CONSTRUCTION = true;");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public void exitConstruction() {"); 
+    stream.println(ind(2) + "IN_CONSTRUCTION = false;");
     stream.println(ind + "}"); 
     stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
     stream.println(ind(2) + "stack.push(handler);");
@@ -1105,14 +1134,17 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler[i] == null) {");
       stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "if (!state().IN_REWRITE_EVAL && !childIsNTA(i)) {");
-      stream.println(ind(3) +   "for (int k = 0; k < children.length; k++) {");
-      stream.println(ind(4) +     "if (getChild_handler[k] != null && !childIsNTA(k)) {");
-      stream.println(ind(5) +       "getChild_handler[k].notifyDependencies();");
-      stream.println(ind(4) +     "}");
-      stream.println(ind(3) +   "}");	
-      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "} else if (!state().IN_CONSTRUCTION) {");      
+      stream.println(ind(3) +   "getChild_handler[i].notifyDependencies();");
+      stream.println(ind(2) + "}");      
+      // Don't notify all children only i
+      //stream.println(ind(2) + "if (!state().IN_REWRITE_EVAL && !childIsNTA(i) && !state().IN_CONSTRUCTION) {");
+      //stream.println(ind(3) +   "for (int k = 0; k < children.length; k++) {");
+      //stream.println(ind(4) +     "if (getChild_handler[k] != null && !childIsNTA(k)) {");
+      //stream.println(ind(5) +       "getChild_handler[k].notifyDependencies();");
+      //stream.println(ind(4) +     "}");
+      //stream.println(ind(3) +   "}");	
+      //stream.println(ind(2) + "}");
       // rewrite code
       //stream.println(ind(2) + "if (init_children != null && init_children[i] != null) {");
       //stream.println(ind(3) +   "init_children[i] = null;");
@@ -1120,7 +1152,7 @@ aspect JaddCodeGen {
       //
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "if (!state().IN_REWRITE_EVAL && !childIsNTA(i)) {");
+      stream.println(ind(2) + "if (!state().IN_REWRITE_EVAL && !childIsNTA(i) && !state().IN_CONSTRUCTION) {");
       stream.println(ind(3) +   "getChild_handler.notifyDependencies();");
       stream.println(ind(2) + "}");
     }
@@ -1175,7 +1207,7 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 4
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild4(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(2) + "for (int k = 0; k < children.length; k++) {");
+      stream.println(ind(2) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
       stream.println(ind(4) +     "getChild_handler[k].notifyDependencies();");
       stream.println(ind(3) +   "}");
@@ -1194,11 +1226,11 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam) {
       // rewrite code
       stream.println(ind(3) + "if (init_children != null) {");
-      stream.println(ind(4) +   "init_children[i] = null;");
       stream.println(ind(4) +   "System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);");
       stream.println(ind(4) +   "System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);");
       stream.println(ind(3) + "}");
       //
+      stream.println(ind(3) + "numChildren_handler.notifyDependencies();");
       stream.println(ind(3) + "if (getChild_handler != null) {");
       stream.println(ind(4) +   "if (getChild_handler[i] != null) {");
       stream.println(ind(5) +     "getChild_handler[i].notifyDependencies();");
@@ -1207,7 +1239,7 @@ aspect JaddCodeGen {
       stream.println(ind(4) +   "System.arraycopy(getChild_handler, i+1, " + 
           "getChild_handler, i, getChild_handler.length-i-1);");
       stream.println(ind(3) + "}");
-      stream.println(ind(3) + "for (int k = 0; k < children.length; k++) {");
+      stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "if (getChild_handler[k] != null) {");
       stream.println(ind(5) +     "getChild_handler[k].notifyDependencies();");
       stream.println(ind(4) +   "}");
@@ -1272,7 +1304,7 @@ aspect JaddCodeGen {
         stream.println(ind(5) +     "getChild(i).notifyForRemove();");
         stream.println(ind(5) +     "children[i] = init_children[i];");
         stream.println(ind(5) +     "rewritten_children[i] = false;");
-        stream.println(ind(5) +     "init_children[i] = null;");
+        //stream.println(ind(5) +     "init_children[i] = null;");
       }
       if (ASTNode.incrementalLevelParam) {
         stream.println(ind(5) +     "getChild_handler[i].notifyDependencies();");    
@@ -1981,7 +2013,7 @@ aspect JaddCodeGen {
       stream.println("          children[i].notifyForRemove();");
       stream.println("          children[i] = init_children[i];");
       stream.println("          rewritten_children[i] = false;");
-      stream.println("          init_children[i] = null;");
+      //stream.println("          init_children[i] = null;");
       stream.println("        }");
       stream.println("      }");
     }
