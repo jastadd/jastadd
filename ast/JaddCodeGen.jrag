@@ -668,13 +668,6 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-        // ES_2011-09-20: Code generation for incremental evaluation
-        if (ASTNode.incremental) {
-          stream.println(ind(2) + "T child = (T)ASTNode.getChild(this, i);");
-          jjtGenIncrementalTrackGetChild(stream);
-          stream.println(ind(2) + "return child;");        
-        } else 
-        //
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
@@ -683,13 +676,6 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-        // ES_2011-09-20: Code generation for incremental evaluation
-        if (ASTNode.incremental) { 
-          stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
-          jjtGenIncrementalTrackGetChild(stream);
-          stream.println(ind(2) + "return child;");
-        } else 
-        //
         stream.println(ind(2) + "return ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
@@ -699,12 +685,20 @@ aspect JaddCodeGen {
       stream.println(ind + "public static ASTNode ASTNode.getChild(ASTNode that, int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       stream.println(ind(2) + "ASTNode node = that.getChildNoTransform(i);");
-      stream.println(ind(2) + "if(node.is$Final()) return node;");
+      stream.println(ind(2) + "if(node.is$Final()) {");
+      // ES_2011-10-05: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
+      //
+      stream.println(ind(3) +   "return node;");
+      stream.println(ind(3) + "}");
       stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
       if(ASTNode.stagedRewrites)
         stream.println(ind(3) + "node.is$Final(that.is$Final);");
       else
         stream.println(ind(3) + "node.is$Final(that.is$Final());");
+      // ES_2011-10-05: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
+      //
       stream.println(ind(3) + "return node;");
       stream.println(ind(2) + "}");
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
@@ -738,7 +732,10 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite2(stream);
+      if (ASTNode.incremental) { 
+          jjtGenIncrementalTrackRewrite2(stream);
+          jjtGenIncrementalTrackRewrite4(stream);
+      }
       //
       stream.println(ind(2) + "return node;");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
@@ -754,7 +751,7 @@ aspect JaddCodeGen {
         // ES_2011-09-20: Code generation for incremental evaluation
         if (ASTNode.incremental) {
           stream.println(ind(2) + "T child = (T)getChildNoTransform(i);");
-          jjtGenIncrementalTrackGetChild(stream);
+          jjtGenIncrementalTrackGetChildNoTransform(stream);
           stream.println(ind(2) + "return child;");        
         } else 
         //
@@ -769,7 +766,7 @@ aspect JaddCodeGen {
         // ES_2011-09-20: Code generation for incremental evaluation
         if (ASTNode.incremental) {
           stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
-          jjtGenIncrementalTrackGetChild(stream);
+          jjtGenIncrementalTrackGetChildNoTransform(stream);
           stream.println(ind(2) + "return child;");        
         } else 
         //
@@ -819,7 +816,7 @@ aspect JaddCodeGen {
       // ES_2011-09-20: Code generation for incremental evaluation
       if (ASTNode.incremental) {
         stream.println(ind(2) + "T child = (T)children[i];");
-        jjtGenIncrementalTrackGetChild(stream);
+        jjtGenIncrementalTrackGetChildNoTransform(stream);
         stream.println(ind(2) + "return child;");        
       } else 
       //
@@ -836,7 +833,7 @@ aspect JaddCodeGen {
       // ES_2011-09-20: Code generation for incremental evaluation
       if (ASTNode.incremental) {
         stream.println(ind(2) + "ASTNode child = (ASTNode)children[i];");
-        jjtGenIncrementalTrackGetChild(stream);
+        jjtGenIncrementalTrackGetChildNoTransform(stream);
         stream.println(ind(2) + "return child;");        
       } else 
       //
@@ -1043,10 +1040,27 @@ aspect JaddCodeGen {
     stream.println(ind(5) +   "that.rewritten_children[i] = true;");
     stream.println(ind(4) + "}");
   }
+  // ES_2011-10-05: Code generation for incremental evaluation, tracking getChild
+  public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(3) + "if (that.getChild_handler[i] == null) {");
+      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");  
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "if (child != null)");
+      stream.println(ind(3) + "  state().addHandlerDepTo(child.handler);");
+    }
+  }
+
 
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getChild
-  public void ASTDecl.jjtGenIncrementalTrackGetChild(PrintWriter stream) {
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler[i] == null) {");
       stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
