@@ -12,6 +12,7 @@ public class Test126 {
     b1 = a.getB(0);
     b2 = a.getB(1);
 
+    System.out.println("a=" + a + ", b1=" + b1 + ", b2=" + b2);
     b1.decl();    
     b2.decl();
 
@@ -24,8 +25,14 @@ public class Test126 {
     a.getChildNoTransform(0).dumpCachedValues();
     b1.dumpCachedValues();
     b2.dumpCachedValues();
-    
+
+    b1 = (B)a.getChild(0).getChild(0);
+    b2 = (B)a.getChild(0).getChild(1);    
+    System.out.println("a=" + a + ", b1=" + b1 + ", b2=" + b2);
+
     a.getChild(0).removeChild(0);
+
+    b2 = a.getB(0);
   
     System.out.println("Dependencies/Cache after a.removeChild(0):");
     a.dumpDependencies();
@@ -34,9 +41,9 @@ public class Test126 {
     a.dumpCachedValues();
     a.getChildNoTransform(0).dumpCachedValues();
     b2.dumpCachedValues();
-    System.out.println("Dependencies/Cache in removed child:");
-    b1.dumpDependencies();
-    b1.dumpCachedValues();
+    //System.out.println("Dependencies/Cache in removed child:");
+    //b1.dumpDependencies();
+    //b1.dumpCachedValues();
     
   
   }

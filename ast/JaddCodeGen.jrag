@@ -1901,7 +1901,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "ASTNode parent = getParent();");
       stream.println(ind(2) + "LinkedList indexList = new LinkedList();");
       stream.println(ind(2) + "while (parent != null) {");
-      stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
+      stream.println(ind(3) +   "int index = child.childIndex;");
       stream.println(ind(3) +   "indexList.add(new Integer(index));");
       stream.println(ind(3) +   "if (parent.is$Final() != child.is$Final()) {");
       stream.println(ind(4) +     "break;");
