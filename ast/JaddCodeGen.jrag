@@ -1867,10 +1867,49 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
     jjtGenIncrementalHandlers(stream);
+    jjtGenIncrementalTreeModification(stream);
     jjtGenIncrementalNTAChildCheck(stream);
     jjtGenIncrementalReactToChange(stream);
     jjtGenIncrementalReactToASTChange(stream);
     if (ASTNode.incrementalDebug) jjtGenIncrementalDebug(stream);
+  }
+
+  // ES_2011-10-06: Code generation for incremental evaluation, tree modification
+  public void ASTDecl.jjtGenIncrementalTreeModification(PrintWriter stream) {
+    // locate initial copy of a node
+    if (name().equals("ASTNode")) {
+      stream.println(ind + "protected ASTNode ASTNode.locateInitialCopy() {");
+      // locate enclosing rewrite
+      stream.println(ind(2) + "ASTNode child = this;");
+      stream.println(ind(2) + "ASTNode parent = getParent();");
+      stream.println(ind(2) + "LinkedList indexList = new LinkedList();");
+      stream.println(ind(2) + "while (parent != null) {");
+      stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
+      stream.println(ind(3) +   "indexList.add(new Integer(index));");
+      stream.println(ind(3) +   "if (parent.is$Final() != child.is$Final()) {");
+      stream.println(ind(4) +     "break;");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(3) +   "child = parent;");
+      stream.println(ind(3) +   "parent = child.getParent();");
+      stream.println(ind(2) + "}");
+      // root reached -- no enclosing rewrite
+      stream.println(ind(2) + "if (parent == null) {");
+      stream.println(ind(3) +   "return null;");
+      stream.println(ind(2) + "}");
+      // root not reached -- enclosing rewrite found
+      stream.println(ind(2) + "for (Iterator itr = indexList.iterator(); itr.hasNext();) {");
+      stream.println(ind(3) +   "int index = ((Integer)itr.next()).intValue();");
+      stream.println(ind(3) +   "child = parent.getChildNoTransform(index);");
+      stream.println(ind(3) +   "parent = child;");
+      stream.println(ind(3) +   "if (child == null) {");
+      stream.println(ind(4) +     "throw new RuntimeException(\"Incremental tree modification error: premature end of change point path\");");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(2) + "}");
+      // initial change point found
+      stream.println(ind(2) + "return child;");      
+      stream.println(ind + "}");
+    }
+    //    
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, initialization of handlers
@@ -2030,6 +2069,7 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode) {
       stream.println("          handler.notifyDependencies();");    
       }
+      stream.println("          children[i].is$Final(false);");
       stream.println("          children[i].notifyForRemove();");
       stream.println("          children[i] = init_children[i];");
       stream.println("          rewritten_children[i] = false;");
