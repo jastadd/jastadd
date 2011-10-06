@@ -28,10 +28,7 @@ value(A/List[0]/B[1]:decl, A/List[0]/B[0])
 value(A/List[0]/B[1]:a, false)
 value(A/List[0]/B[1]:b, false)
 Dependencies/Cache after a.insertChild(1):
-dep(A/List/B[0]:a -> A/List/B[0]:b)
-dep(A/List/B[2]:a -> A/List/B[2]:b)
-value(A/List/B[0]:a, false)
-value(A/List/B[0]:b, false)
-value(A/List/B[2]:a, false)
-value(A/List/B[2]:b, false)
+dep(A:getChild[0] -> A/List:getChild[0])
+dep(A:getChild[0] -> A/List:getChild[1])
+A/List[0] rewritten from A/List[0]
 

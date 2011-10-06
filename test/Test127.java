@@ -30,6 +30,8 @@ public class Test127 {
 
     B b3 = new B("a", "b");
     a.getChild(0).insertChild(b3, 1);
+    b1 = a.getB(0);
+    b2 = a.getB(1);
   
     System.out.println("Dependencies/Cache after a.insertChild(1):");
     a.dumpDependencies();

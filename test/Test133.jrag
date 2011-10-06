@@ -7,8 +7,9 @@ aspect Test133 {
     
   syn boolean A.noConstructor() {
     for(int i = 0; i < getNumB(); i++)
-      if(getB(i) instanceof C)
+      if(getB(i) instanceof C) {
         return false;
+      }
     return true;
   }
 

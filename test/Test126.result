@@ -27,17 +27,6 @@ value(A/List[0]/B[0]:b, false)
 value(A/List[0]/B[1]:decl, A/List[0]/B[0])
 value(A/List[0]/B[1]:a, false)
 value(A/List[0]/B[1]:b, false)
-a=test.ast.A@1fb8ee3, b1=test.ast.B@61de33, b2=test.ast.B@14318bb
-1 before remove [0]:test.ast.B@61de33, index=0
-1 before remove [1]:test.ast.B@14318bb, index=1
-locate: child=A/List(test.ast.List@8813f2)
-locate: parent=test.ast.A@1fb8ee3
-locate: returning child=test.ast.List@1d58aae
-2 before remove [0]:test.ast.B@83cc67, index=0
-2 before remove [1]:test.ast.B@e09713, index=1
-3 before remove [0]:test.ast.B@83cc67, index=0
-3 before remove [1]:test.ast.B@e09713, index=1
-after remove [0]:test.ast.B@e09713, index=0
 Dependencies/Cache after a.removeChild(0):
 dep(A:getChild[0] -> A/List:getChild[1])
 A/List[0] rewritten from A/List[0]
