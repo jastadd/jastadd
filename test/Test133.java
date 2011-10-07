@@ -12,7 +12,7 @@ public class Test133 {
     A a = new A(new test.ast.List().add(new B()).add(new B()));
 
     System.out.print("## start: a=" + a + ", a.list=" + a.getChildNoTransform(0));
-    for (int i = 0; i < a.getNumChildNoTransform(); i++) 
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
       System.out.print(", a.list.child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
     System.out.print("\n\ta.initial[0]=");
     if (a.init_children != null && a.init_children[0] != null) {
@@ -31,7 +31,7 @@ public class Test133 {
     B b1 = a.getB(0);
 
     System.out.print("## first access: a=" + a + ", a.list=" + a.getChildNoTransform(0));
-    for (int i = 0; i < a.getNumChildNoTransform(); i++) 
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
       System.out.print(", a.list.child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
     System.out.print("\n\ta.initial[0]=");
     if (a.init_children != null && a.init_children[0] != null) {
@@ -52,7 +52,7 @@ public class Test133 {
 
 
     System.out.print("## add of C: a=" + a + ", a.list=" + a.getChildNoTransform(0));
-    for (int i = 0; i < a.getNumChildNoTransform(); i++) 
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
       System.out.print(", a.list.child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
     System.out.print("\n\ta.initial[0]=");
     if (a.init_children != null && a.init_children[0] != null) {

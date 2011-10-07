@@ -1228,7 +1228,7 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "} else {");
       stream.println(ind(4) +   "numChildren_handler.notifyDependencies();");
       if (ASTNode.incrementalLevelParam) { 
-      stream.println(ind(4) +   "for (int k = i+1; k < children.length; k++) {");
+      stream.println(ind(4) +   "for (int k = i; k < children.length; k++) {");
       stream.println(ind(5) +     "if (getChild_handler[k] != null) {");
       stream.println(ind(6) +       "getChild_handler[k].notifyDependencies();");
       stream.println(ind(5) +     "}");
