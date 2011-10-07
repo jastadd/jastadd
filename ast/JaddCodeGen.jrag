@@ -1183,9 +1183,6 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "if (rewritten_children != null) {");
     stream.println(ind(3) +   "rewritten_children[i] = false;"); 
     stream.println(ind(2) + "}");   
-    stream.println(ind(2) + "if (getChild_handler != null && getChild_handler[i] != null) {");
-    stream.println(ind(3) +   "getChild_handler[i].updateHostNode(children[i]);"); 
-    stream.println(ind(2) + "}");   
   }
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 1
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild1(PrintWriter stream) {
@@ -2434,7 +2431,7 @@ aspect JaddCodeGen {
       stream.println("      for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {");
       stream.println("        if (rewritten_children[k]) {");
       stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
-                                      "\" rewritten from \" + init_children[k].relativeNodeID());");
+                                      "\" rewritten, initial=\" + init_children[k].relativeNodeID());");
       stream.println("        }");
       stream.println("      }");
      //

@@ -5,10 +5,10 @@ dep(A:getChild[0] -> A/B:getChild[0])
 dep(A:getChild[0] -> A/B:getParent)
 dep(A:getChild[0] -> A/C[0]:getParent)
 dep(A:getChild[0] -> A:getName)
-A/C[0] rewritten from A/B
+A/C[0] rewritten, initial=A/B
 b:
 dep(A/B:getChild[0] -> A/B/D:getName)
-A/C[0]/E[0] rewritten from A/B/D
+A/C[0]/E[0] rewritten, initial=A/B/D
 c:
 d:
 e:
@@ -16,7 +16,7 @@ e:
 a:
 b:
 dep(A/B:getChild[0] -> A/B/D:getName)
-A/C/E[0] rewritten from A/B/D
+A/C/E[0] rewritten, initial=A/B/D
 c:
 d:
 e:

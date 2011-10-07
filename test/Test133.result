@@ -1,0 +1,20 @@
+======= Construct AST
+## Dependencies/Cache after construction:
+======= Access AST
+## Dependencies/Cache in current after access
+dep(A:getChild[0] -> A/List[0]:getChild[0])
+dep(A:getChild[0] -> A/List[0]:getChild[1])
+dep(A:getChild[0] -> A/List[0]:getChild[2])
+dep(A:getChild[0] -> A/List[0]:getParent)
+A/List[0] rewritten, initial=A/List
+#### Dependencies/Cache in init after access:
+======= Change AST
+## Dependencies/Cache in current after change:
+======= Access AST
+## Dependencies/Cache in current after access 2:
+dep(A:getChild[0] -> A/List[0]:getChild[0])
+dep(A:getChild[0] -> A/List[0]:getChild[1])
+dep(A:getChild[0] -> A/List[0]:getChild[2])
+dep(A:getChild[0] -> A/List[0]:getParent)
+A/List[0] rewritten, initial=A/List
+
