@@ -14,7 +14,7 @@ public class Test126 {
     listInit.add(b1Init);
     listInit.add(b2Init);
     A a = new A(listInit);
-
+/*
     System.out.println("## start: ");
     System.out.println("\ta=" + a);
     System.out.println("\ta/list[0]=" + a.getChildNoTransform(0));
@@ -26,7 +26,7 @@ public class Test126 {
       for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
         System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
     } else System.out.println("null");
-
+*/
     System.out.println("## Dependencies/Cache after construction:");
     a.dumpDependencies();
     a.dumpCachedValues();
@@ -43,7 +43,7 @@ public class Test126 {
     test.ast.List listAccess = (test.ast.List)a.getChild(0);
     B b1Access = a.getB(0);
     B b2Access = a.getB(1);
-
+/*
     System.out.println("## access: ");
     System.out.println("\ta=" + a);
     System.out.println("\ta/list[0]=" + a.getChildNoTransform(0));
@@ -55,7 +55,7 @@ public class Test126 {
       for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
         System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
     } else System.out.println("null");
-
+*/
     System.out.println("## Dependencies/Cache in current after access");
     a.dumpDependencies();
     a.dumpCachedValues();
@@ -65,19 +65,12 @@ public class Test126 {
     b1Access.dumpCachedValues();
     b2Access.dumpDependencies();
     b2Access.dumpCachedValues();
-    System.out.println("#### Dependencies/Cache in init after access:");
-    listInit.dumpDependencies();
-    listInit.dumpCachedValues();    
-    b1Init.dumpDependencies();
-    b1Init.dumpCachedValues();
-    b2Init.dumpDependencies();
-    b2Init.dumpCachedValues();
 
     System.out.println("======= Attribute calls");
 
     b1Access.decl();    
     b2Access.decl();
-
+/*
     System.out.println("## calls: ");
     System.out.println("\ta=" + a);
     System.out.println("\ta/list[0]=" + a.getChildNoTransform(0));
@@ -89,7 +82,7 @@ public class Test126 {
       for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
         System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
     } else System.out.println("null");
-
+*/
     System.out.println("## Dependencies/Cache in current after calls:");
     a.dumpDependencies();
     a.dumpCachedValues();
@@ -99,18 +92,11 @@ public class Test126 {
     b1Access.dumpCachedValues();
     b2Access.dumpDependencies();
     b2Access.dumpCachedValues();
-    System.out.println("#### Dependencies/Cache in init after calls:");
-    listInit.dumpDependencies();
-    listInit.dumpCachedValues();    
-    b1Init.dumpDependencies();
-    b1Init.dumpCachedValues();
-    b2Init.dumpDependencies();
-    b2Init.dumpCachedValues();
 
     System.out.println("======= Change AST with Remove");
 
     a.getChild(0).removeChild(0);
-
+/*
     System.out.println("## remove: ");
     System.out.println("\ta=" + a);
     System.out.println("\ta/list[0]=" + a.getChildNoTransform(0));
@@ -122,7 +108,7 @@ public class Test126 {
       for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
         System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
     } else System.out.println("null");
-
+*/
 
     System.out.println("## Dependencies/Cache in current after remove:");
     a.dumpDependencies();
@@ -137,7 +123,7 @@ public class Test126 {
     test.ast.List listChange = (test.ast.List)a.getChild(0);
     B b1Change = a.getB(0);
   
-    System.out.println("Dependencies/Cache after second access:");
+    System.out.println("## Dependencies/Cache after second access:");
     a.dumpDependencies();
     a.dumpCachedValues();
     listChange.dumpDependencies();
