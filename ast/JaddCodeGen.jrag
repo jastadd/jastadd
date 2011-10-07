@@ -1218,6 +1218,11 @@ aspect JaddCodeGen {
       stream.println(ind(4) +     "System.arraycopy(getChild_handler, i, h, i+1, getChild_handler.length - 1);");
       stream.println(ind(3) +   "}");
       stream.println(ind(3) +   "getChild_handler = h;");
+      stream.println(ind(3) +   "for (int k = i; k < getChild_handler.length; k++) {");
+      stream.println(ind(4) +     "if (getChild_handler[k] != null) {");
+      stream.println(ind(5) +       "getChild_handler[k].setParams(new Integer(k));");
+      stream.println(ind(4) +     "}");
+      stream.println(ind(3) +   "}");
       stream.println(ind(2) + "}");
     }
   }
@@ -1299,6 +1304,11 @@ aspect JaddCodeGen {
       stream.println(ind(4) +   "getChild_handler[i] = null;");
       stream.println(ind(4) +   "System.arraycopy(getChild_handler, i+1, " + 
           "getChild_handler, i, getChild_handler.length-i-1);");
+      stream.println(ind(4) +   "for (int k = i; k < getChild_handler.length; k++) {");
+      stream.println(ind(5) +     "if (getChild_handler[k] != null) {");
+      stream.println(ind(6) +       "getChild_handler[k].setParams(new Integer(k));");
+      stream.println(ind(5) +     "}");
+      stream.println(ind(4) +   "}");
       stream.println(ind(3) + "}");
     }
   }
@@ -2549,6 +2559,9 @@ aspect JaddCodeGen {
       stream.println("      fNode = node;");
       stream.println("      fAttrID = handler.fAttrID;");
       stream.println("      fParams = handler.fParams;");
+      stream.println("    }");
+      stream.println("    public void setParams(Object params) {");
+      stream.println("      fParams = params;");
       stream.println("    }");
     }
     // level: attr also needs an attr ID 

@@ -115,7 +115,10 @@ public class Test133 {
     a.getChildNoTransform(0).dumpDependencies();
     a.getChildNoTransform(0).dumpCachedValues();
     a.getChildNoTransform(0).getChildNoTransform(0).dumpDependencies();
+    a.getChildNoTransform(0).getChildNoTransform(0).dumpCachedValues();
+    a.getChildNoTransform(0).getChildNoTransform(1).dumpDependencies();
     a.getChildNoTransform(0).getChildNoTransform(1).dumpCachedValues();
+    a.getChildNoTransform(0).getChildNoTransform(2).dumpDependencies();
     a.getChildNoTransform(0).getChildNoTransform(2).dumpCachedValues();
 
 
