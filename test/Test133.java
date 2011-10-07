@@ -9,98 +9,231 @@ public class Test133 {
 
 
     System.out.println("======= Construct AST");
-    A a = new A(new test.ast.List().add(new B()).add(new B()));
 
-    System.out.print("## start: a=" + a + ", a.list=" + a.getChildNoTransform(0));
+    B b1Init = new B();
+    B b2Init = new B();
+    test.ast.List listInit = new test.ast.List();
+
+    listInit.add(b1Init);
+    listInit.add(b2Init);
+    A a = new A(listInit);
+
+    assert(listInit == a.getChildNoTransform(0));
+    assert(b1Init == a.getChildNoTransform(0).getChildNoTransform(0));
+    assert(b2Init == a.getChildNoTransform(0).getChildNoTransform(1));
+
+    System.out.println("## start: ");
+    System.out.println("\ta=" + a);
+    System.out.println("\ta/list[0]=" + a.getChildNoTransform(0) + " [" + printHandlerNodes(a.getChildNoTransform(0)) + "]");
     for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
-      System.out.print(", a.list.child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
-    System.out.print("\n\ta.initial[0]=");
+      System.out.println("\ta/list[0]/child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
+    System.out.print("\ta.initial[0]=");
     if (a.init_children != null && a.init_children[0] != null) {
-      System.out.print(a.init_children[0]);
+      System.out.println(a.init_children[0]);
       for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
-        System.out.print(", a.initial[0].child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
-      System.out.println();
+        System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
     } else System.out.println("null");
-    a.dumpDependencies();
-    a.getChildNoTransform(0).dumpDependencies();    
-    a.getChildNoTransform(0).getChildNoTransform(0).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(1).dumpDependencies();
 
-    System.out.println("======== Access first child of List");
-    // Trigger rewrite
-    B b1 = a.getB(0);
-
-    System.out.print("## first access: a=" + a + ", a.list=" + a.getChildNoTransform(0));
-    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
-      System.out.print(", a.list.child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
-    System.out.print("\n\ta.initial[0]=");
-    if (a.init_children != null && a.init_children[0] != null) {
-      System.out.print(a.init_children[0]);
-      for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
-        System.out.print(", a.initial[0].child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
-      System.out.println();
-    } else System.out.println("null");
-    a.dumpDependencies();
-    a.getChildNoTransform(0).dumpDependencies();    
-    a.getChildNoTransform(0).getChildNoTransform(0).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(1).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(2).dumpDependencies();
-
-    System.out.println("======== Add of new C");
-    C c2 = new C();
-    a.addB(c2);
-
-
-    System.out.print("## add of C: a=" + a + ", a.list=" + a.getChildNoTransform(0));
-    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
-      System.out.print(", a.list.child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
-    System.out.print("\n\ta.initial[0]=");
-    if (a.init_children != null && a.init_children[0] != null) {
-      System.out.print(a.init_children[0]);
-      for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
-        System.out.print(", a.initial[0].child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
-      System.out.println();
-    } else System.out.println("null");
-    a.dumpDependencies();
-    a.getChildNoTransform(0).dumpDependencies();    
-    a.getChildNoTransform(0).getChildNoTransform(0).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(1).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(2).dumpDependencies();
-
-System.exit(1);
-
-    B b2 = a.getB(1);
-    C c = (C)a.getB(2);
-    
-    System.out.println("-- Dependencies/Cache after a.getB(0):");
+    System.out.println("## Dependencies/Cache after construction:");
     a.dumpDependencies();
     a.dumpCachedValues();
-    b1.dumpDependencies();
-    b1.dumpCachedValues();
-    b2.dumpDependencies();
-    b2.dumpCachedValues();
-    c.dumpDependencies();
-    c.dumpCachedValues();
+    listInit.dumpDependencies();
+    listInit.dumpCachedValues();    
+    b1Init.dumpDependencies();
+    b1Init.dumpCachedValues();
+    b2Init.dumpDependencies();
+    b2Init.dumpCachedValues();
 
+    System.out.println("======= Access AST");
+
+    test.ast.List listAccess = (test.ast.List)a.getChild(0);
+    B b1Access = a.getB(0);
+    B b2Access = a.getB(1);
+    C cAccess = (C)a.getB(2);
+
+    assert(listAccess == a.getChildNoTransform(0));
+    assert(b1Access == a.getChildNoTransform(0).getChildNoTransform(0));
+    assert(b2Access == a.getChildNoTransform(0).getChildNoTransform(1));
+    assert(cAccess == a.getChildNoTransform(0).getChildNoTransform(2));
+
+    System.out.println("## access: ");
+    System.out.println("\ta=" + a);
+    System.out.println("\ta/list[0]=" + a.getChildNoTransform(0) + " [" + printHandlerNodes(a.getChildNoTransform(0)) + "]");
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
+      System.out.println("\ta/list[0]/child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
+    System.out.print("\ta.initial[0]=");
+    if (a.init_children != null && a.init_children[0] != null) {
+      System.out.println(a.init_children[0] + " [" + printHandlerNodes(a.init_children[0]) + "]");
+      for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
+        System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
+    } else System.out.println("null");
+
+    System.out.println("## Dependencies/Cache in current after access");
+    a.dumpDependencies();
+    a.dumpCachedValues();
+    listAccess.dumpDependencies();
+    listAccess.dumpCachedValues();
+    b1Access.dumpDependencies();
+    b1Access.dumpCachedValues();
+    b2Access.dumpDependencies();
+    b2Access.dumpCachedValues();
+    cAccess.dumpDependencies();
+    cAccess.dumpCachedValues();
+    System.out.println("#### Dependencies/Cache in init after access:");
+    listInit.dumpDependencies();
+    listInit.dumpCachedValues();    
+    b1Init.dumpDependencies();
+    b1Init.dumpCachedValues();
+    b2Init.dumpDependencies();
+    b2Init.dumpCachedValues();
+
+
+    System.out.println("======= Change AST");
 
     // Change
     C cNew = new C();
-    System.out.println("cNew=" + cNew);
     a.addB(cNew);
-    b1 = a.getB(0);
-    b2 = a.getB(1);
-    c = (C)a.getB(2);
-    System.out.println("c=" + c + ", cNew=" + cNew);
-  
-    System.out.println("-- Dependencies/Cache after a.addChild(new C()):");
+
+    assert(cNew == a.getChildNoTransform(0).getChildNoTransform(2));
+
+    System.out.println("## change: ");
+    System.out.println("\ta=" + a);
+    System.out.println("\ta/list[0]=" + a.getChildNoTransform(0) + " [" + printHandlerNodes(a.getChildNoTransform(0)) + "]");
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
+      System.out.println("\ta/list[0]/child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
+    System.out.print("\ta.initial[0]=");
+    if (a.init_children != null && a.init_children[0] != null) {
+      System.out.println(a.init_children[0]);
+      for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
+        System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
+    } else System.out.println("null");
+    System.out.println("## Dependencies/Cache in current after change:");
     a.dumpDependencies();
     a.dumpCachedValues();
-    b1.dumpDependencies();
-    b1.dumpCachedValues();
-    b2.dumpDependencies();
-    b2.dumpCachedValues();
-    c.dumpDependencies();
-    c.dumpCachedValues();
+    a.getChildNoTransform(0).dumpDependencies();
+    a.getChildNoTransform(0).dumpCachedValues();
+    a.getChildNoTransform(0).getChildNoTransform(0).dumpDependencies();
+    a.getChildNoTransform(0).getChildNoTransform(1).dumpCachedValues();
+    a.getChildNoTransform(0).getChildNoTransform(2).dumpCachedValues();
 
+
+    System.out.println("======= Access AST");
+
+    test.ast.List listChange = (test.ast.List)a.getChild(0);
+//    B b1Change = a.getB(0);
+//    B b2Change = a.getB(1);
+//    C cChange = (C)a.getB(2);
+
+    assert(listChange == a.getChildNoTransform(0));    
+//    assert(b1Change == a.getChildNoTransform(0).getChildNoTransform(0));
+//    assert(b2Change == a.getChildNoTransform(0).getChildNoTransform(1));
+//    assert(cChange == a.getChildNoTransform(0).getChildNoTransform(2));
+//    assert(cChange == cNew);
+
+    System.out.println("## access 2: ");
+    System.out.println("\ta=" + a);
+    System.out.println("\ta/list[0]=" + a.getChildNoTransform(0));
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
+      System.out.println("\ta/list[0]/child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
+    System.out.print("\ta.initial[0]=");
+    if (a.init_children != null && a.init_children[0] != null) {
+      System.out.println(a.init_children[0]);
+      for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
+        System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
+    } else System.out.println("null");
+
+    System.out.println("## Dependencies/Cache in current after access 2:");
+    a.dumpDependencies();
+    a.dumpCachedValues();
+    listChange.dumpDependencies();
+    listChange.dumpCachedValues();
+//    b1Change.dumpDependencies();
+//    b1Change.dumpCachedValues();
+//    b2Change.dumpDependencies();
+//    b2Change.dumpCachedValues();
+//    cChange.dumpDependencies();
+//    cChange.dumpCachedValues();
+
+
+
+System.exit(2);
+
+/*
+    System.out.println("## Dependencies/Cache after construction:");
+    a.dumpDependencies();
+    a.dumpCachedValues();
+    listInit.dumpDependencies();
+    listInit.dumpCachedValues();    
+    b1Init.dumpDependencies();
+    b1Init.dumpCachedValues();
+    b2Init.dumpDependencies();
+    b2Init.dumpCachedValues();
+
+    System.out.println("======= Access AST");
+
+    test.ast.List listAccess = (test.ast.List)a.getChild(0);
+    B b1Access = a.getB(0);
+    B b2Access = a.getB(1);
+    C cAccess = (C)a.getB(2);
+
+    System.out.println("## Dependencies/Cache in current after access");
+    a.dumpDependencies();
+    a.dumpCachedValues();
+    listAccess.dumpDependencies();
+    listAccess.dumpCachedValues();
+    b1Access.dumpDependencies();
+    b1Access.dumpCachedValues();
+    b2Access.dumpDependencies();
+    b2Access.dumpCachedValues();
+    cAccess.dumpDependencies();
+    cAccess.dumpCachedValues();
+    System.out.println("#### Dependencies/Cache in init after access:");
+    listInit.dumpDependencies();
+    listInit.dumpCachedValues();    
+    b1Init.dumpDependencies();
+    b1Init.dumpCachedValues();
+    b2Init.dumpDependencies();
+    b2Init.dumpCachedValues();
+
+    System.out.println("======= Change AST");
+
+    // Change
+    C cNew = new C();
+    a.addB(cNew);
+
+    test.ast.List listChange = (test.ast.List)a.getChild(0);
+    B b1Change = a.getB(0);
+    B b2Change = a.getB(1);
+    C cChange = (C)a.getB(2);
+
+    System.out.println("change == cNew: " + (cChange == cNew));  
+    System.out.println("## Dependencies/Cache in current after change:");
+    a.dumpDependencies();
+    a.dumpCachedValues();
+    listChange.dumpDependencies();
+    listChange.dumpCachedValues();
+    b1Change.dumpDependencies();
+    b1Change.dumpCachedValues();
+    b2Change.dumpDependencies();
+    b2Change.dumpCachedValues();
+    cChange.dumpDependencies();
+    cChange.dumpCachedValues();
+*/
+
+
+  }
+
+  private static String printHandlerNodes(ASTNode node) {
+    StringBuffer buf = new StringBuffer();
+    if (node.getParent_handler != null)
+      buf.append("parent="+node.getParent_handler.fNode);
+    if (node.numChildren_handler != null)
+      buf.append(", num="+node.numChildren_handler.fNode);
+    for (int i = 0; i < node.getNumChildNoTransform(); i++) {
+        if (node.getChildNoTransform(i).getChild_handler != null &&
+              node.getChildNoTransform(i).getChild_handler[i] != null)
+          buf.append("child(" + i + ")="+node.getChildNoTransform(i).getChild_handler[i].fNode);
+    }
+    return buf.toString();
   }
 }

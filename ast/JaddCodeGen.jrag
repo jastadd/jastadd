@@ -896,6 +896,9 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "children[i] = node;");
     stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
     stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    // ES_2011-09-20: Code generation for incremental evaluation, set child
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild4(stream);
+    //
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
 
@@ -1179,6 +1182,9 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild4(PrintWriter stream) {
     stream.println(ind(2) + "if (rewritten_children != null) {");
     stream.println(ind(3) +   "rewritten_children[i] = false;"); 
+    stream.println(ind(2) + "}");   
+    stream.println(ind(2) + "if (getChild_handler != null && getChild_handler[i] != null) {");
+    stream.println(ind(3) +   "getChild_handler[i].updateHostNode(children[i]);"); 
     stream.println(ind(2) + "}");   
   }
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 1
@@ -1505,6 +1511,8 @@ aspect JaddCodeGen {
           ind(3) + "try {\n" +
           ind(4) + "#CLASS# node = (#CLASS#)clone();\n" +
           ind(4) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
+          // ES_2011-10-07: Code generation for incremental evaluation, copy
+           (ASTNode.incremental ? jjtGenIncrementalCopyNode() : "") +
           ind(4) + "return node;\n" +
           ind(3) + "} catch (CloneNotSupportedException e) {\n" +
           ind(3) + "}\n" +
@@ -1532,7 +1540,7 @@ aspect JaddCodeGen {
         ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
         ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
         ind(3) + "if(node != null) node = node.fullCopy();\n" +
-        // ES_2011-10-04: Changing this to an internal set of child via the children array
+        // ES_2011-10-04: Code generation for incremental evaluation, clone
         (ASTNode.incremental ? 
           jjtGenIncrementalCloneNode() : 
           ind(3) + "res.setChild(node, i);\n") +
@@ -1553,6 +1561,23 @@ aspect JaddCodeGen {
     }
   }
 
+  // ES_2011-10-07: Code generation for incremental evaluation, copy
+  // Making sure that handlers are cloned correctly, pointing to the right node
+  public String ASTDecl.jjtGenIncrementalCopyNode() {
+    StringBuffer buf = new StringBuffer();
+    buf.append(ind(4) + "if (getChild_handler != null)\n");
+    buf.append(ind(5) +   "node.getChild_handler = (ASTNode$DepGraphNode[])getChild_handler.clone();\n");
+    buf.append(ind(4) + "node.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, node);\n");
+    buf.append(ind(4) + "node.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, node);\n");
+    buf.append(ind(4) + "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {\n");
+    buf.append(ind(5) +   "if (getChild_handler[i] != null) {\n");
+    buf.append(ind(6) +     "node.getChild_handler[i] = new ASTNode$DepGraphNode(getChild_handler[i], node);\n");
+    buf.append(ind(5) +   "}");
+    buf.append(ind(4) + "}");
+    return buf.toString();
+  }
+
+  // ES_2011-10-04: Changing this to an internal set of child via the children array to not send notifications
   public String ASTDecl.jjtGenIncrementalCloneNode() {
     StringBuffer buf = new StringBuffer();
     buf.append(ind(3) + "res.children[i] = node;\n");
@@ -2100,6 +2125,7 @@ aspect JaddCodeGen {
       stream.println("          children[i].is$Final(false);");
       stream.println("          children[i].notifyForRemove();");
       stream.println("          children[i] = init_children[i];");
+//      stream.println("          getChild_handler[i].updateHostNode(children[i]);");
       stream.println("          rewritten_children[i] = false;");
       stream.println("          init_children[i] = null;");
       stream.println("        }");
@@ -2522,6 +2548,11 @@ aspect JaddCodeGen {
       stream.println("      fAttrID = attrID;");
       stream.println("      fParams = params;");
       stream.println("    }");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = handler.fAttrID;");
+      stream.println("      fParams = handler.fParams;");
+      stream.println("    }");
     }
     // level: attr also needs an attr ID 
     if (ASTNode.incrementalLevelAttr) {
@@ -2529,6 +2560,10 @@ aspect JaddCodeGen {
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
       stream.println("      fNode = node;");
       stream.println("      fAttrID = attrID;");
+      stream.println("    }");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphHandler handler, ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = handler.fAttrID;");
       stream.println("    }");
     }
     // level: node
@@ -2547,6 +2582,10 @@ aspect JaddCodeGen {
     stream.println("    public boolean hasDependants() {");
     stream.println("        return !fDependantSet.isEmpty();");
     stream.println("    }");
+    //stream.println("    public void updateHostNode(ASTNode node) {");
+    //stream.println("      fNode = node;");
+    //stream.println("    }");
+
     if (ASTNode.incrementalDebug) {
       stream.println("    public void clearDependants() {");
       stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
