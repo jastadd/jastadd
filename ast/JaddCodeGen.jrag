@@ -1023,7 +1023,7 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "that.init_children = new ASTNode[that.children.length];");
     stream.println(ind(3) +   "that.rewritten_children = new boolean[that.children.length];");
     stream.println(ind(2) + "}");
-    stream.println(ind(2) + "ASTNode initial = null;");
+    stream.println(ind(2) + "ASTNode initial = that.init_children[i];");
     stream.println(ind(2) + "if(that.init_children[i] == null) {");
     stream.println(ind(3) +   "initial = node.fullCopy();");
     stream.println(ind(2) + "}");
