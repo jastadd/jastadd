@@ -1021,8 +1021,9 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "that.init_children = new ASTNode[that.children.length];");
     stream.println(ind(3) +   "that.rewritten_children = new boolean[that.children.length];");
     stream.println(ind(2) + "}");
+    stream.println(ind(2) + "ASTNode initial = null;");
     stream.println(ind(2) + "if(that.init_children[i] == null) {");
-    stream.println(ind(3) +   "that.init_children[i] = node.fullCopy();");
+    stream.println(ind(3) +   "initial = node.fullCopy();");
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");        
 
@@ -1038,6 +1039,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
     stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
     stream.println(ind(5) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(5) +   "that.init_children[i] = initial;");
     stream.println(ind(4) + "}");
   }
   // ES_2011-10-05: Code generation for incremental evaluation, tracking getChild
@@ -1945,7 +1947,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "LinkedList indexList = new LinkedList();");
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = child.childIndex;");
-      stream.println(ind(3) +   "indexList.add(new Integer(index));");
+      stream.println(ind(3) +   "indexList.addFirst(new Integer(index));");
       stream.println(ind(3) +   "if (parent.is$Final() != child.is$Final()) {");
       stream.println(ind(4) +     "break;");
       stream.println(ind(3) +   "}");
@@ -2120,6 +2122,9 @@ aspect JaddCodeGen {
       stream.println("      if (attrID.equals(\"getChild\")) {");
       stream.println("        int i = (Integer)_parameters;");
       stream.println("        if (rewritten_children != null && rewritten_children[i]) {");
+      // make sure this condition is false before calling notify, there may be a circular dependency resulting in a double
+      // flush otherwise, a double flush will cause null to be moved in as the initial child
+      stream.println("          rewritten_children[i] = false;");
       if (ASTNode.incrementalLevelParam) {
       stream.println("          getChild_handler[i].notifyDependencies();");    
       }
@@ -2132,8 +2137,6 @@ aspect JaddCodeGen {
       stream.println("          children[i].is$Final(false);");
       stream.println("          children[i].notifyForRemove();");
       stream.println("          children[i] = init_children[i];");
-//      stream.println("          getChild_handler[i].updateHostNode(children[i]);");
-      stream.println("          rewritten_children[i] = false;");
       stream.println("          init_children[i] = null;");
       stream.println("        }");
       stream.println("      }");
