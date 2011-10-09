@@ -849,6 +849,8 @@ aspect JaddCodeGen {
     stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "protected int ASTNode.numChildren() {");
+    // ES_2011-09-20: Code generation for incremental evaluation
+    if (ASTNode.incremental) jjtGenIncrementalTrackNumChild(stream);
     stream.println(ind(2) + "return numChildren;");
     stream.println(ind + "}");
     stream.println(ind + "/**");
