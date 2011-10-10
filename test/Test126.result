@@ -5,13 +5,11 @@
 dep(A:getChild[0] -> A/List[0]:getChild[0])
 dep(A:getChild[0] -> A/List[0]:getChild[1])
 dep(A:getChild[0] -> A/List[0]:numChildren)
-A/List[0] rewritten, initial=A/List
 ======= Attribute calls
 ## Dependencies/Cache in current after calls:
 dep(A:getChild[0] -> A/List[0]:getChild[0])
 dep(A:getChild[0] -> A/List[0]:getChild[1])
 dep(A:getChild[0] -> A/List[0]:numChildren)
-A/List[0] rewritten, initial=A/List
 dep(A/List[0]/B[0]:decl -> A/List[0]/B[0]:a)
 dep(A/List[0]/B[0]:decl -> A/List[0]/B[0]:getName)
 dep(A/List[0]/B[0]:decl -> A/List[0]/B[0]:getParent)
@@ -41,9 +39,14 @@ value(A/List[0]/B[1]:a, false)
 value(A/List[0]/B[1]:b, false)
 ======= Change AST with Remove
 ## Dependencies/Cache in current after remove:
+dep(A/List[0]/B[0]:a -> A/List[0]/B[0]:b)
+value(A/List[0]/B[0]:a, false)
+value(A/List[0]/B[0]:b, false)
 ======= Second Access
 ## Dependencies/Cache after second access:
 dep(A:getChild[0] -> A/List[0]:getChild[0])
 dep(A:getChild[0] -> A/List[0]:numChildren)
-A/List[0] rewritten, initial=A/List
+dep(A/List[0]/B[0]:a -> A/List[0]/B[0]:b)
+value(A/List[0]/B[0]:a, false)
+value(A/List[0]/B[0]:b, false)
 

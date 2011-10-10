@@ -704,6 +704,9 @@ aspect JaddCodeGen {
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite1(stream);
       //
+      // ES_2011-10-10: Code generation for full flush
+      if (ASTNode.fullFlush) jjtGenFullFlush1(stream);
+      //
       stream.println(ind(2) + "if(!node.in$Circle()) {");
       stream.println(ind(3) + "int rewriteState;");
       stream.println(ind(3) + "int num = that.state().boundariesCrossed;");
@@ -718,6 +721,9 @@ aspect JaddCodeGen {
       stream.println(ind(4) + "rewriteState = that.state().pop();");
       // ES_2011-09-30: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite3(stream);
+      //
+      // ES_2011-10-10: Code generation for full flush
+      if (ASTNode.fullFlush) jjtGenFullFlush2(stream);
       //
       stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
       stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && that.is$Final()) {");
@@ -1017,8 +1023,9 @@ aspect JaddCodeGen {
     }
   }
 
-  // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
-  public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
+
+  // ES_2011-10-10: Code generation for full flush, creating initial copy store
+  public void ASTDecl.jjtGenFullFlush1(PrintWriter stream) {
     stream.println(ind(2) + "if(that.init_children == null) {");
     stream.println(ind(3) +   "that.init_children = new ASTNode[that.children.length];");
     stream.println(ind(3) +   "that.rewritten_children = new boolean[that.children.length];");
@@ -1027,6 +1034,29 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "if(that.init_children[i] == null) {");
     stream.println(ind(3) +   "initial = node.fullCopy();");
     stream.println(ind(2) + "}");
+
+  }
+  // ES_2011-10-10: Code generation for full flush, storing initial copy setting rewrite to true
+  public void ASTDecl.jjtGenFullFlush2(PrintWriter stream) {
+    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
+    stream.println(ind(5) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(5) +   "that.init_children[i] = initial;");
+    stream.println(ind(4) + "}");
+  }
+  
+
+  // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
+  public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
+    if (!ASTNode.fullFlush) {
+    stream.println(ind(2) + "if(that.init_children == null) {");
+    stream.println(ind(3) +   "that.init_children = new ASTNode[that.children.length];");
+    stream.println(ind(3) +   "that.rewritten_children = new boolean[that.children.length];");
+    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "ASTNode initial = that.init_children[i];");
+    stream.println(ind(2) + "if(that.init_children[i] == null) {");
+    stream.println(ind(3) +   "initial = node.fullCopy();");
+    stream.println(ind(2) + "}");
+    }
     stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");        
 
   }
@@ -1039,10 +1069,12 @@ aspect JaddCodeGen {
   }
   // ES_2011-09-30: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
+    if (!ASTNode.fullFlush) {
     stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
     stream.println(ind(5) +   "that.rewritten_children[i] = true;");
     stream.println(ind(5) +   "that.init_children[i] = initial;");
     stream.println(ind(4) + "}");
+    }
   }
   // ES_2011-10-05: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
@@ -1323,116 +1355,65 @@ aspect JaddCodeGen {
     // ES_2011-10-10: Checking full flush flag
     if (ASTNode.fullFlush) {
 
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.print(ind + "public void flushCache() {\n");
-    if(ASTNode.block) stream.print(ASTNode.blockBegin);
-    if(!name().equals("ASTNode"))
-      stream.print(ind(2) + "super.flushCache();\n");
-    for(int k = 0; k < getNumSynEq(); k++) {
-      AttrEq equ = getSynEq(k);
-      AttrDecl attr = equ.decl();
-      String u = attr.resetVisit() + attr.resetCache();
-      u = u.replaceAll("#NAME#", attr.attributeSignature());
-      stream.print(u);
-    }
-    for(int k = 0; k < getNumInhDecl(); k++) {
-      AttrDecl attr = getInhDecl(k);
-      String u = attr.resetVisit() + attr.resetCache();
-      u = u.replaceAll("#NAME#", attr.attributeSignature());
-      stream.print(u);
-    }
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "public ASTNode[] init_children;");
+        stream.println(ind + "protected boolean[] rewritten_children;");
+      }
 
-    // ES_TODO: add full flush code of rewrites
+      if (name().equals("List")) {
+        stream.println(ind + "public boolean is$Final() { return super.is$Final() && !list$touched; }");
+      }
 
-    // ES_2011-09-20: Code generation for incremental evaluation, flush cache
-    //if (ASTNode.incremental) jjtGenIncrementalFlushCache(stream);
-    //
-    stream.print(flushCollectionCacheString());
-    if(ASTNode.block) stream.print(ASTNode.blockEnd);
-
-    stream.print(ind + "}\n");
-
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.print(ind + "public void flushCollectionCache() {\n");
-    if(!name().equals("ASTNode"))
-      stream.print(ind(2) + "super.flushCollectionCache();\n");
-    stream.print(flushCollectionCacheString());
-    stream.print(ind + "}\n");
-
-    }
-
-  }
-
-  // ES_2011-09-20: Code generation for incremental evaluation, flush cache
-/*
-  public void ASTDecl.jjtGenIncrementalFlushCache(PrintWriter stream) {
-
-    // flush of rewrites
-    if (name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelParam) {
-        stream.println(ind(3) + "for (int i = 0; i < numChildren; i++) {");
-        stream.println(ind(4) +   "if (!childIsNTA(i) && rewritten_children != null && rewritten_children[i]) {");
-        stream.println(ind(5) +     "getChild(i).notifyForRemove();");
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel low-level");
+      stream.println(ind + " */");
+      stream.print(ind + "public void flushCache() {\n");
+      if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      if(!name().equals("ASTNode"))
+        stream.print(ind(2) + "super.flushCache();\n");
+      else {
+        // flush rewrite or traverse to child
+        stream.println(ind(3) + "for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println(ind(4) +   "if (rewritten_children != null && rewritten_children[i]) {");
         stream.println(ind(5) +     "children[i] = init_children[i];");
+        stream.println(ind(5) +     "init_children[i] = null;");
         stream.println(ind(5) +     "rewritten_children[i] = false;");
-        //stream.println(ind(5) +     "init_children[i] = null;");
+        stream.println(ind(4) +   "} else {");
+        stream.println(ind(5) +     "getChildNoTransform(i).flushCache();");
+        stream.println(ind(4) +   "}");
+        stream.println(ind(3) + "}");
       }
-      if (ASTNode.incrementalLevelParam) {
-        stream.println(ind(5) +     "getChild_handler[i].notifyDependencies();");    
-      }
-      if (ASTNode.incrementalLevelAttr) {
-        stream.println(ind(5) +     "getChild_handler.notifyDependencies();");    
-      }
-      stream.println(ind(4) +     "}");
-      stream.println(ind(3) +   "}");
-    }
-
-    // flush of attributes
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "handler.notifyDependencies();");
-    }
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      // Collect attributes
-      ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynEq(); k++) {
-        AttrDecl attr = getSynEq(k).decl();
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
+        AttrEq equ = getSynEq(k);
+        AttrDecl attr = equ.decl();
+        String u = attr.resetVisit() + attr.resetCache();
+        u = u.replaceAll("#NAME#", attr.attributeSignature());
+        stream.print(u);
       }
       for(int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
+        String u = attr.resetVisit() + attr.resetCache();
+        u = u.replaceAll("#NAME#", attr.attributeSignature());
+        stream.print(u);
       }
-      // Generate attribute code
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-        stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-        if (attr.getNumParameter() == 0) {
-          stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
-        } else {
-          if (ASTNode.incrementalLevelParam) {
-            stream.println(ind(3) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                          "_handler.keySet().iterator(); itr.hasNext();) {");
-            stream.println(ind(4) +   "Object key = itr.next();");
-            stream.println(ind(4) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + 
-                                          attr.attributeSignature() + "_handler.get(key);");
-            stream.println(ind(4) +   "handler.notifyDependencies();");
-            stream.println(ind(3) + "}");
-          }
-          if (ASTNode.incrementalLevelAttr) {
-            stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
-          }
-        }
-        stream.println(ind(2) + "}");
-      }
+  
+      stream.print(flushCollectionCacheString());
+      if(ASTNode.block) stream.print(ASTNode.blockEnd);
+
+      stream.print(ind + "}\n");
+
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel internal");
+      stream.println(ind + " */");
+      stream.print(ind + "public void flushCollectionCache() {\n");
+      if(!name().equals("ASTNode"))
+        stream.print(ind(2) + "super.flushCollectionCache();\n");
+      stream.print(flushCollectionCacheString());
+      stream.print(ind + "}\n");
+  
     }
   }
-*/
+
 
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     if(j2me) {
@@ -1990,10 +1971,15 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, initialization of handlers
   public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
 
-    // rewrite code
-    if (name().equals("ASTNode")) {
+    // rewrite code: intial copy store -- full flush also adds this
+    if (name().equals("ASTNode") && !ASTNode.fullFlush) {
       stream.println(ind + "public ASTNode[] ASTNode.init_children;");
       stream.println(ind + "protected boolean[] ASTNode.rewritten_children;");
+    }
+    // if a change has been made to a list then the list should again be touched by the "touch rewrite"
+    // but this does not happen if the list is final.
+    if (name().equals("List") && !ASTNode.fullFlush) {
+      stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
     }
     //
 

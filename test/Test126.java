@@ -122,6 +122,20 @@ public class Test126 {
 
     test.ast.List listChange = (test.ast.List)a.getChild(0);
     B b1Change = a.getB(0);
+
+/*
+    System.out.println("## second access: ");
+    System.out.println("\ta=" + a);
+    System.out.println("\ta/list[0]=" + a.getChildNoTransform(0));
+    for (int i = 0; i < a.getChildNoTransform(0).getNumChildNoTransform(); i++) 
+      System.out.println("\ta/list[0]/child[" + i + "]=" + a.getChildNoTransform(0).getChildNoTransform(i));
+    System.out.print("\ta.initial[0]=");
+    if (a.init_children != null && a.init_children[0] != null) {
+      System.out.println(a.init_children[0]);
+      for (int i = 0; i < a.init_children[0].getNumChildNoTransform(); i++) 
+        System.out.println("\ta.initial[0]/child[" + i + "]=" + a.init_children[0].getChildNoTransform(i));
+    } else System.out.println("null");
+*/
   
     System.out.println("## Dependencies/Cache after second access:");
     a.dumpDependencies();
