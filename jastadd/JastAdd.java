@@ -389,6 +389,9 @@ public class JastAdd {
         if (!checkIncrementalConfig()) {
             return true;
         }
+
+        // ES_2011-10-10: Handle full flush flag
+        ASTNode.fullFlush = cla.hasLongOption("fullFlush");
         
         pack = cla.getLongOptionValue("package", "").replace('/', '.');
         int n = cla.getNumOperands();

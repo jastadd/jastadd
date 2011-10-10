@@ -1319,6 +1319,10 @@ aspect JaddCodeGen {
 
 
   public void ASTDecl.jjtGenFlushCache(PrintWriter stream) {
+
+    // ES_2011-10-10: Checking full flush flag
+    if (ASTNode.fullFlush) {
+
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
@@ -1339,8 +1343,11 @@ aspect JaddCodeGen {
       u = u.replaceAll("#NAME#", attr.attributeSignature());
       stream.print(u);
     }
+
+    // ES_TODO: add full flush code of rewrites
+
     // ES_2011-09-20: Code generation for incremental evaluation, flush cache
-    if (ASTNode.incremental) jjtGenIncrementalFlushCache(stream);
+    //if (ASTNode.incremental) jjtGenIncrementalFlushCache(stream);
     //
     stream.print(flushCollectionCacheString());
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
@@ -1356,9 +1363,12 @@ aspect JaddCodeGen {
     stream.print(flushCollectionCacheString());
     stream.print(ind + "}\n");
 
+    }
+
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, flush cache
+/*
   public void ASTDecl.jjtGenIncrementalFlushCache(PrintWriter stream) {
 
     // flush of rewrites
@@ -1422,6 +1432,7 @@ aspect JaddCodeGen {
       }
     }
   }
+*/
 
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     if(j2me) {

@@ -109,6 +109,9 @@ aspect JragCodeGen {
   public static boolean ASTNode.incrementalPropLimit = false; // limited propagation of change
   public static boolean ASTNode.incrementalDebug = false; // debugging
 
+  // ES_2011-10-10: Adding field for full flush support
+  public static boolean ASTNode.fullFlush = false;
+
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine  public boolean AttrDecl.getLazy() {
     if (cacheAll)
@@ -1909,7 +1912,11 @@ aspect JragCodeGen {
       buf.append(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
       buf.append(ind(4) + "getChild(i);\n");
       buf.append(ind(3) + "list$touched = false;\n");
-      buf.append(ind(3) + "return this;\n");
+      // ES_2011-10-10: This return is needed to consider this access of children as a rewrite
+      // removing this temporarily to prevent all lists from being rewritten. 
+      // NB! If a specification has "rewrite in List" constructions and incremental evaluation
+      // or full flushing turned on then this return is needed.
+      //buf.append(ind(3) + "return this;\n");
       buf.append(ind(2) + "}\n");
     }
     for(int i = 0; i < getNumRewrite(); i++) {
