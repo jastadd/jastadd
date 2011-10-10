@@ -2,13 +2,9 @@
 ## Dependencies/Cache after construction:
 ======= Access AST
 ## Dependencies/Cache in current after access
-dep(A:getChild[0] -> A/List[0]:getChild[0])
-dep(A:getChild[0] -> A/List[0]:numChildren)
 #### Dependencies/Cache in init after access:
 ======= Access attribute/Change AST
 ## Dependencies/Cache in current after change:
-dep(A:getChild[0] -> A/List[0]:getChild[0])
-dep(A:getChild[0] -> A/List[0]:numChildren)
 dep(A/List[0]/B[0]:decl -> A/List[0]/B[0]:getName)
 dep(A/List[0]/B[0]:decl -> A/List[0]/B[0]:getParent)
 dep(A/List[0]/B[0]:decl -> A/List[0]:getChild[0])

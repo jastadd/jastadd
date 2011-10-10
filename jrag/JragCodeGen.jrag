@@ -1908,16 +1908,18 @@ aspect JragCodeGen {
     buf.append(ind + " */\n");
     buf.append(ind + "public ASTNode rewriteTo() {\n");
     if(name().equals("List")) {
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) {
+      //
       buf.append(ind(2) + "if(list$touched) {\n");
       buf.append(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
       buf.append(ind(4) + "getChild(i);\n");
       buf.append(ind(3) + "list$touched = false;\n");
-      // ES_2011-10-10: This return is needed to consider this access of children as a rewrite
-      // removing this temporarily to prevent all lists from being rewritten. 
-      // NB! If a specification has "rewrite in List" constructions and incremental evaluation
-      // or full flushing turned on then this return is needed.
-      //buf.append(ind(3) + "return this;\n");
+      buf.append(ind(3) + "return this;\n");
       buf.append(ind(2) + "}\n");
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      }
+      //
     }
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);

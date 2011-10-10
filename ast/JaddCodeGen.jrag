@@ -1360,9 +1360,9 @@ aspect JaddCodeGen {
         stream.println(ind + "protected boolean[] rewritten_children;");
       }
 
-      if (name().equals("List")) {
-        stream.println(ind + "public boolean is$Final() { return super.is$Final() && !list$touched; }");
-      }
+      //if (name().equals("List")) {
+      //  stream.println(ind + "public boolean is$Final() { return super.is$Final() && !list$touched; }");
+      //}
 
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel low-level");
@@ -1827,6 +1827,9 @@ aspect JaddCodeGen {
       stream.println(ind + "}\n");
       stream.println(ind + "public void List.insertChild(ASTNode node, int i) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) 
+      //
       stream.println(ind(2) + "list$touched = true;");
       stream.println(ind(2) + "super.insertChild(node, i);");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
@@ -1836,6 +1839,9 @@ aspect JaddCodeGen {
       else
         stream.println(ind + "public void List.addChild(ASTNode node) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) 
+      //
       stream.println(ind(2) + "list$touched = true;");
       stream.println(ind(2) + "super.addChild(node);");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
@@ -1845,21 +1851,30 @@ aspect JaddCodeGen {
       stream.println(ind + " */");
       stream.println(ind + "public void List.removeChild(int i) {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
-      stream.println(ind(2) + "list$touched = true;");
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) 
+        stream.println(ind(2) + "list$touched = true;");
+      //
       stream.println(ind(2) + "super.removeChild(i);");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
       stream.println(ind + "}");
       stream.println(ind + "public int List.getNumChild() {");
       if(ASTNode.block) stream.append(ASTNode.blockBegin);
-      stream.println(ind(2) + "if(list$touched) {");
-      stream.println(ind(3) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
-      stream.println(ind(4) + "getChild(i);");
-      stream.println(ind(4) + "list$touched = false;");
-      stream.println(ind(3) + "}");
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) {
+        stream.println(ind(2) + "if(list$touched) {");
+        stream.println(ind(3) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
+        stream.println(ind(4) + "getChild(i);");
+        stream.println(ind(4) + "list$touched = false;");
+        stream.println(ind(3) + "}");
+      } 
+      //
       stream.println(ind(3) + "return getNumChildNoTransform();");
       if(ASTNode.block) stream.append(ASTNode.blockEnd);
       stream.println(ind + "}");
-      stream.println(ind + "private boolean List.list$touched = true;");
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) 
+        stream.println(ind + "private boolean List.list$touched = true;");
     }
     else if(name().equals("Opt")) {
       // do not override getNumChild with implementation below
@@ -1900,9 +1915,15 @@ aspect JaddCodeGen {
       stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-      if(name().equals("List"))
-        stream.println(ind(2) + "return true;");
-      else if(!hasRewrites())
+      if(name().equals("List")) {
+        // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+        if (!(ASTNode.incremental || ASTNode.fullFlush)) {
+          // old code 
+          stream.println(ind(2) + "return true;");
+        } else {
+          stream.println(ind(2) + "return false;");
+        }
+      } else if(!hasRewrites())
         stream.println(ind(2) + "return false;");
       else if(!stagedRewrites || rewriteWithNoPhaseCondition())
         stream.println(ind(2) + "return true;");
@@ -1978,9 +1999,9 @@ aspect JaddCodeGen {
     }
     // if a change has been made to a list then the list should again be touched by the "touch rewrite"
     // but this does not happen if the list is final.
-    if (name().equals("List") && !ASTNode.fullFlush) {
-      stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
-    }
+    //if (name().equals("List") && !ASTNode.fullFlush) {
+    //  stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
+    //}
     //
 
     // level node: one handler per node
