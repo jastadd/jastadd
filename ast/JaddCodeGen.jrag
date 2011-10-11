@@ -2102,7 +2102,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "ASTNode parent = getParent();");
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-      stream.println(ind(3) +   "if (parent.rewritten_children != null && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
+      stream.println(ind(3) +   "if (parent.rewritten_children != null && index > 0 && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
       stream.println(ind(4) +     "return true;");
       stream.println(ind(3) +   "}");
       stream.println(ind(3) +   "child = parent;");
