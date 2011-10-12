@@ -998,6 +998,9 @@ aspect JaddCodeGen {
     stream.println(ind + " */");
     stream.println(ind + "public void ASTNode.setParent(ASTNode node) {");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
+    // ES_2011-10-10: Code generation for incremental evaluation, set parent
+    if (ASTNode.incremental) jjtGenIncrementalSetParent(stream);
+    //
     stream.println(ind(2) + "parent = node;");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
@@ -1152,12 +1155,14 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set parent
   public void ASTDecl.jjtGenIncrementalSetParent(PrintWriter stream) {
+    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "getParent_handler.notifyDependencies();");
+      stream.println(ind(3) + "getParent_handler.notifyDependencies();");
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "handler.notifyDependencies();");
     }
+    stream.println(ind(2) + "}");
   }
 
   // ES_2011-10-10: Code generation for full flush, set child 1
@@ -1683,7 +1688,8 @@ aspect JaddCodeGen {
   // ES_2011-10-04: Changing this to an internal set of child via the children array to not send notifications
   public String ASTDecl.jjtGenIncrementalCloneNode() {
     StringBuffer buf = new StringBuffer();
-    buf.append(ind(3) + "res.children[i] = node;\n");
+    //buf.append(ind(3) + "res.children[i] = node;\n" + ind(3) + "node.parent = res;\n");
+    buf.append(ind(3) + "state().enterConstruction(); res.setChild(node, i); state().exitConstruction();\n");
     return buf.toString();
   }
 
