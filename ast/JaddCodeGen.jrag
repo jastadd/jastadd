@@ -2324,14 +2324,17 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode) stream.println("          handler.notifyDependencies();");    
       stream.println("        }");
       // inner rewrites
-
       stream.println("        // inner rewrites");
       stream.println("        else {");
-      stream.println("            ASTNode enclosingNode = locateEnclosingRewrittenNode();");
-      stream.println("            if (enclosingNode != null) {");
-      stream.println("              // make change call");
-      stream.println("              enclosingNode.reactToDependencyChange(attrID, _parameters);");
-      stream.println("            }");
+      stream.println("          ASTNode enclosingNode = locateEnclosingRewrittenNode();");
+      stream.println("          if (enclosingNode != null) {");
+      stream.println("            // make change call");
+      stream.println("            enclosingNode.reactToDependencyChange(attrID, _parameters);");
+      stream.println("          }");
+      stream.println("        }");
+      stream.println("      }");
+      stream.println("    }");
+
 /*
       stream.println("          // set up change");
       stream.println("          ASTNode oldChild = children[i];");
@@ -2360,11 +2363,6 @@ aspect JaddCodeGen {
       stream.println("            }");
       stream.println("          }");
 */
-      stream.println("        }");
-      stream.println("      }");
-      stream.println("    }");
-
-
   //    if (ASTNode.incrementalLevelParam) {
   //    stream.println("          getChild_handler[i].notifyDependencies();");    
   //    }
@@ -2408,7 +2406,7 @@ aspect JaddCodeGen {
       // start match attribute statement
       if (ASTNode.incrementalLevelParam) {
         stream.print("     " + (first ? "" : "else "));
-        stream.print("if (attrID.equals(\"" + attr.attributeSignature() + "\")");
+        stream.print("if (" + "attrID.equals(\"" + attr.attributeSignature() + "\")");
         if (attr.getNumParameter() > 0) 
           stream.print(" && " + attr.attributeSignature() + "_values != null" + 
             " && " + attr.attributeSignature() + "_values.containsKey(_parameters)");
@@ -2470,13 +2468,12 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode) {
         stream.println(ind(3) + "handler.notifyDependencies();");
       }
+      
       // end match statement
       stream.println("     }");
       first = false;
     }  
-    if (!first) {
-      stream.println(ind(2) + "else");
-    }  
+
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, 
