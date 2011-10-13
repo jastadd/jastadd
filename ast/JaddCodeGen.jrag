@@ -2077,7 +2077,7 @@ aspect JaddCodeGen {
       stream.println(ind(3) +   "int index = child.childIndex;");
       stream.println(ind(3) +   "indexList.addFirst(new Integer(index));");
       stream.println(ind(3) +   "if (parent.init_children != null && index >= 0 && " +
-                                  "index < init_children.length && init_children[index] != null) {");
+                                  "index < parent.init_children.length && parent.init_children[index] != null) {");
 //      stream.println(ind(3) +   "if (parent.is$Final() != child.is$Final()) {");
       stream.println(ind(4) +     "break;");
       stream.println(ind(3) +   "}");
@@ -2302,7 +2302,7 @@ aspect JaddCodeGen {
     if (name().equals("ASTNode")) {
       stream.println("    if (attrID.equals(\"getChild\")) {");
       stream.println("      int i = (Integer)_parameters;");
-      stream.println("      if (rewritten_children != null && rewritten_children[i]) {");
+      stream.println("      if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {");
       // make sure this condition is false before calling notify, there may be a circular dependency resulting in a double
       // flush otherwise, a double flush will cause null to be moved in as the initial child
       stream.println("        rewritten_children[i] = false;");
