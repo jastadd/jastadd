@@ -1079,11 +1079,14 @@ aspect JaddCodeGen {
     //stream.println(ind(3) +   "initial = node.fullCopy();");
     //stream.println(ind(2) + "}");
     }
-    stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");        
+    stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");
+    stream.println(ind(2) + "boolean rewritten = false;");                
+    stream.println(ind(2) + "that.rewritten_children[i] = true;");                
 
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
+    stream.println(ind(2) + "that.rewritten_children[i] = rewritten;");    
     stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler[i]);");
     // NB! Adding this to cache the computed child with a correct parent
     //stream.println(ind(2) + "that.children[i] = node;");
@@ -1092,8 +1095,8 @@ aspect JaddCodeGen {
   // ES_2011-09-30: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
-    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
-    stream.println(ind(5) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE && !rewritten) {");
+    stream.println(ind(5) +   "rewritten = true;");
     stream.println(ind(5) +   "that.init_children[i] = initial;");
     stream.println(ind(4) + "}");
     }
@@ -1445,8 +1448,9 @@ aspect JaddCodeGen {
     if (ASTNode.fullFlush) {
 
       if (name().equals("ASTNode")) {
+        // ES_TODO: These should be protected, public now for debugging reasons
         stream.println(ind + "public ASTNode[] init_children;");
-        stream.println(ind + "protected boolean[] rewritten_children;");
+        stream.println(ind + "public boolean[] rewritten_children;");
         stream.println(ind + "protected boolean hasEnclosingRewrittenNode() {");
         stream.println(ind(2) + "ASTNode child = this;");
         stream.println(ind(2) + "ASTNode parent = getParent();");
@@ -2100,15 +2104,16 @@ aspect JaddCodeGen {
 
     // rewrite code: intial copy store -- full flush also adds this
     if (name().equals("ASTNode") && !ASTNode.fullFlush) {
+        // ES_TODO: These should be protected, public now for debugging reasons
       stream.println(ind + "public ASTNode[] ASTNode.init_children;");
-      stream.println(ind + "protected boolean[] ASTNode.rewritten_children;");
+      stream.println(ind + "public boolean[] ASTNode.rewritten_children;");
 
       stream.println(ind + "protected boolean ASTNode.hasEnclosingRewrittenNode() {");
       stream.println(ind(2) + "ASTNode child = this;");
       stream.println(ind(2) + "ASTNode parent = getParent();");
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-      stream.println(ind(3) +   "if (parent.rewritten_children != null && index > 0 && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
+      stream.println(ind(3) +   "if (parent.rewritten_children != null && index >= 0 && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
       stream.println(ind(4) +     "return true;");
       stream.println(ind(3) +   "}");
       stream.println(ind(3) +   "child = parent;");
@@ -2122,7 +2127,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "ASTNode parent = getParent();");
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-      stream.println(ind(3) +   "if (parent.rewritten_children != null && index > 0 && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
+      stream.println(ind(3) +   "if (parent.rewritten_children != null && index >= 0 && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
       stream.println(ind(4) +     "return parent;");
       stream.println(ind(3) +   "}");
       stream.println(ind(3) +   "child = parent;");
@@ -2663,7 +2668,8 @@ aspect JaddCodeGen {
       stream.println("      for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {");
       stream.println("        if (rewritten_children[k]) {");
       stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
-                                      "\" rewritten, initial=\" + init_children[k].relativeNodeID());");
+                                      "\" rewritten, initial=\" + " +
+                                "(init_children[k] != null ? init_children[k].relativeNodeID():null));");
       stream.println("        }");
       stream.println("      }");
      //
