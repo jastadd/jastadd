@@ -2116,6 +2116,29 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "return false;");
       stream.println(ind + "}");
+      stream.println(ind + "protected ASTNode ASTNode.locateEnclosingRewrittenNode() {");
+      stream.println(ind(2) + "ASTNode child = this;");
+      stream.println(ind(2) + "ASTNode parent = getParent();");
+      stream.println(ind(2) + "while (parent != null) {");
+      stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
+      stream.println(ind(3) +   "if (parent.rewritten_children != null && index > 0 && index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
+      stream.println(ind(4) +     "return parent;");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(3) +   "child = parent;");
+      stream.println(ind(3) +   "parent = parent.getParent();");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "return null;");
+      stream.println(ind + "}");
+      stream.println(ind + "protected void ASTNode.resetRewrites() {");
+      stream.println(ind(2) + "for (int i = 0; i < numChildren; i++) {");
+      stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length) {");
+      stream.println(ind(4) +     "rewritten_children[i] = false;");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(3) +   "if (children[i] != null)");
+      stream.println(ind(4) +     "children[i].resetRewrites();");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(2) + "}");
+      stream.println(ind + "}");
 
     }
     // if a change has been made to a list then the list should again be touched by the "touch rewrite"
@@ -2258,12 +2281,64 @@ aspect JaddCodeGen {
 
     // rewrite code
     if (name().equals("ASTNode")) {
-      stream.println("      if (attrID.equals(\"getChild\")) {");
-      stream.println("        int i = (Integer)_parameters;");
-      stream.println("        if (rewritten_children != null && rewritten_children[i]) {");
+      stream.println("    if (attrID.equals(\"getChild\")) {");
+      stream.println("      int i = (Integer)_parameters;");
+      stream.println("      if (rewritten_children != null && rewritten_children[i]) {");
+
       // make sure this condition is false before calling notify, there may be a circular dependency resulting in a double
       // flush otherwise, a double flush will cause null to be moved in as the initial child
-      stream.println("          rewritten_children[i] = false;");
+      stream.println("        rewritten_children[i] = false;");
+      stream.println("        children[i].resetRewrites();");
+      // outer rewrites
+      stream.println("        // outer rewrites");
+      stream.println("        if (init_children[i] != null) {");
+      stream.println("          // set up change");
+      stream.println("          ASTNode oldChild = children[i];");
+      stream.println("          ASTNode newChild = init_children[i];");
+      stream.println("          // make change");
+      stream.println("          children[i] = newChild;");
+      stream.println("          init_children[i] = null;");
+      stream.println("          // set parents and notify");
+      stream.println("          oldChild.setParent(null);");
+      stream.println("          newChild.setParent(this);");
+      if (ASTNode.incrementalLevelParam) stream.println("          getChild_handler[i].notifyDependencies();");    
+      if (ASTNode.incrementalLevelAttr) stream.println("          getChild_handler.notifyDependencies();");    
+      if (ASTNode.incrementalLevelNode) stream.println("          handler.notifyDependencies();");    
+      stream.println("        }");
+      // inner rewrites
+      stream.println("        // inner rewrites");
+      stream.println("        else {");
+      stream.println("          // set up change");
+      stream.println("          ASTNode oldChild = children[i];");
+      stream.println("          ASTNode initial = locateInitialCopy();");
+      stream.println("          ASTNode newChild = initial != null && initial.children != null " + 
+                                  "&& i < initial.children.length ? initial.children[i].fullCopy() : null;");
+
+      stream.println("          // source node - has initial copy");
+      stream.println("          if (newChild != null) {");
+      stream.println("            // make change");
+      stream.println("            children[i] = newChild;");
+      stream.println("            // set parents and notify");
+      stream.println("            curChild.setParent(null);");
+      stream.println("            newChild.setParent(this);");
+      if (ASTNode.incrementalLevelParam) stream.println("            getChild_handler[i].notifyDependencies();");    
+      if (ASTNode.incrementalLevelAttr) stream.println("            getChild_handler.notifyDependencies();");    
+      if (ASTNode.incrementalLevelNode) stream.println("            handler.notifyDependencies();");          
+      stream.println("          }");
+      stream.println("          // intermediate node - no initial copy: roll up rewrite");
+      stream.println("          else {");
+      stream.println("            // set up change call");
+      stream.println("            ASTNode enclosingNode = locateEnclosingRewrite();");
+      stream.println("            if (enclosingNode == null) {");
+      stream.println("              throw new RuntimeException(\"incremental error: inner rewrite without outer rewrite\");");
+      stream.println("            }");
+      stream.println("            // make change call");
+      stream.println("            enclosingNode.reactToDependencyChange(attrID, _parameters);");
+      stream.println("          }");
+      stream.println("        }");
+      stream.println("      }");
+      stream.println("    }");
+/*
       if (ASTNode.incrementalLevelParam) {
       stream.println("          getChild_handler[i].notifyDependencies();");    
       }
@@ -2284,8 +2359,7 @@ aspect JaddCodeGen {
       stream.println("              children[i] = initial.children[i].fullCopy();");
       stream.println("            }");
       stream.println("          }");
-      stream.println("        }");
-      stream.println("      }");
+*/
     }
     // 
 
