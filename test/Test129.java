@@ -45,6 +45,10 @@ public class Test129 {
 
 //    System.out.println("## after setName: ");
 //    printOutNode(a);
+//    printOutNode(b);
+//    printOutNode(c);
+//    printOutNode(d);
+//    printOutNode(e);
 
   
     System.out.println("-- Dependencies/Cache after setName:");
