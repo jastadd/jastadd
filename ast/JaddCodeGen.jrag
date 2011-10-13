@@ -701,13 +701,14 @@ aspect JaddCodeGen {
       //
       stream.println(ind(3) + "return node;");
       stream.println(ind(2) + "}");
+      stream.println(ind(2) + "if(!node.in$Circle()) {");
+
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite1(stream);
       //
       // ES_2011-10-10: Code generation for full flush
       if (ASTNode.fullFlush) jjtGenFullFlush1(stream);
       //
-      stream.println(ind(2) + "if(!node.in$Circle()) {");
       stream.println(ind(3) + "int rewriteState;");
       stream.println(ind(3) + "int num = that.state().boundariesCrossed;");
       stream.println(ind(3) + "do {");
@@ -735,11 +736,13 @@ aspect JaddCodeGen {
       if(rewriteLimit > 0)
         stream.println(ind(4) + "node.debugRewriteRemove();");
       stream.println(ind(3) + "}");
+      // ES_2011-09-30: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite2(stream);
+      //
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) { 
-          jjtGenIncrementalTrackRewrite2(stream);
           jjtGenIncrementalTrackRewrite4(stream);
       }
       //
@@ -1080,13 +1083,13 @@ aspect JaddCodeGen {
     //stream.println(ind(2) + "}");
     }
     stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");
-    stream.println(ind(2) + "boolean rewritten = false;");                
-    stream.println(ind(2) + "that.rewritten_children[i] = true;");                
+//    stream.println(ind(2) + "boolean rewritten = false;");                
+//    stream.println(ind(2) + "that.rewritten_children[i] = true;");                
 
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
-    stream.println(ind(2) + "that.rewritten_children[i] = rewritten;");    
+//    stream.println(ind(2) + "that.rewritten_children[i] = rewritten;");    
     stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler[i]);");
     // NB! Adding this to cache the computed child with a correct parent
     //stream.println(ind(2) + "that.children[i] = node;");
@@ -1095,8 +1098,8 @@ aspect JaddCodeGen {
   // ES_2011-09-30: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
-    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE && !rewritten) {");
-    stream.println(ind(5) +   "rewritten = true;");
+    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
+    stream.println(ind(5) +   "that.rewritten_children[i] = true;");
     stream.println(ind(5) +   "that.init_children[i] = initial;");
     stream.println(ind(4) + "}");
     }
@@ -2073,7 +2076,9 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = child.childIndex;");
       stream.println(ind(3) +   "indexList.addFirst(new Integer(index));");
-      stream.println(ind(3) +   "if (parent.is$Final() != child.is$Final()) {");
+      stream.println(ind(3) +   "if (parent.init_children != null && index >= 0 && " +
+                                  "index < init_children.length && init_children[index] != null) {");
+//      stream.println(ind(3) +   "if (parent.is$Final() != child.is$Final()) {");
       stream.println(ind(4) +     "break;");
       stream.println(ind(3) +   "}");
       stream.println(ind(3) +   "child = parent;");
@@ -2084,13 +2089,22 @@ aspect JaddCodeGen {
       stream.println(ind(3) +   "return null;");
       stream.println(ind(2) + "}");
       // root not reached -- enclosing rewrite found
+      stream.println(ind(2) + "boolean first = true;");
       stream.println(ind(2) + "for (Iterator itr = indexList.iterator(); itr.hasNext();) {");
       stream.println(ind(3) +   "int index = ((Integer)itr.next()).intValue();");
-      stream.println(ind(3) +   "child = parent.getChildNoTransform(index);");
-      stream.println(ind(3) +   "parent = child;");
-      stream.println(ind(3) +   "if (child == null) {");
-      stream.println(ind(4) +     "throw new RuntimeException(\"Incremental tree modification error: premature end of change point path\");");
-      stream.println(ind(3) +   "}");
+      stream.println(ind(3) +   "if (first) {");
+      stream.println(ind(4) +     "first = false;");
+      stream.println(ind(4) +     "child = parent.init_children[index];");
+      stream.println(ind(4) +     "parent = child;");
+      stream.println(ind(3) +   "} else if (index < parent.getNumChildNoTransform()) {");
+      stream.println(ind(4) +     "child = parent.getChildNoTransform(index);");
+      stream.println(ind(4) +     "parent = child;");
+      stream.println(ind(3) +   "} else return null;");
+//      stream.println(ind(3) +   "child = parent.getChildNoTransform(index);");
+//      stream.println(ind(3) +   "parent = child;");
+//      stream.println(ind(3) +   "if (child == null) {");
+//      stream.println(ind(4) +     "throw new RuntimeException(\"Incremental tree modification error: premature end of change point path\");");
+//      stream.println(ind(3) +   "}");
       stream.println(ind(2) + "}");
       // initial change point found
       stream.println(ind(2) + "return child;");      
@@ -2332,11 +2346,11 @@ aspect JaddCodeGen {
       stream.println("          else {");
       stream.println("            // set up change call");
       stream.println("            ASTNode enclosingNode = locateEnclosingRewrittenNode();");
-      stream.println("            if (enclosingNode == null) {");
-      stream.println("              throw new RuntimeException(\"incremental error: inner rewrite without outer rewrite\");");
+      stream.println("            if (enclosingNode != null) {");
+      stream.println("              // make change call");
+      stream.println("              enclosingNode.reactToDependencyChange(attrID, _parameters);");
+//      stream.println("              throw new RuntimeException(\"incremental error: inner rewrite without outer rewrite\");");
       stream.println("            }");
-      stream.println("            // make change call");
-      stream.println("            enclosingNode.reactToDependencyChange(attrID, _parameters);");
       stream.println("          }");
       stream.println("        }");
       stream.println("      }");

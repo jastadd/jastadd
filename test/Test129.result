@@ -1,16 +1,18 @@
 -- Dependencies/Cache after rewrites:
 a:
 dep(A:getChild[0] -> A/B/D:getParent)
+dep(A:getChild[0] -> A/B/D:numChildren)
 dep(A:getChild[0] -> A/B:getChild[0])
 dep(A:getChild[0] -> A/B:getParent)
 dep(A:getChild[0] -> A/B:numChildren)
 dep(A:getChild[0] -> A/C[0]:getParent)
 dep(A:getChild[0] -> A:getName)
+dep(A:getChild[0] -> A:getParent)
 dep(A:getChild[0] -> A:numChildren)
 A/C[0] rewritten, initial=A/B
 b:
 dep(A/B:getChild[0] -> A/B/D:getName)
-A/C[0]/E[0] rewritten, initial=null
+A/C[0]/E[0] rewritten, initial=A/B/D
 c:
 d:
 e:
@@ -18,7 +20,7 @@ e:
 a:
 b:
 dep(A/B:getChild[0] -> A/B/D:getName)
-C/E[0] rewritten, initial=null
+C/E[0] rewritten, initial=A/B/D
 c:
 d:
 e:
