@@ -2317,7 +2317,7 @@ aspect JaddCodeGen {
       stream.println("          children[i] = newChild;");
       stream.println("          init_children[i] = null;");
       stream.println("          // set parents and notify");
-      stream.println("          oldChild.setParent(null);");
+      //stream.println("          oldChild.setParent(null);");
       stream.println("          newChild.setParent(this);");
       if (ASTNode.incrementalLevelParam) stream.println("          getChild_handler[i].notifyDependencies();");    
       if (ASTNode.incrementalLevelAttr) stream.println("          getChild_handler.notifyDependencies();");    
@@ -2336,7 +2336,7 @@ aspect JaddCodeGen {
       stream.println("            // make change");
       stream.println("            children[i] = newChild;");
       stream.println("            // set parents and notify");
-      stream.println("            oldChild.setParent(null);");
+      //stream.println("            oldChild.setParent(null);");
       stream.println("            newChild.setParent(this);");
       if (ASTNode.incrementalLevelParam) stream.println("            getChild_handler[i].notifyDependencies();");    
       if (ASTNode.incrementalLevelAttr) stream.println("            getChild_handler.notifyDependencies();");    
