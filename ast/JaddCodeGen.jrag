@@ -2324,8 +2324,15 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode) stream.println("          handler.notifyDependencies();");    
       stream.println("        }");
       // inner rewrites
+
       stream.println("        // inner rewrites");
       stream.println("        else {");
+      stream.println("            ASTNode enclosingNode = locateEnclosingRewrittenNode();");
+      stream.println("            if (enclosingNode != null) {");
+      stream.println("              // make change call");
+      stream.println("              enclosingNode.reactToDependencyChange(attrID, _parameters);");
+      stream.println("            }");
+/*
       stream.println("          // set up change");
       stream.println("          ASTNode oldChild = children[i];");
       stream.println("          ASTNode initial = locateInitialCopy();");
@@ -2352,6 +2359,7 @@ aspect JaddCodeGen {
 //      stream.println("              throw new RuntimeException(\"incremental error: inner rewrite without outer rewrite\");");
       stream.println("            }");
       stream.println("          }");
+*/
       stream.println("        }");
       stream.println("      }");
       stream.println("    }");
