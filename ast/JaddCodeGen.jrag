@@ -1486,8 +1486,10 @@ aspect JaddCodeGen {
         // flush rewrite or traverse to child
         stream.println(ind(3) + "for (int i = 0; i < getNumChildNoTransform(); i++) {");
         stream.println(ind(4) +   "if (rewritten_children != null && rewritten_children[i]) {");
-        stream.println(ind(5) +     "children[i] = init_children[i];");
-        stream.println(ind(5) +     "init_children[i] = null;");
+        stream.println(ind(5) +     "if (init_children[i] != null) {");
+        stream.println(ind(6) +       "children[i] = init_children[i];");
+        stream.println(ind(6) +       "init_children[i] = null;");
+        stream.println(ind(5) +     "}");
         stream.println(ind(5) +     "rewritten_children[i] = false;");
         stream.println(ind(4) +   "} else {");
         stream.println(ind(5) +     "getChildNoTransform(i).flushCache();");
