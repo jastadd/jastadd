@@ -1,8 +1,8 @@
 -- Dependencies/Cache after rewrite:
 a:
-dep(A:getChild[0] -> A/B:getParent)
-dep(A:getChild[0] -> A/C[0]:getParent)
-dep(A:getChild[0] -> A:getName)
+dep(A:getChild -> A/B:getParent)
+dep(A:getChild -> A/C[0]:getParent)
+dep(A:getChild -> A:getName)
 A/C[0] rewritten, initial=A/B
 b:
 c:
