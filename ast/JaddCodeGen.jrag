@@ -1309,6 +1309,22 @@ aspect JaddCodeGen {
       stream.println(ind(3) +   "getChild_handler = h;");
       stream.println(ind(2) + "}");
     }
+    if (ASTNode.incrementalLevelAttr) {
+      // rewrite code
+      if (!ASTNode.fullFlush) {
+        stream.println(ind(2) + "if (init_children != null) {");
+        stream.println(ind(3) +   "ASTNode d[] = new ASTNode[i << 1];");
+        stream.println(ind(3) +   "System.arraycopy(init_children, 0, d, 0, init_children.length);");
+        stream.println(ind(3) +   "init_children = d;");
+        stream.println(ind(2) + "}");
+        stream.println(ind(2) + "if (rewritten_children != null) {");
+        stream.println(ind(3) +   "boolean[] b = new boolean[i << 1];");
+        stream.println(ind(3) +   "System.arraycopy(rewritten_children, 0, b, 0, rewritten_children.length);");
+        stream.println(ind(3) +   "rewritten_children = b;");
+        stream.println(ind(2) + "}");
+      }
+    }
+
   }
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 3
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild4(PrintWriter stream) {
