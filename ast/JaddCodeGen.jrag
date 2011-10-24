@@ -1082,7 +1082,12 @@ aspect JaddCodeGen {
     //stream.println(ind(3) +   "initial = node.fullCopy();");
     //stream.println(ind(2) + "}");
     }
-    stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler);");
+    }
 //    stream.println(ind(2) + "boolean rewritten = false;");                
 //    stream.println(ind(2) + "that.rewritten_children[i] = true;");                
 
@@ -1090,7 +1095,12 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
 //    stream.println(ind(2) + "that.rewritten_children[i] = rewritten;");    
-    stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler[i]);");
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler[i]);");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler);");
+    }
     // NB! Adding this to cache the computed child with a correct parent
     //stream.println(ind(2) + "that.children[i] = node;");
     //stream.println(ind(2) + "that.children[i].setParent(that);");
@@ -1113,11 +1123,11 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");  
+      stream.println(ind(2) + "that.state().addHandlerDepTo(that.getChild_handler);");  
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (child != null)");
-      stream.println(ind(3) + "  state().addHandlerDepTo(child.handler);");
+      stream.println(ind(3) + "  that.state().addHandlerDepTo(child.handler);");
     }
   }
 
@@ -1233,7 +1243,7 @@ aspect JaddCodeGen {
     stream.println(ind(4) +     "children[i].clearDepsInTree();");
     stream.println(ind(3) +   "}");
     // notify dependencies
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {  
+    if (ASTNode.incrementalLevelParam) {  
     // notify tom
     stream.println(ind(3) +   "if (children == null) {");
     stream.println(ind(4) +     "numChildren_handler.notifyDependencies();");
@@ -1682,15 +1692,25 @@ aspect JaddCodeGen {
   // Making sure that handlers are cloned correctly, pointing to the right node
   public String ASTDecl.jjtGenIncrementalCopyNode() {
     StringBuffer buf = new StringBuffer();
-    buf.append(ind(4) + "if (getChild_handler != null)\n");
-    buf.append(ind(5) +   "node.getChild_handler = (ASTNode$DepGraphNode[])getChild_handler.clone();\n");
-    buf.append(ind(4) + "node.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, node);\n");
-    buf.append(ind(4) + "node.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, node);\n");
-    buf.append(ind(4) + "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {\n");
-    buf.append(ind(5) +   "if (getChild_handler[i] != null) {\n");
-    buf.append(ind(6) +     "node.getChild_handler[i] = new ASTNode$DepGraphNode(getChild_handler[i], node);\n");
-    buf.append(ind(5) +   "}");
-    buf.append(ind(4) + "}");
+    if (ASTNode.incrementalLevelParam) {
+      buf.append(ind(4) + "if (getChild_handler != null)\n");
+      buf.append(ind(5) +   "node.getChild_handler = (ASTNode$DepGraphNode[])getChild_handler.clone();\n");
+      buf.append(ind(4) + "node.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, node);\n");
+      buf.append(ind(4) + "node.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, node);\n");
+      buf.append(ind(4) + "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {\n");
+      buf.append(ind(5) +   "if (getChild_handler[i] != null) {\n");
+      buf.append(ind(6) +     "node.getChild_handler[i] = new ASTNode$DepGraphNode(getChild_handler[i], node);\n");
+      buf.append(ind(5) +   "}");
+      buf.append(ind(4) + "}");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      buf.append(ind(4) + "node.getChild_handler = new ASTNode$DepGraphNode(getChild_handler, node);\n");
+      buf.append(ind(4) + "node.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, node);\n");
+      buf.append(ind(4) + "node.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, node);\n");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      buf.append(ind(4) + "node.handler = new ASTNode$DepGraphNode(handler, node);\n");
+    }
     return buf.toString();
   }
 
@@ -2303,7 +2323,12 @@ aspect JaddCodeGen {
     // rewrite code
     if (name().equals("ASTNode")) {
       stream.println("    if (attrID.equals(\"getChild\")) {");
+      if (ASTNode.incrementalLevelParam) {
       stream.println("      int i = (Integer)_parameters;");
+      }
+      if (ASTNode.incrementalLevelAttr) {
+      stream.println("      for (int i = 0; i < numChildren; i++) {");
+      }
       stream.println("      if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {");
       // make sure this condition is false before calling notify, there may be a circular dependency resulting in a double
       // flush otherwise, a double flush will cause null to be moved in as the initial child
@@ -2331,10 +2356,18 @@ aspect JaddCodeGen {
       stream.println("          ASTNode enclosingNode = locateEnclosingRewrittenNode();");
       stream.println("          if (enclosingNode != null) {");
       stream.println("            // make change call");
+      if (ASTNode.incrementalLevelParam) {
       stream.println("            enclosingNode.reactToDependencyChange(attrID, _parameters);");
+      }
+      if (ASTNode.incrementalLevelAttr) {
+      stream.println("            enclosingNode.reactToDependencyChange(attrID);");  
+      }
       stream.println("          }");
       stream.println("        }");
       stream.println("      }");
+      if (ASTNode.incrementalLevelAttr) {
+      stream.println("      }");
+      }      
       stream.println("    }");
 
 /*
@@ -2820,7 +2853,7 @@ aspect JaddCodeGen {
       stream.println("      fNode = node;");
       stream.println("      fAttrID = attrID;");
       stream.println("    }");
-      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphHandler handler, ASTNode node) {");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fAttrID = handler.fAttrID;");
       stream.println("    }");
