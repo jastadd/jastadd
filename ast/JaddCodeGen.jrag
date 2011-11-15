@@ -742,9 +742,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) { 
-          jjtGenIncrementalTrackRewrite4(stream);
-      }
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
       //
       stream.println(ind(2) + "return node;");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
