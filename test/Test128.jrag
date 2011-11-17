@@ -14,4 +14,8 @@ aspect Test128 {
     }
   }
 
+  eq A.getD().firstChild() = getB();
+  inh B D.firstChild();
+  syn lazy B D.sibling() = firstChild();
+
 }
