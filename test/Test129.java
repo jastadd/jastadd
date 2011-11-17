@@ -7,95 +7,85 @@ public class Test129 {
 
   public static void main(String[] args) {
 
-    D d = new D("a");
-    B b = new B(d);
+    System.gc();
+
+    // construct base AST
+    B b = new B(new D("a"));
     A a = new A(b, "b");
 
-//    System.out.println("## start: ");
-//    printOutNode(a);
+    System.out.println("\n## start: ");
+    printOutNode(a, "a");
 
-    // Activate rewrite
-    C c = (C)a.getB();
-    E e = (E)c.getD();
 
-//    System.out.println("## after access: ");
-//    printOutNode(a);
-//    printOutNode(b);
-//    printOutNode(c);
+    // activate rewrites
+    a.getB();
 
-    System.out.println("-- Dependencies/Cache after rewrites:");
-    System.out.println("a:");
-    a.dumpDependencies();
-    a.dumpCachedValues();
-    System.out.println("b:");
-    b.dumpDependencies();
-    b.dumpCachedValues();
-    System.out.println("c:");
-    c.dumpDependencies();
-    c.dumpCachedValues();
-    System.out.println("d:");
-    d.dumpDependencies();
-    d.dumpCachedValues();
-    System.out.println("e:");
-    e.dumpDependencies();
-    e.dumpCachedValues();
+/*
+    ASTNode node = b.getChildNoTransform(0);
+    node.setParent(null);
+    node.setChild(null, 0);
+    b = null;
+*/
+    System.gc();
 
-    // Change
+    System.out.println("\n## after rewrites: ");
+    printOutNode(a, "a");
+
+
+    // trigger change propagation
     a.setName("b");
 
-//    System.out.println("## after setName: ");
-//    printOutNode(a);
-//    printOutNode(b);
-//    printOutNode(c);
-//    printOutNode(d);
-//    printOutNode(e);
+    System.gc();
 
-  
-    System.out.println("-- Dependencies/Cache after setName:");
-    System.out.println("a:");
-    a.dumpDependencies();
-    a.dumpCachedValues();
-    System.out.println("b:");
-    b.dumpDependencies();
-    b.dumpCachedValues();
-    System.out.println("c:");
-    c.dumpDependencies();
-    c.dumpCachedValues();
-    System.out.println("d:");
-    d.dumpDependencies();
-    d.dumpCachedValues();
-    System.out.println("e:");
-    e.dumpDependencies();
-    e.dumpCachedValues();
-
-
+    System.out.println("\n## after setName: ");
+    printOutNode(a, "a");
   
   }
 
-/*
-    public static void printOutNode(ASTNode node) {
-      System.out.println("\tnode=" + node);
+   public static void printOutNode(ASTNode node, String prefix) {
+      System.out.println("node: " + prefix + "=" + str(node));
+      node.dumpDependencies();
+      node.dumpCachedValues();
+      System.out.println("node: " + prefix + ".parent=" + str(node.getParent()));
       for (int k = 0; k < node.getNumChildNoTransform(); k++) {
-        System.out.println("\tnode/child[" + k + "]=" + node.getChildNoTransform(k));
-        for (int i = 0; i < node.getChildNoTransform(k).getNumChildNoTransform(); i++) {
-          System.out.println("\tnode/child[" + k + "]/child[" + i + "]=" + node.getChildNoTransform(k).getChildNoTransform(i));
-        }
-      }
-      for (int k = 0; k < node.getNumChildNoTransform(); k++) {
-        System.out.print("\tnode.inital[" + k + "]=");
+        printOutNode(node.getChildNoTransform(k), prefix + "/child[" + k + "]");
+        System.out.print("node: " + prefix + ".init[" + k + "]=");
         if (node.init_children != null && node.init_children[k] != null) {
-          System.out.println(node.init_children[k]);
+          System.out.println(str(node.init_children[k]));
+          System.out.println("node: " + prefix + ".init[" + k + "].parent=" + str(node.init_children[k].getParent()));
+          node.init_children[k].dumpDependencies();
+          node.init_children[k].dumpCachedValues();
           for (int i = 0; i < node.init_children[k].getNumChildNoTransform(); i++) {
-            System.out.println("\tnode.initial[" + k + "]/child[" + i + "]=" + node.init_children[k].getChildNoTransform(i));
+            System.out.println("node: " + prefix + ".init[" + k + "]/child[" + i + "]=" + 
+        		str(node.init_children[k].getChildNoTransform(i)));
+            System.out.println("node: " + prefix + ".init[" + k + "]/child[" + i + "].parent=" + 
+        		str(node.init_children[k].getChildNoTransform(i).getParent()));
+
           } 
         } else System.out.println("null");
       }
-      for (int k = 0; k < node.getNumChildNoTransform(); k++) {
-        System.out.print("\tnode.rewritten[" + k + "]=");
-        if (node.rewritten_children != null) {
-          System.out.println(node.rewritten_children[k]);
-        } else System.out.println("false");
-      }
     }
-*/
+
+    public static String relativeNodeID(ASTNode node) {
+      ASTNode parent = node.getParent();
+      StringBuffer buf = new StringBuffer();
+      int index = -1;
+      if (parent != null) {
+        buf.append(parent.relativeNodeID() + "/");
+        index = parent.getIndexOfChild(node);
+      }
+      buf.append(node.getClass().getSimpleName());
+      if (index > -1) {
+        buf.append("[" + index + "]");
+      }
+      return buf.toString();
+    }
+
+    public static String str(ASTNode node) {
+      return node != null ? 
+        //node.relativeNodeID()
+        node.getClass().getName() + "@" + Integer.toHexString(node.hashCode()) 
+        : "null";
+    }
+
 }

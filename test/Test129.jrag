@@ -23,4 +23,10 @@ aspect Test129 {
     } 
   }
 
+  public void ASTNode.finalize() throws Throwable {
+    System.out.println(this.relativeNodeID() +" collected");
+    super.finalize();
+  }
+
+
 }
