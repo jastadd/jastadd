@@ -1,13 +1,53 @@
--- Dependencies/Cache after rewrite:
-a:
-dep(A:getChild[0] -> A/B:getParent)
+## start: 
+node: a=A
+node: a.parent=null
+node: a/child[0]=A/B[0]
+node: a/child[0].parent=A
+node: a.init[0]=null
+node: a/child[1]=A/D[1]
+node: a/child[1].parent=A
+node: a.init[1]=null
+
+## after rewrite: 
+node: a=A
+A/B collected
 dep(A:getChild[0] -> A/C[0]:getParent)
 dep(A:getChild[0] -> A:getName)
 A/C[0] rewritten, initial=A/B
-b:
-c:
--- Dependencies/Cache after setName:
-a:
-b:
-c:
+node: a.parent=null
+node: a/child[0]=A/C[0]
+node: a/child[0].parent=A
+node: a.init[0]=A/B
+node: a.init[0].parent=A
+node: a/child[1]=A/D[1]
+node: a/child[1].parent=A
+node: a.init[1]=null
 
+## after sibling: 
+node: a=A
+dep(A:getChild[0] -> A/C[0]:getParent)
+dep(A:getChild[0] -> A:getName)
+A/C[0] rewritten, initial=A/B
+node: a.parent=null
+node: a/child[0]=A/C[0]
+node: a/child[0].parent=A
+node: a.init[0]=A/B
+node: a.init[0].parent=A
+node: a/child[1]=A/D[1]
+dep(A/D[1]:sibling -> A/D[1]:getParent)
+dep(A/D[1]:sibling -> A:getChild[0])
+dep(A/D[1]:sibling -> A:getChild[1])
+value(A/D[1]:sibling, A/C[0])
+node: a/child[1].parent=A
+node: a.init[1]=null
+
+## after set: 
+A/C collected
+node: a=A
+node: a.parent=null
+node: a/child[0]=A/B[0]
+node: a/child[0].parent=A
+node: a.init[0]=null
+node: a/child[1]=A/D[1]
+node: a/child[1].parent=A
+node: a.init[1]=null
