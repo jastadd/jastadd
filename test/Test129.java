@@ -59,8 +59,8 @@ System.out.println("\n--removed nodes:");
       System.out.println("  (parent=" + str(node.getParent()) + ",garbage=" + 
         (node.inc_state == ASTNode.inc_GARBAGE)  + ")");
 
-      node.dumpDependencies();
-      node.dumpCachedValues();
+      //node.dumpDependencies();
+      //node.dumpCachedValues();
 
 
 
