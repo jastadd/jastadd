@@ -10,7 +10,8 @@ public class Test129 {
     System.gc();
 
     // construct base AST
-    B b = new B(new D("a"));
+    D d = new D("a");
+    B b = new B(d);
     A a = new A(b, "b");
 
     System.out.println("\n## start: ");
@@ -30,6 +31,9 @@ public class Test129 {
 
     System.out.println("\n## after rewrites: ");
     printOutNode(a, "a");
+System.out.println("\n--removed nodes:");
+    printOutNode(b, "b1");
+    printOutNode(d, "d1");
 
 
     // trigger change propagation
@@ -43,26 +47,30 @@ public class Test129 {
   }
 
    public static void printOutNode(ASTNode node, String prefix) {
-      System.out.println("node: " + prefix + "=" + str(node));
+      System.out.print("node: " + prefix + "=" + str(node));
+
+      if (node != null) {
+
+      System.out.println("  (sanity=" + node.sanityCheck() + ",parent=" + str(node.getParent()) + ")");
+
       node.dumpDependencies();
       node.dumpCachedValues();
-      System.out.println("node: " + prefix + ".parent=" + str(node.getParent()));
+
+
+
       for (int k = 0; k < node.getNumChildNoTransform(); k++) {
         printOutNode(node.getChildNoTransform(k), prefix + "/child[" + k + "]");
-        System.out.print("node: " + prefix + ".init[" + k + "]=");
-        if (node.init_children != null && node.init_children[k] != null) {
-          System.out.println(str(node.init_children[k]));
-          System.out.println("node: " + prefix + ".init[" + k + "].parent=" + str(node.init_children[k].getParent()));
-          node.init_children[k].dumpDependencies();
-          node.init_children[k].dumpCachedValues();
-          for (int i = 0; i < node.init_children[k].getNumChildNoTransform(); i++) {
-            System.out.println("node: " + prefix + ".init[" + k + "]/child[" + i + "]=" + 
-        		str(node.init_children[k].getChildNoTransform(i)));
-            System.out.println("node: " + prefix + ".init[" + k + "]/child[" + i + "].parent=" + 
-        		str(node.init_children[k].getChildNoTransform(i).getParent()));
+      }
 
-          } 
-        } else System.out.println("null");
+      for (int k = 0; k < node.getNumChildNoTransform(); k++) {
+
+        if (node.init_children != null) {
+            printOutNode(node.init_children[k], prefix + ".init[" + k + "]");
+        }
+      }
+
+      } else {
+        System.out.println();
       }
     }
 

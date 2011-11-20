@@ -718,7 +718,7 @@ aspect JaddCodeGen {
       stream.println(ind(4) + "node = node.rewriteTo();");
       stream.println(ind(4) + "if(node != oldNode) {");
       // ES_2011-11-17: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite5(stream);
+      //if (ASTNode.incremental) jjtGenIncrementalTrackRewrite5(stream);
       //
       stream.println(ind(5) + "that.setChild(node, i);");
       stream.println(ind(4) + "}");
@@ -1133,9 +1133,9 @@ aspect JaddCodeGen {
     }
   }
   // ES_2011-11-17: Code generation for incremental evaluation, tracking getChild
-  public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
-    stream.println(ind(5) + "oldNode.clearDepsInTree();");
-  }
+  //public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
+  //  stream.println(ind(5) + "oldNode.clearDepsInTree();");
+  //}
 
 
 
@@ -1241,12 +1241,12 @@ aspect JaddCodeGen {
 
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 1
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {"); testingto remove IN_REWRITE_EVAL to propagate change in this state
+    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     // notify current child
     stream.println(ind(3) +   "if (children != null && i < children.length && children[i] != null) {");
     stream.println(ind(4) +     "children[i].notifyForRemove();");
-    if (ASTNode.incrementalDebug) 
-    stream.println(ind(4) +     "children[i].clearDepsInTree();");
+    //if (ASTNode.incrementalDebug) stream.println(ind(4) +     "children[i].clearDepsInTree();");
     stream.println(ind(3) +   "}");
     // notify dependencies
     if (ASTNode.incrementalLevelParam) {  
@@ -1749,6 +1749,20 @@ aspect JaddCodeGen {
       buf.append(ind(4) + "node.getChild_handler = new ASTNode$DepGraphNode(getChild_handler, node);\n");
       buf.append(ind(4) + "node.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, node);\n");
       buf.append(ind(4) + "node.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, node);\n");
+    }
+    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      for (int c = 0; c < getNumComponents(); c++) {
+ 	      Components comp = getComponents(c);
+ 	    	  if (comp instanceof TokenComponent) {
+	    		  buf.append(ind(4) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                "_handler != null) {\n");
+	    			buf.append(ind(5) + "node.get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                "_handler = new ASTNode$DepGraphNode(" + 
+                                ((TokenComponent)comp).getTokenId().getID() + "_handler, node);\n");
+	    			buf.append(ind(4) + "}");
+
+ 	    		}
+ 	    	}
     }
     if (ASTNode.incrementalLevelNode) {
       buf.append(ind(4) + "node.handler = new ASTNode$DepGraphNode(handler, node);\n");
@@ -2364,7 +2378,7 @@ aspect JaddCodeGen {
 
     // rewrite code
     if (name().equals("ASTNode")) {
-      stream.println("    if (attrID.equals(\"getChild\")) {");
+      stream.println("    if (attrID.equals(\"getChild\") && !state().IN_REWRITE_EVAL) {");
       if (ASTNode.incrementalLevelParam) {
       stream.println("      int i = (Integer)_parameters;");
       }
@@ -2593,8 +2607,13 @@ aspect JaddCodeGen {
         for (int c = 0; c < getNumComponents(); c++) {
  	    		Components comp = getComponents(c);
  	    		if (comp instanceof TokenComponent) {
-	    			stream.println("    get" + ((TokenComponent)comp).getTokenId().getID() + 
+	    			stream.println("    if (get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                "_handler != null) {");
+
+	    			stream.println("      get" + ((TokenComponent)comp).getTokenId().getID() + 
                                 "_handler.clearDependants();");
+	    			stream.println("    }");
+
  	    		}
  	    	}
       }
@@ -2907,10 +2926,10 @@ aspect JaddCodeGen {
       stream.println("    }");    
     }
     // behavior generic for any kind of dependency region
-    //if (ASTNode.incrementalDebug) {
+    if (ASTNode.incrementalDebug) {
     stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependencySet = " +
                    "new java.util.HashSet<ASTNode$DepGraphNode>();");
-    //}
+    }
 	stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependantSet = " +
                    "new java.util.HashSet<ASTNode$DepGraphNode>();");
     stream.println("    public boolean hasDependants() {");
@@ -2920,7 +2939,7 @@ aspect JaddCodeGen {
     //stream.println("      fNode = node;");
     //stream.println("    }");
 
-    //if (ASTNode.incrementalDebug) {
+    if (ASTNode.incrementalDebug) {
     stream.println("    public void clearDependants() {");
     stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
     stream.println("        node.removeDependency(this);");
@@ -2937,22 +2956,22 @@ aspect JaddCodeGen {
     stream.println("        fDependencySet.remove(node);");
     stream.println("      }");
     stream.println("    }");
-    //}
+    }
     stream.println("    public void addDependant(ASTNode$DepGraphNode node) {");
     stream.println("      if (node != this) {");
     stream.println("        fDependantSet.add(node);");
-    //if (ASTNode.incrementalDebug) {
+    if (ASTNode.incrementalDebug) {
     stream.println("        node.addDependency(this);");
-    //}
+    }
     stream.println("      }");
     stream.println("    }");
-    //if (ASTNode.incrementalDebug) {
+    if (ASTNode.incrementalDebug) {
     stream.println("    public void removeDependant(ASTNode$DepGraphNode node) {");
     stream.println("      if (node != this) {");
     stream.println("        fDependantSet.remove(node);");
     stream.println("      }");
     stream.println("    }");
-    //}
+    }
     stream.println("    public void notifyDependencies() {");
     stream.println("      // Notify and remove dependants");
     stream.println("      java.util.HashSet<ASTNode$DepGraphNode> l = fDependantSet;");
@@ -2963,14 +2982,14 @@ aspect JaddCodeGen {
     stream.println("    }");
     // React to change
     stream.println("    public void dependencyChanged() {");
-    //if (ASTNode.incrementalDebug) {
+    if (ASTNode.incrementalDebug) {
     stream.println("      // Remove dependencies");
     stream.println("      java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
     stream.println("      fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>();");
     stream.println("      for (ASTNode$DepGraphNode node : k) {");
     stream.println("        node.removeDependant(this);");
     stream.println("      }");
-    //}
+    }
     if (ASTNode.incrementalLevelParam)
       stream.println("      fNode.reactToDependencyChange(fAttrID, fParams);");
     if (ASTNode.incrementalLevelAttr) 
@@ -2982,11 +3001,13 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalDebug) {
       stream.println("    public void dumpDeps() {");
       stream.println("      TreeSet<String> sorted = new TreeSet<String>();");
-      stream.println("      for (ASTNode$DepGraphNode node : fDependencySet) {");
+//      stream.println("      for (ASTNode$DepGraphNode node : fDependencySet) {");
+      stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
       stream.println("        sorted.add(node.toString());");
       stream.println("      }");
       stream.println("      for (String s : sorted) {");
-      stream.println("        System.out.println(\"dep(\" + this + \" -> \" + s + \")\");");
+//      stream.println("        System.out.println(\"dep(\" + this + \" -> \" + s + \")\");");
+      stream.println("        System.out.println(\"dep(\" + s + \" -> \" + this + \")\");");
       stream.println("      }");
       stream.println("    }");
       stream.println("    public String toString() {");
