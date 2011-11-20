@@ -13,6 +13,8 @@ public class Test129 {
     D d = new D("a");
     B b = new B(d);
     A a = new A(b, "b");
+//    A a = new A(new B(new D("a")), "b");
+
 
     System.out.println("\n## start: ");
     printOutNode(a, "a");
@@ -28,6 +30,7 @@ public class Test129 {
     b = null;
 */
     System.gc();
+    System.gc();
 
     System.out.println("\n## after rewrites: ");
     printOutNode(a, "a");
@@ -41,6 +44,8 @@ System.out.println("\n--removed nodes:");
 
     System.gc();
 
+
+
     System.out.println("\n## after setName: ");
     printOutNode(a, "a");
   
@@ -51,7 +56,8 @@ System.out.println("\n--removed nodes:");
 
       if (node != null) {
 
-      System.out.println("  (sanity=" + node.sanityCheck() + ",parent=" + str(node.getParent()) + ")");
+      System.out.println("  (parent=" + str(node.getParent()) + ",garbage=" + 
+        (node.inc_state == ASTNode.inc_GARBAGE)  + ")");
 
       node.dumpDependencies();
       node.dumpCachedValues();
