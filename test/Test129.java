@@ -10,10 +10,11 @@ public class Test129 {
     System.gc();
 
     // construct base AST
-    D d = new D("a");
-    B b = new B(d);
-    A a = new A(b, "b");
-//    A a = new A(new B(new D("a")), "b");
+//    D d = new D("a");
+//    B b = new B(d);
+//    A a = new A(b, "b");
+
+    A a = new A(new B(new D("a")), "b");
 
 
     System.out.println("\n## start: ");
@@ -34,9 +35,9 @@ public class Test129 {
 
     System.out.println("\n## after rewrites: ");
     printOutNode(a, "a");
-System.out.println("\n--removed nodes:");
-    printOutNode(b, "b1");
-    printOutNode(d, "d1");
+//System.out.println("\n--removed nodes:");
+//    printOutNode(b, "b1");
+//    printOutNode(d, "d1");
 
 
     // trigger change propagation
