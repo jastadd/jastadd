@@ -2721,8 +2721,7 @@ aspect JaddCodeGen {
         stream.println("          if (getChild_handler[i] != null)");
         stream.println("            getChild_handler[i].cleanUpGarbage();");
         stream.println("          ASTNode child = getChildNoTransform(i);");
-        stream.println("          if (child.parent != null && child.parent.inc_state == inc_GARBAGE) ");
-        stream.println("            child.inc_cleanUpGarbage();");
+        stream.println("          child.inc_cleanUpGarbage();");
         stream.println("          if (init_children != null && i < init_children.length && init_children[i] != null) {");
         stream.println("            init_children[i].inc_cleanUpGarbage();");
         stream.println("          }");
@@ -2735,8 +2734,7 @@ aspect JaddCodeGen {
         stream.println("      getChild_handler.cleanUpGarbage();");
         stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
         stream.println("        ASTNode child = getChildNoTransform(i);");
-        stream.println("        if (child.parent != null && child.parent.inc_state == inc_GARBAGE) ");
-        stream.println("          child.inc_cleanUpGarbage();");
+        stream.println("        child.inc_cleanUpGarbage();");
         stream.println("        if (init_children != null && i < init_children.length && init_children[i] != null) {");
         stream.println("          init_children[i].inc_cleanUpGarbage();");
         stream.println("        }");
