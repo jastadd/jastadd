@@ -24,6 +24,8 @@ public class Test129 {
     // activate rewrites
     a.getB();
 
+    a.inc_cleanUpGarbage();
+
 /*
     ASTNode node = b.getChildNoTransform(0);
     node.setParent(null);
@@ -57,11 +59,11 @@ public class Test129 {
 
       if (node != null) {
 
-      System.out.println("  (parent=" + str(node.getParent()) + ",garbage=" + 
-        (node.inc_state == ASTNode.inc_GARBAGE)  + ")");
+      System.out.println("  (parent=" + str(node.getParent())); 
+      // + ",garbage=" + (node.inc_state == ASTNode.inc_GARBAGE)  + ")");
 
-      //node.dumpDependencies();
-      //node.dumpCachedValues();
+      node.dumpDependencies();
+      node.dumpCachedValues();
 
 
 

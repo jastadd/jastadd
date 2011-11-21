@@ -2620,7 +2620,8 @@ aspect JaddCodeGen {
         stream.println("      numChildren_handler.throwAway();");
         stream.println("      for (int i = 0; i < numChildren; i++) {");
         stream.println("        if (!childIsNTA(i)) {");
-        stream.println("          getChild_handler[i].throwAway();");
+        stream.println("          if (getChild_handler[i] != null)");
+        stream.println("            getChild_handler[i].throwAway();");
         stream.println("          ASTNode child = getChildNoTransform(i);");
         stream.println("          if (child.parent != null && child.parent.inc_state == inc_GARBAGE) ");
         stream.println("            child.inc_throwAway();");
@@ -2717,7 +2718,8 @@ aspect JaddCodeGen {
         stream.println("      numChildren_handler.cleanUpGarbage();");
         stream.println("      for (int i = 0; i < numChildren; i++) {");
         stream.println("        if (!childIsNTA(i)) {");
-        stream.println("          getChild_handler[i].cleanUpGarbage();");
+        stream.println("          if (getChild_handler[i] != null)");
+        stream.println("            getChild_handler[i].cleanUpGarbage();");
         stream.println("          ASTNode child = getChildNoTransform(i);");
         stream.println("          if (child.parent != null && child.parent.inc_state == inc_GARBAGE) ");
         stream.println("            child.inc_cleanUpGarbage();");
@@ -3231,15 +3233,20 @@ aspect JaddCodeGen {
     stream.println("      }");
     stream.println("    }");
     }
+    stream.println("    private boolean visited = false;");
     stream.println("    public void notifyDependencies() {");
     stream.println("      // Notify and remove dependants");
-    stream.println("      Iterator<ASTNode$DepGraphNode> itr = fDependantSet.iterator();");
-    stream.println("      while (itr.hasNext()) {");
-    stream.println("        ASTNode$DepGraphNode cur = itr.next();");
-    stream.println("        if (cur.isGarbage()) {");
-    stream.println("          itr.remove();");
+    stream.println("      if (!visited) {");
+    stream.println("        visited = true;");
+    stream.println("        Iterator<ASTNode$DepGraphNode> itr = fDependantSet.iterator();");
+    stream.println("        while (itr.hasNext()) {");
+    stream.println("          ASTNode$DepGraphNode cur = itr.next();");
+    stream.println("          if (cur.isGarbage()) {");
+    stream.println("            itr.remove();");
+    stream.println("          }");
+    stream.println("          cur.dependencyChanged();");
     stream.println("        }");
-    stream.println("        cur.dependencyChanged();");
+    stream.println("        visited = false;");
     stream.println("      }");
 //    stream.println("      java.util.HashSet<ASTNode$DepGraphNode> l = fDependantSet;");
 //    stream.println("      fDependantSet = new java.util.HashSet<ASTNode$DepGraphNode>();");
