@@ -3187,10 +3187,10 @@ aspect JaddCodeGen {
     // behavior generic for any kind of dependency region
     if (ASTNode.incrementalDebug) {
     stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependencySet = " +
-                   "new java.util.HashSet<ASTNode$DepGraphNode>();");
+                   "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     }
 	stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependantSet = " +
-                   "new java.util.HashSet<ASTNode$DepGraphNode>();");
+                   "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("    public boolean hasDependants() {");
     stream.println("        return !fDependantSet.isEmpty();");
     stream.println("    }");
