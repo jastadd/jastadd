@@ -207,6 +207,38 @@ aspect JaddCodeGen {
     return ind(2) + "state().exitConstruction();\n";
   }
 
+  // ES_2011-11-23: Code generation for incremental evaluation, enter construction
+  public String ListComponents.genIncrementalConstructorStartConstruction() {
+    return ind(2) + "state().enterConstruction();\n";
+  }
+
+  // ES_2011-11-23: Code generation for incremental evaluation, end construction
+  public String ListComponents.genIncrementalConstructorEndConstruction() {
+    return ind(2) + "state().exitConstruction();\n";
+  }
+
+  // ES_2011-11-23: Code generation for incremental evaluation, enter construction
+  public String OptionalComponent.genIncrementalConstructorStartConstruction() {
+    return ind(2) + "state().enterConstruction();\n";
+  }
+
+  // ES_2011-11-23: Code generation for incremental evaluation, end construction
+  public String OptionalComponent.genIncrementalConstructorEndConstruction() {
+    return ind(2) + "state().exitConstruction();\n";
+  }
+
+  // ES_2011-11-23: Code generation for incremental evaluation, enter construction
+  public String AggregateComponents.genIncrementalConstructorStartConstruction() {
+    return ind(2) + "state().enterConstruction();\n";
+  }
+
+  // ES_2011-11-23: Code generation for incremental evaluation, end construction
+  public String AggregateComponents.genIncrementalConstructorEndConstruction() {
+    return ind(2) + "state().exitConstruction();\n";
+  }
+
+
+
   public void Grammar.genReset(PrintWriter stream) {
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel internal");
@@ -1889,6 +1921,9 @@ aspect JaddCodeGen {
     stream.println(s);
     // Initialize node
     i = 0;
+    // ES_2011-11-23: Code generation for incremental evaluation  
+    if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorStartConstruction());
+    //
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof ListComponents) {
@@ -1904,6 +1939,9 @@ aspect JaddCodeGen {
         i++;
       }
     }
+    // ES_2011-11-23: Code generation for incremental evaluation  
+    if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorEndConstruction());
+    //
     stream.println(finalInit);
     stream.println(ind + "}\n");
 
@@ -1918,7 +1956,13 @@ aspect JaddCodeGen {
         stream.println(ind + "public Opt.Opt(T opt) {");
       else
         stream.println(ind + "public Opt.Opt(ASTNode opt) {");
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorStartConstruction());
+      //
       stream.println(ind(2) + "setChild(opt, 0);");
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorEndConstruction());
+      //
       stream.println(ind + "}\n");
     }
 
@@ -3392,7 +3436,13 @@ aspect JaddCodeGen {
     s = setNameListComment() +
       ind + "public void #HOST#.set#NAME#List(#LISTTYPE# list) {\n" + 
       (ASTNode.block ? ASTNode.blockBegin : "") +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorStartConstruction(): "") +
+      //
       ind(2) + "setChild(list, #INDEX#);\n" +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorEndConstruction(): "") +
+      //
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n" +
       //ind + "private int #HOST#.getNum#NAME# = 0;\n" +
@@ -3429,7 +3479,13 @@ aspect JaddCodeGen {
       ind + "public void #HOST#.set#NAME#(#TYPE# node, int i) {\n" + 
       (ASTNode.block ? ASTNode.blockBegin : "") +
       ind(2) + "#LISTTYPE# list = get#NAME#List();\n" +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorStartConstruction(): "") +
+      //
       ind(2) + "list.setChild(node, i);\n" +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorEndConstruction(): "") +
+      //
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n";
     if(ASTNode.java5) {
@@ -3540,7 +3596,13 @@ aspect JaddCodeGen {
     s = setNameOptComment() +
       ind + "public void #HOST#.set#NAME#Opt(#OPTTYPE# opt) {\n" +
       (ASTNode.block ? ASTNode.blockBegin : "") +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorStartConstruction(): "") +
+      //
       ind(2) + "setChild(opt, #INDEX#);\n" + 
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorEndConstruction(): "") +
+      //
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n" + 
       hasNameComment() +
@@ -3559,7 +3621,13 @@ aspect JaddCodeGen {
       setNameComment() +
       ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
       (ASTNode.block ? ASTNode.blockBegin : "") +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorStartConstruction(): "") +
+      //
       ind(2) + "get#NAME#Opt().setChild(node, 0);\n" +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorEndConstruction(): "") +
+      //
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n";
     if(!isNTA()) {
@@ -3775,7 +3843,13 @@ aspect JaddCodeGen {
     s = setNameComment() +
       ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
       (ASTNode.block ? ASTNode.blockBegin : "") +
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorStartConstruction(): "") +
+      //
       ind(2) + "setChild(node, #INDEX#);\n" + 
+      // ES_2011-11-23: Code generation for incremental evaluation  
+      (ASTNode.incremental ? ind(2) + genIncrementalConstructorEndConstruction(): "") +
+      //
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n";
     if(!isNTA()) {
