@@ -533,11 +533,15 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "}");
     stream.println(ind + "}"); 
     stream.println(ind + "public boolean IN_CONSTRUCTION = false;");
+    stream.println(ind + "private int inc_constructionCount = 0;");
     stream.println(ind + "public void enterConstruction() {"); 
     stream.println(ind(2) + "IN_CONSTRUCTION = true;");
+    stream.println(ind(2) + "inc_constructionCount++;");
     stream.println(ind + "}"); 
     stream.println(ind + "public void exitConstruction() {"); 
-    stream.println(ind(2) + "IN_CONSTRUCTION = false;");
+    stream.println(ind(2) + "inc_constructionCount--;");
+    stream.println(ind(2) + "if (inc_constructionCount == 0)");
+    stream.println(ind(3) +   "IN_CONSTRUCTION = false;");
     stream.println(ind + "}"); 
     stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
     stream.println(ind(2) + "stack.push(handler);");
