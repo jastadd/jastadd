@@ -1783,7 +1783,7 @@ aspect JaddCodeGen {
   // Making sure that handlers are cloned correctly, pointing to the right node
   public String ASTDecl.genIncrementalCopyNode() {
     StringBuffer buf = new StringBuffer();
-    buf.append(ind(4) + "for (int i = 0; children != null && i < node.children.length; i++) {\n");
+    buf.append(ind(4) + "for (int i = 0; node.children != null && i < node.children.length; i++) {\n");
     buf.append(ind(5) +   "node.children[i] = null;");
     buf.append(ind(4) + "}\n");
     buf.append(ind(4) + "inc_copyHandlers(node);\n");
