@@ -989,6 +989,9 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "numChildren++;");
     stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    // ES_2011-11-25: Code generation for incremental evaluation, ast change
+    if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild4(stream);
+    //
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
 
@@ -1007,6 +1010,7 @@ aspect JaddCodeGen {
     stream.println(ind(4) + "child.childIndex = -1;");
     stream.println(ind(3) + "}");
     stream.println(ind(3) + "System.arraycopy(children, i+1, children, i, children.length-i-1);");
+    stream.println(ind(3) + "children[children.length-1] = null;");
     stream.println(ind(3) + "numChildren--;");
     // ES_2011-10-06: Code generation for incremental evaluation, remove child
     if (ASTNode.incremental) jjtGenIncrementalASTChangeRemoveChild2(stream);
@@ -1476,6 +1480,11 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "}");
     stream.println(ind(2) + "}");
   }
+  // ES_2011-11-25: Code generation for incremental evaluation, modifying tree, insert child 4
+  public void ASTDecl.jjtGenIncrementalASTChangeInsertChild4(PrintWriter stream) {
+    stream.println(ind(2) + "if (node != null) node.inc_keepAlive();");
+  }
+
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, remove child 1
   public void ASTDecl.jjtGenIncrementalASTChangeRemoveChild1(PrintWriter stream) {
     stream.println(ind(3) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
@@ -1513,9 +1522,11 @@ aspect JaddCodeGen {
     if (!ASTNode.fullFlush) {
       stream.println(ind(3) + "if (init_children != null) {");
       stream.println(ind(4) +   "System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);");
+      stream.println(ind(4) +   "init_children[init_children.length-1] = null;");
       stream.println(ind(3) + "}");      
       stream.println(ind(3) + "if (rewritten_children != null) {");
       stream.println(ind(4) +   "System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);");
+      stream.println(ind(4) +   "rewritten_children[rewritten_children.length-1] = false;");
       stream.println(ind(3) + "}");
     }
     //
