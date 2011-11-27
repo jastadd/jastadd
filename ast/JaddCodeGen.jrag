@@ -75,7 +75,10 @@ aspect JaddCodeGen {
     s.append(") {\n");
     if(ASTNode.block) s.append(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation  
-    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
+    if (ASTNode.incremental) {
+      s.append(genIncrementalConstructorStartConstruction());
+      if (isRootNode()) s.append(ind(2) + "inc_state = inc_LIVE;\n");
+    }
     //
     i = 0;
     int j = 0;
@@ -110,8 +113,9 @@ aspect JaddCodeGen {
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
         s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
-      else
+      else {
         s.append(ind(2) + "is$Final(true);\n");
+      }
     }
     // ES_2011-10-05: Code generation for incremental evaluation  
     if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
@@ -151,7 +155,10 @@ aspect JaddCodeGen {
     s.append(") {\n");
     if(ASTNode.block) s.append(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation, construction 
-    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
+    if (ASTNode.incremental) {
+      s.append(genIncrementalConstructorStartConstruction());
+      if (isRootNode()) s.append(ind(2) + "inc_state = inc_LIVE;\n");
+    }
     //
     i = 0;
     int j = 0;
@@ -186,8 +193,9 @@ aspect JaddCodeGen {
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
         s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
-      else
+      else {
         s.append(ind(2) + "is$Final(true);\n");
+      }
     }
     // ES_2011-10-05: Code generation for incremental evaluation, construction
     if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
@@ -1783,8 +1791,9 @@ aspect JaddCodeGen {
   // Making sure that handlers are cloned correctly, pointing to the right node
   public String ASTDecl.genIncrementalCopyNode() {
     StringBuffer buf = new StringBuffer();
+    buf.append(ind(4) + "node.inc_state = inc_CLONED;\n");
     buf.append(ind(4) + "for (int i = 0; node.children != null && i < node.children.length; i++) {\n");
-    buf.append(ind(5) +   "node.children[i] = null;");
+    buf.append(ind(5) +   "node.children[i] = null;\n");
     buf.append(ind(4) + "}\n");
     buf.append(ind(4) + "inc_copyHandlers(node);\n");
     return buf.toString();
@@ -1940,7 +1949,10 @@ aspect JaddCodeGen {
     // Initialize node
     i = 0;
     // ES_2011-11-23: Code generation for incremental evaluation  
-    if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorStartConstruction());
+    if (ASTNode.incremental) {
+      stream.println(ind(2) + genIncrementalConstructorStartConstruction());
+      if (isRootNode()) stream.println(ind(2) + "inc_state = inc_LIVE;)");
+    }
     //
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
