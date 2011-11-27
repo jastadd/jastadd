@@ -2665,6 +2665,7 @@ aspect JaddCodeGen {
         if (attr.isNTA() && !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
           stream.println(ind(3) + "if (" + attr.attributeSignature() + "_value instanceof ASTNode) {");
           stream.println(ind(4) + attr.attributeSignature() + "_value.notifyForRemove();");
+          stream.println(ind(4) + attr.attributeSignature() + "_value.setParent(null);");
           stream.println(ind(3) + "}");
         }
         String u = attr.resetVisit() + attr.resetCache();
