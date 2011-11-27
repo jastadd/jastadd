@@ -1951,7 +1951,7 @@ aspect JaddCodeGen {
     // ES_2011-11-23: Code generation for incremental evaluation  
     if (ASTNode.incremental) {
       stream.println(ind(2) + genIncrementalConstructorStartConstruction());
-      if (isRootNode()) stream.println(ind(2) + "inc_state = inc_LIVE;)");
+      if (isRootNode()) stream.println(ind(2) + "inc_state = inc_LIVE;");
     }
     //
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -2700,9 +2700,11 @@ aspect JaddCodeGen {
 
     // Method: inc_throwAway
     if (name().equals("ASTNode")) {
-    stream.println("    protected static final int " + name() + ".inc_LIVE = 0;");  
-    stream.println("    protected static final int " + name() + ".inc_GARBAGE = 1;");  
-    stream.println("    protected int " + name() + ".inc_state = inc_LIVE;");  
+    stream.println("    protected static final int " + name() + ".inc_CREATED = 0;");  
+    stream.println("    protected static final int " + name() + ".inc_CLONED = 1;");  
+    stream.println("    protected static final int " + name() + ".inc_LIVE = 2;");  
+    stream.println("    protected static final int " + name() + ".inc_GARBAGE = 3;");  
+    stream.println("    protected int " + name() + ".inc_state = inc_CREATED;");  
     }
     stream.println("    public void " + name() + ".inc_throwAway() {");
     stream.println("      inc_state = inc_GARBAGE;");
