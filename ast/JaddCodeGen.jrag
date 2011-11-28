@@ -2864,7 +2864,8 @@ aspect JaddCodeGen {
                                   "_handler.values().iterator(); itr.hasNext();) {");
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
             stream.println(ind(3) +   "handler.changeState(newState);");
-            if (attr.getNTA() || attr.isNTA()) {
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
@@ -2874,7 +2875,8 @@ aspect JaddCodeGen {
           } else {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.changeState(newState);");
-            if (attr.getNTA() || attr.isNTA()) {
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
@@ -2886,20 +2888,22 @@ aspect JaddCodeGen {
         if (ASTNode.incrementalLevelAttr) {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
     	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.changeState(newState);");
-          if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
-              stream.println(ind(3) + "}");
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
+            stream.println(ind(3) + "}");
           }
      	    stream.println(ind(2) + "}");
         }
         if (ASTNode.incrementalLevelNode) {
-          if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
-              stream.println(ind(3) + "}");
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
+            stream.println(ind(3) + "}");
           }  
         }
   	  }    
@@ -2970,7 +2974,8 @@ aspect JaddCodeGen {
                                   "_handler.values().iterator(); itr.hasNext();) {");
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
             stream.println(ind(3) +   "handler.throwAway();");
-            if (attr.getNTA() || attr.isNTA()) {
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
@@ -2980,7 +2985,8 @@ aspect JaddCodeGen {
           } else {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
-            if (attr.getNTA() || attr.isNTA()) {
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
@@ -2992,20 +2998,22 @@ aspect JaddCodeGen {
         if (ASTNode.incrementalLevelAttr) {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
     	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
-          if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
-              stream.println(ind(3) + "}");
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
+            stream.println(ind(3) + "}");
           }
      	    stream.println(ind(2) + "}");
         }
         if (ASTNode.incrementalLevelNode) {
-          if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
-              stream.println(ind(3) + "}");
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
+            stream.println(ind(3) + "}");
           }  
         }
   	  }    
@@ -3074,7 +3082,8 @@ aspect JaddCodeGen {
                                   "_handler.values().iterator(); itr.hasNext();) {");
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
             stream.println(ind(3) +   "handler.cleanUpGarbage();");
-            if (attr.getNTA() || attr.isNTA()) {
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
@@ -3084,7 +3093,8 @@ aspect JaddCodeGen {
           } else {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.cleanUpGarbage();");
-            if (attr.getNTA() || attr.isNTA()) {
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
@@ -3096,20 +3106,22 @@ aspect JaddCodeGen {
         if (ASTNode.incrementalLevelAttr) {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
     	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.cleanUpGarbage();");
-          if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
-              stream.println(ind(3) + "}");
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
+            stream.println(ind(3) + "}");
           }
      	    stream.println(ind(2) + "}");
         }
         if (ASTNode.incrementalLevelNode) {
-          if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
-              stream.println(ind(3) + "}");
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
+            stream.println(ind(3) + "}");
           }  
         }
   	  }    
