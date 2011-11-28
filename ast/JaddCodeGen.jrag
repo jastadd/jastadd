@@ -2819,7 +2819,7 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "getParent_handler.changeState(newState);");
         stream.println(ind(2) + "numChildren_handler.changeState(newState);");
         stream.println(ind(2) + "for (int i = 0; i < children != null && children.length; i++) {");
-        stream.println(ind(3) +   "ASTNode child = children[i];
+        stream.println(ind(3) +   "ASTNode child = children[i];");
         stream.println(ind(3) +   "if (getChild_handler[i] != null)");
         stream.println(ind(4) +     "getChild_handler[i].changeState(newState);");
         stream.println(ind(3) +   "if (child != null) child.inc_changeState(newState);");
@@ -2865,7 +2865,7 @@ aspect JaddCodeGen {
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
             stream.println(ind(3) +   "handler.changeState(newState);");
             if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
               stream.println(ind(3) + "}");
@@ -2875,7 +2875,7 @@ aspect JaddCodeGen {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.changeState(newState);");
             if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
               stream.println(ind(3) + "}");
@@ -2887,7 +2887,7 @@ aspect JaddCodeGen {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
     	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.changeState(newState);");
           if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
               stream.println(ind(3) + "}");
@@ -2896,7 +2896,7 @@ aspect JaddCodeGen {
         }
         if (ASTNode.incrementalLevelNode) {
           if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_changeState(newState);");
               stream.println(ind(3) + "}");
@@ -2906,103 +2906,121 @@ aspect JaddCodeGen {
     }
     stream.println(ind + "}");    // end method: inc_changeState
 
-/*
-    // TODO: Add NTAs to inc_throwAway
-    // TODO: Add inc_keepAlive ? 
 
-    // Method: inc_throwAway
-    stream.println("    public void " + name() + ".inc_throwAway() {");
-    stream.println("      inc_state = inc_GARBAGE;");
+
+    // method: inc_throwAway
+    stream.println(ind + "public void " + name() + ".inc_throwAway() {");
+    stream.println(ind(2) + "inc_state = inc_GARBAGE;");
     if (name().equals("ASTNode")) {
       if (ASTNode.incrementalLevelParam) {
-        stream.println("      getParent_handler.throwAway();");
-        stream.println("      numChildren_handler.throwAway();");
-        stream.println("      for (int i = 0; i < numChildren; i++) {");
-        stream.println("        if (!childIsNTA(i)) {");
-        stream.println("          if (getChild_handler[i] != null)");
-        stream.println("            getChild_handler[i].throwAway();");
-        stream.println("          ASTNode child = getChildNoTransform(i);");
-        stream.println("          if (child.parent != null && child.parent.inc_state == inc_GARBAGE) ");
-        stream.println("            child.inc_throwAway();");
-        stream.println("          if (init_children != null && i < init_children.length && init_children[i] != null) {");
-        stream.println("            init_children[i].inc_throwAway();");
-        stream.println("          }");
-        stream.println("        }");
-        stream.println("      }");
+        stream.println(ind(2) + "getParent_handler.throwAway();");
+        stream.println(ind(2) + "numChildren_handler.throwAway();");
+        stream.println(ind(2) + "for (int i = 0; i < children != null && children.length; i++) {");
+        stream.println(ind(3) +   "ASTNode child = children[i];");
+        stream.println(ind(3) +   "if (getChild_handler[i] != null)");
+        stream.println(ind(4) +     "getChild_handler[i].throwAway();");
+        stream.println(ind(3) +   "if (child != null) child.inc_throwAway();");
+        stream.println(ind(3) +   "if (init_children != null && i < init_children.length && init_children[i] != null) {");
+        stream.println(ind(4) +     "init_children[i].inc_throwAway();");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(2) + "}");
       }
       if (ASTNode.incrementalLevelAttr) {
-        stream.println("      getParent_handler.throwAway();");
-        stream.println("      numChildren_handler.throwAway();");
-        stream.println("      getChild_handler.throwAway();");
-        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
-        stream.println("        ASTNode child = getChildNoTransform(i);");
-        stream.println("        if (child.parent != null && child.parent.inc_state == inc_GARBAGE) ");
-        stream.println("          child.inc_throwAway();");
-        stream.println("        if (init_children != null && i < init_children.length && init_children[i] != null) {");
-        stream.println("          init_children[i].inc_throwAway();");
-        stream.println("        }");
-        stream.println("      }");
+        stream.println(ind(2) + "getParent_handler.throwAway();");
+        stream.println(ind(2) + "numChildren_handler.throwAway();");
+        stream.println(ind(2) + "getChild_handler.throwAway();");
+        stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
+        stream.println(ind(3) +   "ASTNode child = children[i];");
+        stream.println(ind(3) +   "if (child != null) child.inc_throwAway();");
+        stream.println(ind(3) +   "if (init_children != null && i < init_children.length && init_children[i] != null) {");
+        stream.println(ind(4) +     "init_children[i].inc_throwAway();");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(2) + "}");
       }
       if (ASTNode.incrementalLevelNode) {
-        stream.println("      handler.throwAway();");
-        stream.println("      for (int i = 0; i < getNumChildNoTransform(); i++) {");
-        stream.println("        getChildNoTransform(i).inc_throwAway();");
-        stream.println("        if (init_children != null && i < init_children.length && init_children[i] != null) {");
-        stream.println("          init_children[i].inc_throwAway();");
-        stream.println("        }");
-        stream.println("      }");
+        stream.println(ind(2) + "handler.throwAway();");
+        stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
+        stream.println(ind(3) +   "ASTNode child = children[i];");
+        stream.println(ind(3) +   "if (child != null) child.inc_throwAway();");
+        stream.println(ind(3) +   "if (init_children != null && i < init_children.length && init_children[i] != null) {");
+        stream.println(ind(4) +     "init_children[i].inc_throwAway();");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(2) + "}");
       }
     } else {
-      stream.println("      super.inc_throwAway();");
+      stream.println(ind(2) + "super.inc_throwAway();");
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
         // tokens
         for (int c = 0; c < getNumComponents(); c++) {
- 	    		Components comp = getComponents(c);
- 	    		if (comp instanceof TokenComponent) {
-	    			stream.println("    if (get" + ((TokenComponent)comp).getTokenId().getID() + 
-                                "_handler != null) {");
-
-	    			stream.println("      get" + ((TokenComponent)comp).getTokenId().getID() + 
-                                "_handler.throwAway();");
-	    			stream.println("    }");
+ 	    	  Components comp = getComponents(c);
+ 	    	  if (comp instanceof TokenComponent) {
+	    	    stream.println(ind(2) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + "_handler != null) {");
+	    		  stream.println(ind(3) +   "get" + ((TokenComponent)comp).getTokenId().getID() + "_handler.throwAway();");
+	    			stream.println(ind(2) + "}");
 
  	    		}
  	    	}
       }
-      // Attribute code: propagate change of all cached values being removed
+      // attributes
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         if (ASTNode.incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
-    	      stream.println("      for (java.util.Iterator itr = " + attr.attributeSignature() + 
+    	      stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                   "_handler.values().iterator(); itr.hasNext();) {");
-            stream.println("        ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)itr.next();");
-            stream.println("        h.throwAway();");
-            stream.println("      }");
+            stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
+            stream.println(ind(3) +   "handler.throwAway();");
+            if (attr.getNTA() || attr.isNTA()) {
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
+              stream.println(ind(3) + "}");
+            }
+            stream.println(ind(2) + "}");
           } else {
-            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-            stream.println("        " + attr.attributeSignature() + "_handler.throwAway();");
-    	      stream.println("      }");
+            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
+            if (attr.getNTA() || attr.isNTA()) {
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
+              stream.println(ind(3) + "}");
+            }
+    	      stream.println(ind(2) + "}");
     	    }
         }
         if (ASTNode.incrementalLevelAttr) {
-    	    stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-    	    stream.println("        " + attr.attributeSignature() + "_handler.throwAway();");
-     	    stream.println("      }");
+    	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+    	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
+          if (attr.getNTA() || attr.isNTA()) {
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
+              stream.println(ind(3) + "}");
+          }
+     	    stream.println(ind(2) + "}");
+        }
+        if (ASTNode.incrementalLevelNode) {
+          if (attr.getNTA() || attr.isNTA()) {
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
+              stream.println(ind(3) + "}");
+          }  
         }
   	  }    
     }
-    stream.println("    }");    // end method: inc_throwAway
-*/
+    stream.println(ind + "}");    // end method: inc_throwAway
 
-    // Method: inc_cleanUpGarbage
+
+    // method: inc_cleanUpGarbage
     stream.println(ind + "public void " + name() + ".inc_cleanUpGarbage() {");
     if (name().equals("ASTNode")) {
       if (ASTNode.incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.cleanUpGarbage();");
         stream.println(ind(2) + "numChildren_handler.cleanUpGarbage);");
         stream.println(ind(2) + "for (int i = 0; i < children != null && children.length; i++) {");
-        stream.println(ind(3) +   "ASTNode child = children[i];
+        stream.println(ind(3) +   "ASTNode child = children[i];");
         stream.println(ind(3) +   "if (getChild_handler[i] != null)");
         stream.println(ind(4) +     "getChild_handler[i].cleanUpGarbage();");
         stream.println(ind(3) +   "if (child != null) child.inc_cleanUpGarbage();");
@@ -3057,7 +3075,7 @@ aspect JaddCodeGen {
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
             stream.println(ind(3) +   "handler.cleanUpGarbage();");
             if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
               stream.println(ind(3) + "}");
@@ -3067,7 +3085,7 @@ aspect JaddCodeGen {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.cleanUpGarbage();");
             if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
               stream.println(ind(3) + "}");
@@ -3079,7 +3097,7 @@ aspect JaddCodeGen {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
     	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.cleanUpGarbage();");
           if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
               stream.println(ind(3) + "}");
@@ -3088,7 +3106,7 @@ aspect JaddCodeGen {
         }
         if (ASTNode.incrementalLevelNode) {
           if (attr.getNTA() || attr.isNTA()) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (");
+              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
                                         attr.attributeSignature() + "_value instanceof ASTNode)) {");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_cleanUpGarbage();");
               stream.println(ind(3) + "}");
