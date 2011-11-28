@@ -2876,7 +2876,7 @@ aspect JaddCodeGen {
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
                 !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(3) + "for (" + attr.type() + " value : " + attr.attributeSignature() + "_values) {");
-              stream.println(ind(4) +   "value.changeState(newState);");
+              stream.println(ind(4) +   "value.inc_changeState(newState);");
               stream.println(ind(3) + "}");
             }
             stream.println(ind(2) + "}");
@@ -3011,7 +3011,7 @@ aspect JaddCodeGen {
               !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_changeState(newState);");
+              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_throwAway();");
               stream.println(ind(2) + "}");
             } else {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
@@ -3117,7 +3117,7 @@ aspect JaddCodeGen {
               !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_changeState(newState);");
+              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_cleanUpGarbage();");
               stream.println(ind(2) + "}");
             } else {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
