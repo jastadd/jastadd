@@ -3006,7 +3006,7 @@ aspect JaddCodeGen {
         }
         if (ASTNode.incrementalLevelAttr) {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-    	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.inc_throwAway();");
+    	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
     	    stream.println(ind(2) + "}");
         }
         if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
@@ -3113,7 +3113,7 @@ aspect JaddCodeGen {
         }
         if (ASTNode.incrementalLevelAttr) {
     	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-    	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.inc_cleanUpGarbage();");
+    	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.cleanUpGarbage();");
     	    stream.println(ind(2) + "}");
         }
         if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
