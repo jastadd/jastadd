@@ -2904,7 +2904,7 @@ aspect JaddCodeGen {
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
               !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "for (Iterator itr = " + attr.attributeSignature() + "_values.iterator();itr.hasNext();) {");
+              stream.println(ind(2) + "for (Iterator itr = " + attr.attributeSignature() + "_values.values().iterator();itr.hasNext();) {");
               stream.println(ind(3) +   "((" + attr.getType() + ")itr.next()).inc_changeState(newState);");
               stream.println(ind(2) + "}");
             } else {
@@ -3013,7 +3013,7 @@ aspect JaddCodeGen {
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
               !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "for (Iterator itr = " + attr.attributeSignature() + "_values.iterator();itr.hasNext();) {");
+              stream.println(ind(2) + "for (Iterator itr = " + attr.attributeSignature() + "_values.values().iterator();itr.hasNext();) {");
               stream.println(ind(3) +   "((" + attr.getType() + ")itr.next()).inc_throwAway();");
               stream.println(ind(2) + "}");
             } else {
@@ -3120,7 +3120,7 @@ aspect JaddCodeGen {
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
               !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "for (Iterator itr = " + attr.attributeSignature() + "_values.iterator();itr.hasNext();) {");
+              stream.println(ind(2) + "for (Iterator itr = " + attr.attributeSignature() + "_values.values().iterator();itr.hasNext();) {");
               stream.println(ind(3) +   "((" + attr.getType() + ")itr.next()).inc_cleanUpGarbage();");
               stream.println(ind(2) + "}");
             } else {
