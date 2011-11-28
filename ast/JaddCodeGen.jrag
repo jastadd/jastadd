@@ -2437,8 +2437,9 @@ aspect JaddCodeGen {
  	    }
       // Collect attributes: syn then inh
       ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynEq(); k++) {
+//      for(int k = 0; k < getNumSynEq(); k++) {
 //        AttrDecl attr = getSynEq(k).decl();
+      for(int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
         if (attr != null && (attr.getLazy() || attr.isCircular())) 
           list.add(attr);
