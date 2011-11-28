@@ -1213,7 +1213,8 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if (parent != null) {");
     stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
-    stream.println(ind(3) +   "parent.removeChild(index);");
+    stream.println(ind(3) +   "if (index >= 0)");
+    stream.println(ind(4) +     "parent.removeChild(index);");
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if (node != null) {");
     stream.println(ind(3) +   "inc_changeState(node.inc_state);");
