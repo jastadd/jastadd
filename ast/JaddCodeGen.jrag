@@ -1377,7 +1377,7 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 3
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild5(PrintWriter stream) {
     stream.println(ind(2) + "if (children[i] != null) {");
-    stream.println(ind(3) +   "children[i].inc_throwAway();");
+    stream.println(ind(3) +   "children[i].setParent(null);");
     stream.println(ind(2) + "}");
   }
 
