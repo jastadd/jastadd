@@ -20,7 +20,17 @@ public aspect Attributes {
   }
 
   // Add attributes to AST
-  public void Grammar.addRewriteList(String className, jrag.AST.SimpleNode condition, jrag.AST.SimpleNode result, String type, String fileName, int startLine, int endLine, String parentName, String childName) {
+  public void Grammar.addRewriteList(
+      String className,
+      jrag.AST.SimpleNode condition,
+      jrag.AST.SimpleNode result,
+      String type,
+      String fileName,
+      int startLine,
+      int endLine,
+      String parentName,
+      String childName,
+      String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null && c instanceof ASTDecl) {
       RewriteList r = new RewriteList();
@@ -32,6 +42,7 @@ public aspect Attributes {
       r.setReturnType(type);
       r.setParentName(parentName);
       r.setChildName(childName);
+      r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
     }
     else if(c != null) {
@@ -43,7 +54,15 @@ public aspect Attributes {
   }
   
  
-  public void Grammar.addRewrite(String className, jrag.AST.SimpleNode condition, jrag.AST.SimpleNode result, String type, String fileName, int startLine, int endLine) {
+  public void Grammar.addRewrite(
+      String className,
+      jrag.AST.SimpleNode condition,
+      jrag.AST.SimpleNode result,
+      String type,
+      String fileName,
+      int startLine,
+      int endLine,
+      String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null && c instanceof ASTDecl) {
       Rewrite r = new Rewrite();
@@ -53,6 +72,7 @@ public aspect Attributes {
       r.setCondition(condition);
       r.setResult(result);
       r.setReturnType(type);
+      r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
     }
     else if(c != null) {

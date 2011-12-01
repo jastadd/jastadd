@@ -1,4 +1,10 @@
 Newest log first
+2011-12-01: (JO) Rewrite debug code escapes file names
+in strings. This fixes a bug where JastAdd on Windows
+systems could output code that did not compile.
+Also added the AspectName token to the Rewrite node type,
+so that the actual aspect name could be returned in the
+Rewrite.aspectName attribute.
 2011-09-25: (ES) Moved weaving of interfaces to earlier
 Weaving of interfaces after the weaving of attribute/aspect
 definitions prevents the second phase to access certain

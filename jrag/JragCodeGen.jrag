@@ -1690,18 +1690,8 @@ aspect JragCodeGen {
     return set;
   }
 
-  syn lazy String Rewrite.aspectName() {
-    String name = getFileName();
-    if(name.endsWith(".jrag"))
-      name = name.substring(0, name.length() - 5);
-    else if(name.endsWith(".jadd"))
-      name = name.substring(0, name.length() - 5);
-    else if(name.endsWith(".ast"))
-      name = name.substring(0, name.length() - 4);
-    String pattern = File.separator.equals("\\") ? pattern = "\\\\" : File.separator;
-    String[] names = name.split(pattern);
-    return names[names.length-1];
-  }
+  syn lazy String Rewrite.aspectName() =
+    getAspectName();
 
   public void Grammar.genResetDuringCounters(PrintWriter out) {
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
@@ -1825,14 +1815,20 @@ aspect JragCodeGen {
     if(getResult() instanceof jrag.AST.ASTBlock) {
       buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
       if(rewriteLimit > 0)
-        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+        buf.append(ind(2) +
+          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
+          "using rule in " + getFileNameEscaped() + " at line " +
+          getStartLine() + "\");\n");
       buf.append(getResult().unparse());
       buf.append(ind + "}\n");
     }
     else {
       buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
       if(rewriteLimit > 0)
-        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+        buf.append(ind(2) +
+          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
+          "using rule in " + getFileNameEscaped() + " at line " +
+          getStartLine() + "\");\n");
       buf.append(ind(2) + "return " + getResult().unparse() + ";\n");
       buf.append(ind + "}\n");
     }
@@ -1845,14 +1841,20 @@ aspect JragCodeGen {
     if(getResult() instanceof jrag.AST.ASTBlock) {
       buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
       if(rewriteLimit > 0)
-        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+        buf.append(ind(2) +
+          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
+          "using rule in " + getFileNameEscaped() + " at line " +
+          getStartLine() + "\");\n");
       buf.append(getResult().unparse());
       buf.append(ind + "}\n");
     }
     else {
       buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
       if(rewriteLimit > 0)
-        buf.append(ind(2) + "debugRewrite(\"Rewriting \" + getClass().getName() + \" using rule in " + getFileName() + " at line " + getStartLine() + "\");\n");
+        buf.append(ind(2) +
+          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
+          "using rule in " + getFileNameEscaped() + " at line " +
+          getStartLine() + "\");\n");
       buf.append(ind(2) + "return " + getResult().unparse() + ";\n");
       buf.append(ind + "}\n");
     }

@@ -3,11 +3,15 @@ ASPECTJ=java -classpath tools/aspectj-1.5.3/aspectjlib.jar:tools/aspectj-1.5.3/a
 JAVACC=java -classpath tools/JavaCC.jar org.javacc.parser.Main -JDK_VERSION=1.4
 JJTREE=java -classpath tools/JavaCC.jar org.javacc.jjtree.Main -JDK_VERSION=1.4
 JASTADD=java -jar tools/jastadd2.jar --java1.4
+RM=/bin/rm -f
 
-JRAGFILES=ast/ClassRelations.jrag ast/ComponentsUtil.jrag ast/Errorcheck.jrag ast/JaddCodeGen.jrag ast/NameBinding.jrag \
- jrag/Attributes.jrag jrag/Circular.jrag jrag/CollectionAttributes.jrag jrag/Errorcheck.jrag jrag/JragCodeGen.jrag jrag/NameBinding.jrag
+JRAGFILES=ast/ClassRelations.jrag ast/ComponentsUtil.jrag ast/Errorcheck.jrag \
+	ast/JaddCodeGen.jrag ast/NameBinding.jrag ast/FileNameEscape.jrag \
+	jrag/Attributes.jrag jrag/Circular.jrag jrag/CollectionAttributes.jrag \
+	jrag/Errorcheck.jrag jrag/JragCodeGen.jrag jrag/NameBinding.jrag
 
-all : ast/AST/Grammar.java ast/AST/Ast.java jrag/AST/JragParser.java jastadd/JastAdd.java
+all : ast/AST/Grammar.java ast/AST/Ast.java jrag/AST/JragParser.java \
+	jastadd/JastAdd.java
 	chmod u+x ./newrelease && ./newrelease && $(ASPECTJ) `find ast jastadd jrag org -name "*.java"`
 
 ast/AST/Ast.java : ast/AST/Ast.jj
@@ -57,7 +61,22 @@ release: jar source-zip
 	@echo "new release compiled into jastadd2.jar and jastadd2-src.zip"
 
 clean :
-	/bin/rm -f jastadd/*.class ast/AST/* jrag/*.class jrag/AST/*.class jrag/AST/AST* jrag/AST/Jrag.jj jrag/AST/JragParser* jrag/AST/JJT* jrag/AST/Node.* jrag/AST/JavaCharStream* jrag/AST/ParseException*
+	$(RM) passed
+	$(RM) *.class
+	$(RM) jastadd/*.class
+	$(RM) test/*.class
+	$(RM) test/ast/*.class
+	$(RM) jrag/*.class
+	$(RM) jrag/AST/*.class
+	$(RM) ast/*.class
+	$(RM) ast/AST/*
+	$(RM) jrag/AST/AST*
+	$(RM) jrag/AST/Jrag.jj
+	$(RM) jrag/AST/JragParser*
+	$(RM) jrag/AST/JJT*
+	$(RM) jrag/AST/Node.*
+	$(RM) jrag/AST/JavaCharStream*
+	$(RM) jrag/AST/ParseException*
 
 RunTests.class: RunTests.java
 	javac $^

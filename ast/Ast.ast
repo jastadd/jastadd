@@ -29,7 +29,7 @@ Contribution ::= <Value:String> <Condition:String>;
 
 ClassBodyDecl ::= <Name> <FileName> <StartLine:int> <EndLine:int> <AspectName:String>;
 
-Rewrite ::= <FileName> <StartLine:int> <EndLine:int>;
+Rewrite ::= <FileName> <StartLine:int> <EndLine:int> <AspectName>;
 RewriteList : Rewrite;
 
 abstract Components;

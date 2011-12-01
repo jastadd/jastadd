@@ -1018,10 +1018,10 @@ void AspectRewrite() :
       "to" type = Type() ( (eq = Expression() ";" { last = token; }) | eq = Block() { last = token; } ) 
       {
         if(parent != null && child != null) {
-          root.addRewriteList(className, cond, eq, type, fileName, first.beginLine, last.endLine, parent.image, child.image);
+          root.addRewriteList(className, cond, eq, type, fileName, first.beginLine, last.endLine, parent.image, child.image, enclosingAspect);
         }
         else {
-          root.addRewrite(className, cond, eq, type, fileName, first.beginLine, last.endLine);
+          root.addRewrite(className, cond, eq, type, fileName, first.beginLine, last.endLine, enclosingAspect);
         }
         cond = null;}
     )+
