@@ -1,0 +1,131 @@
+<project name="JastAdd2" default="build" xmlns:aspectj="antlib:org.aspectj">
+
+    <property name="tools.dir"  value="tools"/>
+	<taskdef uri="antlib:org.aspectj"
+		classpath="${tools.dir}/aspectj-1.5.3/aspectjtools.jar"/>
+
+	<description>Build script for JastAdd2</description>
+
+	<taskdef name="jastadd" classname="jastadd.JastAddTask"
+		classpath="${tools.dir}/jastadd2.jar"/>
+
+	<target name="build-properties">
+		<tstamp>
+			<format property="build.date" pattern="yyyyMMdd"/>
+		</tstamp>
+		<property name="version.name" value="R${build.date}"/>
+		<copy file="properties/JastAdd.txt" toFile="JastAdd.properties">
+  			<filterset>
+    			<filter token="VERSION" value="${version.name}"/>
+  			</filterset>
+		</copy>
+	</target>
+
+    <target name="build" description="build JastAdd2"
+    	depends="build-properties">
+		<jastadd java14="true" jjtree="true" rewrite="true"
+			grammar="Ast" package="ast.AST">
+			<fileset dir="ast" includes="*.jrag,*.ast"/>
+			<fileset dir="jrag" includes="*.jrag"/>
+		</jastadd>
+		<mkdir dir="ast/AST"/>
+		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
+		<touch file="ast/Ast.jjt"/>
+		<jjtree javacchome="${tools.dir}" nodeprefix="&quot;&quot;"
+			outputdirectory="ast/AST" target="ast/Ast.jjt"/>
+		<javacc javacchome="${tools.dir}" jdkversion="1.4"
+			outputdirectory="ast/AST" target="ast/AST/Ast.jj"/>
+		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
+		<touch file="jrag/Jrag.jjt"/>
+		<jjtree javacchome="${tools.dir}"
+			outputdirectory="jrag/AST" target="jrag/Jrag.jjt"/>
+		<javacc javacchome="${tools.dir}" jdkversion="1.4"
+			outputdirectory="jrag/AST" target="jrag/AST/Jrag.jj"/>
+		<echo message="running AspectJ"/>
+		<aspectj:iajc source="1.4">
+			<classpath>
+				<fileset dir="${tools.dir}/aspectj-1.5.3">
+					<include name="*.jar"/>
+				</fileset>
+				<fileset dir="${tools.dir}">
+					<include name="ant.jar"/>
+					<include name="ant-launcher.jar"/>
+				</fileset>
+			</classpath>
+			<src path="ast"/>
+			<src path="jrag"/>
+			<src path="jastadd"/>
+		</aspectj:iajc>
+		<echo message="done"/>
+    </target>
+
+	<target name="clean">
+		<delete dir="ast/AST"/>
+		<delete dir="test/ast"/>
+		<delete file="JastAdd.properties"/>
+		<delete file="test_results"/>
+		<delete file="passed"/>
+		<delete file="jrag/AST/Jrag.jj"/>
+		<delete file="jrag/AST/TokenMgrError.java"/>
+		<delete>
+			<fileset dir="." includes="*.class"/>
+			<fileset dir="ast" includes="*.class"/>
+			<fileset dir="jastadd" includes="*.class"/>
+			<fileset dir="test" includes="**/*.class"/>
+			<fileset dir="jrag" includes="**/*.class"/>
+			<filelist dir="jrag/AST">
+			</filelist>
+			<fileset dir="jrag/AST" includes="AST*"/>
+			<fileset dir="jrag/AST" includes="JragParser*"/>
+			<fileset dir="jrag/AST" includes="JJT*"/>
+			<fileset dir="jrag/AST" includes="Node.*"/>
+			<fileset dir="jrag/AST" includes="JavaCharStream*"/>
+			<fileset dir="jrag/AST" includes="ParseException*"/>
+		</delete>
+	</target>
+
+    <target name="test" depends="build">
+    	<mkdir dir="test/ast"/>
+    	<javac srcdir="." includeantruntime="false">
+    		<include name="RunTests.java"/>
+    	</javac>
+    	<echo message="running unit tests"/>
+    	<java classpath="." classname="RunTests" output="test_results"/>
+    	<echo message="tests completed, output written to test_results"/>
+		<exec executable="grep" resolveexecutable="true" failonerror="true"
+			output="passed">
+			<arg value="test/Test[0-9]*\.java passed"/>
+			<arg value="test_results"/>
+		</exec>
+		<exec executable="diff" resolveexecutable="true" failonerror="true">
+			<arg value="-qs"/>
+			<arg value="passed"/>
+			<arg value="test/shouldpass"/>
+    	</exec>
+    </target>
+
+    <target name="jar" depends="build"
+    	description="package binary distribution">
+    	<jar destfile="jastadd2.jar">
+    		<manifest>
+    			<attribute name="Main-Class" value="jastadd.JastAdd"/>
+    			<attribute name="Implementation-Title" value="JastAdd II"/>
+    			<attribute name="Implementation-Version"
+    				value="${version.name}"/>
+    			<attribute name="Implementation-Vendor"
+    				value="The JastAdd Team"/>
+    			<attribute name="Implementation-URL"
+    				value="http://jastadd.org"/>
+    		</manifest>
+    		<fileset dir=".">
+    			<include name="LICENSE"/>
+    			<include name="JastAdd.properties"/>
+    			<include name="ast/**/*.class"/>
+    			<include name="jastadd/*.class"/>
+    			<include name="jrag/**/*.class"/>
+    			<include name="org/aspectj/lang/*.class"/>
+    			<include name="org/aspectj/runtime/**/*.class"/>
+    		</fileset>
+    	</jar>
+    </target>
+</project>

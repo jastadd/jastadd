@@ -319,7 +319,7 @@ aspect JastAddCodeGen {
       stream.print(env().genImportsList());
 
       if(name().equals("ASTNode")) {
-        stream.print(JastAdd.VERSIONINFO);
+        stream.print(JastAdd.getVersionInfo());
         
         if(doxygen) {
           for(Iterator iter = env().aspectMap.entrySet().iterator(); iter.hasNext(); ) {
