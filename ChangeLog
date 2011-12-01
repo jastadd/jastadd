@@ -1,6 +1,9 @@
 Newest log first
-2011-12-01: (JO) Converted Makefile to Apache Ant build
-script
+2011-12-01: (JO) Added Apache Ant build script.
+Moved version name to resource bundle which is generated
+at build time -- this removes the frequent changes in
+JastAdd.java due to the version name updating after each
+build.
 -------------------------------------------------------
 2011-12-01: (JO) Rewrite debug code escapes file names
 in strings. This fixes a bug where JastAdd on Windows

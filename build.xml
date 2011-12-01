@@ -9,12 +9,12 @@
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
 		classpath="${tools.dir}/jastadd2.jar"/>
 
-	<target name="build-properties">
+	<target name="build-resources">
 		<tstamp>
 			<format property="build.date" pattern="yyyyMMdd"/>
 		</tstamp>
 		<property name="version.name" value="R${build.date}"/>
-		<copy file="properties/JastAdd.txt" toFile="JastAdd.properties">
+		<copy file="resources/JastAdd.txt" toFile="JastAdd.properties">
   			<filterset>
     			<filter token="VERSION" value="${version.name}"/>
   			</filterset>
@@ -22,7 +22,7 @@
 	</target>
 
     <target name="build" description="build JastAdd2"
-    	depends="build-properties">
+    	depends="build-resources">
 		<jastadd java14="true" jjtree="true" rewrite="true"
 			grammar="Ast" package="ast.AST">
 			<fileset dir="ast" includes="*.jrag,*.ast"/>
@@ -127,5 +127,25 @@
     			<include name="org/aspectj/runtime/**/*.class"/>
     		</fileset>
     	</jar>
+    </target>
+
+    <target name="release" depends="jar"
+    	description="build source-zip and bin-zip">
+    	<zip destfile="jastadd2-bin.zip">
+    		<zipfileset dir="." includes="jastadd2.jar"
+    			prefix="jastadd2-bin"/>
+    		<zipfileset dir="doc" includes="reference-manual.html"
+    			prefix="jastadd2-bin"/>
+    		<zipfileset dir="doc" includes="release-notes.html"
+    			prefix="jastadd2-bin"/>
+    	</zip>
+    	<zip destfile="jastadd2-src.zip">
+    		<zipfileset dir="." includes="jastadd2.jar"
+    			prefix="jastadd2-bin"/>
+    		<zipfileset dir="doc" includes="reference-manual.html"
+    			prefix="jastadd2-bin"/>
+    		<zipfileset dir="doc" includes="release-notes.html"
+    			prefix="jastadd2-bin"/>
+    	</zip>
     </target>
 </project>
