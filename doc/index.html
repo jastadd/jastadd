@@ -1,0 +1,48 @@
+<h1>JastAdd2 Release R20110902
+</h1>
+
+<h2> Binary distribution </h2>
+<ul>
+  <li> The tool: <a href="jastadd2.jar">jastadd2.jar</a>
+  <br> Do "java -jar jastadd2.jar --help" for information on how to run the tool from the command line. </li>
+  <li> <a href="reference-manual.php">Reference manual</a> </li>
+  <li> <a href="release-notes.php">Release notes</a> <br></li><br>
+  <li> All three files zipped together: <a href="jastadd2-bin.zip">jastadd2-bin.zip</a> <br>
+  Unpack by the command "unzip jastadd2-bin.zip"</li>
+</ul>
+
+<h2> Source distribution </h2>
+<ul>
+  <li> The source: <a href="jastadd2-src.zip">jastadd2-src.zip</a></li>
+  <ul>
+    <li> Unpack by the command "unzip jastadd2-src.zip" </li>
+    <li> Get <a href="http://www.eclipse.org/downloads/download.php?file=/tools/aspectj/aspectj-1.5.3.jar">AspectJ 1.5.3</a>,
+         and install it as follows: </li>
+       <ul>
+         <li>Create a new empty dir where you unpack aspectj-1.5.3.jar by the command
+         <pre>jar -xf aspectj-1.5.3.jar
+         </pre>
+         </li>
+         <li> Move its "lib" directory to "jastadd-src/tools" and rename it to "aspectj-1.5.3".
+              You should end up with the following directory structure:
+         <pre>
+         jastadd-src/
+           ...
+           tools/
+             ...
+             aspectj-1.5.3/
+               aspectjlib.jar
+               aspectjrt.jar
+               aspectjtools.jar
+               aspectjweaver.jar
+         </pre>
+         </li>
+       </ul>
+    <li> Go to jastadd-src and build jastadd2.jar:
+         <pre>
+         > cd jastadd-src
+         > make jar
+         </pre>
+    </li>
+  </ul>
+</ul>
