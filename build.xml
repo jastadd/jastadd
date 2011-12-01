@@ -131,21 +131,44 @@
 
     <target name="release" depends="jar"
     	description="build source-zip and bin-zip">
-    	<zip destfile="jastadd2-bin.zip">
-    		<zipfileset dir="." includes="jastadd2.jar"
-    			prefix="jastadd2-bin"/>
-    		<zipfileset dir="doc" includes="reference-manual.html"
-    			prefix="jastadd2-bin"/>
-    		<zipfileset dir="doc" includes="release-notes.html"
-    			prefix="jastadd2-bin"/>
-    	</zip>
     	<zip destfile="jastadd2-src.zip">
-    		<zipfileset dir="." includes="jastadd2.jar"
-    			prefix="jastadd2-bin"/>
-    		<zipfileset dir="doc" includes="reference-manual.html"
-    			prefix="jastadd2-bin"/>
-    		<zipfileset dir="doc" includes="release-notes.html"
-    			prefix="jastadd2-bin"/>
+    		<zipfileset dir="." prefix="jastadd2-src">
+    			<include name="LICENSE"/>
+    			<include name="README"/>
+    			<include name="jastadd2.jar"/>
+    			<include name="doc/reference-manual.html"/>
+    			<include name="doc/release-notes.html"/>
+    			<include name="RunTests.java"/>
+    			<include name="test/*"/>
+    			<exclude name="test/ast"/>
+    			<exclude name="test/*.class"/>
+    			<include name="jastadd/*.java"/>
+    			<include name="jastadd/*.jrag"/>
+    			<include name="jrag/*.java"/>
+    			<include name="jrag/*.jrag"/>
+    			<include name="jrag/*.jjt"/>
+    			<include name="jrag/AST/SimpleNode.java"/>
+    			<include name="jrag/AST/Token.java"/>
+    			<include name="ChangeLog"/>
+    			<include name="org/**/*.class"/>
+    			<include name="tools/**/*.jar"/>
+    			<include name="resources/*.txt"/>
+    			<include name="Makefile"/>
+    			<include name="build.xml"/>
+    			<include name="ast/*.java"/>
+    			<include name="ast/*.jrag"/>
+    			<include name="ast/*.jjt"/>
+    			<include name="ast/*.ast"/>
+    			<include name="ast/*.ast"/>
+    		</zipfileset>
+    	</zip>
+    	<zip destfile="jastadd2-bin.zip">
+    		<zipfileset dir="." prefix="jastadd2-bin">
+    			<include name="LICENSE"/>
+    			<include name="jastadd2.jar"/>
+    			<include name="doc/reference-manual.html"/>
+    			<include name="doc/release-notes.html"/>
+    		</zipfileset>
     	</zip>
     </target>
 </project>
