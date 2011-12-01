@@ -31,8 +31,14 @@
 		<mkdir dir="ast/AST"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="ast/Ast.jjt"/>
-		<jjtree javacchome="${tools.dir}" nodeprefix="&quot;&quot;"
-			outputdirectory="ast/AST" target="ast/Ast.jjt"/>
+		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
+			<arg value="-OUTPUT_DIRECTORY=ast/AST"/>
+			<arg value="-NODE_PREFIX=&quot;&quot;"/>
+			<arg value="ast/Ast.jjt"/>
+		</java>
+		<!-- NODE_PREFIX is not set correctly on Windows: -->
+		<!--jjtree javacchome="${tools.dir}" nodeprefix="&quot;&quot;"
+			outputdirectory="ast/AST" target="ast/Ast.jjt"/-->
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
 			outputdirectory="ast/AST" target="ast/AST/Ast.jj"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
