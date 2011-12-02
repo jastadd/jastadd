@@ -77,7 +77,7 @@ aspect JaddCodeGen {
     // ES_2011-10-05: Code generation for incremental evaluation  
     if (ASTNode.incremental) {
       s.append(genIncrementalConstructorStartConstruction());
-      if (isRootNode()) s.append(ind(2) + "inc_changeState(inc_LIVE);\n");
+      if (isRootNode()) s.append(genIncrementalSetRootLive());
     }
     //
     i = 0;
@@ -157,7 +157,7 @@ aspect JaddCodeGen {
     // ES_2011-10-05: Code generation for incremental evaluation, construction 
     if (ASTNode.incremental) {
       s.append(genIncrementalConstructorStartConstruction());
-      if (isRootNode()) s.append(ind(2) + "inc_changeState(inc_LIVE);\n");
+      if (isRootNode()) s.append(genIncrementalSetRootLive());
     }
     //
     i = 0;
@@ -203,6 +203,24 @@ aspect JaddCodeGen {
     if(ASTNode.block) s.append(ASTNode.blockEnd);
     s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
+  }
+
+  public String ASTDecl.genIncrementalSetRootLive() {
+    StringBuffer buf = new StringBuffer();
+    buf.append(ind(2) + "inc_changeState(inc_LIVE);\n");
+    if (ASTNode.incrementalLevelParam) {
+      buf.append(ind(2) + "getParent_handler.changeState(inc_LIVE);\n");
+      buf.append(ind(2) + "numChildren_handler.changeState(inc_LIVE);\n");
+    }
+    if (ASTNode.incrementalLevelAttr) { 
+      buf.append(ind(2) + "getParent_handler.changeState(inc_LIVE);\n");
+      buf.append(ind(2) + "getChild_handler.changeState(inc_LIVE);\n");
+      buf.append(ind(2) + "numChildren_handler.changeState(inc_LIVE);\n");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      buf.append(ind(2) + "handler.changeState(inc_LIVE);\n");
+    }
+    return buf.toString();
   }
 
   // ES_2011-10-05: Code generation for incremental evaluation, enter construction
@@ -1950,7 +1968,7 @@ aspect JaddCodeGen {
     // ES_2011-11-23: Code generation for incremental evaluation  
     if (ASTNode.incremental) {
       stream.println(ind(2) + genIncrementalConstructorStartConstruction());
-      if (isRootNode()) stream.println(ind(2) + "inc_changeState(inc_LIVE);");
+      if (isRootNode()) stream.println(genIncrementalSetRootLive());
     }
     //
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
