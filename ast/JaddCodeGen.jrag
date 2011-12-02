@@ -75,10 +75,7 @@ aspect JaddCodeGen {
     s.append(") {\n");
     if(ASTNode.block) s.append(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation  
-    if (ASTNode.incremental) {
-      s.append(genIncrementalConstructorStartConstruction());
-      if (isRootNode()) s.append(genIncrementalSetRootLive());
-    }
+    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
     //
     i = 0;
     int j = 0;
@@ -155,10 +152,7 @@ aspect JaddCodeGen {
     s.append(") {\n");
     if(ASTNode.block) s.append(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation, construction 
-    if (ASTNode.incremental) {
-      s.append(genIncrementalConstructorStartConstruction());
-      if (isRootNode()) s.append(genIncrementalSetRootLive());
-    }
+    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
     //
     i = 0;
     int j = 0;
@@ -203,10 +197,6 @@ aspect JaddCodeGen {
     if(ASTNode.block) s.append(ASTNode.blockEnd);
     s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
-  }
-
-  public String ASTDecl.genIncrementalSetRootLive() {
-    return ind(2) + "inc_changeState(inc_LIVE);\n";
   }
 
   // ES_2011-10-05: Code generation for incremental evaluation, enter construction
@@ -1952,10 +1942,7 @@ aspect JaddCodeGen {
     // Initialize node
     i = 0;
     // ES_2011-11-23: Code generation for incremental evaluation  
-    if (ASTNode.incremental) {
-      stream.println(ind(2) + genIncrementalConstructorStartConstruction());
-      if (isRootNode()) stream.println(genIncrementalSetRootLive());
-    }
+    if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorStartConstruction());
     //
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
