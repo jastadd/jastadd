@@ -206,21 +206,7 @@ aspect JaddCodeGen {
   }
 
   public String ASTDecl.genIncrementalSetRootLive() {
-    StringBuffer buf = new StringBuffer();
-    buf.append(ind(2) + "inc_changeState(inc_LIVE);\n");
-    if (ASTNode.incrementalLevelParam) {
-      buf.append(ind(2) + "getParent_handler.changeState(inc_LIVE);\n");
-      buf.append(ind(2) + "numChildren_handler.changeState(inc_LIVE);\n");
-    }
-    if (ASTNode.incrementalLevelAttr) { 
-      buf.append(ind(2) + "getParent_handler.changeState(inc_LIVE);\n");
-      buf.append(ind(2) + "getChild_handler.changeState(inc_LIVE);\n");
-      buf.append(ind(2) + "numChildren_handler.changeState(inc_LIVE);\n");
-    }
-    if (ASTNode.incrementalLevelNode) {
-      buf.append(ind(2) + "handler.changeState(inc_LIVE);\n");
-    }
-    return buf.toString();
+    return ind(2) + "inc_changeState(inc_LIVE);\n";
   }
 
   // ES_2011-10-05: Code generation for incremental evaluation, enter construction
