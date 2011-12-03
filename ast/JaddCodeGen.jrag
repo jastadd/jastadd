@@ -3301,7 +3301,11 @@ aspect JaddCodeGen {
     stream.println("      return fState == ASTNode.inc_LIVE;");
     stream.println("    }");
     // clean up
+    stream.println("    public boolean visitedDuringCleanup = false;");
+    stream.println("    public static int nbr_cleanup = 0;");
     stream.println("    public void cleanUpGarbage() {");
+    stream.println("      visitedDuringCleanup = true;");
+    stream.println("      nbr_cleanup++;");
     stream.println("      // Clean up garbage");
     stream.println("      Iterator<ASTNode$DepGraphNode> itr = fDependantSet.iterator();");
     stream.println("      while (itr.hasNext()) {");
@@ -3322,7 +3326,7 @@ aspect JaddCodeGen {
     stream.println("      }");
     stream.println("    }");
     // level: node, attr, param all need a node to store the dependency node in
-	  stream.println("    protected ASTNode fNode;");
+	  stream.println("    public ASTNode fNode;");
     // level: param needs both an attr ID and a param ID
     if (ASTNode.incrementalLevelParam) {
 	    stream.println("    protected String fAttrID;");
