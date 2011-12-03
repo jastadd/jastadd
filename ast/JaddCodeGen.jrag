@@ -3316,7 +3316,7 @@ aspect JaddCodeGen {
     stream.println("        }");
     stream.println("      }");
     stream.println("    }");
-    stream.println("    public static HashSet<ASTNode$DepGraphNode> createdHandlers = new HashSet<ASTNode$DepGraphNode>();");
+    stream.println("    public static LinkedList<ASTNode$DepGraphNode> createdHandlers = new LinkedList<ASTNode$DepGraphNode>();");
     stream.println("    public static void doCleanUp() {");
     stream.println("      Iterator itr = createdHandlers.iterator();");
     stream.println("      while (itr.hasNext()) {");
