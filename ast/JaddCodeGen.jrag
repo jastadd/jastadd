@@ -2797,7 +2797,7 @@ aspect JaddCodeGen {
     stream.println(ind + "public static final int " + name() + ".inc_CLONED = 1;");  
     stream.println(ind + "public static final int " + name() + ".inc_LIVE = 2;");  
     stream.println(ind + "public static final int " + name() + ".inc_GARBAGE = 3;");  
-    stream.println(ind + "protected int " + name() + ".inc_state = inc_CREATED;");  
+    stream.println(ind + "public int " + name() + ".inc_state = inc_CREATED;");  
     }
 
     // Collect attributes: syn then inh
