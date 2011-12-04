@@ -2958,30 +2958,17 @@ aspect JaddCodeGen {
       // attributes
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
+        // handlers
         if (ASTNode.incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
     	      stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                   "_handler.values().iterator(); itr.hasNext();) {");
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
             stream.println(ind(3) +   "handler.throwAway();");
-            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
-                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
-              stream.println(ind(3) + "}");
-            }
             stream.println(ind(2) + "}");
           } else {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
-            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
-                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-              stream.println(ind(3) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                        attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_throwAway();");
-              stream.println(ind(3) + "}");
-            }
     	      stream.println(ind(2) + "}");
     	    }
         }
@@ -2990,9 +2977,10 @@ aspect JaddCodeGen {
     	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
     	    stream.println(ind(2) + "}");
         }
-        if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
-              !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+        // values for NTAs
+        if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+            !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+          if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
               stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_throwAway();");
@@ -3005,6 +2993,7 @@ aspect JaddCodeGen {
             }
           }
         }
+
   	  }    
     }
     stream.println(ind + "}");    // end method: inc_throwAway
