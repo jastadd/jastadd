@@ -3287,7 +3287,7 @@ aspect JaddCodeGen {
     stream.println("      visitedDuringCleanup = true;");
     stream.println("      nbr_cleanup++;");
     stream.println("      // Clean up garbage");
-    stream.println("      Iterator<ASTNode$DepGraphNode> itr = fDependantSet.iterator();");
+    stream.println("      Iterator<ASTNode$DepGraphNode> itr = fListenerSet.iterator();");
     stream.println("      while (itr.hasNext()) {");
     stream.println("        ASTNode$DepGraphNode cur = itr.next();");
     stream.println("        if (cur.isGarbage()) {");
@@ -3357,7 +3357,7 @@ aspect JaddCodeGen {
   	stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fListenerSet = " +
                    "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("    public boolean hasDependants() {");
-    stream.println("        return !fListenersSet.isEmpty();");
+    stream.println("        return !fListenerSet.isEmpty();");
     stream.println("    }");
     //if (ASTNode.incrementalDebug) {
     stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependencySet = " +
@@ -3399,12 +3399,11 @@ aspect JaddCodeGen {
     stream.println("      // Notify and remove listeners");
     stream.println("      if (!visited) {");
     stream.println("        visited = true;");
-    stream.println("        Iterator<ASTNode$DepGraphNode> itr = fListenerSet.iterator();");
-    stream.println("        while (itr.hasNext()) {");
-    stream.println("          ASTNode$DepGraphNode cur = itr.next();");
-    stream.println("          cur.dependencyChanged();");
+    stream.println("        java.util.HashSet<ASTNode$DepGraphNode> k = fListenerSet;");
+    stream.println("        fListenerSet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+    stream.println("        for (ASTNode$DepGraphNode node : k) {");
+    stream.println("          node.dependencyChanged();");
     stream.println("        }");
-    stream.println("        fListenerSet.clear();");
     stream.println("        visited = false;");
     stream.println("      }");
     stream.println("    }");
@@ -3413,7 +3412,7 @@ aspect JaddCodeGen {
     //if (ASTNode.incrementalDebug) {
     stream.println("      // Remove dependencies");
     stream.println("      java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
-    stream.println("      fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>();");
+    stream.println("      fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("      for (ASTNode$DepGraphNode node : k) {");
     stream.println("        node.removeDependant(this);");
     stream.println("      }");
@@ -3429,7 +3428,7 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalDebug) {
       stream.println("    public void dumpDeps() {");
       stream.println("      TreeSet<String> sorted = new TreeSet<String>();");
-      stream.println("      for (ASTNode$DepGraphNode node : fDependantSet) {");
+      stream.println("      for (ASTNode$DepGraphNode node : fListenerSet) {");
       stream.println("        sorted.add(node.toString());");
       stream.println("      }");
       stream.println("      for (String s : sorted) {");
