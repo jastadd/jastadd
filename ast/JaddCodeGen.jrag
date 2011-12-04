@@ -3196,53 +3196,73 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode) {
         stream.println("      handler.dumpDeps();");
       }
-    } else {
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-        for (int c = 0; c < getNumComponents(); c++) {
- 	    	  Components comp = getComponents(c);
- 	  		  if (comp instanceof TokenComponent) {
-	  			  stream.println("    get" + ((TokenComponent)comp).getTokenId().getID() + "_handler.dumpDeps();");
- 	  		  }
- 	  	  }
-      }
+    } 
+
+    // Collect attributes
+    ArrayList list = new ArrayList();
+    for(int k = 0; k < getNumSynEq(); k++) {
+ 	    AttrDecl attr = getSynEq(k).decl();
+ 	    if (attr.getLazy() || attr.isCircular()) 
+        list.add(attr);
     }
+    for(int k = 0; k < getNumInhDecl(); k++) {
+      InhDecl attr = getInhDecl(k);
+ 	    if (attr.getLazy() || attr.isCircular()) 
+        list.add(attr);
+    }
+
+    // tokens
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      // Collect attributes
-      ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynEq(); k++) {
- 	      AttrDecl attr = getSynEq(k).decl();
- 	      if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      for(int k = 0; k < getNumInhDecl(); k++) {
-     	  InhDecl attr = getInhDecl(k);
- 	      if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      // attribute code
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-        if (attr.getNumParameter() == 0) {
-          stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
-                                  attr.attributeSignature() + "_handler.dumpDeps();");
+      for (int c = 0; c < getNumComponents(); c++) {
+ 	  	  Components comp = getComponents(c);
+ 	  	  if (comp instanceof TokenComponent && !comp.isNTA()) {
+	  	    stream.println(ind(2) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + "_handler != null) {");
+	  		  stream.println(ind(3) +   "get" + ((TokenComponent)comp).getTokenId().getID() + "_handler.dumpDeps();");
+	  			stream.println(ind(2) + "}");
+ 	  		}
+ 	  	}
+    }
+    
+    // attributes
+    for(Iterator itr = list.iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      // handlers
+      if (ASTNode.incrementalLevelParam) {
+        if (attr.getNumParameter() > 0) {
+  	      stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
+                                "_handler.values().iterator(); itr.hasNext();) {");
+          stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
+          stream.println(ind(3) +   "handler.dumpDeps();");
+          stream.println(ind(2) + "}");
         } else {
-          if (ASTNode.incrementalLevelParam) {
-            stream.println("      if (" + attr.attributeSignature() + "_handler != null) {");
-            stream.println("        for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                                    "_handler.keySet().iterator(); itr.hasNext();) {");
-            stream.println("          Object key = itr.next();");
-            stream.println("          Object value = " + attr.attributeSignature() + "_handler.get(key);");
-            stream.println("          ((ASTNode$DepGraphNode)value).dumpDeps();");
-            stream.println("        }");
-            stream.println("      }");
-          } 
-          if (ASTNode.incrementalLevelAttr) {
-            stream.println("      if (" + attr.attributeSignature() + "_handler != null) " + 
-                                  attr.attributeSignature() + "_handler.dumpDeps();");            
+          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+          stream.println(ind(3) +   attr.attributeSignature() + "_handler.dumpDeps();");
+  	      stream.println(ind(2) + "}");
+  	    }
+      }
+      if (ASTNode.incrementalLevelAttr) {
+  	    stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+   	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.dumpDeps();");
+   	    stream.println(ind(2) + "}");
+      }
+      // values for NTAs
+      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+        if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+          if (attr.getNumParameter() > 0) {
+            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+            stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDependencies();");
+            stream.println(ind(2) + "}");
+          } else {
+            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                    attr.attributeSignature() + "_value instanceof ASTNode)) {");
+            stream.println(ind(3) + attr.attributeSignature() + "_value.dumpDependencies();");
+            stream.println(ind(2) + "}");
           }
         }
       }
     }
+
     stream.println("        // TODO: dump collection values");
     // super call
     if (!name().equals("ASTNode")) {
