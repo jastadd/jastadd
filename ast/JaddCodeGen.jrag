@@ -3307,7 +3307,7 @@ aspect JaddCodeGen {
 	  stream.println("    public ASTNode fNode;");
     // level: param needs both an attr ID and a param ID
     if (ASTNode.incrementalLevelParam) {
-	    stream.println("    protected String fAttrID;");
+	    stream.println("    public String fAttrID;");
 	    stream.println("    protected Object fParams;");
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params) {");
       stream.println("      fNode = node;");
