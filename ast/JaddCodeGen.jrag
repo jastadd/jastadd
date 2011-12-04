@@ -3020,7 +3020,7 @@ aspect JaddCodeGen {
     }
     stream.println(ind + "}");    // end method: inc_throwAway
 
-
+    /*
     // method: inc_cleanUpGarbage
     stream.println(ind + "public void " + name() + ".inc_cleanUpGarbage() {");
     if (name().equals("ASTNode")) {
@@ -3029,8 +3029,7 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "numChildren_handler.cleanUpGarbage);");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
-        stream.println(ind(3) +   "if (getChild_handler[i] != null)");
-        stream.println(ind(4) +     "getChild_handler[i].cleanUpGarbage();");
+        stream.println(ind(3) +   "if (getChild_handler[i] != null) getChild_handler[i].cleanUpGarbage();");
         stream.println(ind(3) +   "if (child != null) child.inc_cleanUpGarbage();");
         stream.println(ind(3) +   "if (init_children != null && i < init_children.length && init_children[i] != null) {");
         stream.println(ind(4) +     "init_children[i].inc_cleanUpGarbage();");
@@ -3125,7 +3124,7 @@ aspect JaddCodeGen {
   	  }    
     }
     stream.println(ind + "}");    // end method: inc_cleanUpGarbage
-
+    */
   } // end: jjtGenIncrementalState
 
 
