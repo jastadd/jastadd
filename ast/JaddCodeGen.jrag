@@ -2822,7 +2822,6 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.changeState(newState);");
         stream.println(ind(2) + "numChildren_handler.changeState(newState);");
-        stream.println(ind(2) + "for (int i = 0; i < children != null && children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
         stream.println(ind(3) +   "if (getChild_handler[i] != null)");
         stream.println(ind(4) +     "getChild_handler[i].changeState(newState);");
