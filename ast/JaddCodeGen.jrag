@@ -2628,7 +2628,7 @@ aspect JaddCodeGen {
           // handler NTA
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-              stream.println(ind(3) + attr.type() + " value = " + attr.attributeSignature() + "_values.remove(_parameters);");                 
+              stream.println(ind(3) + attr.type() + " value = (" + attr.type() + ")" + attr.attributeSignature() + "_values.remove(_parameters);");                 
               stream.println(ind(3) + "for (int i = 0; i < " + attr.attributeSignature() + "_list.children.length; i++) {");
               stream.println(ind(4) +   "ASTNode child = " + attr.attributeSignature() + "_list.children[i];");
               stream.println(ind(4) +   "if (child != null && value == child) {");
