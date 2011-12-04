@@ -1729,7 +1729,6 @@ aspect JaddCodeGen {
           ind(3) + "try {\n" +
           ind(4) + "#CLASS# node = (#CLASS#)clone();\n" +
           ind(4) + "node.parent = null;\n" +
-          ind(4) + "node.inc_state = inc_CLONED;\n" +
           ind(4) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
           // ES_2011-10-07: Code generation for incremental evaluation, copy
            (ASTNode.incremental ? genIncrementalCopyNode() : "") +
