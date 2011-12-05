@@ -2535,6 +2535,8 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalChangeFlush) 
       jjtGenIncrementalChangeFlush(stream);
 
+    // TODO: Add flush of regions
+
     // super class if not ASTNode
     if (!name().equals("ASTNode")) {
       if (ASTNode.incrementalLevelParam)
