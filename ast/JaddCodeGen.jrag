@@ -2548,9 +2548,10 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelParam)
         stream.println(ind(2) + "super.reactToDependencyChange(attrID, _parameters);");      
       if (ASTNode.incrementalLevelAttr) 
-        stream.println(ind(2) + "super.reactToDependencyChange(attrID);");      
-      if (ASTNode.incrementalLevelNode) 
-        stream.println(ind(2) + "super.reactToDependencyChange();");      
+        stream.println(ind(2) + "super.reactToDependencyChange(attrID);");   
+   
+      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) 
+        stream.println(ind(2) + "handler.notifyDependencies();");      
     }
     stream.println(ind + "}");
     // end method: reactToDependencyChange
