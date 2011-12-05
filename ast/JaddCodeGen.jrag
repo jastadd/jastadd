@@ -2229,6 +2229,10 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "for (int i = 0; i < numChildren; i++) {");
         stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length) {");
         stream.println(ind(4) +     "rewritten_children[i] = false;");
+        stream.println(ind(4) +     "if (init_children[i] != null) {");
+        stream.println(ind(5) +       "init_children[i].inc_throwAway();");
+        stream.println(ind(5) +       "init_children[i] = null;");
+        stream.println(ind(4) +     "}");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "if (children[i] != null) {");
         stream.println(ind(4) +     "children[i].inc_resetRewrites();");
@@ -2556,25 +2560,71 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         // method: inc_flush
         stream.println(ind + "public void " + name() + ".inc_flush() {");
-            // TODO: reset stored values to not computed
-          // TODO: flush NTAs: throw away value, set value to null, reset computed
+
+        // collect attributes: syn, inh
+        ArrayList list = new ArrayList();
+        for(int k = 0; k < getNumSynEq(); k++) {
+          AttrDecl attr = getSynEq(k).decl();
+          if (attr != null && (attr.getLazy() || attr.isCircular())) 
+            list.add(attr);
+        }
+        for(int k = 0; k < getNumInhDecl(); k++) {
+          AttrDecl attr = getInhDecl(k);
+          if (attr != null && (attr.getLazy() || attr.isCircular())) 
+            list.add(attr);
+        }
+
+        // flush attributes
+        for(Iterator itr = list.iterator(); itr.hasNext();) {
+          AttrDecl attr = (AttrDecl)itr.next();
+    
+          // NTAs
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+              && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            if (attr.getNumParameter() > 0) {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+              stream.println(ind(3) +   attr.attributeSignature() + "_list.setParent(null);");
+              String u = attr.resetVisit() + attr.resetCache();
+              u = u.replaceAll("#NAME#", attr.attributeSignature());
+              stream.print(u);
+              stream.println(ind(2) + "}");
+            } else {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
+              stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
+              String u = attr.resetVisit() + attr.resetCache();
+              u = u.replaceAll("#NAME#", attr.attributeSignature());
+              stream.print(u);
+              stream.println(ind(2) + "}");
+            }
+          } 
+          // Non NTAs
+          else {
+            if (attr.getNumParameter() > 0) {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_values != null && !" + 
+                attr.attributeSignature() + "_values.isEmpty() {");
+              String u = attr.resetVisit() + attr.resetCache();
+              u = u.replaceAll("#NAME#", attr.attributeSignature());
+              stream.print(u);              
+              stream.println(ind(2) + "}");
+            } else {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed) {");
+              String u = attr.resetVisit() + attr.resetCache();
+              u = u.replaceAll("#NAME#", attr.attributeSignature());
+              stream.print(u);              
+              stream.println(ind(2) + "}");
+            }
+          }
+        }
+
         if (name().equals("ASTNode")) {
-            // TODO: reset rewrites, treat children as outer rewrites
-            stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
-  /*
-           stream.println(ind(5) +       "if (init_children[i] != null) {");
-          stream.println(ind(6) +         "// set up change");
-      stream.println(ind(6) +         "ASTNode oldChild = children[i];");
-      stream.println(ind(6) +         "ASTNode newChild = init_children[i];");
-      stream.println(ind(6) +         "// make change");
-      stream.println(ind(6) +         "oldChild.inc_throwAway();");
-      stream.println(ind(6) +         "children[i] = newChild;");
-      stream.println(ind(6) +         "init_children[i] = null;");
-      stream.println(ind(6) +         "// set parents and notify");
-      stream.println(ind(6) +         "newChild.setParent(this);");
-*/
-          stream.println(ind(2) + "}");
-      
+            stream.println(ind(2) + "for (int i = 0; i < numChildren; i++) {");
+            stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length) {");
+            stream.println(ind(4) +     "rewritten_children[i] = false;");
+            stream.println(ind(4) +     "if (init_children[i] != null) {");
+            stream.println(ind(5) +       "init_children[i].inc_throwAway();");
+            stream.println(ind(5) +       "init_children[i] = null;");
+            stream.println(ind(4) +     "}");
+            stream.println(ind(3) +   "}");   
         } else {
           stream.println(ind(2) + "super.inc_flush();");
         }
