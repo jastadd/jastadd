@@ -1270,8 +1270,6 @@ aspect JaddCodeGen {
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 1
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {"); 
-//testingto remove IN_REWRITE_EVAL to propagate change in this state
-//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     // notify current child
     stream.println(ind(3) +   "if (children != null && i < children.length && children[i] != null) {");
     stream.println(ind(4) +     "children[i].inc_notifyForRemove();");
@@ -2176,6 +2174,7 @@ aspect JaddCodeGen {
     jjtGenIncrementalReactToChange(stream);
     jjtGenIncrementalReactToASTChange(stream);
     jjtGenIncrementalState(stream);
+    jjtGenIncrementalRegions(stream);
     if (ASTNode.incrementalDebug) jjtGenIncrementalDebug(stream);
   }
 
@@ -2320,13 +2319,29 @@ aspect JaddCodeGen {
     //}
     //
 
+    // level region: one handler per region, non-region root nodes need a method to find the handler of their region
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
+          ".handler = new ASTNode$DepGraphNode(this);");                    
+        stream.println(ind + "public boolean " + name() + ".handler() {");
+        stream.println(ind(2) + "return handler;");
+        stream.println(ind + "}"); 
+      } else {
+        stream.println(ind + "public boolean " + name() + ".handler() {");
+        stream.println(ind(2) + "return parent != null ? parent.handler() : null;");
+        stream.println(ind + "}"); 
+      }
+    }
+
     // level node: one handler per node
     if (ASTNode.incrementalLevelNode) {
       if (name().equals("ASTNode")) {
-        stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.handler = " + 
-            "new ASTNode$DepGraphNode(this);");                    
+        stream.println(ind + "protected ASTNode$DepGraphNode " + 
+          "ASTNode.handler = new ASTNode$DepGraphNode(this);");                    
       }
     } 
+
     // level param, attr: at least one handler per attribute
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
       // handlers specific for ASTNode
@@ -2383,7 +2398,10 @@ aspect JaddCodeGen {
         }
       }
     }
+
   }
+
+
 
   // ES_2011-11-22: Code generation for incremental evaluation, copying of handlers
   public void ASTDecl.jjtGenIncrementalCopyHandlers(PrintWriter stream) {
@@ -3108,6 +3126,25 @@ aspect JaddCodeGen {
   } // end: jjtGenIncrementalState
 
 
+  // ES_2011-12-05: Regions for incremental evaluation
+  public void ASTDecl.jjtGenIncrementalRegions(PrintWriter stream) {
+
+    // method: isRegionRoot()
+    if (ASTNode.incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "public boolean ASTNode.isRegionRoot() {");
+        stream.println(ind(2) + "return true;");
+        stream.println(ind + "}"); 
+      }
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println(ind + "public boolean " + name() + ".isRegionRoot() {");
+      stream.println(ind(2) + "return " + (isRegionRoot()) + ";");
+      stream.println(ind + "}"); 
+    }
+    // method end: isRegionRoot
+
+  } // end: jjtGenIncrementalRegions
   
 
   // ES_2011-09-20: Debug code generation for incremental evaluation
