@@ -860,6 +860,9 @@ aspect JragCodeGen {
     if (ASTNode.incrementalLevelNode) {
         buf.append(ind(2) + "state().addHandlerDepTo(handler);\n");
     }
+    if (ASTNode.incrementalLevelRegion) {
+        buf.append(ind(2) + "state().addHandlerDepTo(handler());\n");
+    }
     return buf.toString();
   }
 
@@ -1278,6 +1281,9 @@ aspect JragCodeGen {
       if (ASTNode.incrementalLevelNode) {
         buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
       }
+      if (ASTNode.incrementalLevelRegion) {
+        buf.append(ind(2) + "state().enterAttrStoreEval(handler());\n");
+      }
     }
     return buf.toString();
   }
@@ -1299,6 +1305,9 @@ aspect JragCodeGen {
       }
       if (ASTNode.incrementalLevelNode) {
         buf.append("state().exitAttrStoreEval(handler);\n");
+      }
+      if (ASTNode.incrementalLevelRegion) {
+        buf.append("state().exitAttrStoreEval(handler());\n");
       }
     }
     return buf.toString();
