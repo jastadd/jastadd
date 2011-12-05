@@ -1,6 +1,9 @@
 -- Dependencies/Cache after a.makeB and b.a:
 dep(A:makeB -> A:getName)
 dep(A:d -> A:makeB)
+dep(A/B:a -> A/B:b)
+dep(A/B:b -> A/B:c)
+dep(A/B:c -> A/B:getParent)
 dep(A/B:c -> A:numChildren)
 dep(A/B:c -> A:getChild[0])
 value(A:d, false)
