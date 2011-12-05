@@ -85,8 +85,8 @@ public class Test143 {
 
     public static String str(ASTNode node) {
       return node != null ? 
-        //node.relativeNodeID()
-        node.getClass().getName() + "@" + Integer.toHexString(node.hashCode()) 
+        node.relativeNodeID()
+        //node.getClass().getName() + "@" + Integer.toHexString(node.hashCode()) 
         : "null";
     }
 }
