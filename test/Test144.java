@@ -26,7 +26,7 @@ public class Test144 {
     // activate rewrites
     a.getB();
 
-    a.inc_cleanUpGarbage();
+   // a.inc_cleanUpGarbage();
 
 /*
     ASTNode node = b.getChildNoTransform(0);
@@ -62,7 +62,7 @@ System.out.println("\n--removed nodes:");
 
       if (node != null) {
 
-      System.out.println("  (parent=" + str(node.getParent())); 
+      System.out.println("  (parent=" + str(node.getParent()) + ")"); 
       // + ",garbage=" + (node.inc_state == ASTNode.inc_GARBAGE)  + ")");
 
       node.dumpDependencies();
@@ -101,8 +101,8 @@ System.out.println("\n--removed nodes:");
 
     public static String str(ASTNode node) {
       return node != null ? 
-        //node.relativeNodeID()
-        node.getClass().getName() + "@" + Integer.toHexString(node.hashCode()) 
+        node.relativeNodeID()
+        //node.getClass().getName() + "@" + Integer.toHexString(node.hashCode()) 
         : "null";
     }
 
