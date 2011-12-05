@@ -2536,9 +2536,10 @@ aspect JaddCodeGen {
       stream.println(ind + "public void " + name() + ".reactToDependencyChange(String attrID) {");      
     if (ASTNode.incrementalLevelNode) 
       stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
-    if (ASTNode.incrementalLevelRegion) 
+    if (ASTNode.incrementalLevelRegion) {
       if (isRegionRoot()) 
         stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
+    }
 
     if (ASTNode.incrementalChangeFlush) 
       jjtGenIncrementalChangeFlush(stream);
@@ -2549,19 +2550,24 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "super.reactToDependencyChange(attrID, _parameters);");      
       if (ASTNode.incrementalLevelAttr) 
         stream.println(ind(2) + "super.reactToDependencyChange(attrID);");   
-   
-      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) 
+    }
+
+    if (ASTNode.incrementalLevelNode) 
+        stream.println(ind(2) + "handler.notifyDependencies();");      
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) 
         stream.println(ind(2) + "handler.notifyDependencies();");      
     }
+
+ 
     stream.println(ind + "}");
     // end method: reactToDependencyChange
 
 
+    // method: inc_flush
     if (ASTNode.incrementalChangeFlush) {
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
-        // method: inc_flush
         stream.println(ind + "public void " + name() + ".inc_flush() {");
-
         // collect attributes: syn, inh
         ArrayList list = new ArrayList();
         for(int k = 0; k < getNumSynEq(); k++) {
@@ -2574,11 +2580,9 @@ aspect JaddCodeGen {
           if (attr != null && (attr.getLazy() || attr.isCircular())) 
             list.add(attr);
         }
-
         // flush attributes
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next();
-    
           // NTAs
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
@@ -2616,7 +2620,6 @@ aspect JaddCodeGen {
             }
           }
         }
-
         if (name().equals("ASTNode")) {
             stream.println(ind(2) + "for (int i = 0; i < numChildren; i++) {");
             stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length) {");
@@ -2629,11 +2632,12 @@ aspect JaddCodeGen {
         } else {
           stream.println(ind(2) + "super.inc_flush();");
         }
-        stream.println(ind + "}");
-        // end method: inc_flush
+        stream.println(ind + "}");        
       }
+      // end method: inc_flush
+
+      // method: inc_flushRegion
       if (ASTNode.incrementalLevelRegion) {
-        // method: inc_flushRegion
         stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
         stream.println(ind(2) + "inc_flush();");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
@@ -2642,9 +2646,9 @@ aspect JaddCodeGen {
         stream.println(ind(4) +     "child.inc_flushRegion();");
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
-        stream.println(ind + "}");
-        // end method: inc_flushRegion
+        stream.println(ind + "}"); 
       }
+      // end method: inc_flushRegion
     }
 
   }
