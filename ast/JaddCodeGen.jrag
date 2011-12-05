@@ -2328,13 +2328,6 @@ aspect JaddCodeGen {
       if (isRegionRoot()) {
         stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
           ".handler = new ASTNode$DepGraphNode(this);");                    
-        stream.println(ind + "public boolean " + name() + ".handler() {");
-        stream.println(ind(2) + "return handler;");
-        stream.println(ind + "}"); 
-      } else {
-        stream.println(ind + "public boolean " + name() + ".handler() {");
-        stream.println(ind(2) + "return parent != null ? parent.handler() : null;");
-        stream.println(ind + "}"); 
       }
     }
 
@@ -2759,7 +2752,8 @@ aspect JaddCodeGen {
           // handler NTA
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-              stream.println(ind(3) + attr.type() + " value = (" + attr.type() + ")" + attr.attributeSignature() + "_values.remove(_parameters);");                 
+              stream.println(ind(3) + attr.type() + " value = (" + attr.type() + ")" + 
+                  attr.attributeSignature() + "_values.remove(_parameters);");                 
               stream.println(ind(3) + "for (int i = 0; i < " + attr.attributeSignature() + "_list.children.length; i++) {");
               stream.println(ind(4) +   "ASTNode child = " + attr.attributeSignature() + "_list.children[i];");
               stream.println(ind(4) +   "if (child != null && value == child) {");
@@ -3257,7 +3251,96 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return " + (isRegionRoot()) + ";");
       stream.println(ind + "}"); 
     }
-    // method end: isRegionRoot
+    // method end: isRegionRoot()
+
+    // method: regionRoot()
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+        stream.println(ind(2) + "return this;");
+        stream.println(ind + "}"); 
+      } else {
+        stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+        stream.println(ind(2) + "return parent != null ? parent.regionRoot() : null;");
+        stream.println(ind + "}"); 
+    }
+    // method end: regionRoot()
+
+    // method: handler()
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind + "public ASTNode " + name() + ".handler() {");
+        stream.println(ind(2) + "return handler;");
+        stream.println(ind + "}"); 
+      } else {
+        stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+        stream.println(ind(2) + "ASTNode root = regionRoot();");
+        stream.println(ind(2) + "return root != null ? root.handler() : null;");
+        stream.println(ind + "}"); 
+    }
+    // method end: handler()
+
+    // method: getParent() -- overloaded for region tracking
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot() && !name().equals("ASTNode)) {
+        stream.println(ind + "public ASTNode " + name() + ".getParent() {");
+		    stream.println(ind(2) + "// region root");
+        stream.println(ind(2) + "ASTNode parent = super.getParent();");
+        stream.println(ind(2) + "if (parent != null)");
+        stream.println(ind(3) +   "state().addHandlerDepTo(parent.handler());");
+        stream.println(ind(2) + "return parent;");
+        stream.println(ind + "}");          
+      }
+    }
+    // end method: getParent() -- overloaded for region tracking
+
+    // method: getChild(int) -- overloaded for region tracking
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals("ASTNode")) {
+  		  stream.println(ind + "public ASTNode " + name() + ".getChild(int index) {");
+  		  stream.println(ind(2) + "// region leaf");
+		    stream.println(ind(2) + "ASTNode child = super.getChild(index);");
+  		  stream.println(ind(2) + "if (child.isRegionRoot()) {");
+        stream.println(ind(3) +   "state().addHandlerDepTo(child.handler());");
+	  	  stream.println(ind(2) + "}");
+	  	  stream.println(ind(2) + "return child;");
+	  	  stream.println(ind + "}");
+      }
+    }
+    // end method: getChild(int) -- overloaded for region tracking
+
+    // TODO revisit this method
+    // method: removeChild(int) -- overloaded for region tracking
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals("ASTNode")) {
+	  	  stream.println(ind + "public void " + name() + ".removeChild(int index) {");
+  		  stream.println(ind(2) + "// region leaf");
+  		  stream.println(ind(2) + "ASTNode child = getChild(index);");
+	  	  stream.println(ind(2) + "if (child.isRegionRoot()) {");
+	  	  stream.println(ind(3) +   "ASTNode$DepGraphNode handler = handler();");
+	  	  stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
+	  	  stream.println(ind(2) + "}");
+	  	  stream.println(ind(2) + "super.removeChild(index);");
+	  	  stream.println(ind + "}");
+      }
+    }
+    // end method: removeChild(int) -- overloaded for region tracking
+
+    // TODO revisit this method
+    // method: insertChild(ASTNode,int) -- overloaded for region tracking
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals("ASTNode")) {
+  		  stream.println("    public void " + name() + ".insertChild(ASTNode node, int index) {");
+  		  stream.println("      // region leaf");
+	  	  stream.println("      if (node.isRegionRoot()) {");
+	  	  stream.println(ind(3) +   "ASTNode$DepGraphNode handler = handler();");
+	  	  stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
+	  	  stream.println("      }");
+	  	  stream.println("      super.insertChild(node, index);");
+	  	  stream.println("    }");
+      }        
+    }
+    // end method: insertChild(ASTNode,int) -- overloaded for region tracking
 
   } // end: jjtGenIncrementalRegions
   
@@ -3518,14 +3601,20 @@ aspect JaddCodeGen {
       stream.println("      createdHandlers.add(this);");
       stream.println("    }");
     }
-    // level: node
-    if (ASTNode.incrementalLevelNode) {
+    // level: node, region
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
       stream.println("    public ASTNode$DepGraphNode(ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fState = node.inc_state;");
       stream.println("      createdHandlers.add(this);");
       stream.println("    }");    
     }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println("    public void flushRegion() {");
+      stream.println("      dependencyChanged();");
+      stream.println("    }");          
+    }
+
     // behavior generic for any kind of dependency region
   	stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fListenerSet = " +
                    "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
