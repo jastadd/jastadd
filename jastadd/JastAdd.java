@@ -440,13 +440,17 @@ public class JastAdd {
         // check level: only one level at a time
         if (ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelNode ||
             ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelParam ||
-            ASTNode.incrementalLevelNode && ASTNode.incrementalLevelParam) {
+            ASTNode.incrementalLevelNode && ASTNode.incrementalLevelParam ||
+            ASTNode.incrementalLevelParam && ASTNode.incrementalLevelRegion ||
+            ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelRegion ||
+            ASTNode.incrementalLevelNode && ASTNode.incrementalLevelRegion) {
             System.err.println("error: Conflict in incremental evaluation configuration. " +
-                "Cannot combine \"param\", \"attr\" and \"node\".");
+                "Cannot combine \"param\", \"attr\", \"node\" and \"region\".");
             return false;
         }
         // check level: no chosen level means default -- "attr"
-        if (!ASTNode.incrementalLevelAttr && !ASTNode.incrementalLevelNode && !ASTNode.incrementalLevelParam) {
+        if (!ASTNode.incrementalLevelAttr && !ASTNode.incrementalLevelNode && 
+            !ASTNode.incrementalLevelParam && !ASTNode.incrementalLevelRegion) {
             ASTNode.incrementalLevelAttr = true;
         }
     
@@ -546,9 +550,10 @@ public class JastAdd {
         // ES_2011-09-19: Adding info about incremental flags
         System.out.println("  --incremental=CONFIGURATION  (turns on incremental evaluation with the given configuration)");
         System.out.println("    CONFIGURATION: ATTRIBUTE(,ATTRIBUTE)* (comma separated list of attributes)");
-        System.out.println("    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable with attr, node)");
-        System.out.println("    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not combinable with param, attr)");
-        System.out.println("    ATTRIBUTE: node  (dependency tracking on node level, not combinable with attr, NOT SUPPORTED YET)");
+        System.out.println("    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable with attr, node, region)");
+        System.out.println("    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not combinable with param, node, region)");
+        System.out.println("    ATTRIBUTE: node  (dependency tracking on node level, not combinable with param, attr, region)");
+        System.out.println("    ATTRIBUTE: region (dependency tracking on region level, not combinable with param, attr, node)");
         System.out.println("    ATTRIBUTE: flush (invalidate with flush, default, not combinable with mark)");
         System.out.println("    ATTRIBUTE: mark  (invalidate with mark, not combinable with flush, NOT SUPPORTED YET)");
         System.out.println("    ATTRIBUTE: full  (full change propagation, default, not combinable with limit)");
