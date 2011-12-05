@@ -381,6 +381,7 @@ public class JastAdd {
         ASTNode.incrementalLevelParam = incrementalArgMap.containsKey("param");
         ASTNode.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
         ASTNode.incrementalLevelNode = incrementalArgMap.containsKey("node");
+        ASTNode.incrementalLevelRegion = incrementalArgMap.containsKey("region");
         ASTNode.incrementalChangeFlush = incrementalArgMap.containsKey("flush");
         ASTNode.incrementalChangeMark = incrementalArgMap.containsKey("mark");
         ASTNode.incrementalPropFull = incrementalArgMap.containsKey("full");

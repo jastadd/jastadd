@@ -103,6 +103,7 @@ aspect JragCodeGen {
   public static boolean ASTNode.incrementalLevelParam = false; // track on param level
   public static boolean ASTNode.incrementalLevelAttr = false; // track on attribute level
   public static boolean ASTNode.incrementalLevelNode = false; // track on node level
+  public static boolean ASTNode.incrementalLevelRegion = false; // track on region level
   public static boolean ASTNode.incrementalChangeFlush = false; // invalidate with flush
   public static boolean ASTNode.incrementalChangeMark = false; // invalidate with mark
   public static boolean ASTNode.incrementalPropFull = false; // full propagation of change

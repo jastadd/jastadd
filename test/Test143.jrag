@@ -18,12 +18,12 @@ aspect Test143 {
   inh B D.firstChild();
   syn lazy B D.sibling() = firstChild();
 
-
+/*
   public void ASTNode.finalize() throws Throwable {
     System.out.println(" COLLECTED " + getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()));
 //    System.out.println(this.relativeNodeID() +" collected");
     super.finalize();
   }
-
+*/
 
 }
