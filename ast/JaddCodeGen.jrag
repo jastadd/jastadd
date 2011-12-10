@@ -3667,29 +3667,29 @@ aspect JaddCodeGen {
     stream.println("      fListenerSet.clear();");
     stream.println("    }");
     stream.println("    public void addDependency(ASTNode$DepGraphNode node) {");
-    stream.println("      if (node != this) {");
-    stream.println("        fDependencySet.add(node);");
-    stream.println("      }");
+//    stream.println("      if (node != this) {");
+    stream.println("      fDependencySet.add(node);");
+//    stream.println("      }");
     stream.println("    }");
     stream.println("    public void removeDependency(ASTNode$DepGraphNode node) {");
-    stream.println("      if (node != this) {");
-    stream.println("        fDependencySet.remove(node);");
-    stream.println("      }");
+//    stream.println("      if (node != this) {");
+    stream.println("      fDependencySet.remove(node);");
+//    stream.println("      }");
     stream.println("    }");
     //}
     stream.println("    public void addDependant(ASTNode$DepGraphNode node) {");
-    stream.println("      if (node != this) {");
-    stream.println("        fListenerSet.add(node);");
+//    stream.println("      if (node != this) {");
+    stream.println("      fListenerSet.add(node);");
     //if (ASTNode.incrementalDebug) {
-    stream.println("        node.addDependency(this);");
+    stream.println("      node.addDependency(this);");
     //}
-    stream.println("      }");
+//    stream.println("      }");
     stream.println("    }");
     //if (ASTNode.incrementalDebug) {
     stream.println("    public void removeDependant(ASTNode$DepGraphNode node) {");
-    stream.println("      if (node != this) {");
-    stream.println("        fListenerSet.remove(node);");
-    stream.println("      }");
+//    stream.println("      if (node != this) {");
+    stream.println("      fListenerSet.remove(node);");
+//    stream.println("      }");
     stream.println("    }");
     //}
     stream.println("    private boolean visited = false;");
