@@ -2623,6 +2623,7 @@ aspect JaddCodeGen {
             stream.println(ind(5) +       "init_children[i] = null;");
             stream.println(ind(4) +     "}");
             stream.println(ind(3) +   "}");   
+            stream.println(ind(2) + "}");   
         } else {
           stream.println(ind(2) + "super.inc_flush();");
         }
@@ -2903,7 +2904,7 @@ aspect JaddCodeGen {
 
     // method: inc_notifyForRemove
     if (name().equals("ASTNode")) {  
-      stream.println(ind + "public void " + name() + ".inc_notifyForRemove() {");
+      stream.println(ind + "public void ASTNode.inc_notifyForRemove() {");
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.notifyDependencies();");
       }
@@ -2926,11 +2927,11 @@ aspect JaddCodeGen {
 
     // states
     if (name().equals("ASTNode")) {
-    stream.println(ind + "public static final int " + name() + ".inc_CREATED = 0;");  
-    stream.println(ind + "public static final int " + name() + ".inc_CLONED = 1;");  
-    stream.println(ind + "public static final int " + name() + ".inc_LIVE = 2;");  
-    stream.println(ind + "public static final int " + name() + ".inc_GARBAGE = 3;");  
-    stream.println(ind + "public int " + name() + ".inc_state = inc_CREATED;");  
+    stream.println(ind + "public static final int ASTNode.inc_CREATED = 0;");  
+    stream.println(ind + "public static final int ASTNode.inc_CLONED = 1;");  
+    stream.println(ind + "public static final int ASTNode.inc_LIVE = 2;");  
+    stream.println(ind + "public static final int ASTNode.inc_GARBAGE = 3;");  
+    stream.println(ind + "public int ASTNode.inc_state = inc_CREATED;");  
     }
 
     // Collect attributes: syn then inh
