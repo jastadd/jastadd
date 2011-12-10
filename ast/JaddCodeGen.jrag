@@ -1138,7 +1138,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
-      stream.println(ind(5) + "oldNode.handler.clearDependants();");
+      stream.println(ind(5) + "oldNode.handler.clearDependencies();");
     }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
@@ -3708,6 +3708,12 @@ aspect JaddCodeGen {
     stream.println("        node.removeDependency(this);");
     stream.println("      }");
     stream.println("      fListenerSet.clear();");
+    stream.println("    }");
+    stream.println("    public void clearDependencies() {");
+    stream.println("      for (ASTNode$DepGraphNode node : fDependencySet) {");
+    stream.println("        node.removeDependant(this);");
+    stream.println("      }");
+    stream.println("      fDependencySet.clear();");
     stream.println("    }");
     stream.println("    public void addDependency(ASTNode$DepGraphNode node) {");
 //    stream.println("      if (node != this) {");
