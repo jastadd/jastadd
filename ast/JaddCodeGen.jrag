@@ -756,11 +756,14 @@ aspect JaddCodeGen {
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite5(stream);
       //
       stream.println(ind(4) + "node = node.rewriteTo();");
-      // ES_2011-12-10: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite6(stream);
-      //
       stream.println(ind(4) + "if(node != oldNode) {");
+      // ES_2011-12-10: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite7(stream);
+      //
       stream.println(ind(5) + "that.setChild(node, i);");
+      // ES_2011-12-10: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite8(stream);
+      //
       stream.println(ind(4) + "}");
       stream.println(ind(4) + "oldNode.in$Circle(false);");
       stream.println(ind(4) + "rewriteState = that.state().pop();");
@@ -769,6 +772,9 @@ aspect JaddCodeGen {
       //
       // ES_2011-10-10: Code generation for full flush
       if (ASTNode.fullFlush) jjtGenFullFlush2(stream);
+      //
+      // ES_2011-12-10: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite6(stream);
       //
       stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
       stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && that.is$Final()) {");
@@ -1112,21 +1118,35 @@ aspect JaddCodeGen {
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "that.state().enterRewriteEval(node.handler);");
+      stream.println(ind(4) + "that.state().enterRewriteEval(node.handler);");
     }
     if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "that.state().enterRewriteEval(node.handler());");
+      stream.println(ind(4) + "that.state().enterRewriteEval(node.handler());");
     }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite6(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "that.state().exitRewriteEval(node.handler);");
+      stream.println(ind(4) + "that.state().exitRewriteEval(oldNode.handler);");
     }
     if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "that.state().exitRewriteEval(node.handler());");
+      stream.println(ind(4) + "that.state().exitRewriteEval(oldNode.handler());");
     }
   }
+
+  // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
+  public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+      stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
+    }
+  }
+  // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
+  public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+      stream.println(ind(5) + "that.init_children[i] = initial;");
+    }
+  }
+
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
@@ -2639,15 +2659,14 @@ aspect JaddCodeGen {
           }
         }
         if (name().equals("ASTNode")) {
-            stream.println(ind(2) + "for (int i = 0; i < numChildren; i++) {");
-            stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length) {");
-            stream.println(ind(4) +     "rewritten_children[i] = false;");
-            stream.println(ind(4) +     "if (init_children[i] != null) {");
-            stream.println(ind(5) +       "init_children[i].inc_throwAway();");
-            stream.println(ind(5) +       "init_children[i] = null;");
-            stream.println(ind(4) +     "}");
-            stream.println(ind(3) +   "}");   
-            stream.println(ind(2) + "}");   
+          stream.println(ind(2) + "if (parent != null) {");
+          stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
+          stream.println(ind(3) +   "if (index >= 0 && parent.rewritten_children != null && " + 
+                                            "index < parent.rewritten_children.length) {");
+          stream.println(ind(4) +     "parent.rewritten_children[index] = false;");
+          stream.println(ind(4) +     "parent.inc_restoreInitialForIndex(index);");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(2) + "}");
         } else {
           stream.println(ind(2) + "super.inc_flush();");
         }
