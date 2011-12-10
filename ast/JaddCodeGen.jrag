@@ -1164,12 +1164,12 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "that.state().addHandlerDepTo(that.getChild_handler);");  
     }
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "if (child != null)");
-      stream.println(ind(3) + "  that.state().addHandlerDepTo(child.handler);");
+      stream.println(ind(2) + "if (node != null)");
+      stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler);");
     }
     if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "if (child != null)");
-      stream.println(ind(3) + "  that.state().addHandlerDepTo(child.handler());");
+      stream.println(ind(2) + "if (node != null)");
+      stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler());");
     }
   }
 
@@ -1326,7 +1326,7 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(3) +   "handler.notifyDependencies();");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(3) +   "handler().notifyDependencies();");
     }
     // change in initial copy?
