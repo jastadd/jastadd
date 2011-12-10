@@ -1308,7 +1308,7 @@ aspect JragCodeGen {
       if (ASTNode.incrementalLevelNode) {
         buf.append("state().exitAttrStoreEval(handler);\n");
         if (getNTA()) {
-          buf.append("state().addHandlerDepTo(#NAME#_value.handler);");
+          buf.append("state().addHandlerDepTo(#NAME#_value.handler);\n");
         }
       }
       if (ASTNode.incrementalLevelRegion) {
