@@ -3640,6 +3640,11 @@ aspect JaddCodeGen {
       stream.println("      fState = node.inc_state;");
       stream.println("      createdHandlers.add(this);");
       stream.println("    }");    
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fState = node.inc_state;");
+      stream.println("      createdHandlers.add(this);");
+      stream.println("    }");
     }
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
       stream.println("    public void flushRegion() {");
