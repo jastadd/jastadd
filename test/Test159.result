@@ -1,0 +1,27 @@
+## start: 
+node: a=A  (parent=null)
+node: a/child[0]=A/B[0]  (parent=A)
+node: a/child[0]/child[0]=A/B[0]/D[0]  (parent=A/B[0])
+
+## after rewrites: 
+node: a=A  (parent=null)
+dep(A:getChild -> A:getName)
+A/C[0] rewritten, initial=B
+node: a/child[0]=A/C[0]  (parent=A)
+dep(A:getChild -> A/C[0]:getParent)
+node: a/child[0]/child[0]=A/C[0]/E[0]  (parent=A/C[0])
+node: a.init[0]=B  (parent=null)
+node: a.init[0]/child[0]=B/D[0]  (parent=B)
+
+--removed nodes:
+node: b1=B  (parent=null)
+node: b1/child[0]=null
+node: b1.init[0]=null
+node: d1=D  (parent=null)
+
+## after setName: 
+node: a=A  (parent=null)
+node: a/child[0]=A/B[0]  (parent=A)
+node: a/child[0]/child[0]=A/B[0]/D[0]  (parent=A/B[0])
+node: a.init[0]=null
+

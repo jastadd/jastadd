@@ -1,0 +1,34 @@
+import java.util.*;
+
+aspect Test159 {
+
+  inh String B.name();
+  eq A.getB().name() = getName();
+
+  syn boolean B.doRewrite() = true;
+  eq C.doRewrite() = false;
+
+  rewrite B {
+    when ( name().equals("b") && doRewrite() ) to C {
+      return new C(getD());
+    }
+  }
+
+  syn boolean D.doRewrite() = true;
+  eq E.doRewrite() = false;
+
+  rewrite D {
+    when ( doRewrite() && getName().equals("a")) to E {
+      return new E(getName());
+    } 
+  }
+
+/*
+  public void ASTNode.finalize() throws Throwable {
+//    System.out.println("COLLECTED " + this.relativeNodeID());
+    System.out.println("COLLECTED " + getClass().getName() + "@" + Integer.toHexString(hashCode()));
+    super.finalize();
+  }
+*/
+
+}
