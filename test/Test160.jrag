@@ -1,0 +1,8 @@
+import java.util.*;
+
+aspect Test160 {
+
+  syn int A.a() circular [0] = b();
+  syn int A.b() circular [0] = (a() == 0 && getName().equals("a")) ? 1 : 1;
+
+}

@@ -1,0 +1,33 @@
+import java.util.*;
+
+aspect Test163 {
+
+  syn boolean B.isDefaultConstructor() = false;
+  eq C.isDefaultConstructor() = true;
+    
+  syn boolean A.noConstructor() {
+    for(int i = 0; i < getNumB(); i++)
+      if(getB(i) instanceof C) {
+        return false;
+      }
+    return true;
+  }
+
+  syn boolean List.requiresDefaultConstructor() {
+    if(getParent() instanceof A) {
+      A a = (A)getParent();
+      return a.noConstructor() && a.getBListNoTransform() == this;
+    }
+    return false;
+  }
+
+  rewrite List {
+    when(requiresDefaultConstructor())
+    to List {
+      A a = (A)getParent();
+      C c = new C();
+      a.addB(c);
+      return this;
+    }
+  }
+}
