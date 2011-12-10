@@ -1223,7 +1223,9 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "getParent_handler.notifyDependencies();");
     }
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "handler.notifyDependencies();");
+      stream.println(ind(2) + "if (parent != null) {");
+      stream.println(ind(3) +   "parent.handler.notifyDependencies();");
+      stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(2) + "handler().notifyDependencies();");
@@ -1455,6 +1457,12 @@ aspect JaddCodeGen {
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(3) + "handler.notifyDependencies();");
+      stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
+      stream.println(ind(4) +   "ASTNode child = children[i];");
+      stream.println(ind(4) +   "if (child != null) {");
+      stream.println(ind(5) +     "child.handler.notifyDependencies();");
+      stream.println(ind(4) +   "}");
+      stream.println(ind(3) + "}");
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(3) + "handler().notifyDependencies();");
@@ -1489,6 +1497,12 @@ aspect JaddCodeGen {
     }
     if (ASTNode.incrementalLevelNode) {
     stream.println(ind(4) +   "handler.notifyDependencies();");
+      stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
+      stream.println(ind(4) +   "ASTNode child = children[i];");
+      stream.println(ind(4) +   "if (child != null) {");
+      stream.println(ind(5) +     "child.handler.notifyDependencies();");
+      stream.println(ind(4) +   "}");
+      stream.println(ind(3) + "}");
     }
     if (ASTNode.incrementalLevelRegion) {
     stream.println(ind(4) +   "handler().notifyDependencies();");
