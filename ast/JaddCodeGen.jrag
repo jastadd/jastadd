@@ -1138,6 +1138,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
+      stream.println(ind(5) + "oldNode.handler.clearDependants();");
     }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
