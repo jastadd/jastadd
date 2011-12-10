@@ -2600,7 +2600,7 @@ aspect JaddCodeGen {
           else {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_values != null && !" + 
-                attr.attributeSignature() + "_values.isEmpty() {");
+                attr.attributeSignature() + "_values.isEmpty()) {");
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);              
@@ -3143,7 +3143,6 @@ aspect JaddCodeGen {
             }
           }
         }
-
   	  }    
     }
     stream.println(ind + "}");    
@@ -3411,16 +3410,16 @@ aspect JaddCodeGen {
     // end method: printParamList(List)
         
     // method: dumpCachedValues()
-    stream.println("    public void " + name() + ".dumpCachedValues() {");
+    stream.println(ind + "public void " + name() + ".dumpCachedValues() {");
     if (name().equals("ASTNode")) {
       // rewrite code
-      stream.println("      for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {");
-      stream.println("        if (rewritten_children[k]) {");
-      stream.println("          System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
+      stream.println(ind(2) + "for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {");
+      stream.println(ind(3) +   "if (rewritten_children[k]) {");
+      stream.println(ind(4) +     "System.out.println(getChildNoTransform(k).relativeNodeID() + " + 
                                       "\" rewritten, initial=\" + " +
-                                "(init_children[k] != null ? init_children[k].relativeNodeID():null));");
-      stream.println("        }");
-      stream.println("      }");
+                                  "(init_children[k] != null ? init_children[k].relativeNodeID():null));");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(2) + "}");
      //
     }
     for(int k = 0; k < getNumSynEq(); k++) {
@@ -3434,39 +3433,39 @@ aspect JaddCodeGen {
       InhDecl attr = getInhDecl(k);
       String u = attr.dumpCache();
       u = u.replaceAll("#NAME#", attr.attributeSignature());
-      stream.print(u);
+      stream.println(u);
     }
-    stream.println("        // TODO: dump collection values");
+    stream.println(ind(2) + "// TODO: dump collection values");
     if (!name().equals("ASTNode")) {
-      stream.println("        super.dumpCachedValues();");
+      stream.println(ind(2) + "super.dumpCachedValues();");
     }
-    stream.println("    }");     
+    stream.println(ind + "}");     
     // end method: dumpCachedValues()     
       
 
     // method: dumpDependencies()
-    stream.println("    public void " + name() + ".dumpDependencies() {");
+    stream.println(ind + "public void " + name() + ".dumpDependencies() {");
     if (name().equals("ASTNode")) {
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-        stream.println("      getParent_handler.dumpDeps();");
-        stream.println("      numChildren_handler.dumpDeps();");
+        stream.println(ind(2) + "getParent_handler.dumpDeps();");
+        stream.println(ind(2) + "numChildren_handler.dumpDeps();");
         if (ASTNode.incrementalLevelParam) {
-          stream.println("      for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
-          stream.println("        if (getChild_handler[k] != null) {");
-          stream.println("          getChild_handler[k].dumpDeps();");
-          stream.println("        }");
-          stream.println("      }");
+          stream.println(ind(2) + "for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
+          stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
+          stream.println(ind(4) +     "getChild_handler[k].dumpDeps();");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(2) + "}");
         }
         if (ASTNode.incrementalLevelAttr) {
-          stream.println("      getChild_handler.dumpDeps();");
+          stream.println(ind(2) + "getChild_handler.dumpDeps();");
         }
       }
       if (ASTNode.incrementalLevelNode) {
-        stream.println("      handler.dumpDeps();");
+        stream.println(ind(2) + "handler.dumpDeps();");
       }
     } 
     if (ASTNode.incrementalLevelRegion && isRegionRoot()) {
-      stream.println("      handler.dumpDeps();");
+      stream.println(ind(2) + "handler.dumpDeps();");
     }
     // collect attributes
     ArrayList list = new ArrayList();
@@ -3535,7 +3534,7 @@ aspect JaddCodeGen {
     if (!name().equals("ASTNode")) {
       stream.println(ind(2) + "super.dumpDependencies();");
     }
-    stream.println("    }");  
+    stream.println(ind + "}");  
     // end method: dumpDependencies()
 
   }
