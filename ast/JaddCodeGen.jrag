@@ -740,7 +740,6 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "return node;");
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "if(!node.in$Circle()) {");
-
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite1(stream);
       //
@@ -753,7 +752,13 @@ aspect JaddCodeGen {
       stream.println(ind(4) + "that.state().push(ASTNode$State.REWRITE_CHANGE);");
       stream.println(ind(4) + "ASTNode oldNode = node;");
       stream.println(ind(4) + "oldNode.in$Circle(true);");
+      // ES_2011-12-10: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite5(stream);
+      //
       stream.println(ind(4) + "node = node.rewriteTo();");
+      // ES_2011-12-10: Code generation for incremental evaluation, rewrites
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite6(stream);
+      //
       stream.println(ind(4) + "if(node != oldNode) {");
       stream.println(ind(5) + "that.setChild(node, i);");
       stream.println(ind(4) + "}");
@@ -1104,7 +1109,24 @@ aspect JaddCodeGen {
     stream.println(ind(4) + "}");
   }
   
-
+  // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
+  public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "that.state().enterRewriteEval(node.handler);");
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println(ind(2) + "that.state().enterRewriteEval(node.handler());");
+    }
+  }
+  // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
+  public void ASTDecl.jjtGenIncrementalTrackRewrite6(PrintWriter stream) {
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "that.state().exitRewriteEval(node.handler);");
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println(ind(2) + "that.state().exitRewriteEval(node.handler());");
+    }
+  }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
@@ -1122,12 +1144,6 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelAttr) {
       stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler);");
     }
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "that.state().enterRewriteEval(that.handler);");
-    }
-    if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "that.state().enterRewriteEval(that.handler());");
-    }
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
@@ -1136,12 +1152,6 @@ aspect JaddCodeGen {
     }
     if (ASTNode.incrementalLevelAttr) {
       stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler);");
-    }
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "that.state().exitRewriteEval(that.handler);");
-    }
-    if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "that.state().exitRewriteEval(that.handler());");
     }
   }
   // ES_2011-09-30: Code generation for incremental evaluation, tracking rewrites
