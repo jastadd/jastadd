@@ -7,7 +7,8 @@ public class Test162 {
 
   public static void main(String[] args) {
 
-    A a = new A(new B());
+    B b1 = new B();
+    A a = new A(b1);
 
     // Compute NTAs
     System.out.println("computing a.d()");
@@ -22,6 +23,9 @@ public class Test162 {
     a.dumpCachedValues();
     b.dumpDependencies();
     b.dumpCachedValues();
+    b1.dumpDependencies();
+    b1.dumpCachedValues();
+
 
     // Change
     a.setName("b");
