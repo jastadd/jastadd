@@ -35,6 +35,8 @@ public class Test162 {
     a.dumpCachedValues();
     b.dumpDependencies();
     b.dumpCachedValues();
+    b1.dumpDependencies();
+    b1.dumpCachedValues();
   
   }
 }
