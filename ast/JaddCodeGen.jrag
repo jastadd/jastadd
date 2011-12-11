@@ -2293,7 +2293,7 @@ aspect JaddCodeGen {
       // method: inc_restoreEnclosingRewrite    
       stream.println(ind + "protected void ASTNode.inc_restoreEnclosingRewrite() {");
       stream.println(ind(2) + "ASTNode child = this;");
-      stream.println(ind(2) + "ASTNode parent = getParent();");
+      stream.println(ind(2) + "ASTNode parent = this.parent;");
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
       stream.println(ind(3) +   "if (parent.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index)) {");
@@ -2678,7 +2678,8 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
           stream.println(ind(3) +   "if (index >= 0 && parent.rewritten_children != null && " + 
-                                            "index < parent.rewritten_children.length) {");
+                                            "index < parent.rewritten_children.length && " +
+                                            "parent.rewritten_children[index]) {");
           stream.println(ind(4) +     "parent.rewritten_children[index] = false;");
           stream.println(ind(4) +     "parent.inc_restoreInitialForIndex(index);");
           stream.println(ind(3) +   "}");
