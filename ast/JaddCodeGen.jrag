@@ -2670,13 +2670,13 @@ aspect JaddCodeGen {
         }
         if (name().equals("ASTNode")) {
           stream.println(ind(2) + "if (parent != null) {");
+          stream.println(ind(3) +   "parent.inc_flush_NTA(this);");
           stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
           stream.println(ind(3) +   "if (index >= 0 && parent.rewritten_children != null && " + 
                                             "index < parent.rewritten_children.length) {");
           stream.println(ind(4) +     "parent.rewritten_children[index] = false;");
           stream.println(ind(4) +     "parent.inc_restoreInitialForIndex(index);");
           stream.println(ind(3) +   "}");
-          stream.println(ind(3) +   "parent.inc_flush_NTA(this);");
           stream.println(ind(2) + "}");
         } else {
           stream.println(ind(2) + "super.inc_flush();");
@@ -3806,21 +3806,24 @@ aspect JaddCodeGen {
     stream.println("      }");
     stream.println("    }");
     // React to change
+    stream.println("    private boolean visitedChange = false;");
     stream.println("    public void dependencyChanged() {");
-    //if (ASTNode.incrementalDebug) {
+    stream.println("      if (!visitedChange) {");
+    stream.println("        visitedChange = true;");
     stream.println("      // Remove dependencies");
     stream.println("      java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
     stream.println("      fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("      for (ASTNode$DepGraphNode node : k) {");
     stream.println("        node.removeDependant(this);");
     stream.println("      }");
-    //}
     if (ASTNode.incrementalLevelParam)
       stream.println("      fNode.reactToDependencyChange(fAttrID, fParams);");
     if (ASTNode.incrementalLevelAttr) 
       stream.println("      fNode.reactToDependencyChange(fAttrID);");
     if (ASTNode.incrementalLevelNode)
       stream.println("      fNode.reactToDependencyChange();");
+    stream.println("        visitedChange = false;");
+    stream.println("      }");
     stream.println("    }");
     // Debugging methods:
     if (ASTNode.incrementalDebug) {
