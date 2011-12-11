@@ -3,16 +3,17 @@ package test;
 import java.util.*;
 import test.ast.*;
 
-public class Test162 {
+public class Test165 {
 
   public static void main(String[] args) {
 
     B b1 = new B();
-    A a = new A(b1);
+    B b2 = new B();
+    A a = new A(b2, b1);
 
     // Compute NTAs
     a.d();
-    B b = a.makeB();
+    B b = a.getNode();
     b.a();
     
     System.out.println("-- Dependencies/Cache after a.makeB and b.a:");
@@ -24,7 +25,7 @@ public class Test162 {
     b1.dumpCachedValues();
 
     // Change
-    a.setName("b");
+    a.setNode(null);
   
     System.out.println("-- Dependencies/Cache after a.setName:");
     a.dumpDependencies();

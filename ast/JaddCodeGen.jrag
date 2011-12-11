@@ -4322,8 +4322,14 @@ aspect JaddCodeGen {
   String TokenComponent.jaddGenIncrementalTokenTrack() {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
       return "        state().addHandlerDepTo(get#ID#_handler);\n";
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+      StringBuffer buf = new StringBuffer();
+      buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
+      buf.append("          state().addHandlerDepTo(token#TYPEINSIGNATURE#_#ID#.handler);\n");
+      buf.append("        }\n");
+      return buf.toString();
+    }
     return "";
-    //return "        state().addHandlerDepTo(handler);\n"; // ASTNode.incrementalLevelNode
   }
 
   String AggregateComponents.setNameComment() {
