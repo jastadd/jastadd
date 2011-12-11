@@ -117,6 +117,9 @@ aspect JaddCodeGen {
     // ES_2011-10-05: Code generation for incremental evaluation  
     if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
     //
+    // ES_2011-12-11: Code generation for incremental evaluation, track creation
+    if (ASTNode.incremental) s.append(genIncrementalTrackCreation());
+    //
     if(ASTNode.block) s.append(ASTNode.blockEnd);
     s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
@@ -194,6 +197,9 @@ aspect JaddCodeGen {
     // ES_2011-10-05: Code generation for incremental evaluation, construction
     if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
     //
+    // ES_2011-12-11: Code generation for incremental evaluation, track creation
+    if (ASTNode.incremental) s.append(genIncrementalTrackCreation());
+    //
     if(ASTNode.block) s.append(ASTNode.blockEnd);
     s.append(ind + "}\n");
     return s.toString().replaceAll("#ID#", name());
@@ -207,6 +213,14 @@ aspect JaddCodeGen {
   // ES_2011-10-05: Code generation for incremental evaluation, end construction
   public String ASTDecl.genIncrementalConstructorEndConstruction() {
     return ind(2) + "state().exitConstruction();\n";
+  }
+
+  // ES_2011-12-11: Code generation for incremental evaluation, track creation
+  public String ASTDecl.genIncrementalTrackCreation() {
+    if (ASTNode.incrementalLevelNode) {
+      return ind(2) + "state().addHandlerDepTo(handler);\n";
+    }
+    return "";
   }
 
   // ES_2011-11-23: Code generation for incremental evaluation, enter construction
