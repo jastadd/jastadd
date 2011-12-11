@@ -779,6 +779,14 @@ aspect JragCodeGen {
       type.equals("char") || type.equals("byte");
   }
 
+  public boolean TokenComponent.isPrimitive() {
+    String type = getTokenId().getTYPE();
+    return type.equals("int") || type.equals("short") || type.equals("long") ||
+      type.equals("float") || type.equals("double") || type.equals("boolean") ||
+      type.equals("char") || type.equals("byte");
+  }
+
+
   public String AttrDecl.cacheCheck() {
     if(!getLazy() && !isCircular())
       return "";

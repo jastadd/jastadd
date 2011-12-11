@@ -4323,11 +4323,16 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
       return "        state().addHandlerDepTo(get#ID#_handler);\n";
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
-      StringBuffer buf = new StringBuffer();
-      buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
-      buf.append("          state().addHandlerDepTo(token#TYPEINSIGNATURE#_#ID#.handler);\n");
-      buf.append("        }\n");
-      return buf.toString();
+      String type = getTokenId().getTYPE();
+      boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
+      boolean isPrimitiveToken = isPrimitive();
+      if (!isStringToken && !isPrimitiveToken) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
+        buf.append("          state().addHandlerDepTo(((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler);\n");
+        buf.append("        }\n");
+        return buf.toString();
+      }
     }
     return "";
   }
