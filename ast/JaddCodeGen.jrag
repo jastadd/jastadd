@@ -2669,8 +2669,13 @@ aspect JaddCodeGen {
           }
         }
         if (name().equals("ASTNode")) {
+          // check of this is an NTA at the parent
           stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "parent.inc_flush_NTA(this);");
+          stream.println(ind(2) + "}");
+          // check if this is a rewritten child of the parent, 
+          // need to recheck parent in case this was a NTA an it was removed
+          stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
           stream.println(ind(3) +   "if (index >= 0 && parent.rewritten_children != null && " + 
                                             "index < parent.rewritten_children.length) {");
