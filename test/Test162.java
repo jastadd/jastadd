@@ -11,11 +11,8 @@ public class Test162 {
     A a = new A(b1);
 
     // Compute NTAs
-    System.out.println("computing a.d()");
     a.d();
-    System.out.println("computing a.makeB()");
     B b = a.makeB();
-    System.out.println("computing b.a()");
     b.a();
     
     System.out.println("-- Dependencies/Cache after a.makeB and b.a:");
@@ -25,7 +22,6 @@ public class Test162 {
     b.dumpCachedValues();
     b1.dumpDependencies();
     b1.dumpCachedValues();
-
 
     // Change
     a.setName("b");
@@ -37,6 +33,5 @@ public class Test162 {
     b.dumpCachedValues();
     b1.dumpDependencies();
     b1.dumpCachedValues();
-  
   }
 }

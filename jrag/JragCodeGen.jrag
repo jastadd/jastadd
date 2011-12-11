@@ -1281,7 +1281,15 @@ aspect JragCodeGen {
         buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
       }
       if (ASTNode.incrementalLevelNode) {
-        buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
+        if (getNTA()) {
+          buf.append(ind(2) + "// Creating a dummy handler to collect dependencies\n");
+          buf.append(ind(2) + "ASTNode$DepGraphNode newHandler = new ASTNode$DepGraphNode(this);\n");
+          buf.append(ind(2) + "// Adding dep. to this region because it may be read during the computation\n");
+          buf.append(ind(2) + "handler.addDependant(newHandler);\n");
+          buf.append(ind(2) + "state().enterAttrStoreEval(newHandler);\n");
+        } else {
+          buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
+        }
       }
       if (ASTNode.incrementalLevelRegion) {
         buf.append(ind(2) + "state().enterAttrStoreEval(handler());\n");
@@ -1306,9 +1314,13 @@ aspect JragCodeGen {
         buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
       }
       if (ASTNode.incrementalLevelNode) {
-        buf.append("state().exitAttrStoreEval(handler);\n");
         if (getNTA()) {
+          buf.append("#NAME#_value.handler = newHandler;\n");
+          buf.append("#NAME#_value.handler.fNode = #NAME#_value;\n");
+          buf.append("state().exitAttrStoreEval(#NAME#_value.handler);\n");
           buf.append("state().addHandlerDepTo(#NAME#_value.handler);\n");
+        } else {
+          buf.append("state().exitAttrStoreEval(handler);\n");
         }
       }
       if (ASTNode.incrementalLevelRegion) {

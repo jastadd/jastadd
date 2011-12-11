@@ -1255,7 +1255,7 @@ aspect JaddCodeGen {
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (parent != null) {");
-      stream.println(ind(3) +   "parent.handler.notifyDependencies();");
+      stream.println(ind(3) +   "parent.handler.flushRegion();");
       stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelRegion) {
@@ -1487,11 +1487,10 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "}");
     }
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(3) + "handler.notifyDependencies();");
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
       stream.println(ind(4) +   "if (child != null) {");
-      stream.println(ind(5) +     "child.handler.notifyDependencies();");
+      stream.println(ind(5) +     "child.handler.flushRegion();");
       stream.println(ind(4) +   "}");
       stream.println(ind(3) + "}");
     }
@@ -1527,11 +1526,11 @@ aspect JaddCodeGen {
     stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
     }
     if (ASTNode.incrementalLevelNode) {
-    stream.println(ind(4) +   "handler.notifyDependencies();");
+    stream.println(ind(4) +   "handler.flushRegion();");
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
       stream.println(ind(4) +   "if (child != null) {");
-      stream.println(ind(5) +     "child.handler.notifyDependencies();");
+      stream.println(ind(5) +     "child.handler.flushRegion();");
       stream.println(ind(4) +   "}");
       stream.println(ind(3) + "}");
     }
@@ -2605,40 +2604,42 @@ aspect JaddCodeGen {
 
     // method: inc_flush
     if (ASTNode.incrementalChangeFlush) {
+      // collect attributes: syn, inh
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrDecl attr = getSynEq(k).decl();
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         stream.println(ind + "public void " + name() + ".inc_flush() {");
-        // collect attributes: syn, inh
-        ArrayList list = new ArrayList();
-        for(int k = 0; k < getNumSynEq(); k++) {
-          AttrDecl attr = getSynEq(k).decl();
-          if (attr != null && (attr.getLazy() || attr.isCircular())) 
-            list.add(attr);
-        }
-        for(int k = 0; k < getNumInhDecl(); k++) {
-          AttrDecl attr = getInhDecl(k);
-          if (attr != null && (attr.getLazy() || attr.isCircular())) 
-            list.add(attr);
-        }
         // flush attributes
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next();
           // NTAs
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-            if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_list.setParent(null);");
-              String u = attr.resetVisit() + attr.resetCache();
-              u = u.replaceAll("#NAME#", attr.attributeSignature());
-              stream.print(u);
-              stream.println(ind(2) + "}");
-            } else {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
-              String u = attr.resetVisit() + attr.resetCache();
-              u = u.replaceAll("#NAME#", attr.attributeSignature());
-              stream.print(u);
-              stream.println(ind(2) + "}");
+            if (ASTNode.incrementalLevelRegion) {
+              if (attr.getNumParameter() > 0) {
+                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+                stream.println(ind(3) +   attr.attributeSignature() + "_list.setParent(null);");
+                String u = attr.resetVisit() + attr.resetCache();
+                u = u.replaceAll("#NAME#", attr.attributeSignature());
+                stream.print(u);
+                stream.println(ind(2) + "}");
+              } else {
+                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
+                stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
+                String u = attr.resetVisit() + attr.resetCache();
+                u = u.replaceAll("#NAME#", attr.attributeSignature());
+                stream.print(u);
+                stream.println(ind(2) + "}");
+              }
             }
           } 
           // Non NTAs
@@ -2667,12 +2668,53 @@ aspect JaddCodeGen {
           stream.println(ind(4) +     "parent.rewritten_children[index] = false;");
           stream.println(ind(4) +     "parent.inc_restoreInitialForIndex(index);");
           stream.println(ind(3) +   "}");
+          stream.println(ind(3) +   "parent.inc_flush_NTA(this);");
           stream.println(ind(2) + "}");
         } else {
           stream.println(ind(2) + "super.inc_flush();");
         }
         stream.println(ind + "}");        
       }
+      // methods: inc_flush_NTA
+      if (ASTNode.incrementalLevelNode) {
+        stream.println(ind + "public void " + name() + ".inc_flush_NTA(ASTNode node) {");
+        if (name().equals("List")) {
+          stream.println(ind(2) + "parent.inc_flush_NTA(node);");
+        } else {
+        for(Iterator itr = list.iterator(); itr.hasNext();) {
+          AttrDecl attr = (AttrDecl)itr.next();
+          // NTAs
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+                && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+            if (attr.getNumParameter() > 0) {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+              stream.println(ind(3) +   "for (int index = 0; i < " + attr.attributeSignature() + 
+                                              "_list.numChildren; i++;) {");
+              stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + 
+                                              "_list.children[index];");              
+              stream.println(ind(4) +     "if (value == node) {");
+              stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
+              String u = attr.resetVisit() + attr.resetCache();
+              u = u.replaceAll("#NAME#", attr.attributeSignature());
+              stream.print(u);
+              stream.println(ind(5) +       "break;");
+              stream.println(ind(4) +     "}");
+              stream.println(ind(3) +   "}");
+              stream.println(ind(2) + "}");
+            } else {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
+              stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
+              String u = attr.resetVisit() + attr.resetCache();
+              u = u.replaceAll("#NAME#", attr.attributeSignature());
+              stream.print(u);
+              stream.println(ind(2) + "}");
+            }
+          }
+        }
+        }
+        stream.println(ind + "}"); 
+      }
+      // end methods: inc_flush_NTA
       // end method: inc_flush
 
       // method: inc_flushRegion
@@ -2940,7 +2982,6 @@ aspect JaddCodeGen {
        	    stream.println(ind(2) + "}");
           }
     	  }    
-      }
       stream.println(ind + "}");  // end method: inc_clearDepsInTree
     }
     */
@@ -2953,10 +2994,10 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "getParent_handler.notifyDependencies();");
       }
       if (ASTNode.incrementalLevelNode) {
-        stream.println(ind(2) + "handler.notifyDependencies();");
+        stream.println(ind(2) + "handler.flushRegion();");
       }
       if (ASTNode.incrementalLevelRegion) {
-        stream.println(ind(2) + "handler().notifyDependencies();");
+        stream.println(ind(2) + "handler().flushRegion();");
       }
       stream.println(ind + "}"); 
     } 
@@ -3419,7 +3460,7 @@ aspect JaddCodeGen {
     // method: relativeNodeID()          
     if (name().equals("ASTNode")) {
       stream.println(ind + "public String ASTNode.relativeNodeID() {");
-      stream.println(ind(2) + "ASTNode parent = getParent();");
+      stream.println(ind(2) + "ASTNode parent = this.parent;");
       stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
       stream.println(ind(2) + "int index = -1;");
       stream.println(ind(2) + "if (parent != null) {");
@@ -3556,19 +3597,21 @@ aspect JaddCodeGen {
    	    stream.println(ind(3) +   attr.attributeSignature() + "_handler.dumpDeps();");
    	    stream.println(ind(2) + "}");
       }
-      // values for NTAs
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
-          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-        if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-          if (attr.getNumParameter() > 0) {
-            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-            stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDependencies();");
-            stream.println(ind(2) + "}");
-          } else {
-            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                    attr.attributeSignature() + "_value instanceof ASTNode)) {");
-            stream.println(ind(3) + attr.attributeSignature() + "_value.dumpDependencies();");
-            stream.println(ind(2) + "}");
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        // values for NTAs
+        if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+            !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+          if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+            if (attr.getNumParameter() > 0) {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+              stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDependencies();");
+              stream.println(ind(2) + "}");
+            } else {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
+              stream.println(ind(3) + attr.attributeSignature() + "_value.dumpDependencies();");
+              stream.println(ind(2) + "}");
+            }
           }
         }
       }
