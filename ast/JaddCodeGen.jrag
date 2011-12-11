@@ -1239,12 +1239,6 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
       stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
     }
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "state().addHandlerDepTo(handler);");
-    }
-    if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "state().addHandlerDepTo(handler());");
-    }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set parent
@@ -4314,7 +4308,8 @@ aspect JaddCodeGen {
   String TokenComponent.jaddGenIncrementalTokenTrack() {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
       return "        state().addHandlerDepTo(get#ID#_handler);\n";
-    return "        state().addHandlerDepTo(handler);\n"; // ASTNode.incrementalLevelNode
+    return "";
+    //return "        state().addHandlerDepTo(handler);\n"; // ASTNode.incrementalLevelNode
   }
 
   String AggregateComponents.setNameComment() {
