@@ -1258,9 +1258,6 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
       stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler);");
-      // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
-      // The possibility of a dependency requires one.
-      stream.println(ind(3) + "  that.handler.addDependant(node.handler);");
       stream.println(ind(2) + "}");
     }
   }
@@ -1272,6 +1269,14 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
       stream.println(ind(3) +   "that.handler().addDependant(node.handler);");
       stream.println(ind(3) +   "node.handler.addDependant(that.handler());");
+      stream.println(ind(2) + "}");
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "if (node != null) {");
+      stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler);");
+      // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
+      // The possibility of a dependency requires one.
+      stream.println(ind(3) + "  that.handler.addDependant(node.handler);");
       stream.println(ind(2) + "}");
     }
   }
