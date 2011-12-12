@@ -4,17 +4,15 @@
 ## Dependencies/Cache in current after access
 ======= Attribute calls
 ## Dependencies/Cache in current after calls:
-dep(A/List[0]/B[0] -> A)
-dep(A/List[0]/B[1] -> A)
+dep(A/List[0] -> A)
+dep(A -> A/List[0])
 dep(A/List[0]/B[0] -> A/List[0])
 dep(A/List[0]/B[1] -> A/List[0])
-dep(A/List[0]/B[0] -> A/List[0]/B[0])
-dep(A/List[0]/B[1] -> A/List[0]/B[0])
+dep(A/List[0] -> A/List[0]/B[0])
 value(A/List[0]/B[0]:decl, A/List[0]/B[1])
 value(A/List[0]/B[0]:a, false)
 value(A/List[0]/B[0]:b, false)
-dep(A/List[0]/B[0] -> A/List[0]/B[1])
-dep(A/List[0]/B[1] -> A/List[0]/B[1])
+dep(A/List[0] -> A/List[0]/B[1])
 value(A/List[0]/B[1]:decl, A/List[0]/B[0])
 value(A/List[0]/B[1]:a, false)
 value(A/List[0]/B[1]:b, false)
