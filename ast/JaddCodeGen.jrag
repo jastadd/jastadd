@@ -3458,7 +3458,10 @@ aspect JaddCodeGen {
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind + "public boolean " + name() + ".isRegionRoot() {");
-      stream.println(ind(2) + "return " + (isRegionRoot()) + ";");
+      if (isRegionRoot())
+        stream.println(ind(2) + "return true;");
+      else 
+        stream.println(ind(2) + "return super.isRegionRoot();");
       stream.println(ind + "}"); 
     }
     // method end: isRegionRoot()
@@ -3618,7 +3621,6 @@ aspect JaddCodeGen {
       stream.println(ind(5) +       "break;");
       stream.println(ind(4) +     "}");
       stream.println(ind(3) +   "}");
-      stream.println(ind(3) +   "index = parent.getIndexOfChild(this);");
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "buf.append(getClass().getSimpleName());");
       stream.println(ind(2) + "if (index > -1) {");
