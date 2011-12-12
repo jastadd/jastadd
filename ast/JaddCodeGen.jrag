@@ -2663,8 +2663,13 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "handler.notifyDependencies();");      
     }
 
- 
-    stream.println(ind + "}");
+
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) 
+        stream.println(ind + "}");      
+    } else {
+      stream.println(ind + "}");
+    }
     // end method: reactToDependencyChange
 
 
@@ -3102,8 +3107,8 @@ aspect JaddCodeGen {
 
     // Method: inc_changeState
     stream.println(ind + "public void " + name() + ".inc_changeState(int newState) {");
-    stream.println(ind(2) + "inc_state = newState;");
     if (name().equals("ASTNode")) {
+      stream.println(ind(2) + "inc_state = newState;");
       if (ASTNode.incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.changeState(newState);");
         stream.println(ind(2) + "numChildren_handler.changeState(newState);");
