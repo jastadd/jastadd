@@ -1598,7 +1598,7 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
       stream.println(ind(4) +   "if (child != null) {");
-      stream.println(ind(5) +     "child.handler()f.flushRegion();");
+      stream.println(ind(5) +     "child.handler().flushRegion();");
       stream.println(ind(4) +   "}");
       stream.println(ind(3) + "}");
     }
@@ -2273,6 +2273,11 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
+
+
+    stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";"); 
+
+
     jjtGenIncrementalHandlers(stream);
     jjtGenIncrementalCopyHandlers(stream);
     jjtGenIncrementalTreeModification(stream);
@@ -2540,14 +2545,14 @@ aspect JaddCodeGen {
     } else {
       stream.println(ind(2) + "super.inc_copyHandlers(copy);");
     }
-    
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
       // tokens
       for (int c = 0; c < getNumComponents(); c++) {
  	      Components comp = getComponents(c);
  	      if (comp instanceof TokenComponent) {
           stream.println(ind(2) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + "_handler != null) {");
-          stream.println(ind(3) +   "copy.get" + ((TokenComponent)comp).getTokenId().getID() + "_handler = new ASTNode$DepGraphNode(get" + 
+          stream.println(ind(3) +   "copy.get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                    "_handler = new ASTNode$DepGraphNode(get" + 
                                ((TokenComponent)comp).getTokenId().getID() + "_handler, copy);\n");
           stream.println(ind(2) + "}");
 
@@ -2555,8 +2560,6 @@ aspect JaddCodeGen {
  	    }
       // Collect attributes: syn then inh
       ArrayList list = new ArrayList();
-//      for(int k = 0; k < getNumSynEq(); k++) {
-//        AttrDecl attr = getSynEq(k).decl();
       for(int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
         if (attr != null && (attr.getLazy() || attr.isCircular())) 

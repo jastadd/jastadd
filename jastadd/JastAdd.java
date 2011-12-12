@@ -53,6 +53,13 @@ public class JastAdd {
                  for(int i = 0; i < g.getNumTypeDecl(); i++) {
                    root.addTypeDecl(g.getTypeDecl(i));
                  }
+
+                 // EMMA_2011-12-12: Adding region declarations for incremental evaluation
+                 for (int i = 0; i < g.getNumRegionDecl(); i++) {
+                	 root.addRegionDecl(g.getRegionDecl(i));
+                 }
+                 //
+
                  for(Iterator errorIter = parser.getErrors(); errorIter.hasNext(); ) {
                    String[] s = ((String)errorIter.next()).split(";");
                    errors.add("Syntax error in " + fileName + " at line " + s[0] + ", column " + s[1]);
