@@ -1145,18 +1145,18 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(4) + "that.state().enterRewriteEval(node.handler);");
     }
-//    if (ASTNode.incrementalLevelRegion) {
-//      stream.println(ind(4) + "that.state().enterRewriteEval(node.handler());");
-//    }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println(ind(4) + "that.state().IN_COMPUTATION++;");
+    }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite6(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(4) + "that.state().exitRewriteEval(oldNode.handler);");
     }
-//    if (ASTNode.incrementalLevelRegion) {
-//      stream.println(ind(4) + "that.state().exitRewriteEval(oldNode.handler());");
-//    }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println(ind(4) + "that.state().IN_COMPUTATION--;");
+    }
   }
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
