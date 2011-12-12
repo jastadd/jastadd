@@ -3467,6 +3467,8 @@ aspect JaddCodeGen {
         stream.println(ind + "}"); 
       } else {
         stream.println(ind + "public ASTNode$DepGraphNode " + name() + ".handler() {");
+        stream.println(ind(2) + "ASTNode$DepGraphNode h = super.handler();");
+        stream.println(ind(2) + "if (h != null) return h;");
         stream.println(ind(2) + "ASTNode root = regionRoot();");
         stream.println(ind(2) + "return root != null ? root.handler() : null;");
         stream.println(ind + "}"); 
