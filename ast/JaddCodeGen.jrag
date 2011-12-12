@@ -720,6 +720,10 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
+        // ES_2011-12-12: Code generation for incremental evaluation, crossing between regions
+        if (ASTNode.incrementalLevelRegion) jjtGenIncrementalTrackRewrite9(stream);
+        else 
+        //
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
@@ -728,6 +732,10 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+        // ES_2011-12-12: Code generation for incremental evaluation, crossing between regions
+        if (ASTNode.incrementalLevelRegion) jjtGenIncrementalTrackRewrite10(stream);
+        else 
+        //
         stream.println(ind(2) + "return ASTNode.getChild(this, i);");
         stream.println(ind + "}");
       }
@@ -1162,6 +1170,29 @@ aspect JaddCodeGen {
     }
   }
 
+  // ES_2011-12-12_ Code generation for incremental evalutaion, crossing between regions
+  public void ASTDecl.jjtGenIncrementalTrackRewrite9(PrintWriter stream) {
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
+        stream.println(ind(2) + "child.handler.addDependant(handler);");
+        stream.println(ind(2) + "return (T)child;");
+      }
+    }
+  }
+  // ES_2011-12-12_ Code generation for incremental evalutaion, crossing between regions
+  public void ASTDecl.jjtGenIncrementalTrackRewrite10(PrintWriter stream) {
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
+        stream.println(ind(2) + "child.handler.addDependant(handler);");
+        stream.println(ind(2) + "return child;");
+      }
+    }
+  }
+
+
+
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
@@ -1246,6 +1277,12 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (parent != null)");
       stream.println(ind(3) +   "state().addHandlerDepTo(((ASTNode)parent).handler);");
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "if (parent != null)");
+        stream.println(ind(3) +   "parent.handler.addDependant(handler);");
+      }
     }
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking numChildren
@@ -3419,7 +3456,7 @@ aspect JaddCodeGen {
 		    stream.println(ind(2) + "// region root");
         stream.println(ind(2) + "ASTNode parent = super.getParent();");
         stream.println(ind(2) + "if (parent != null)");
-        stream.println(ind(3) +   "state().addHandlerDepTo(parent.handler());");
+        stream.println(ind(3) +   "parent.handler().addDependant(handler);");
         stream.println(ind(2) + "return parent;");
         stream.println(ind + "}");          
       }
@@ -3433,7 +3470,7 @@ aspect JaddCodeGen {
   		  stream.println(ind(2) + "// region leaf");
 		    stream.println(ind(2) + "ASTNode child = super.getChild(index);");
   		  stream.println(ind(2) + "if (child.isRegionRoot()) {");
-        stream.println(ind(3) +   "state().addHandlerDepTo(child.handler());");
+        stream.println(ind(3) +   "child.handler().addDependant(handler());");
 	  	  stream.println(ind(2) + "}");
 	  	  stream.println(ind(2) + "return child;");
 	  	  stream.println(ind + "}");

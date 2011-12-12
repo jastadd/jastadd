@@ -865,14 +865,6 @@ aspect JragCodeGen {
       buf.append(ind(2) + "}\n");
       buf.append(ind(2) + "state().addHandlerDepTo(#NAME#_handler);\n");
     }
-    /*
-    if (ASTNode.incrementalLevelNode) {
-        buf.append(ind(2) + "state().addHandlerDepTo(handler);\n");
-    }
-    if (ASTNode.incrementalLevelRegion) {
-        buf.append(ind(2) + "state().addHandlerDepTo(handler());\n");
-    }
-    */
     return buf.toString();
   }
 
@@ -1299,9 +1291,6 @@ aspect JragCodeGen {
           buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
-        buf.append(ind(2) + "state().enterAttrStoreEval(handler());\n");
-      }
     }
     return buf.toString();
   }
@@ -1332,7 +1321,13 @@ aspect JragCodeGen {
         }
       }
       if (ASTNode.incrementalLevelRegion) {
-        buf.append("state().exitAttrStoreEval(handler());\n");
+        if (getNTA()) {
+          buf.append("if (#NAME#_value.isRegionRoot()) {\n");
+          buf.append("  ASTNode$DepGraphNode nodeHandler = handler();\n");
+          buf.append("  nodeHandler.addDependant(#NAME#_value.handler);\n");
+          buf.append("  #NAME#_value.handler.addDependant(nodeHandler);\n");
+          buf.append("}\n");
+        }
       }
     }
     return buf.toString();
