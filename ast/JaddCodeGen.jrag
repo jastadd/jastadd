@@ -2824,7 +2824,7 @@ aspect JaddCodeGen {
         stream.println(ind + "public void " + name() + ".inc_flush_NTA(ASTNode node) {");
         if (name().equals("List") || name().equals("Opt")) {
           stream.println(ind(2) + "if (parent != null) {");
-          stream.println(ind(3) +   "int index = parent.getChildIndexOf(this);");
+          stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
           stream.println(ind(3) +   "if (index >= 0 && parent.childIsNTA(index)) {");
           stream.println(ind(4) +     "node.setParent(null);");
           stream.println(ind(3) +   "}");
