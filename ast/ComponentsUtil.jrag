@@ -105,6 +105,17 @@ aspect CoarseIncremental {
 		}
 		return null;
 	}
+
+  syn lazy boolean ASTDecl.hasRegionRootAsSuperClass() {
+    ASTDecl superDecl = superClass();
+    if (superDecl != null) {
+      if (superDecl.isRegionRoot()) {
+        return true;
+      }
+      return superDecl.hasRegionRootAsSuperClass();
+    }
+    return false;
+  }
 	
 	syn lazy boolean ASTDecl.isRegionLeaf() {
 		for (int i = 0; i < getNumComponents(); i++) {

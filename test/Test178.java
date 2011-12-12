@@ -23,6 +23,9 @@ public class Test178 {
     b1.dumpDependencies();
     b1.dumpCachedValues();
 
+  //  System.out.println("=== DDG === ");
+  //  a.dumpDDG();
+
     // Change
     a.setName("b");
   
@@ -33,5 +36,6 @@ public class Test178 {
     b.dumpCachedValues();
     b1.dumpDependencies();
     b1.dumpCachedValues();
+
   }
 }

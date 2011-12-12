@@ -2455,7 +2455,7 @@ aspect JaddCodeGen {
 
     // level region: one handler per region, non-region root nodes need a method to find the handler of their region
     if (ASTNode.incrementalLevelRegion) {
-      if (isRegionRoot()) {
+      if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
         stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
           ".handler = new ASTNode$DepGraphNode(this);");                    
       }
