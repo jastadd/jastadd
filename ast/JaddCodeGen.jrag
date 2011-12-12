@@ -2823,7 +2823,8 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         stream.println(ind + "public void " + name() + ".inc_flush_NTA(ASTNode node) {");
         if (name().equals("List")) {
-          stream.println(ind(2) + "parent.inc_flush_NTA(node);");
+          stream.println(ind(2) + "if (parent != null)");
+          stream.println(ind(3) +   "parent.inc_flush_NTA(node);");
         } else {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
