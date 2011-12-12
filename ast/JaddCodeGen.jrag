@@ -2853,8 +2853,8 @@ aspect JaddCodeGen {
                 stream.println(ind(2) + "}");
               } else {
 
-                Component comp = attr.findCorrespondingNTA();
-                if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA)) {
+                Components comp = attr.findCorrespondingNTA();
+                if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
                   stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
                   stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
                   String u = attr.resetVisit() + attr.resetCache();
