@@ -1247,10 +1247,6 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "if (node != null)");
       stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler);");
     }
-    if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(2) + "if (node != null)");
-      stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler());");
-    }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getChild
@@ -3450,7 +3446,7 @@ aspect JaddCodeGen {
     // method: handler()
     if (ASTNode.incrementalLevelRegion) {
       if (isRegionRoot()) {
-        stream.println(ind + "public ASTNode " + name() + ".handler() {");
+        stream.println(ind + "public ASTNode$DepGraphNode " + name() + ".handler() {");
         stream.println(ind(2) + "return handler;");
         stream.println(ind + "}"); 
       } else {
@@ -3856,7 +3852,6 @@ aspect JaddCodeGen {
     stream.println("    public boolean hasDependants() {");
     stream.println("        return !fListenerSet.isEmpty();");
     stream.println("    }");
-    //if (ASTNode.incrementalDebug) {
     stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependencySet = " +
                    "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("    public void clearDependants() {");
@@ -3881,20 +3876,15 @@ aspect JaddCodeGen {
     stream.println("      fDependencySet.remove(node);");
 //    stream.println("      }");
     stream.println("    }");
-    //}
     stream.println("    public void addDependant(ASTNode$DepGraphNode node) {");
 //    stream.println("      if (node != this) {");
     stream.println("      fListenerSet.add(node);");
-    //if (ASTNode.incrementalDebug) {
     stream.println("      node.addDependency(this);");
-    //}
 //    stream.println("      }");
     stream.println("    }");
-    //if (ASTNode.incrementalDebug) {
     stream.println("    public void removeDependant(ASTNode$DepGraphNode node) {");
 //    stream.println("      if (node != this) {");
     stream.println("      fListenerSet.remove(node);");
-//    stream.println("      }");
     stream.println("    }");
     //}
     stream.println("    private boolean visited = false;");
