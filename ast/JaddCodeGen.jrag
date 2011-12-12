@@ -819,6 +819,9 @@ aspect JaddCodeGen {
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
       //
+      // ES_2011-12-12: Code generation for incremental evaluation, rewrites 
+      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite11(stream);
+      //
       stream.println(ind(2) + "return node;");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
@@ -1260,6 +1263,9 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "  that.handler.addDependant(node.handler);");
       stream.println(ind(2) + "}");
     }
+  }
+  // ES_2011-12-12: Code generation for incremental evaluation, tracking getChild
+  public void ASTDecl.jjtGenIncrementalTrackRewrite11(PrintWriter stream) {
     if (ASTNode.incrementalLevelRegion) {
       // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
       // The possibility of a dependency requires one.
@@ -1269,6 +1275,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
     }
   }
+
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
@@ -1531,7 +1538,7 @@ aspect JaddCodeGen {
 //      stream.println(ind(3) +   "for (int k = i; k < getChild_handler.length; k++) {");
 //      stream.println(ind(4) +     "if (getChild_handler[k] != null) {");
 //      stream.println(ind(5) +       "getChild_handler[k].setParams(new Integer(k));");
-//      stream.println(ind(4) +     "}");
+//      stream.println(ind(4) +     "}");Region
 //      stream.println(ind(3) +   "}");
       stream.println(ind(2) + "}");
     }
@@ -1979,7 +1986,7 @@ aspect JaddCodeGen {
     stream.println(
         ind(3) + "if(((Opt)n).getNumChildNoTransform() != 0 && !(((Opt)n).getChildNoTransform(0) instanceof " + type() + "))\n" +
         ind(4) + "throw new Error(\"Optional " + name() + 
-        " has the type \" + ((Opt)n).getChildNoTransform(0).getClass().getName() + \" which is not an instance of " +
+        " has the type \" + ((Opt)n).getChildNoTransform(0).getClass().getName() + \" which is not an instaRegionnce of " +
         type() + "\");");
     stream.println(ind(2) + "}");
   }
@@ -2290,11 +2297,6 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
-
-
-    stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";"); 
-
-
     jjtGenIncrementalHandlers(stream);
     jjtGenIncrementalCopyHandlers(stream);
     jjtGenIncrementalTreeModification(stream);
