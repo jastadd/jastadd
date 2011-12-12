@@ -1,18 +1,21 @@
-======= Construct AST
-## Dependencies/Cache after construction:
-======= Access AST
-## Dependencies/Cache in current after access
-#### Dependencies/Cache in init after access:
-======= Access attribute/Change AST
-## Dependencies/Cache in current after change:
-dep(A/List[0]/B[0] -> A)
+## after construction: 
+node: a=A  (parent=null)
+node: a/child[0]=A/List[0]  (parent=A)
+node: a/child[0]/child[0]=A/List[0]/B[0]  (parent=A/List[0])
+
+## after access: 
+node: a=A  (parent=null)
+node: a/child[0]=A/List[0]  (parent=A)
+node: a/child[0]/child[0]=A/List[0]/B[0]  (parent=A/List[0])
+
+## after attribute computation: 
+node: a=A  (parent=null)
+dep(A/List[0] -> A)
+node: a/child[0]=A/List[0]  (parent=A)
+dep(A -> A/List[0])
 dep(A/List[0]/B[0] -> A/List[0])
-dep(A/List[0]/B[0] -> A/List[0]/B[0])
+node: a/child[0]/child[0]=A/List[0]/B[0]  (parent=A/List[0])
+dep(A/List[0] -> A/List[0]/B[0])
 value(A/List[0]/B[0]:decl, A/List[0]/C[1])
-dep(A/List[0]/B[0] -> A/List[0]/C[1])
-#### Dependencies/Cache in previous accessed AST node:
-dep(A/List[0]/B[0] -> A/List[0]/B[0])
-value(A/List[0]/B[0]:decl, A/List[0]/C[1])
-#### Dependencies/Cache in returned node:
-dep(A/List[0]/B[0] -> A/List[0]/C[1])
+node: a/child[0]/child[1]=A/List[0]/C[1]  (parent=A/List[0])
 

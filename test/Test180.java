@@ -39,25 +39,6 @@ public class Test180 {
     System.out.println("\n## after attribute computation: ");
     printOutNode(a, "a");
 
-System.exit(2);
-
-    System.out.println("## Dependencies/Cache in current after change:");
-    a.dumpDependencies();
-    a.dumpCachedValues();
-    a.getChildNoTransform(0).dumpDependencies();
-    a.getChildNoTransform(0).dumpCachedValues();
-    a.getChildNoTransform(0).getChildNoTransform(0).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(0).dumpCachedValues();
-    a.getChildNoTransform(0).getChildNoTransform(1).dumpDependencies();
-    a.getChildNoTransform(0).getChildNoTransform(1).dumpCachedValues();
-    System.out.println("#### Dependencies/Cache in previous accessed AST node:");
-    b1Access.dumpDependencies();
-    b1Access.dumpCachedValues();
-    System.out.println("#### Dependencies/Cache in returned node:");
-    c.dumpDependencies();
-    c.dumpCachedValues();
-
-
   }
 
 
