@@ -3938,7 +3938,7 @@ aspect JaddCodeGen {
             "((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
       if (ASTNode.incrementalLevelAttr)
         stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID;");
-      if (ASTNode.incrementalLevelNode)
+      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
         stream.println("      return fNode.relativeNodeID();");
       stream.println("    }");
     }
