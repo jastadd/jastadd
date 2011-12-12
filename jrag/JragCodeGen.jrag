@@ -1291,6 +1291,9 @@ aspect JragCodeGen {
           buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
         }
       }
+      if (ASTNode.incrementalLevelRegion) {
+        buf.append(ind(2)+ "state().IN_COMPUTATION++;");
+      }
     }
     return buf.toString();
   }
@@ -1321,13 +1324,16 @@ aspect JragCodeGen {
         }
       }
       if (ASTNode.incrementalLevelRegion) {
+        if (ASTNode.incrementalLevelRegion) {
+          buf.append(ind(2)+ "state().IN_COMPUTATION--;");
+        }
         if (getNTA()) {
           buf.append("if (#NAME#_value.isRegionRoot()) {\n");
           buf.append("  ASTNode$DepGraphNode nodeHandler = handler();\n");
           buf.append("  nodeHandler.addDependant(#NAME#_value.handler);\n");
           buf.append("  #NAME#_value.handler.addDependant(nodeHandler);\n");
           buf.append("}\n");
-        }
+        } 
       }
     }
     return buf.toString();
