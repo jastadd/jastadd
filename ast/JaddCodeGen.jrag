@@ -2723,6 +2723,7 @@ aspect JaddCodeGen {
           // NTAs
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+      /*
             if (ASTNode.incrementalLevelRegion) {
               if (attr.getNumParameter() > 0) {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
@@ -2740,6 +2741,7 @@ aspect JaddCodeGen {
                 stream.println(ind(2) + "}");
               }
             }
+      */
           } 
           // Non NTAs
           else {

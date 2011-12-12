@@ -1292,7 +1292,7 @@ aspect JragCodeGen {
         }
       }
       if (ASTNode.incrementalLevelRegion) {
-        buf.append(ind(2)+ "state().IN_COMPUTATION++;");
+        buf.append(ind(2)+ "state().IN_COMPUTATION++;\n");
       }
     }
     return buf.toString();
@@ -1325,7 +1325,7 @@ aspect JragCodeGen {
       }
       if (ASTNode.incrementalLevelRegion) {
         if (ASTNode.incrementalLevelRegion) {
-          buf.append(ind(2)+ "state().IN_COMPUTATION--;");
+          buf.append(ind(2)+ "state().IN_COMPUTATION--;\n");
         }
         if (getNTA()) {
           buf.append("if (#NAME#_value.isRegionRoot()) {\n");
