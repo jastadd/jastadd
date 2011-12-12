@@ -2835,6 +2835,7 @@ aspect JaddCodeGen {
             // NTAs
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
                   && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+
               if (attr.getNumParameter() > 0) {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
                 stream.println(ind(3) +   "for (int index = 0; i < " + attr.attributeSignature() + 
@@ -2851,13 +2852,18 @@ aspect JaddCodeGen {
                 stream.println(ind(3) +   "}");
                 stream.println(ind(2) + "}");
               } else {
-                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
-                stream.println(ind(2) + "}");
+
+                Component comp = attr.findCorrespondingNTA();
+                if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA)) {
+                  stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
+                  stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
+                  String u = attr.resetVisit() + attr.resetCache();
+                  u = u.replaceAll("#NAME#", attr.attributeSignature());
+                  stream.print(u);
+                  stream.println(ind(2) + "}");
+                }
               }
+
             }
           }
         }
