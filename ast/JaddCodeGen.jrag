@@ -3933,7 +3933,7 @@ aspect JaddCodeGen {
       stream.println("      fNode.reactToDependencyChange(fAttrID, fParams);");
     if (ASTNode.incrementalLevelAttr) 
       stream.println("      fNode.reactToDependencyChange(fAttrID);");
-    if (ASTNode.incrementalLevelNode)
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
       stream.println("      fNode.reactToDependencyChange();");
     stream.println("        visitedChange = false;");
     stream.println("      }");
