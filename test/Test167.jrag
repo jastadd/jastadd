@@ -1,0 +1,15 @@
+import java.util.*;
+
+aspect Test167 {
+
+  syn lazy boolean A.a0() = b0("a");
+
+  syn boolean A.b0(String s) = c(s);
+
+  syn lazy boolean A.a1() = b1("b");
+  
+  syn boolean A.b1(String s) = c(s);
+
+  syn lazy boolean A.c(String s) = getName().equals(s);
+
+}

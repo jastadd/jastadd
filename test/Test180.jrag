@@ -1,0 +1,20 @@
+import java.util.*;
+
+aspect Test164 {
+
+  inh C B.lookup(String name);
+
+  eq A.getB(int index).lookup(String name) {
+    for (int i = 0; i < getNumB(); i++) {
+      B b = getB(i);
+      if (b instanceof C && ((C)b).getName().equals(name)) 
+        return (C)b;
+    }
+    C c = new C(name);
+    addB(c);
+    return c;
+  }
+
+  syn lazy C B.decl() = lookup(getName());
+
+}

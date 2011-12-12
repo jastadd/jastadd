@@ -1,0 +1,10 @@
+-- Dependencies/Cache after a.makeB and b.a:
+dep(A/B -> A)
+value(A:d, false)
+value(A:makeB, A/B)
+dep(A -> A/B)
+value(A/B:a, 5)
+value(A/B:b, 5)
+value(A/B:c, 5)
+-- Dependencies/Cache after a.setName:
+

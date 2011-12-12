@@ -1,0 +1,43 @@
+import java.util.*;
+
+aspect Test166 {
+
+  syn boolean A.a0() = b0();
+  syn boolean A.b0() = getName().equals("a");
+
+  syn lazy boolean A.a1() = b1();
+  syn boolean A.b1() = getName().equals("a");
+
+  syn boolean A.a2() = b2();
+  syn lazy boolean A.b2() = getName().equals("a");
+
+  syn lazy boolean A.a3() = b3();
+  syn lazy boolean A.b3() = getName().equals("a");
+
+
+  syn lazy boolean A.a4() = b4();
+  syn boolean A.b4() = c4();
+  syn lazy boolean A.c4() = getName().equals("a");
+
+  syn boolean A.a5() = b5();
+  syn lazy boolean A.b5() = c5();
+  syn lazy boolean A.c5() = getName().equals("a");
+
+  syn lazy boolean A.a6() = b6();
+  syn lazy boolean A.b6() = c6();
+  syn boolean A.c6() = getName().equals("a");
+
+  
+  syn lazy int A.a7() = b7_1() + b7_2();
+  syn int A.b7_1() = c7_1() + c7_2();
+  syn lazy int A.b7_2() = 1;
+  syn lazy int A.c7_1() = 1;
+  syn int A.c7_2() = 1;
+
+  syn lazy int A.a8() = b8_1() + b8_2();
+  syn int A.b8_1() = c8_1() + c8_2();
+  syn int A.b8_2() = 1;
+  syn lazy int A.c8_1() = 1;
+  syn lazy int A.c8_2() = 1;
+
+}

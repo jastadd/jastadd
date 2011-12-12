@@ -1,0 +1,19 @@
+import java.util.*;
+
+aspect Test153 {
+
+  inh B B.lookup(String name);
+
+  eq A.getB(int index).lookup(String name) {
+    for (int i = 0; i < getNumB(); i++) {
+      B b = getB(i);
+      if (b.getName().equals(name)) {
+        return b;
+      }
+    }
+    return null;
+  }
+
+  syn lazy B B.decl() = lookup(getUse());
+
+}

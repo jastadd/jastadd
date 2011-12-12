@@ -1,0 +1,14 @@
+import java.util.*;
+
+aspect Test161 {
+
+  inh lazy int B.c();
+  eq A.getChild().c() = 5;
+
+  syn lazy boolean A.d() = makeB() instanceof C;
+  syn nta B A.makeB() = getName().equals("a") ? new B() : new C();
+
+  syn lazy int B.a() = b();
+  syn lazy int B.b() = c();
+
+}

@@ -1,0 +1,10 @@
+import java.util.*;
+
+aspect Test165 {
+
+  syn lazy boolean A.d() = getNode() != null;
+
+  syn lazy int B.a() = b();
+  syn lazy int B.b() = 5;
+
+}
