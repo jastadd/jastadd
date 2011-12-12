@@ -3774,7 +3774,12 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "// TODO: dump collection values");
     // super call
     if (!name().equals("ASTNode")) {
-      stream.println(ind(2) + "super.dumpDependencies();");
+      if (ASTNode.incrementalLevelRegion) {
+        if (!isRegionRoot()) 
+          stream.println(ind(2) + "super.dumpDependencies();");
+      } else {
+          stream.println(ind(2) + "super.dumpDependencies();");
+      }
     }
     stream.println(ind + "}");  
     // end method: dumpDependencies()
