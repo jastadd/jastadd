@@ -2822,9 +2822,13 @@ aspect JaddCodeGen {
       // methods: inc_flush_NTA
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         stream.println(ind + "public void " + name() + ".inc_flush_NTA(ASTNode node) {");
-        if (name().equals("List")) {
-          stream.println(ind(2) + "if (parent != null)");
-          stream.println(ind(3) +   "parent.inc_flush_NTA(node);");
+        if (name().equals("List") || name().equals("Opt")) {
+          stream.println(ind(2) + "if (parent != null) {");
+          stream.println(ind(3) +   "int index = parent.childIndexOf(this);");
+          stream.println(ind(3) +   "if (index >= 0 && parent.childIsNTA(index)) {");
+          stream.println(ind(4) +     "node.setParent(null);");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(2) + "}");
         } else {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
