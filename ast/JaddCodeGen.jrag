@@ -4478,7 +4478,7 @@ aspect JaddCodeGen {
   String TokenComponent.jaddGenIncrementalTokenTrack() {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
       return "        state().addHandlerDepTo(get#ID#_handler);\n";
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+    if (ASTNode.incrementalLevelNode) {
       String type = getTokenId().getTYPE();
       boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
       boolean isPrimitiveToken = isPrimitive();
@@ -4486,6 +4486,18 @@ aspect JaddCodeGen {
         StringBuffer buf = new StringBuffer();
         buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
         buf.append("          state().addHandlerDepTo(((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler);\n");
+        buf.append("        }\n");
+        return buf.toString();
+      }
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      String type = getTokenId().getTYPE();
+      boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
+      boolean isPrimitiveToken = isPrimitive();
+      if (!isStringToken && !isPrimitiveToken) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n");
+        buf.append("          ((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler.addDependant(handler());\n");
         buf.append("        }\n");
         return buf.toString();
       }
