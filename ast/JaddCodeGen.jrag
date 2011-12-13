@@ -3959,7 +3959,7 @@ aspect JaddCodeGen {
     stream.println("    }");
     stream.println("    public void throwAway() {");
     stream.println("      fState = ASTNode.inc_GARBAGE;");
-    stream.println("      clearDependants();");
+    //stream.println("      clearDependants();");
     stream.println("    }");
     stream.println("    public void keepAlive() {");
     stream.println("      fState = ASTNode.inc_LIVE;");
