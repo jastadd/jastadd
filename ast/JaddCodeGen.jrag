@@ -3647,6 +3647,7 @@ aspect JaddCodeGen {
     // end method: getChild(int) -- overloaded for region tracking
 
     // TODO revisit this method
+/*
     // method: removeChild(int) -- overloaded for region tracking
     if (ASTNode.incrementalLevelRegion) {
       if (isRegionLeaf() && !name().equals("ASTNode")) {
@@ -3678,6 +3679,7 @@ aspect JaddCodeGen {
       }        
     }
     // end method: insertChild(ASTNode,int) -- overloaded for region tracking
+*/
 
   } // end: jjtGenIncrementalRegions
   
