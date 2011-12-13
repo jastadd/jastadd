@@ -109,7 +109,6 @@ aspect CoarseIncremental {
   syn lazy boolean ASTDecl.hasRegionRootAsSuperClass() {
     ASTDecl superDecl = superClass();
     if (superDecl != null) {
-      System.out.println("Checking superclass " + superDecl.getIdDecl().getID());
       if (superDecl.isRegionRoot()) {
         return true;
       }
