@@ -1332,8 +1332,8 @@ aspect JragCodeGen {
         if (getNTA()) {
           buf.append("if (#NAME#_value.isRegionRoot()) {\n");
           buf.append("  ASTNode$DepGraphNode nodeHandler = handler();\n");
-          buf.append("  nodeHandler.addDependant(#NAME#_value.handler);\n");
-          buf.append("  #NAME#_value.handler.addDependant(nodeHandler);\n");
+          buf.append("  nodeHandler.addDependant(#NAME#_value.handler());\n");
+          buf.append("  #NAME#_value.handler().addDependant(nodeHandler);\n");
           buf.append("}\n");
         } 
       }
