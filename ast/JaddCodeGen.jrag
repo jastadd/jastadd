@@ -2808,15 +2808,6 @@ aspect JaddCodeGen {
           }
         }
         if (name().equals("ASTNode")) {
-          // check of this is an NTA at the parent
-          stream.println(ind(2) + "if (parent != null) {");
-          stream.println(ind(3) +   "parent.inc_flush_NTA(this);");
-          stream.println(ind(2) + "}");
-          // check if this is a rewritten child of the parent, 
-          // need to recheck parent in case this was a NTA an it was removed
-          stream.println(ind(2) + "if (parent != null) {");
-          stream.println(ind(3) +   "parent.inc_flush_child(this);");
-          stream.println(ind(2) + "}");
         } else {
           stream.println(ind(2) + "super.inc_flush();");
         }
@@ -2827,14 +2818,15 @@ aspect JaddCodeGen {
       // methods: inc_flush_child
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         if (name().equals("ASTNode")) {
-        stream.println(ind + "public void ASTNode.inc_flush_child(ASTNode node) {");
+        stream.println(ind + "public boolean ASTNode.inc_flush_child(ASTNode node) {");
         stream.println(ind(2) + "for (int i = 0; i < children.length; i++) {");        
         stream.println(ind(3) +   "if (children[i] == node && rewritten_children != null && " +
                                       "i < rewritten_children.length && rewritten_children[i]) {");
         stream.println(ind(4) +     "node.inc_restoreEnclosingRewrite();");
-        stream.println(ind(4) +     "break;");
+        stream.println(ind(4) +     "return true;");
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
+        stream.println(ind(2) + "return false;");
         stream.println(ind + "}"); 
         }
       }
@@ -2842,13 +2834,15 @@ aspect JaddCodeGen {
 
       // methods: inc_flush_NTA
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
-        stream.println(ind + "public void " + name() + ".inc_flush_NTA(ASTNode node) {");
+        stream.println(ind + "public boolean " + name() + ".inc_flush_NTA(ASTNode node) {");
         if (name().equals("List") || name().equals("Opt")) {
           stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
           stream.println(ind(3) +   "if (index >= 0 && parent.childIsNTA(index)) {");
           stream.println(ind(4) +     "node.setParent(null);");
+          stream.println(ind(4) +     "return true;");
           stream.println(ind(3) +   "}");
+          stream.println(ind(3) +   "return false;");
           stream.println(ind(2) + "}");
         } else {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
@@ -2894,9 +2888,23 @@ aspect JaddCodeGen {
 
       // method: inc_flushRegion
       if (ASTNode.incrementalLevelRegion) {
-        //if (isRegionRoot()) {
+        stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
+        if (isRegionRoot()) {
+          // check of this is an NTA at the parent
+          stream.println(ind(2) + "boolean regionRemoved = false;");
+          stream.println(ind(2) + "if (parent != null) {");
+          stream.println(ind(3) +   "regionRemoved = parent.inc_flush_NTA(this);");
+          stream.println(ind(2) + "}");
+          // check if this is a rewritten child of the parent, 
+          // need to recheck parent in case this was a NTA an it was removed
+          stream.println(ind(2) + "if (parent != null) {");
+          stream.println(ind(3) +   "regionRemoved |= parent.inc_flush_child(this);");
+          stream.println(ind(2) + "}");
+          stream.println(ind(2) + "if (!regionRemoved) {");
+          stream.println(ind(3) +   "regionRemoved = inc_flushRegion_rewrites();");
+          stream.println(ind(2) + "}");
+        }
         if (name().equals("ASTNode")) {
-          stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
           stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
           stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -2904,11 +2912,33 @@ aspect JaddCodeGen {
           stream.println(ind(4) +     "child.inc_flushRegion();");
           stream.println(ind(3) +   "}");
           stream.println(ind(2) + "}");
-          stream.println(ind + "}"); 
         }
-        //}
+        stream.println(ind + "}"); 
       }
       // end method: inc_flushRegion
+
+      // method: inc_flushRegion_rewrites
+      if (ASTNode.incrementalLevelRegion) {
+        if (name().equals("ASTNode")) {
+          stream.println(ind + "public boolean " + name() + ".inc_flushRegion_rewrites() {");
+          stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {"); 
+          stream.println(ind(3) +   "ASTNode child = children[i];");
+          stream.println(ind(3) +   "if (child == null) continue;");
+          // rewritten child
+          stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length && " +
+                                         "rewritten_children[i]) {");
+          stream.println(ind(4) +     "return inc_restoreInitialForIndex(i);");
+          // not rewritten child
+          stream.println(ind(3) +   "} else {");
+          stream.println(ind(4) +     "if (!child.inc_flushRegion_rewrites()) {");
+          stream.println(ind(5) +       "return false;");
+          stream.println(ind(4) +     "}");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(2) + "}"); 
+          stream.println(ind + "}"); 
+        }
+      }      
+      // end method: inc_flushRegion_rewrites
     }
 
   }
