@@ -2616,7 +2616,13 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
       }
     } else {
-      stream.println(ind(2) + "super.inc_copyHandlers(copy);");
+      if (ASTNode.incrementalLevelRegion) {
+        if (isRegionRoot()) {
+          stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);"); 
+        } else {
+          stream.println(ind(2) + "super.inc_copyHandlers(copy);");
+        }
+      }
     }
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
       // tokens
