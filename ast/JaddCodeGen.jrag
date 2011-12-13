@@ -1181,7 +1181,7 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
       stream.println(ind(5) + "if (node.isRegionRoot()) {");
-      stream.println(ind(6) +   "node.handler().addSetsFrom(oldNode.handler());");
+      stream.println(ind(6) +   "node.handler().transferSetsFrom(oldNode.handler());");
       stream.println(ind(5) + "}");
       // stream.println(ind(5) + "oldNode.handler().clearDependencies();");
     }
@@ -3938,7 +3938,10 @@ aspect JaddCodeGen {
     // add listeners/dependencies from another handler, used in rewrites
     stream.println("    public void addSetsFrom(ASTNode$DepGraphNode node) {");
     stream.println("      fListenerSet.addAll(node.fListenerSet);");
-    stream.println("      fDependencySet.addAll(node.fDependencySet);");
+    stream.println("      for (ASTNode$DepGraphNode target : node.fDependencySet) {");
+    stream.println("        target.removeDependant(node);");
+    stream.println("        target.addDependant(this);");
+    stream.println("      }");
     stream.println("    }");
     // state
     stream.println("    protected int fState = ASTNode.inc_CREATED;");
