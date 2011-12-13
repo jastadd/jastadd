@@ -3619,7 +3619,59 @@ aspect JaddCodeGen {
 
     // method: getChild(int) -- overloaded for region tracking
     if (ASTNode.incrementalLevelRegion) {
-      if (isRegionLeaf() && !name().equals("ASTNode")) {
+      stream.println(ind + "private boolean " + name() + ".IS_REGION_LEAF = " + isRegionLeaf() + ";");
+
+      if (isRegionLeaf()) {
+        if (name().equals("List") || name().equals("Opt")) {
+          if(ASTNode.java5) {
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+            stream.println(ind + "@SuppressWarnings(\"cast\") public T " + name() + ".getChild(int i) {");
+      		  stream.println(ind(2) + "// region leaf");
+	    	    stream.println(ind(2) + "ASTNode child = super.getChild(i);");
+      		  stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+	      	  stream.println(ind(2) + "}");
+	      	  stream.println(ind(2) + "return (T)child;");
+            stream.println(ind + "}");    
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+            stream.println(ind + "@SuppressWarnings(\"cast\") public T " + name() + ".getChildNoTransform(int i) {");
+      		  stream.println(ind(2) + "// region leaf");
+	    	    stream.println(ind(2) + "ASTNode child = super.getChildNoTransform(i);");
+      		  stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+	      	  stream.println(ind(2) + "}");
+	      	  stream.println(ind(2) + "return (T)child;");
+            stream.println(ind + "}");    
+          } else {
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+      		  stream.println(ind + "public ASTNode " + name() + ".getChild(int i) {");
+      		  stream.println(ind(2) + "// region leaf");
+	    	    stream.println(ind(2) + "ASTNode child = super.getChild(i);");
+      		  stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+	      	  stream.println(ind(2) + "}");
+	      	  stream.println(ind(2) + "return child;");
+	      	  stream.println(ind + "}");
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+      		  stream.println(ind + "public ASTNode " + name() + ".getChildNoTransform(int i) {");
+      		  stream.println(ind(2) + "// region leaf");
+	    	    stream.println(ind(2) + "ASTNode child = super.getChildNoTransform(i);");
+      		  stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+	      	  stream.println(ind(2) + "}");
+	      	  stream.println(ind(2) + "return child;");
+	      	  stream.println(ind + "}");
+          }
+        }
+        else if (!name().equals("ASTNode")) {
           stream.println(ind + "/**");
           stream.println(ind + " * @apilevel low-level");
           stream.println(ind + " */");
@@ -3642,6 +3694,7 @@ aspect JaddCodeGen {
 	    	  stream.println(ind(2) + "}");
 	    	  stream.println(ind(2) + "return child;");
 	    	  stream.println(ind + "}");
+        }
       }
     }
     // end method: getChild(int) -- overloaded for region tracking
