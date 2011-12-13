@@ -2782,25 +2782,6 @@ aspect JaddCodeGen {
           // NTAs
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-      /*
-            if (ASTNode.incrementalLevelRegion) {
-              if (attr.getNumParameter() > 0) {
-                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-                stream.println(ind(3) +   attr.attributeSignature() + "_list.setParent(null);");
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
-                stream.println(ind(2) + "}");
-              } else {
-                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
-                stream.println(ind(2) + "}");
-              }
-            }
-      */
           } 
           // Non NTAs
           else {
@@ -2947,6 +2928,7 @@ aspect JaddCodeGen {
           stream.println(ind(4) +     "}");
           stream.println(ind(3) +   "}");
           stream.println(ind(2) + "}"); 
+          stream.println(ind(2) + "return true;");
           stream.println(ind + "}"); 
         }
       }      
