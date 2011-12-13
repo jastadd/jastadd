@@ -2896,6 +2896,8 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "if (!regionRemoved) {");
           stream.println(ind(3) +   "regionRemoved = inc_flushRegion_rewrites();");
           stream.println(ind(2) + "}");
+          if (!name().equals("ASTNode")) 
+            stream.println(ind(2) + "super.inc_flushRegion();");
         }
         if (name().equals("ASTNode")) {
           stream.println(ind(2) + "inc_flush();");
