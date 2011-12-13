@@ -1180,7 +1180,10 @@ aspect JaddCodeGen {
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
-      stream.println(ind(5) + "oldNode.handler().clearDependencies();");
+      stream.println(ind(5) + "if (node.isRegionRoot()) {");
+      stream.println(ind(6) +   "node.handler().addSetsFrom(oldNode.handler());");
+      stream.println(ind(5) + "}");
+      // stream.println(ind(5) + "oldNode.handler().clearDependencies();");
     }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
@@ -3932,6 +3935,11 @@ aspect JaddCodeGen {
   public void Grammar.jjtGenASTNode$DepGraphNode(PrintWriter stream, String parserName) {
     // class: ASTNode$DepGraphNode
     stream.println("  static public class ASTNode$DepGraphNode {");
+    // add listeners/dependencies from another handler, used in rewrites
+    stream.println("    public void addSetsFrom(ASTNode$DepGraphNode node) {");
+    stream.println("      fListenerSet.addAll(node.fListenerSet);");
+    stream.println("      fDependencySet.addAll(node.fDependencySet);");
+    stream.println("    }");
     // state
     stream.println("    protected int fState = ASTNode.inc_CREATED;");
     stream.println("    public void changeState(int newState) {");
