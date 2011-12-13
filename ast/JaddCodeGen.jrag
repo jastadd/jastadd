@@ -2883,6 +2883,8 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) {
         stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
         if (isRegionRoot()) {
+          if (!name().equals("ASTNode")) 
+            stream.println(ind(2) + "super.inc_flushRegion();");
           // check of this is an NTA at the parent
           stream.println(ind(2) + "boolean regionRemoved = false;");
           stream.println(ind(2) + "if (parent != null) {");
@@ -2896,8 +2898,6 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "if (!regionRemoved) {");
           stream.println(ind(3) +   "regionRemoved = inc_flushRegion_rewrites();");
           stream.println(ind(2) + "}");
-          if (!name().equals("ASTNode")) 
-            stream.println(ind(2) + "super.inc_flushRegion();");
         }
         if (name().equals("ASTNode")) {
           stream.println(ind(2) + "inc_flush();");
@@ -2919,12 +2919,16 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {"); 
           stream.println(ind(3) +   "ASTNode child = children[i];");
           stream.println(ind(3) +   "if (child == null) continue;");
-          // rewritten child
+          stream.println(ind(3) +   "// rewritten child");
           stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length && " +
                                          "rewritten_children[i]) {");
-          stream.println(ind(4) +     "return inc_restoreInitialForIndex(i);");
+          stream.println(ind(4) +     "if (!inc_restoreInitialForIndex(i)) {");
+          stream.println(ind(5) +       "return false;");
+          stream.println(ind(4) +     "}");
           // not rewritten child
-          stream.println(ind(3) +   "} else {");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(3) +   "// not rewritten child");
+          stream.println(ind(3) +   "else {");
           stream.println(ind(4) +     "if (!child.inc_flushRegion_rewrites()) {");
           stream.println(ind(5) +       "return false;");
           stream.println(ind(4) +     "}");
