@@ -2826,7 +2826,8 @@ aspect JaddCodeGen {
 
       // methods: inc_flush_child
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
-        stream.println(ind + "public void " + name() + ".inc_flush_child(ASTNode node) {");
+        if (name().equals("ASTNode")) {
+        stream.println(ind + "public void ASTNode.inc_flush_child(ASTNode node) {");
         stream.println(ind(2) + "for (int i = 0; i < children.length; i++) {");        
         stream.println(ind(3) +   "if (children[i] == node && rewritten_children != null && " +
                                       "i < rewritten_children.length && rewritten_children[i]) {");
@@ -2835,6 +2836,7 @@ aspect JaddCodeGen {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
         stream.println(ind + "}"); 
+        }
       }
       // end methods: inc_flush_NTA
 
