@@ -896,6 +896,10 @@ aspect JaddCodeGen {
       stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "@SuppressWarnings(\"cast\")");
+      // ES_2011-12-13: Code generation for incremental evaluation    
+      if (ASTNode.incremental) jjtGenIncrementalTrackGetChildNoTransformName2(stream);
+      else 
+      //
       stream.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       // ES_2011-09-20: Code generation for incremental evaluation
@@ -913,6 +917,10 @@ aspect JaddCodeGen {
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
+      // ES_2011-12-13: Code generation for incremental evaluation    
+      if (ASTNode.incremental) jjtGenIncrementalTrackGetChildNoTransformName1(stream);
+      else 
+      //
       stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       // ES_2011-09-20: Code generation for incremental evaluation
@@ -1284,6 +1292,14 @@ aspect JaddCodeGen {
   }
 
 
+  // ES_2011-12-13: Code generation for incremental evaluation, name getChildNoTransform
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName1(PrintWriter stream) {
+      stream.println(ind + "public ASTNode ASTNode.getChildNoTransform(int i) {");
+  }
+  // ES_2011-12-13: Code generation for incremental evaluation, name getChildNoTransform
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName2(PrintWriter stream) {
+      stream.println(ind + "public T ASTNode.getChildNoTransform(int i) {");
+  }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
