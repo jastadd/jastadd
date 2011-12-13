@@ -1176,9 +1176,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
-      stream.println(ind(5) + "if (node.isRegionRoot()) {");
-      stream.println(ind(6) +   "node.handler().transferSetsFrom(oldNode.handler());");
-      stream.println(ind(5) + "}");
+      stream.println(ind(5) + "node.handler.transferSetsFrom(oldNode.handler);");
       // stream.println(ind(5) + "oldNode.handler.clearDependencies();");
     }
     if (ASTNode.incrementalLevelRegion) {
