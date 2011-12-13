@@ -2689,7 +2689,7 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelNode) 
       stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
     if (ASTNode.incrementalLevelRegion) {
-      if (isRegionRoot()) 
+      if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
     }
 
@@ -2717,7 +2717,7 @@ aspect JaddCodeGen {
     }
 
     if (ASTNode.incrementalLevelRegion) {
-      if (isRegionRoot()) 
+      if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "}");      
     } else {
       stream.println(ind + "}");
