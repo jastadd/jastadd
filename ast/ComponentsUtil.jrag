@@ -118,6 +118,15 @@ aspect CoarseIncremental {
   }
 	
 	syn lazy boolean ASTDecl.isRegionLeaf() {
+
+    if (name().equals("List") || name().equals("Opt")) {
+      TypeDecl type = env().lookup("ASTNode");
+      if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
+	  			return false;
+	  	}
+      return true;
+    }
+
 		for (int i = 0; i < getNumComponents(); i++) {
 			Components comp = getComponents(i);
 			TypeDecl type = comp.env().lookup(comp.type());
@@ -127,5 +136,7 @@ aspect CoarseIncremental {
 		}
 		return false;
 	}
+
+
 }
 //
