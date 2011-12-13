@@ -2862,12 +2862,11 @@ aspect JaddCodeGen {
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
-                stream.println(ind(5) +       "break;");
+                stream.println(ind(5) +       "return true;");
                 stream.println(ind(4) +     "}");
                 stream.println(ind(3) +   "}");
                 stream.println(ind(2) + "}");
               } else {
-
                 Components comp = attr.findCorrespondingNTA();
                 if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
                   stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
@@ -2878,10 +2877,10 @@ aspect JaddCodeGen {
                   stream.println(ind(2) + "}");
                 }
               }
-
             }
           }
         }
+        stream.println(ind(2) + "return false;");
         stream.println(ind + "}"); 
       }
       // end methods: inc_flush_NTA
