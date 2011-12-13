@@ -1191,6 +1191,8 @@ aspect JaddCodeGen {
         stream.println(ind(3) +   "child.handler().addDependant(handler);");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return (T)child;");
+      } else {
+        stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
       }
     }
   }
@@ -2873,7 +2875,8 @@ aspect JaddCodeGen {
 
       // method: inc_flushRegion
       if (ASTNode.incrementalLevelRegion) {
-        if (isRegionRoot()) {
+        //if (isRegionRoot()) {
+        if (name().equals("ASTNode")) {
           stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
           stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
@@ -2884,6 +2887,7 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "}");
           stream.println(ind + "}"); 
         }
+        //}
       }
       // end method: inc_flushRegion
     }
