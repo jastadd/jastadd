@@ -3620,6 +3620,7 @@ aspect JaddCodeGen {
     // method: getChild(int) -- overloaded for region tracking
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind + "private boolean " + name() + ".IS_REGION_LEAF = " + isRegionLeaf() + ";");
+      stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";");
 
       if (isRegionLeaf()) {
         if (name().equals("List") || name().equals("Opt")) {
