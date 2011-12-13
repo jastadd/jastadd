@@ -2880,9 +2880,9 @@ aspect JaddCodeGen {
       // end methods: inc_flush_NTA
 
       // method: inc_flushRegion
-      if (ASTNode.incrementalLevelRegion) {
+      if (ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) {
+        stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
         if (isRegionRoot()) {
-          stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
           // check of this is an NTA at the parent
           stream.println(ind(2) + "boolean regionRemoved = false;");
           stream.println(ind(2) + "if (parent != null) {");
@@ -2896,11 +2896,8 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "if (!regionRemoved) {");
           stream.println(ind(3) +   "regionRemoved = inc_flushRegion_rewrites();");
           stream.println(ind(2) + "}");
-          stream.println(ind(3) + "super.inc_flushRegion();");
-          stream.println(ind + "}"); 
         }
         if (name().equals("ASTNode")) {
-          stream.println(ind + "public void ASTNode.inc_flushRegion() {");
           stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
           stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -2908,8 +2905,8 @@ aspect JaddCodeGen {
           stream.println(ind(4) +     "child.inc_flushRegion();");
           stream.println(ind(3) +   "}");
           stream.println(ind(2) + "}");
-          stream.println(ind + "}"); 
         }
+        stream.println(ind + "}"); 
       }
       // end method: inc_flushRegion
 
