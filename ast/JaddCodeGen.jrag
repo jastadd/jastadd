@@ -2465,14 +2465,23 @@ aspect JaddCodeGen {
       // end method: inc_restoreEnclosingRewrite
     
       // method: inc_restoreInitialForIndex
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {      
       stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
+      }
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index) {");
+      }
       stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
-      stream.println(ind(3) + "ASTNode oldNode = children[index];");
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+        stream.println(ind(3) + "ASTNode oldNode = children[index];");
+      }
       stream.println(ind(3) + "state().enterConstruction();");
       stream.println(ind(3) + "setChild(init_children[index], index);");
       stream.println(ind(3) + "state().exitConstruction();");
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
       stream.println(ind(3) + "oldNode.inc_flush_subtree(h);");
+      }
       stream.println(ind(3) + "init_children[index] = null;");
       stream.println(ind(3) + "return true;");
 //      stream.println(ind(3) +   "setChild(init_children[index], index);");
@@ -3070,7 +3079,7 @@ aspect JaddCodeGen {
 
 
       // method: inc_flush_subtree
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || ASTNode.incrementalLevelAttr) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
         stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
         // NTAs
         // Flush NTAs if not region root
