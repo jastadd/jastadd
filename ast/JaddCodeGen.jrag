@@ -816,9 +816,6 @@ aspect JaddCodeGen {
       //
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
-      // ES_2011-09-26: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
-      //
       // ES_2011-12-12: Code generation for incremental evaluation, rewrites 
       if (ASTNode.incremental) jjtGenIncrementalTrackRewrite11(stream);
       //
@@ -1267,6 +1264,7 @@ aspect JaddCodeGen {
     stream.println(ind(4) + "}");
     }
   }
+
   // ES_2011-10-05: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
@@ -1286,13 +1284,14 @@ aspect JaddCodeGen {
   }
   // ES_2011-12-12: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite11(PrintWriter stream) {
-    if (ASTNode.incrementalLevelRegion) {
-      // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
-      // The possibility of a dependency requires one.
-      stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
-      stream.println(ind(3) +   "that.handler().addDependant(node.handler());");
-      stream.println(ind(3) +   "node.handler().addDependant(that.handler());");
-      stream.println(ind(2) + "}");
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(3) + "if (that.getChild_handler[i] == null) {");
+      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(2) + "that.state().addHandlerDepTo(that.getChild_handler);");  
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
@@ -1300,6 +1299,14 @@ aspect JaddCodeGen {
       // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
       // The possibility of a dependency requires one.
       stream.println(ind(3) + "  that.handler.addDependant(node.handler);");
+      stream.println(ind(2) + "}");
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
+      // The possibility of a dependency requires one.
+      stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
+      stream.println(ind(3) +   "that.handler().addDependant(node.handler());");
+      stream.println(ind(3) +   "node.handler().addDependant(that.handler());");
       stream.println(ind(2) + "}");
     }
   }
