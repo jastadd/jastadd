@@ -1208,14 +1208,9 @@ aspect JaddCodeGen {
       } else {
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
       }
+    } else {
+      stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
     }
-/*
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
-      stream.println(ind(2) + "child.handler().addDependant(handler);");
-      stream.println(ind(2) + "return (T)child;");
-    }
-*/
   }
   // ES_2011-12-12_ Code generation for incremental evalutaion, crossing between regions
   public void ASTDecl.jjtGenIncrementalTrackRewrite10(PrintWriter stream) {
@@ -1226,15 +1221,12 @@ aspect JaddCodeGen {
         stream.println(ind(3) +   "child.handler().addDependant(handler);");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return child;");
+      } else {
+        stream.println(ind(2) + "return ASTNode.getChild(this, i);");
       }
+    } else {
+      stream.println(ind(2) + "return ASTNode.getChild(this, i);");
     }
-/*
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
-      stream.println(ind(2) + "child.handler().addDependant(handler);");
-      stream.println(ind(2) + "return child;");
-    }
-*/
   }
 
 
