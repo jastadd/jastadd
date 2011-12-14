@@ -4243,19 +4243,19 @@ aspect JaddCodeGen {
     stream.println("    public void dependencyChanged() {");
     stream.println("      if (!visitedChange) {");
     stream.println("        visitedChange = true;");
-    stream.println("      if (!fDependencySet.isEmpty() {");
-    stream.println("        // Remove dependencies");
-    stream.println("        java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
-    stream.println("        fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
-    stream.println("        for (ASTNode$DepGraphNode node : k) {");
-    stream.println("          node.removeDependant(this);");
-    stream.println("        }");
+    stream.println("        if (!fDependencySet.isEmpty()) {");
+    stream.println("          // Remove dependencies");
+    stream.println("          java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
+    stream.println("          fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+    stream.println("          for (ASTNode$DepGraphNode node : k) {");
+    stream.println("            node.removeDependant(this);");
+    stream.println("          }");
     if (ASTNode.incrementalLevelParam)
-      stream.println("          fNode.reactToDependencyChange(fAttrID, fParams);");
+    stream.println("          fNode.reactToDependencyChange(fAttrID, fParams);");
     if (ASTNode.incrementalLevelAttr) 
-      stream.println("          fNode.reactToDependencyChange(fAttrID);");
+    stream.println("          fNode.reactToDependencyChange(fAttrID);");
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
-      stream.println("          fNode.reactToDependencyChange();");
+    stream.println("          fNode.reactToDependencyChange();");
     stream.println("        }");
     stream.println("        visitedChange = false;");
     stream.println("      }");
