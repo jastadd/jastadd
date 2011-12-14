@@ -1325,10 +1325,7 @@ aspect JragCodeGen {
         }
       }
       if (ASTNode.incrementalLevelRegion) {
-        if (ASTNode.incrementalLevelRegion) {
-          buf.append(ind(2)+ "state().IN_COMPUTATION--;\n");
-          //buf.append(ind(2)+ "state().IN_ATTR_STORE_EVAL = false;\n");
-        }
+        buf.append(ind(2)+ "state().IN_COMPUTATION--;\n");
         if (getNTA()) {
           buf.append("if (#NAME#_value.isRegionRoot()) {\n");
           buf.append("  ASTNode$DepGraphNode nodeHandler = handler();\n");
