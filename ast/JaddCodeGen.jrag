@@ -2449,12 +2449,7 @@ aspect JaddCodeGen {
         stream.println(ind(5) +       "index = i;");
         stream.println(ind(4) +     "}");
         stream.println(ind(3) +   "}");
-        if (ASTNode.incrementalLevelAttr) {
-        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, parent.getChild_handler)) {");
-        } 
-        if (ASTNode.incrementalLevelNode) {
-        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, parent.getChild_handler[index])) {");
-        }
+        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index)) {");
         stream.println(ind(4) +     "break;");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "child = parent;");
