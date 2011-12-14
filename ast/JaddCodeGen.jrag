@@ -3023,7 +3023,9 @@ aspect JaddCodeGen {
                                               "_list.children[index];");              
               stream.println(ind(4) +     "if (!value.isRegionRoot()) {");
               stream.println(ind(5) +       attr.attributeSignature() + "_list.inc_flush_subtree(handler());");
+              stream.println(ind(5) +       "state().enterConstruction();");
               stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
+              stream.println(ind(5) +       "state().exitConstruction();");
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);
@@ -3037,7 +3039,9 @@ aspect JaddCodeGen {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null && !" + 
                                                   attr.attributeSignature() + "_value.isRegionRoot()) {");
                 stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
+                stream.println(ind(3) +   "state().enterConstruction();");
                 stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
+                stream.println(ind(3) +   "state().exitConstruction();");
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
