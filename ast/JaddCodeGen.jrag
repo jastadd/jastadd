@@ -2940,7 +2940,7 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "// Inner rewrites in the region (including the root) means abort and notify the enclosing rewritten node");
         stream.println(ind(2) + "if (innerRewrite) {");
-        stream.println(ind(3) +   "ASTnode enclosingNode = inc_locateEnclosingRewritteNode();");
+        stream.println(ind(3) +   "ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();");
         stream.println(ind(3) +   "enclosingNode.reactToDependencyChange();");
         stream.println(ind(3) +   "return;");
         stream.println(ind(2) + "}");
@@ -2951,7 +2951,7 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "// region is still here, flush remaining values and outer rewrites");
         stream.println(ind(2) + "if (!regionRemoved) {");
-        stream.println(ind(3) +   "inc_flushRegion_rewrites(handler());");
+        stream.println(ind(3) +   "inc_flushRegion_rewrites();");
         stream.println(ind(3) +   "inc_flushRegion();");
         stream.println(ind(2) + "}");
         stream.println(ind + "}"); 
@@ -2961,11 +2961,11 @@ aspect JaddCodeGen {
       // method: inc_checkRegionForInnerRewrite
       if (ASTNode.incrementalLevelRegion) {
         if (name().equals("ASTNode")) {
-          stream.println(ind + "public void ASTNode.inc_checkRegionForInnerRewrite() {");
+          stream.println(ind + "public boolean ASTNode.inc_checkRegionForInnerRewrite() {");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
           stream.println(ind(3) +   "ASTNode child = children[i];");
           stream.println(ind(3) +   "if (child != null) {");
-          stream.println(ind(4) +     "if (init_children != null && index < init_children.length && init_children[index] != null) {");
+          stream.println(ind(4) +     "if (init_children != null && i < init_children.length && init_children[i] != null) {");
           stream.println(ind(5) +       "return true;");
           stream.println(ind(4) +     "} else {");
           stream.println(ind(5) +       "if (!child.isRegionRoot() && child.inc_checkRegionForInnerRewrite()) {");
