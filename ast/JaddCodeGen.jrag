@@ -2449,7 +2449,12 @@ aspect JaddCodeGen {
         stream.println(ind(5) +       "index = i;");
         stream.println(ind(4) +     "}");
         stream.println(ind(3) +   "}");
-        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, child.handler)) {");
+        if (ASTNode.incrementalLevelAttr) {
+        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, parent.getChild_handler)) {");
+        } 
+        if (ASTNode.incrementalLevelNode) {
+        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, parent.getChild_handler[index])) {");
+        }
         stream.println(ind(4) +     "break;");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "child = parent;");
@@ -3065,7 +3070,7 @@ aspect JaddCodeGen {
 
 
       // method: inc_flush_subtree
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || ASTNode.incrementalLevelAttr) {
         stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
         // NTAs
         // Flush NTAs if not region root
