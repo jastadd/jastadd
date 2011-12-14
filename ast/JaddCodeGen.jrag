@@ -2419,26 +2419,26 @@ aspect JaddCodeGen {
         stream.println(ind + "}"); // end method: inc_resetRewrites
       }
 
-      // method: inc_restoreEnclosingRewrite    
-      stream.println(ind + "protected void ASTNode.inc_restoreEnclosingRewrite() {");
-      stream.println(ind(2) + "ASTNode child = this;");
-      stream.println(ind(2) + "ASTNode parent = this.parent;");
-      stream.println(ind(2) + "while (parent != null) {");
-//      stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-      stream.println(ind(3) +   "int index = -1;");
-      stream.println(ind(3) +   "for (int i = 0; i < parent.children.length; i++) {");
-      stream.println(ind(4) +     "if (parent.children[i] == child) {");
-      stream.println(ind(5) +       "index = i;");
-      stream.println(ind(4) +     "}");
-      stream.println(ind(3) +   "}");
-//      stream.println(ind(3) +   "if (parent.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index)) {");
-      stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, child.handler)) {");
-      stream.println(ind(4) +     "break;");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(3) +   "child = parent;");
-      stream.println(ind(3) +   "parent = parent.getParent();");
-      stream.println(ind(2) + "}");
-      stream.println(ind + "}"); 
+      // method: inc_restoreEnclosingRewrite  
+      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {  
+        stream.println(ind + "protected void ASTNode.inc_restoreEnclosingRewrite() {");
+        stream.println(ind(2) + "ASTNode child = this;");
+        stream.println(ind(2) + "ASTNode parent = this.parent;");
+        stream.println(ind(2) + "while (parent != null) {");
+        stream.println(ind(3) +   "int index = -1;");
+        stream.println(ind(3) +   "for (int i = 0; i < parent.children.length; i++) {");
+        stream.println(ind(4) +     "if (parent.children[i] == child) {");
+        stream.println(ind(5) +       "index = i;");
+        stream.println(ind(4) +     "}");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, child.handler)) {");
+        stream.println(ind(4) +     "break;");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(3) +   "child = parent;");
+        stream.println(ind(3) +   "parent = parent.getParent();");
+        stream.println(ind(2) + "}");
+        stream.println(ind + "}"); 
+      }
       // end method: inc_restoreEnclosingRewrite
     
       // method: inc_restoreInitialForIndex
