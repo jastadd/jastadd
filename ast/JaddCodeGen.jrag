@@ -1176,13 +1176,15 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
-      stream.println(ind(5) + "node.handler.transferSetsFrom(oldNode.handler);");
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
+//      stream.println(ind(5) + "node.handler.transferSetsFrom(oldNode.handler);");
       // stream.println(ind(5) + "oldNode.handler.clearDependencies();");
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
       stream.println(ind(5) + "if (node.isRegionRoot()) {");
-      stream.println(ind(6) +   "node.handler().transferSetsFrom(oldNode.handler());");
+      stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
+//      stream.println(ind(6) +   "node.handler().transferSetsFrom(oldNode.handler());");
       stream.println(ind(5) + "}");
       // stream.println(ind(5) + "oldNode.handler().clearDependencies();");
     }
@@ -1232,6 +1234,7 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if(!node.inc_hasEnclosingRewrittenNode()) {");
     stream.println(ind(3) +   "that.init_children[i] = node.fullCopy();");
+    stream.println(ind(3) +   "that.rewritten_children[i] = true;");
     stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelParam) {
@@ -1373,7 +1376,13 @@ aspect JaddCodeGen {
     }
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if (parent != null) {");
-    stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
+    stream.println(ind(3) +   "int index = -1;");
+    stream.println(ind(3) +   "for (int i = 0; parent.children != null && i < parent.children.length; i++) {");
+    stream.println(ind(4) +     "if (parent.children[i] == this) {");
+    stream.println(ind(5) +       "index = i;");
+    stream.println(ind(5) +       "break;");
+    stream.println(ind(4) +     "}");
+    stream.println(ind(3) +   "}");
     stream.println(ind(3) +   "if (index >= 0)");
     stream.println(ind(4) +     "parent.removeChild(index);");
     stream.println(ind(2) + "}");
