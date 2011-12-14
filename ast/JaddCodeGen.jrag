@@ -2954,7 +2954,8 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "// Inner rewrites in the region (including the root) means abort and notify the enclosing rewritten node");
         stream.println(ind(2) + "if (innerRewrite) {");
         stream.println(ind(3) +   "ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();");
-        stream.println(ind(3) +   "enclosingNode.reactToDependencyChange();");
+        stream.println(ind(3) +   "enclosingNode.handler().flushRegion();");
+//        stream.println(ind(3) +   "enclosingNode.reactToDependencyChange();");
         stream.println(ind(3) +   "return;");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "// Check NTAs, this may remove the region");
