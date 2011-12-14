@@ -2964,6 +2964,7 @@ aspect JaddCodeGen {
         }
         stream.println(ind(3) +   "inc_flushRegion();");
         stream.println(ind(2) + "}");
+        stream.println(ind(2) + "return true;"); 
         stream.println(ind + "}"); 
       }
       // end method: inc_flushRegionRoot
