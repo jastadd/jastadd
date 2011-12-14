@@ -1179,7 +1179,6 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
-      stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
       stream.println(ind(5) + "that.init_children[i] = initial;");
     }
     if (ASTNode.incrementalLevelRegion) {
@@ -2645,7 +2644,7 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
       }
     } else {
-      if (ASTNode.incrementalLevelRegion) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
         if (isRegionRoot()) {
           stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);"); 
         } else {
