@@ -724,7 +724,7 @@ aspect JaddCodeGen {
         stream.println(ind + " */");
         stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
         // ES_2011-12-12: Code generation for incremental evaluation, crossing between regions
-        if (ASTNode.incrementalLevelRegion) jjtGenIncrementalTrackRewrite9(stream);
+        if (ASTNode.incremental) jjtGenIncrementalTrackRewrite9(stream);
         else 
         //
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
@@ -736,7 +736,7 @@ aspect JaddCodeGen {
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
         // ES_2011-12-12: Code generation for incremental evaluation, crossing between regions
-        if (ASTNode.incrementalLevelRegion) jjtGenIncrementalTrackRewrite10(stream);
+        if (ASTNode.incremental) jjtGenIncrementalTrackRewrite10(stream);
         else 
         //
         stream.println(ind(2) + "return ASTNode.getChild(this, i);");
@@ -1209,6 +1209,12 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
       }
     }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
+      stream.println(ind(2) + "child.handler().addDependant(handler);");
+      stream.println(ind(2) + "return (T)child;");
+    }
+
   }
   // ES_2011-12-12_ Code generation for incremental evalutaion, crossing between regions
   public void ASTDecl.jjtGenIncrementalTrackRewrite10(PrintWriter stream) {
@@ -1220,6 +1226,11 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return child;");
       }
+    }
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
+      stream.println(ind(2) + "child.handler().addDependant(handler);");
+      stream.println(ind(2) + "return child;");
     }
   }
 
@@ -2930,7 +2941,7 @@ aspect JaddCodeGen {
       // end methods: inc_flush_NTA
 
       // method: inc_flushRegionRoot
-      if (ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) {
+      if ((ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || ASTNode.incrementalLevelNode) {
         stream.println(ind + "public void " + name() + ".inc_flushRegionRoot() {");
         // Check for rewrites
         stream.println(ind(2) + "// check for inner rewrite in region root");
@@ -2971,7 +2982,7 @@ aspect JaddCodeGen {
       // end method: inc_flushRegionRoot
 
       // method: inc_checkRegionForInnerRewrite
-      if (ASTNode.incrementalLevelRegion) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
         if (name().equals("ASTNode")) {
           stream.println(ind + "public boolean ASTNode.inc_checkRegionForInnerRewrite() {");
           stream.println(ind(2) + "for (int i = 0; children != null && rewritten_children != null && " + 
@@ -2994,7 +3005,7 @@ aspect JaddCodeGen {
       // end method: inc_checkRegionForInnerRewrite
 
       // method: inc_flushRegion
-      if (ASTNode.incrementalLevelRegion) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
         stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
         if (name().equals("ASTNode")) {
           stream.println(ind(2) + "inc_flush();");
@@ -3007,7 +3018,6 @@ aspect JaddCodeGen {
         } else {
           stream.println(ind(2) + "super.inc_flushRegion();");
         }
-
         // Flush NTAs if not region root
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next();
@@ -3055,7 +3065,7 @@ aspect JaddCodeGen {
       // end method: inc_flushRegion
 
       // method: inc_flushRegion_rewrites
-      if (ASTNode.incrementalLevelRegion) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
         if (name().equals("ASTNode")) {
           stream.println(ind + "public boolean ASTNode.inc_flushRegion_rewrites() {");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {"); 
@@ -3088,13 +3098,9 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, change strategy: flush
   public void ASTDecl.jjtGenIncrementalChangeFlush(PrintWriter stream) {
 
-    if (ASTNode.incrementalLevelRegion) {
+    if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "inc_flushRegionRoot();");
     }
-
-    if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "inc_flush();");
-    } 
 
     if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
 
@@ -3743,6 +3749,13 @@ aspect JaddCodeGen {
         stream.println(ind + "}"); 
       }
     }
+    if (ASTNode.incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "public ASTNode$DepGraphNode ASTNode.handler() {");
+        stream.println(ind(2) + "return handler;");
+        stream.println(ind + "}"); 
+      }
+    }
     // method end: handler()
 
     // method: getParent() -- overloaded for region tracking
@@ -3761,8 +3774,8 @@ aspect JaddCodeGen {
 
     // method: getChild(int) -- overloaded for region tracking
     if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind + "private boolean " + name() + ".IS_REGION_LEAF = " + isRegionLeaf() + ";");
-      stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";");
+//      stream.println(ind + "private boolean " + name() + ".IS_REGION_LEAF = " + isRegionLeaf() + ";");
+//      stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";");
 
       if (isRegionLeaf()) {
         if (name().equals("List") || name().equals("Opt")) {
