@@ -1171,24 +1171,21 @@ aspect JaddCodeGen {
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
-    if (ASTNode.incrementalLevelNode) {
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
-      stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
-//      stream.println(ind(5) + "node.handler.transferSetsFrom(oldNode.handler);");
-      // stream.println(ind(5) + "oldNode.handler.clearDependencies();");
-    }
-    if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
-      stream.println(ind(5) + "if (node.isRegionRoot()) {");
-      stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
-//      stream.println(ind(6) +   "node.handler().transferSetsFrom(oldNode.handler());");
-      stream.println(ind(5) + "}");
-      // stream.println(ind(5) + "oldNode.handler().clearDependencies();");
     }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+    if (ASTNode.incrementalLevelNode) {
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
+      stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
+      stream.println(ind(5) + "that.init_children[i] = initial;");
+    }
+    if (ASTNode.incrementalLevelRegion) {
+      stream.println(ind(5) + "if (node.isRegionRoot()) {");
+      stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
+      stream.println(ind(5) + "}");
       stream.println(ind(5) + "that.init_children[i] = initial;");
     }
   }
@@ -2467,10 +2464,10 @@ aspect JaddCodeGen {
       stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
       stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
-      stream.println(ind(3) + "children[index].inc_flush_subtree(h);");
       stream.println(ind(3) + "state().enterConstruction();");
       stream.println(ind(3) + "setChild(init_children[index], index);");
       stream.println(ind(3) + "state().exitConstruction();");
+      stream.println(ind(3) + "children[index].inc_flush_subtree(h);");
       stream.println(ind(3) + "init_children[index] = null;");
       stream.println(ind(3) + "return true;");
 //      stream.println(ind(3) +   "setChild(init_children[index], index);");
@@ -2881,8 +2878,8 @@ aspect JaddCodeGen {
                 stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + 
                                                 "_list.children[index];");              
                 stream.println(ind(4) +     "if (value == node) {");
-                stream.println(ind(5) +       attr.attributeSignature() + "_list.inc_flush_subtree(node.handler());");
                 stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
+                stream.println(ind(5) +       attr.attributeSignature() + "_list.inc_flush_subtree(node.handler());");
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
@@ -2894,8 +2891,8 @@ aspect JaddCodeGen {
                 Components comp = attr.findCorrespondingNTA();
                 if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
                   stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
-                  stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(node.handler());");
                   stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
+                  stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(node.handler());");
                   String u = attr.resetVisit() + attr.resetCache();
                   u = u.replaceAll("#NAME#", attr.attributeSignature());
                   stream.print(u);
@@ -3006,10 +3003,10 @@ aspect JaddCodeGen {
               stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + 
                                               "_list.children[index];");              
               stream.println(ind(4) +     "if (!value.isRegionRoot()) {");
-              stream.println(ind(5) +       "value.inc_flush_subtree(handler());");
               stream.println(ind(5) +       "state().enterConstruction();");
               stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
               stream.println(ind(5) +       "state().exitConstruction();");
+              stream.println(ind(5) +       "value.inc_flush_subtree(handler());");
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);
@@ -3022,10 +3019,10 @@ aspect JaddCodeGen {
               if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null && !" + 
                                                   attr.attributeSignature() + "_value.isRegionRoot()) {");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
                 stream.println(ind(3) +   "state().enterConstruction();");
                 stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
                 stream.println(ind(3) +   "state().exitConstruction();");
+                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
@@ -4118,20 +4115,13 @@ aspect JaddCodeGen {
     stream.println("    public void transferSetsFrom(ASTNode$DepGraphNode node) {");
     stream.println("      if (this == node)");
     stream.println("        return;");
-    stream.println("      HashSet<ASTNode$DepGraphNode> set = node.fListenerSet;");
-    stream.println("      node.fListenerSet = new HashSet<ASTNode$DepGraphNode>();");
-    stream.println("      for (ASTNode$DepGraphNode src : set) {");
-    stream.println("        src.removeDependency(node);");
-    stream.println("        node.removeDependant(src);");
-    stream.println("        this.addDependant(src);");
+    stream.println("      for (ASTNode$DepGraphNode l : node.fListenerSet) {");
+    stream.println("        if (!l.isGarbage()) {");
+    stream.println("          this.addDependant(src);");
+    stream.println("        }");
     stream.println("      }");
-    stream.println("      set = node.fDependencySet;");
-    stream.println("      node.fDependencySet = new HashSet<ASTNode$DepGraphNode>();");
-    stream.println("      for (ASTNode$DepGraphNode target : set) {");
-    stream.println("        target.removeDependant(node);");
-    stream.println("        node.removeDependency(target);");
-    stream.println("        target.addDependant(this);");
-    stream.println("      }");
+    stream.println("      node.clearDependencies();");
+    stream.println("      node.clearDependants();");
     stream.println("    }");
     // state
     stream.println("    protected int fState = ASTNode.inc_CREATED;");
