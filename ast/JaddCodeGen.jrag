@@ -2928,10 +2928,10 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "boolean rewriteFlushed = true;");
         stream.println(ind(2) + "if (parent != null) {");
         stream.println(ind(3) +   "rewriteFlushed = parent.inc_flush_child(this);");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "// region root had an outer rewrite which was flushed (parent == null) -> done");
-        stream.println(ind(2) + "if (rewriteFlushed && parent == null) {");
-        stream.println(ind(3) +   "return;");
+        stream.println(ind(3) +   "// region root had an outer rewrite which was flushed (parent == null) -> done");
+        stream.println(ind(3) +   "if (rewriteFlushed && parent == null) {");
+        stream.println(ind(4) +     "return;");
+        stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "boolean innerRewrite = false;");
         stream.println(ind(2) + "if (rewriteFlushed) {");
