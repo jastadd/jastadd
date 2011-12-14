@@ -4117,7 +4117,7 @@ aspect JaddCodeGen {
     stream.println("        return;");
     stream.println("      for (ASTNode$DepGraphNode l : node.fListenerSet) {");
     stream.println("        if (!l.isGarbage()) {");
-    stream.println("          this.addDependant(src);");
+    stream.println("          this.addDependant(l);");
     stream.println("        }");
     stream.println("      }");
     stream.println("      node.clearDependencies();");
