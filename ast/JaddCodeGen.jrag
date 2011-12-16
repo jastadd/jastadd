@@ -1138,13 +1138,13 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if(!node.inc_hasEnclosingRewrittenNode()) {");
     stream.println(ind(3) +   "that.init_children[i] = node.fullCopy();");
+    stream.println(ind(3) +   "that.rewritten_children[i] = true;");
     stream.println(ind(2) + "}");
   }
   // ES_2011-10-10: Code generation for full flush, storing initial copy setting rewrite to true
   public void ASTDecl.jjtGenFullFlush2(PrintWriter stream) {
     stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
     stream.println(ind(5) +   "that.rewritten_children[i] = true;");
-    stream.println(ind(5) +   "that.init_children[i] = initial;");
     stream.println(ind(4) + "}");
   }
   
@@ -3073,7 +3073,7 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
         stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
         // NTAs
-        // Flush NTAs if not region root
+        // Flush NTAs
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next(); 
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
@@ -3081,13 +3081,15 @@ aspect JaddCodeGen {
 
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_flush_subtree(handler());");
+//              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_flush_subtree(handler());");
+              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_flush_subtree(h);");
               stream.println(ind(2) + "}");
             } else {
               Components comp = attr.findCorrespondingNTA();
               if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
+//                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
+                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(h);");
                 stream.println(ind(2) + "}");
               }
             }
