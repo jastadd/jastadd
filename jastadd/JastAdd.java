@@ -394,6 +394,7 @@ public class JastAdd {
         ASTNode.incrementalPropFull = incrementalArgMap.containsKey("full");
         ASTNode.incrementalPropLimit = incrementalArgMap.containsKey("limit");
         ASTNode.incrementalDebug = incrementalArgMap.containsKey("debug");
+        ASTNode.incrementalTrack = incrementalArgMap.containsKey("track");
         if (!checkIncrementalConfig()) {
             return true;
         }
