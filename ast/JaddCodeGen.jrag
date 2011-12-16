@@ -4165,7 +4165,7 @@ aspect JaddCodeGen {
     stream.println("      trackedFlush = 0;");
     stream.println("    }");
     stream.println("    public static String trackingResult() {");
-    stream.println("      return #read=\" + trackedRead + \",#comp=\" + trackedComp + \",#flush=\" + trackedFlush + \";");
+    stream.println("      return read=\" + trackedRead + \",comp=\" + trackedComp + \",flush=\" + trackedFlush + \";");
     stream.println("    }");
     }
 
