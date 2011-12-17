@@ -1974,12 +1974,14 @@ aspect JaddCodeGen {
         // OLD: ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
         // OLD: ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
         //
-        ind(3) + "if(node != null) node = node.fullCopy();\n" +
+        ind(3) +  "if(node != null) {\n" +
+        ind(4) +   "node = node.fullCopy();\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
         (ASTNode.incremental ? jjtGenIncrementalCloneNode() : 
           ind(3) + "res.setChild(node, i);\n") +
         // OLD: ind(3) + "res.setChild(node, i);\n"
         //
+        ind(3) +  "}\n" +
         ind(2) + "}\n" +
         ind(2) + "return res;\n    }\n" +
         (ASTNode.block ? ASTNode.blockEnd : "");
