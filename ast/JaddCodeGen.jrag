@@ -2481,22 +2481,10 @@ aspect JaddCodeGen {
 
         // method: inc_locateEnclosingRewrittenNode
         stream.println(ind + "protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {");
-        // include this in search
-        stream.println(ind(2) + "ASTNode node = this;");
-        stream.println(ind(2) + "while (node != null) {");
-        stream.println(ind(3) +   "if (node.mayHaveRewrite()) {");
-        stream.println(ind(4) +     "return node;");
-        stream.println(ind(3) +   "}");
-        stream.println(ind(3) +   "node = node.parent;");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "return null;");
-
-        /*
         stream.println(ind(2) + "ASTNode child = this;");
         stream.println(ind(2) + "ASTNode parent = this.parent;");
         stream.println(ind(2) + "while (parent != null) {");
-        //stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-        stream.println(ind(3) +   "if (parent.mayHaveRewrite()) {");
+        stream.println(ind(3) +   "if (child.mayHaveRewrite()) {");
         //  stream.println(ind(3) +   "if (parent.rewritten_children != null && index >= 0 && " + 
         //  "index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
         stream.println(ind(4) +     "return parent;");
@@ -2505,7 +2493,6 @@ aspect JaddCodeGen {
         stream.println(ind(3) +   "parent = parent.getParent();");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return null;");
-        */
         stream.println(ind + "}"); // end method: inc_locateEnclosingRewrittenNode
 
         // method: inc_resetRewrites
