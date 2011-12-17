@@ -3344,7 +3344,7 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelAttr) {
       if (name().equals("ASTNode")) {
         stream.println(ind(2) + "if (attrID.equals(\"getChild\")) {");
-        stream.println(ind(3) +   "if (inc_checkRegionForInnerRewrites()) {");
+        stream.println(ind(3) +   "if (inc_checkRegionForInnerRewrite()) {");
         stream.println(ind(4) +     "ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();");
         stream.println(ind(4) +     "enclosingNode.getChild_handler.flushRegion();");
         stream.println(ind(4) +     "return;");
