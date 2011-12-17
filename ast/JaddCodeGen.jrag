@@ -3022,7 +3022,7 @@ aspect JaddCodeGen {
       // end methods: inc_flush_NTA
 
       // method: inc_flushRegionRoot
-      if ((ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || ASTNode.incrementalLevelNode) {
+      if ((ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || (ASTNode.incrementalLevelNode && name().equals("ASTNode"))) {
         stream.println(ind + "public boolean " + name() + ".inc_flushRegionRoot() {");
         // Check for rewrites
         stream.println(ind(2) + "// check for inner rewrite in region root");
