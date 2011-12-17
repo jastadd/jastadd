@@ -2490,7 +2490,14 @@ aspect JaddCodeGen {
         stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index) {");
         stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
-        stream.println(ind(3) + "setChild(init_children[index], index);");
+        if (ASTNode.incrementalLevelAttr) {
+          stream.println(ind(3) + "state().enterConstruction();");
+          stream.println(ind(3) + "setChild(init_children[index], index);");
+          stream.println(ind(3) + "state().exitConstruction();");
+        }
+        if (ASTNode.incrementalLevelParam) {
+          stream.println(ind(3) + "setChild(init_children[index], index);");
+        }
         stream.println(ind(3) + "init_children[index] = null;");
         stream.println(ind(3) + "return true;");
         stream.println(ind(2) + "}");
@@ -3229,6 +3236,7 @@ aspect JaddCodeGen {
       stream.println(ind(4) +     "return;");
       stream.println(ind(3) +   "} else {");
       stream.println(ind(4) +     "inc_flushRegion_rewrites();");
+      stream.println(ind(4) +     "getChild_handler.notifyDependencies();");
       stream.println(ind(4) +     "return;");
       stream.println(ind(3) +   "}");
       stream.println(ind(2) + "}");
