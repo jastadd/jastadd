@@ -2480,20 +2480,37 @@ aspect JaddCodeGen {
         stream.println(ind + "}"); // end method: inc_hasEnclosingRewrittenNode
 
         // method: inc_locateEnclosingRewrittenNode
-        stream.println(ind + "protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {");
-        stream.println(ind(2) + "ASTNode child = this;");
-        stream.println(ind(2) + "ASTNode parent = this.parent;");
-        stream.println(ind(2) + "while (parent != null) {");
-        stream.println(ind(3) +   "if (child.mayHaveRewrite()) {");
-        //  stream.println(ind(3) +   "if (parent.rewritten_children != null && index >= 0 && " + 
-        //  "index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
-        stream.println(ind(4) +     "return parent;");
-        stream.println(ind(3) +   "}");
-        stream.println(ind(3) +   "child = parent;");
-        stream.println(ind(3) +   "parent = parent.getParent();");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "return null;");
-        stream.println(ind + "}"); // end method: inc_locateEnclosingRewrittenNode
+        if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+          stream.println(ind + "protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {");
+          stream.println(ind(2) + "ASTNode child = this;");
+          stream.println(ind(2) + "ASTNode parent = this.parent;");
+          stream.println(ind(2) + "while (parent != null) {");
+          stream.println(ind(3) +   "if (child.mayHaveRewrite()) {");
+          //  stream.println(ind(3) +   "if (parent.rewritten_children != null && index >= 0 && " + 
+          //  "index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
+          stream.println(ind(4) +     "return parent;");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(3) +   "child = parent;");
+          stream.println(ind(3) +   "parent = parent.getParent();");
+          stream.println(ind(2) + "}");
+          stream.println(ind(2) + "return null;");
+          stream.println(ind + "}"); 
+        }
+        if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+          stream.println(ind + "protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {");
+          stream.println(ind(2) + "ASTNode node = parent;");
+          stream.println(ind(2) + "while (node != null) {");
+          stream.println(ind(3) +   "if (node.mayHaveRewrite()) {");
+          //  stream.println(ind(3) +   "if (parent.rewritten_children != null && index >= 0 && " + 
+          //  "index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
+          stream.println(ind(4) +     "return node;");
+          stream.println(ind(3) +   "}");
+          stream.println(ind(3) +   "node = node.getParent();");
+          stream.println(ind(2) + "}");
+          stream.println(ind(2) + "return null;");
+          stream.println(ind + "}"); 
+        }
+        // end method: inc_locateEnclosingRewrittenNode
 
         // method: inc_resetRewrites
         stream.println(ind + "protected void ASTNode.inc_resetRewrites() {");
