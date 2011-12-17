@@ -4117,6 +4117,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalDebug(PrintWriter stream) {
 
     // method: relativeNodeID()          
+/*
     if (name().equals("ASTNode")) {
       stream.println(ind + "public String ASTNode.relativeNodeID() {");
       stream.println(ind(2) + "ASTNode parent = this.parent;");
@@ -4140,6 +4141,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return buf.toString();");
       stream.println(ind + "}");
     }
+*/
     // end method: relativeNodeID()          
     
     // method: printParamList(List)
