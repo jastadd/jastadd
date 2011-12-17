@@ -1763,8 +1763,9 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "ASTNode child = this;");
         stream.println(ind(2) + "ASTNode parent = this.parent;");
         stream.println(ind(2) + "while (parent != null) {");
-        stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-        stream.println(ind(3) +   "if (parent.rewritten_children != null && parent.rewritten_children[index]) {");
+        //stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
+        stream.println(ind(3) +   "if (parent.mayHaveRewrite()) {");
+        //stream.println(ind(3) +   "if (parent.rewritten_children != null && parent.rewritten_children[index]) {");
         stream.println(ind(4) +     "return true;");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "child = parent;");
@@ -1967,8 +1968,7 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockBegin : "") +
         ind(2) + "#ID# res = (#ID#)copy();\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
-        (ASTNode.incremental ? 
-          jjtGenIncrementalCloneNode2() : 
+        (ASTNode.incremental ? jjtGenIncrementalCloneNode2() : 
           ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
           ind(3) + "ASTNode node = getChildNoTransform(i);\n") +
         // OLD: ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
@@ -1976,8 +1976,7 @@ aspect JaddCodeGen {
         //
         ind(3) + "if(node != null) node = node.fullCopy();\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
-        (ASTNode.incremental ? 
-          jjtGenIncrementalCloneNode() : 
+        (ASTNode.incremental ? jjtGenIncrementalCloneNode() : 
           ind(3) + "res.setChild(node, i);\n") +
         // OLD: ind(3) + "res.setChild(node, i);\n"
         //
@@ -2019,8 +2018,8 @@ aspect JaddCodeGen {
   // ES_2011-12-17: Changing this to an internal set of child via the children array to not send notifications
   public String ASTDecl.jjtGenIncrementalCloneNode2() {
     StringBuffer buf = new StringBuffer();
-    buf.append(ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n");
-    buf.append(ind(3) + "ASTNode node = getChildNoTransform(i);\n");
+    buf.append(ind(2) + "for(int i = 0; i < children.length; i++) {\n");
+    buf.append(ind(3) + "ASTNode node = children[i];\n");
     return buf.toString();
   }
 
@@ -2721,6 +2720,9 @@ aspect JaddCodeGen {
         } else {
           stream.println(ind(2) + "super.inc_copyHandlers(copy);");
         }
+      }
+      if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
+        stream.println(ind(2) + "super.inc_copyHandlers(copy);");
       }
     }
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
