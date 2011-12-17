@@ -1180,12 +1180,21 @@ aspect JaddCodeGen {
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion || 
+          ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
       stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
     }
   }
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(that.getChild_handler[i]);");
+      stream.println(ind(5) + "that.init_children[i] = initial;");
+    }
+    if (ASTNode.incrementalLevelAttr) {
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(that.getChild_handler);");
+      stream.println(ind(5) + "that.init_children[i] = initial;");
+    }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
       stream.println(ind(5) + "that.init_children[i] = initial;");
@@ -2491,7 +2500,7 @@ aspect JaddCodeGen {
       }
 
       // method: inc_restoreEnclosingRewrite  
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {  
+      if (ASTNode.incrementalLevelParam) {  
         stream.println(ind + "protected void ASTNode.inc_restoreEnclosingRewrite() {");
         stream.println(ind(2) + "ASTNode child = this;");
         stream.println(ind(2) + "ASTNode parent = this.parent;");
@@ -2503,6 +2512,7 @@ aspect JaddCodeGen {
         stream.println(ind(4) +     "}");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index)) {");
+        stream.println(ind(4) +     "getChild_handler[index].notifyDependencies();");
         stream.println(ind(4) +     "break;");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "child = parent;");
@@ -2532,16 +2542,11 @@ aspect JaddCodeGen {
         stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
         stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
-        if (ASTNode.incrementalLevelAttr) {
-        stream.println(ind(3) +   "ASTNode oldNode = children[index];");
-          stream.println(ind(3) + "state().enterConstruction();");
-          stream.println(ind(3) + "setChild(init_children[index], index);");
-          stream.println(ind(3) + "state().exitConstruction();");
-          stream.println(ind(3) +   "oldNode.inc_flush_subtree(h);");
-        }
-        if (ASTNode.incrementalLevelParam) {
-          stream.println(ind(3) + "setChild(init_children[index], index);");
-        }
+        stream.println(ind(3) + "ASTNode oldNode = children[index];");
+        stream.println(ind(3) + "state().enterConstruction();");
+        stream.println(ind(3) + "setChild(init_children[index], index);");
+        stream.println(ind(3) + "state().exitConstruction();");
+        stream.println(ind(3) + "oldNode.inc_flush_subtree(h);");
         stream.println(ind(3) + "init_children[index] = null;");
         stream.println(ind(3) + "return true;");
         stream.println(ind(2) + "}");
@@ -3174,10 +3179,10 @@ aspect JaddCodeGen {
 
 
       // method: inc_flush_subtree
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || ASTNode.incrementalLevelAttr) {
+      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || 
+          ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
         stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
         // NTAs
-        // Flush NTAs
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next(); 
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
@@ -3185,25 +3190,73 @@ aspect JaddCodeGen {
 
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-//              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_flush_subtree(handler());");
               stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_flush_subtree(h);");
               stream.println(ind(2) + "}");
             } else {
               Components comp = attr.findCorrespondingNTA();
               if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
-//                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
                 stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(h);");
                 stream.println(ind(2) + "}");
               }
             }
           }
         }
+
+        // attributes and tokens
+        if (ASTNode.incrementalLevelAttr) {
+          for(Iterator itr = list.iterator(); itr.hasNext();) {
+            AttrDecl attr = (AttrDecl)itr.next();
+            stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler)");
+          }
+          for (int c = 0; c < getNumComponents(); c++) {
+     	      Components comp = getComponents(c);
+     	      if (comp instanceof TokenComponent) {
+              stream.println(ind(2) + "h.transferSetsFrom(" + ((TokenComponent)comp).getTokenId().getID() + "_handler);");
+     	    	}
+     	    }
+        }
+        if (ASTNode.incrementalLevelParam) {
+          for(Iterator itr = list.iterator(); itr.hasNext();) {
+            AttrDecl attr = (AttrDecl)itr.next();
+            if (attr.getNumParameter() > 0) {
+              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+              stream.println(ind(3) +   "for (Iterator itr = " + attr.attributeSignature() + 
+                                              "_handler.iterator(); itr.hasNext();) {");
+              stream.println(ind(4) +     "h.transferSetsFrom((ASTNode$DepGraphNode)itr.next());");
+              stream.println(ind(3) +   "}");
+              stream.println(ind(2) + "}");
+            } else {
+              stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler)");
+            }
+          }
+          for (int c = 0; c < getNumComponents(); c++) {
+     	      Components comp = getComponents(c);
+     	      if (comp instanceof TokenComponent) {
+              stream.println(ind(2) + "h.transferSetsFrom(" + ((TokenComponent)comp).getTokenId().getID() + "_handler);");
+     	    	}
+     	    }
+        }
+
         if (name().equals("ASTNode")) {    
           stream.println(ind(2) + "// flush subtree of values, take sets from encountered handler and remove it from DDG");
+          if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
           stream.println(ind(2) + "if (isRegionRoot()) {");
           stream.println(ind(3) +   "h.transferSetsFrom(handler());");
           stream.println(ind(2) + "}");
+          }
+          if (ASTNode.incrementalLevelAttr) {
+            stream.println(ind(3) +   "h.transferSetsFrom(getParent_handler);");
+            stream.println(ind(3) +   "h.transferSetsFrom(getChild_handler);");
+            stream.println(ind(3) +   "h.transferSetsFrom(numChildren_handler);");
+          }
+          if (ASTNode.incrementalLevelParam) {
+            stream.println(ind(3) +   "h.transferSetsFrom(getParent_handler);");
+            stream.println(ind(3) +   "h.transferSetsFrom(numChildren_handler);");
+            stream.println(ind(3) +   "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {");
+            stream.println(ind(4) +     "h.transferSetsFrom(getChild_handler[i]);");
+            stream.println(ind(3) +   "}");
+          }
           stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
           stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -3333,15 +3386,17 @@ aspect JaddCodeGen {
           // handler NTA
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-              stream.println(ind(3) + attr.type() + " value = (" + attr.type() + ")" + 
-                  attr.attributeSignature() + "_values.remove(_parameters);");                 
-              stream.println(ind(3) + "for (int i = 0; i < " + attr.attributeSignature() + "_list.children.length; i++) {");
-              stream.println(ind(4) +   "ASTNode child = " + attr.attributeSignature() + "_list.children[i];");
-              stream.println(ind(4) +   "if (child != null && value == child) {");
-              stream.println(ind(5) +     attr.attributeSignature() + "_list.removeChild(i);");
-              stream.println(ind(5) +     "break;");
-              stream.println(ind(4) +   "}");
-              stream.println(ind(3) + "}");
+            stream.println(ind(3) + attr.type() + " value = (" + attr.type() + ")" + 
+                attr.attributeSignature() + "_values.remove(_parameters);");                 
+            stream.println(ind(3) + "for (int i = 0; i < " + attr.attributeSignature() + "_list.children.length; i++) {");
+            stream.println(ind(4) +   "ASTNode child = " + attr.attributeSignature() + "_list.children[i];");
+            stream.println(ind(4) +   "if (child != null && value == child) {");
+            stream.println(ind(5) +     attr.attributeSignature() + "_list.removeChild(i);");
+            // using dummy node to flush dependencies from NTA 
+            stream.println(ind(5) +     "value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt()))");
+            stream.println(ind(5) +     "break;");
+            stream.println(ind(4) +   "}");
+            stream.println(ind(3) + "}");
           } else {
             stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
           }
@@ -3351,6 +3406,9 @@ aspect JaddCodeGen {
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
               stream.println(ind(3) +     attr.attributeSignature() + "_list.setParent(null);");
+              // using dummy node to flush dependencies from NTA 
+              stream.println(ind(3) +     attr.attributeSignature() + 
+                                "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt()))");
               stream.println(ind(2) + "}");
           }
           String u = attr.resetVisit() + attr.resetCache();
@@ -3362,6 +3420,8 @@ aspect JaddCodeGen {
         if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
           stream.println(ind(3) + "if (" + attr.attributeSignature() + "_value instanceof ASTNode) {");
           stream.println(ind(4) + attr.attributeSignature() + "_value.setParent(null);");
+          // using dummy node to flush dependencies from NTA 
+          stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt()))");
           stream.println(ind(3) + "}");
         }
         String u = attr.resetVisit() + attr.resetCache();
