@@ -1470,6 +1470,7 @@ aspect JaddCodeGen {
     stream.println(ind(4) +     "children[i].inc_notifyForRemove();");
     //if (ASTNode.incrementalDebug) stream.println(ind(4) +     "children[i].inc_clearDepsInTree();");
     stream.println(ind(3) +   "}");
+
     // notify dependencies
     if (ASTNode.incrementalLevelParam) {  
       // notify empty
@@ -1492,10 +1493,12 @@ aspect JaddCodeGen {
       stream.println(ind(3) +   "}");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(3) +   "getChild_handler.notifyDependencies();");
+      //stream.println(ind(3) +   "getChild_handler.notifyDependencies();");
+      stream.println(ind(3) +   "getChild_handler.flushRegion();");
     }
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(3) +   "handler.notifyDependencies();");
+      //stream.println(ind(3) +   "handler.notifyDependencies();");
+      stream.println(ind(3) +   "handler.flushRegion();");
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(3) +   "ASTNode$DepGraphNode h = handler();");
@@ -1619,14 +1622,15 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "} else {");
       stream.println(ind(4) +   "numChildren_handler.notifyDependencies();");
       if (ASTNode.incrementalLevelParam) { 
-      stream.println(ind(4) +   "for (int k = i; k < children.length; k++) {");
-      stream.println(ind(5) +     "if (getChild_handler[k] != null) {");
-      stream.println(ind(6) +       "getChild_handler[k].notifyDependencies();");
-      stream.println(ind(5) +     "}");
-      stream.println(ind(4) +   "}");
+        stream.println(ind(4) +   "for (int k = i; k < children.length; k++) {");
+        stream.println(ind(5) +     "if (getChild_handler[k] != null) {");
+        stream.println(ind(6) +       "getChild_handler[k].notifyDependencies();");
+        stream.println(ind(5) +     "}");
+       stream.println(ind(4) +   "}");
       }
       if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
+        //stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
+        stream.println(ind(4) +   "getChild_handler.flushRegion();");
       }
       stream.println(ind(3) + "}");
     }
@@ -1677,7 +1681,8 @@ aspect JaddCodeGen {
     stream.println(ind(4) +   "}");
     }
     if (ASTNode.incrementalLevelAttr) {
-    stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
+      //stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
+      stream.println(ind(4) +   "getChild_handler.flushRegion();");
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(4) +   "handler.flushRegion();");
