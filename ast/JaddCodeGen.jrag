@@ -3219,7 +3219,7 @@ aspect JaddCodeGen {
         if (ASTNode.incrementalLevelAttr) {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
-            stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler)");
+            stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
           }
           for (int c = 0; c < getNumComponents(); c++) {
      	      Components comp = getComponents(c);
@@ -3239,7 +3239,7 @@ aspect JaddCodeGen {
               stream.println(ind(3) +   "}");
               stream.println(ind(2) + "}");
             } else {
-              stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler)");
+              stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
             }
           }
           for (int c = 0; c < getNumComponents(); c++) {
