@@ -2392,6 +2392,29 @@ aspect JaddCodeGen {
 
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
+
+    if (ASTNode.incremental && name().equals("ASTNode")) {
+      stream.println(ind + "public String ASTNode.relativeNodeID() {");
+      stream.println(ind(2) + "ASTNode parent = this.parent;");
+      stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
+      stream.println(ind(2) + "int index = -1;");
+      stream.println(ind(2) + "if (parent != null) {");
+      stream.println(ind(3) +   "buf.append(parent.relativeNodeID() + \"/\");");
+      stream.println(ind(3) +   "for (int i = 0; i < parent.children.length; i++) {");
+      stream.println(ind(4) +    "if (parent.children[i] != null && parent.children[i] == this && !parent.childIsNTA(i)) {");
+      stream.println(ind(5) +       "index = i;");
+      stream.println(ind(5) +       "break;");
+      stream.println(ind(4) +     "}");
+      stream.println(ind(3) +   "}");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "buf.append(getClass().getSimpleName());");
+      stream.println(ind(2) + "if (index > -1) {");
+      stream.println(ind(3) +   "buf.append(\"[\" + index + (mayHaveRewrite()?\",r\":\"\") + \"]\");");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "return buf.toString();");
+      stream.println(ind + "}");
+    }
+
     jjtGenIncrementalHandlers(stream);
     jjtGenIncrementalCopyHandlers(stream);
     jjtGenIncrementalTreeModification(stream);
