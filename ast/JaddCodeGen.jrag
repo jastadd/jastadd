@@ -2491,7 +2491,7 @@ aspect JaddCodeGen {
           stream.println(ind(4) +     "return parent;");
           stream.println(ind(3) +   "}");
           stream.println(ind(3) +   "child = parent;");
-          stream.println(ind(3) +   "parent = parent.getParent();");
+          stream.println(ind(3) +   "parent = parent.parent;");
           stream.println(ind(2) + "}");
           stream.println(ind(2) + "return null;");
           stream.println(ind + "}"); 
