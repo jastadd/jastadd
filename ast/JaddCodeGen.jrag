@@ -2472,30 +2472,32 @@ aspect JaddCodeGen {
     
       // method: inc_restoreInitialForIndex
       if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {      
-      stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
+        stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
+        stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
+                                                  "&& init_children[index] != null) {");
+        stream.println(ind(3) +   "ASTNode oldNode = children[index];");
+        stream.println(ind(3) +   "state().enterConstruction();");
+        stream.println(ind(3) +   "setChild(init_children[index], index);");
+        stream.println(ind(3) +   "state().exitConstruction();");
+        stream.println(ind(3) +   "oldNode.inc_flush_subtree(h);");
+        stream.println(ind(3) +   "init_children[index] = null;");
+        stream.println(ind(3) +   "return true;");
+        stream.println(ind(2) + "}");
+        stream.println(ind(2) + "return false;");
+        stream.println(ind + "}"); 
       }
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index) {");
-      }
-      stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
+        stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index) {");
+        stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
-        stream.println(ind(3) + "ASTNode oldNode = children[index];");
+        stream.println(ind(3) + "setChild(init_children[index], index);");
+        stream.println(ind(3) + "init_children[index] = null;");
+        stream.println(ind(3) + "return true;");
+        stream.println(ind(2) + "}");
+        stream.println(ind(2) + "return false;");
+        stream.println(ind + "}"); 
+
       }
-      stream.println(ind(3) + "state().enterConstruction();");
-      stream.println(ind(3) + "setChild(init_children[index], index);");
-      stream.println(ind(3) + "state().exitConstruction();");
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
-      stream.println(ind(3) + "oldNode.inc_flush_subtree(h);");
-      }
-      stream.println(ind(3) + "init_children[index] = null;");
-      stream.println(ind(3) + "return true;");
-//      stream.println(ind(3) +   "setChild(init_children[index], index);");
-//      stream.println(ind(3) +   "init_children[index] = null;");
-//      stream.println(ind(3) +   "return true;");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "return false;");
-      stream.println(ind + "}"); 
       // end method: inc_restoreInitialForIndex
 
       // method: inc_locateInitialCopy
@@ -4220,6 +4222,7 @@ aspect JaddCodeGen {
     stream.println("        }");
     stream.println("      }");
     stream.println("    }");
+    /*
     stream.println("    public static LinkedList<ASTNode$DepGraphNode> createdHandlers = new LinkedList<ASTNode$DepGraphNode>();");
     stream.println("    public static void doCleanUp() {");
     stream.println("      Iterator itr = createdHandlers.iterator();");
@@ -4230,6 +4233,7 @@ aspect JaddCodeGen {
     stream.println("        else node.cleanUpGarbage();");
     stream.println("      }");
     stream.println("    }");
+    */
     // level: node, attr, param all need a node to store the dependency node in
 	  stream.println("    public ASTNode fNode;");
     // level: param needs both an attr ID and a param ID
@@ -4241,14 +4245,14 @@ aspect JaddCodeGen {
       stream.println("      fAttrID = attrID;");
       stream.println("      fParams = params;");
       stream.println("      fState = node.inc_state;");
-      stream.println("      createdHandlers.add(this);");
+      //stream.println("      createdHandlers.add(this);");
       stream.println("    }");
       stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fAttrID = handler.fAttrID;");
       stream.println("      fParams = handler.fParams;");
       stream.println("      fState = node.inc_state;");
-      stream.println("      createdHandlers.add(this);");
+      //stream.println("      createdHandlers.add(this);");
       stream.println("    }");
       stream.println("    public void setParams(Object params) {");
       stream.println("      fParams = params;");
@@ -4261,13 +4265,13 @@ aspect JaddCodeGen {
       stream.println("      fNode = node;");
       stream.println("      fAttrID = attrID;");
       stream.println("      fState = node.inc_state;");
-      stream.println("      createdHandlers.add(this);");
+      //stream.println("      createdHandlers.add(this);");
       stream.println("    }");
       stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fAttrID = handler.fAttrID;");
       stream.println("      fState = node.inc_state;");
-      stream.println("      createdHandlers.add(this);");
+      //stream.println("      createdHandlers.add(this);");
       stream.println("    }");
     }
     // level: node, region
@@ -4275,12 +4279,12 @@ aspect JaddCodeGen {
       stream.println("    public ASTNode$DepGraphNode(ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fState = node.inc_state;");
-      stream.println("      createdHandlers.add(this);");
+      //stream.println("      createdHandlers.add(this);");
       stream.println("    }");    
       stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fState = node.inc_state;");
-      stream.println("      createdHandlers.add(this);");
+      //stream.println("      createdHandlers.add(this);");
       stream.println("    }");
     }
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
