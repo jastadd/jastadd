@@ -2862,7 +2862,8 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelAttr) 
       stream.println(ind + "public void " + name() + ".reactToDependencyChange(String attrID) {");      
     if (ASTNode.incrementalLevelNode) 
-      stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
+      if (name().equals("ASTNode"))
+        stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
     if (ASTNode.incrementalLevelRegion) {
       if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
@@ -2888,7 +2889,13 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelRegion) {
       if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "}");      
-    } else {
+    } 
+    if (ASTNode.incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "}");
+      }
+    }
+    else {
       stream.println(ind + "}");
     }
     // end method: reactToDependencyChange
