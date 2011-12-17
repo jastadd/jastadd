@@ -3297,10 +3297,14 @@ aspect JaddCodeGen {
 
         if (name().equals("ASTNode")) {    
           stream.println(ind(2) + "// flush subtree of values, take sets from encountered handler and remove it from DDG");
-          if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+          if (ASTNode.incrementalLevelRegion) {
             stream.println(ind(2) + "if (isRegionRoot()) {");
             stream.println(ind(3) +   "h.transferSetsFrom(handler());");
             stream.println(ind(2) + "}");
+            stream.println(ind(2) + "inc_flush();");
+          }
+          if (ASTNode.incrementalLevelNode) {
+            stream.println(ind(2) + "h.transferSetsFrom(handler());");
             stream.println(ind(2) + "inc_flush();");
           }
           if (ASTNode.incrementalLevelAttr) {
