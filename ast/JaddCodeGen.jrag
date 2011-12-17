@@ -4498,7 +4498,8 @@ aspect JaddCodeGen {
     stream.println("        java.util.HashSet<ASTNode$DepGraphNode> k = fListenerSet;");
     stream.println("        fListenerSet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("        for (ASTNode$DepGraphNode node : k) {");
-    stream.println("          node.dependencyChanged();");
+    stream.println("          if (!node.isGarbage())");
+    stream.println("            node.dependencyChanged();");
     stream.println("        }");
     stream.println("        visited = false;");
     stream.println("      }");
