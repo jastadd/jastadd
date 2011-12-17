@@ -2894,12 +2894,9 @@ aspect JaddCodeGen {
           list.add(attr);
       }
 
-
-
       // start method: inc_flush
-      stream.println(ind + "public void " + name() + ".inc_flush() {");
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
-
+        stream.println(ind + "public void " + name() + ".inc_flush() {");
         // flush attributes
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next();
