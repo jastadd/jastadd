@@ -4320,7 +4320,7 @@ aspect JaddCodeGen {
 
     // add listeners/dependencies from another handler, used in rewrites
     stream.println("    public void transferSetsFrom(ASTNode$DepGraphNode node) {");
-    stream.println("      if (this == node)");
+    stream.println("      if (node == null || this == node)");
     stream.println("        return;");
     stream.println("      for (ASTNode$DepGraphNode l : node.fListenerSet) {");
     stream.println("        if (!l.isGarbage()) {");
