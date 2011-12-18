@@ -3090,6 +3090,7 @@ aspect JaddCodeGen {
           stream.println(ind + "}"); 
         }
         if (ASTNode.incrementalLevelNode) {
+          stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "boolean rewriteFlushed = true;");
           stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "rewriteFlushed = parent.inc_flush_child(this);");
@@ -3106,7 +3107,6 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "parent.inc_flush_NTA(this);     // check NTA");
           stream.println(ind(2) + "}");
-          stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "return true;"); 
           stream.println(ind + "}"); 
         }
