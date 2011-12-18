@@ -3092,9 +3092,12 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "// region is still here, flush remaining values and outer rewrites");
         stream.println(ind(2) + "if (!regionRemoved) {");
         if (ASTNode.incrementalLevelRegion) {
-        stream.println(ind(3) +   "inc_flushRegion_rewrites();");
+         stream.println(ind(3) +   "inc_flushRegion_rewrites();");
+         stream.println(ind(3) +   "inc_flushRegion();");
         }
-        stream.println(ind(3) +   "inc_flushRegion();");
+        if (ASTNode.incrementalLevelNode) {
+         stream.println(ind(3) +   "inc_flush();");
+        }
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return true;"); 
         stream.println(ind + "}"); 
@@ -3135,7 +3138,7 @@ aspect JaddCodeGen {
       // end method: inc_checkRegionForInnerRewrite
 
       // method: inc_flushRegion
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+      if (ASTNode.incrementalLevelRegion) {
         stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
         if (name().equals("ASTNode")) {
           stream.println(ind(2) + "inc_flush();");
