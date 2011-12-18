@@ -3359,8 +3359,8 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalChangeFlush(PrintWriter stream) {
 
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(2) + "handler.notifyDependencies();");
       stream.println(ind(2) + "inc_flushRegionRoot();");
+      stream.println(ind(2) + "handler.notifyDependencies();");
     }
     if (ASTNode.incrementalLevelRegion) {
       if (isRegionRoot()) {
