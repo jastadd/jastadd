@@ -1792,7 +1792,7 @@ aspect JaddCodeGen {
         stream.println(ind(4) +     "return true;");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "child = parent;");
-        stream.println(ind(3) +   "parent = parent.getParent();");
+        stream.println(ind(3) +   "parent = parent.parent;");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return false;");
         stream.println(ind + "}");
@@ -2474,7 +2474,7 @@ aspect JaddCodeGen {
         stream.println(ind(4) +     "return true;");
         stream.println(ind(3) +   "}");
         stream.println(ind(3) +   "child = parent;");
-        stream.println(ind(3) +   "parent = parent.getParent();");
+        stream.println(ind(3) +   "parent = parent.parent;");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "return false;");
         stream.println(ind + "}"); // end method: inc_hasEnclosingRewrittenNode
@@ -2505,7 +2505,7 @@ aspect JaddCodeGen {
           //  "index < parent.rewritten_children.length && parent.rewritten_children[index]) {");
           stream.println(ind(4) +     "return node;");
           stream.println(ind(3) +   "}");
-          stream.println(ind(3) +   "node = node.getParent();");
+          stream.println(ind(3) +   "node = node.parent;");
           stream.println(ind(2) + "}");
           stream.println(ind(2) + "return null;");
           stream.println(ind + "}"); 
