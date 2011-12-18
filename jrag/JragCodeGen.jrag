@@ -871,8 +871,8 @@ aspect JragCodeGen {
         if (getNumParameter() == 0) {
           buf.append(ind(2) + "state().addHandlerDepTo(#NAME#_value.handler());\n");
         } else {
-          buf.append(ind(2) + "if (#NAME#_values.contains(_parameters))");
-          buf.append(ind(3) +   "state().addHandlerDepTo(#NAME#_values.get(_parameters).handler());\n");
+          buf.append(ind(2) + "if (#NAME#_values.containsKey(_parameters))");
+          buf.append(ind(3) +   "state().addHandlerDepTo(((ASTNode)#NAME#_values.get(_parameters)).handler());\n");
         }
       }
     }
@@ -882,8 +882,8 @@ aspect JragCodeGen {
           buf.append(ind(2) + "if (#NAME#_value.isRegionRoot())");
           buf.append(ind(3) +   "state().addHandlerDepTo(#NAME#_value.handler());\n");
         } else {
-          buf.append(ind(2) + "if (#NAME#_values.contains(_parameters) && #NAME#_values.get(_parameters).isRegionRoot())");
-          buf.append(ind(3) +   "state().addHandlerDepTo(#NAME#_values.get(_parameters).handler());\n");
+          buf.append(ind(2) + "if (#NAME#_values.containsKey(_parameters) && #NAME#_values.get(_parameters).isRegionRoot())");
+          buf.append(ind(3) +   "state().addHandlerDepTo(((ASTNode)#NAME#_values.get(_parameters)).handler());\n");
         }
       }
     }
