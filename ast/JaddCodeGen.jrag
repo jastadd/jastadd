@@ -1384,7 +1384,7 @@ aspect JaddCodeGen {
     }
   }
   // ES_2011-09-20: Code generation for incremental evaluation, tracking numChildren
-  public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {  
+  public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) { 
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
       stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
     }
