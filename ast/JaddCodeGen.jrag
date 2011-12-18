@@ -2966,9 +2966,10 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         if (name().equals("ASTNode")) {
         stream.println(ind + "public boolean ASTNode.inc_flush_child(ASTNode node) {");
-        stream.println(ind(2) + "for (int i = 0; i < children.length; i++) {");        
-        stream.println(ind(3) +   "if (children[i] == node && rewritten_children != null && " +
-                                      "i < rewritten_children.length && rewritten_children[i]) {");
+        stream.println(ind(2) + "for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {");        
+//        stream.println(ind(3) +   "if (children[i] == node && rewritten_children != null && " +
+//                                      "i < rewritten_children.length && rewritten_children[i]) {");
+        stream.println(ind(3) +    "if (children[i] == node) {");
         stream.println(ind(4) +     "return inc_restoreInitialForIndex(i, node.handler());");
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
