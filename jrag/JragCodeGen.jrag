@@ -869,9 +869,10 @@ aspect JragCodeGen {
     if (ASTNode.incrementalLevelNode) {
       if (getNTA()) {
         if (getNumParameter() == 0) {
-          buf.append(ind(2) + "state().addHandlerDepTo(#NAME#_value.handler());\n");
+          buf.append(ind(2) + "if (#NAME#_computed)\n");
+          buf.append(ind(3) +   "state().addHandlerDepTo(#NAME#_value.handler());\n");
         } else {
-          buf.append(ind(2) + "if (#NAME#_values.containsKey(_parameters))");
+          buf.append(ind(2) + "if (#NAME#_values.containsKey(_parameters))\n");
           buf.append(ind(3) +   "state().addHandlerDepTo(((ASTNode)#NAME#_values.get(_parameters)).handler());\n");
         }
       }
@@ -879,10 +880,10 @@ aspect JragCodeGen {
     if (ASTNode.incrementalLevelRegion) {
       if (getNTA()) {
         if (getNumParameter() == 0) {
-          buf.append(ind(2) + "if (#NAME#_value.isRegionRoot())");
+          buf.append(ind(2) + "if (#NAME#_computed && #NAME#_value.isRegionRoot())\n");
           buf.append(ind(3) +   "state().addHandlerDepTo(#NAME#_value.handler());\n");
         } else {
-          buf.append(ind(2) + "if (#NAME#_values.containsKey(_parameters) && #NAME#_values.get(_parameters).isRegionRoot())");
+          buf.append(ind(2) + "if (#NAME#_values.containsKey(_parameters) && #NAME#_values.get(_parameters).isRegionRoot())\n");
           buf.append(ind(3) +   "state().addHandlerDepTo(((ASTNode)#NAME#_values.get(_parameters)).handler());\n");
         }
       }
