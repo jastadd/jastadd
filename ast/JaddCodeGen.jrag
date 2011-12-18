@@ -2417,7 +2417,7 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
 
-    if (ASTNode.incremental && name().equals("ASTNode")) {
+    if (ASTNode.incremental && !ASTNode.incrementalDebug && name().equals("ASTNode")) {
       stream.println(ind + "public String ASTNode.relativeNodeID() {");
       stream.println(ind(2) + "ASTNode parent = this.parent;");
       stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
@@ -4169,7 +4169,7 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalDebug(PrintWriter stream) {
 
     // method: relativeNodeID()          
-/*
+
     if (name().equals("ASTNode")) {
       stream.println(ind + "public String ASTNode.relativeNodeID() {");
       stream.println(ind(2) + "ASTNode parent = this.parent;");
@@ -4193,7 +4193,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return buf.toString();");
       stream.println(ind + "}");
     }
-*/
+
     // end method: relativeNodeID()          
     
     // method: printParamList(List)
