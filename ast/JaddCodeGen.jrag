@@ -2872,7 +2872,10 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalChangeFlush) {
       if (ASTNode.incrementalLevelRegion) {
         if (isRegionRoot())
-        jjtGenIncrementalChangeFlush(stream);
+          jjtGenIncrementalChangeFlush(stream);
+      } if (ASTNode.incrementalLevelNode) {
+        if (name().equals("ASTNode")) 
+          jjtGenIncrementalChangeFlush(stream);
       } else {
         jjtGenIncrementalChangeFlush(stream);
       }
@@ -3205,7 +3208,7 @@ aspect JaddCodeGen {
           stream.println(ind(3) +   "ASTNode child = children[i];");
           stream.println(ind(3) +   "if (child == null) continue;");
           stream.println(ind(3) +   "// rewritten child");
-          if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+          if (ASTNode.incrementalLevelRegion) {
             stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length && " +
                                          "rewritten_children[i]) {");
             stream.println(ind(4) +     "if (!inc_restoreInitialForIndex(i, handler())) {");
