@@ -147,6 +147,51 @@ aspect JastAddCodeGen {
   public String InterfaceDecl.javadocTag() { return "@ast interface"; }
   public String ASTDecl.javadocTag() { return "@ast node"; }
 
+  public String TypeDecl.extraDocCommentLines() {
+    return "";
+  }
+  public String ASTDecl.extraDocCommentLines() {
+    String superclass = "";
+    if (hasSuperClass())
+      superclass = " : {@link "+getSuperClass().getID()+"}";
+    String components = "";
+    if (getNumComponents() > 0)
+      components = " ::=" + componentString();
+    return "* @production " + getIdDecl().getID() + superclass + components + ";\n";
+  }
+  public String ASTDecl.componentString() {
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < getNumComponents(); ++i) {
+      buf.append(" ");
+      buf.append("<span class=\"component\">");
+      buf.append(getComponents(i).componentString());
+      buf.append("</span>");
+    }
+    return buf.toString();
+  }
+  public String Id.componentString() {
+    String id = "{@link "+getIdUse().getID()+"}";
+    if (hasNameNode())
+      return getNameNode().getID()+":"+id;
+    return id;
+  }
+  public String TokenId.componentString() {
+    return getID()+":"+getTYPE();
+  }
+  public abstract String Components.componentString();
+  public String ListComponents.componentString() {
+    return getId().componentString()+"*";
+  }
+  public String OptionalComponent.componentString() {
+    return "["+getId().componentString()+"]";
+  }
+  public String TokenComponent.componentString() {
+    return "&lt;"+getTokenId().componentString()+"&gt;";
+  }
+  public String AggregateComponents.componentString() {
+    return getId().componentString();
+  }
+
   public String TypeDecl.javadocComment() {
     String comment = getComment();
     if (comment == null)
@@ -168,7 +213,8 @@ aspect JastAddCodeGen {
   public String TypeDecl.augmentClassComment(String comment) {
     StringBuffer sb = new StringBuffer();
     sb.append(comment.substring(0, comment.length()-2));
-    sb.append("* " + javadocTag() + "\n");
+    sb.append(extraDocCommentLines());
+    sb.append(" * " + javadocTag() + "\n");
     sb.append(" * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
     sb.append(" */\n");
     return sb.toString();
