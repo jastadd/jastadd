@@ -66,7 +66,7 @@ public class JastAdd {
 	     if(fileName.endsWith(".ast")) {
 	       try {
 		 Ast parser = new Ast(new FileInputStream(fileName));
-		 parser.fileName = new File(fileName).getName();
+		 parser.fileName = fileName;
 		 Grammar g = parser.Grammar();
 		 for(int i = 0; i < g.getNumTypeDecl(); i++) {
 		   root.addTypeDecl(g.getTypeDecl(i));
@@ -136,7 +136,6 @@ public class JastAdd {
 		    JragParser jp = new JragParser(inputStream);
 		    jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
 		    jp.root = root;
-		    //jp.setFileName(new File(fileName).getName());
 		    jp.setFileName(fileName);
 		    ASTCompilationUnit au = jp.CompilationUnit();
 		    root.addCompUnit(au);
@@ -208,7 +207,7 @@ public class JastAdd {
 		    JragParser jp = new JragParser(inputStream);
 		    jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
 		    jp.root = root;
-		    jp.setFileName(new File(fileName).getName());
+		    jp.setFileName(fileName);
 		    jp.CacheDeclarations();
 		  } catch (jrag.AST.ParseException e) {
 		    StringBuffer msg = new StringBuffer();
