@@ -168,7 +168,7 @@ public class JastAdd {
 
 		jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
 		jp.root = root;
-		jp.setFileName(decl.getFileName());
+		jp.setFileName("");
 		jp.className = "ASTNode";
 		jp.pushTopLevelOrAspect(true);
 		try {

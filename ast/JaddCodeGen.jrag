@@ -14,7 +14,7 @@ aspect JaddCodeGen {
     name = new IdDecl();
     name.setID("ASTNode");
     cl.setIdDecl(name);
-    cl.setFileName("ASTNode.ast");
+    cl.setFileName("");
     addTypeDecl(cl);
     
     // Add List
@@ -22,7 +22,7 @@ aspect JaddCodeGen {
     name = new IdDecl();
     name.setID("List");
     cl.setIdDecl(name);
-    cl.setFileName("List.ast");
+    cl.setFileName("");
     addTypeDecl(cl);
 
     // Add Opt
@@ -30,7 +30,7 @@ aspect JaddCodeGen {
     name = new IdDecl();
     name.setID("Opt");
     cl.setIdDecl(name);
-    cl.setFileName("Opt.ast");
+    cl.setFileName("");
     addTypeDecl(cl);
   }
 
@@ -1797,7 +1797,10 @@ aspect JaddCodeGen {
   protected void Components.parse(String s) {
     jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(s));
     jp.root = hostClass().env();
-    jp.setFileName(hostClass().getFileName());
+
+    // The file name is not meaningful, as the component is completely generated
+    // from a node type specification
+    jp.setFileName("");
 
     // EMMA_2011-09-08: Adding this to give .ast generated methods an enclosing 
     // aspect "Ast" which allows for refinement of these methods. For example,

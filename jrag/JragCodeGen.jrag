@@ -10,34 +10,50 @@ import jrag.AST.ASTBlock;
 import jastadd.JastAdd;
 
 aspect AttributeKind {
-        syn String AttrDecl.attributeKind();
-        eq SynDecl.attributeKind() = isNTA() ? "syn nta" : "syn";
-        eq InhDecl.attributeKind() = "inh";
-        eq CollDecl.attributeKind() = "coll";
+  syn String AttrDecl.attributeKind();
+  eq SynDecl.attributeKind() = isNTA() ? "syn nta" : "syn";
+  eq InhDecl.attributeKind() = "inh";
+  eq CollDecl.attributeKind() = "coll";
 }
 
 aspect JragCodeGen {
 
-    public static String ASTNode.ind = "  ";
-    public static Map ASTNode.indMap = new HashMap();
+  public static String ASTNode.ind = "  ";
+  public static Map ASTNode.indMap = new HashMap();
 
-    /**
-     * Builds an indentation string equal to count levels of
-     * indentation.
-     */
-    public static final String ASTNode.ind(int count) {
-        Integer key = new Integer(count);
-        if (indMap.containsKey(key))
-            return (String) indMap.get(key);
-        else {
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < count; ++i)
-                sb.append(ind);
-            String indentation = sb.toString();
-            indMap.put(key, indentation);
-            return indentation;
-        }
+  /**
+   * Generate the declaredat documentation tag. If no file name is available
+   * then no tag is generated.
+   *
+   * @param fileName the name of the source file containing the declaration
+   * @param line the line number in the source file where the declaration occurs
+   * @return the declaredat tag
+   */
+  public static String ASTNode.declaredat(String fileName, int line) {
+    if (fileName.length() == 0) return "";
+    else return "@declaredat " + fileName + ":" + line;
+  }
+
+  /**
+   * Builds an indentation string equal to a certain level of
+   * indentation.
+   *
+   * @param count the required indentation level
+   * @return the indentation string
+   */
+  public static final String ASTNode.ind(int count) {
+    Integer key = new Integer(count);
+    if (indMap.containsKey(key))
+      return (String) indMap.get(key);
+    else {
+      StringBuffer sb = new StringBuffer();
+      for (int i = 0; i < count; ++i)
+        sb.append(ind);
+      String indentation = sb.toString();
+      indMap.put(key, indentation);
+      return indentation;
     }
+  }
 
   public static boolean ASTNode.jjtree;
   public static boolean ASTNode.beaver;
@@ -261,7 +277,7 @@ aspect JragCodeGen {
     sb.append("* @ast method \n");
     if (obj.aspectName() != null && obj.aspectName().length() > 0)
       sb.append(ind + " * @aspect " + obj.aspectName() + "\n");
-    sb.append(ind + " * @declaredat " + obj.getFileName() + ":" + obj.getStartLine() + "\n");
+    sb.append(ind + " * " + ASTNode.declaredat(obj.getFileName(), obj.getStartLine()) + "\n");
     sb.append(ind + " */\n");
     return sb.toString();
   }
@@ -405,7 +421,7 @@ aspect JragCodeGen {
       res.append(comment.substring(0, comment.indexOf("*/")));
       res.append("* @attribute " + attributeKind() + "\n");
       res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+      res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
       res.append(ind + " */\n");
       return res.toString();
     }
@@ -413,7 +429,7 @@ aspect JragCodeGen {
       return ind + "/**\n" +
              ind + " * @attribute " + attributeKind() + "\n" +
              ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+             ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
              ind + " */\n";
     }
   }
@@ -433,7 +449,7 @@ aspect JragCodeGen {
       res.append(comment.substring(0, comment.indexOf("*/")));
       res.append("* @attribute " + decl.attributeKind() + "\n");
       res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+      res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
       res.append(ind + " */\n");
       return res.toString();
     }
@@ -441,7 +457,7 @@ aspect JragCodeGen {
       return ind + "/**\n" +
              ind + " * @attribute " + decl.attributeKind() + "\n" +
              ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+             ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
              ind + " */\n";
     }
   }
@@ -1527,7 +1543,7 @@ aspect JragCodeGen {
 
       String s;
       buf.append(ind + "/**\n");
-      buf.append(ind + " * @declaredat " + equ.getFileName() + ":" + equ.getStartLine() + "\n");
+      buf.append(ind + " * " + ASTNode.declaredat(equ.getFileName(), equ.getStartLine()) + "\n");
       buf.append(ind + " * @apilevel internal\n");
       buf.append(ind + " */\n");
       s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
@@ -1809,7 +1825,7 @@ aspect JragCodeGen {
 
   public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
-               ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+               ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
                ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
@@ -1835,7 +1851,7 @@ aspect JragCodeGen {
   }
   public void RewriteList.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
-               ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+               ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
                ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
