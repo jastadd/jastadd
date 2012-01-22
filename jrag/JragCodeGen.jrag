@@ -962,11 +962,13 @@ aspect JragCodeGen {
     if(!getLazy())
       return "";
   if(getNumParameter() == 0)
-    return cacheStoreRewrite() +
-           " #NAME#_computed = true;\n";
+    return cacheStoreRewrite() + "{" +
+            (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
+           " #NAME#_computed = true; }\n";
   else
-    return cacheStoreRewrite() +
-             " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + ");\n";
+    return cacheStoreRewrite() + "{" +
+            (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
+             " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n";
   }
 
   public String AttrDecl.returnStmt() {
@@ -1145,6 +1147,9 @@ aspect JragCodeGen {
            ind(3) + "} while (state.CHANGE);\n" +
            ind(3) + attr.cacheStoreRewrite() + " {\n" +
            ind(3) + "#NAME#_computed = true;\n" +
+           // ES_2012-01-22: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? ind(3) + attr.genIncrementalTrackingStackTransfer() + "\n": "") +
+           //
            attr.cacheCycleInit() +
            ind(3) + "}\n" +
            ind(3) + "else {\n" +
@@ -1234,6 +1239,9 @@ aspect JragCodeGen {
            : 
              ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n"
            ) +
+           // ES_2012-01-22: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? ind(3) + attr.genIncrementalTrackingStackTransfer() + "\n": "") +
+           //
            attr.cacheCycleInit() +
            ind(3) + "}\n" +
            ind(3) + "else {\n" +
@@ -1295,15 +1303,19 @@ aspect JragCodeGen {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (ASTNode.incrementalLevelParam) {
-        if (getNumParameter() == 0) {
-          buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
-        } else {
-          buf.append(ind(2) + "state().enterAttrStoreEval(" + 
-              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
-        }
+        buf.append(ind(2) + "ASTNode$DepGraphNode tmpHandler = new ASTNode$DepGraphNode(this, \"\", null);\n");
+        buf.append(ind(2) + "state().enterAttrStoreEval(tmpHandler);\n");
+        //if (getNumParameter() == 0) {
+        //  buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
+        //} else {
+        //  buf.append(ind(2) + "state().enterAttrStoreEval(" + 
+        //      "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
+        //}
       }
       if (ASTNode.incrementalLevelAttr) {
-        buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
+        buf.append(ind(2) + "ASTNode$DepGraphNode tmpHandler = new ASTNode$DepGraphNode(this, \"\");\n");
+        buf.append(ind(2) + "state().enterAttrStoreEval(tmpHandler);\n");
+        //buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
       }
       if (ASTNode.incrementalLevelNode) {
         if (getNTA()) {
@@ -1313,7 +1325,9 @@ aspect JragCodeGen {
           buf.append(ind(2) + "handler.addDependant(newHandler);\n");
           buf.append(ind(2) + "state().enterAttrStoreEval(newHandler);\n");
         } else {
-          buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
+          buf.append(ind(2) + "ASTNode$DepGraphNode tmpHandler = new ASTNode$DepGraphNode(this);\n");
+          buf.append(ind(2) + "state().enterAttrStoreEval(tmpHandler);\n");
+          //buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
         }
       }
       if (ASTNode.incrementalLevelRegion) {
@@ -1329,15 +1343,17 @@ aspect JragCodeGen {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (ASTNode.incrementalLevelParam) {
-        if (getNumParameter() == 0) {
-          buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
-        } else {
-          buf.append("state().exitAttrStoreEval(" + 
-              "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
-        }
+        buf.append(ind(2) + "state().exitAttrStoreEval(tmpHandler);\n");
+        //if (getNumParameter() == 0) {
+        //  buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
+        //} else {
+        //  buf.append("state().exitAttrStoreEval(" + 
+        //      "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
+        //}
       }
       if (ASTNode.incrementalLevelAttr) {
-        buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
+        buf.append(ind(2) + "state().exitAttrStoreEval(tmpHandler);\n");
+        //buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
       }
       if (ASTNode.incrementalLevelNode) {
         if (getNTA()) {
@@ -1346,7 +1362,8 @@ aspect JragCodeGen {
           buf.append("state().exitAttrStoreEval(#NAME#_value.handler);\n");
           buf.append("state().addHandlerDepTo(#NAME#_value.handler);\n");
         } else {
-          buf.append("state().exitAttrStoreEval(handler);\n");
+          buf.append(ind(2) + "state().exitAttrStoreEval(tmpHandler);\n");
+          //buf.append("state().exitAttrStoreEval(handler);\n");
         }
       }
       if (ASTNode.incrementalLevelRegion) {
@@ -1362,6 +1379,32 @@ aspect JragCodeGen {
     }
     return buf.toString();
   }
+
+  // ES_2012-01-22: Code generation for incremental evaluation, tracking
+  public String AttrDecl.genIncrementalTrackingStackTransfer() {
+    StringBuffer buf = new StringBuffer();
+    if (getLazy() || isCircular()) {
+      if (ASTNode.incrementalLevelParam) {
+        if (getNumParameter() == 0) {
+          buf.append("#NAME#_handler.transferSetsFrom(tmpHandler);");
+        } else {
+          buf.append("((ASTNode$DepGraphNode)#NAME#_handler.get(_parameters)).transferSetsFrom(tmpHandler);");
+        }
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        buf.append("#NAME#_handler.transferSetsFrom(tmpHandler);");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        if (!getNTA()) {
+          buf.append("handler.transferSetsFrom(tmpHandler);");
+        }
+      }
+      if (ASTNode.incrementalLevelRegion) {
+      }
+    }
+    return buf.toString();
+  }
+
 
   public String AttrDecl.circularComputeCall() { return ""; }
   public String SynDecl.circularComputeCall() { return "#METHODNAME#_compute(#PARM#)"; }

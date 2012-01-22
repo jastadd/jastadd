@@ -511,17 +511,18 @@ aspect JaddCodeGen {
     stream.println(ind + "public int IN_COMPUTATION = 0;");
     }
     stream.println(ind + "protected java.util.Stack handlerAttrStack = new java.util.Stack();");
-    stream.println(ind + "protected java.util.Stack handlerRewriteStack = new java.util.Stack();");
+//    stream.println(ind + "protected java.util.Stack handlerRewriteStack = new java.util.Stack();");
     stream.println(ind + "public void addHandlerDepTo(ASTNode$DepGraphNode handler) {");
-    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL && !IN_REWRITE_EVAL || handler == null) {");
+    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL || handler == null) {");
+//    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL && !IN_REWRITE_EVAL || handler == null) {");
     stream.println(ind(3) +   "return;");
     stream.println(ind(2) + "}");
     if (ASTNode.incrementalTrack) {
     stream.println(ind(2) + "ASTNode$DepGraphNode.trackedRead++;");
     }
     stream.println(ind(2) + "java.util.Stack handlerStack = handlerAttrStack;");
-    stream.println(ind(2) + "if (IN_REWRITE_EVAL) ");
-    stream.println(ind(3) +   "handlerStack = handlerRewriteStack;");
+//    stream.println(ind(2) + "if (IN_REWRITE_EVAL) ");
+//    stream.println(ind(3) +   "handlerStack = handlerRewriteStack;");
     stream.println(ind(2) + "if (!handlerStack.isEmpty()) {");
     stream.println(ind(3) +   "//throw new Error(\"Handler stack is empty at addition of dependency!\");");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
@@ -533,32 +534,34 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalTrack) {
     stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComp++;");
     }
-    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
+//    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
     stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = true;");
     stream.println(ind(3) +   "//System.out.println(\"attr eval stack enter: \" + handler.fAttrID);");
     stream.println(ind(3) +   "pushHandler(handlerAttrStack, handler);");
-    stream.println(ind(2) + "}");
+//    stream.println(ind(2) + "}");
     stream.println(ind + "}"); 
     stream.println(ind + "public void exitAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
-    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
+//    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
     stream.println(ind(3) +   "popHandler(handlerAttrStack, handler);");
     stream.println(ind(3) +   "//System.out.println(\"attr eval stack exit: \" + handler.fAttrID);");
     stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = !handlerAttrStack.isEmpty();");
-    stream.println(ind(2) + "}");
+//    stream.println(ind(2) + "}");
     stream.println(ind + "}"); 
-    stream.println(ind + "public boolean IN_REWRITE_EVAL = false;");
+//    stream.println(ind + "public boolean IN_REWRITE_EVAL = false;");
     stream.println(ind + "public void enterRewriteEval(ASTNode$DepGraphNode handler) {"); 
-    if (ASTNode.incrementalTrack) {
-    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComp++;");
-    }
-    stream.println(ind(2) + "IN_REWRITE_EVAL = true;");
-    stream.println(ind(2) + "pushHandler(handlerRewriteStack, handler);");
+    stream.println(ind(2) + "enterAttrStoreEval(handler);");
+//    if (ASTNode.incrementalTrack) {
+//    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComp++;");
+//    }
+//    stream.println(ind(2) + "IN_REWRITE_EVAL = true;");
+//    stream.println(ind(2) + "pushHandler(handlerRewriteStack, handler);");
     stream.println(ind + "}"); 
     stream.println(ind + "public void exitRewriteEval(ASTNode$DepGraphNode handler) {"); 
-    stream.println(ind(2) + "if (IN_REWRITE_EVAL) {");
-    stream.println(ind(3) +   "popHandler(handlerRewriteStack, handler);");
-    stream.println(ind(3) +   "IN_REWRITE_EVAL = !handlerRewriteStack.isEmpty();");
-    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "exitAttrStoreEval(handler);");
+//    stream.println(ind(2) + "if (IN_REWRITE_EVAL) {");
+//    stream.println(ind(3) +   "popHandler(handlerRewriteStack, handler);");
+//    stream.println(ind(3) +   "IN_REWRITE_EVAL = !handlerRewriteStack.isEmpty();");
+//    stream.println(ind(2) + "}");
     stream.println(ind + "}"); 
     stream.println(ind + "public boolean IN_CONSTRUCTION = false;");
     stream.println(ind + "private int inc_constructionCount = 0;");
@@ -1393,7 +1396,8 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set parent
   public void ASTDecl.jjtGenIncrementalSetParent(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
     if (ASTNode.incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
@@ -1483,7 +1487,8 @@ aspect JaddCodeGen {
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 1
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
     if (ASTNode.incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
@@ -1633,7 +1638,8 @@ aspect JaddCodeGen {
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, insert child 4
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild3(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
     if (ASTNode.incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
@@ -1687,7 +1693,8 @@ aspect JaddCodeGen {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, remove child 1
   public void ASTDecl.jjtGenIncrementalASTChangeRemoveChild1(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
+    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
     if (ASTNode.incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
@@ -2541,7 +2548,7 @@ aspect JaddCodeGen {
         stream.println(ind(5) +       "index = i;");
         stream.println(ind(4) +     "}");
         stream.println(ind(3) +   "}");
-        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index)) {");
+        stream.println(ind(3) +   "if (child.mayHaveRewrite() && parent.inc_restoreInitialForIndex(index, getChild_handler[index])) {");
         stream.println(ind(4) +     "getChild_handler[index].notifyDependencies();");
         stream.println(ind(4) +     "break;");
         stream.println(ind(3) +   "}");
@@ -3280,7 +3287,7 @@ aspect JaddCodeGen {
         if (ASTNode.incrementalLevelAttr) {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
-            stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
+            stream.println(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
           }
           for (int c = 0; c < getNumComponents(); c++) {
      	      Components comp = getComponents(c);
@@ -3295,7 +3302,7 @@ aspect JaddCodeGen {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
               stream.println(ind(3) +   "for (Iterator itr = " + attr.attributeSignature() + 
-                                              "_handler.iterator(); itr.hasNext();) {");
+                                              "_handler.entrySet().iterator(); itr.hasNext();) {");
               stream.println(ind(4) +     "h.transferSetsFrom((ASTNode$DepGraphNode)itr.next());");
               stream.println(ind(3) +   "}");
               stream.println(ind(2) + "}");
@@ -5051,7 +5058,8 @@ aspect JaddCodeGen {
   String TokenComponent.jaddGenIncrementalTokenChange(String varName) {
     StringBuffer buf = new StringBuffer();
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-      buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {\n");
+//      buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {\n");
+      buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {\n");
     }
     if (ASTNode.incrementalLevelRegion) {
       buf.append("    if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {\n");

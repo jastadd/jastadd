@@ -28,7 +28,7 @@ public class Test125 {
     B b3 = new B("c", "b");
     a.getChild(0).addChild(b3);
 
-    ASTNode$DepGraphNode.doCleanUp();
+    //ASTNode$DepGraphNode.doCleanUp();
   
     System.out.println("Dependencies/Cache after a.addChild():");
     a.dumpDependencies();
