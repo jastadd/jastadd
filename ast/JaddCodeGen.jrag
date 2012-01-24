@@ -3307,7 +3307,7 @@ aspect JaddCodeGen {
               stream.println(ind(3) +   "}");
               stream.println(ind(2) + "}");
             } else {
-              stream.print(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
+              stream.println(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
             }
           }
           for (int c = 0; c < getNumComponents(); c++) {
@@ -4396,6 +4396,15 @@ aspect JaddCodeGen {
     stream.println("        if (!l.isGarbage()) {");
     stream.println("          this.addDependant(l);");
     stream.println("        }");
+    stream.println("      }");
+    stream.println("      node.clearDependencies();");
+    stream.println("      node.clearDependants();");
+    stream.println("    }");
+    stream.println("    public void transferDependenciesFrom(ASTNode$DepGraphNode node) {");
+    stream.println("      if (node == null || this == node)");
+    stream.println("        return;");
+    stream.println("      for (ASTNode$DepGraphNode l : node.fDependencySet) {");
+    stream.println("        l.addDependant(this);");
     stream.println("      }");
     stream.println("      node.clearDependencies();");
     stream.println("      node.clearDependants();");

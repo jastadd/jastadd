@@ -10,6 +10,7 @@ public class Test120 {
     
     a.a0();
     a.a1();
+
     a.a2();
     a.a3();
     a.a4();
@@ -22,6 +23,6 @@ public class Test120 {
     System.out.println("Dependencies:");
     a.dumpDependencies();
     a.dumpCachedValues();
-    
+
   }
 }

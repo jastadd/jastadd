@@ -1386,17 +1386,17 @@ aspect JragCodeGen {
     if (getLazy() || isCircular()) {
       if (ASTNode.incrementalLevelParam) {
         if (getNumParameter() == 0) {
-          buf.append("#NAME#_handler.transferSetsFrom(tmpHandler);");
+          buf.append("#NAME#_handler.transferDependenciesFrom(tmpHandler);");
         } else {
-          buf.append("((ASTNode$DepGraphNode)#NAME#_handler.get(_parameters)).transferSetsFrom(tmpHandler);");
+          buf.append("((ASTNode$DepGraphNode)#NAME#_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);");
         }
       }
       if (ASTNode.incrementalLevelAttr) {
-        buf.append("#NAME#_handler.transferSetsFrom(tmpHandler);");
+        buf.append("#NAME#_handler.transferDependenciesFrom(tmpHandler);");
       }
       if (ASTNode.incrementalLevelNode) {
         if (!getNTA()) {
-          buf.append("handler.transferSetsFrom(tmpHandler);");
+          buf.append("handler.transferDependenciesFrom(tmpHandler);");
         }
       }
       if (ASTNode.incrementalLevelRegion) {
