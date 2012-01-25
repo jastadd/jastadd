@@ -981,6 +981,11 @@ aspect JragCodeGen {
       // OLD: return "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
       //
     }
+
+    if (isCircular()) {
+      return (ASTNode.incremental ? ind(2) + genIncrementalTrackingStackTransfer() + "\n": "") +
+        ind(2) + "return #NAME#_value;\n";
+    }
     // ES_2011-09-22: Code generation for incremental evaluation, stack
     return (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
         ind(2) + "return #NAME#_value;\n";
