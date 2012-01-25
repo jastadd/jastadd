@@ -11,6 +11,7 @@ node: a.init[1]=null
 ## after rewrite: 
 node: a=A
 dep(A:getChild -> A:getName)
+dep(A:getChild -> A:getChild)
 A/C[0] rewritten, initial=B
 node: a.parent=null
 node: a/child[0]=A/C[0]
@@ -26,6 +27,7 @@ node: a.init[1]=null
 node: a=A
 dep(A:getChild -> A:getName)
 dep(A/D[1]:sibling -> A:getChild)
+dep(A:getChild -> A:getChild)
 A/C[0] rewritten, initial=B
 node: a.parent=null
 node: a/child[0]=A/C[0]
