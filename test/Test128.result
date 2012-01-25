@@ -19,7 +19,6 @@ dep(A:getChild[0] -> A/C[0]:getParent)
 node: a/child[0].parent=A
 node: a.init[0]=B
 node: a.init[0].parent=null
-dep(A:getChild[0] -> B:getParent)
 node: a/child[1]=A/D[1]
 node: a/child[1].parent=A
 node: a.init[1]=null
@@ -37,7 +36,6 @@ dep(A:getChild[0] -> A/C[0]:getParent)
 node: a/child[0].parent=A
 node: a.init[0]=B
 node: a.init[0].parent=null
-dep(A:getChild[0] -> B:getParent)
 node: a/child[1]=A/D[1]
 dep(A/D[1]:sibling -> A/D[1]:getParent)
 value(A/D[1]:sibling, A/C[0])
