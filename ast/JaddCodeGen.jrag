@@ -2900,7 +2900,7 @@ aspect JaddCodeGen {
       if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "}");      
     } 
-    if (ASTNode.incrementalLevelNode) {
+    else if (ASTNode.incrementalLevelNode) {
       if (name().equals("ASTNode")) {
         stream.println(ind + "}");
       }
@@ -3446,6 +3446,7 @@ aspect JaddCodeGen {
       boolean first = true;
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
+
         // start match attribute statement
         if (ASTNode.incrementalLevelParam) {
           stream.print(ind(2) + (first ? "" : "else "));
