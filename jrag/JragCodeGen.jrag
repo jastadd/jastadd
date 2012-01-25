@@ -964,11 +964,13 @@ aspect JragCodeGen {
   if(getNumParameter() == 0)
     return cacheStoreRewrite() + "{" +
             (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
-           " #NAME#_computed = true; }\n";
+           " #NAME#_computed = true; }\n" +
+            (ASTNode.incremental ? genIncrementalTrackingStackClear() : "");
   else
     return cacheStoreRewrite() + "{" +
             (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
-             " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n";
+             " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n" +
+            (ASTNode.incremental ? genIncrementalTrackingStackClear() + "\n" : "");
   }
 
   public String AttrDecl.returnStmt() {
@@ -1487,6 +1489,28 @@ aspect JragCodeGen {
     }
     return buf.toString();
   }
+
+  // ES_2012-01-22: Code generation for incremental evaluation, tracking
+  public String AttrDecl.genIncrementalTrackingStackClear() {
+    StringBuffer buf = new StringBuffer();
+    if (getLazy() || isCircular()) {
+      if (ASTNode.incrementalLevelParam) {
+        buf.append("tmpHandler.clearDependencies();");
+      }
+      if (ASTNode.incrementalLevelAttr) {
+        buf.append("tmpHandler.clearDependencies();");
+      }
+      if (ASTNode.incrementalLevelNode) {
+        if (!getNTA()) {
+          buf.append("tmpHandler.clearDependencies();");
+        }
+      }
+      if (ASTNode.incrementalLevelRegion) {
+      }
+    }
+    return buf.toString();
+  }
+
 
 
   public String AttrDecl.circularComputeCall() { return ""; }

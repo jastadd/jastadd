@@ -4406,8 +4406,8 @@ aspect JaddCodeGen {
     stream.println("      for (ASTNode$DepGraphNode l : node.fDependencySet) {");
     stream.println("        l.addDependant(this);");
     stream.println("      }");
-    stream.println("      node.clearDependencies();");
-    stream.println("      node.clearDependants();");
+//    stream.println("      node.clearDependencies();");
+//    stream.println("      node.clearDependants();");
     stream.println("    }");
     // state
     stream.println("    protected int fState = ASTNode.inc_CREATED;");
