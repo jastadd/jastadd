@@ -3465,8 +3465,10 @@ aspect JaddCodeGen {
           } else stream.println(" && " + attr.attributeSignature() + "_computed");
           stream.println(") {");
         }
+
         // handle parameterized attributes
         if (attr.getNumParameter() > 0) {
+
           if (ASTNode.incrementalLevelParam) {
             // handler NTA
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
@@ -3500,19 +3502,32 @@ aspect JaddCodeGen {
             u = u.replaceAll("#NAME#", attr.attributeSignature());
             stream.print(u);              
           }
+
         } else {
+
           // handle NTAs
-          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+                !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             stream.println(ind(3) + "if (" + attr.attributeSignature() + "_value instanceof ASTNode) {");
             stream.println(ind(4) + attr.attributeSignature() + "_value.setParent(null);");
             // using dummy node to flush dependencies from NTA 
-            stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt()))");
+            if (ASTNode.incrementalLevelParam) {
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
+            }
+            else if (ASTNode.incrementalLevelAttr) {
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\"));");
+            } else {
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt()));");
+            }
             stream.println(ind(3) + "}");
           }
+
           String u = attr.resetVisit() + attr.resetCache();
           u = u.replaceAll("#NAME#", attr.attributeSignature());
           stream.print(u);
+
         }
+
         // notify
         if (ASTNode.incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
