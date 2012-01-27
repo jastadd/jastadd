@@ -1,4 +1,12 @@
 Newest log first
+2012-01-27: (ES) Added a sort of the file list given to
+aspectj in Makefile to make sure ast.AST.TokenComponent is
+handled before ast.AST.TokenComponentNTA. The order of the
+file list apparently affects the result of aspectj 1.5.3
+and if not sorted an error will occur. This problem does
+not occur when the ant script is run because it the 
+file list given to aspectj has a different order.
+-------------------------------------------------------
 2012-01-08: (JO) Removed source file name for constructors,
 methods and node types (ASTNode, List, Opt) generated without
 an actual source file. This improves the declaredat tag output.
