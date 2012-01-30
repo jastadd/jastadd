@@ -135,8 +135,7 @@
 		</jar>
 	</target>
 
-	<target name="release" depends="jar"
-		description="build source-zip and bin-zip">
+	<target name="source-zip" depends="jar">
 		<zip destfile="jastadd2-src.zip">
 			<zipfileset dir="." prefix="jastadd2-src">
 				<include name="LICENSE"/>
@@ -168,6 +167,9 @@
 				<include name="ast/*.ast"/>
 			</zipfileset>
 		</zip>
+	</target>
+
+	<target name="bin-zip" depends="jar">
 		<zip destfile="jastadd2-bin.zip">
 			<zipfileset dir="." prefix="jastadd2-bin">
 				<include name="LICENSE"/>
@@ -176,5 +178,13 @@
 				<include name="doc/release-notes.html"/>
 			</zipfileset>
 		</zip>
+	</target>
+
+	<target name="release" depends="source-zip,bin-zip"
+		description="build source-zip and bin-zip"/>
+
+	<target name="bootstrap" depends="jar"
+		description="Prepare JastAdd2 bootstrapping (copy jastadd2.jar to tools directory)">
+		<copy file="jastadd2.jar" toDir="${tools.dir}"/>
 	</target>
 </project>

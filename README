@@ -11,32 +11,41 @@ Non-standard tools that it uses are included in the project.
 --------------------------------------------------------
 BUILD
 
-Build is done by a makefile:
+Builds are done by using the Apache Ant script build.xml:
 
 - Ordinary build (generate and compile):
-  > make
+  > ant
 
 - Create a new jar file (jastadd2.jar)
-  > make jar
+  > ant jar
 
 - Create a new source zip file (jastadd2-src.zip)
-  > make source-zip
+  > ant source-zip
 
-- Make a new release (both a jar and a source zip file):
-  > make release
+- Create a zip file containing the main jar plus release notes and reference manual (jastadd2-bin.zip)
+  > ant bin-zip
 
-- Clean away generated files
-  > make clean
+- Make a new release (builds the source zip and binary zip):
+  > ant release
 
-- Bootstrap jastadd (replace the jastadd used to build jastadd)
+- Delete generated files
+  > ant clean
+
+- Bootstrap jastadd2 (replace the jastadd2.jar used to build jastadd2)
    (For stability, bootstrap is done seldom and only with extra testing.)
-  > make bootstrap
+  > ant bootstrap
+
+--------------------------------------------------------
+MAKEFILE
+
+There exists a deprecated makefile (Makefile.deprecated).
+Use it at your own peril!
 
 WINDOWS / CYGWIN
 
 In Cygwin, since you are running the Windows version of Java and it can not
 understand the classpath arguments given in the AspectJ invocation,
-you need to modify the second line of the Makefile so that it looks
+you need to modify the second line of the makefile so that it looks
 something like this:
 
 ASPECTJ=java -classpath "$(shell cygpath -wp tools/aspectj-1.5.3/aspectjlib.jar:tools/aspectj-1.5.3/aspectjrt.jar:tools/aspectj-1.5.3/aspectjtools.jar:tools/aspectj-1.5.3/aspectjweaver.jar:$(ANTPATH))" org.aspectj.tools.ajc.Main -source 1.4
@@ -45,16 +54,24 @@ ASPECTJ=java -classpath "$(shell cygpath -wp tools/aspectj-1.5.3/aspectjlib.jar:
 RUN REGRESSION TEST SUITE
 
 1. Make sure JastAdd is compiled
-> make
+> ant
 
 2. Run the tests. You will get a lot of output.
 > java RunTests
 
-3. Run as a regression test. You will get no output if all tests do pass that should pass.
+3a. Run as a regression test. The test results should be compared to the test/shouldpass file:
 
-> make test
-*OR*
 > diff test/shouldpass <(java RunTests 2>&1 | grep "test/Test[0-9]*\.java passed" )
+
+3b. ALTERNATIVE: Use the test target in the Ant script:
+
+> ant test
+
+If the test suite passes you should see the lines
+
+     [echo] running unit tests
+     [echo] tests completed, output written to test_results
+     [exec] Files passed and test/shouldpass are identical
 
 Explanation:
 The testcases are documented in test/index.html . Some should fail.
@@ -79,13 +96,13 @@ This is because of a current bug in RunTests.)
 TYPICAL BUGFIX PROCESS
   1. Add a test case that exposes the problem.
   2. Change jastadd to fix the bug.
-  3. > make jar
+  3. > ant jar
   4. Run the individual test case to verify that the test passes.
   5. Run the regression test suite. An additional test now passes.
   6. Update the shouldpass file, to reflect what tests currently pass.
   7. Run the regression test suite. Exactly the tests in shouldpass should pass.
   8. Update the ChangeLog file, and the reference-manual if needed.
-  9. > make clean
+  9. > ant clean
  10. Commit
 --------------------------------------------------------
 ADD A TEST CASE
@@ -104,7 +121,7 @@ MAKE A NEW RELEASE at JastAdd.org
      - doc/reference-manual.html
      - doc/release-notes.html
   2. Create a new jar file:
-      > make jar
+      > ant jar
   3. Run all test cases.
   4. Run the release script which will show you commands for doing the release.
      > ./release.sh
