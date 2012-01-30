@@ -4,8 +4,17 @@ aspect Test182 {
 
   syn lazy List A.getBList() = new List();
 
-  syn lazy A.getC() = new C();
+  syn lazy B A.a() {
+    B b = new B("b");
+    addB(b);
+    return b;
+  }
 
-  syn nta A.makeD() = new D();
+
+
+  syn lazy B C.c() = inhC();
+  inh B C.inhC();
+  eq A.getC().inhC() = a();
+
 
 }

@@ -1495,14 +1495,14 @@ aspect JragCodeGen {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (ASTNode.incrementalLevelParam) {
-        buf.append("tmpHandler.clearDependencies();");
+        buf.append("else tmpHandler.clearDependencies();");
       }
       if (ASTNode.incrementalLevelAttr) {
-        buf.append("tmpHandler.clearDependencies();");
+        buf.append("else tmpHandler.clearDependencies();");
       }
       if (ASTNode.incrementalLevelNode) {
         if (!getNTA()) {
-          buf.append("tmpHandler.clearDependencies();");
+          buf.append("else tmpHandler.clearDependencies();");
         }
       }
       if (ASTNode.incrementalLevelRegion) {

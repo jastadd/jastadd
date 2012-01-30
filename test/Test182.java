@@ -6,33 +6,34 @@ import test.ast.*;
 public class Test182 {
 
   public static void main(String[] args) {
-
-    A a = new A();
+    
+    C c = new C();
+    A a = new A(c);
+    c = a.getC();
 
     // Compute NTAs
-    List list = a.getBList();
-    C c = a.getC();
-    D d = a.makeD();
+    B b = c.c();
     
     System.out.println("-- Dependencies/Cache after a.makeB and b.a:");
-    list.dumpDependencies();
-    list.dumpCachedValues();
+    a.dumpDependencies();
+    a.dumpCachedValues();
+    b.dumpDependencies();
+    b.dumpCachedValues();
     c.dumpDependencies();
     c.dumpCachedValues();
-    d.dumpDependencies();
-    d.dumpCachedValues();
 
-/*
+
     // Change
-    a.setNode(null);
+    b.setName("b");
   
     System.out.println("-- Dependencies/Cache after a.setName:");
     a.dumpDependencies();
     a.dumpCachedValues();
     b.dumpDependencies();
     b.dumpCachedValues();
-    b1.dumpDependencies();
-    b1.dumpCachedValues();
-*/
+    c.dumpDependencies();
+    c.dumpCachedValues();
+
+
   }
 }
