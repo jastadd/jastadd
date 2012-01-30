@@ -684,6 +684,7 @@ aspect JaddCodeGen {
 
     if(ASTNode.java5) {
       stream.println(ind + "/**");
+      stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
       stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "@SuppressWarnings(\"cast\")");
@@ -695,6 +696,7 @@ aspect JaddCodeGen {
     }
     else {
       stream.println(ind + "/**");
+      stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
       stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
@@ -722,6 +724,7 @@ aspect JaddCodeGen {
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.println(ind + "}");
     stream.println(ind + "/**");
+    stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
     stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public final int ASTNode.getNumChildNoTransform() {");
@@ -1380,37 +1383,45 @@ aspect JaddCodeGen {
 
   String ListComponents.setNameListComment() {
     return ind + "/**\n" +
-      ind + " * Setter for #NAME#List\n" +
+      ind + " * Replaces the #NAME# list.\n" +
+      ind + " * @param list The new list node to be used as the #NAME# list.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.getNumNameComment() {
     return ind + "/**\n" +
-      ind + " * @return number of children in #NAME#List\n" +
+      ind + " * Retrieves the number of children in the #NAME# list.\n" +
+      ind + " * @return Number of children in the #NAME# list.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.getNameComment() {
     return ind + "/**\n" +
-      ind + " * Getter for child in list #NAME#List\n" +
+      ind + " * Retrieves the element at index {@code i} in the #NAME# list..\n" +
+      ind + " * @param i Index of the element to return.\n" +
+      ind + " * @return The element at position {@code i} in the #NAME# list.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.addNameComment() {
     return ind + "/**\n" +
-      ind + " * Add element to list #NAME#List\n" +
+      ind + " * Append an element to the #NAME# list.\n" +
+      ind + " * @param node The element to append to the #NAME# list.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.setNameComment() {
     return ind + "/**\n" +
-      ind + " * Setter for child in list #NAME#List\n" +
+      ind + " * Replaces the #NAME# list element at index {@code i} with the new node {@code node}.\n" +
+      ind + " * @param node The new node to replace the old list element.\n" +
+      ind + " * @param i The list index of the node to be replaced.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String ListComponents.getNameListComment() {
     return ind + "/**\n" +
-      ind + " * Getter for list #NAME#List\n" +
+      ind + " * Retrieves the #NAME# list.\n" +
+      ind + " * @return The node representing the #NAME# list.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
@@ -1466,7 +1477,8 @@ aspect JaddCodeGen {
     if(ASTNode.java5) {
       s +=
         ind + "/**\n" +
-        ind + " * Getter for #NAME# list.\n" +
+        ind + " * Retrieves the #NAME# list.\n" +
+        ind + " * @return The node representing the #NAME# list.\n" +
         ind + " * @apilevel high-level\n" +
         ind + " */\n" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#s() {\n" + 
@@ -1475,6 +1487,9 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
+        ind + " * Retrieves the #NAME# list.\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The node representing the #NAME# list.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#sNoTransform() {\n" + 
@@ -1495,6 +1510,9 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" + 
         ind + "/**\n" +
+        ind + " * Retrieves the #NAME# list.\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The node representing the #NAME# list.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
@@ -1507,6 +1525,9 @@ aspect JaddCodeGen {
     else {
       s +=
         ind + "/**\n" +
+        ind + " * Retrieves the #NAME# list.\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The node representing the #NAME# list.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
@@ -1515,6 +1536,8 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
+        ind + " * Retrieves the child position of the #NAME# list.\n" +
+        ind + " * @return The the child position of the #NAME# list.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "protected int #HOST#.get#NAME#ListChildPosition() {\n" +
@@ -1535,31 +1558,36 @@ aspect JaddCodeGen {
 
   String OptionalComponent.setNameOptComment() {
     return ind + "/**\n" +
-      ind + " * Setter for #NAME#Opt\n" +
+      ind + " * Replaces the optional node for the #NAME# child. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
+      ind + " * @param opt The new node to be used as the optional node for the #NAME# child.\n" +
       ind + " * @apilevel low-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.hasNameComment() {
     return ind + "/**\n" +
-      ind + " * Does this node have a #NAME# child?\n" +
+      ind + " * Check whether the optional #NAME# child exists.\n" +
+      ind + " * @return {@code true} if the optional #NAME# child exists, {@code false} if it does not.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.getNameComment() {
     return ind + "/**\n" +
-      ind + " * Getter for optional child #NAME#\n" +
-      ind + " * @apilevel high-level\n" +
+      ind + " * Retrieves the (optional) #NAME# child.\n" +
+      ind + " * @return The #NAME# child, if it exists. Returns {@code null} otherwise.\n" +
+      ind + " * @apilevel low-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.setNameComment() {
     return ind + "/**\n" +
-      ind + " * Setter for optional child #NAME#\n" +
+      ind + " * Replaces the (optional) #NAME# child.\n" +
+      ind + " * @param node The new node to be used as the #NAME# child.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String OptionalComponent.getNameOptComment() {
     return ind + "/**\n" +
-      ind + " * Getter for #NAME#Opt\n" +
+      ind + " * Retrieves the optional node for the #NAME# child. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
+      ind + " * @return The optional node for child the #NAME# child.\n" +
       ind + " * @apilevel low-level\n" +
       ind + " */\n";
   }
@@ -1596,9 +1624,6 @@ aspect JaddCodeGen {
     if(!isNTA()) {
       s +=
         getNameOptComment() +
-        ind + "/**\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #OPTTYPE# #HOST#.get#NAME#Opt() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1606,6 +1631,9 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
+        ind + " * Retrieves the optional node for child #NAME#. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The optional node for child #NAME#.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
@@ -1618,6 +1646,9 @@ aspect JaddCodeGen {
     else {
       s +=
         ind + "/**\n" +
+        ind + " * Retrieves the optional node for child #NAME#. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The optional node for child #NAME#.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
@@ -1627,6 +1658,8 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
+        ind + " * Retrieves the child position of the optional child #NAME#.\n" +
+        ind + " * @return The the child position of the optional child #NAME#.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "protected int #HOST#.get#NAME#OptChildPosition() {\n" +
@@ -1648,13 +1681,15 @@ aspect JaddCodeGen {
 
   String TokenComponent.setIDComment() {
     return ind + "/**\n" +
-      ind + " * Setter for lexeme #ID#\n" +
+      ind + " * Replaces the lexeme #ID#.\n" +
+      ind + " * @param value The new value for the lexeme #ID#.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String TokenComponent.getIDComment() {
     return ind + "/**\n" +
-      ind + " * Getter for lexeme #ID#\n" +
+      ind + " * Retrieves the value for the lexeme #ID#.\n" +
+      ind + " * @return The value for the lexeme #ID#.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
@@ -1662,8 +1697,8 @@ aspect JaddCodeGen {
   public void TokenComponent.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
     String name = decl.name();
     StringBuffer buf = new StringBuffer();
-    buf.append(setIDComment());
     // Generate attribute, get- and set-method for the token string
+    buf.append(setIDComment());
     buf.append(
         ind + "public void #HOST#.set#ID#(#TYPE# value) {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1672,9 +1707,9 @@ aspect JaddCodeGen {
         ind + "}\n"
         );
     if(decl.redefinesTokenComponent(this)) {
-      buf.append(ind + "/**");
-      buf.append(ind + " * @apilevel internal");
-      buf.append(ind + " */");
+      buf.append(ind + "/**\n");
+      buf.append(ind + " * @apilevel internal\n");
+      buf.append(ind + " */\n");
       buf.append(ind + "protected #TYPE# #HOST#.token#TYPEINSIGNATURE#_#ID#;\n");
     }
     if(!isNTA()) {
@@ -1687,6 +1722,10 @@ aspect JaddCodeGen {
               );
         }
         buf.append(
+            ind + "/**\n" +
+            ind + " * JastAdd-internal setter for lexeme #ID# using the Beaver parser.\n" +
+            ind + " * @apilevel internal\n" +
+            ind + " */\n" +
             ind + "public void #HOST#.set#ID#(beaver.Symbol symbol) {\n" +
             (ASTNode.block ? ASTNode.blockBegin : "") +
             ind(2) + "if(symbol.value != null && !(symbol.value instanceof String))\n" +
@@ -1729,13 +1768,15 @@ aspect JaddCodeGen {
 
   String AggregateComponents.setNameComment() {
     return ind + "/**\n" +
-      ind + " * Setter for #NAME#\n" +
+      ind + " * Replaces the #NAME# child.\n" +
+      ind + " * @param node The new node to replace the #NAME# child.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
   String AggregateComponents.getNameComment() {
     return ind + "/**\n" +
-      ind + " * Getter for #NAME#\n" +
+      ind + " * Retrieves the #NAME# child.\n" +
+      ind + " * @return The current node used as the #NAME# child.\n" +
       ind + " * @apilevel high-level\n" +
       ind + " */\n";
   }
@@ -1759,6 +1800,9 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" + 
         ind + "/**\n" +
+        ind + " * Retrieves the #NAME# child.\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The current node used as the #NAME# child.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
@@ -1770,6 +1814,9 @@ aspect JaddCodeGen {
     else {
       s +=
         ind + "/**\n" +
+        ind + " * Retrieves the #NAME# child.\n" +
+        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
+        ind + " * @return The current node used as the #NAME# child.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
@@ -1778,6 +1825,8 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
+        ind + " * Retrieves the child position of the optional child #NAME#.\n" +
+        ind + " * @return The the child position of the optional child #NAME#.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         ind + "protected int #HOST#.get#NAME#ChildPosition() {\n" +

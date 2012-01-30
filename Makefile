@@ -15,7 +15,7 @@ all : ast/AST/Grammar.java ast/AST/Ast.java jrag/AST/JragParser.java \
 	jastadd/JastAdd.java
 	sed -e "s/@VERSION@/$(VERSION)/" resources/JastAdd.txt > JastAdd.properties
 	sed -e "s/@VERSION@/$(VERSION)/" resources/manifest.txt > manifest
-	$(ASPECTJ) `find ast jastadd jrag org -name "*.java" | sort`
+	$(ASPECTJ) `find ast jastadd jrag org -name "*.java"`
 
 ast/AST/Ast.java : ast/AST/Ast.jj
 	$(JAVACC) -OUTPUT_DIRECTORY=ast/AST ast/AST/Ast.jj
