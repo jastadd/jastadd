@@ -218,7 +218,7 @@ aspect JaddCodeGen {
   // ES_2011-12-11: Code generation for incremental evaluation, track creation
   public String ASTDecl.genIncrementalTrackCreation() {
     if (ASTNode.incrementalLevelNode) {
-      return ind(2) + "state().addHandlerDepTo(handler);\n";
+      //return ind(2) + "state().addHandlerDepTo(handler);\n";
     }
     return "";
   }
