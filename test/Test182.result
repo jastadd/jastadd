@@ -1,5 +1,7 @@
--- Dependencies/Cache after a.makeB and b.a:
-value(A:d, true)
-dep(A -> B)
--- Dependencies/Cache after a.setName:
+-- Dependencies/Cache c.c():
+dep(A/C[0] -> A)
+dep(A/C[0] -> A/List/B[0])
+dep(A/C[0] -> A/C[0])
+value(A/C[0]:c, A/List/B[0])
+-- Dependencies/Cache after b.setName:
 
