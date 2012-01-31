@@ -1489,6 +1489,7 @@ aspect JaddCodeGen {
   // ES_2012-01-31: Code generation for incremental evaluation, modifying tree, add child 1
   public void ASTDecl.jjtGenIncrementalASTChangeAddChild1(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
+      stream.println(ind(3) + "int i = getNumChildNoTransform();");
       stream.println(ind(3) + "if (getChild_handler[i] == null)");
       stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(node, \"getChild\", new Integer(i));");
       stream.println(ind(3) + "state().addHandlerDepTo(getChild_handler[i]);");    
@@ -5133,17 +5134,20 @@ aspect JaddCodeGen {
       }
       if (ASTNode.incrementalLevelNode) {
       buf.append("       handler.flushRegion();\n");
+      buf.append("       if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
+      buf.append("         token#TYPEINSIGNATURE#_#ID#.handler.flushRegion();\n");
+      buf.append("       }\n");
       }
       if (ASTNode.incrementalLevelRegion) {
       buf.append("       handler().flushRegion();\n");
       }
-      buf.append("     ASTNode initial = inc_locateInitialCopy();\n");
-      buf.append("     if (initial != null) {\n");
-      buf.append("       state().enterConstruction();\n");
-      buf.append("       ((#HOST#)initial).set#ID#(" + varName + ");\n");
-      buf.append("       state().exitConstruction();\n");
-      buf.append("       return;");
-      buf.append("     }\n");
+      buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
+      buf.append("       if (initial != null) {\n");
+      buf.append("         state().enterConstruction();\n");
+      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
+      buf.append("         state().exitConstruction();\n");
+      buf.append("         return;\n");
+      buf.append("       }\n");
     }
     buf.append("    }\n");
     return buf.toString();

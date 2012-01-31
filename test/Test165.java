@@ -16,7 +16,7 @@ public class Test165 {
     B b = a.getNode();
     b.a();
     
-    System.out.println("-- Dependencies/Cache after a.makeB and b.a:");
+    System.out.println("-- Dependencies/Cache after a.d, a.getNode and b.a:");
     a.dumpDependencies();
     a.dumpCachedValues();
     b.dumpDependencies();
@@ -27,7 +27,7 @@ public class Test165 {
     // Change
     a.setNode(null);
   
-    System.out.println("-- Dependencies/Cache after a.setName:");
+    System.out.println("-- Dependencies/Cache after a.setNode:");
     a.dumpDependencies();
     a.dumpCachedValues();
     b.dumpDependencies();
