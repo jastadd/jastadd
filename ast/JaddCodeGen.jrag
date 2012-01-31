@@ -1491,7 +1491,7 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(3) + "int i = getNumChildNoTransform() - 1;");
       stream.println(ind(3) + "if (getChild_handler[i] == null)");
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(node, \"getChild\", new Integer(i));");
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       stream.println(ind(3) + "state().addHandlerDepTo(getChild_handler[i]);");    
     }
     if (ASTNode.incrementalLevelAttr) {
