@@ -4634,6 +4634,7 @@ aspect JaddCodeGen {
     stream.println("        for (ASTNode$DepGraphNode node : k) {");
     stream.println("          if (!node.isGarbage())");
     stream.println("            node.dependencyChanged();");
+    stream.println("          node.removeDependency(this);");
     stream.println("        }");
     stream.println("        visited = false;");
     stream.println("      }");
