@@ -11,7 +11,9 @@ aspect Test183 {
   eq A.getC().lookupB() {
     if (getNumB() == 0)
       addB(createB());
-    return getB(getNumB()-1);
+    B b = getB(getNumB()-1);
+    b.getD().name();
+    return b;
   }
 
   public B A.createB() {
@@ -28,5 +30,8 @@ aspect Test183 {
      addD(new D("a"));
     return getD(getNumD()-1);
   }
+
+  inh String D.name();
+  eq Root.getD().name() = "name";
 
 }
