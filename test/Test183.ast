@@ -1,7 +1,7 @@
 Start ::= Root;
-Root ::= <Name:String> A /D*/;
+Root ::= A /D*/;
 A ::= C /B*/;
 B ::= <D:D>;
 C;
-D;
+D ::= <Name:String>;
 

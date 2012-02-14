@@ -9,7 +9,8 @@ aspect Test183 {
   inh B C.lookupB();
 
   eq A.getC().lookupB() {
-    addB(createB());
+    if (getNumB() == 0)
+      addB(createB());
     return getB(getNumB()-1);
   }
 
@@ -23,14 +24,9 @@ aspect Test183 {
   inh D A.lookupD();
 
   eq Root.getA().lookupD() {
-    D d = new D();
-    addD(d);
-    d.name();
+    if (getNumD() == 0) 
+     addD(new D("a"));
     return getD(getNumD()-1);
   }
-
-  syn lazy String D.name() = rootName();
-  inh String D.rootName();
-  eq Root.getChild().rootName() = getName();
 
 }
