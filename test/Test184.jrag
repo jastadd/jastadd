@@ -13,7 +13,8 @@ aspect Test184 {
 
   syn nta B A.parA(String id) {
     D d = lookupD(id);
-    B b = new B(id);
+    B b = new B();
+    b.setName(id);
     b.setD(d);
     d.name();
     return b;
@@ -28,13 +29,16 @@ aspect Test184 {
   }
 
   syn nta D Root.parRoot(String id) {
-    return new D(id);
+    D d = new D();
+    d.setName(id);
+    return d;
   }
 
 
 
   inh String D.name();
+  inh String Root.name();
 
-  eq Root.getD().name() = "name";
+  eq Start.getRoot().name() = "name";
 
 }
