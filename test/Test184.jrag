@@ -1,0 +1,40 @@
+import java.util.*;
+
+aspect Test184 {
+
+
+  syn lazy B C.decl() = lookupB(getID());
+
+  inh B C.lookupB(String id);
+
+  eq A.getC().lookupB(String id) {
+    return parA(id);
+  }
+
+  syn nta B A.parA(String id) {
+    D d = lookupD(id);
+    B b = new B(id);
+    b.setD(d);
+    d.name();
+    return b;
+  }
+
+
+
+  inh D A.lookupD(String id);
+
+  eq Root.getA().lookupD(String id) {
+    return parRoot(id);
+  }
+
+  syn nta D Root.parRoot(String id) {
+    return new D(id);
+  }
+
+
+
+  inh String D.name();
+
+  eq Root.getD().name() = "name";
+
+}
