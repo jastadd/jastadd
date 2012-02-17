@@ -1,0 +1,51 @@
+import java.util.*;
+
+aspect Test185 {
+
+  syn lazy final List Root.getDList() = new List();
+
+  syn lazy B C.decl() = lookupB(getID());
+
+  inh B C.lookupB(String id);
+
+  eq A.getC().lookupB(String id) {
+    return parA(id);
+  }
+
+  syn nta B A.parA(String id) {
+    D d = lookupD(id);
+    B b = new B();
+    System.out.println("debug: creating b " + b.hashCode());
+    b.setName(id);
+    b.setD(d);
+    d.name();
+    return b;
+  }
+
+
+
+  inh D A.lookupD(String id);
+
+  eq Root.getA().lookupD(String id) {
+    if (getNumD() == 0) {
+      D d = new D();
+      d.setName(id);
+      addD(d);
+    }
+    return getD(getNumD()-1);
+  }
+
+/*
+  syn nta D Root.parRoot(String id) {
+    D d = new D();
+    d.setName(id);
+    return d;
+  }
+*/
+
+  inh String D.name();
+  inh String Root.name();
+
+  eq Start.getRoot().name() = "name";
+
+}

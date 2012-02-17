@@ -2966,6 +2966,7 @@ aspect JaddCodeGen {
           // NTAs
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+
           } 
           // Non NTAs
           else {
@@ -3048,11 +3049,10 @@ aspect JaddCodeGen {
                   && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
 
               if (attr.getNumParameter() > 0) {
+/* Parameterized NTAs are kept in a List and will consequently ask its parent list if it should be flushed, see code above
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-                stream.println(ind(3) +   "for (int index = 0; i < " + attr.attributeSignature() + 
-                                                "_list.numChildren; i++;) {");
-                stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + 
-                                                "_list.children[index];");              
+                stream.println(ind(3) +   "for (int index = 0; i < " + attr.attributeSignature() + "_list.numChildren; i++;) {");
+                stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + "_list.children[index];");              
                 stream.println(ind(4) +     "if (value == node) {");
                 stream.println(ind(5) +       "state().enterConstruction();");
                 stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
@@ -3069,6 +3069,7 @@ aspect JaddCodeGen {
                 stream.println(ind(4) +     "}");
                 stream.println(ind(3) +   "}");
                 stream.println(ind(2) + "}");
+*/
               } else {
                 Components comp = attr.findCorrespondingNTA();
                 if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
@@ -3087,6 +3088,7 @@ aspect JaddCodeGen {
                   stream.println(ind(2) + "}");
                 }
               }
+
             }
           }
         }
@@ -3096,7 +3098,8 @@ aspect JaddCodeGen {
       // end methods: inc_flush_NTA
 
       // method: inc_flushRegionRoot
-      if ((ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || (ASTNode.incrementalLevelNode && name().equals("ASTNode"))) {
+      if ((ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || 
+            (ASTNode.incrementalLevelNode && name().equals("ASTNode"))) {
         stream.println(ind + "public boolean " + name() + ".inc_flushRegionRoot() {");
         if (ASTNode.incrementalLevelRegion) {
           // Check for rewrites
@@ -3301,6 +3304,7 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || 
           ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
         stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
+
         // NTAs
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next(); 
