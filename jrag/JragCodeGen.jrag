@@ -1511,6 +1511,16 @@ aspect JragCodeGen {
     return buf.toString();
   }
 
+  // ES_2012-02-21: Code generation for incremental evaluation
+  public String AttrDecl.genIncrementalInternalNTAList() {
+    StringBuffer buf = new StringBuffer();
+    if (ASTNode.incrementalLevelNode) {
+      if (getNTA()) 
+          buf.append(ind(3) + "#NAME#_list.inc_internalNTAList(#NAME#_values);\n");
+    }
+    return buf.toString();
+  }
+
 
 
   public String AttrDecl.circularComputeCall() { return ""; }
@@ -1748,6 +1758,9 @@ aspect JragCodeGen {
           else
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
+									 // ES_2012-02-21: Code generation for incremental evaluation
+									 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+									 //
                    ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
@@ -1761,6 +1774,9 @@ aspect JragCodeGen {
           else
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
+									 // ES_2012-02-21: Code generation for incremental evaluation
+									 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+									 //
                    ind(3) + "#NAME#_list.is$Final = true;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
@@ -1774,6 +1790,9 @@ aspect JragCodeGen {
         else
           return ind(2) + "if(#NAME#_list == null) {\n" +
                  ind(3) + "#NAME#_list = new List();\n" +
+ 								 // ES_2012-02-21: Code generation for incremental evaluation
+	 							 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+								 //
                  ind(3) + "#NAME#_list.setParent(this);\n" +
                  ind(2) + "}\n" +
                  ind(2) + "#NAME#_list.add(#NAME#_value);\n";

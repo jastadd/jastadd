@@ -3030,6 +3030,28 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
         stream.println(ind + "public boolean " + name() + ".inc_flush_NTA(ASTNode node) {");
         if (name().equals("List") || name().equals("Opt")) {
+
+					if (name().equals("List")) {
+						stream.println(ind(2) + "if (inc_internalNTAList) {");
+            stream.println(ind(3) +   "state().enterConstruction();");
+						stream.println(ind(3) +   "int childIndex = getIndexOfChild(node);");
+						stream.println(ind(3) +   "removeChild(childIndex);");
+            stream.println(ind(3) +   "node.inc_flush_subtree(node.handler());");
+            stream.println(ind(3) +   "node.handler().clearDependencies();");
+            stream.println(ind(3) +   "state().exitConstruction();");
+						stream.println(ind(3) +   "if (inc_internalNTAList_map.containsValue(node)) {");
+            stream.println(ind(4) +     "for (Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {");
+            stream.println(ind(5) +       "Object key = itr.next();");
+            stream.println(ind(5) +       "if (inc_internalNTAList_map.get(key) == node) {");
+            stream.println(ind(6) +         "inc_internalNTAList_map.remove(key);");
+            stream.println(ind(6) +         "break;");
+            stream.println(ind(5) +       "}");
+            stream.println(ind(4) +     "}");
+						stream.println(ind(3) +   "}");
+            stream.println(ind(3) +   "return true;");
+						stream.println(ind(2) + "}");
+					}
+
           stream.println(ind(2) + "if (parent != null) {");
           stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
           stream.println(ind(3) +   "if (index >= 0 && parent.childIsNTA(index)) {");
@@ -3050,16 +3072,6 @@ aspect JaddCodeGen {
           stream.println(ind(3) +   "}");
           stream.println(ind(3) +   "return false;");
           stream.println(ind(2) + "}");
-
-					if (name().equals("List")) {
-						stream.println(ind(2) + "if (inc_internalNTAList) {");
-						stream.println(ind(3) +   "int childIndex = getIndexOfChild(node);");
-						stream.println(ind(3) +   "removeChild(childIndex);");
-						stream.println(ind(3) +   "if (inc_internalNTAList.containsValue(node)) {");
-						stream.println(ind(4) +     "// remove value here");
-						stream.println(ind(3) +   "}");
-						stream.println(ind(2) + "}");
-					}
 
         } else {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
