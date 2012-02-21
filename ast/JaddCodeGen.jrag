@@ -2888,6 +2888,15 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return false;");
     else stream.println(ind(2) + "return super.childIsNTA(index);");
     stream.println(ind + "}");
+
+		if (name().equals("List")) {
+			stream.println(ind + "public boolean List.inc_internalNTAList = false;");
+			stream.println(ind + "public java.util.Map List.inc_internalNTAList_map;");
+			stream.println(ind + "public void List.inc_internalNTAList(java.util.Map m) {");
+			stream.println(ind(2) + "inc_internalNTAList = true;");
+			stream.println(ind(2) + "inc_internalNTAList_map = m;");
+			stream.println(ind + "}");
+		}
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, react to change
@@ -3041,6 +3050,17 @@ aspect JaddCodeGen {
           stream.println(ind(3) +   "}");
           stream.println(ind(3) +   "return false;");
           stream.println(ind(2) + "}");
+
+					if (name().equals("List")) {
+						stream.println(ind(2) + "if (inc_internalNTAList) {");
+						stream.println(ind(3) +   "int childIndex = getIndexOfChild(node);");
+						stream.println(ind(3) +   "removeChild(childIndex);");
+						stream.println(ind(3) +   "if (inc_internalNTAList.containsValue(node)) {");
+						stream.println(ind(4) +     "// remove value here");
+						stream.println(ind(3) +   "}");
+						stream.println(ind(2) + "}");
+					}
+
         } else {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
