@@ -24,7 +24,7 @@
 	<target name="build" description="build JastAdd2"
 		depends="build-resources">
 		<jastadd java14="true" jjtree="true" rewrite="true"
-			grammar="Ast" package="ast.AST">
+			grammar="Ast" package="ast.AST" outdir="${basedir}">
 			<fileset dir="ast" includes="*.jrag,*.ast"/>
 			<fileset dir="jrag" includes="*.jrag"/>
 		</jastadd>
@@ -32,21 +32,25 @@
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="ast/Ast.jjt"/>
 		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
-			<arg value="-OUTPUT_DIRECTORY=ast/AST"/>
+			<arg value="-OUTPUT_DIRECTORY=${basedir}/ast/AST"/>
 			<arg value="-NODE_PREFIX=&quot;&quot;"/>
-			<arg value="ast/Ast.jjt"/>
+			<arg value="${basedir}/ast/Ast.jjt"/>
 		</java>
 		<!-- NODE_PREFIX is not set correctly on Windows: -->
 		<!--jjtree javacchome="${tools.dir}" nodeprefix="&quot;&quot;"
-			outputdirectory="ast/AST" target="ast/Ast.jjt"/-->
+			outputdirectory="${basedir}/ast/AST"
+			target="${basedir}/ast/Ast.jjt"/-->
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
-			outputdirectory="ast/AST" target="ast/AST/Ast.jj"/>
+			outputdirectory="${basedir}/ast/AST"
+			target="${basedir}/ast/AST/Ast.jj"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="jrag/Jrag.jjt"/>
 		<jjtree javacchome="${tools.dir}"
-			outputdirectory="jrag/AST" target="jrag/Jrag.jjt"/>
+			outputdirectory="${basedir}/jrag/AST"
+			target="${basedir}/jrag/Jrag.jjt"/>
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
-			outputdirectory="jrag/AST" target="jrag/AST/Jrag.jj"/>
+			outputdirectory="${basedir}/jrag/AST"
+			target="${basedir}/jrag/AST/Jrag.jj"/>
 		<echo message="running AspectJ"/>
 		<aspectj:iajc source="1.4">
 			<classpath>
