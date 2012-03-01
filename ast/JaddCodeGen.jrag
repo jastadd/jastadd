@@ -1084,9 +1084,14 @@ aspect JaddCodeGen {
     stream.println(ind(4) + "child.parent = null;");
     stream.println(ind(4) + "child.childIndex = -1;");
     stream.println(ind(3) + "}");
-    stream.println(ind(3) + "System.arraycopy(children, i+1, children, i, children.length-i-1);");
-    stream.println(ind(3) + "children[children.length-1] = null;");
-    stream.println(ind(3) + "numChildren--;");
+    // ES_2012-03-01: Adding a check of this instance to make sure its a List, a move of children doesn't make
+    // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
+    // and siblings are moved one step to the right, with null at the end.
+    stream.println(ind(3) + "if (this instanceof List) {");
+    stream.println(ind(4) +   "System.arraycopy(children, i+1, children, i, children.length-i-1);");
+    stream.println(ind(4) +   "children[children.length-1] = null;");
+    stream.println(ind(4) +   "numChildren--;");
+    stream.println(ind(3) + "}");
     // ES_2011-10-06: Code generation for incremental evaluation, remove child
     if (ASTNode.incremental) jjtGenIncrementalASTChangeRemoveChild2(stream);
     //
@@ -1791,7 +1796,7 @@ aspect JaddCodeGen {
     }
     //
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(3) + "if (getChild_handler != null) {");
+      stream.println(ind(3) + "if (getChild_handler != null && this instanceof List) {");
       stream.println(ind(4) +   "getChild_handler[numChildren] = null;");
 //      stream.println(ind(4) +   "System.arraycopy(getChild_handler, i+1, " + 
 //          "getChild_handler, i, getChild_handler.length-i-1);");
