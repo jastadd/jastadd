@@ -2983,6 +2983,11 @@ aspect JaddCodeGen {
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
 
+            if (ASTNode.incrementalLevelRegion) {
+              // TODO: Add a flush of non-region root NTA children
+            }
+
+
           } 
           // Non NTAs
           else {
