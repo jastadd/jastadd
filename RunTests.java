@@ -7,7 +7,7 @@ import java.util.*;
 
 public class RunTests {
 
-	protected final static int MAX_TESTS = 200;
+	protected final static int MAX_TESTS = 250;
 	protected static boolean verbose = true; //TODO When verbose is true, all tests will be reported as failed. This should be fixed.
 
 	public static void main(String[] args) {
