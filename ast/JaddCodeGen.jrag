@@ -973,7 +973,10 @@ aspect JaddCodeGen {
     // I'd like to set the parent to null, but this would change the interface of fullCopy,
     // and existing applications might depend on the copy to still be parented by the original
     // AST. So I don't do it. Yet. 20100416/GH.
-    // stream.print(ind(2) + "node.parent = null;\n");
+    //
+    /* 20120301/JO: Updated fullCopy to set parent to null.
+     * P.S. Is the shallow copy method really needed/used?
+     */
 
     if(!j2me)
       stream.print(ind(2) + "return node;\n");
@@ -1011,18 +1014,34 @@ aspect JaddCodeGen {
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n" +
         ind + "/**\n" +
+        ind + " * Create a deep copy of the AST subtree at this node.\n" +
+        ind + " * The copy is dangling, i.e. has no parent.\n" +
+        ind + " * @return dangling copy of the subtree at this node\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #RETURN# fullCopy() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        ind(2) + "#ID# res = (#ID#)copy();\n" +
-        ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
-        ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
-        ind(3) + "if(node != null) node = node.fullCopy();\n" +
-        ind(3) + "res.setChild(node, i);\n" +
+        ind(2) + "try {\n" +
+        ind(3) + "#ID# tree = (#ID#) clone();\n" +
+        ind(3) + "tree.setParent(null);// make dangling\n" +
+        ind(3) + "if (children != null) {\n" +
+        ind(4) + "tree.children = new ASTNode[children.length];\n" +
+        ind(4) + "for (int i = 0; i < children.length; ++i) {\n" +
+        ind(5) + "if (children[i] == null) {\n" +
+        ind(6) + "tree.children[i] = null;\n" +
+        ind(5) + "} else {\n" +
+        ind(6) + "tree.children[i] = children[i].fullCopy();\n" +
+        ind(6) + "tree.children[i].setParent(tree);\n" +
+        ind(5) + "}\n" +
+        ind(4) + "}\n" +
+        ind(3) + "}\n" +
+        ind(3) + "return tree;\n" +
+        ind(2) + "} catch (CloneNotSupportedException e) {\n" +
+        ind(3) + "throw new Error(\"Error: clone not supported for \" +\n" +
+        ind(4) + "getClass().getName());\n" +
         ind(2) + "}\n" +
-        ind(2) + "return res;\n    }\n" +
+        ind + "}\n" +
         (ASTNode.block ? ASTNode.blockEnd : "");
 
       String returnName = name();
