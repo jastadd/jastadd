@@ -2926,7 +2926,7 @@ aspect JaddCodeGen {
       if (ASTNode.incrementalLevelRegion) {
         if (isRegionRoot())
           jjtGenIncrementalChangeFlush(stream);
-      } if (ASTNode.incrementalLevelNode) {
+      } else if (ASTNode.incrementalLevelNode) {
         if (name().equals("ASTNode")) 
           jjtGenIncrementalChangeFlush(stream);
       } else {
