@@ -3384,7 +3384,7 @@ aspect JaddCodeGen {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
               stream.println(ind(3) +   "for (Iterator itr = " + attr.attributeSignature() + 
-                                              "_handler.entrySet().iterator(); itr.hasNext();) {");
+                                              "_handler.values().iterator(); itr.hasNext();) {");
               stream.println(ind(4) +     "h.transferSetsFrom((ASTNode$DepGraphNode)itr.next());");
               stream.println(ind(3) +   "}");
               stream.println(ind(2) + "}");
