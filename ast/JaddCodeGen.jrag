@@ -1091,6 +1091,8 @@ aspect JaddCodeGen {
     stream.println(ind(4) +   "System.arraycopy(children, i+1, children, i, children.length-i-1);");
     stream.println(ind(4) +   "children[children.length-1] = null;");
     stream.println(ind(4) +   "numChildren--;");
+    stream.println(ind(3) + "} else {");
+    stream.println(ind(4) +   "children[i] = null;");
     stream.println(ind(3) + "}");
     // ES_2011-10-06: Code generation for incremental evaluation, remove child
     if (ASTNode.incremental) jjtGenIncrementalASTChangeRemoveChild2(stream);
