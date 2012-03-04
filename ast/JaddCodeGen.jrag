@@ -1888,6 +1888,19 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlush++;");
         }
       }
+
+// EMMMA
+
+      // tokens
+      for (int c = 0; c < getNumComponents(); c++) {
+    	  Components comp = getComponents(c);
+     	  if (comp instanceof TokenComponent) {
+          String type = ASTNode.convTypeNameToSignature(((TokenComponent)comp).getTokenId().getTYPE());
+	   	    stream.println(ind(2) + "if (token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " instanceof ASTNode) {");
+	   		  stream.println(ind(3) +   "token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " = null;");
+	   			stream.println(ind(2) + "}");
+    		}
+    	}
   
       stream.print(flushCollectionCacheString());
     }
