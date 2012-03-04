@@ -1896,9 +1896,13 @@ aspect JaddCodeGen {
     	  Components comp = getComponents(c);
      	  if (comp instanceof TokenComponent) {
           String type = ASTNode.convTypeNameToSignature(((TokenComponent)comp).getTokenId().getTYPE());
-	   	    stream.println(ind(2) + "if (token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " instanceof ASTNode) {");
-	   		  stream.println(ind(3) +   "token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " = null;");
-	   			stream.println(ind(2) + "}");
+          boolean isStringToken = ((TokenComponent)comp).getTokenId().getTYPE().equals("String") || 
+            ((TokenComponent)comp).getTokenId().getTYPE().equals("java.lang.String");
+          if (!isStringToken) {
+  	   	    stream.println(ind(2) + "if (token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " instanceof ASTNode) {");
+	     		  stream.println(ind(3) +   "token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " = null;");
+	     			stream.println(ind(2) + "}");
+          }
     		}
     	}
   
