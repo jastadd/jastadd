@@ -725,7 +725,7 @@ aspect JragCodeGen {
         if(ASTNode.lazyMaps)
           return ind(2) + "#NAME#_values = null;\n" + ind(2) + "#NAME#_list = null;";
         else
-          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n" + ind(2) + "#NAME#_list = null;";        
+          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n" + ind(2) + "#NAME#_list = null;\n";        
       } else {
         if(ASTNode.lazyMaps)
           return ind(2) + "#NAME#_values = null;\n";
