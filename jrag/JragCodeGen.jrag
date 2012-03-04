@@ -720,10 +720,18 @@ aspect JragCodeGen {
           return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
     }
     else {
-      if(ASTNode.lazyMaps)
-        return ind(2) + "#NAME#_values = null;\n";
-      else
-        return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
+      // ES: Must also set the internal list to null when flushing parameterized NTAs
+      if (getNTA()) {
+        if(ASTNode.lazyMaps)
+          return ind(2) + "#NAME#_values = null;\n" + ind(2) + "#NAME#_list = null;";
+        else
+          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n" + ind(2) + "#NAME#_list = null;";        
+      } else {
+        if(ASTNode.lazyMaps)
+          return ind(2) + "#NAME#_values = null;\n";
+        else
+          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
+      }        
     }
   }
 
