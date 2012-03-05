@@ -3582,7 +3582,9 @@ aspect JaddCodeGen {
               stream.println(ind(4) +   "if (child != null && value == child) {");
               stream.println(ind(5) +     attr.attributeSignature() + "_list.removeChild(i);");
               // using dummy node to flush dependencies from NTA 
-              stream.println(ind(5) +     "value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
+//              stream.println(ind(5) +     "value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
+              stream.println(ind(5) +     "value.inc_flush_subtree((ASTNode$DepGraphNode)" + 
+                                        attr.attributeSignature() + "_handler.get(_parameters));");
               stream.println(ind(5) +     "break;");
               stream.println(ind(4) +   "}");
               stream.println(ind(3) + "}");
@@ -3596,8 +3598,10 @@ aspect JaddCodeGen {
                 stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
                 stream.println(ind(3) +     attr.attributeSignature() + "_list.setParent(null);");
                 // using dummy node to flush dependencies from NTA 
-                stream.println(ind(3) +     attr.attributeSignature() + 
-                                  "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null))");
+//                stream.println(ind(3) +     attr.attributeSignature() + 
+//                                  "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null))");
+                stream.println(ind(3) +     attr.attributeSignature() + "_value.inc_flush_subtree((ASTNode$DepGraphNode)" + 
+                                  attr.attributeSignature() + "_handler.get(_parameters));");
                 stream.println(ind(2) + "}");
             }
             String u = attr.resetVisit() + attr.resetCache();
@@ -3614,7 +3618,8 @@ aspect JaddCodeGen {
             stream.println(ind(4) + attr.attributeSignature() + "_value.setParent(null);");
             // using dummy node to flush dependencies from NTA 
             if (ASTNode.incrementalLevelParam) {
-              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
+//              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
+              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(" + attr.attributeSignature() + "_handler);");
             }
             else if (ASTNode.incrementalLevelAttr) {
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\"));");
