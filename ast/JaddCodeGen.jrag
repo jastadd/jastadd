@@ -3645,10 +3645,13 @@ aspect JaddCodeGen {
           } else {
             stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
           }
+          stream.println(ind(3) +   "super.reactToDependencyChange(attrID, _parameters);");
         } 
         if (ASTNode.incrementalLevelAttr) {
           stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
+          stream.println(ind(3) +   "super.reactToDependencyChange(attrID);");
         }
+      
         stream.println(ind(3) +   "return;");
         stream.println(ind(2) + "}");      // end match statement
         first = false;
