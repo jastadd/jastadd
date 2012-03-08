@@ -3600,8 +3600,8 @@ aspect JaddCodeGen {
                 // using dummy node to flush dependencies from NTA 
 //                stream.println(ind(3) +     attr.attributeSignature() + 
 //                                  "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null))");
-                stream.println(ind(3) +     attr.attributeSignature() + "_value.inc_flush_subtree((ASTNode$DepGraphNode)" + 
-                                  attr.attributeSignature() + "_handler.get(_parameters));");
+                stream.println(ind(3) +     attr.attributeSignature() + "_list.inc_flush_subtree(" + 
+                                  attr.attributeSignature() + "_handler);");
                 stream.println(ind(2) + "}");
             }
             String u = attr.resetVisit() + attr.resetCache();
