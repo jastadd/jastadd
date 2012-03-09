@@ -412,7 +412,7 @@ aspect JragCodeGen {
              "            System.out.println(\"value(\" + relativeNodeID() + \":#NAME#[\" + \n" +
              "                 (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : " +
                 "(key instanceof java.util.List ? printParamList((java.util.List)key) : key)) + \"], \" + \n" + 
-             "                 (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : value.getClass().getSimpleName()) + \")\");\n" +
+             "                 (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : (value != null ? value.getClass().getSimpleName() : value)) + \")\");\n" +
              "          }\n" +
              "        }\n";
     }
