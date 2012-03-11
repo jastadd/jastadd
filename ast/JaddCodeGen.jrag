@@ -4363,6 +4363,8 @@ aspect JaddCodeGen {
       stream.println(ind + "protected String ASTNode.printValue(Object value) {");
       stream.println(ind(2) + "if (value == null)");
       stream.println(ind(3) +   "return \"null\";");
+      stream.println(ind(3) + "if (value instanceof ASTNode && ((ASTNode)value).inc_state == inc_GARBAGE)");
+      stream.println(ind(4) +   "throw new Error(\"Cached value is garbage\");");
       stream.println(ind(2) + "return value.toString();");
       stream.println(ind + "}");    
     } // end method: printValue(Object)

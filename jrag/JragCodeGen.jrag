@@ -1789,6 +1789,9 @@ aspect JragCodeGen {
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
                    ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
+                   // ES_2012-03-11: A parameterized NTA may have values with rewrites
+                   ind(2) + "#NAME#_value = (#TYPE#)#NAME#_list.getChild(#NAME#_list.numChildren-1);\n" +
+                   //
                    ind(2) + "#NAME#_value.is$Final = true;\n";
         }
       }
