@@ -54,7 +54,7 @@ ASPECTJ=java -classpath "$(shell cygpath -wp tools/aspectj-1.5.3/aspectjlib.jar:
 RUN REGRESSION TEST SUITE
 
 1. Make sure JastAdd is compiled
-> ant
+> ant jar
 
 2. Run the tests. You will get a lot of output.
 > java RunTests
