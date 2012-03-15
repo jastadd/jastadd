@@ -1087,7 +1087,7 @@ aspect JaddCodeGen {
     // ES_2012-03-01: Adding a check of this instance to make sure its a List, a move of children doesn't make
     // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
     // and siblings are moved one step to the right, with null at the end.
-    stream.println(ind(3) + "if (this instanceof List) {");
+    stream.println(ind(3) + "if (this instanceof List || this instanceof Opt) {");
     stream.println(ind(4) +   "System.arraycopy(children, i+1, children, i, children.length-i-1);");
     stream.println(ind(4) +   "children[children.length-1] = null;");
     stream.println(ind(4) +   "numChildren--;");
