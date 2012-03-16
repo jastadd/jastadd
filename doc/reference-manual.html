@@ -775,7 +775,7 @@ aspect A {
 aspect B {
    refine A void C.m() { // similar to overriding
       ...
-      A.C.m(); // similar to call to super
+      refined(); // similar to call to super
       ...
    }
 }
@@ -785,6 +785,25 @@ aspect B {
          Additional aspects may further refine the method. For example, an aspect C can refine
          the method refined in B.
          </P>
+         <P>The original method can be called using the keyword "refined". JastAdd2 replaces
+         all occurrences of this keyword with the new name of the refined method. Be careful with
+         how you use refined - even occurrences in string literals or comments are replaced!
+         With the command line flag "--refineLegacy" you can use the legacy syntax for calling the
+         refined method:
+         </P>
+         <PRE>
+aspect A {
+   void C.m() { ... }
+}
+
+aspect B {
+   refine A void C.m() { // similar to overriding
+      ...
+      AspectFile.C.m(); // NB: AspectFile is the name of the file (minus extension) that contains the original declaration
+      ...
+   }
+}
+</PRE>
       </TD>
    </TR>
 </TABLE>
