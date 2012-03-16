@@ -1730,6 +1730,7 @@ aspect JragCodeGen {
       return null;
     String attrName = getName().substring(3);
     TypeDecl c = hostClass();
+
     while(c != null) {
       for(Iterator iter = c.getComponents(); iter.hasNext(); ) {
         Components comp = (Components)iter.next();
