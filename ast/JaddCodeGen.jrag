@@ -3104,8 +3104,10 @@ aspect JaddCodeGen {
           stream.println(ind(2) + "}");
 
         } else {
+
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
+
             // NTAs
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
                   && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
@@ -3135,7 +3137,7 @@ aspect JaddCodeGen {
               } else {
                 Components comp = attr.findCorrespondingNTA();
 //                if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
-                if (comp == null) {
+                if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA) {
                   stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
                   stream.println(ind(3) +   "state().enterConstruction();");
                   stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
