@@ -2087,6 +2087,8 @@ aspect JaddCodeGen {
     buf.append(ind(4) + "for (int i = 0; node.children != null && i < node.children.length; i++) {\n");
     buf.append(ind(5) +   "node.children[i] = null;\n");
     buf.append(ind(4) + "}\n");
+    buf.append(ind(4) + "node.init_children = null;\n");
+    buf.append(ind(4) + "node.rewritten_children = null;\n");
     buf.append(ind(4) + "inc_copyHandlers(node);\n");
     return buf.toString();
   }
