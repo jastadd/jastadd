@@ -3297,7 +3297,7 @@ aspect JaddCodeGen {
               stream.println(ind(5) +       "for (Iterator itr = " + attr.attributeSignature() + "_values.keySet().iterator(); itr.hasNext();) {");
               stream.println(ind(6) +         "Object key = itr.next();");
               stream.println(ind(6) +         "if (" + attr.attributeSignature() + "_values.get(key) == value) {");
-              stream.println(ind(7) +           attr.attributeSignature() + "values.remove(key);");
+              stream.println(ind(7) +           attr.attributeSignature() + "_values.remove(key);");
               stream.println(ind(7) +           "break;");
               stream.println(ind(6) +         "}");
               stream.println(ind(5) +       "}");
