@@ -3291,6 +3291,9 @@ aspect JaddCodeGen {
               stream.println(ind(4) +     "if (!value.isRegionRoot()) {");
               stream.println(ind(5) +       "state().enterConstruction();");
               stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
+              // removeChild will decrease the index of all remaining children and numChildren
+              // hence, to visit the remainder of the list index need to be decreased by one for each removeChild
+              stream.println(ind(5) +       "index--;"); 
               stream.println(ind(5) +       "state().exitConstruction();");
               stream.println(ind(5) +       "value.inc_flush_subtree(handler());");
               // remove the value in the NTA values map
