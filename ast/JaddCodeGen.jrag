@@ -4151,14 +4151,26 @@ aspect JaddCodeGen {
 
     // method: regionRoot()
     if (ASTNode.incrementalLevelRegion) {
+      if (name().equals("ASTNode")) {
+        if (isRegionRoot()) {
+          stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+          stream.println(ind(2) + "return this;");
+          stream.println(ind + "}"); 
+        } else {
+          stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+          stream.println(ind(2) + "return parent != null ? parent.regionRoot() : null;");
+          stream.println(ind + "}"); 
+        }
+      } else {
       if (isRegionRoot()) {
         stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
         stream.println(ind(2) + "return this;");
         stream.println(ind + "}"); 
       } else {
         stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
-        stream.println(ind(2) + "return parent != null ? parent.regionRoot() : null;");
+        stream.println(ind(2) + "return super.regionRoot();");
         stream.println(ind + "}"); 
+      }
       }
     }
     // method end: regionRoot()
