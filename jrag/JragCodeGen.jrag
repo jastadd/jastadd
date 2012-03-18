@@ -1522,7 +1522,7 @@ aspect JragCodeGen {
   // ES_2012-02-21: Code generation for incremental evaluation
   public String AttrDecl.genIncrementalInternalNTAList() {
     StringBuffer buf = new StringBuffer();
-    if (ASTNode.incrementalLevelNode) {
+    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
       if (getNTA()) 
           buf.append(ind(3) + "#NAME#_list.inc_internalNTAList(#NAME#_values);\n");
     }
