@@ -3285,7 +3285,7 @@ aspect JaddCodeGen {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
               stream.println(ind(3) +   "for (int index = 0; i < " + attr.attributeSignature() + 
-                                              "_list.numChildren; i++;) {");
+                                              "_list.numChildren; i++) {");
               stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + 
                                               "_list.children[index];");              
               stream.println(ind(4) +     "if (!value.isRegionRoot()) {");
