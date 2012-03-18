@@ -3293,9 +3293,17 @@ aspect JaddCodeGen {
               stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
               stream.println(ind(5) +       "state().exitConstruction();");
               stream.println(ind(5) +       "value.inc_flush_subtree(handler());");
-              String u = attr.resetVisit() + attr.resetCache();
-              u = u.replaceAll("#NAME#", attr.attributeSignature());
-              stream.print(u);
+              // remove the value in the NTA values map
+              stream.println(ind(5) +       "for (Iterator itr = " + attr.attributeSignature() + "_values.keySet().iterator(); itr.hasNext();) {");
+              stream.println(ind(6) +         "Object key = itr.next();");
+              stream.println(ind(6) +         "if (" + attr.attributeSignature() + "_values.get(key) == value) {");
+              stream.println(ind(7) +           attr.attributeSignature() + "values.remove(key);");
+              stream.println(ind(7) +           "break;");
+              stream.println(ind(6) +         "}");
+              stream.println(ind(5) +       "}");
+//              String u = attr.resetVisit() + attr.resetCache();
+//              u = u.replaceAll("#NAME#", attr.attributeSignature());
+//              stream.print(u);
               if (ASTNode.incrementalTrack) {
                 stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
               }
