@@ -5253,7 +5253,7 @@ aspect JaddCodeGen {
         boolean isPrimitiveToken = isPrimitive();
         if (!isStringToken && !isPrimitiveToken) {
           buf.append("       if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n");
-          buf.append("         token#TYPEINSIGNATURE#_#ID#.handler.flushRegion();\n");
+          buf.append("         token#TYPEINSIGNATURE#_#ID#.handler().flushRegion();\n");
           buf.append("       }\n");
         }
       }
