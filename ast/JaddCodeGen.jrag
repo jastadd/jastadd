@@ -4537,6 +4537,37 @@ aspect JaddCodeGen {
     stream.println(ind + "}");  
     // end method: dumpDependencies()
 
+
+    // start method: dumpDepsInTree() 
+    stream.println(ind + "public void " + name() + ".dumpDepsInTree() {");
+    stream.println(ind(2) + "dumpDependencies();");
+    stream.println(ind(2) + "for (int i = 0; i < children.length; i++) {");
+    stream.println(ind(3) +   "ASTNode child = children[i];");
+    stream.println(ind(3) +   "if (child == null)");
+    stream.println(ind(4) +     "continue;");
+    stream.println(ind(3) +   "child.dumpDepsInTree();");
+    stream.println(ind(2) + "}");
+    // attributes
+    for(Iterator itr = list.iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      // values for NTAs
+      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+         !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+        if (attr.getNumParameter() > 0) {
+          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+          stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDepsInTree();");
+          stream.println(ind(2) + "}");
+        } else {
+          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
+                                   attr.attributeSignature() + "_value instanceof ASTNode)) {");
+          stream.println(ind(3) + attr.attributeSignature() + "_value.dumpDepsInTree();");
+          stream.println(ind(2) + "}");
+        }                  
+      }
+    }
+    stream.println(ind + "}");
+    // end method: dumpDepsInTree()
+
   }
 
   // ES_2011-09-06: Code generation for incremental evaluation, dependency node class / handler class
