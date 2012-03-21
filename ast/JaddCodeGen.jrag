@@ -3020,14 +3020,14 @@ aspect JaddCodeGen {
               }
               stream.println(ind(2) + "}");
             } else {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed) {");
+              //stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed) {");
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);              
               if (ASTNode.incrementalTrack) {
                 stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
               }
-              stream.println(ind(2) + "}");
+              //stream.println(ind(2) + "}");
             }
           }
         }
