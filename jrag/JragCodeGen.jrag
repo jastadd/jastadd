@@ -1390,8 +1390,10 @@ aspect JragCodeGen {
                    ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
-                   ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
-                   ind(2) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
+                   ind(2) + "if(#NAME#_value != null) {\n" + 
+                   ind(3) + "#NAME#_list.add(#NAME#_value);\n" +
+                   ind(3) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n" +
+                   ind(2) + "}\n";
         }
         else {
           if(getNumParameter() == 0)
@@ -1403,8 +1405,10 @@ aspect JragCodeGen {
                    ind(3) + "#NAME#_list.is$Final = true;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
-                   ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
-                   ind(2) + "#NAME#_value.is$Final = true;\n";
+                   ind(2) + "if(#NAME#_value != null) {\n" + 
+                   ind(3) + "#NAME#_list.add(#NAME#_value);\n" +
+                   ind(3) + "#NAME#_value.is$Final = true;\n" +
+                   ind(2) + "}\n";
         }
       }
       else {
