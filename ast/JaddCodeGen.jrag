@@ -3604,11 +3604,11 @@ aspect JaddCodeGen {
               stream.println(ind(3) + "for (int i = 0; i < " + attr.attributeSignature() + "_list.children.length; i++) {");
               stream.println(ind(4) +   "ASTNode child = " + attr.attributeSignature() + "_list.children[i];");
               stream.println(ind(4) +   "if (child != null && value == child) {");
-              stream.println(ind(5) +     attr.attributeSignature() + "_list.removeChild(i);");
               // using dummy node to flush dependencies from NTA 
 //              stream.println(ind(5) +     "value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
               stream.println(ind(5) +     "value.inc_flush_subtree((ASTNode$DepGraphNode)" + 
                                         attr.attributeSignature() + "_handler.get(_parameters));");
+              stream.println(ind(5) +     attr.attributeSignature() + "_list.removeChild(i);");
               stream.println(ind(5) +     "break;");
               stream.println(ind(4) +   "}");
               stream.println(ind(3) + "}");
