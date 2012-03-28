@@ -2655,7 +2655,7 @@ aspect JaddCodeGen {
       // locate enclosing rewrite
       stream.println(ind(2) + "ASTNode child = this;");
       stream.println(ind(2) + "ASTNode parent = getParent();");
-      stream.println(ind(2) + "LinkedList indexList = new LinkedList();");
+      stream.println(ind(2) + "java.util.LinkedList indexList = new java.util.LinkedList();");
       stream.println(ind(2) + "while (parent != null) {");
       stream.println(ind(3) +   "int index = child.childIndex;");
       stream.println(ind(3) +   "indexList.addFirst(new Integer(index));");
@@ -4644,7 +4644,7 @@ aspect JaddCodeGen {
     stream.println("      visitedDuringCleanup = true;");
     stream.println("      nbr_cleanup++;");
     stream.println("      // Clean up garbage");
-    stream.println("      Iterator<ASTNode$DepGraphNode> itr = fListenerSet.iterator();");
+    stream.println("      java.util.Iterator<ASTNode$DepGraphNode> itr = fListenerSet.iterator();");
     stream.println("      while (itr.hasNext()) {");
     stream.println("        ASTNode$DepGraphNode cur = itr.next();");
     stream.println("        if (cur.isGarbage()) {");
@@ -4813,7 +4813,7 @@ aspect JaddCodeGen {
     // Debugging methods:
     if (ASTNode.incrementalDebug) {
       stream.println("    public void dumpDeps() {");
-      stream.println("      TreeSet<String> sorted = new TreeSet<String>();");
+      stream.println("      java.util.TreeSet<String> sorted = new java.util.TreeSet<String>();");
       stream.println("      for (ASTNode$DepGraphNode node : fListenerSet) {");
       stream.println("        sorted.add(node.toString());");
       stream.println("      }");
