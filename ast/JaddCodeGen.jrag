@@ -2673,7 +2673,7 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
       // root not reached -- enclosing rewrite found
       stream.println(ind(2) + "boolean first = true;");
-      stream.println(ind(2) + "for (Iterator itr = indexList.iterator(); itr.hasNext();) {");
+      stream.println(ind(2) + "for (java.util.Iterator itr = indexList.iterator(); itr.hasNext();) {");
       stream.println(ind(3) +   "int index = ((Integer)itr.next()).intValue();");
       stream.println(ind(3) +   "if (first) {");
       stream.println(ind(4) +     "first = false;");
@@ -3072,7 +3072,7 @@ aspect JaddCodeGen {
             stream.println(ind(3) +   "node.handler().clearDependencies();");
             stream.println(ind(3) +   "state().exitConstruction();");
 						stream.println(ind(3) +   "if (inc_internalNTAList_map.containsValue(node)) {");
-            stream.println(ind(4) +     "for (Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {");
+            stream.println(ind(4) +     "for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {");
             stream.println(ind(5) +       "Object key = itr.next();");
             stream.println(ind(5) +       "if (inc_internalNTAList_map.get(key) == node) {");
             stream.println(ind(6) +         "inc_internalNTAList_map.remove(key);");
@@ -3299,7 +3299,7 @@ aspect JaddCodeGen {
               stream.println(ind(5) +       "state().exitConstruction();");
               stream.println(ind(5) +       "value.inc_flush_subtree(handler());");
               // remove the value in the NTA values map
-              stream.println(ind(5) +       "for (Iterator itr = " + attr.attributeSignature() + "_values.keySet().iterator(); itr.hasNext();) {");
+              stream.println(ind(5) +       "for (java.util.Iterator itr = " + attr.attributeSignature() + "_values.keySet().iterator(); itr.hasNext();) {");
               stream.println(ind(6) +         "Object key = itr.next();");
               stream.println(ind(6) +         "if (" + attr.attributeSignature() + "_values.get(key) == value) {");
               stream.println(ind(7) +           attr.attributeSignature() + "_values.remove(key);");
@@ -3426,7 +3426,7 @@ aspect JaddCodeGen {
             AttrDecl attr = (AttrDecl)itr.next();
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-              stream.println(ind(3) +   "for (Iterator itr = " + attr.attributeSignature() + 
+              stream.println(ind(3) +   "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                               "_handler.values().iterator(); itr.hasNext();) {");
               stream.println(ind(4) +     "h.transferSetsFrom((ASTNode$DepGraphNode)itr.next());");
               stream.println(ind(3) +   "}");
