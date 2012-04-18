@@ -1,0 +1,15 @@
+aspect Test201_A {
+  public void Node.toBeRefined() { }
+}
+
+aspect Test201_B {
+  refine Test201_A public void Node.toBeRefined() {
+    System.out.println("Test201.Node.toBeRefined");
+    System.out.println("aTest201.Node.toBeRefined");
+    System.out.println("Test201.Node.toBeRefinedd");
+    System.out.println("refined");
+    System.out.println("unrefined");
+    System.out.println("rrrefineddd");
+    System.out.println("refinedrefined");
+  }
+}

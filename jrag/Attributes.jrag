@@ -565,10 +565,19 @@ public aspect Attributes {
     s = new StringBuffer();
     refinedEqu.getRHS().unparseClassBodyDeclaration(s, name(), false);
 
-    String pattern = "refined";
-    if(ASTNode.refineLegacy)
-      pattern = "(" + pattern + ")|("
-      + equ.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\." + equ.attributeName() + ")";
+    String pattern = "\\brefined\\b";
+    if(ASTNode.refineLegacy) {
+      StringBuffer buf = new StringBuffer();
+      buf.append("(");
+      buf.append(pattern);
+      buf.append(")|(");
+      buf.append("\\b");
+      buf.append(equ.legacyAspectName());
+      buf.append("\\.[a-zA-Z0-9_$]+\\.");
+      buf.append(equ.attributeName());
+      buf.append("\\b)");
+      pattern = buf.toString();
+    }
     java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s.toString());
     if(matcher.find()) {
       n.firstToken.image = matcher.replaceAll(newMethodName);
@@ -871,11 +880,19 @@ public aspect Attributes {
                 node.unparseClassBodyDeclaration(buf, name(), false);
                 String s = buf.toString();
 
-                String pattern = "refined";
-                if(ASTNode.refineLegacy)
-                  pattern = "(" + pattern + ")|("
-                    + decl.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\." + methodName
-                    + ")";
+                String pattern = "\\brefined\\b";
+                if(ASTNode.refineLegacy) {
+                  buf = new StringBuffer();
+                  buf.append("(");
+                  buf.append(pattern);
+                  buf.append(")|(");
+                  buf.append("\\b");
+                  buf.append(decl.legacyAspectName());
+                  buf.append("\\.[a-zA-Z0-9_$]+\\.");
+                  buf.append(methodName);
+                  buf.append("\\b)");
+                  pattern = buf.toString();
+                }
                 String newContents = "refined_" + decl.aspectName() + "_" + name() + "_" + methodName;
                 //s = s.replaceAll(pattern, newContents);
                 // TODO: update keep to false if no strings are replaced
@@ -965,11 +982,19 @@ public aspect Attributes {
             StringBuffer buf = new StringBuffer();
             node.unparseClassBodyDeclaration(buf, name(), false);
             String s = buf.toString();
-            String pattern = "refined";
-            if(ASTNode.refineLegacy)
-              pattern = "(" + pattern + ")|("
-                + decl.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\." + methodName
-                + ")";
+            String pattern = "\\brefined\\b";
+            if(ASTNode.refineLegacy) {
+              buf = new StringBuffer();
+              buf.append("(");
+              buf.append(pattern);
+              buf.append(")|(");
+              buf.append("\\b");
+              buf.append(decl.legacyAspectName());
+              buf.append("\\.[a-zA-Z0-9_$]+\\.");
+              buf.append(methodName);
+              buf.append("\\b)");
+              pattern = buf.toString();
+            }
             String newContents = "refined_" + decl.aspectName() + "_" + name() + "_" + methodName;
             //s = s.replaceAll(pattern, newContents);
             // TODO: update keep to false if no strings are replaced

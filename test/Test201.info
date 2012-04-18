@@ -1,0 +1,6 @@
+AST: legacy refine syntax
+JastAdd2 uses pattern matching to replace the "refined" keyword with the method
+name of the refined method. This pattern also works inside string literals and
+comments. The pattern matching should be sensitive to word boundaries so that
+for example the substring "refined" in the string "unrefined" does match
+this pattern.
