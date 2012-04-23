@@ -795,8 +795,10 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "System.arraycopy(children, i+1, children, i, children.length-i-1);");
     stream.println(ind(3) + "numChildren--;");
     stream.println(ind(3) + "for(int j = i; j < numChildren; ++j) {");
-    stream.println(ind(4) + "if(children[j] != null)");
-    stream.println(ind(5) + "children[j].childIndex = j;");
+    stream.println(ind(4) + "if(children[j] != null) {");
+    stream.println(ind(5) + "child = (ASTNode) children[j];");
+    stream.println(ind(5) + "child.childIndex = j;");
+    stream.println(ind(4) + "}");
     stream.println(ind(3) + "}");
     stream.println(ind(2) + "}");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
