@@ -1033,8 +1033,8 @@ aspect JaddCodeGen {
         ind(5) + "if (children[i] == null) {\n" +
         ind(6) + "tree.children[i] = null;\n" +
         ind(5) + "} else {\n" +
-        ind(6) + "tree.children[i] = children[i].fullCopy();\n" +
-        ind(6) + "tree.children[i].setParent(tree);\n" +
+        ind(6) + "tree.children[i] = ((ASTNode) children[i]).fullCopy();\n" +
+        ind(6) + "((ASTNode) tree.children[i]).setParent(tree);\n" +
         ind(5) + "}\n" +
         ind(4) + "}\n" +
         ind(3) + "}\n" +
