@@ -232,9 +232,9 @@ public class JastAddTask extends Task {
       args.add("--doxygen");
     }
 
-	// EMMA_2009-11-16: Adding ant task attributes as JastAdd arguments
-	if (cacheNone) args.add("--cacheNone");
-	if (cacheImplicit) args.add("--cacheImplicit");
+    // EMMA_2009-11-16: Adding ant task attributes as JastAdd arguments
+    if (cacheNone) args.add("--cacheNone");
+    if (cacheImplicit) args.add("--cacheImplicit");
     if (ignoreLazy) args.add("--ignoreLazy");
 
     args.addAll(files);
