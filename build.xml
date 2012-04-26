@@ -24,7 +24,8 @@
 	<target name="build" description="build JastAdd2"
 		depends="build-resources">
 		<jastadd java14="true" jjtree="true" rewrite="true"
-			grammar="Ast" package="ast.AST" outdir="${basedir}">
+			grammar="Ast" package="ast.AST" outdir="${basedir}"
+			lazyMaps="false">
 			<fileset dir="ast" includes="*.jrag,*.ast"/>
 			<fileset dir="jrag" includes="*.jrag"/>
 		</jastadd>

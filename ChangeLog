@@ -1,3 +1,7 @@
+2012-04-26: (JO) The Ant build now uses lazyMaps="false" since the lazyMaps
+implementation currently causes build errors in some projects. This option
+can be re-enabled later when the bug has been fixed properly.
+--------------------------------------------------------------------------------
 2012-04-24: (JO) Added cast in fullCopy: can't assume that the child
 array has type ASTNode[]
 --------------------------------------------------------------------------------
