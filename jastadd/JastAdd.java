@@ -24,12 +24,15 @@ public class JastAdd {
     }
     return resources.getString(key);
   }
-  public static String getVersion() {
-    return "JastAdd II (http://jastadd.org) version " +
+  public static String getVersionString() {
+    return "JastAdd2 " + getString("jastadd.version");
+  }
+  public static String getLongVersionString() {
+    return "JastAdd2 (http://jastadd.org) version " +
       getString("jastadd.version");
   }
   public static String getVersionInfo() {
-    return "\n// Generated with " + getVersion() + "\n\n";
+    return "\n// Generated with " + getVersionString() + "\n\n";
   }
 
   protected java.util.List files;
@@ -50,7 +53,9 @@ public class JastAdd {
     try {
       files = new ArrayList();
       cacheFiles = new ArrayList();
-      if (readArgs(args)) System.exit(1);;
+      if (readArgs(args)) {
+        System.exit(1);
+      }
 
       long time = System.currentTimeMillis();
 
@@ -257,7 +262,11 @@ public class JastAdd {
     }
   }
 
-  /* Read and process commandline */
+  /**
+   * Read and process command-line arguments
+   *
+   * @param args Command-line arguments
+   */
   public boolean readArgs(String[] args) {
     CommandLineArguments cla = new CommandLineArguments(args);
     if(cla.hasLongOption("jjtree") && !cla.hasLongOption("grammar")) {
@@ -388,18 +397,19 @@ public class JastAdd {
     }
 
     if(cla.hasLongOption("version")) {
-      System.out.println(getVersion());
-      return true;
+      // just print version and exit
+      System.out.println(getVersionString());
+      System.exit(0);
     }
 
     if (cla.hasLongOption("help") || files.isEmpty()) {
-      System.out.println(getVersion() + "\n");
+      // just print version and exit
+      System.out.println(getLongVersionString() + "\n");
       printHelp();
-      return true;
+      System.exit(0);
     }
     return false;
   }
-
 
   private String readFile(String name) throws java.io.IOException {
     StringBuffer buf = new StringBuffer();
