@@ -14,7 +14,7 @@ public class JastAddTask extends Task {
   public void init() {
     super.init();
   }
-  
+
   private LinkedHashSet files = new LinkedHashSet();
   public void addConfiguredFileSet(FileSet fileset) {
     DirectoryScanner s = fileset.getDirectoryScanner(getProject());
@@ -23,26 +23,26 @@ public class JastAddTask extends Task {
     for(int i = 0; i < files.length; i++)
       this.files.add(baseDir + File.separator + files[i]);
   }
-  
+
   // use jjtree node as base node type, requires the grammar option
   private boolean jjtree = false;
   public void setJjtree(boolean b) { jjtree = b; }
-  
+
   private String grammar = null;
   public void setGrammar(String g) { grammar = g; }
 
   // use beaver node as base node type
   private boolean beaver = false;
   public void setBeaver(boolean b) { beaver = b; }
-  
+
   // make the generated files belong to this package
   private String packageName = null;
   public void setPackage(String name) { packageName = name; }
-  
+
   // place the generated files in this directory
   private String outdir = null;
   public void setOutdir(String dir) { outdir = dir; }
-  
+
   // use these datastructures to hold cached attributes
   private String defaultMap = null;
   public void setDefaultMap(String map) { defaultMap = map; }
@@ -50,16 +50,16 @@ public class JastAddTask extends Task {
   public void setDefaultSet(String set) { defaultSet = set; }
   private boolean lazyMaps = true;
   public void setLazyMaps(boolean b) { lazyMaps = b; }
-  
+
   // generate code for rewrites
   private boolean rewrite = false;
   public void setRewrite(boolean b) { rewrite = b; }
-  
+
   // generate check for detection of circular evaluation of non circular attributes
   private boolean novisitcheck = false;
   public void setNovisitcheck(boolean b) { novisitcheck = b;}
   public void setVisitCheck(boolean b) { novisitcheck = !b; }
-  
+
   // generate last cycle cache optimization for circular attributes
   private boolean noCacheCycle = false;
   public void setNoCacheCycle(boolean b) { noCacheCycle = b; }
@@ -69,7 +69,7 @@ public class JastAddTask extends Task {
   private boolean noComponentCheck = true; // disabled by default for now
   public void setNoComponentCheck(boolean b) { noComponentCheck = b; }
   public void setComponentCheck(boolean b) { noComponentCheck = !b; }
-  
+
   // disable check for inherited equations
   private boolean noInhEqCheck = false;
   public void setNoInhEqCheck(boolean b) { noInhEqCheck = b; }
@@ -185,14 +185,14 @@ public class JastAddTask extends Task {
       args.add("--grammar=" + grammar);
     }
     if(beaver)              args.add("--beaver");
-    
+
     if(packageName != null) args.add("--package=" + packageName);
     if(outdir != null)      args.add("--o=" + outdir);
-    
+
     if(defaultMap != null)  args.add("--defaultMap=" + defaultMap);
     if(defaultSet != null)  args.add("--defaultSet=" + defaultSet);
     if(lazyMaps)            args.add("--lazyMaps");
-    
+
     if(rewrite)             args.add("--rewrite");
     if(novisitcheck)        args.add("--novisitcheck");
     if(noCacheCycle)        args.add("--noCacheCycle");
