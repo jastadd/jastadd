@@ -263,9 +263,9 @@ public class JastAdd {
   }
 
   /**
-   * Read and process command-line arguments
+   * Read and process command line arguments
    *
-   * @param args Command-line arguments
+   * @param args Command line arguments
    */
   public boolean readArgs(String[] args) {
     CommandLineArguments cla = new CommandLineArguments(args);
@@ -279,7 +279,10 @@ public class JastAdd {
     ASTNode.createDefaultMap = cla.getLongOptionValue("defaultMap", "new java.util.HashMap(4)");
     ASTNode.createDefaultSet = cla.getLongOptionValue("defaultSet", "new java.util.HashSet(4)");
 
-    ASTNode.lazyMaps = cla.hasLongOption("lazyMaps");
+    // Lazy maps are now default ON
+    // - Jesper 2012-04-27
+    //ASTNode.lazyMaps = cla.hasLongOption("lazyMaps");
+    ASTNode.lazyMaps = !cla.hasLongOption("noLazyMaps");
 
     publicModifier = !cla.hasLongOption("private");
 
@@ -287,14 +290,22 @@ public class JastAdd {
     ASTNode.beaver = cla.hasLongOption("beaver");
     ASTNode.visitCheckEnabled = !cla.hasLongOption("novisitcheck");
     ASTNode.cacheCycle = !cla.hasLongOption("noCacheCycle");
-    ASTNode.componentCheck = !cla.hasLongOption("noComponentCheck");
+
+    // Component checks are now  default OFF so
+    // the noComponentCheck option does nothing
+    // - Jesper 2012-04-27
+    //ASTNode.componentCheck = !cla.hasLongOption("noComponentCheck");
+    ASTNode.componentCheck = cla.hasLongOption("componentCheck");
 
     ASTNode.noInhEqCheck = cla.hasLongOption("noInhEqCheck");
 
     ASTNode.suppressWarnings = cla.hasLongOption("suppressWarnings");
     ASTNode.parentInterface = cla.hasLongOption("parentInterface");
 
-    ASTNode.refineLegacy = cla.hasLongOption("refineLegacy");
+    // Refine legacy is now default ON
+    // - Jesper 20120-04-27
+    //ASTNode.refineLegacy = cla.hasLongOption("refineLegacy");
+    ASTNode.refineLegacy = !cla.hasLongOption("noRefineLegacy");
 
     ASTNode.stagedRewrites = cla.hasLongOption("stagedRewrites");
 
@@ -470,7 +481,7 @@ public class JastAdd {
     // EMMA_2011-01-11: Added help print-out for already supported flags
     System.out.println("  --suppressWarnings (supress warnings when using Java 5)");
     System.out.println("  --parentInterfaces (search equations for inherited attributes using interfaces)");
-    System.out.println("  --noComponentCheck (generate strongly connected component optimization for circular attributes)");
+    System.out.println("  --componentCheck (disable strongly connected component optimization for circular attributes)");
     System.out.println("  --noInhEqCheck (disable check for inherited equations)");
     System.out.println("  --j2me (generate for J2ME)");
     System.out.println("  --java1.4 (generate for Java1.4)");
@@ -478,12 +489,12 @@ public class JastAdd {
     System.out.println("  --doc (generate javadoc like .html pages from sources)");
     System.out.println("  --deterministic (..)");
     System.out.println("  --stagedRewrites (..)");
-    System.out.println("  --refineLegacy (..)");
+    System.out.println("  --noRefineLegacy (disable the legacy refine syntax)");
     System.out.println("  --noStatic (..)");
     System.out.println("  --synch (..)");
     System.out.println("  --defaultMap=MAP (use these datastructures to hold cached attributes)");
     System.out.println("  --defaultSet=SET (use these datastructures to hold cached attributes)");
-    System.out.println("  --lazyMaps (use these datastructures to hold cached attributes)");
+    System.out.println("  --noLazyMaps (don't use these datastructures to hold cached attributes)");
     System.out.println();
     System.out.println("Arguments:");
     System.out.println("Names of .ast, .jrag, .jadd and .caching source files");
