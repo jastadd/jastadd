@@ -101,7 +101,8 @@
 			<include name="RunTests.java"/>
 		</javac>
 		<echo message="running unit tests"/>
-		<java classpath="." classname="RunTests" output="test_results"/>
+		<java classpath="." classname="RunTests" output="test_results"
+			logError="true"/>
 		<echo message="tests completed, output written to test_results"/>
 		<exec executable="grep" failonerror="true"
 			output="passed">

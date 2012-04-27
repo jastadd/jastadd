@@ -33,6 +33,7 @@ public class RunTests {
 		if(!new File(testName  + ".java").exists())
 			return;
 		try {
+			System.err.println("Running test " + testName);
 			System.out.println(testName + ".java");
 
 			removeGeneratedFiles();
