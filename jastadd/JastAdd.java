@@ -268,52 +268,150 @@ public class JastAdd {
    * @param args Command line arguments
    */
   public boolean readArgs(String[] args) {
-    CommandLineArguments cla = new CommandLineArguments(args);
-    if(cla.hasLongOption("jjtree") && !cla.hasLongOption("grammar")) {
-      System.out.println("Missing grammar option that is required in jjtree-mode");
+    CommandLineArguments cla = new CommandLineArguments();
+    Option jjtree = new Option("jjtree", "use jjtree base node, this requires --grammar to be set");
+    Option grammarOption = new Option("grammar", "the name of the grammar's parser, required when using --jjtree", true);
+    Option defaultMap = new Option("defaultMap", "use these datastructres to store cached attributes", true);
+    Option defaultSet = new Option("defaultSet", "use these datastructres to store cached attributes", true);
+    Option lazyMaps = new Option("lazyMaps", "use lazy maps");
+    Option noLazyMaps = new Option("noLazyMaps", "don't use lazy maps");
+    Option privateOption = new Option("private", "");
+    Option rewrite = new Option("rewrite", "enable ReRAGs support");
+    Option beaver = new Option("beaver", "use beaver base node");
+    Option noVisitCheck = new Option("noVisitCheck", "disable circularity check for attributes");
+    Option noCacheCycle = new Option("noCacheCycle", "disable cache cycle optimization for circular attributes");
+    Option noComponentCheck = new Option("noComponentCheck", "enable strongly connected component optimization for circular attributes");
+    Option componentCheck = new Option("componentCheck", "disable strongly connected component optimization for circular attributes");
+    Option noInhEqCheck = new Option("noInhEqCheck", "disable check for inherited equations");
+    Option suppressWarnings = new Option("suppressWarnings", "suppress warnings when using Java 5");
+    Option parentInterface = new Option("parentInterface", "search equations for inherited attributes using interfaces");
+    Option refineLegacy = new Option("refineLegacy", "enable the legacy refine syntax");
+    Option noRefineLegacy = new Option("noRefineLegacy", "disable the legacy refine syntax");
+    Option stagedRewrites = new Option("stagedRewrites", "");
+    Option doc = new Option("doc", "generate javadoc like .html pages from sources");
+    Option license = new Option("license", "include the given file in each generated file", true);
+    Option java1_4 = new Option("java1.4", "generate for Java 1.4");
+    Option debug = new Option("debug", "generate run-time checks for debugging");
+    Option synch = new Option("synch", "");
+    Option noStatic = new Option("noStatic", "");
+    Option deterministic = new Option("deterministic", "");
+    Option j2me = new Option("j2me", "generate for J2ME");
+    Option outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
+    Option tracing = new Option("tracing", "weaves in code generating a cache tree");
+    Option cacheAll = new Option("cacheAll", "cache all attributes");
+    Option noCaching = new Option("noCaching", "");// what does this actually do? the same as cacheNone?? - Jesper
+    Option doxygen = new Option("doxygen", "enhance navigation and documentation when using doxygen");
+    Option cacheNone = new Option("cacheNone", "cache no attributes, except NTAs");
+    Option cacheImplicit = new Option("cacheImplicit", "make caching implicit, .caching files have higher priority");
+    Option ignoreLazy = new Option("ignoreLazy", "ignore the \"lazy\" keyword");
+    Option packageOption = new Option("package", "optional package for generated files", true);
+    Option version = new Option("version", "print version string and halts");
+    Option help = new Option("help", "prints a short help output and halts");
+    Option printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
+
+    defaultMap.setNonStandard();
+    defaultSet.setNonStandard();
+    privateOption.setNonStandard();
+    stagedRewrites.setNonStandard();
+    synch.setNonStandard();
+    noStatic.setNonStandard();
+    noCaching.setNonStandard();
+
+    // Should these be deprecated? They are default ON
+    //lazyMaps.setDeprecated();
+    //refineLegacy.setDeprecated();
+    //noComponentCheck.setDeprecated();
+
+    // set default values
+    grammarOption.setDefaultValue("Unknown");
+    defaultMap.setDefaultValue("new java.util.HashMap(4)");
+    defaultSet.setDefaultValue("new java.util.HashSet(4)");
+    outputDirOption.setValue(System.getProperty("user.dir"));
+    packageOption.setDefaultValue("");
+
+    cla.addOption(jjtree);
+    cla.addOption(grammarOption);
+    cla.addOption(defaultMap);
+    cla.addOption(defaultSet);
+    cla.addOption(lazyMaps);
+    cla.addOption(noLazyMaps);
+    cla.addOption(privateOption);
+    cla.addOption(rewrite);
+    cla.addOption(beaver);
+    cla.addOption(noVisitCheck);
+    cla.addOption(noCacheCycle);
+    cla.addOption(noComponentCheck);
+    cla.addOption(componentCheck);
+    cla.addOption(noInhEqCheck);
+    cla.addOption(suppressWarnings);
+    cla.addOption(parentInterface);
+    cla.addOption(refineLegacy);
+    cla.addOption(noRefineLegacy);
+    cla.addOption(stagedRewrites);
+    cla.addOption(doc);
+    cla.addOption(license);
+    cla.addOption(java1_4);
+    cla.addOption(debug);
+    cla.addOption(synch);
+    cla.addOption(noStatic);
+    cla.addOption(deterministic);
+    cla.addOption(j2me);
+    cla.addOption(outputDirOption);
+    cla.addOption(tracing);
+    cla.addOption(cacheAll);
+    cla.addOption(noCaching);
+    cla.addOption(doxygen);
+    cla.addOption(cacheNone);
+    cla.addOption(cacheImplicit);
+    cla.addOption(ignoreLazy);
+    cla.addOption(packageOption);
+    cla.addOption(version);
+    cla.addOption(help);
+    cla.addOption(printNonStandardOptions);
+
+    // parse the argument list
+    cla.match(args);
+
+    if (printNonStandardOptions.matched()) {
+      System.out.println("Non-standard options:");
+      cla.printNonStandardOptions();
+      System.exit(0);
+    }
+
+    if (jjtree.matched() && !grammarOption.matched()) {
+      System.err.println("Missing grammar option. It is required in jjtree-mode!");
       return true;
     }
-    ASTNode.jjtree = cla.hasLongOption("jjtree");
-    grammar = cla.getLongOptionValue("grammar", "Unknown");
 
-    ASTNode.createDefaultMap = cla.getLongOptionValue("defaultMap", "new java.util.HashMap(4)");
-    ASTNode.createDefaultSet = cla.getLongOptionValue("defaultSet", "new java.util.HashSet(4)");
+    ASTNode.jjtree = jjtree.matched();
+    grammar = grammarOption.value();
 
-    // Lazy maps are now default ON
-    // - Jesper 2012-04-27
-    //ASTNode.lazyMaps = cla.hasLongOption("lazyMaps");
-    ASTNode.lazyMaps = !cla.hasLongOption("noLazyMaps");
+    ASTNode.createDefaultMap = defaultMap.value();
+    ASTNode.createDefaultSet = defaultSet.value();
 
-    publicModifier = !cla.hasLongOption("private");
+    ASTNode.lazyMaps = !noLazyMaps.matched();
 
-    ASTNode.rewriteEnabled = cla.hasLongOption("rewrite");
-    ASTNode.beaver = cla.hasLongOption("beaver");
-    ASTNode.visitCheckEnabled = !cla.hasLongOption("novisitcheck");
-    ASTNode.cacheCycle = !cla.hasLongOption("noCacheCycle");
+    publicModifier = !privateOption.matched();
 
-    // Component checks are now  default OFF so
-    // the noComponentCheck option does nothing
-    // - Jesper 2012-04-27
-    //ASTNode.componentCheck = !cla.hasLongOption("noComponentCheck");
-    ASTNode.componentCheck = cla.hasLongOption("componentCheck");
+    ASTNode.rewriteEnabled = rewrite.matched();
+    ASTNode.beaver = beaver.matched();
+    ASTNode.visitCheckEnabled = !noVisitCheck.matched();
+    ASTNode.cacheCycle = !noCacheCycle.matched();
+    ASTNode.componentCheck = componentCheck.matched();
+    ASTNode.noInhEqCheck = noInhEqCheck.matched();
 
-    ASTNode.noInhEqCheck = cla.hasLongOption("noInhEqCheck");
+    ASTNode.suppressWarnings = suppressWarnings.matched();
+    ASTNode.parentInterface = parentInterface.matched();
 
-    ASTNode.suppressWarnings = cla.hasLongOption("suppressWarnings");
-    ASTNode.parentInterface = cla.hasLongOption("parentInterface");
+    ASTNode.refineLegacy = !noRefineLegacy.matched();
 
-    // Refine legacy is now default ON
-    // - Jesper 20120-04-27
-    //ASTNode.refineLegacy = cla.hasLongOption("refineLegacy");
-    ASTNode.refineLegacy = !cla.hasLongOption("noRefineLegacy");
+    ASTNode.stagedRewrites = stagedRewrites.matched();
 
-    ASTNode.stagedRewrites = cla.hasLongOption("stagedRewrites");
-
-    ASTNode.doc = cla.hasLongOption("doc");
+    ASTNode.doc = doc.matched();
 
     ASTNode.license = "";
-    if(cla.hasLongOption("license")) {
-      String fileName = cla.getLongOptionValue("license", null);
+    if(license.matched()) {
+      String fileName = license.value();
       try {
         if(fileName != null) {
           ASTNode.license = readFile(fileName);
@@ -324,28 +422,29 @@ public class JastAdd {
       }
     }
 
-    ASTNode.java5 = !cla.hasLongOption("java1.4");
+    ASTNode.java5 = !java1_4.matched();
 
-    if(cla.hasLongOption("debug")) {
+    if (debug.matched()) {
       ASTNode.debugMode = true;
       ASTNode.cycleLimit = 100;
       ASTNode.rewriteLimit = 100;
       ASTNode.visitCheckEnabled = true;
     }
 
-    ASTNode.block = cla.hasLongOption("synch");
+    ASTNode.block = synch.matched();
 
-    ASTNode.noStatic = cla.hasLongOption("noStatic");
+    ASTNode.noStatic = noStatic.matched();
 
-    ASTNode.deterministic = cla.hasLongOption("deterministic");
+    ASTNode.deterministic = deterministic.matched();
     if(ASTNode.deterministic) {
+      // overrides values set by the defaultMap and defaultSet options
       ASTNode.createDefaultMap = "new java.util.LinkedHashMap(4)";
       ASTNode.createDefaultSet = "new java.util.LinkedHashSet(4)";
     }
 
-    ASTNode.j2me = cla.hasLongOption("j2me");
+    ASTNode.j2me = j2me.matched();
 
-    String outputDirName = cla.getLongOptionValue("o", System.getProperty("user.dir"));
+    String outputDirName = outputDirOption.value();
     outputDir = new File(outputDirName);
 
     if(!outputDir.exists()) {
@@ -381,17 +480,17 @@ public class JastAdd {
       ASTNode.createContributorSet = "new ASTNode$State.HashtableBasedSet(4)";
     }
 
-    ASTNode.tracing = cla.hasLongOption("tracing");
-    ASTNode.cacheAll = cla.hasLongOption("cacheAll");
-    ASTNode.noCaching = cla.hasLongOption("noCaching");
-    ASTNode.doxygen = cla.hasLongOption("doxygen");
+    ASTNode.tracing = tracing.matched();
+    ASTNode.cacheAll = cacheAll.matched();
+    ASTNode.noCaching = noCaching.matched();
+    ASTNode.doxygen = doxygen.matched();
 
     // EMMA_2009-11-16: Handle new flags
-    ASTNode.cacheNone = cla.hasLongOption("cacheNone");
-    ASTNode.cacheImplicit = cla.hasLongOption("cacheImplicit");
-    ASTNode.ignoreLazy = cla.hasLongOption("ignoreLazy"); 
+    ASTNode.cacheNone = cacheNone.matched();
+    ASTNode.cacheImplicit = cacheImplicit.matched();
+    ASTNode.ignoreLazy = ignoreLazy.matched();
 
-    pack = cla.getLongOptionValue("package", "").replace('/', '.');
+    pack = packageOption.value().replace('/', '.');
     int n = cla.getNumOperands();
     for (int k=0; k<n; k++) {
       String fileName = cla.getOperand(k);
@@ -407,16 +506,16 @@ public class JastAdd {
       }
     }
 
-    if(cla.hasLongOption("version")) {
+    if (version.matched()) {
       // just print version and exit
       System.out.println(getVersionString());
       System.exit(0);
     }
 
-    if (cla.hasLongOption("help") || files.isEmpty()) {
+    if (help.matched() || files.isEmpty()) {
       // just print version and exit
       System.out.println(getLongVersionString() + "\n");
-      printHelp();
+      printHelp(cla);
       System.exit(0);
     }
     return false;
@@ -449,7 +548,7 @@ public class JastAdd {
   /**
     Print help
     */
-  public void printHelp() {
+  public void printHelp(CommandLineArguments cla) {
     System.out.println("This program reads a number of .jrag, .jadd, and .ast files");
     System.out.println("and creates the nodes in the abstract syntax tree");
     System.out.println();
@@ -460,41 +559,7 @@ public class JastAdd {
     System.out.println("Source file syntax can be found at http://jastadd.org");
     System.out.println();
     System.out.println("Options:");
-    System.out.println("  --help (prints this text and stops)");
-    System.out.println("  --version (prints version information and stops)");
-    System.out.println("  --package=PPP (optional package for generated files, default is none)");
-    System.out.println("  --o=DDD (optional base output directory, default is current directory");
-    System.out.println("  --beaver (use beaver base node)");
-    System.out.println("  --jjtree (use jjtree base node, this requires --grammar to be set)");
-    System.out.println("  --grammar=GGG (the parser for the grammar is called GGG, required when using jjtree)");
-    System.out.println("  --rewrite (enable ReRAGs support)");
-    System.out.println("  --novisitcheck (disable circularity check for attributes)");
-    System.out.println("  --noCacheCycle (disable cache cyle optimization for circular attributes)");
-    System.out.println("  --license=LICENSE (include the file LICENSE in each generated file)");
-    System.out.println("  --doxygen (enhance navigation and documentation when using doxygen)");
-    // EMMA_2009-11-17: Adding info about cache and trace flags
-    System.out.println("  --tracing (weaves in code generating a cache trace)");
-    System.out.println("  --cacheAll (cache all attributes)");
-    System.out.println("  --cacheNone (cache no attributes, except NTAs)");
-    System.out.println("  --cacheImplicit (make caching implicit, .caching files have higher priority)");
-    System.out.println("  --ignoreLazy (ignore the \"lazy\" keyword)");
-    // EMMA_2011-01-11: Added help print-out for already supported flags
-    System.out.println("  --suppressWarnings (supress warnings when using Java 5)");
-    System.out.println("  --parentInterfaces (search equations for inherited attributes using interfaces)");
-    System.out.println("  --componentCheck (disable strongly connected component optimization for circular attributes)");
-    System.out.println("  --noInhEqCheck (disable check for inherited equations)");
-    System.out.println("  --j2me (generate for J2ME)");
-    System.out.println("  --java1.4 (generate for Java1.4)");
-    System.out.println("  --debug (generate run-time checks for debugging)");
-    System.out.println("  --doc (generate javadoc like .html pages from sources)");
-    System.out.println("  --deterministic (..)");
-    System.out.println("  --stagedRewrites (..)");
-    System.out.println("  --noRefineLegacy (disable the legacy refine syntax)");
-    System.out.println("  --noStatic (..)");
-    System.out.println("  --synch (..)");
-    System.out.println("  --defaultMap=MAP (use these datastructures to hold cached attributes)");
-    System.out.println("  --defaultSet=SET (use these datastructures to hold cached attributes)");
-    System.out.println("  --noLazyMaps (don't use these datastructures to hold cached attributes)");
+    cla.printHelp();
     System.out.println();
     System.out.println("Arguments:");
     System.out.println("Names of .ast, .jrag, .jadd and .caching source files");
@@ -505,8 +570,6 @@ public class JastAdd {
     System.out.println("The result is the generated classes for the nodes in the AST that are placed");
     System.out.println("in the package ast.");
     System.out.println();
-    System.out.println("JastAdd --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
-    System.out.println();
-    System.out.println("Stopping program");
+    System.out.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
   }
 }

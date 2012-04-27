@@ -1,10 +1,30 @@
-2012-04-27: (JO) In order to make JastAdd behave the same when invoked from
+2012-04-27: (JO) A new class was added to handle command line options passed
+to JastAdd. The new jastadd.Option class is responsible for option matching
+and help printing. Options can be made deprecated and non-standard.
+Only standard, non-deprecated, options are printed in the default help text.
+The non-standard options can be printed with the --X option.
+
+If a deprecated option is used JastAdd prints a warning.
+
+If an option is given twice JastAdd prints a warning.
+
+If an unknown option is used (string starting with --) JastAdd prints a
+warning.
+
+If an option that requires a value does not have one, JastAdd prints a
+warning.
+
+Some option descriptions were slightly modified.
+
+In order to make JastAdd behave the same when invoked from
 command line and Ant task, the options --noComponentCheck, --lazyMaps and
 --refineLegacy are now default ON. They can be switched off using
 --componentCheck, --noLazyMaps and --noRefineLegacy respectively.
---------------------------------------------------------------------------------
-2012-04-27: (JO) Print the error output from the test runner in the ant log
-rather than sending it to test_results.
+
+Print the error output from the test runner in the ant log rather than sending
+it to test_results.
+
+Test runner prints the command used to invoke JastAdd.
 --------------------------------------------------------------------------------
 2012-04-26: (JO) Running JastAdd with the --version or --help flags now
 makes JastAdd print the requested information and exit with exit code zero.

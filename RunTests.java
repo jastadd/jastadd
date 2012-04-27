@@ -206,7 +206,9 @@ public class RunTests {
 		// This allows testcases to be easily run on other versions of jastadd2.jar
 		try {
 			Runtime runtime = Runtime.getRuntime();
-			String cmd = "java -jar jastadd2.jar " + flattenStringArray(buildArgs(testName));
+			String argString = flattenStringArray(buildArgs(testName));
+			String cmd = "java -jar jastadd2.jar " + argString;
+			System.err.println(cmd);
 			if (verbose) System.out.println("Generate files: " + cmd);
 			Process process = runtime.exec(cmd);
 			int i = process.waitFor();
