@@ -5302,9 +5302,10 @@ aspect JaddCodeGen {
       buf.append("     }\n");
     } else {
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-        buf.append("       get#ID#_handler.notifyDependencies();\n");
-        if (ASTNode.incrementalTrack) 
+        if (ASTNode.incrementalTrack) {
           buf.append("       get#ID#_handler.trackChange();\n");    
+        }
+        buf.append("       get#ID#_handler.notifyDependencies();\n");
       }
       if (ASTNode.incrementalLevelNode) {
         buf.append("       handler.flushRegion();\n");
