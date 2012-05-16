@@ -518,7 +518,7 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "return;");
     stream.println(ind(2) + "}");
     if (ASTNode.incrementalTrack) {
-    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedRead++;");
+    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedReads++;");
     }
     stream.println(ind(2) + "java.util.Stack handlerStack = handlerAttrStack;");
 //    stream.println(ind(2) + "if (IN_REWRITE_EVAL) ");
@@ -532,7 +532,7 @@ aspect JaddCodeGen {
     stream.println(ind + "public boolean IN_ATTR_STORE_EVAL = false;");
     stream.println(ind + "public void enterAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
     if (ASTNode.incrementalTrack) {
-    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComp++;");
+    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComputes++;");
     }
 //    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
     stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = true;");
@@ -1877,18 +1877,18 @@ aspect JaddCodeGen {
         String u = attr.resetVisit() + attr.resetCache();
         u = u.replaceAll("#NAME#", attr.attributeSignature());
         stream.print(u);
-        if (ASTNode.incrementalTrack) {
-          stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlush++;");
-        }
+        //if (ASTNode.incrementalTrack) {
+        //  stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlushes++;");
+        //}
       }
       for(int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
         String u = attr.resetVisit() + attr.resetCache();
         u = u.replaceAll("#NAME#", attr.attributeSignature());
         stream.print(u);
-        if (ASTNode.incrementalTrack) {
-          stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlush++;");
-        }
+        //if (ASTNode.incrementalTrack) {
+        //  stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlushes++;");
+        //}
       }
 
       // tokens
@@ -3017,18 +3017,18 @@ aspect JaddCodeGen {
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);              
-              if (ASTNode.incrementalTrack) {
-                stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
-              }
+              //if (ASTNode.incrementalTrack) {
+              //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
+              //}
               stream.println(ind(2) + "}");
             } else {
               //stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed) {");
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);              
-              if (ASTNode.incrementalTrack) {
-                stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
-              }
+              //if (ASTNode.incrementalTrack) {
+              //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
+              //}
               //stream.println(ind(2) + "}");
             }
           }
@@ -3097,9 +3097,9 @@ aspect JaddCodeGen {
           stream.println(ind(4) +     "node.inc_flush_subtree(node.handler());");
           stream.println(ind(4) +     "node.handler().clearDependencies();");
           stream.println(ind(4) +     "state().exitConstruction();");
-          if (ASTNode.incrementalTrack) {
-            stream.println(ind(4) +     "ASTNode$DepGraphNode.trackedFlush++;");
-          }
+          //if (ASTNode.incrementalTrack) {
+          //  stream.println(ind(4) +     "ASTNode$DepGraphNode.trackedFlushes++;");
+          //}
           stream.println(ind(4) +     "return true;");
           stream.println(ind(3) +   "}");
           stream.println(ind(3) +   "return false;");
@@ -3149,9 +3149,9 @@ aspect JaddCodeGen {
                   String u = attr.resetVisit() + attr.resetCache();
                   u = u.replaceAll("#NAME#", attr.attributeSignature());
                   stream.print(u);
-                  if (ASTNode.incrementalTrack) {
-                    stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
-                  }
+                  //if (ASTNode.incrementalTrack) {
+                  //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
+                  //}
                   stream.println(ind(2) + "}");
                 }
               }
@@ -3309,9 +3309,9 @@ aspect JaddCodeGen {
 //              String u = attr.resetVisit() + attr.resetCache();
 //              u = u.replaceAll("#NAME#", attr.attributeSignature());
 //              stream.print(u);
-              if (ASTNode.incrementalTrack) {
-                stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
-              }
+              //if (ASTNode.incrementalTrack) {
+              //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
+              //}
               //stream.println(ind(5) +       "return true;");
               stream.println(ind(4) +     "}");
               stream.println(ind(3) +   "}");
@@ -3329,9 +3329,9 @@ aspect JaddCodeGen {
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
-                if (ASTNode.incrementalTrack) {
-                  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlush++;");
-                }
+                //if (ASTNode.incrementalTrack) {
+                //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
+                //}
                 stream.println(ind(2) + "}");
               }
             }
@@ -4578,16 +4578,17 @@ aspect JaddCodeGen {
     stream.println("  static public class ASTNode$DepGraphNode {");
 
     if (ASTNode.incrementalTrack) {
-    stream.println("    public static int trackedRead = 0;");
-    stream.println("    public static int trackedComp = 0;");
-    stream.println("    public static int trackedFlush = 0;");
+    stream.println("    public static int trackedReads = 0;");
+    stream.println("    public static int trackedComputes = 0;");
+    stream.println("    public static int trackedFlushes = 0;");
+    stream.println("    public static java.io.PrintStream trackingOutput = System.out;");
     stream.println("    public static void resetTrackingCounters() {");
     stream.println("      trackedReads = 0;");
-    stream.println("      trackedComp = 0;");
-    stream.println("      trackedFlush = 0;");
+    stream.println("      trackedComputes = 0;");
+    stream.println("      trackedFlushes = 0;");
     stream.println("    }");
-    stream.println("    public static String trackingResult() {");
-    stream.println("      return read=\" + trackedRead + \",comp=\" + trackedComp + \",flush=\" + trackedFlush + \";");
+    stream.println("    public static String getTrackingResult() {");
+    stream.println("      return \"#reads = \" + trackedReads + \", #computes = \" + trackedComputes + \", #flushes = \" + trackedFlushes;");
     stream.println("    }");
     }
 
@@ -4793,6 +4794,10 @@ aspect JaddCodeGen {
     stream.println("    public void dependencyChanged() {");
     stream.println("      if (!visitedChange) {");
     stream.println("        visitedChange = true;");
+    if (ASTNode.incrementalTrack) {
+      stream.println("        trackedFlushes++;");
+      stream.println("        trackingOutput.println(\"not(\" + this + \")\");");
+    }
     stream.println("        if (!fDependencySet.isEmpty()) {");
     stream.println("          // Remove dependencies");
     stream.println("          java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
