@@ -2099,7 +2099,8 @@ aspect JaddCodeGen {
   // ES_2011-10-04: Changing this to an internal set of child via the children array to not send notifications
   public String ASTDecl.jjtGenIncrementalCloneNode() {
     StringBuffer buf = new StringBuffer();
-    buf.append(ind(3) + "res.children[i] = node;\n" + ind(3) + "node.parent = res;\n");
+    buf.append(ind(3) + "res.children[i] = node;\n");
+    buf.append(ind(3) + "node.parent = res;\n");
     //buf.append(ind(3) + "state().enterConstruction(); res.setChild(node, i); state().exitConstruction();\n");
     return buf.toString();
   }
@@ -2107,7 +2108,7 @@ aspect JaddCodeGen {
   public String ASTDecl.jjtGenIncrementalCloneNode2() {
     StringBuffer buf = new StringBuffer();
     buf.append(ind(2) + "for(int i = 0; children != null && i < children.length; i++) {\n");
-    buf.append(ind(3) + "ASTNode node = children[i];\n");
+    buf.append(ind(3) +   "ASTNode node = children[i];\n");
     return buf.toString();
   }
 
@@ -4779,6 +4780,9 @@ aspect JaddCodeGen {
     stream.println("      // Notify and remove listeners");
     stream.println("      if (!visited) {");
     stream.println("        visited = true;");
+    if (ASTNode.incrementalTrack) {
+      stream.println("        trackingOutput.println(\"change(\" + this + \")\");");
+    }
     stream.println("        java.util.HashSet<ASTNode$DepGraphNode> k = fListenerSet;");
     stream.println("        fListenerSet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("        for (ASTNode$DepGraphNode node : k) {");
