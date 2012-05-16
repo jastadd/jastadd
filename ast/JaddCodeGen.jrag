@@ -4583,6 +4583,9 @@ aspect JaddCodeGen {
     stream.println("    public static int trackedComputes = 0;");
     stream.println("    public static int trackedFlushes = 0;");
     stream.println("    public static java.io.PrintStream trackingOutput = System.out;");
+    stream.println("    public void trackChange() {");
+    stream.println("      trackingOutput.println(\"change(\" + this + \")\");");
+    stream.println("    }");
     stream.println("    public static void resetTrackingCounters() {");
     stream.println("      trackedReads = 0;");
     stream.println("      trackedComputes = 0;");
@@ -4780,9 +4783,6 @@ aspect JaddCodeGen {
     stream.println("      // Notify and remove listeners");
     stream.println("      if (!visited) {");
     stream.println("        visited = true;");
-    if (ASTNode.incrementalTrack) {
-      stream.println("        trackingOutput.println(\"change(\" + this + \")\");");
-    }
     stream.println("        java.util.HashSet<ASTNode$DepGraphNode> k = fListenerSet;");
     stream.println("        fListenerSet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
     stream.println("        for (ASTNode$DepGraphNode node : k) {");
@@ -4947,7 +4947,7 @@ aspect JaddCodeGen {
       addNameComment() +
       ind + "public void #HOST#.add#NAME#(#TYPE# node) {\n" +
       (ASTNode.block ? ASTNode.blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = (parent == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
+      ind(2) + "#LISTTYPE# list = (parenrt == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
       ind(2) + "list.addChild(node);\n" + 
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n" + 
@@ -5302,7 +5302,9 @@ aspect JaddCodeGen {
       buf.append("     }\n");
     } else {
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      buf.append("       get#ID#_handler.notifyDependencies();\n");
+        buf.append("       get#ID#_handler.notifyDependencies();\n");
+        if (ASTNode.incrementalTrack) 
+          buf.append("       get#ID#_handler.trackChange();\n");    
       }
       if (ASTNode.incrementalLevelNode) {
         buf.append("       handler.flushRegion();\n");
