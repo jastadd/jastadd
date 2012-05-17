@@ -4821,6 +4821,34 @@ aspect JaddCodeGen {
     stream.println("    }");
     // Debugging methods:
     if (ASTNode.incrementalDebug) {
+      stream.println("    private int dumpDependants_visited = 0;");
+      stream.println("    public void dumpDependants(boolean changed, int visited) {");
+      stream.println("      if (visited != dumpDependants_visited) {");
+      stream.println("        dumpDependants_visited = visited;");
+      stream.println("        if (changed) {");
+      stream.println("          System.out.println(\"change(\" + this + \")\");");
+      stream.println("        } else {");
+      stream.println("          System.out.println(\"dep-change(\" + this + \")\");");
+      stream.println("     	  }");
+      stream.println("        class Entry implements Comparable<Entry> {");
+      stream.println("          public String id;");
+      stream.println("          public ASTNode$DepGraphNode node;");
+      stream.println("          public Entry(String id, ASTNode$DepGraphNode node) {");
+      stream.println("            this.id = id; this.node = node;");
+      stream.println("          }");
+      stream.println("          public int compareTo(Entry e) {");
+      stream.println("            return id.compareTo(e.id);");
+      stream.println("          }");
+      stream.println("        }");
+      stream.println("        java.util.TreeSet<Entry> sorted = new java.util.TreeSet<Entry>();");
+      stream.println("        for (ASTNode$DepGraphNode node : fListenerSet) {");
+      stream.println("          sorted.add(new Entry(node.toString(), node));");
+      stream.println("        }");
+      stream.println("        for (Entry e : sorted) {");
+      stream.println("          e.node.dumpDependants(false);");
+      stream.println("        }");
+      stream.println("      }");
+      stream.println("    }");
       stream.println("    public void dumpDeps() {");
       stream.println("      java.util.TreeSet<String> sorted = new java.util.TreeSet<String>();");
       stream.println("      for (ASTNode$DepGraphNode node : fListenerSet) {");
