@@ -528,8 +528,8 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
     stream.println(ind(3) +   "handler.addDependant(top);");
     if (ASTNode.incrementalPropLimit) {
-    stream.println(ind(3) +   "if (handler.isCacheDependent())");
-    stream.println(ind(4) +     "top.setCacheDependent(true);");
+    stream.println(ind(3) +   "if (!handler.isCacheInDependent())");
+    stream.println(ind(4) +     "top.setCacheInDependent(false);");
     }
     stream.println(ind(2) + "}");
     stream.println(ind + "}");
@@ -581,7 +581,7 @@ aspect JaddCodeGen {
     stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
     if (ASTNode.incrementalPropLimit) {
     stream.println(ind(2) + "// assume that evaluation will be clean from cached values");
-    stream.println(ind(2) + "handler.setCacheDependent(false);");
+    stream.println(ind(2) + "handler.setCacheInDependent(true);");
     }
     stream.println(ind(2) + "stack.push(handler);");
     stream.println(ind + "}");        
@@ -593,8 +593,8 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "if (!stack.isEmpty()) {");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
     stream.println(ind(3) +   "// propagate dirtiness to the top of the stack");
-    stream.println(ind(3) +   "if (h.isCacheDependent()) {");
-    stream.println(ind(4) +     "top.setCacheDependent(true);");
+    stream.println(ind(3) +   "if (!h.isCacheInDependent()) {");
+    stream.println(ind(4) +     "top.setCacheInDependent(false);");
     stream.println(ind(3) +   "}");
     stream.println(ind(2) + "}");
     }
@@ -2943,6 +2943,94 @@ aspect JaddCodeGen {
 		}
   }
 
+  // ES_2012-05-17: Code generation for incremental evaluation, check if value is affected
+  public void ASTDecl.jjtGenIncrementalAffectedValue(PrintWriter stream) {
+    if (ASTNode.incrementalLevelParam) {
+      stream.println(ind + "public boolean " + name() + ".inc_valueAffected(String attrID, Object _parameters) {");      
+
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrDecl attr = getSynEq(k).decl();
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+
+      // Add attribute code: flush attributes
+      boolean first = true;
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+
+        // start match attribute statement
+        stream.print(ind(2) + (first ? "" : "else "));
+        stream.print("if (" + "attrID.equals(\"" + attr.attributeSignature() + "\")");
+        if (attr.getNumParameter() > 0) 
+          stream.print(" && " + attr.attributeSignature() + "_values != null" + 
+            " && " + attr.attributeSignature() + "_values.containsKey(_parameters)");
+        else stream.print(" && " + attr.attributeSignature() + "_computed");
+        stream.println(") {");
+/*
+        // handle parameterized attributes
+        if (attr.getNumParameter() > 0) {
+
+            // handler NTA
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+                && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+              stream.println(ind(3) + attr.type() + " value = (" + attr.type() + ")" + attr.attributeSignature() + "_values.remove(_parameters);");                 
+              stream.println(ind(3) + "for (int i = 0; i < " + attr.attributeSignature() + "_list.children.length; i++) {");
+              stream.println(ind(4) +   "ASTNode child = " + attr.attributeSignature() + "_list.children[i];");
+              stream.println(ind(4) +   "if (child != null && value == child) {");
+              // using dummy node to flush dependencies from NTA 
+//              stream.println(ind(5) +     "value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
+              stream.println(ind(5) +     "value.inc_flush_subtree((ASTNode$DepGraphNode)" + 
+                                        attr.attributeSignature() + "_handler.get(_parameters));");
+              stream.println(ind(5) +     attr.attributeSignature() + "_list.removeChild(i);");
+              stream.println(ind(5) +     "break;");
+              stream.println(ind(4) +   "}");
+              stream.println(ind(3) + "}");
+            } else {
+              stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
+            }
+          } else {
+            // handler NTA
+            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+                && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
+                stream.println(ind(3) +     attr.attributeSignature() + "_list.setParent(null);");
+                // using dummy node to flush dependencies from NTA 
+//                stream.println(ind(3) +     attr.attributeSignature() + 
+//                                  "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null))");
+                stream.println(ind(3) +     attr.attributeSignature() + "_list.inc_flush_subtree(" + 
+                                  attr.attributeSignature() + "_handler);");
+                stream.println(ind(2) + "}");
+            }
+            String u = attr.resetVisit() + attr.resetCache();
+            u = u.replaceAll("#NAME#", attr.attributeSignature());
+            stream.print(u);              
+          }
+
+          String u = attr.resetVisit() + attr.resetCache();
+          u = u.replaceAll("#NAME#", attr.attributeSignature());
+          stream.print(u);
+
+        }
+*/
+        stream.println(ind(3) +   "return false;");
+        stream.println(ind(2) + "}");      // end match statements
+        first = false;
+      }
+      if (name().equals("ASTNode"))
+        stream.println(ind(2) + "return false;");      
+      else 
+        stream.println(ind(2) + "return super.inc_valueAffected(attrID, _parameters);");      
+      stream.println(ind + "}");
+    }
+  }
+
   // ES_2011-09-20: Code generation for incremental evaluation, react to change
   public void ASTDecl.jjtGenIncrementalReactToChange(PrintWriter stream) {
 
@@ -4708,16 +4796,16 @@ aspect JaddCodeGen {
       stream.println("      fParams = params;");
       stream.println("    }");
       if (ASTNode.incrementalPropLimit) {
-      stream.println("    private boolean cacheDependent = false;");
-      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params, boolean cacheDependent) {");
+      stream.println("    private boolean cacheInDependent = false;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params, boolean cacheInDependent) {");
       stream.println("      this(node, attrID, params);");
-      stream.println("      this.cacheDependent = cacheDependent;");
+      stream.println("      this.cacheInDependent = cacheInDependent;");
       stream.println("    }");
-      stream.println("    public boolean isCacheDependent() {");
-      stream.println("      return cacheDependent;");
+      stream.println("    public boolean isCacheInDependent() {");
+      stream.println("      return cacheInDependent;");
       stream.println("    }");
-      stream.println("    public void setCacheDependent(boolean b) {");
-      stream.println("      cacheDependent = b;");
+      stream.println("    public void setCacheInDependent(boolean b) {");
+      stream.println("      cacheInDependent = b;");
       stream.println("    }");
       }
     }
@@ -4830,6 +4918,10 @@ aspect JaddCodeGen {
       stream.println("        trackedFlushes++;");
       stream.println("        System.out.println(\"not(\" + this + \")\");");
     }
+    if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
+      stream.println("        if (isCacheIndependent()) && !fNode.inc_valueAffected(fAttrID, fParams)) {");
+      stream.println("        } else {");
+    }
     stream.println("        if (!fDependencySet.isEmpty()) {");
     stream.println("          // Remove dependencies");
     stream.println("          java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
@@ -4844,6 +4936,9 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
     stream.println("          fNode.reactToDependencyChange();");
     stream.println("        }");
+    if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
+      stream.println("        }");
+    }
     stream.println("        visitedChange = false;");
     stream.println("      }");
     stream.println("    }");
