@@ -4919,7 +4919,7 @@ aspect JaddCodeGen {
       stream.println("        System.out.println(\"not(\" + this + \")\");");
     }
     if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
-      stream.println("        if (isCacheIndependent()) && !fNode.inc_valueAffected(fAttrID, fParams)) {");
+      stream.println("        if (isCacheIndependent() && !fNode.inc_valueAffected(fAttrID, fParams)) {");
       stream.println("        } else {");
     }
     stream.println("        if (!fDependencySet.isEmpty()) {");
