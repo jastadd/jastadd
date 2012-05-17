@@ -4820,10 +4820,10 @@ aspect JaddCodeGen {
     stream.println("    }");
     // Debugging methods:
     if (ASTNode.incrementalDebug) {
-      stream.println("    private int dumpDependants_visited = 0;");
-      stream.println("    public void dumpDependants(boolean changed, int visited) {");
-      stream.println("      if (visited != dumpDependants_visited) {");
-      stream.println("        dumpDependants_visited = visited;");
+      stream.println("    private int dumpDependents_visited = 0;");
+      stream.println("    public void dumpDependents(boolean changed, int visited) {");
+      stream.println("      if (visited != dumpDependents_visited) {");
+      stream.println("        dumpDependents_visited = visited;");
       stream.println("        if (changed) {");
       stream.println("          System.out.println(\"change(\" + this + \")\");");
       stream.println("        } else {");
