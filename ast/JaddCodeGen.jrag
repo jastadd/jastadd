@@ -527,6 +527,10 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "//throw new Error(\"Handler stack is empty at addition of dependency!\");");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
     stream.println(ind(3) +   "handler.addDependant(top);");
+    if (ASTNode.incrementalPropLimit) {
+    stream.println(ind(3) +   "if (handler.isCacheDependent())");
+    stream.println(ind(4) +     "top.setCacheDependent(true);");
+    }
     stream.println(ind(2) + "}");
     stream.println(ind + "}");
     stream.println(ind + "public boolean IN_ATTR_STORE_EVAL = false;");
@@ -575,12 +579,25 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "IN_CONSTRUCTION = false;");
     stream.println(ind + "}"); 
     stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
+    if (ASTNode.incrementalPropLimit) {
+    stream.println(ind(2) + "// assume that evaluation will be clean from cached values");
+    stream.println(ind(2) + "handler.setCacheDependent(false);");
+    }
     stream.println(ind(2) + "stack.push(handler);");
     stream.println(ind + "}");        
     stream.println(ind + "protected ASTNode$DepGraphNode popHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
     stream.println(ind(2) + "if (stack.isEmpty())");
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
+    if (ASTNode.incrementalPropLimit) {
+    stream.println(ind(2) + "if (!stack.isEmpty()) {");
+    stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
+    stream.println(ind(3) +   "// propagate dirtiness to the top of the stack");
+    stream.println(ind(3) +   "if (h.isCacheDependent()) {");
+    stream.println(ind(4) +     "top.setCacheDependent(true);");
+    stream.println(ind(3) +   "}");
+    stream.println(ind(2) + "}");
+    }
     stream.println(ind(2) + "if (h != handler)");
     stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop!\");");
 //    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop! [\" + handler.fAttrID + \"]\");");
@@ -2503,7 +2520,6 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
     
-    jjtGenIncrementalPropagation(stream);
     jjtGenIncrementalHandlers(stream);
     jjtGenIncrementalCopyHandlers(stream);
     jjtGenIncrementalTreeModification(stream);
@@ -2696,46 +2712,6 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return child;");      
       stream.println(ind + "}"); // end method: inc_locateInitialCopy
       
-    }
-
-  }
-
-
-  // ES_2012-05-17: Code generation for incremental evaluation, change propagation code
-  public void ASTDecl.jjtGenIncrementalPropagation(PrintWriter stream) {
-
-    if (ASTNode.incrementalPropLimit) {
-      // collect attributes
-      ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynDecl(); k++) {
- 	      AttrDecl attr = getSynDecl(k);
-      	if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-    	for(int k = 0; k < getNumInhDecl(); k++) {
-    	  AttrDecl attr = getInhDecl(k);
-    	  if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      for (int k = 0; k < getNumCollDecl(); k++) {
-    	  CollDecl attr = getCollDecl(k);
-        list.add(attr);      
-      }
-      // attribute code 
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-        if (ASTNode.incrementalLevelParam) {
-          // level param: check if this is a parameterized attribute
-    	    if (attr.getNumParameter() > 0) {
-    	      stream.println(ind + "protected java.util.Map " + name() + "." + 
-                  attr.attributeSignature() + "_cache_dep = new java.util.HashMap(4);");
-    	    } else {
-            stream.println("  protected boolean " + name() + "." + 
-                  attr.attributeSignature() + "_cache_dep = false;");
-          }
-        }
-        
-      }
     }
 
   }
@@ -4731,6 +4707,19 @@ aspect JaddCodeGen {
       stream.println("    public void setParams(Object params) {");
       stream.println("      fParams = params;");
       stream.println("    }");
+      if (ASTNode.incrementalPropLimit) {
+      stream.println("    private boolean cacheDependent = false;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params, boolean cacheDependent) {");
+      stream.println("      this(node, attrID, params);");
+      stream.println("      this.cacheDependent = cacheDependent;");
+      stream.println("    }");
+      stream.println("    public boolean isCacheDependent() {");
+      stream.println("      return cacheDependent;");
+      stream.println("    }");
+      stream.println("    public void setCacheDependent(boolean b) {");
+      stream.println("      cacheDependent = b;");
+      stream.println("    }");
+      }
     }
     // level: attr also needs an attr ID 
     if (ASTNode.incrementalLevelAttr) {
@@ -5336,8 +5325,13 @@ aspect JaddCodeGen {
   String TokenComponent.jaddGenIncrementalTokenHandler() {
     if (!isNTA()) {
     if (ASTNode.incrementalLevelParam)
-      return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                 "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
+      if (ASTNode.incrementalPropLimit) {
+        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null, true);\n";
+      } else {
+        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
+      }
     if (ASTNode.incrementalLevelAttr)
       return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
                  "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
