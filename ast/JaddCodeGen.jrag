@@ -4845,7 +4845,7 @@ aspect JaddCodeGen {
       stream.println("          sorted.add(new Entry(node.toString(), node));");
       stream.println("        }");
       stream.println("        for (Entry e : sorted) {");
-      stream.println("          e.node.dumpDependants(false);");
+      stream.println("          e.node.dumpDependants(false, visited);");
       stream.println("        }");
       stream.println("      }");
       stream.println("    }");
