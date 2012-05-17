@@ -4582,9 +4582,8 @@ aspect JaddCodeGen {
     stream.println("    public static int trackedReads = 0;");
     stream.println("    public static int trackedComputes = 0;");
     stream.println("    public static int trackedFlushes = 0;");
-    stream.println("    public static java.io.PrintStream trackingOutput = System.out;");
     stream.println("    public void trackChange() {");
-    stream.println("      trackingOutput.println(\"change(\" + this + \")\");");
+    stream.println("      System.out.println(\"change(\" + this + \")\");");
     stream.println("    }");
     stream.println("    public static void resetTrackingCounters() {");
     stream.println("      trackedReads = 0;");
@@ -4800,7 +4799,7 @@ aspect JaddCodeGen {
     stream.println("        visitedChange = true;");
     if (ASTNode.incrementalTrack) {
       stream.println("        trackedFlushes++;");
-      stream.println("        trackingOutput.println(\"not(\" + this + \")\");");
+      stream.println("        System.out.println(\"not(\" + this + \")\");");
     }
     stream.println("        if (!fDependencySet.isEmpty()) {");
     stream.println("          // Remove dependencies");
