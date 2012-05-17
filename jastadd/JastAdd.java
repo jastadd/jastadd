@@ -489,12 +489,12 @@ public class JastAdd {
         if (!ASTNode.incrementalPropFull && !ASTNode.incrementalPropLimit) {
             ASTNode.incrementalPropFull = true;
         }
-        // check propagration: currently not supporting limit strategy -- "limit"
-        if (ASTNode.incrementalPropLimit) {
-            System.err.println("error: Unsupported incremental evaluation configuration: " +
-                "\"limit\".");
-            return false;                        
-        }
+        // check propagration: currently not supporting limit strategy -- "limit" - we do now
+        //if (ASTNode.incrementalPropLimit) {
+        //    System.err.println("error: Unsupported incremental evaluation configuration: " +
+        //        "\"limit\".");
+        //    return false;                        
+        //}
 
         return true;
     }

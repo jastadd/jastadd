@@ -2502,7 +2502,8 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return buf.toString();");
       stream.println(ind + "}");
     }
-
+    
+    jjtGenIncrementalPropagation(stream);
     jjtGenIncrementalHandlers(stream);
     jjtGenIncrementalCopyHandlers(stream);
     jjtGenIncrementalTreeModification(stream);
@@ -2697,6 +2698,45 @@ aspect JaddCodeGen {
       
     }
 
+  }
+
+
+  // ES_2012-05-17: Code generation for incremental evaluation, change propagation code
+  public void ASTDecl.jjtGenIncrementalPropagation(PrintWriter stream) {
+
+    if (ASTNode.incrementalPropLimit) {
+      // collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynDecl(); k++) {
+ 	      AttrDecl attr = getSynDecl(k);
+      	if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+    	for(int k = 0; k < getNumInhDecl(); k++) {
+    	  AttrDecl attr = getInhDecl(k);
+    	  if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for (int k = 0; k < getNumCollDecl(); k++) {
+    	  CollDecl attr = getCollDecl(k);
+        list.add(attr);      
+      }
+      // attribute code 
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (ASTNode.incrementalLevelParam) {
+          // level param: check if this is a parameterized attribute
+    	    if (attr.getNumParameter() > 0) {
+    	      stream.println(ind + "protected java.util.Map " + name() + "." + 
+                  attr.attributeSignature() + "_cache_dep = new java.util.HashMap(4);");
+    	    } else {
+            stream.println("  protected boolean " + name() + "." + 
+                  attr.attributeSignature() + "_cache_dep = false;");
+          }
+        }
+        
+      }
+    }
 
   }
 
