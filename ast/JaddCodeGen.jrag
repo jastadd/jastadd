@@ -528,8 +528,8 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
     stream.println(ind(3) +   "handler.addDependant(top);");
     if (ASTNode.incrementalPropLimit) {
-    stream.println(ind(3) +   "if (!handler.isCacheInDependent())");
-    stream.println(ind(4) +     "top.setCacheInDependent(false);");
+    stream.println(ind(3) +   "if (!handler.cacheInDependent)");
+    stream.println(ind(4) +     "top.noCacheRead = false;");
     }
     stream.println(ind(2) + "}");
     stream.println(ind + "}");
@@ -590,10 +590,9 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
     if (ASTNode.incrementalPropLimit) {
-    stream.println(ind(2) + "h.cacheInDependent &= h.noCacheRead;");
+    stream.println(ind(2) + "h.cacheInDependent = h.noCacheRead;");
     stream.println(ind(2) + "if (!stack.isEmpty()) {");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
-    stream.println(ind(3) +   "// propagate dirtiness to the top of the stack");
     stream.println(ind(3) +   "top.noCacheRead &= h.noCacheRead;");
     stream.println(ind(2) + "}");
     }
