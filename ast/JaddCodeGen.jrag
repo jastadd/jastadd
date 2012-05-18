@@ -5386,10 +5386,10 @@ aspect JaddCodeGen {
         //
         ind + "public void #HOST#.set#ID#(#TYPE# value) {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
+        ind(2) + "token#TYPEINSIGNATURE#_#ID# = value;\n" +
         // ES_2011-09-20: Code generation for incremental evaluation
         (ASTNode.incremental ? jaddGenIncrementalTokenChange("value") : "") +
         //
-        ind(2) + "token#TYPEINSIGNATURE#_#ID# = value;\n" +
         (ASTNode.block ? ASTNode.blockEnd : "") +
         ind + "}\n"
         );
@@ -5413,12 +5413,12 @@ aspect JaddCodeGen {
             (ASTNode.block ? ASTNode.blockBegin : "") +
             ind(2) + "if(symbol.value != null && !(symbol.value instanceof String))\n" +
             ind(3) + "throw new UnsupportedOperationException(\"set#ID# is only valid for String lexemes\");\n" +
-            // ES_2011-09-20: Code generation for incremental evaluation, tokens
-            (ASTNode.incremental ? jaddGenIncrementalTokenChange("symbol") : "") + 
-            //
             ind(2) + "token#TYPEINSIGNATURE#_#ID# = (String)symbol.value;\n" +
             ind(2) + "#ID#start = symbol.getStart();\n" +
             ind(2) + "#ID#end = symbol.getEnd();\n" +
+            // ES_2011-09-20: Code generation for incremental evaluation, tokens
+            (ASTNode.incremental ? jaddGenIncrementalTokenChange("symbol") : "") + 
+            //
             (ASTNode.block ? ASTNode.blockEnd : "") +
             ind + "}\n"
             );
@@ -5500,13 +5500,6 @@ aspect JaddCodeGen {
       }
       buf.append("     }\n");
     } else {
-      buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
-      buf.append("       if (initial != null) {\n");
-      buf.append("         state().enterConstruction();\n");
-      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
-      buf.append("         state().exitConstruction();\n");
-      buf.append("         return;\n");
-      buf.append("       }\n");
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
         if (ASTNode.incrementalTrack) {
           buf.append("       get#ID#_handler.trackChange();\n");    
@@ -5535,6 +5528,13 @@ aspect JaddCodeGen {
           buf.append("       }\n");
         }
       }
+      buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
+      buf.append("       if (initial != null) {\n");
+      buf.append("         state().enterConstruction();\n");
+      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
+      buf.append("         state().exitConstruction();\n");
+      buf.append("         return;\n");
+      buf.append("       }\n");
     }
     buf.append("    }\n");
     return buf.toString();
