@@ -2990,23 +2990,23 @@ aspect JaddCodeGen {
 
           // with parameters
           if (attr.getNumParameter() > 0) {
-            // store old value
-            stream.println(ind(3) + attr.type() + " oldValue = " + attr.attributeSignature() + "_values.get(_parameters);");
-            // flush value
-            stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
-            // clear dependencies in handler
-            stream.println(ind(3) + "ASTNode$DepGraphNode handler = " + attr.attributeSignature() + "_handler.get(_parameters);");
-            stream.println(ind(3) + "handler.clearDependencies();");
-            // compute new value
-            if (attr.getNumParameter() == 1) {
-              if (attr.isPrimitive()) {
-                stream.println(ind(3) + "throw new Error(\"No support for primitive parameter in affected value check\");");
-              } else {
-                String param = "(" + attr.type() + ")_parameters";
-                stream.println(ind(3) + attr.type() + " newValue = " + attr.attributeSignature() + "();");
-              }
+            if (attr.isPrimitive()) {
+              stream.println(ind(3) + "throw new Error(\"No support for primitive parameter in affected value check\");");
             } else {
-              stream.println(ind(3) + "throw new Error(\"No support for more than one parameter in affected value check\");");
+              // store old value
+              stream.println(ind(3) + attr.type() + " oldValue = (" + attr.type() + ")" + attr.attributeSignature() + "_values.get(_parameters);");
+              // flush value
+              stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
+              // clear dependencies in handler
+              stream.println(ind(3) + "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + attr.attributeSignature() + "_handler.get(_parameters);");
+              stream.println(ind(3) + "handler.clearDependencies();");
+              // compute new value
+              if (attr.getNumParameter() == 1) {
+                String param = "(" + attr.type() + ")_parameters";
+                stream.println(ind(3) + attr.type() + " newValue = " + attr.getName() + "();");
+              } else {
+                stream.println(ind(3) + "throw new Error(\"No support for more than one parameter in affected value check\");");
+              }
             }
           } 
           // without parameters
@@ -3019,7 +3019,7 @@ aspect JaddCodeGen {
             // clear dependencies in handler  
             stream.println(ind(3) + attr.attributeSignature() + "_handler.clearDependencies();");
             // compute new value
-            stream.println(ind(3) + attr.type() + " newValue = " + attr.attributeSignature() + "();");
+            stream.println(ind(3) + attr.type() + " newValue = " + attr.getName() + "();");
           }
 
           // compare old and new value
