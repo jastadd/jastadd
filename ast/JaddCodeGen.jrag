@@ -1385,9 +1385,9 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler[i] == null) {");
       if (ASTNode.incrementalPropLimit) {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !child.mayHaveRewrite());");
       } else {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       }
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");
@@ -1526,7 +1526,7 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "int i = getNumChildNoTransform() - 1;");
       stream.println(ind(3) + "if (getChild_handler[i] == null)");
       if (ASTNode.incrementalPropLimit) {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !child.mayHaveRewrite());");
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
       stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       }
