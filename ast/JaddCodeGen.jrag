@@ -2944,9 +2944,12 @@ aspect JaddCodeGen {
 		}
   }
 
+
   // ES_2012-05-17: Code generation for incremental evaluation, check if value is affected
   public void ASTDecl.jjtGenIncrementalAffectedValue(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+
+    // start method: inc_valueAffected
+    if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
       stream.println(ind + "public boolean " + name() + ".inc_valueAffected(String attrID, Object _parameters) {");      
 
       ArrayList list = new ArrayList();
@@ -2974,10 +2977,10 @@ aspect JaddCodeGen {
             " && " + attr.attributeSignature() + "_values.containsKey(_parameters)");
         else stream.print(" && " + attr.attributeSignature() + "_computed");
         stream.println(") {");
-/*
+
         // handle parameterized attributes
         if (attr.getNumParameter() > 0) {
-
+/*
             // handler NTA
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
                 && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
@@ -2996,7 +2999,18 @@ aspect JaddCodeGen {
             } else {
               stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
             }
-          } else {
+*/
+
+            // store old value
+            // flush value
+            stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
+            // clear dependencies in handler
+            // compute new value
+            // compare old and new value
+            
+
+        } else {
+/*
             // handler NTA
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
                 && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
@@ -3009,28 +3023,31 @@ aspect JaddCodeGen {
                                   attr.attributeSignature() + "_handler);");
                 stream.println(ind(2) + "}");
             }
-            String u = attr.resetVisit() + attr.resetCache();
-            u = u.replaceAll("#NAME#", attr.attributeSignature());
-            stream.print(u);              
-          }
-
-          String u = attr.resetVisit() + attr.resetCache();
-          u = u.replaceAll("#NAME#", attr.attributeSignature());
-          stream.print(u);
-
-        }
 */
-        stream.println(ind(3) +   "return false;");
+          // store old value + flush value
+          stream.println(ind(3) + attr.type() + " oldValue = " + attr.attributeSignature() + "_value;");
+          String u = attr.resetVisit() + attr.resetCache();
+          u = u.replaceAll("#NAME#", attr.attributeSignature());            
+          stream.print(u);         
+          // clear dependencies in handler  
+          stream.println(ind(3) + attr.attributeSignature() + "_handler.clearDependencies();");
+          // compute new value
+          // compare old and new value
+        }
+
+        stream.println(ind(3) +   "return true;");
         stream.println(ind(2) + "}");      // end match statements
         first = false;
       }
       if (name().equals("ASTNode"))
-        stream.println(ind(2) + "return false;");      
+        stream.println(ind(2) + "return true;");      
       else 
         stream.println(ind(2) + "return super.inc_valueAffected(attrID, _parameters);");      
       stream.println(ind + "}");
     }
+    // end method: inc_valueAffected
   }
+
 
   // ES_2011-09-20: Code generation for incremental evaluation, react to change
   public void ASTDecl.jjtGenIncrementalReactToChange(PrintWriter stream) {
