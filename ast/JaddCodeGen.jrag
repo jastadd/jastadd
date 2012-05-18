@@ -590,7 +590,7 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
     if (ASTNode.incrementalPropLimit) {
-    stream.println(ind(2) + "h.cacheInDependent = h.noCacheRead;");
+    stream.println(ind(2) + "h.setCacheInDependent(h.noCacheRead);");
     stream.println(ind(2) + "if (!stack.isEmpty()) {");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
     stream.println(ind(3) +   "top.noCacheRead &= h.noCacheRead;");
@@ -1321,7 +1321,11 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(3) + "if (that.getChild_handler[i] == null) {");
+      if (ASTNode.incrementalPropLimit) {
+      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrites());");
+      } else {
       stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      }
       stream.println(ind(3) + "}");
       stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
     }
@@ -1338,7 +1342,11 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackRewrite11(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(3) + "if (that.getChild_handler[i] == null) {");
+      if (ASTNode.incrementalPropLimit) {
+      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrites());");
+      } else {
       stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      }
       stream.println(ind(3) + "}");
       stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
     }
@@ -1376,7 +1384,11 @@ aspect JaddCodeGen {
   public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler[i] == null) {");
-      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      if (ASTNode.incrementalPropLimit) {
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrites());");
+      } else {
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      }
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");
     }
@@ -1513,7 +1525,11 @@ aspect JaddCodeGen {
     if (ASTNode.incrementalLevelParam) {
       stream.println(ind(3) + "int i = getNumChildNoTransform() - 1;");
       stream.println(ind(3) + "if (getChild_handler[i] == null)");
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      if (ASTNode.incrementalPropLimit) {
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrites());");
+      } else {
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      }
       stream.println(ind(3) + "state().addHandlerDepTo(getChild_handler[i]);");    
       stream.println(ind(3) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
     }
@@ -2747,10 +2763,17 @@ aspect JaddCodeGen {
       // handlers specific for ASTNode
       if (name().equals("ASTNode")) {
         if (ASTNode.incrementalLevelParam) {
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-              "new ASTNode$DepGraphNode(this, \"getParent\", null);");
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-              "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
+          if (ASTNode.incrementalPropLimit) {
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+                "new ASTNode$DepGraphNode(this, \"getParent\", null, true);");
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+                "new ASTNode$DepGraphNode(this, \"numChildren\", null, true);");
+          } else {
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+                "new ASTNode$DepGraphNode(this, \"getParent\", null);");
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+                "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
+          }
           stream.println(ind + "protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
         } 
         if (ASTNode.incrementalLevelAttr) {
@@ -4734,7 +4757,7 @@ aspect JaddCodeGen {
     stream.println("        l.addDependant(this);");
     stream.println("      }");
     if (ASTNode.incrementalPropLimit) {
-      stream.println("      cacheInDependent = node.cacheInDependent;");
+      stream.println("      setCacheInDependent(node.cacheInDependent);");
     }
     stream.println("      node.clearDependencies();");
 //    stream.println("      node.clearDependants();");
