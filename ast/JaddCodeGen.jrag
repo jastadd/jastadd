@@ -3002,7 +3002,7 @@ aspect JaddCodeGen {
               stream.println(ind(3) + "handler.clearDependencies();");
               // compute new value
               if (attr.getNumParameter() == 1) {
-                String param = "(" + attr.type() + ")_parameters";
+                String param = "(" + attr.getParameter(0).getTypeInSignature() + ")_parameters";
                 stream.println(ind(3) + attr.type() + " newValue = " + attr.getName() + "(" + param + ");");
               } else {
                 stream.println(ind(3) + "throw new Error(\"No support for more than one parameter in affected value check\");");
