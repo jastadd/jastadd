@@ -589,13 +589,14 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "if (stack.isEmpty())");
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
-    if (ASTNode.incrementalPropLimit) {
-    stream.println(ind(2) + "h.setCacheInDependent(h.noCacheRead);");
-    stream.println(ind(2) + "if (!stack.isEmpty()) {");
-    stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
-    stream.println(ind(3) +   "top.noCacheRead &= h.noCacheRead;");
-    stream.println(ind(2) + "}");
-    }
+    // Skip this for now, deal with transitive dependencies later
+    //if (ASTNode.incrementalPropLimit) {
+    //stream.println(ind(2) + "h.setCacheInDependent(h.noCacheRead);");
+    //stream.println(ind(2) + "if (!stack.isEmpty()) {");
+    //stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
+    //stream.println(ind(3) +   "top.noCacheRead &= h.noCacheRead;");
+    //stream.println(ind(2) + "}");
+    //}
     stream.println(ind(2) + "if (h != handler)");
     stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop!\");");
 //    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop! [\" + handler.fAttrID + \"]\");");
@@ -4957,12 +4958,12 @@ aspect JaddCodeGen {
     stream.println("      if (!visitedChange) {");
     stream.println("        visitedChange = true;");
     if (ASTNode.incrementalTrack) {
-      stream.println("        trackedFlushes++;");
-      stream.println("        System.out.println(\"not(\" + this + \")\");");
+    stream.println("        trackedFlushes++;");
+    stream.println("        System.out.println(\"not(\" + this + \")\");");
     }
     if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
-      stream.println("        if (isCacheInDependent() && !fNode.inc_valueAffected(fAttrID, fParams)) {");
-      stream.println("        } else {");
+    stream.println("        if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {");
+    stream.println("        } else {");
     }
     stream.println("        if (!fDependencySet.isEmpty()) {");
     stream.println("          // Remove dependencies");
