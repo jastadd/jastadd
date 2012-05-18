@@ -581,7 +581,7 @@ aspect JaddCodeGen {
     stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
     if (ASTNode.incrementalPropLimit) {
     stream.println(ind(2) + "// assume that evaluation will be clean from cached values");
-    stream.println(ind(2) + "handler.setCacheInDependent(true);");
+    stream.println(ind(2) + "handler.noCacheRead = true;");
     }
     stream.println(ind(2) + "stack.push(handler);");
     stream.println(ind + "}");        
@@ -590,12 +590,11 @@ aspect JaddCodeGen {
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
     if (ASTNode.incrementalPropLimit) {
+    stream.println(ind(2) + "h.cacheIndependent &= noCacheRead;");
     stream.println(ind(2) + "if (!stack.isEmpty()) {");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
     stream.println(ind(3) +   "// propagate dirtiness to the top of the stack");
-    stream.println(ind(3) +   "if (!h.isCacheInDependent()) {");
-    stream.println(ind(4) +     "top.setCacheInDependent(false);");
-    stream.println(ind(3) +   "}");
+    stream.println(ind(3) +   "top.noCacheRead &= h.noCacheRead;");
     stream.println(ind(2) + "}");
     }
     stream.println(ind(2) + "if (h != handler)");
@@ -2988,6 +2987,8 @@ aspect JaddCodeGen {
           }
           stream.println(") {");
 
+          // TODO: Add support for primitive parameters
+          // TODO: Add support for more than one parameter
           // with parameters
           if (attr.getNumParameter() > 0) {
             if (attr.isPrimitive()) {
@@ -4811,7 +4812,7 @@ aspect JaddCodeGen {
       stream.println("      fParams = params;");
       stream.println("    }");
       if (ASTNode.incrementalPropLimit) {
-      stream.println("    private boolean cacheInDependent = false;");
+      stream.println("    public boolean cacheInDependent = false;");
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params, boolean cacheInDependent) {");
       stream.println("      this(node, attrID, params);");
       stream.println("      this.cacheInDependent = cacheInDependent;");
@@ -4822,6 +4823,7 @@ aspect JaddCodeGen {
       stream.println("    public void setCacheInDependent(boolean b) {");
       stream.println("      cacheInDependent = b;");
       stream.println("    }");
+      stream.println("    public boolean noCacheRead = true;");
       }
     }
     // level: attr also needs an attr ID 
