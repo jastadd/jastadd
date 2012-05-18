@@ -4733,6 +4733,9 @@ aspect JaddCodeGen {
     stream.println("      for (ASTNode$DepGraphNode l : node.fDependencySet) {");
     stream.println("        l.addDependant(this);");
     stream.println("      }");
+    if (ASTNode.incrementalPropLimit) {
+      stream.println("      cacheInDependent = node.cacheInDependent;");
+    }
     stream.println("      node.clearDependencies();");
 //    stream.println("      node.clearDependants();");
     stream.println("    }");
