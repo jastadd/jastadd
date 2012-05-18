@@ -5500,6 +5500,13 @@ aspect JaddCodeGen {
       }
       buf.append("     }\n");
     } else {
+      buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
+      buf.append("       if (initial != null) {\n");
+      buf.append("         state().enterConstruction();\n");
+      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
+      buf.append("         state().exitConstruction();\n");
+      buf.append("         return;\n");
+      buf.append("       }\n");
       if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
         if (ASTNode.incrementalTrack) {
           buf.append("       get#ID#_handler.trackChange();\n");    
@@ -5528,13 +5535,6 @@ aspect JaddCodeGen {
           buf.append("       }\n");
         }
       }
-      buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
-      buf.append("       if (initial != null) {\n");
-      buf.append("         state().enterConstruction();\n");
-      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
-      buf.append("         state().exitConstruction();\n");
-      buf.append("         return;\n");
-      buf.append("       }\n");
     }
     buf.append("    }\n");
     return buf.toString();
