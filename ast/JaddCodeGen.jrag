@@ -1526,9 +1526,9 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "int i = getNumChildNoTransform() - 1;");
       stream.println(ind(3) + "if (getChild_handler[i] == null)");
       if (ASTNode.incrementalPropLimit) {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !child.mayHaveRewrite());");
       } else {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       }
       stream.println(ind(3) + "state().addHandlerDepTo(getChild_handler[i]);");    
       stream.println(ind(3) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
