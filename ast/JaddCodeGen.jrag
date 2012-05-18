@@ -3032,9 +3032,16 @@ aspect JaddCodeGen {
           // clear dependencies in handler  
           stream.println(ind(3) + attr.attributeSignature() + "_handler.clearDependencies();");
           // compute new value
+          stream.println(ind(3) + attr.type() + " newValue = " + attr.attributeSignature() + "();");
           // compare old and new value
+          if (attr.isPrimitive())
+            stream.println(ind(3) + "if (oldValue == newValue)");
+          else {
+            stream.println(ind(3) + "if ((oldValue instanceof ASTNode && (oldValue == newValue)) || oldValue.equals(newValue))");
+          }
+          stream.println(ind(4) +   "return false;");
+          stream.println(ind(3) + "return true;");
         }
-
         stream.println(ind(3) +   "return true;");
         stream.println(ind(2) + "}");      // end match statements
         first = false;
