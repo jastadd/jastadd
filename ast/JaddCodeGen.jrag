@@ -3051,7 +3051,8 @@ aspect JaddCodeGen {
             stream.println(ind(3) + "if (oldValue == newValue)");
           } else {
             stream.println(ind(3) + "Object obj = (Object)oldValue;");
-            stream.println(ind(3) + "if ((obj instanceof ASTNode && (oldValue == newValue)) || oldValue.equals(newValue))");
+            stream.println(ind(3) + "if ((obj instanceof ASTNode && (oldValue == newValue)) || " + 
+              "(oldValue == null && newValue == null) || (oldValue != null && oldValue.equals(newValue)))");
           }
           stream.println(ind(4) + "return false;");
           stream.println(ind(3) + "return true;");
