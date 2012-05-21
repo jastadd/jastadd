@@ -5142,7 +5142,7 @@ aspect JaddCodeGen {
       addNameComment() +
       ind + "public void #HOST#.add#NAME#(#TYPE# node) {\n" +
       (ASTNode.block ? ASTNode.blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = (parenrt == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
+      ind(2) + "#LISTTYPE# list = (parent == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
       ind(2) + "list.addChild(node);\n" + 
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n" + 
