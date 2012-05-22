@@ -3015,6 +3015,21 @@ aspect JaddCodeGen {
           // with parameters
           if (attr.getNumParameter() > 0) {
             if (attr.isPrimitive()) {
+              // store old value
+              stream.println(ind(3) + attr.type() + " oldValue = (" + attr.type() + ")" + attr.attributeSignature() + "_values.get(_parameters);");
+              // flush value
+              stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
+              // clear dependencies in handler
+              stream.println(ind(3) + "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + attr.attributeSignature() + "_handler.get(_parameters);");
+              stream.println(ind(3) + "handler.clearDependencies();");
+              // compute new value
+              if (attr.getNumParameter() == 1) {
+                String param = "(" + attr.getParameter(0).getTypeInSignature() + ")_parameters";
+                stream.println(ind(3) + attr.type() + " newValue = " + attr.getName() + "(" + param + ");");
+              } else {
+                stream.println(ind(3) + "throw new Error(\"No support for more than one parameter in affected value check\");");
+              }
+
               stream.println(ind(3) + "throw new Error(\"No support for primitive parameter in affected value check\");");
             } else {
               // store old value
