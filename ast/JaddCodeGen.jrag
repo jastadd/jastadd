@@ -4633,11 +4633,11 @@ aspect JaddCodeGen {
     }
     // tokens
     if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      for (int c = 0; c < getNumComponents(); c++) {
- 	  	  Components comp = getComponents(c);
- 	  	  if (comp instanceof TokenComponent && !comp.isNTA()) {
-	  	    stream.println(ind(2) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + "_handler != null) {");
-	  		  stream.println(ind(3) +   "get" + ((TokenComponent)comp).getTokenId().getID() + "_handler.dumpDeps();");
+      for(Iterator iter = getComponents(); iter.hasNext(); ) {
+        Components c = (Components)iter.next();
+ 	  	  if (c instanceof TokenComponent && !c.isNTA()) {
+	  	    stream.println(ind(2) + "if (get" + ((TokenComponent)c).getTokenId().getID() + "_handler != null) {");
+	  		  stream.println(ind(3) +   "get" + ((TokenComponent)c).getTokenId().getID() + "_handler.dumpDeps();");
 	  			stream.println(ind(2) + "}");
  	  		}
  	  	}
