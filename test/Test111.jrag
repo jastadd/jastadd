@@ -11,9 +11,9 @@ aspect A1 {
 aspect A2 {
     refine A1 public String X.m() {
       System.out.println("X.m() in A2");
-      return A1.X.m();
+      return Test111.X.m();
     }
     refine A1 public int X.n() {
-      return A1.X.n() + 1;
+      return Test111.X.n() + 1;
     }
 }
