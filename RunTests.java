@@ -34,7 +34,6 @@ public class RunTests {
 			return;
 		try {
 			System.err.println("Running test " + testName);
-			System.out.println(testName + ".java");
 
 			removeGeneratedFiles();
 			
@@ -73,11 +72,13 @@ public class RunTests {
 			String result = simplifyComparison(os.toString());
 			String correct = simplifyComparison(readFile(testName + ".result"));
 			if(result.equals(correct)) {
+				System.err.println(testName + ".java passed");
 				System.out.println(testName + ".java passed");
 			}
 			else {
 				System.err.println(testName + ".java failed");
-				System.err.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
+				System.out.println(testName + ".java failed");
+				System.out.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
 			}
 			
 		} catch (Exception e) {
@@ -152,8 +153,6 @@ public class RunTests {
 	protected static boolean removeGeneratedFiles() {
 		try {
 			
-			// Compile java files in test/ast
-			StringBuffer buf = new StringBuffer();
 			File dir = new File(System.getProperty("user.dir") + "/test/ast");
 			if (dir.exists()) {
 				FilenameFilter filter = new FilenameFilter() {
@@ -163,29 +162,7 @@ public class RunTests {
 				};
 				File[] files = dir.listFiles(filter);
 				for (int i = 0; i < files.length; i++) {
-					buf.append(files[i] + " ");
-				}
-			}
-			
-			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("rm " + buf.toString());
-			int i = process.waitFor();
-			String s = null;
-			if (i == 0){
-				BufferedReader input = new
-				BufferedReader(new InputStreamReader(process.getInputStream()));
-				while ((s = input.readLine()) != null)
-				{
-					System.out.println(s);
-				}
-			} else {
-
-				// STDERR
-				BufferedReader stderr = new
-				BufferedReader(new InputStreamReader(process.getErrorStream()));
-				while ((s = stderr.readLine()) !=
-					null) {
-					System.out.println(s);
+					files[i].delete();
 				}
 			}
 		} catch (Exception e) {
