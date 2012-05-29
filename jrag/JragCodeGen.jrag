@@ -1468,7 +1468,17 @@ aspect JragCodeGen {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       String s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
+        
+       String s = "";
+       if (attr instanceof InhDecl) {
+         InhDecl inhDecl = (InhDecl) attr;
+         if (inhDecl.needLazyInhEq()) {
+           s = inhDecl.genLazyInhEq();
+           s = s.replaceAll("#INTERFACEPARMDECL#", inhDecl.interfaceParametersDecl());
+         }
+       }
+
+       s += genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
@@ -1483,6 +1493,28 @@ aspect JragCodeGen {
        buf.append(s);
     }
     return buf.toString();
+  }
+
+  public boolean InhDecl.needLazyInhEq() {
+    ASTDecl host = (ASTDecl) hostClass();
+    return !isNTA() &&
+      getNumParameter() == 0 &&
+      getLazy() &&
+      !host.hasInhEq(name());
+  }
+
+  public String InhDecl.genLazyInhEq() {
+    return
+      ind + "/**\n" +
+      ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
+      ind + " * @apilevel internal\n" +
+      ind + " */\n" +
+      ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
+      cacheCheck() +
+      ind(2) + "#NAME#_computed = true;\n" +
+      ind(2) + "#NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersContinue() + ");\n" +
+      ind(2) + "return #NAME#_value;\n" +
+      ind + "}\n";
   }
 
   syn boolean TypeDecl.hasInhEq(String attrName) {
@@ -1933,7 +1965,9 @@ aspect JragCodeGen {
         java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
         String attrId = (String)entry.getKey();
         AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
-        if(!hasInhEq(attr.decl().name())) {
+        AttrDecl decl = attr.decl();
+        if(!hasInhEq(decl.name()) &&
+            (decl.isNTA() || decl.getNumParameter() != 0 || !decl.getLazy() || decl.hostClass() != this)) {
           String s =
             ind + "/**\n" +
             ind + " * @apilevel internal\n" +
