@@ -1,0 +1,9 @@
+aspect Test204 {
+	inh int B.value();
+	inh int C.value();
+	eq A.getB().value() {
+		return 3;
+	}
+	eq A.getChild().value() {
+	}
+}
