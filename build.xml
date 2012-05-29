@@ -109,10 +109,20 @@
 			<arg value="test/Test[0-9]*\.java passed"/>
 			<arg value="test_results"/>
 		</exec>
+		<exec executable="grep" failonerror="true"
+			output="failed">
+			<arg value="test/Test[0-9]*\.java failed"/>
+			<arg value="test_results"/>
+		</exec>
 		<exec executable="diff" failonerror="true">
 			<arg value="-qs"/>
 			<arg value="passed"/>
 			<arg value="test/shouldpass"/>
+		</exec>
+		<exec executable="diff" failonerror="true">
+			<arg value="-qs"/>
+			<arg value="failed"/>
+			<arg value="test/shouldfail"/>
 		</exec>
 	</target>
 
