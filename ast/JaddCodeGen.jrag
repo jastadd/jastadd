@@ -2993,6 +2993,7 @@ aspect JaddCodeGen {
 
         // NTAs: Are always considered affected
         if (attr.isNTA() || attr.getNTA()) {
+          stream.println(ind(2) + "// NTA");              
           stream.println(ind(2) + "return true;");              
         } 
 
