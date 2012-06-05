@@ -3016,7 +3016,9 @@ aspect JaddCodeGen {
           if (attr.getNumParameter() > 0) {
             if (attr.isPrimitive()) {
               // store old value
-              stream.println(ind(3) + attr.type() + " oldValue = (" + attr.type() + ")" + attr.attributeSignature() + "_values.get(_parameters);");
+              String type = attr.type();
+              type = type.substring(0,1).toUpperCase() + type.substring(1);
+              stream.println(ind(3) + attr.type() + " oldValue = " + type + ".valueOf((" + type + ")" + attr.attributeSignature() + "_values.get(_parameters));");
               // flush value
               stream.println(ind(3) + attr.attributeSignature() + "_values.remove(_parameters);"); 
               // clear dependencies in handler
