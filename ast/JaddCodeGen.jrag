@@ -2994,7 +2994,17 @@ aspect JaddCodeGen {
         // NTAs: Are always considered affected
         if (attr.isNTA() || attr.getNTA()) {
           stream.println(ind(2) + "// NTA");              
-          stream.println(ind(2) + "return true;");              
+          stream.print(ind(2) + (first ? "" : "else "));
+          stream.print("if (" + "attrID.equals(\"" + attr.attributeSignature() + "\")");
+          if (attr.getNumParameter() > 0) {
+            stream.print(" && " + attr.attributeSignature() + "_values != null" + 
+              " && " + attr.attributeSignature() + "_values.containsKey(_parameters)");
+          } else {
+            stream.print(" && " + attr.attributeSignature() + "_computed");
+          }
+          stream.println(") {");
+          stream.println(ind(3) + "return true;");  
+          stream.println(ind(2) + "}");      // end match statements            
         } 
 
         // non-NTAs
