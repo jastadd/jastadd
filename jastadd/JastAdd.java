@@ -271,8 +271,8 @@ public class JastAdd {
     CommandLineArguments cla = new CommandLineArguments();
     Option jjtree = new Option("jjtree", "use jjtree base node, this requires --grammar to be set");
     Option grammarOption = new Option("grammar", "the name of the grammar's parser, required when using --jjtree", true);
-    Option defaultMap = new Option("defaultMap", "use these datastructres to store cached attributes", true);
-    Option defaultSet = new Option("defaultSet", "use these datastructres to store cached attributes", true);
+    Option defaultMap = new Option("defaultMap", "use this expression to construct maps for attribute caches", true);
+    Option defaultSet = new Option("defaultSet", "use this expression to construct sets for attribute caches", true);
     Option lazyMaps = new Option("lazyMaps", "use lazy maps");
     Option noLazyMaps = new Option("noLazyMaps", "don't use lazy maps");
     Option privateOption = new Option("private", "");
