@@ -355,6 +355,11 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
+
+      // Insert comment notifying that this is a generated file
+      stream.println("/* This file was generated with " +
+          JastAdd.getLongVersionString() + " */");
+        
       if(license != null && license.length() > 0)
         stream.println(license);
 
@@ -365,8 +370,6 @@ aspect JastAddCodeGen {
       stream.print(env().genImportsList());
 
       if(name().equals("ASTNode")) {
-        stream.print(JastAdd.getVersionInfo());
-        
         if(doxygen) {
           for(Iterator iter = env().aspectMap.entrySet().iterator(); iter.hasNext(); ) {
             java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();

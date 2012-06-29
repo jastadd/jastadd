@@ -31,9 +31,6 @@ public class JastAdd {
     return "JastAdd2 (http://jastadd.org) version " +
       getString("jastadd.version");
   }
-  public static String getVersionInfo() {
-    return "\n// Generated with " + getVersionString() + "\n\n";
-  }
 
   protected java.util.List files;
   protected java.util.List cacheFiles;
