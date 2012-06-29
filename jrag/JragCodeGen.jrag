@@ -644,12 +644,28 @@ aspect JragCodeGen {
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
+               ind + "/**\n" +
+               ind + " * This method can be used to access the value map for this\n" +
+               ind + " * nonterminal attribute. Use it with caution, and only when\n" +
+               ind + " * absolutely necessary! The value map can change whenever the\n" +
+               ind + " * attribute is evaulated!\n" +
+               ind + " * @apilevel low-level\n" +
+               ind + " */\n" +
+               ind + "public " + typeDefaultMap + " #CLASS#.#METHODNAME#ValueMap() { return #NAME#_values; }\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
       else
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
+               ind + "/**\n" +
+               ind + " * This method can be used to access the value map for this\n" +
+               ind + " * nonterminal attribute. Use it with caution, and only when\n" +
+               ind + " * absolutely necessary! The value map can change whenever the\n" +
+               ind + " * attribute is evaulated!\n" +
+               ind + " * @apilevel low-level\n" +
+               ind + " */\n" +
+               ind + "public " + typeDefaultMap + " #CLASS#.get#METHODNAME#ValueMap() { return #NAME#_values; }\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
     }
     else {
@@ -1061,7 +1077,8 @@ aspect JragCodeGen {
         return
            (needsCacheDeclaration ?
            ( attr.visitedDeclarations() +
-             ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values" + (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
+             ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values" +
+              (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
            ) : "" ) +
            comment +
            suppressWarnings() +
