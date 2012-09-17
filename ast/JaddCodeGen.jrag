@@ -690,7 +690,7 @@ aspect JaddCodeGen {
       stream.println(ind + "@SuppressWarnings(\"cast\")");
       stream.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
-      stream.println(ind(2) + "return (T)children[i];");
+      stream.println(ind(2) + "return (T) (children != null ? children[i] : null);");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
     }
@@ -701,7 +701,7 @@ aspect JaddCodeGen {
       stream.println(ind + " */");
       stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
-      stream.println(ind(2) + "return (ASTNode)children[i];");
+      stream.println(ind(2) + "return (ASTNode) (children != null ? children[i] : null);");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
     }
