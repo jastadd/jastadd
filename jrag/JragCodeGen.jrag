@@ -217,7 +217,7 @@ aspect JragCodeGen {
         jrag.AST.ASTAspectMethodDeclaration decl = (jrag.AST.ASTAspectMethodDeclaration)n;
         decl.unparseAbstractClassBodyDeclaration(buf, name(), aspectJ);
         } catch (Exception e) {
-          System.out.println("Error generating " + o.signature() + " in " + name());
+          System.err.println("Error generating " + o.signature() + " in " + name());
           e.printStackTrace();
         }
       }
@@ -226,7 +226,7 @@ aspect JragCodeGen {
               jrag.AST.ASTAspectRefineMethodDeclaration decl = (jrag.AST.ASTAspectRefineMethodDeclaration)n;
               decl.unparseAbstractClassBodyDeclaration(buf, name(), aspectJ);
               } catch (Exception e) {
-                System.out.println("Error generating " + o.signature() + " in " + name());
+                System.err.println("Error generating " + o.signature() + " in " + name());
                 e.printStackTrace();
               }
       }

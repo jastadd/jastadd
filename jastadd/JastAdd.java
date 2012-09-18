@@ -78,12 +78,12 @@ public class JastAdd {
             }
 
           } catch (ast.AST.TokenMgrError e) {
-            System.out.println("Lexical error in " + fileName + ": " + e.getMessage());
+            System.err.println("Lexical error in " + fileName + ": " + e.getMessage());
             System.exit(1);
           } catch (ast.AST.ParseException e) {
             // Exceptions actually caught by error recovery in parser
           } catch (FileNotFoundException e) {
-            System.out.println("File error: Abstract syntax grammar file " + fileName + " not found");
+            System.err.println("File error: Abstract syntax grammar file " + fileName + " not found");
             System.exit(1);
           }
         }
@@ -91,7 +91,7 @@ public class JastAdd {
 
       if(!errors.isEmpty()) {
         for(Iterator iter = errors.iterator(); iter.hasNext(); )
-          System.out.println(iter.next());
+          System.err.println(iter.next());
         System.exit(1);
       }
 
@@ -102,8 +102,8 @@ public class JastAdd {
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
 
       if(!astErrors.equals("")) {
-        System.out.println("Semantic error:");
-        System.out.println(astErrors);
+        System.err.println("Semantic error:");
+        System.err.println(astErrors);
         System.exit(1);
       }
 
@@ -144,10 +144,10 @@ public class JastAdd {
             StringBuffer msg = new StringBuffer();
             msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
                 e.currentToken.next.beginColumn);
-            System.out.println(msg.toString());
+            System.err.println(msg.toString());
             System.exit(1);
           } catch (FileNotFoundException e) {
-            System.out.println("File error: Aspect file " + fileName + " not found");
+            System.err.println("File error: Aspect file " + fileName + " not found");
             System.exit(1);
           } catch (Throwable e) {
             System.err.println("Exception occurred while parsing " + fileName);
@@ -214,10 +214,10 @@ public class JastAdd {
           StringBuffer msg = new StringBuffer();
           msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
               e.currentToken.next.beginColumn);
-          System.out.println(msg.toString());
+          System.err.println(msg.toString());
           System.exit(1);
         } catch (FileNotFoundException e) {
-          System.out.println("File error: Aspect file " + fileName + " not found");
+          System.err.println("File error: Aspect file " + fileName + " not found");
           System.exit(1);
         }
       }
@@ -227,7 +227,7 @@ public class JastAdd {
 
       String err = root.errors();
       if(!err.equals("") || !ASTNode.globalErrors.equals("")) {
-        System.out.println("Semantic errors: \n" + err + ASTNode.globalErrors);
+        System.err.println("Semantic errors: \n" + err + ASTNode.globalErrors);
         System.exit(1);
       }
 
@@ -237,7 +237,7 @@ public class JastAdd {
       try {
         root.createInterfaces(outputDir, pack);
       } catch (FileNotFoundException e) {
-        System.out.println("File error: Output directory " + outputDir + " does not exist or is write protected");
+        System.err.println("File error: Output directory " + outputDir + " does not exist or is write protected");
         System.exit(1);
       }
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
@@ -370,7 +370,7 @@ public class JastAdd {
     cla.match(args);
 
     if (printNonStandardOptions.matched()) {
-      System.out.println("Non-standard options:");
+      System.err.println("Non-standard options:");
       cla.printNonStandardOptions();
       System.exit(0);
     }
@@ -445,29 +445,29 @@ public class JastAdd {
     outputDir = new File(outputDirName);
 
     if(!outputDir.exists()) {
-      System.out.println("Output directory does not exist");
+      System.err.println("Output directory does not exist");
       System.exit(1);
     }
     if(!outputDir.isDirectory()) {
-      System.out.println("Output directory is not a directory");
+      System.err.println("Output directory is not a directory");
       System.exit(1);
     }
     if(!outputDir.canWrite()) {
-      System.out.println("Output directory is write protected");
+      System.err.println("Output directory is write protected");
       System.exit(1);
     }
 
     if(ASTNode.j2me) {
       if(ASTNode.deterministic) {
-        System.out.println("J2ME can not be used in deterministic mode");
+        System.err.println("J2ME can not be used in deterministic mode");
         System.exit(1);
       }
       if(ASTNode.debugMode) {
-        System.out.println("J2ME can not be used in debug mode");
+        System.err.println("J2ME can not be used in debug mode");
         System.exit(1);
       }
       if(ASTNode.java5) {
-        System.out.println("J2ME can not be used in java5 mode");
+        System.err.println("J2ME can not be used in java5 mode");
         System.exit(1);
       }
       ASTNode.createDefaultMap = "new java.util.Hashtable(4)";
@@ -498,20 +498,20 @@ public class JastAdd {
         cacheFiles.add(fileName);
       }
       else {
-        System.out.println("FileError: " + fileName + " is of unknown file type");
+        System.err.println("FileError: " + fileName + " is of unknown file type");
         return true;
       }
     }
 
     if (version.matched()) {
       // just print version and exit
-      System.out.println(getVersionString());
+      System.err.println(getVersionString());
       System.exit(0);
     }
 
     if (help.matched() || files.isEmpty()) {
       // just print version and exit
-      System.out.println(getLongVersionString() + "\n");
+      System.err.println(getLongVersionString() + "\n");
       printHelp(cla);
       System.exit(0);
     }
@@ -546,27 +546,27 @@ public class JastAdd {
     Print help
     */
   public void printHelp(CommandLineArguments cla) {
-    System.out.println("This program reads a number of .jrag, .jadd, and .ast files");
-    System.out.println("and creates the nodes in the abstract syntax tree");
-    System.out.println();
-    System.out.println("The .jrag source files may contain declarations of synthesized ");
-    System.out.println("and inherited attributes and their corresponding equations.");
-    System.out.println("It may also contain ordinary Java methods and fields.");
-    System.out.println();
-    System.out.println("Source file syntax can be found at http://jastadd.org");
-    System.out.println();
-    System.out.println("Options:");
+    System.err.println("This program reads a number of .jrag, .jadd, and .ast files");
+    System.err.println("and creates the nodes in the abstract syntax tree");
+    System.err.println();
+    System.err.println("The .jrag source files may contain declarations of synthesized ");
+    System.err.println("and inherited attributes and their corresponding equations.");
+    System.err.println("It may also contain ordinary Java methods and fields.");
+    System.err.println();
+    System.err.println("Source file syntax can be found at http://jastadd.org");
+    System.err.println();
+    System.err.println("Options:");
     cla.printHelp();
-    System.out.println();
-    System.out.println("Arguments:");
-    System.out.println("Names of .ast, .jrag, .jadd and .caching source files");
-    System.out.println();
-    System.out.println("Example: The following command reads and translates files NameAnalysis.jrag");
-    System.out.println("and TypeAnalysis.jrag, weaves PrettyPrint.jadd into the abstract syntax tree");
-    System.out.println("defined in the grammar Toy.ast.");
-    System.out.println("The result is the generated classes for the nodes in the AST that are placed");
-    System.out.println("in the package ast.");
-    System.out.println();
-    System.out.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
+    System.err.println();
+    System.err.println("Arguments:");
+    System.err.println("Names of .ast, .jrag, .jadd and .caching source files");
+    System.err.println();
+    System.err.println("Example: The following command reads and translates files NameAnalysis.jrag");
+    System.err.println("and TypeAnalysis.jrag, weaves PrettyPrint.jadd into the abstract syntax tree");
+    System.err.println("defined in the grammar Toy.ast.");
+    System.err.println("The result is the generated classes for the nodes in the AST that are placed");
+    System.err.println("in the package ast.");
+    System.err.println();
+    System.err.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
   }
 }

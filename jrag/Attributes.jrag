@@ -101,10 +101,10 @@ public aspect Attributes {
           if(paramOK) {
 
             if (shouldBeCached && s.getLazy()) {
-                System.out.println("Warning: syn attribute " + name + " in " + className + 
+                System.err.println("Warning: syn attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
-                System.out.println("Warning: syn attribute " + name + " in " + className + 
+                System.err.println("Warning: syn attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already not lazy");
             } else {
 
@@ -140,10 +140,10 @@ public aspect Attributes {
           if(paramOK) {
 
             if (shouldBeCached && s.getLazy()) {
-                System.out.println("Warning: inh attribute " + name + " in " + className + 
+                System.err.println("Warning: inh attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
-                System.out.println("Warning: inh attribute " + name + " in " + className + 
+                System.err.println("Warning: inh attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already not lazy");
             } else {
 
@@ -155,7 +155,7 @@ public aspect Attributes {
 /*
             if (shouldBeCached) {
               if(s.getLazy())
-                System.out.println("Warning: attribute " + name + " in " + className + 
+                System.err.println("Warning: attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
               else {
                 s.setLazy(true);
@@ -164,7 +164,7 @@ public aspect Attributes {
               }
             } else {
               if(!s.getLazy())
-                System.out.println("Warning: attribute " + name + " in " + className + 
+                System.err.println("Warning: attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already not lazy");
               else {
                 s.setLazy(false);
@@ -350,7 +350,7 @@ public aspect Attributes {
 
   public void Grammar.addInterface(jrag.AST.SimpleNode nameList, String className, String fileName) {
     if(nameList == null) {
-      System.out.println("Panic");
+      System.err.println("Panic");
     }
     else {
         
@@ -367,7 +367,7 @@ public aspect Attributes {
 
   public void Grammar.extendInterface(jrag.AST.SimpleNode nameList, String className, String fileName) {
     if(nameList == null) {
-      System.out.println("Panic");
+      System.err.println("Panic");
     }
     else {
       TypeDecl c = lookup(className);

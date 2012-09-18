@@ -129,18 +129,18 @@ public class Option {
    */
   public void printHelp() {
     int col = 18;
-    System.out.print("  " + longName);
+    System.err.print("  " + longName);
     col -= longName.length();
     if (col < 1)
       col = 1;
     for (int i = 0; i < col; ++i)
-      System.out.print(' ');
+      System.err.print(' ');
     if (hasDefaultValue) {
-      System.out.print(desc);
-      System.out.println(" (default = \""
+      System.err.print(desc);
+      System.err.println(" (default = \""
           + defaultValue + "\")");
     } else {
-      System.out.println(desc);
+      System.err.println(desc);
     }
   }
 
