@@ -43,7 +43,7 @@ public class CommandLineArguments {
 
         } else if (lastMatch == option) {
 
-          if (args[i].startsWith("--")) {
+          if (args[i].startsWith(Option.OPTION_PREFIX)) {
             System.err.println("Unknown option \"" + args[i]
                 + "\" will be ignored");
           } else {

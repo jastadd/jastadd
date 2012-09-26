@@ -167,7 +167,7 @@ public class Option {
     boolean currentMatch = false;
     if (args[index].toLowerCase().equals(longNameLower)) {
       if (needsValue) {
-        if (index < (args.length - 1) && !args[index+1].startsWith("--")) {
+        if (index < (args.length - 1) && !args[index+1].startsWith(OPTION_PREFIX)) {
           value = args[index+1];
           offset = 2;
         } else {
