@@ -22,6 +22,13 @@ package jastadd;
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
  */
 public class Option {
+
+  /**
+   * The prefix string used for all command-line
+   * options.
+   */
+  public static final String OPTION_PREFIX = "--";
+
   protected String desc;
   protected String name;
   protected String longName;
@@ -68,7 +75,7 @@ public class Option {
   public Option(String optionName, String description, boolean needsValue,
       boolean isNonStandard) {
     name = optionName;
-    longName = "--" + optionName;
+    longName = OPTION_PREFIX + optionName;
     longNameLower = longName.toLowerCase();
     desc = description;
     nonStandard = isNonStandard;
