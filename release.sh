@@ -12,12 +12,12 @@ echo rm doc/reference-manual.html
 echo mv doc/reference-manual.html.new doc/reference-manual.html
 
 # Create a zip file jastadd2-src.zip for the source distribution
-echo make source-zip
-#make source-zip
+echo ant source-zip
+#ant source-zip
 
 # Create a zip file jastadd2-bin.zip for the binary distribution.
-echo make bin-zip
-#make bin-zip
+echo ant bin-zip
+#ant bin-zip
 
 # Create a new dir at jastadd.org
 echo ssh login.cs.lth.se \"cd /cs/jastadd/releases/jastadd2 \&\& mkdir ${VERSION}\"
@@ -34,7 +34,7 @@ echo rm -f jastadd2-bin.zip jastadd2-src.zip
 # Check that it works
 echo ------------------------------------------------------
 echo Browse to the website and check that everything works.
-echo Then make clean and commit.
+echo Then ant clean and commit.
 echo ------------------------------------------------------
 
 # Tag in SVN

@@ -6,7 +6,7 @@ Previously, it was hosted at the CVS server vitter.cs.lth.se.
 --------------------------------------------------------
 DEPENDENCIES
 JastAdd2 does not depend on other projects. You can check out the project in isolation. 
-It assumes preexistence of the following standard tools: Java and Make.
+It assumes preexistence of the following standard tools: Java and Ant.
 Non-standard tools that it uses are included in the project.
 --------------------------------------------------------
 BUILD
@@ -56,7 +56,10 @@ RUN REGRESSION TEST SUITE
 1. Make sure JastAdd is compiled
 > ant jar
 
-2. Run the tests. You will get a lot of output.
+2a. Compile the RunTests program
+> javac RunTests.java
+
+2b. Run the tests. You will get a lot of output.
 > java RunTests
 
 3a. Run as a regression test. The test results should be compared to the test/shouldpass file:
@@ -72,6 +75,7 @@ If the test suite passes you should see the lines
      [echo] running unit tests
      [echo] tests completed, output written to test_results
      [exec] Files passed and test/shouldpass are identical
+     [exec] Files failed and test/shouldfail are identical
 
 Explanation:
 The testcases are documented in test/index.html . Some should fail.
@@ -117,9 +121,9 @@ For the time being, we keep them as separate suites, but with the same numbers f
 --------------------------------------------------------
 MAKE A NEW RELEASE at JastAdd.org
   1  Make sure the following files have appropriate content:
-     - ChangeLog
+     - ChangeLog (Check against commit log, add note about the release)
      - doc/reference-manual.html
-     - doc/release-notes.html
+     - doc/release-notes.html (Add suitable high-level content for this release)
   2. Create a new jar file:
       > ant jar
   3. Run all test cases.
