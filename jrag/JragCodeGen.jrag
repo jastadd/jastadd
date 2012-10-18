@@ -30,8 +30,14 @@ aspect JragCodeGen {
    * @return the declaredat tag
    */
   public static String ASTNode.declaredat(String fileName, int line) {
-    if (fileName.length() == 0) return "";
-    else return "@declaredat " + fileName + ":" + line;
+    fileName = fileName.trim();
+    if (fileName.length() == 0) {
+      return "";
+    } else {
+      // escape backslashes with double backslashes
+      String escaped = fileName.replace("\\\\", "\\\\");
+      return "@declaredat " + fileName + ":" + line;
+    }
   }
 
   /**
