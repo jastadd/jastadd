@@ -1005,6 +1005,26 @@ aspect JaddCodeGen {
           ind(3) + "return null;\n";
       }
 
+      // We skip copying NTA children
+      // Build list of NTA indices - these are skipped when copying the children
+      LinkedList ntaIndices = new LinkedList();
+      for (int i = 0; i < getNumComponents(); ++i) {
+        if (getComponents(i).isNTA()) {
+          ntaIndices.add(new Integer(i));
+        }
+      }
+      String skipNTAs = "";
+      if (!ntaIndices.isEmpty()) {
+        skipNTAs = ind(5) + "switch (i) {\n";
+        Iterator iter = ntaIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind(6) + "continue;\n";
+        skipNTAs += ind(5) + "}\n";
+      }
+
       String s =
         ind + "/**\n" +
         ind + " * @apilevel internal\n" +
@@ -1030,6 +1050,7 @@ aspect JaddCodeGen {
         ind(3) + "if (children != null) {\n" +
         ind(4) + "tree.children = new ASTNode[children.length];\n" +
         ind(4) + "for (int i = 0; i < children.length; ++i) {\n" +
+        skipNTAs +
         ind(5) + "if (children[i] == null) {\n" +
         ind(6) + "tree.children[i] = null;\n" +
         ind(5) + "} else {\n" +
