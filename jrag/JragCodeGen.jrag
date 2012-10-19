@@ -335,7 +335,7 @@ aspect JragCodeGen {
       AttrDecl attr = getSynDecl(i);
       boolean equ = false;
       for(int j = 0; j < getNumSynEq(); j++) {
-        if(getSynEq(j).getName().equals(attr.getName())) {
+        if(getSynEq(j).signature().equals(attr.signature())) {
           equ = true;
         }
       }
