@@ -2,7 +2,11 @@
 
 	*  Synthesized attributes with no equation generate an abstract method
     even if another attribute with the same name has an equation in the same
-    node type. Track ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/78
+    node type. Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/78
+	
+	* Removed the generated attribute for accessing parameterized non-terminal
+	value maps due to possible faulty code generation
+	Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/80
 --------------------------------------------------------------------------------
 2012-10-18: (JO)
 
