@@ -37,7 +37,7 @@ aspect JragCodeGen {
       // replace backslashes in the file path with slashes in order to avoid
       // unintentional (and possibly illegal) unicode escape sequences
       String escaped = fileName.replace('\\', '/');
-      return "@declaredat " + fileName + ":" + line;
+      return "@declaredat " + escaped + ":" + line;
     }
   }
 

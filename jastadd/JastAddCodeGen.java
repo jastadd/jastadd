@@ -215,7 +215,7 @@ aspect JastAddCodeGen {
     sb.append(comment.substring(0, comment.length()-2));
     sb.append(extraDocCommentLines());
     sb.append(" * " + javadocTag() + "\n");
-    sb.append(" * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+    sb.append(" * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
     sb.append(" */\n");
     return sb.toString();
   }
