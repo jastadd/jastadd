@@ -1495,6 +1495,17 @@ aspect JaddCodeGen {
       ind(2) + "return get#NAME#List().getNumChild();\n" +
       (ASTNode.block ? ASTNode.blockEnd : "") +
       ind + "}\n" +
+      ind + "/**\n" +
+      ind + " * Retrieves the number of children in the #NAME# list.\n" +
+      ind + " * Calling this method will not trigger rewrites..\n" +
+      ind + " * @return Number of children in the #NAME# list.\n" +
+      ind + " * @apilevel low-level\n" +
+      ind + " */\n" +
+      ind + "public int #HOST#.getNum#NAME#NoTransform() {\n" + 
+      (ASTNode.block ? ASTNode.blockBegin : "") +
+      ind(2) + "return get#NAME#ListNoTransform().getNumChildNoTransform();\n" +
+      (ASTNode.block ? ASTNode.blockEnd : "") +
+      ind + "}\n" +
       getNameComment() +
       "#ANNOTATIONS#" +
       ind + "public #TYPE# #HOST#.get#NAME#(int i) {\n" +
