@@ -26,7 +26,7 @@ public aspect Unparse {
   }
 
   public void ASTImportDeclaration.getImports(StringBuffer buf) {
-    unparseNoComments(buf, null);
+    unparse(buf, null);
   }
 
 
@@ -542,33 +542,4 @@ public aspect Unparse {
       // FormalParameter = Type VariableDeclaratorId
       return "_" + ((SimpleNode)jjtGetChild(0)).unparse().trim();
     }
-      
-      
-  public void SimpleNode.unparseNoComments(StringBuffer buf, String className) {
-      Token t1 = firstToken;
-      Token t = new Token();
-      t.next = t1;
-
-      SimpleNode n;
-      for(int i = 0; i < jjtGetNumChildren(); i++) {
-        n = (SimpleNode)jjtGetChild(i);
-        if(n != null) {
-          while(true) {
-            // unparse linked tokens until the first token of the current child is found
-            t = t.next;
-            if(t == n.firstToken) break;
-            buf.append(t.image);
-          }
-          // unparse the current child
-          n.unparseNoComments(buf, className);
-          t = n.lastToken;
-        }
-      }
-
-      while(t != lastToken && t != null) {
-        t = t.next;
-        unparse(t, buf);
-      }
-  }
-
 }
