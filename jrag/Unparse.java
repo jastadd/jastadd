@@ -6,7 +6,8 @@ import jrag.AST.*;
 import jrag.AST.Token;
 import jrag.AST.SimpleNode;
 
-//import java.util.*;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 public aspect Unparse {
 
@@ -14,19 +15,19 @@ public aspect Unparse {
   
   // Get import declarations
    
-  public void SimpleNode.getImports(StringBuffer buf) {
+  public void SimpleNode.getImports(Set imports) {
   }
   
-  public String ASTCompilationUnit.getImports() {
-    StringBuffer buf = new StringBuffer();
+  public Set ASTCompilationUnit.getImports() {
+    Set imports = new LinkedHashSet();
     for(int i = 0; i < jjtGetNumChildren(); i++) {
-      ((SimpleNode)jjtGetChild(i)).getImports(buf);
+      ((SimpleNode)jjtGetChild(i)).getImports(imports);
     }
-    return buf.toString();
+    return imports;
   }
 
-  public void ASTImportDeclaration.getImports(StringBuffer buf) {
-    unparse(buf, null);
+  public void ASTImportDeclaration.getImports(Set imports) {
+    unparseImport(imports);
   }
 
 
@@ -542,4 +543,22 @@ public aspect Unparse {
       // FormalParameter = Type VariableDeclaratorId
       return "_" + ((SimpleNode)jjtGetChild(0)).unparse().trim();
     }
+      
+      
+  public void SimpleNode.unparseImport(Set imports) {
+      Token t = new Token();
+      t.next = firstToken;
+
+      StringBuffer buf = new StringBuffer(64);
+
+      while(t != null && t != lastToken) {
+        t = t.next;
+        if (t.specialToken != null)
+          buf.append(' ');
+        buf.append(addUnicodeEscapes(t.image));
+      }
+
+      imports.add(buf.toString().trim());
+  }
+
 }

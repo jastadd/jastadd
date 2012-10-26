@@ -181,18 +181,17 @@ aspect JragCodeGen {
   }
 
   public String Grammar.genImportsList() {
-    Set set = new LinkedHashSet();
+    Set imports = new LinkedHashSet();
     for(Iterator iter = getCompUnits(); iter.hasNext(); ) {
-        jrag.AST.ASTCompilationUnit u = (jrag.AST.ASTCompilationUnit)iter.next();
-        String[] imports = u.getImports().split(";");
-        for(int i = 0; i < imports.length; i++)
-          if(imports[i] != null && !imports[i].equals(""))
-            set.add(imports[i] + ";\n");
+        jrag.AST.ASTCompilationUnit u =
+          (jrag.AST.ASTCompilationUnit) iter.next();
+        imports.addAll(u.getImports());
     }
     StringBuffer buf = new StringBuffer();
-    for(Iterator iter = set.iterator(); iter.hasNext(); )
+    for(Iterator iter = imports.iterator(); iter.hasNext(); ) {
       buf.append(iter.next());
-    buf.append("\n");
+      buf.append('\n');
+    }
     return buf.toString();
   }
   public String ASTDecl.genImplementsList() {
