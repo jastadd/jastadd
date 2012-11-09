@@ -740,9 +740,9 @@ aspect JaddCodeGen {
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
     if(debugMode)
       stream.println(ind(2) + "debugNodeAttachment(node);");
-    stream.println(ind + "if(children == null) {");
+    stream.println(ind(2) + "if(children == null) {");
     stream.println(ind(3) + "children = new ASTNode[i + 1];");
-    stream.println(ind + "} else if (i >= children.length) {");
+    stream.println(ind(2) + "} else if (i >= children.length) {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
     stream.println(ind(3) + "children = c;");
