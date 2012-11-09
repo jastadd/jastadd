@@ -211,8 +211,11 @@
 		</zip>
 	</target>
 
-	<target name="release" depends="source-zip,bin-zip"
-		description="build source-zip and bin-zip"/>
+	<target name="release" description="build source-zip and bin-zip">
+		<antcall target="clean"/>
+		<antcall target="source-zip"/>
+		<antcall target="bin-zip"/>
+	</target>
 
 	<target name="bootstrap" depends="jar"
 		description="Prepare JastAdd2 bootstrapping (copy jastadd2.jar to tools directory)">
