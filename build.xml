@@ -10,7 +10,9 @@
 		classpath="${tools.dir}/jastadd2.jar"/>
 
 	<target name="build-resources">
-		<exec executable="svn" failonerror="false" output="svn.info">
+		<echo message="Revision: -1" file="svn.info"/>
+		<exec executable="svn" failonerror="false"
+			failifexecutionfails="false" output="svn.info">
 			<arg value="info"/>
 		</exec>
 		<loadproperties srcfile="svn.info">
@@ -83,6 +85,7 @@
 	</target>
 
 	<target name="clean">
+		<delete file="svn.info"/>
 		<delete dir="ast/AST"/>
 		<delete dir="test/ast"/>
 		<delete file="JastAdd.properties"/>
