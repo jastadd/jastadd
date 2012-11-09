@@ -1280,7 +1280,7 @@ aspect JaddCodeGen {
         stream.println(ind + " */");
         stream.println(ind + "public java.util.Iterator<T> ASTNode.iterator() {");
         if(ASTNode.block) stream.append(ASTNode.blockBegin);
-        stream.println(ind + "return new java.util.Iterator<T>() {");
+        stream.println(ind(2) + "return new java.util.Iterator<T>() {");
         stream.println(ind(3) + "private int counter = 0;");
         stream.println(ind(3) + "public boolean hasNext() {");
         stream.println(ind(4) + "return counter < getNumChild();");
@@ -1294,7 +1294,7 @@ aspect JaddCodeGen {
         stream.println(ind(3) + "public void remove() {");
         stream.println(ind(4) + "throw new UnsupportedOperationException();");
         stream.println(ind(3) + "}");
-        stream.println(ind + "};");
+        stream.println(ind(2) + "};");
         if(ASTNode.block) stream.append(ASTNode.blockEnd);
         stream.println(ind + "}");
       }
