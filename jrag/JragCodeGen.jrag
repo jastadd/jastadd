@@ -885,12 +885,15 @@ aspect JragCodeGen {
     return "return #NAME#_value;\n";
   }
 
+  syn boolean AttrEq.hasComputeBlock() = true;
+  eq SynEq.hasComputeBlock() = getRHS() instanceof ASTBlock;
+
   public String AttrEq.computeMethod() {
     return "";
   }
 
   public String SynEq.computeMethod() {
-    if(getRHS() instanceof ASTBlock) // Block
+    if(hasComputeBlock())
       return
         ind + "/**\n" +
         ind + " * @apilevel internal\n" +
