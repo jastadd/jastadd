@@ -10,13 +10,25 @@
 		classpath="${tools.dir}/jastadd2.jar"/>
 
 	<target name="build-resources">
+		<exec executable="svn" failonerror="false" output="svn.info">
+			<arg value="info"/>
+		</exec>
+		<loadproperties srcfile="svn.info">
+			<filterchain>
+				<linecontains>
+					<contains value="Revision"/>
+				</linecontains>
+			</filterchain>
+		</loadproperties>
 		<tstamp>
 			<format property="build.date" pattern="yyyyMMdd"/>
 		</tstamp>
 		<property name="version.name" value="R${build.date}"/>
-		<copy file="resources/JastAdd.txt" toFile="JastAdd.properties">
+		<copy file="resources/JastAdd.txt" overwrite="true"
+			toFile="JastAdd.properties">
 			<filterset>
-				<filter token="VERSION" value="${version.name}"/>
+				<filter token="VERSION"
+					value="${version.name} (r${Revision})"/>
 			</filterset>
 		</copy>
 	</target>
