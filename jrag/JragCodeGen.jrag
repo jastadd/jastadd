@@ -952,11 +952,11 @@ aspect JragCodeGen {
   public String ASTDecl.genEquation(AttrDecl attr, String comment) {
     boolean needsCacheDeclaration = true;
     if(attr instanceof SynDecl)
-    // EMMA_2011-09-13: Setting this to true to get declarations for each 
-    // equation of an attribute. In an equation lacks its own visited declaration
-    // and calls an overriden equation it can cause a circularity exception.
+      // EMMA_2011-09-13: Setting this to true to get declarations for each 
+      // equation of an attribute. If an equation lacks its own visited declaration
+      // and calls an overriden equation it can cause a circularity exception.
       needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
-    // OLD      needsCacheDeclaration = superClass() == null || !superClass().hasLazySynEqFor(attr);
+      // OLD      needsCacheDeclaration = superClass() == null || !superClass().hasLazySynEqFor(attr);
     if (!attr.isCircular()) {
       return
            (needsCacheDeclaration ? (attr.visitedDeclarations() + attr.cacheDeclarations()) : "") +
