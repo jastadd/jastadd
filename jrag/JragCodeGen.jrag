@@ -949,6 +949,11 @@ aspect JragCodeGen {
    // TODO: fixme cycleLimit > 0 ?
    //    "if(state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
 
+  /**
+   * Generates the method to compute an attribute
+   * @param attr The attribute we are adding a compute method for
+   * @param comment The documentation comment for the generated method
+   */
   public String ASTDecl.genEquation(AttrDecl attr, String comment) {
     boolean needsCacheDeclaration = true;
     if(attr instanceof SynDecl) {
@@ -1321,7 +1326,8 @@ aspect JragCodeGen {
     for(int i = 0; i < getNumSynEq(); i++) {
        AttrEq equ = getSynEq(i);;
        AttrDecl attr = equ.decl();
-       String s = genEquation(attr, equ.hostFileComment(ind, attr)) + equ.computeMethod();
+       String s = genEquation(attr, equ.hostFileComment(ind, attr)) +
+         equ.computeMethod();
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
