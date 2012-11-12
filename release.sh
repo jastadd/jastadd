@@ -11,13 +11,8 @@ echo "sed -e '/Reference manual for JastAdd2 R/ s/JastAdd2 R......../JastAdd2 '$
 echo rm doc/reference-manual.html
 echo mv doc/reference-manual.html.new doc/reference-manual.html
 
-# Create a zip file jastadd2-src.zip for the source distribution
-echo ant source-zip
-#ant source-zip
-
-# Create a zip file jastadd2-bin.zip for the binary distribution.
-echo ant bin-zip
-#ant bin-zip
+# Create a the release zip files jastadd2-src.zip and jastadd2-bin.zip
+echo ant release
 
 # Create a new dir at jastadd.org
 echo ssh login.cs.lth.se \"cd /cs/jastadd/releases/jastadd2 \&\& mkdir ${VERSION}\"
