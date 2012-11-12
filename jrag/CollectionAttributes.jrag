@@ -24,11 +24,15 @@ aspect CollectionAttributes {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
-      String s;
-      if(attr.circularCollection())
+      String s = "";
+      if(attr.circularCollection()) {
         s = genCircular(attr, attr.hostFileComment(ind)) + attr.combineMethod();
-      else
-        s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
+      } else {
+        s += attr.hostFileComment(ind);
+        s += genEquation(attr);
+        s += attr.computeMethod();
+        s = getCacheDeclarations(attr) + s;
+      }
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
@@ -237,7 +241,7 @@ aspect CollectionAttributes {
          ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
-         clearVisited() +
+         clearVisited(ind(4)) +
          ind(4) + "#NAME#_computed = true;\n" +
          ind(4) + "return #NAME#_value;\n" +
          ind(3) + "}\n";
@@ -246,7 +250,7 @@ aspect CollectionAttributes {
          ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
-         clearVisited() +
+         clearVisited(ind(4)) +
          ind(4) + "#NAME#_computed.add(_parameters);\n" +
          ind(4) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , getType()) + ";\n" +
          ind(3) + "}\n";
@@ -728,8 +732,8 @@ aspect CollectionAttributes {
               ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
               ind + "}\n\n";
             flush =
-              ind + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) { // TODO: replace !attr.naive() with !attr.separateEvaluation()
             if(!rootDecl.hasCollEq(attr)) {
               s =
@@ -745,7 +749,7 @@ aspect CollectionAttributes {
               ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
             }
             flush =
-              ind + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
           }
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());

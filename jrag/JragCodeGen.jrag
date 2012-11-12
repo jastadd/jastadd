@@ -618,18 +618,19 @@ aspect JragCodeGen {
       return ind(2) + "#NAME#_visited.add(_parameters);\n";
   }
 
-  public String AttrDecl.clearVisited() {
-    if(!visitCheckEnabled() && !isCircular()) return "";
-    if(rewriteEnabled) {
+  public String AttrDecl.clearVisited(String ind) {
+    if(!visitCheckEnabled() && !isCircular()) {
+      return "";
+    } else if(rewriteEnabled) {
       if(getNumParameter() == 0)
-        return ind(2) + "#NAME#_visited = -1;\n";
+        return ind + "#NAME#_visited = -1;\n";
       else
-        return ind(2) + "#NAME#_visited.remove(_parameters);\n";
+        return ind + "#NAME#_visited.remove(_parameters);\n";
+    } else if(getNumParameter() == 0) {
+      return ind + "#NAME#_visited = false;\n";
+    } else {
+      return ind + "#NAME#_visited.remove(_parameters);\n";
     }
-    if(getNumParameter() == 0)
-      return ind(2) + "#NAME#_visited = false;\n";
-    else
-      return ind(2) + "#NAME#_visited.remove(_parameters);\n";
   }
 
   public String AttrDecl.cacheDeclarations() {
@@ -802,11 +803,11 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.parameterStructure() {
-    if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !visitCheckEnabled()))
+    if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !visitCheckEnabled())) {
       return "";
-    else if(getNumParameter() == 1)
+    } else if(getNumParameter() == 1) {
       return ind(2) + "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
-    else {
+    } else {
       StringBuffer s = new StringBuffer();
       if(j2me)
         s.append(ind(2) + "java.util.Vector _parameters = new java.util.Vector(" + getNumParameter() + ");\n");
@@ -847,9 +848,9 @@ aspect JragCodeGen {
 
   // TODO: INH
   public String InhDecl.callCompute() {
-    if(ASTNode.parentInterface)
+    if(ASTNode.parentInterface) {
       return super.callCompute();
-    else {
+    } else {
       if(getLazy() && getNumParameter() == 0)
         return inhDebugString() +
                ind(2) + "#NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
@@ -861,19 +862,19 @@ aspect JragCodeGen {
 
   public String AttrDecl.cacheStoreRewrite() {
     if(!ASTNode.rewriteEnabled || getFinal())
-      return "if(true)";
+      return ind + "if(true)";
     else
-      return "if(isFinal && num == state().boundariesCrossed)";
+      return ind + "if(isFinal && num == state().boundariesCrossed)";
   }
 
   public String AttrDecl.cacheStore() {
     if(!getLazy())
       return "";
     if(getNumParameter() == 0)
-      return cacheStoreRewrite() +
+      return ind(2) + cacheStoreRewrite() +
         " #NAME#_computed = true;\n";
     else
-      return cacheStoreRewrite() +
+      return ind(2) + cacheStoreRewrite() +
         " #NAME#_values.put(_parameters, " +
         toReferenceType("#NAME#_value", getType()) + ");\n";
   }
@@ -889,23 +890,76 @@ aspect JragCodeGen {
   syn boolean AttrEq.hasComputeBlock() = true;
   eq SynEq.hasComputeBlock() = getRHS() instanceof ASTBlock;
 
+  /**
+   * @return Compute method without "_compute" suffix
+   */
+  public String AttrEq.computeMethodLazy(AttrDecl attr) {
+    return
+      ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+      (ASTNode.block ? ind(2) + ASTNode.blockBegin : "") +
+      attr.parameterStructure() +
+      attr.traceBeginAttr() +
+      attr.initLazyMaps() +
+      attr.cacheCheck() +
+      (ASTNode.rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
+      attr.addInterruptedCircleDeclaration() +
+      attr.visitedCheck() +
+      attr.setVisited() +
+      attr.addCheckInterruptedCircle() +
+      ind(2) + "try " + computeMethodBody() + "\n" +
+      ind(2) + "finally {\n" +
+      attr.higherOrderAttributeCode() +
+      attr.clearVisited(ind(3)) +
+      attr.addClearInterruptedCircle() +
+      attr.traceEndAttr() +
+      ind(2) + "}\n" +
+      (ASTNode.block ? ind(2) + ASTNode.blockEnd : "") +
+      ind + "}\n";
+  }
+
+  public String AttrEq.computeMethodBody() {
+    return "{ }";
+  }
+
+  public String SynEq.computeMethodBody() {
+    if(hasComputeBlock())
+      return getRHS().unparse();
+    else
+      return "{  return " + getRHS().unparse() + ";  }";
+  }
+
+  public String AttrDecl.computeMethodLazy(AttrDecl attr) {
+    // TODO: INH
+    if(!ASTNode.parentInterface)
+      return  "";
+    return
+        ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+        ind(2) + "ASTNode n = getParent();\n" +
+        ind(2) + "ASTNode caller = this;\n" +
+        ind(2) + "ASTNode child = null;\n" +
+        ind(2) + "while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#) && n != null) {\n" +
+        ind(3) + "child = caller;\n" +
+        ind(3) + "caller = n;\n" +
+        ind(3) + "n = n.getParent();\n" +
+        ind(2) + "}\n" +
+        inhDebugString() +
+        ind(2) + "return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
+        ind + "}\n";
+  }
+
+  /**
+   * @return Code for the method to compute this attribute
+   */
   public String AttrEq.computeMethod() {
     return "";
   }
 
   public String SynEq.computeMethod() {
-    if(hasComputeBlock())
-      return
-        ind + "/**\n" +
-        ind + " * @apilevel internal\n" +
-        ind + " */\n" +
-        ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + getRHS().unparse() + "\n";
-    else // Expr
-      return
-        ind + "/**\n" +
-        ind + " * @apilevel internal\n" +
-        ind + " */\n" +
-        ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {  return " + getRHS().unparse() + ";  }\n";
+    return
+      ind + "/**\n" +
+      ind + " * @apilevel internal\n" +
+      ind + " */\n" +
+      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + computeMethodBody() + "\n";
   }
 
   public String AttrDecl.computeMethod() {
@@ -953,21 +1007,10 @@ aspect JragCodeGen {
   /**
    * Generates the method to compute an attribute
    * @param attr The attribute we are adding a compute method for
-   * @param comment The documentation comment for the generated method
    */
-  public String ASTDecl.genEquation(AttrDecl attr, String comment) {
-    boolean needsCacheDeclaration = true;
-    if(attr instanceof SynDecl) {
-      // EMMA_2011-09-13: Setting this to true to get declarations for each 
-      // equation of an attribute. If an equation lacks its own visited declaration
-      // and calls an overriden equation it can cause a circularity exception.
-      needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
-      // OLD      needsCacheDeclaration = superClass() == null || !superClass().hasLazySynEqFor(attr);
-    }
+  public String ASTDecl.genEquation(AttrDecl attr) {
     if (!attr.isCircular()) {
       return
-           (needsCacheDeclaration ? (attr.visitedDeclarations() + attr.cacheDeclarations()) : "") +
-           comment +
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
            (ASTNode.block ? ind(2) + ASTNode.blockBegin : "") +
@@ -975,7 +1018,7 @@ aspect JragCodeGen {
            attr.traceBeginAttr() +
            attr.initLazyMaps() +
            attr.cacheCheck() +
-           (ASTNode.rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
+           (ASTNode.rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
            attr.addInterruptedCircleDeclaration() +
            attr.visitedCheck() +
            attr.setVisited() +
@@ -984,7 +1027,7 @@ aspect JragCodeGen {
            attr.callCompute() +
            attr.higherOrderAttributeCode() +
            attr.cacheStore() +
-           attr.clearVisited() +
+           attr.clearVisited(ind(2)) +
            attr.addClearInterruptedCircle() +
            attr.traceEndAttr() +
            ind(2) + attr.returnStmt() +
@@ -993,28 +1036,7 @@ aspect JragCodeGen {
     }
     else {
       if(attr.getNumParameter() == 0) {
-        if(!needsCacheDeclaration && attr instanceof SynDecl &&
-          superClass() != null && superClass().lookupSynEq(attr.signature()) != null
-          && !superClass().lookupSynEq(attr.signature()).decl().isCircular())
-          needsCacheDeclaration = true;
         return
-           (needsCacheDeclaration ?
-           (
-             attr.visitedDeclarations() +
-             ind + "/**\n" +
-             ind + " * @apilevel internal\n" +
-             ind + " */\n" +
-             ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
-             ind + "/**\n" +
-             ind + " * @apilevel internal\n" +
-             ind + " */\n" +
-             ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
-             ind + "/**\n" +
-             ind + " * @apilevel internal\n" +
-             ind + " */\n" +
-             ind + "protected #TYPE# #CLASS#.#NAME#_value;\n"
-           ) : "" ) +
-           comment +
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
            (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1079,14 +1101,8 @@ aspect JragCodeGen {
            (ASTNode.block ? ASTNode.blockEnd : "") +
            ind + "}\n";
       }
-      else
+      else {
         return
-           (needsCacheDeclaration ?
-           ( attr.visitedDeclarations() +
-             ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values" +
-              (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
-           ) : "" ) +
-           comment +
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
            (ASTNode.block ? ASTNode.blockBegin : "") +
@@ -1179,6 +1195,7 @@ aspect JragCodeGen {
            ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
            (ASTNode.block ? ASTNode.blockEnd : "") +
            ind + "}\n";
+      }
     }
   }
 
@@ -1322,13 +1339,76 @@ aspect JragCodeGen {
       return "(" + s1 + "==null && " + s2 + "!=null)" + " || " + "(" + s1 + "!=null && " + "!" + s1 + ".equals(" + s2 + ")" + ")";
   }
 
+  public String ASTDecl.getCacheDeclarations(AttrDecl attr) {
+    boolean needsCacheDeclaration = true;
+    if(attr instanceof SynDecl) {
+      // EMMA_2011-09-13: Setting this to true to get declarations for each 
+      // equation of an attribute. If an equation lacks its own visited declaration
+      // and calls an overriden equation it can cause a circularity exception.
+      needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
+      // OLD      needsCacheDeclaration = superClass() == null || !superClass().hasLazySynEqFor(attr);
+    }
+    if (!attr.isCircular()) {
+      return
+        needsCacheDeclaration
+        ?(
+            attr.visitedDeclarations() + attr.cacheDeclarations()
+         ) : "";
+    }
+    else {
+      if(attr.getNumParameter() == 0) {
+        if(!needsCacheDeclaration && attr instanceof SynDecl &&
+            superClass() != null && superClass().lookupSynEq(attr.signature()) != null
+            && !superClass().lookupSynEq(attr.signature()).decl().isCircular()) {
+
+          needsCacheDeclaration = true;
+        }
+        return
+          needsCacheDeclaration
+          ?(
+              attr.visitedDeclarations() +
+              ind + "/**\n" +
+              ind + " * @apilevel internal\n" +
+              ind + " */\n" +
+              ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
+              ind + "/**\n" +
+              ind + " * @apilevel internal\n" +
+              ind + " */\n" +
+              ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
+              ind + "/**\n" +
+              ind + " * @apilevel internal\n" +
+              ind + " */\n" +
+              ind + "protected #TYPE# #CLASS#.#NAME#_value;\n"
+           ) : "";
+      }
+      else {
+        return
+          needsCacheDeclaration
+          ?(
+              attr.visitedDeclarations() +
+              ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values" +
+              (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
+           ) : "";
+      }
+    }
+  }
+
   public String ASTDecl.genSynEquations() {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumSynEq(); i++) {
-       AttrEq equ = getSynEq(i);;
+       AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
-       String s = genEquation(attr, equ.hostFileComment(ind, attr)) +
-         equ.computeMethod();
+       String s = "";
+       if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
+         s += equ.hostFileComment(ind, attr);
+         s += genEquation(attr);
+         s += equ.computeMethod();
+       } else {
+         s += equ.computeMethodLazy(attr);
+         if (!s.isEmpty())
+           s = attr.hostFileComment(ind) + s;
+       }
+       s = getCacheDeclarations(attr) + s;
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
@@ -1492,7 +1572,17 @@ aspect JragCodeGen {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       String s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
+       String s = "";
+       /*if (attr.getLazy() || attr.isCircular()) {*/
+         s += attr.hostFileComment(ind);
+         s += genEquation(attr);
+         s += attr.computeMethod();
+       /*} else {
+         s += attr.computeMethodLazy(attr);
+         if (!s.isEmpty())
+           s = attr.hostFileComment(ind) + s;
+       }*/
+       s = getCacheDeclarations(attr) + s;
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        if(!aspectJ)
