@@ -869,12 +869,13 @@ aspect JragCodeGen {
   public String AttrDecl.cacheStore() {
     if(!getLazy())
       return "";
-  if(getNumParameter() == 0)
-    return cacheStoreRewrite() +
-           " #NAME#_computed = true;\n";
-  else
-    return cacheStoreRewrite() +
-             " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + ");\n";
+    if(getNumParameter() == 0)
+      return cacheStoreRewrite() +
+        " #NAME#_computed = true;\n";
+    else
+      return cacheStoreRewrite() +
+        " #NAME#_values.put(_parameters, " +
+        toReferenceType("#NAME#_value", getType()) + ");\n";
   }
 
   public String AttrDecl.returnStmt() {
