@@ -32,16 +32,18 @@ echo "scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php\\"
 echo "    login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
 #scp jastadd2-src.jar jastadd2-bin.zip doc/*.html doc/*.php login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
 
+echo
 echo "# 5. Cleaning up"
 echo "rm -f jastadd2-bin.zip jastadd2-src.zip"
 
-# Check that it works
+echo # Check that it works
 echo ------------------------------------------------------
 echo Browse to the website and check that everything works.
 echo Then ant clean and commit.
 echo ------------------------------------------------------
 
-# Tag in SVN
+echo
+echo "# 6. Tag in SVN"
 echo "svn copy http://svn.cs.lth.se/svn/jastadd/trunk/JastAdd2 \\"
 echo "    http://svn.cs.lth.se/svn/jastadd/tags/JastAdd2/${VERSION} \\"
 echo "    -m \"Release ${VERSION} of JastAdd2\""
