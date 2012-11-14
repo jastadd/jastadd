@@ -1,8 +1,14 @@
 2012-11-14  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
+    * Process interface refinements before weaving interface
+    introductions.  This allows interface methods to be refined again.
+    Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/69
+
     * Increased the minimum list size limit (above zero) to 4 (was 1)
+
     * Added init$Children method to initialize the child array with the
     correct initial size. This also avoids some redundant initialization of
+
     nta children.
     * Refactored constructor code generation
 

@@ -30,13 +30,13 @@ aspect JastAddCodeGen {
               for(Iterator iter = d.getClassBodyDeclsItr(); iter.hasNext(); ) {
                 ClassBodyObject o = (ClassBodyObject)iter.next();
                 if(o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
-                    if(!dest.hasClassBodyDecl(o.signature()))
-                        dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
+                  if(!dest.hasClassBodyDecl(o.signature()))
+                    dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                 }
                 else if(o.node instanceof ASTAspectRefineMethodDeclaration) {
                   ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
                   object.refinesAspect = o.refinesAspect;
-                    dest.classBodyDecls.add(object);
+                  dest.classBodyDecls.add(object);
                 }
                 else if(o.node instanceof ASTBlock) {
                   dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
@@ -45,12 +45,12 @@ aspect JastAddCodeGen {
               for(Iterator iter = d.refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
                   ClassBodyObject o = (ClassBodyObject)iter.next();
                   if(o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
-                      if(!dest.hasClassBodyDecl(o.signature()))
-                          dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
+                    if(!dest.hasClassBodyDecl(o.signature()))
+                      dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                   }
                   else if(o.node instanceof ASTAspectRefineMethodDeclaration) {
                     ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
-                  object.refinesAspect = o.refinesAspect;
+                    object.refinesAspect = o.refinesAspect;
                     dest.refinedClassBodyDecls.add(object);
                   }
                   else if(o.node instanceof ASTBlock) {

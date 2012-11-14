@@ -158,6 +158,7 @@ public class JastAdd {
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
+      root.processInterfaceRefinements();
       root.weaveInterfaceIntroductions();
 
       //System.out.println("weaving aspect and attribute definitions");
@@ -180,8 +181,6 @@ public class JastAdd {
           }
           jp.popTopLevelOrAspect();
 
-
-
           int j = 0;
           for(Iterator iter = decl.getComponents(); iter.hasNext(); ) {
             Components c = (Components)iter.next();
@@ -198,7 +197,6 @@ public class JastAdd {
 
       //System.out.println("processing refinements");
       root.processRefinements();
-
 
       for(Iterator iter = cacheFiles.iterator(); iter.hasNext(); ) {
         String fileName = (String)iter.next();
