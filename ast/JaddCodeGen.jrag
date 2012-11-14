@@ -45,6 +45,23 @@ aspect JaddCodeGen {
     return num;
   }
 
+  /**
+   * Number of children, including NTAs but excluding tokens
+   */
+  syn int ASTDecl.childCount() {
+    int i = 0;
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(!(c instanceof TokenComponent)) {
+        i++;
+      }
+    }
+    return i;
+  }
+
+  /**
+   * Number of children, excluding NTAs and tokens
+   */
   syn int ASTDecl.numRegularChildren() {
     int i = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -93,7 +110,27 @@ aspect JaddCodeGen {
     s = s.replaceAll("#ID#", name());
     s = s.replaceAll("#NTA#", t);
     out.println(s);
-    // Initialize children
+    if (isASTNode()) {
+      out.println(ind(2) + "init$Children();");
+    }
+    out.println(finalInit);
+    out.println(ind + "}");
+  }
+
+  /**
+   * Emits the (nta) child initialization method
+   */
+  public void ASTDecl.emitChildInitMethod(PrintWriter out) {
+    out.println(ind + "/**");
+    out.println(ind + " * Initializes the child array to the correct size.");
+    out.println(ind + " * Initializes List and Opt nta children.");
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " * @ast method");
+    out.println(ind + " */");
+    out.println(ind + "public void " + name() + ".init$Children() {");
+    if (childCount() > 0) {
+      out.println(ind(2) + "children = new ASTNode[" + childCount() + "];");
+    }
     int i = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
@@ -110,7 +147,6 @@ aspect JaddCodeGen {
         i++;
       }
     }
-    out.println(finalInit);
     out.println(ind + "}");
   }
 
@@ -134,19 +170,10 @@ aspect JaddCodeGen {
         }
         param += 1;
       }
-      else {
-        if(c instanceof ListComponents) {
-          out.println(ind(2) + "setChild(new List(), " + childIndex + ");");
-          childIndex++;
-        }
-        else if(c instanceof OptionalComponent) {
-          out.println(ind(2) + "setChild(new Opt(), " + childIndex + ");");
-          childIndex++;
-        }
-        else if(c instanceof AggregateComponents) {
-          out.println(ind(2) + "setChild(null, " + childIndex + ");");
-          childIndex++;
-        }
+      else if(c instanceof ListComponents ||
+          c instanceof OptionalComponent ||
+          c instanceof AggregateComponents) {
+        childIndex++;
       }
     }
     if(ASTNode.block) out.print(ASTNode.blockBegin);
@@ -176,7 +203,7 @@ aspect JaddCodeGen {
         i++;
       }
     }
-    out.println(") {\n");
+    out.println(") {");
     emitBuildingConstructorBody(out);
     out.println(ind + "}");
   }
@@ -1234,24 +1261,26 @@ aspect JaddCodeGen {
         ind + "}\n");
   }
 
-  public void ASTDecl.jjtGenConstructor(PrintWriter stream, String parserName,
+  public void ASTDecl.jjtGenConstructor(PrintWriter out, String parserName,
       boolean jjtree, boolean rewriteEnabled) {
 
-    emitDefaultConstructor(stream, parserName, jjtree, rewriteEnabled);
+    emitDefaultConstructor(out, parserName, jjtree, rewriteEnabled);
+
+    emitChildInitMethod(out);
 
     if(numNonNTAComponents() != 0) {
-      emitBuildingConstructor(stream);
+      emitBuildingConstructor(out);
       if(ASTNode.beaver)
-        emitSymbolConstructor(stream);
+        emitSymbolConstructor(out);
     }
 
     if(name().equals("Opt")) {
       if(ASTNode.java5)
-        stream.println(ind + "public Opt.Opt(T opt) {");
+        out.println(ind + "public Opt.Opt(T opt) {");
       else
-        stream.println(ind + "public Opt.Opt(ASTNode opt) {");
-      stream.println(ind(2) + "setChild(opt, 0);");
-      stream.println(ind + "}\n");
+        out.println(ind + "public Opt.Opt(ASTNode opt) {");
+      out.println(ind(2) + "setChild(opt, 0);");
+      out.println(ind + "}\n");
     }
   }
 
