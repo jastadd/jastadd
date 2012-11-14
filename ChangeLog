@@ -1,7 +1,9 @@
 2012-11-14  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
+    * Increased the minimum list size limit (above zero) to 4 (was 1)
     * Added init$Children method to initialize the child array with the
-    correct initial size
+    correct initial size. This also removed some redundant initialization of
+    nta children.
     * Refactored constructor code generation
 
 2012-11-12  Jesper Öqvist <jesper.oqvist@cs.lth.se>

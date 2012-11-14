@@ -486,6 +486,11 @@ aspect JaddCodeGen {
     stream.println("}"); // End ASTNode$State
   }
 
+  /**
+   * The minimum list size (above zero)
+   */
+  private static final int ASTDecl.MIN_LIST_LIMIT = 4;
+
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel internal");
@@ -795,7 +800,7 @@ aspect JaddCodeGen {
     if(debugMode)
       stream.println(ind(2) + "debugNodeAttachment(node);");
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    stream.println(ind(3) + "children = new ASTNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
     stream.println(ind(2) + "} else if (i >= children.length) {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
@@ -815,7 +820,7 @@ aspect JaddCodeGen {
     if(debugMode)
       stream.println(ind(2) + "debugNodeAttachment(node);");
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    stream.println(ind(3) + "children = new ASTNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
     stream.println(ind(3) + "children[i] = node;");
     stream.println(ind(2) + "} else {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[children.length + 1];");
