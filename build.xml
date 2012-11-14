@@ -11,6 +11,7 @@
 
 	<target name="build-resources">
 		<echo message="Revision: -1" file="svn.info"/>
+		<delete file="svn.info"/>
 		<exec executable="svn" failonerror="false"
 			failifexecutionfails="false" output="svn.info">
 			<arg value="info"/>
