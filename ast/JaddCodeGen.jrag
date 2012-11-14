@@ -56,69 +56,135 @@ aspect JaddCodeGen {
     return i;
   }
 
-  // Constructor to build trees bottom up
-  public String ASTDecl.buildingConstructor() {
-    // we only build constructors if there are components
-    if(!getComponents().hasNext())
-      return "";
-    StringBuffer s = new StringBuffer();
-    s.append(ind + "public #ID#.#ID#(");
-    int i = 0; // parameter index
+  /**
+   * Default constructor: creates list and opt nodes for
+   * all list and opt children. Initializes NTAs.
+   */
+  public void ASTDecl.emitDefaultConstructor(PrintWriter out, String parserName,
+      boolean jjtree, boolean rewriteEnabled) {
+
+    String finalInit = "";
+    if(rewriteEnabled && isRootNode()) {
+      if(ASTNode.stagedRewrites)
+        finalInit = ind(2) + "is$Final(state().rewritePhase);\n";
+      else
+        finalInit = ind(2) + "is$Final(true);\n";
+    }
+
+    String s;
+    if(jjtree) {
+      s = ind + "public #ID#.#ID#(int i) {\n" +
+        ind(2) + "super(i);\n" + finalInit +
+        ind + "}\n" +
+        ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
+        ind(2) + "this(i);\n" +
+        ind(2) + "parser = p;\n" + finalInit +
+        ind + "}\n" +
+        ind + "public #ID#.#ID#() {\n" + 
+        ind(2) + "this(0);\n" + 
+        "#NTA#";
+    }
+    else {
+      s = ind + "public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
+        ind(2) + "super();\n" + 
+        "#NTA#";
+    }
+    String t = new String();
+    s = s.replaceAll("#ID#", name());
+    s = s.replaceAll("#NTA#", t);
+    out.println(s);
+    // Initialize children
+    int i = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(i != 0) s.append(", ");
-        s.append(c.constrParmType() + " p" + i);
+      if(c instanceof ListComponents) {
+        out.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
+        i++;
+      }
+      else if(c instanceof OptionalComponent) {
+        out.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
+        i++;
+      }
+      else if(c instanceof AggregateComponents) {
+        //stream.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
         i++;
       }
     }
-    s.append(") {\n");
-    if(ASTNode.block) s.append(ASTNode.blockBegin);
-    i = 0;
-    int j = 0;
+    out.println(finalInit);
+    out.println(ind + "}");
+  }
+
+  /**
+   * Emits the constructor body for tree building constructors
+   */
+  public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
+    int param = 0;
+    int childIndex = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(!c.isNTA()) {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
-          s.append(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");\n");
+          String tokenId = t.getTokenId().getID();
+          out.println(ind(2) + "set" + tokenId + "(p" + param + ");");
         }
         else {
-          s.append(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");\n");
-          j++;
+          out.println(ind(2) + "setChild(p" + param + ", " + childIndex + ");");
+          childIndex++;
         }
-        i++;
+        param += 1;
       }
       else {
         if(c instanceof ListComponents) {
-          s.append(ind(2) + "setChild(new List(), " + j + ");\n");
-          j++;
+          out.println(ind(2) + "setChild(new List(), " + childIndex + ");");
+          childIndex++;
         }
         else if(c instanceof OptionalComponent) {
-          s.append(ind(2) + "setChild(new Opt(), " + j + ");\n");
-          j++;
+          out.println(ind(2) + "setChild(new Opt(), " + childIndex + ");");
+          childIndex++;
         }
         else if(c instanceof AggregateComponents) {
-          s.append(ind(2) + "setChild(null, " + j + ");\n");
-          j++;
+          out.println(ind(2) + "setChild(null, " + childIndex + ");");
+          childIndex++;
         }
       }
     }
+    if(ASTNode.block) out.print(ASTNode.blockBegin);
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
+        out.println(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
       else
-        s.append(ind(2) + "is$Final(true);\n");
+        out.println(ind(2) + "is$Final(true);");
     }
-    if(ASTNode.block) s.append(ASTNode.blockEnd);
-    s.append(ind + "}\n");
-    return s.toString().replaceAll("#ID#", name());
+    if(ASTNode.block) out.print(ASTNode.blockEnd);
   }
 
-  public String ASTDecl.buildingSymbolConstructor() {
+  /**
+   * Constructor to build trees bottom up
+   */
+  public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
+    // we only build constructors if there are components
+    if(!getComponents().hasNext())
+      return;
+    out.print(ind + "public " + name() + "." + name() + "(");
+    int i = 0; // parameter index
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(!c.isNTA()) {
+        if(i != 0) out.print(", ");
+        out.print(c.constrParmType() + " p" + i);
+        i++;
+      }
+    }
+    out.println(") {\n");
+    emitBuildingConstructorBody(out);
+    out.println(ind + "}");
+  }
+
+  public void ASTDecl.emitSymbolConstructor(PrintWriter out) {
     // we only build constructors if there are components ...
     if(!getComponents().hasNext())
-      return "";
+      return;
     // ... and one of these components is a string token component
     boolean stringArg = false;
     for(Iterator iter = getComponents(); !stringArg && iter.hasNext(); ) {
@@ -126,63 +192,24 @@ aspect JaddCodeGen {
       if(!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
         stringArg = true;
     }
-    if(!stringArg) return "";
+    if(!stringArg) return;
 
-    StringBuffer s = new StringBuffer();
-    s.append(ind + "public #ID#.#ID#(");
+    out.print(ind + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(!c.isNTA()) {
-        if(i != 0) s.append(", ");
+        if(i != 0) out.print(", ");
         if(c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
-          s.append("beaver.Symbol p" + i);
+          out.print("beaver.Symbol p" + i);
         else
-          s.append(c.constrParmType() + " p" + i);
+          out.print(c.constrParmType() + " p" + i);
         i++;
       }
     }
-    s.append(") {\n");
-    if(ASTNode.block) s.append(ASTNode.blockBegin);
-    i = 0;
-    int j = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(c instanceof TokenComponent) {
-          TokenComponent t = (TokenComponent)c;
-          s.append(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");\n");
-        }
-        else {
-          s.append(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");\n");
-          j++;
-        }
-        i++;
-      }
-      else {
-        if(c instanceof ListComponents) {
-          s.append(ind(2) + "setChild(new List(), " + j + ");\n");
-          j++;
-        }
-        else if(c instanceof OptionalComponent) {
-          s.append(ind(2) + "setChild(new Opt(), " + j + ");\n");
-          j++;
-        }
-        else if(c instanceof AggregateComponents) {
-          s.append(ind(2) + "setChild(null, " + j + ");\n");
-          j++;
-        }
-      }
-    }
-    if(rewriteEnabled && isRootNode()) {
-      if(ASTNode.stagedRewrites)
-        s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
-      else
-        s.append(ind(2) + "is$Final(true);\n");
-    }
-    if(ASTNode.block) s.append(ASTNode.blockEnd);
-    s.append(ind + "}\n");
-    return s.toString().replaceAll("#ID#", name());
+    out.println(") {");
+    emitBuildingConstructorBody(out);
+    out.println(ind + "}");
   }
 
   public void Grammar.genReset(PrintWriter stream) {
@@ -1207,76 +1234,15 @@ aspect JaddCodeGen {
         ind + "}\n");
   }
 
-  public void ASTDecl.jjtGenConstructor(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
-    String finalInit = "";
-    if(rewriteEnabled && isRootNode()) {
-      if(ASTNode.stagedRewrites)
-        finalInit = ind(2) + "is$Final(state().rewritePhase);\n";
-      else
-        finalInit = ind(2) + "is$Final(true);\n";
-    }
-    String s;
-    if(jjtree) {
-      s = ind + "public #ID#.#ID#(int i) {\n" +
-        ind(2) + "super(i);\n" + finalInit +
-        ind + "}\n" +
-        ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
-        ind(2) + "this(i);\n" +
-        ind(2) + "parser = p;\n" + finalInit +
-        ind + "}\n" +
-        ind + "public #ID#.#ID#() {\n" + 
-        ind(2) + "this(0);\n" + 
-        "#NTA#";
-    }
-    else {
-      s = ind + "public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
-        ind(2) + "super();\n" + 
-        "#NTA#";
-    }
-    String t = new String();
-    int i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(c instanceof ListComponentsNTA) {
-        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
-        i++;
-      }
-      if(c instanceof OptionalComponentNTA) {
-        //t = t + ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");\n";
-        i++;
-      }
-      if(c instanceof AggregateComponentsNTA) {
-        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
-        i++;
-      }
-    }
-    s = s.replaceAll("#ID#", name());
-    s = s.replaceAll("#NTA#", t);
-    stream.println(s);
-    // Initialize node
-    i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(c instanceof ListComponents) {
-        stream.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
-        i++;
-      }
-      else if(c instanceof OptionalComponent) {
-        stream.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
-        i++;
-      }
-      else if(c instanceof AggregateComponents) {
-        //stream.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
-        i++;
-      }
-    }
-    stream.println(finalInit);
-    stream.println(ind + "}\n");
+  public void ASTDecl.jjtGenConstructor(PrintWriter stream, String parserName,
+      boolean jjtree, boolean rewriteEnabled) {
+
+    emitDefaultConstructor(stream, parserName, jjtree, rewriteEnabled);
 
     if(numNonNTAComponents() != 0) {
-      stream.print(buildingConstructor());
+      emitBuildingConstructor(stream);
       if(ASTNode.beaver)
-        stream.print(buildingSymbolConstructor());
+        emitSymbolConstructor(stream);
     }
 
     if(name().equals("Opt")) {
@@ -1287,7 +1253,6 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "setChild(opt, 0);");
       stream.println(ind + "}\n");
     }
-
   }
 
   public void ASTDecl.jjtGen(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
