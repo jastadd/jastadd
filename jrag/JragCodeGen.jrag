@@ -893,7 +893,7 @@ aspect JragCodeGen {
   /**
    * @return Compute method without "_compute" suffix
    */
-  public String AttrEq.computeMethodLazy(AttrDecl attr) {
+  public String AttrEq.computeMethodInline(AttrDecl attr) {
     return
       ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
       (ASTNode.block ? ind(2) + ASTNode.blockBegin : "") +
@@ -928,7 +928,7 @@ aspect JragCodeGen {
       return "{  return " + getRHS().unparse() + ";  }";
   }
 
-  public String AttrDecl.computeMethodLazy(AttrDecl attr) {
+  public String AttrDecl.computeMethodInline(AttrDecl attr) {
     // TODO: INH
     if(!ASTNode.parentInterface)
       return  "";
@@ -1404,7 +1404,7 @@ aspect JragCodeGen {
          s += genEquation(attr);
          s += equ.computeMethod();
        } else {
-         s += equ.computeMethodLazy(attr);
+         s += equ.computeMethodInline(attr);
          if (!s.isEmpty())
            s = attr.hostFileComment(ind) + s;
        }
@@ -1578,7 +1578,7 @@ aspect JragCodeGen {
          s += genEquation(attr);
          s += attr.computeMethod();
        /*} else {
-         s += attr.computeMethodLazy(attr);
+         s += attr.computeMethodInline(attr);
          if (!s.isEmpty())
            s = attr.hostFileComment(ind) + s;
        }*/
