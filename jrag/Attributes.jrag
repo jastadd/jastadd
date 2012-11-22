@@ -13,6 +13,11 @@ public aspect Attributes {
     globalErrors += s + "\n";
   }
 
+  public static void ASTNode.refineError(String what, String file, int line) {
+    error("Can not find " + what + " to refine in " + file + " at line " + line + "\n" +
+        "Warning: implicitly generated methods and equations must be refined without an explicit aspect name");
+  }
+
   public HashMap Grammar.aspectMap = new HashMap();
 
   public void Grammar.registerAspect(String name, String comment) {
@@ -511,7 +516,7 @@ public aspect Attributes {
     }
     for(Iterator iter = replacedSynEqs.iterator(); iter.hasNext(); ) {
       SynEq decl = (SynEq)iter.next();
-      error("Can not find equation to refine in " + decl.getFileName() + " at line " + decl.getStartLine());
+      refineError("equation", decl.getFileName(), decl.getStartLine());
     }
   }
 
@@ -550,7 +555,7 @@ public aspect Attributes {
     }
     for(Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
       SynEq equ = (SynEq)iter.next();
-      error("Can not find syn equation to refine in " + equ.getFileName() + " at line " + equ.getStartLine());
+      refineError("syn equation", equ.getFileName(), equ.getStartLine());
     }
   }
 
@@ -664,7 +669,7 @@ public aspect Attributes {
     }
     for(Iterator iter = refinedInhEqs.iterator(); iter.hasNext(); ) {
       InhEq equ = (InhEq)iter.next();
-      error("Can not find inh equation to refine in " + equ.getFileName() + " at line " + equ.getStartLine());
+      refineError("inh equation", equ.getFileName(), equ.getStartLine());
     }
   }
 
@@ -803,7 +808,7 @@ public aspect Attributes {
     }
     for(Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
       ClassBodyObject decl = (ClassBodyObject)iter.next();
-      error("Can not find method to refine in " + decl.getFileName() + " at line " + decl.getStartLine());
+      refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }
   public LinkedList TypeDecl.replacements = new LinkedList();
@@ -841,7 +846,7 @@ public aspect Attributes {
     }
     for(Iterator iter = replacements.iterator(); iter.hasNext(); ) {
       ClassBodyObject decl = (ClassBodyObject)iter.next();
-      error("Can not find method to refine in " + decl.getFileName() + " at line " + decl.getStartLine());
+      refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }
   private void TypeDecl.replaceWith(ClassBodyObject o) {
