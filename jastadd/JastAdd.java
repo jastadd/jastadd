@@ -303,6 +303,7 @@ public class JastAdd {
     Option version = new Option("version", "print version string and halts");
     Option help = new Option("help", "prints a short help output and halts");
     Option printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
+    Option indent = new Option("indent", "Type of indentation {space|tab}", true);
 
     defaultMap.setNonStandard();
     defaultSet.setNonStandard();
@@ -323,6 +324,7 @@ public class JastAdd {
     defaultSet.setDefaultValue("new java.util.HashSet(4)");
     outputDirOption.setValue(System.getProperty("user.dir"));
     packageOption.setDefaultValue("");
+    indent.setDefaultValue("space");
 
     cla.addOption(jjtree);
     cla.addOption(grammarOption);
@@ -363,6 +365,7 @@ public class JastAdd {
     cla.addOption(version);
     cla.addOption(help);
     cla.addOption(printNonStandardOptions);
+    cla.addOption(indent);
 
     // parse the argument list
     cla.match(args);
@@ -383,6 +386,11 @@ public class JastAdd {
 
     ASTNode.createDefaultMap = defaultMap.value();
     ASTNode.createDefaultSet = defaultSet.value();
+
+    if (indent.value().equals("tab")) {
+      // Use tabs for indentation
+      ASTNode.ind = "\t";
+    }
 
     ASTNode.lazyMaps = !noLazyMaps.matched();
 
