@@ -491,6 +491,71 @@ aspect JaddCodeGen {
    */
   private static final int ASTDecl.MIN_LIST_LIMIT = 4;
 
+  /**
+   * Print the getChild method to the output stream.
+   */
+  public void ASTDecl.genGetChild(PrintWriter stream, boolean rewriteEnabled) {
+    String returnTypeCast;
+    if(ASTNode.java5) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
+      returnTypeCast = "(T) ";
+    }
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+      returnTypeCast = "";
+    }
+
+    if(rewriteEnabled) {
+      if(ASTNode.block) stream.print(ASTNode.blockBegin);
+      stream.println(ind(2) + "ASTNode node = this.getChildNoTransform(i);");
+      stream.println(ind(2) + "if(node.is$Final()) return " + returnTypeCast + "node;");
+      stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
+      if(ASTNode.stagedRewrites)
+        stream.println(ind(3) + "node.is$Final(this.is$Final);");
+      else
+        stream.println(ind(3) + "node.is$Final(this.is$Final());");
+      stream.println(ind(3) + "return " + returnTypeCast + "node;");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "if(!node.in$Circle()) {");
+      stream.println(ind(3) + "int rewriteState;");
+      stream.println(ind(3) + "int num = this.state().boundariesCrossed;");
+      stream.println(ind(3) + "do {");
+      stream.println(ind(4) + "this.state().push(ASTNode$State.REWRITE_CHANGE);");
+      stream.println(ind(4) + "ASTNode oldNode = node;");
+      stream.println(ind(4) + "oldNode.in$Circle(true);");
+      stream.println(ind(4) + "node = node.rewriteTo();");
+      stream.println(ind(4) + "if(node != oldNode)");
+      stream.println(ind(5) + "this.setChild(node, i);");
+      stream.println(ind(4) + "oldNode.in$Circle(false);");
+      stream.println(ind(4) + "rewriteState = this.state().pop();");
+      stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
+      stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && this.is$Final()) {");
+      if(ASTNode.stagedRewrites)
+        stream.println(ind(4) + "node.is$Final(this.state().rewritePhase);");
+      else
+        stream.println(ind(4) + "node.is$Final(true);");
+      stream.println(ind(4) + "this.state().boundariesCrossed = num;");
+      if(rewriteLimit > 0)
+        stream.println(ind(4) + "node.debugRewriteRemove();");
+      stream.println(ind(3) + "}");
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "else if(this.is$Final() != node.is$Final()) this.state().boundariesCrossed++;");
+      stream.println(ind(2) + "return " + returnTypeCast + "node;");
+      if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    } else {
+      // No rewrites
+      stream.println(ind(2) + "return " + returnTypeCast + "getChildNoTransform(i);");
+    }
+
+    stream.println(ind + "}");
+  }
+
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel internal");
@@ -632,83 +697,10 @@ aspect JaddCodeGen {
         stream.println(ind + " */");
         stream.println(ind + "public void ASTNode.is$Final(boolean b) { is$Final = b; }");
       }
-      if(ASTNode.java5) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-        stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
-        stream.println(ind + "}");
-      }
-      else {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-        stream.println(ind(2) + "return ASTNode.getChild(this, i);");
-        stream.println(ind + "}");
-      }
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "public static ASTNode ASTNode.getChild(ASTNode that, int i) {");
-      if(ASTNode.block) stream.print(ASTNode.blockBegin);
-      stream.println(ind(2) + "ASTNode node = that.getChildNoTransform(i);");
-      stream.println(ind(2) + "if(node.is$Final()) return node;");
-      stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
-      if(ASTNode.stagedRewrites)
-        stream.println(ind(3) + "node.is$Final(that.is$Final);");
-      else
-        stream.println(ind(3) + "node.is$Final(that.is$Final());");
-      stream.println(ind(3) + "return node;");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "if(!node.in$Circle()) {");
-      stream.println(ind(3) + "int rewriteState;");
-      stream.println(ind(3) + "int num = that.state().boundariesCrossed;");
-      stream.println(ind(3) + "do {");
-      stream.println(ind(4) + "that.state().push(ASTNode$State.REWRITE_CHANGE);");
-      stream.println(ind(4) + "ASTNode oldNode = node;");
-      stream.println(ind(4) + "oldNode.in$Circle(true);");
-      stream.println(ind(4) + "node = node.rewriteTo();");
-      stream.println(ind(4) + "if(node != oldNode)");
-      stream.println(ind(5) + "that.setChild(node, i);");
-      stream.println(ind(4) + "oldNode.in$Circle(false);");
-      stream.println(ind(4) + "rewriteState = that.state().pop();");
-      stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
-      stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && that.is$Final()) {");
-      if(ASTNode.stagedRewrites)
-        stream.println(ind(4) + "node.is$Final(that.state().rewritePhase);");
-      else
-        stream.println(ind(4) + "node.is$Final(true);");
-      stream.println(ind(4) + "that.state().boundariesCrossed = num;");
-      if(rewriteLimit > 0)
-        stream.println(ind(4) + "node.debugRewriteRemove();");
-      stream.println(ind(3) + "}");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
-      stream.println(ind(2) + "return node;");
-      if(ASTNode.block) stream.print(ASTNode.blockEnd);
-      stream.println(ind + "}");
     }
-    else {
-      if(ASTNode.java5) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "@SuppressWarnings(\"cast\")");
-        stream.println(ind + "public T ASTNode.getChild(int i) {");
-        stream.println(ind(2) + "return (T)getChildNoTransform(i);");
-        stream.println(ind + "}");
-      }
-      else {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-        stream.println(ind(2) + "return getChildNoTransform(i);");
-        stream.println(ind + "}");
-      }
-    }
+
+    genGetChild(stream, rewriteEnabled);
+
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel internal");
     stream.println(ind + " */");

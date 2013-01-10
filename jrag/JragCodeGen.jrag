@@ -770,12 +770,12 @@ aspect JragCodeGen {
       if(getNumParameter() == 0)
         return ind(2) + "if(#NAME#_computed) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
+               ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition());\n" +
                ind(2) + "}\n";
       else
         return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition()));\n" +
+               ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition()));\n" +
                ind(2) + "}\n";
     }
     if(getNumParameter() == 0)
@@ -882,7 +882,7 @@ aspect JragCodeGen {
   public String AttrDecl.returnStmt() {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
-      return "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
+      return "return (" + getType() + ") getChild(#NAME#ChildPosition());\n";
     }
     return "return #NAME#_value;\n";
   }
