@@ -288,7 +288,7 @@ public class JastAdd {
     Option java1_4 = new Option("java1.4", "generate for Java 1.4");
     Option debug = new Option("debug", "generate run-time checks for debugging");
     Option synch = new Option("synch", "");
-    Option noStatic = new Option("noStatic", "");
+    Option noStatic = new Option("noStatic", "the generated state field is non-static");
     Option deterministic = new Option("deterministic", "");
     Option j2me = new Option("j2me", "generate for J2ME");
     Option outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
