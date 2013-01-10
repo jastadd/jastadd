@@ -582,7 +582,10 @@ aspect JaddCodeGen {
       stream.println(ind(3) + "if(parent == null) {");
       stream.println(ind(4) + "state = new ASTNode$State();");
       if(ASTNode.debugMode) {
-        // check if a new state object is created for a node that is not a root node
+        // Debug mode should (probably) not be used here to ensure safe use of the state field
+        //  Jesper 2013-01-10
+
+        // Check if a new state object is created for a node that is not a root node
         StringBuffer s = new StringBuffer();
         s.append("if(");
         boolean first = true;
