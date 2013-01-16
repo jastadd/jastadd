@@ -27,7 +27,7 @@ public aspect Unparse {
   }
 
   public void ASTImportDeclaration.getImports(Set imports) {
-    unparseImport(imports);
+    Unparser.unparseImport(this, imports);
   }
 
 
@@ -463,7 +463,7 @@ public aspect Unparse {
         if (tt != null) {
             while (tt.specialToken != null) tt = tt.specialToken;
             while (tt != null) {
-                buf.append(addUnicodeEscapes(tt.image));
+                buf.append(Util.addUnicodeEscapes(tt.image));
                 tt = tt.next;
             }
         }
@@ -474,39 +474,6 @@ public aspect Unparse {
           buf.append(t.image);
     }
   
-    private String SimpleNode.addUnicodeEscapes(String str) {
-        String retval = "";
-        char ch;
-        for (int i = 0; i < str.length(); i++) {
-            ch = str.charAt(i);
-            if ((ch < 0x20 || ch > 0x7e) &&
-                ch != '\t' && ch != '\n' && ch != '\r' && ch != '\f') {
-                String s = "0000" + Integer.toString(ch, 16);
-                retval += "\\u" + s.substring(s.length() - 4, s.length());
-            } else {
-                retval += ch;
-            }
-        }
-        return retval;
-     }
-
-  public void SimpleNode.unparseComment(StringBuffer buf) {
-        Token tt = firstToken.specialToken;
-        if (tt != null) {
-            while (tt.specialToken != null) tt = tt.specialToken;
-            while (tt != null) {
-                buf.append(addUnicodeEscapes(tt.image));
-                tt = tt.next;
-            }
-        }
-  }
-
-  public String SimpleNode.unparseComment() {
-    StringBuffer buf = new StringBuffer();
-    unparseComment(buf);
-    return buf.toString();
-  }
-
     // create a signature used to match refined method declarations
     public String SimpleNode.signature() {
       return "";
@@ -543,22 +510,4 @@ public aspect Unparse {
       // FormalParameter = Type VariableDeclaratorId
       return "_" + ((SimpleNode)jjtGetChild(0)).unparse().trim();
     }
-      
-      
-  public void SimpleNode.unparseImport(Set imports) {
-      Token t = new Token();
-      t.next = firstToken;
-
-      StringBuffer buf = new StringBuffer(64);
-
-      while(t != null && t != lastToken) {
-        t = t.next;
-        if (t.specialToken != null)
-          buf.append(' ');
-        buf.append(addUnicodeEscapes(t.image));
-      }
-
-      imports.add(buf.toString().trim());
-  }
-
 }

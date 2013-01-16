@@ -27,7 +27,7 @@ public class ClassBodyObject {
       this.aspectName = aspectName;
     }
     public ClassBodyObject(SimpleNode node, String fileName, int line, String aspectName) {
-      this(node, fileName, line, node.unparseComment(), aspectName);
+      this(node, fileName, line, Unparser.unparseComment(node), aspectName);
     }
 
     public String signature() {

@@ -503,7 +503,10 @@ void AspectDeclaration(String modifiers) :
 { Token t; }
 {
   "aspect" { pushTopLevelOrAspect(true); }
-    t = <IDENTIFIER> { enclosingAspect = t.image; root.registerAspect(enclosingAspect, jjtThis.unparseComment()); }
+    t = <IDENTIFIER> {
+    enclosingAspect = t.image;
+    root.registerAspect(enclosingAspect, Unparser.unparseComment(jjtThis));
+  }
     [ "extends" ClassOrInterfaceType() ] [ "implements" TypeNameList() ] AspectBody()
    { popTopLevelOrAspect(); enclosingAspect = ""; }
 }
@@ -582,7 +585,13 @@ void AspectClassDeclaration() :
 }
 {
   (( t="static" | t="abstract" | t="final" | t="public" | t="protected" | t="private" ) { modifiers.append(t.image + " "); })*
-  "class" t = <IDENTIFIER> {pushTopLevelOrAspect(false); outerClassName = className; className = t.image; typeDecl = root.findClassDecl(className, jjtThis.unparseComment()); typeDecl.modifiers = modifiers.toString(); }
+  "class" t = <IDENTIFIER> {
+    pushTopLevelOrAspect(false);
+    outerClassName = className;
+    className = t.image;
+    typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis));
+    typeDecl.modifiers = modifiers.toString();
+  }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [
   "extends"
@@ -611,7 +620,12 @@ void AspectInterfaceDeclaration() :
 }
 {
   ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
-  "interface" t = <IDENTIFIER> {pushTopLevelOrAspect(false); outerClassName = className; className = t.image; typeDecl = root.findInterfaceDecl(className, jjtThis.unparseComment()); }
+  "interface" t = <IDENTIFIER> {
+    pushTopLevelOrAspect(false);
+    outerClassName = className;
+    className = t.image;
+    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis));
+  }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
   "{" ( AspectInterfaceMemberDeclaration() )* "}" { className = outerClassName; popTopLevelOrAspect(); }
@@ -1306,7 +1320,13 @@ void ClassDeclaration(String modifiers) :
   String typeParameters;
 }
 {
-  "class" t = <IDENTIFIER> { pushTopLevelOrAspect(false); outerClassName = className; className = t.image; typeDecl = root.findClassDecl(className, jjtThis.unparseComment()); typeDecl.modifiers = modifiers; }
+  "class" t = <IDENTIFIER> {
+    pushTopLevelOrAspect(false);
+    outerClassName = className;
+    className = t.image;
+    typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis));
+    typeDecl.modifiers = modifiers;
+  }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
    [ "extends"
    node = ClassOrInterfaceType() { name.append(node.unparse()); }
@@ -1453,7 +1473,12 @@ void UnmodifiedInterfaceDeclaration(String modifiers) :
   ast.AST.TypeDecl typeDecl = null;
 }
 {
-  "interface" t = <IDENTIFIER> {pushTopLevelOrAspect(false); outerClassName = className; className = t.image; typeDecl = root.findInterfaceDecl(className, jjtThis.unparseComment()); }
+  "interface" t = <IDENTIFIER> {
+    pushTopLevelOrAspect(false);
+    outerClassName = className;
+    className = t.image;
+    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis));
+  }
   [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
   "{" ( InterfaceMemberDeclaration() )* "}" { className = outerClassName; popTopLevelOrAspect(); }

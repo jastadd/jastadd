@@ -811,7 +811,7 @@ aspect CollectionAttributes {
       decl.setCombOp(combOp);
       decl.setAnnotations(annotations);
       decl.setCircularCollection(isCircular || annotations.contains("@Circular"));
-      decl.setComment(node.unparseComment());
+      decl.setComment(Unparser.unparseComment(node));
       decl.setTarget(className);
       decl.root = root;
       decl.setAspectName(aspectName);
@@ -856,7 +856,19 @@ aspect CollectionAttributes {
   public void Grammar.addCollEq(String targetName, String targetAttributeName, String attributeType, String reference, ast.AST.List contributionList, String fileName, int startLine, int endLine, boolean refSet, jrag.AST.SimpleNode node, String aspectName) {
     TypeDecl c = lookup(attributeType);
     if(c != null && c instanceof ASTDecl) {
-      CollEq collEq = new CollEq(new List(), targetName, fileName, startLine, endLine, node.unparseComment(), aspectName, contributionList, targetName, targetAttributeName, refSet, reference);
+      CollEq collEq = new CollEq(
+          new List(),
+          targetName,
+          fileName,
+          startLine,
+          endLine,
+          Unparser.unparseComment(node),
+          aspectName,
+          contributionList,
+          targetName,
+          targetAttributeName,
+          refSet,
+          reference);
       ((ASTDecl)c).addCollEq(collEq);
     }
     else
