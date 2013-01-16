@@ -31,7 +31,8 @@ public class ClassBodyObject {
     }
 
     public String signature() {
-      String s = node.signature().replace('.', '_');
+      String signature = (String) node.jjtAccept(new SignatureUnparser(), null);
+      String s = signature.replace('.', '_');
       s = s.replace('<', '_');
       s = s.replace('>', '_');
       return s;

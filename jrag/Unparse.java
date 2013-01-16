@@ -473,41 +473,4 @@ public aspect Unparse {
         else
           buf.append(t.image);
     }
-  
-    // create a signature used to match refined method declarations
-    public String SimpleNode.signature() {
-      return "";
-    }
-    public String ASTAspectMethodDeclaration.signature() {
-      // AspectMethodDeclaration = ResultType MethodDeclarator() Block()
-      return ((SimpleNode)jjtGetChild(1)).signature();
-    }
-    public String ASTAspectRefineMethodDeclaration.signature() {
-      // AspectRefineMethodDeclaration = ResultType MethodDeclarator() Block()
-      return ((SimpleNode)jjtGetChild(1)).signature();
-    }
-    public String ASTMethodDeclarator.signature() {
-      return firstToken.image.trim() + ((SimpleNode)jjtGetChild(0)).signature();
-    }
-
-    public String ASTAspectConstructorDeclaration.signature() {
-      // AspectConstructorDeclaration = FormalParameters
-      return "#constructor#" + ((SimpleNode)jjtGetChild(0)).signature();
-    }
-
-    public String ASTAspectRefineConstructorDeclaration.signature() {
-      // AspectRefineConstructorDeclaration = FormalParameters
-      return "#constructor#" + ((SimpleNode)jjtGetChild(0)).signature();
-    }
-
-    public String ASTFormalParameters.signature() {
-      StringBuffer s = new StringBuffer();
-      for(int i = 0; i < jjtGetNumChildren(); i++)
-        s.append(((SimpleNode)jjtGetChild(i)).signature());
-      return s.toString();
-    }
-    public String ASTFormalParameter.signature() {
-      // FormalParameter = Type VariableDeclaratorId
-      return "_" + ((SimpleNode)jjtGetChild(0)).unparse().trim();
-    }
 }
