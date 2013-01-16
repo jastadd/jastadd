@@ -88,17 +88,13 @@
 	<target name="clean">
 		<delete file="svn.info"/>
 		<delete dir="ast/AST"/>
-		<delete dir="test/ast"/>
 		<delete file="JastAdd.properties"/>
-		<delete file="test_results"/>
-		<delete file="passed"/>
 		<delete file="jrag/AST/Jrag.jj"/>
 		<delete file="jrag/AST/TokenMgrError.java"/>
 		<delete>
 			<fileset dir="." includes="*.class"/>
 			<fileset dir="ast" includes="*.class"/>
 			<fileset dir="jastadd" includes="*.class"/>
-			<fileset dir="test" includes="**/*.class"/>
 			<fileset dir="jrag" includes="**/*.class"/>
 			<filelist dir="jrag/AST">
 			</filelist>
@@ -109,37 +105,6 @@
 			<fileset dir="jrag/AST" includes="JavaCharStream*"/>
 			<fileset dir="jrag/AST" includes="ParseException*"/>
 		</delete>
-	</target>
-
-	<target name="test" depends="jar">
-		<mkdir dir="test/ast"/>
-		<javac srcdir="." includeantruntime="false">
-			<include name="RunTests.java"/>
-		</javac>
-		<echo message="running unit tests"/>
-		<java classpath="." classname="RunTests" output="test_results"
-			logError="true"/>
-		<echo message="tests completed, output written to test_results"/>
-		<exec executable="grep" failonerror="true"
-			output="passed">
-			<arg value="test/Test[0-9]*\.java passed"/>
-			<arg value="test_results"/>
-		</exec>
-		<exec executable="grep" failonerror="true"
-			output="failed">
-			<arg value="test/Test[0-9]*\.java failed"/>
-			<arg value="test_results"/>
-		</exec>
-		<exec executable="diff" failonerror="true">
-			<arg value="-qs"/>
-			<arg value="passed"/>
-			<arg value="test/shouldpass"/>
-		</exec>
-		<exec executable="diff" failonerror="true">
-			<arg value="-qs"/>
-			<arg value="failed"/>
-			<arg value="test/shouldfail"/>
-		</exec>
 	</target>
 
 	<target name="jar" depends="build"
@@ -176,9 +141,6 @@
 				<include name="doc/reference-manual.html"/>
 				<include name="doc/release-notes.html"/>
 				<include name="RunTests.java"/>
-				<include name="test/*"/>
-				<exclude name="test/ast"/>
-				<exclude name="test/*.class"/>
 				<include name="jastadd/*.java"/>
 				<include name="jastadd/*.jrag"/>
 				<include name="jrag/*.java"/>
