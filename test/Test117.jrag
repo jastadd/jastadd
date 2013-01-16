@@ -1,5 +1,0 @@
-aspect Test16 {
-	syn lazy boolean Node.attr(String s) = s.equals("");	
-    
-    eq SubNode.attr(String s) = super.attr(s);
-}
