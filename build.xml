@@ -41,8 +41,7 @@
 		<jastadd java14="true" jjtree="true" rewrite="true"
 			grammar="Ast" package="ast.AST" outdir="${basedir}"
 			lazyMaps="false">
-			<fileset dir="ast" includes="*.jrag,*.ast"/>
-			<fileset dir="jrag" includes="*.jrag"/>
+			<fileset dir="ast" includes="*.jrag,*.jadd,*.ast"/>
 		</jastadd>
 		<mkdir dir="ast/AST"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
