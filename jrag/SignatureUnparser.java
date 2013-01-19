@@ -201,7 +201,7 @@ public class SignatureUnparser implements JragParserVisitor {
   }
   public Object visit(ASTFormalParameter node, Object data) {
     // FormalParameter = Type VariableDeclaratorId
-    return "_" + ((SimpleNode) node.jjtGetChild(0)).unparse();
+    return "_" + Unparser.unparse((SimpleNode) node.jjtGetChild(0));
   }
   public Object visit(ASTConstructorDeclaration node, Object data) {
     return "";

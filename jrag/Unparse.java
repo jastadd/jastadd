@@ -326,10 +326,4 @@ public aspect Unparse {
       super.unparseClassBodyDeclaration(buf, className, aspectJ);
     }
   }
-
-  public String SimpleNode.unparse() {
-    StringBuffer buf = new StringBuffer();
-    jjtAccept(new Unparser(), buf);
-    return buf.toString().trim();
-  }
 }

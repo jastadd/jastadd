@@ -1436,7 +1436,7 @@ aspect JaddCodeGen {
     for(int i = 0; i < getNumRewrite(); i++) {
       if(getRewrite(i).getCondition() == null)
         return true;
-      String condition = getRewrite(i).getCondition().unparse();
+      String condition = Unparser.unparse(getRewrite(i).getCondition());
       if(condition.indexOf("inRewritePhase") == -1 && condition.indexOf("inExactRewritePhase") == -1)
         return true;
     }
@@ -1448,7 +1448,7 @@ aspect JaddCodeGen {
     Pattern p = Pattern.compile("inRewritePhase\\([\\w\\.]*\\)|inExactRewritePhase\\([\\w\\.]*\\)");
     for(int i = 0; i < getNumRewrite(); i++) {
       if(getRewrite(i).getCondition() != null) {
-        String condition = getRewrite(i).getCondition().unparse();
+        String condition = Unparser.unparse(getRewrite(i).getCondition());
         Matcher m = p.matcher(condition);
         while(m.find()) {
           String match = m.group();

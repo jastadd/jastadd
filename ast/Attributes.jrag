@@ -567,9 +567,9 @@ public aspect Attributes {
     s.append("private " + equ.decl().getType() + " " + newMethodName + "(" +
       equ.parametersDecl() + ")\n");
     if(equ.getRHS() instanceof ASTBlock)
-      s.append(equ.getRHS().unparse());
+      s.append(Unparser.unparse(equ.getRHS()));
     else
-      s.append("{ return " + equ.getRHS().unparse() + "; }");
+      s.append("{ return " + Unparser.unparse(equ.getRHS()) + "; }");
     jrag.AST.SimpleNode n = new jrag.AST.ASTBlock(0);
     n.firstToken = n.lastToken = jrag.AST.Token.newToken(0);
     n.firstToken.image = s.toString();
@@ -696,9 +696,9 @@ public aspect Attributes {
     s.append("private " + equ.decl().getType() + " " + newMethodName + "(" +
       indexDecl + equ.parametersDecl() + ")\n");
     if(equ.getRHS() instanceof ASTBlock)
-      s.append(equ.getRHS().unparse());
+      s.append(Unparser.unparse(equ.getRHS()));
     else
-      s.append("{ return " + equ.getRHS().unparse() + "; }");
+      s.append("{ return " + Unparser.unparse(equ.getRHS()) + "; }");
     jrag.AST.SimpleNode n = new jrag.AST.ASTBlock(0);
     n.firstToken = n.lastToken = jrag.AST.Token.newToken(0);
     n.firstToken.image = s.toString();

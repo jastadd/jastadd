@@ -595,7 +595,7 @@ void AspectClassDeclaration() :
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [
   "extends"
-  node = ClassOrInterfaceType() { name.append(node.unparse()); }
+  node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
   { if(!name.toString().equals("") &&  typeDecl instanceof ast.AST.ClassDecl)
       ((ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
   }
@@ -1251,21 +1251,31 @@ void CollectionContribution():
   contribution = Expression() { condition = null; }
   [ "when" condition = Expression() ]
   {
-      contributionList.add(new ast.AST.Contribution(contribution.unparse(), condition == null ? null : condition.unparse()));
+      contributionList.add(new ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
   }
   (
     ","
     contribution = Expression() { condition = null; }
     [ "when" condition = Expression() ]
     {
-        contributionList.add(new ast.AST.Contribution(contribution.unparse(), condition == null ? null : condition.unparse()));
+        contributionList.add(new ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
     }
   )*
   "to" t = <IDENTIFIER> "." { targetName = t.image; } t = <IDENTIFIER> { targetAttributeName = t.image; } "(" ")"
   
   "for" [ "each" { refSet = true; } ] reference = Expression() ";" { last = token; }
   {
-    root.addCollEq(targetName, targetAttributeName, attributeType, reference.unparse().trim(), contributionList, fileName, first.beginLine, last.endLine, refSet, jjtThis, enclosingAspect); 
+    root.addCollEq(targetName,
+      targetAttributeName,
+      attributeType,
+      Unparser.unparse(reference).trim(),
+      contributionList,
+      fileName,
+      first.beginLine,
+      last.endLine,
+      refSet,
+      jjtThis,
+      enclosingAspect); 
   }
 }
 
@@ -1329,7 +1339,7 @@ void ClassDeclaration(String modifiers) :
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
    [ "extends"
-   node = ClassOrInterfaceType() { name.append(node.unparse()); }
+   node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
   //t = <IDENTIFIER>  { name.append(t.image); } ("." t = <IDENTIFIER> {name.append("." + t.image); })* 
   { if(!name.toString().equals("") && typeDecl instanceof ast.AST.ClassDecl)
       ((ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
@@ -1399,7 +1409,7 @@ String TypeParameters():
   (
    "<" TypeParameter() ( "," TypeParameter() )* ">"
   )
-  { return jjtThis.unparse(); }
+  { return Unparser.unparse(jjtThis); }
 }
 
 void TypeParameter():
@@ -1612,7 +1622,7 @@ String Type():
  |
    PrimitiveType()
  )
- { return jjtThis.unparse(); }
+ { return Unparser.unparse(jjtThis); }
 }
 
 void ReferenceType():
@@ -1695,7 +1705,7 @@ String Name() :
   ( LOOKAHEAD(2) "." <IDENTIFIER>
   )*
   )
-  { return jjtThis.unparse(); }
+  { return Unparser.unparse(jjtThis); }
 }
 
 SimpleNode NameList() :
@@ -2275,7 +2285,7 @@ String Annotation():
  |
    MarkerAnnotation()
  )
- { return jjtThis.unparse(); }
+ { return Unparser.unparse(jjtThis); }
 }
 
 void NormalAnnotation():
