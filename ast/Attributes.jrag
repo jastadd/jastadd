@@ -1063,7 +1063,7 @@ public aspect Attributes {
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
       jrag.AST.SimpleNode n = (jrag.AST.SimpleNode)iter.next();
       StringBuffer s = new StringBuffer();
-      n.unparse(s, "NoClassName");
+      n.jjtAccept(new Unparser(), s);
       String i = s.toString();
       int index = i.indexOf(name);
       if(index == -1)

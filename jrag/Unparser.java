@@ -38,439 +38,721 @@ public class Unparser implements JragParserVisitor {
     return buf.toString();
   }
 
-  public Object visit(SimpleNode node, Object data) {
+  public static String unparse(SimpleNode node) {
+    StringBuffer buf = new StringBuffer();
+    node.jjtAccept(new Unparser(), buf);
+    return buf.toString().trim();
+  }
+
+  /**
+   * Unparse a node to a string buffer
+   */
+  public static void unparseSimple(JragParserVisitor visitor, SimpleNode node, StringBuffer buf) {
+      Token t1 = node.firstToken;
+      Token t = new Token();
+      t.next = t1;
+
+      SimpleNode n;
+      for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+        n = (SimpleNode)node.jjtGetChild(i);
+        if(n != null) {
+          while(true) {
+            // unparse linked tokens until the first token of the current child is found
+            t = t.next;
+            if(t == n.firstToken) break;
+            unparseToken(t, buf);
+          }
+          // unparse the current child
+          n.jjtAccept(visitor, buf);
+          t = n.lastToken;
+        }
+      }
+
+      while(t != node.lastToken && t != null) {
+        t = t.next;
+        unparseToken(t, buf);
+      }
+  }
+
+  /**
+   * Unparse a token to a string buffer
+   */
+  public static void unparseToken(Token t, StringBuffer buf) {
+    if(t == null)
+      return;
+    Token tt = t.specialToken;
+    if (tt != null) {
+      while (tt.specialToken != null) tt = tt.specialToken;
+      while (tt != null) {
+        buf.append(Util.addUnicodeEscapes(tt.image));
+        tt = tt.next;
+      }
+    }
+    if(t instanceof Token.GTToken) {
+      buf.append(">");
+    } else {
+      buf.append(t.image);
+    }
+  }
+
+  public Object visit(SimpleNode self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCompilationUnit node, Object data) {
+  public Object visit(ASTCompilationUnit self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPackageDeclaration node, Object data) {
+  public Object visit(ASTPackageDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTImportDeclaration node, Object data) {
+  public Object visit(ASTImportDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTModifiers node, Object data) {
+  public Object visit(ASTModifiers self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeDeclaration node, Object data) {
+  public Object visit(ASTTypeDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectDeclaration node, Object data) {
+  public Object visit(ASTAspectDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectBody node, Object data) {
+  public Object visit(ASTAspectBody self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectBodyDeclaration node, Object data) {
+  public Object visit(ASTAspectBodyDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectClassDeclaration node, Object data) {
+  public Object visit(ASTAspectClassDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectClassBody node, Object data) {
+  public Object visit(ASTAspectClassBody self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceDeclaration node, Object data) {
+  public Object visit(ASTAspectInterfaceDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceMemberDeclaration node, Object data) {
+  public Object visit(ASTAspectInterfaceMemberDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectSonsDeclaration node, Object data) {
+  public Object visit(ASTAspectSonsDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceSynAttributeDeclaration node, Object data) {
+  public Object visit(ASTAspectInterfaceSynAttributeDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceInhAttributeDeclaration node, Object data) {
+  public Object visit(ASTAspectInterfaceInhAttributeDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceMethodDeclarationLookahead node, Object data) {
+  public Object visit(ASTAspectInterfaceMethodDeclarationLookahead self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceMethodDeclaration node, Object data) {
+  public Object visit(ASTAspectInterfaceMethodDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceFieldDeclaration node, Object data) {
+  public Object visit(ASTAspectInterfaceFieldDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectNestedInterfaceDeclaration node, Object data) {
+  public Object visit(ASTAspectNestedInterfaceDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectNestedClassDeclaration node, Object data) {
+  public Object visit(ASTAspectNestedClassDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectMethodDeclarationLookahead node, Object data) {
+  public Object visit(ASTAspectMethodDeclarationLookahead self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectMethodDeclaration node, Object data) {
+  public Object visit(ASTAspectMethodDeclaration self, Object data) {
+    StringBuffer buf = (StringBuffer) data;
+    // MethodDeclaration <- ClassBodyDeclaration <- 
+    // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
+    jrag.AST.Node node = self;
+    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+      node = node.jjtGetParent();
+    }
+    if(node instanceof ASTCompilationUnit || node == null) {
+      // Remove optional "Class." before IdDecl in method declaration
+      Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
+      Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
+      Token t = new Token();
+      t.image = " ";
+      t2.specialToken = t;
+      t1.next = t2;
+    }
+    unparseSimple(this, self, buf);
     return null;
   }
-  public Object visit(ASTAspectRefineMethodDeclarationLookahead node, Object data) {
+  public Object visit(ASTAspectRefineMethodDeclarationLookahead self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectRefineMethodDeclaration node, Object data) {
+  public Object visit(ASTAspectRefineMethodDeclaration self, Object data) {
+    StringBuffer buf = (StringBuffer) data;
+    // MethodDeclaration <- ClassBodyDeclaration <- 
+    // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
+    jrag.AST.Node node = self;
+    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+      node = node.jjtGetParent();
+    }
+    if(node instanceof ASTCompilationUnit || node == null) {
+      // Remove optional "Class." before IdDecl in method declaration
+      Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
+      Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
+      Token t = new Token();
+      t.image = " ";
+      t2.specialToken = t;
+      t1.next = t2;
+    }
+    unparseSimple(this, self, buf);
     return null;
   }
-  public Object visit(ASTAspectConstructorDeclaration node, Object data) {
+  public Object visit(ASTAspectConstructorDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectRefineConstructorDeclaration node, Object data) {
+  public Object visit(ASTAspectRefineConstructorDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectFieldDeclaration node, Object data) {
+  public Object visit(ASTAspectFieldDeclaration self, Object data) {
+    StringBuffer buf = (StringBuffer) data;
+    // FieldDeclaration <- ClassBodyDeclaration <- 
+    // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
+    jrag.AST.Node node = self;
+    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+      node = node.jjtGetParent();
+    }
+    if(node instanceof ASTCompilationUnit || node == null) {
+      // Remove optional "Class." before IdDecl in field declaration 
+      Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
+      Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
+      Token t = new Token();
+      t.image = " ";
+      t2.specialToken = t;
+      t1.next = t2;
+    }
+    unparseSimple(this, self, buf);
     return null;
   }
-  public Object visit(ASTAspectSynAttributeDeclaration node, Object data) {
+  public Object visit(ASTAspectSynAttributeDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInhAttributeDeclaration node, Object data) {
+  public Object visit(ASTAspectInhAttributeDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectRewrite node, Object data) {
+  public Object visit(ASTAspectRewrite self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectSynEquation node, Object data) {
+  public Object visit(ASTAspectSynEquation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectRefineSynEquation node, Object data) {
+  public Object visit(ASTAspectRefineSynEquation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInhEquation node, Object data) {
+  public Object visit(ASTAspectInhEquation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectRefineInhEquation node, Object data) {
+  public Object visit(ASTAspectRefineInhEquation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCollectionAttribute node, Object data) {
+  public Object visit(ASTCollectionAttribute self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCollectionContribution node, Object data) {
+  public Object visit(ASTCollectionContribution self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectAddInterface node, Object data) {
+  public Object visit(ASTAspectAddInterface self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectExtendInterface node, Object data) {
+  public Object visit(ASTAspectExtendInterface self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTClassDeclaration node, Object data) {
+  public Object visit(ASTClassDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeNameList node, Object data) {
+  public Object visit(ASTTypeNameList self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTUnmodifiedClassDeclaration node, Object data) {
+  public Object visit(ASTUnmodifiedClassDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTEnumDeclaration node, Object data) {
+  public Object visit(ASTEnumDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTEnumBody node, Object data) {
+  public Object visit(ASTEnumBody self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTEnumConstant node, Object data) {
+  public Object visit(ASTEnumConstant self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeParameters node, Object data) {
+  public Object visit(ASTTypeParameters self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeParameter node, Object data) {
+  public Object visit(ASTTypeParameter self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeBound node, Object data) {
+  public Object visit(ASTTypeBound self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTClassBody node, Object data) {
+  public Object visit(ASTClassBody self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTClassBodyDeclaration node, Object data) {
+  public Object visit(ASTClassBodyDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTInterfaceDeclaration node, Object data) {
+  public Object visit(ASTInterfaceDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTUnmodifiedInterfaceDeclaration node, Object data) {
+  public Object visit(ASTUnmodifiedInterfaceDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTInterfaceMemberDeclaration node, Object data) {
+  public Object visit(ASTInterfaceMemberDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTFieldDeclaration node, Object data) {
+  public Object visit(ASTFieldDeclaration self, Object data) {
+    StringBuffer buf = (StringBuffer) data;
+    // FieldDeclaration <- ClassBodyDeclaration <- 
+    // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
+    jrag.AST.Node node = self;
+    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+      node = node.jjtGetParent();
+    }
+    if(node instanceof ASTCompilationUnit) {
+      // Remove optional "Class." before IdDecl in field declaration 
+      Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
+      Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
+      Token t = new Token();
+      t.image = " ";
+      t2.specialToken = t;
+      t1.next = t2;
+    }
+    unparseSimple(this, self, buf);
     return null;
   }
-  public Object visit(ASTVariableDeclarator node, Object data) {
+  public Object visit(ASTVariableDeclarator self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTVariableDeclaratorId node, Object data) {
+  public Object visit(ASTVariableDeclaratorId self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTVariableInitializer node, Object data) {
+  public Object visit(ASTVariableInitializer self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTArrayInitializer node, Object data) {
+  public Object visit(ASTArrayInitializer self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMethodDeclaration node, Object data) {
+  public Object visit(ASTMethodDeclaration self, Object data) {
+    StringBuffer buf = (StringBuffer) data;
+    // MethodDeclaration <- ClassBodyDeclaration <- 
+    // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
+    jrag.AST.Node node = self;
+    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+      node = node.jjtGetParent();
+    }
+    if(node instanceof ASTCompilationUnit) {
+      // Remove optional "Class." before IdDecl in method declaration
+      Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
+      Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
+      Token t = new Token();
+      t.image = " ";
+      t2.specialToken = t;
+      t1.next = t2;
+    }
+    unparseSimple(this, self, buf);
     return null;
   }
-  public Object visit(ASTMethodDeclarator node, Object data) {
+  public Object visit(ASTMethodDeclarator self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTFormalParameters node, Object data) {
+  public Object visit(ASTFormalParameters self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTFormalParameter node, Object data) {
+  public Object visit(ASTFormalParameter self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTConstructorDeclaration node, Object data) {
+  public Object visit(ASTConstructorDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTExplicitConstructorInvocation node, Object data) {
+  public Object visit(ASTExplicitConstructorInvocation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTInitializer node, Object data) {
+  public Object visit(ASTInitializer self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTType node, Object data) {
+  public Object visit(ASTType self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTReferenceType node, Object data) {
+  public Object visit(ASTReferenceType self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTClassOrInterfaceType node, Object data) {
+  public Object visit(ASTClassOrInterfaceType self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeArguments node, Object data) {
+  public Object visit(ASTTypeArguments self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTypeArgument node, Object data) {
+  public Object visit(ASTTypeArgument self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTWildcardBounds node, Object data) {
+  public Object visit(ASTWildcardBounds self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPrimitiveType node, Object data) {
+  public Object visit(ASTPrimitiveType self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTResultType node, Object data) {
+  public Object visit(ASTResultType self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTName node, Object data) {
+  public Object visit(ASTName self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTNameList node, Object data) {
+  public Object visit(ASTNameList self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTExpression node, Object data) {
+  public Object visit(ASTExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAssignmentOperator node, Object data) {
+  public Object visit(ASTAssignmentOperator self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTConditionalExpression node, Object data) {
+  public Object visit(ASTConditionalExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTConditionalOrExpression node, Object data) {
+  public Object visit(ASTConditionalOrExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTConditionalAndExpression node, Object data) {
+  public Object visit(ASTConditionalAndExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTInclusiveOrExpression node, Object data) {
+  public Object visit(ASTInclusiveOrExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTExclusiveOrExpression node, Object data) {
+  public Object visit(ASTExclusiveOrExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAndExpression node, Object data) {
+  public Object visit(ASTAndExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTEqualityExpression node, Object data) {
+  public Object visit(ASTEqualityExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTInstanceOfExpression node, Object data) {
+  public Object visit(ASTInstanceOfExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTRelationalExpression node, Object data) {
+  public Object visit(ASTRelationalExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTShiftExpression node, Object data) {
+  public Object visit(ASTShiftExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAdditiveExpression node, Object data) {
+  public Object visit(ASTAdditiveExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMultiplicativeExpression node, Object data) {
+  public Object visit(ASTMultiplicativeExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTUnaryExpression node, Object data) {
+  public Object visit(ASTUnaryExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPreIncrementExpression node, Object data) {
+  public Object visit(ASTPreIncrementExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPreDecrementExpression node, Object data) {
+  public Object visit(ASTPreDecrementExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTUnaryExpressionNotPlusMinus node, Object data) {
+  public Object visit(ASTUnaryExpressionNotPlusMinus self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCastLookahead node, Object data) {
+  public Object visit(ASTCastLookahead self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPostfixExpression node, Object data) {
+  public Object visit(ASTPostfixExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCastExpression node, Object data) {
+  public Object visit(ASTCastExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPrimaryExpression node, Object data) {
+  public Object visit(ASTPrimaryExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMemberSelector node, Object data) {
+  public Object visit(ASTMemberSelector self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPrimaryPrefix node, Object data) {
+  public Object visit(ASTPrimaryPrefix self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTPrimarySuffix node, Object data) {
+  public Object visit(ASTPrimarySuffix self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTLiteral node, Object data) {
+  public Object visit(ASTLiteral self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTBooleanLiteral node, Object data) {
+  public Object visit(ASTBooleanLiteral self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTNullLiteral node, Object data) {
+  public Object visit(ASTNullLiteral self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTArguments node, Object data) {
+  public Object visit(ASTArguments self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTArgumentList node, Object data) {
+  public Object visit(ASTArgumentList self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAllocationExpression node, Object data) {
+  public Object visit(ASTAllocationExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTArrayDimsAndInits node, Object data) {
+  public Object visit(ASTArrayDimsAndInits self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTStatement node, Object data) {
+  public Object visit(ASTStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAssertStatement node, Object data) {
+  public Object visit(ASTAssertStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTLabeledStatement node, Object data) {
+  public Object visit(ASTLabeledStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTBlock node, Object data) {
+  public Object visit(ASTBlock self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTBlockStatement node, Object data) {
+  public Object visit(ASTBlockStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTLocalVariableDeclaration node, Object data) {
+  public Object visit(ASTLocalVariableDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTEmptyStatement node, Object data) {
+  public Object visit(ASTEmptyStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTStatementExpression node, Object data) {
+  public Object visit(ASTStatementExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTSwitchStatement node, Object data) {
+  public Object visit(ASTSwitchStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTSwitchLabel node, Object data) {
+  public Object visit(ASTSwitchLabel self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTIfStatement node, Object data) {
+  public Object visit(ASTIfStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTWhileStatement node, Object data) {
+  public Object visit(ASTWhileStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTDoStatement node, Object data) {
+  public Object visit(ASTDoStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTForStatement node, Object data) {
+  public Object visit(ASTForStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTForInit node, Object data) {
+  public Object visit(ASTForInit self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTStatementExpressionList node, Object data) {
+  public Object visit(ASTStatementExpressionList self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTForUpdate node, Object data) {
+  public Object visit(ASTForUpdate self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTBreakStatement node, Object data) {
+  public Object visit(ASTBreakStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTContinueStatement node, Object data) {
+  public Object visit(ASTContinueStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTReturnStatement node, Object data) {
+  public Object visit(ASTReturnStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTThrowStatement node, Object data) {
+  public Object visit(ASTThrowStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTSynchronizedStatement node, Object data) {
+  public Object visit(ASTSynchronizedStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTTryStatement node, Object data) {
+  public Object visit(ASTTryStatement self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTRUNSIGNEDSHIFT node, Object data) {
+  public Object visit(ASTRUNSIGNEDSHIFT self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTRSIGNEDSHIFT node, Object data) {
+  public Object visit(ASTRSIGNEDSHIFT self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAnnotation node, Object data) {
+  public Object visit(ASTAnnotation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTNormalAnnotation node, Object data) {
+  public Object visit(ASTNormalAnnotation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMarkerAnnotation node, Object data) {
+  public Object visit(ASTMarkerAnnotation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTSingleMemberAnnotation node, Object data) {
+  public Object visit(ASTSingleMemberAnnotation self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMemberValuePairs node, Object data) {
+  public Object visit(ASTMemberValuePairs self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMemberValuePair node, Object data) {
+  public Object visit(ASTMemberValuePair self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMemberValue node, Object data) {
+  public Object visit(ASTMemberValue self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTMemberValueArrayInitializer node, Object data) {
+  public Object visit(ASTMemberValueArrayInitializer self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAnnotationTypeDeclaration node, Object data) {
+  public Object visit(ASTAnnotationTypeDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAnnotationTypeBody node, Object data) {
+  public Object visit(ASTAnnotationTypeBody self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAnnotationTypeMemberDeclaration node, Object data) {
+  public Object visit(ASTAnnotationTypeMemberDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTDefaultValue node, Object data) {
+  public Object visit(ASTDefaultValue self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCacheDeclarations node, Object data) {
+  public Object visit(ASTCacheDeclarations self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
 }

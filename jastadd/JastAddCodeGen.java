@@ -465,7 +465,7 @@ aspect JastAddCodeGen {
     }
       
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      buf.append(", " + ((SimpleNode)iter.next()).unparse());
+      buf.append(", " + Unparser.unparse((SimpleNode)iter.next()));
     }
     if(name().equals("ASTNode") && ASTNode.java5)
       buf.append(", Iterable<T>");
@@ -483,9 +483,9 @@ aspect JastAddCodeGen {
     StringBuffer s = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if(iter.hasNext()) {
-      s.append(((SimpleNode)iter.next()).unparse());
+      s.append(Unparser.unparse((SimpleNode)iter.next()));
       while(iter.hasNext()) {
-        s.append(", " + ((SimpleNode)iter.next()).unparse());
+        s.append(", " + Unparser.unparse((SimpleNode)iter.next()));
       }
     }
     return s.toString();
