@@ -192,6 +192,7 @@ public class JastAddTask extends Task {
     if(defaultMap != null)  args.add("--defaultMap=" + defaultMap);
     if(defaultSet != null)  args.add("--defaultSet=" + defaultSet);
     if(lazyMaps)            args.add("--lazyMaps");
+    else                    args.add("--noLazyMaps");
 
     if(rewrite)             args.add("--rewrite");
     if(novisitcheck)        args.add("--novisitcheck");
