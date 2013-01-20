@@ -185,7 +185,7 @@ aspect JragCodeGen {
     for(Iterator iter = getCompUnits(); iter.hasNext(); ) {
         jrag.AST.ASTCompilationUnit u =
           (jrag.AST.ASTCompilationUnit) iter.next();
-        imports.addAll(u.getImports());
+        imports.addAll(Unparser.getImports(u));
     }
     StringBuffer buf = new StringBuffer();
     for(Iterator iter = imports.iterator(); iter.hasNext(); ) {

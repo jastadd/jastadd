@@ -13,24 +13,6 @@ public aspect Unparse {
 
   
   
-  // Get import declarations
-   
-  public void SimpleNode.getImports(Set imports) {
-  }
-  
-  public Set ASTCompilationUnit.getImports() {
-    Set imports = new LinkedHashSet();
-    for(int i = 0; i < jjtGetNumChildren(); i++) {
-      ((SimpleNode)jjtGetChild(i)).getImports(imports);
-    }
-    return imports;
-  }
-
-  public void ASTImportDeclaration.getImports(Set imports) {
-    Unparser.unparseImport(this, imports);
-  }
-
-
   // Unparse in aspectJ syntax
 
   public void SimpleNode.unparseClassBodyDeclaration(StringBuffer buf,

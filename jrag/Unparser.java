@@ -1,17 +1,28 @@
 package jrag;
 
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import jrag.AST.*;
 
 public class Unparser implements JragParserVisitor {
-  public static void unparseImport(SimpleNode node, Set imports) {
+
+  public static Set getImports(ASTCompilationUnit self) {
+    Set imports = new LinkedHashSet();
+    for(int i = 0; i < self.jjtGetNumChildren(); i++) {
+      Unparser.getImports((SimpleNode) self.jjtGetChild(i), imports);
+    }
+    return imports;
+  }
+
+  public static void getImports(SimpleNode self, Set imports) {
+    if (self instanceof ASTImportDeclaration) {
       Token t = new Token();
-      t.next = node.firstToken;
+      t.next = self.firstToken;
 
       StringBuffer buf = new StringBuffer(64);
 
-      while(t != null && t != node.lastToken) {
+      while(t != null && t != self.lastToken) {
         t = t.next;
         if (t.specialToken != null)
           buf.append(' ');
@@ -19,17 +30,18 @@ public class Unparser implements JragParserVisitor {
       }
 
       imports.add(buf.toString().trim());
+    }
   }
 
   public static void unparseComment(SimpleNode node, StringBuffer buf) {
-        Token tt = node.firstToken.specialToken;
-        if (tt != null) {
-            while (tt.specialToken != null) tt = tt.specialToken;
-            while (tt != null) {
-                buf.append(Util.addUnicodeEscapes(tt.image));
-                tt = tt.next;
-            }
-        }
+    Token tt = node.firstToken.specialToken;
+    if (tt != null) {
+      while (tt.specialToken != null) tt = tt.specialToken;
+      while (tt != null) {
+        buf.append(Util.addUnicodeEscapes(tt.image));
+        tt = tt.next;
+      }
+    }
   }
 
   public static String unparseComment(SimpleNode node) {
@@ -48,30 +60,30 @@ public class Unparser implements JragParserVisitor {
    * Unparse a node to a string buffer
    */
   public static void unparseSimple(JragParserVisitor visitor, SimpleNode node, StringBuffer buf) {
-      Token t1 = node.firstToken;
-      Token t = new Token();
-      t.next = t1;
+    Token t1 = node.firstToken;
+    Token t = new Token();
+    t.next = t1;
 
-      SimpleNode n;
-      for(int i = 0; i < node.jjtGetNumChildren(); i++) {
-        n = (SimpleNode)node.jjtGetChild(i);
-        if(n != null) {
-          while(true) {
-            // unparse linked tokens until the first token of the current child is found
-            t = t.next;
-            if(t == n.firstToken) break;
-            unparseToken(t, buf);
-          }
-          // unparse the current child
-          n.jjtAccept(visitor, buf);
-          t = n.lastToken;
+    SimpleNode n;
+    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+      n = (SimpleNode)node.jjtGetChild(i);
+      if(n != null) {
+        while(true) {
+          // unparse linked tokens until the first token of the current child is found
+          t = t.next;
+          if(t == n.firstToken) break;
+          unparseToken(t, buf);
         }
+        // unparse the current child
+        n.jjtAccept(visitor, buf);
+        t = n.lastToken;
       }
+    }
 
-      while(t != node.lastToken && t != null) {
-        t = t.next;
-        unparseToken(t, buf);
-      }
+    while(t != node.lastToken && t != null) {
+      t = t.next;
+      unparseToken(t, buf);
+    }
   }
 
   /**
