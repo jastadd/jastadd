@@ -1,129 +1,57 @@
---------------------------------------------------------
-HISTORY
-JastAdd2 was developed at Lund University by primarily the following people: Torbjorn Ekman, Gorel Hedin, Eva Magnusson. For additional contributors, see the change logs.
-Since January 2011, JastAdd2 is hosted at the SVN server svn.cs.lth.se.
-Previously, it was hosted at the CVS server vitter.cs.lth.se.
---------------------------------------------------------
-DEPENDENCIES
-JastAdd2 does not depend on other projects. You can check out the project in isolation. 
-It assumes preexistence of the following standard tools: Java and Ant.
-Non-standard tools that it uses are included in the project.
---------------------------------------------------------
-BUILD
+JastAdd2
+========
+
+JastAdd2 was developed at Lund University by Torbjorn Ekman, Gorel Hedin,
+and Eva Magnusson. JastAdd2 has recieved additional contributions from
+Emma Söderberg, Jesper Öqvist and Niklas Fors.
+
+For additional contributors, see the change logs.
+
+License
+-------
+
+JastAdd2 is  is covered by the BSD License. For the full license text
+see the LICENSE file.
+
+Obtaining JastAdd2
+------------------
+
+The latest version of JastAdd2 can be found at http://jastadd2.org
+
+Dependencies
+------------
+
+JastAdd2 requires a Java runtime environment to run, and a JDK to build.
+JastAdd2 uses JavaCC, JJTree, and Apache Ant. JavaCC and JJTree are included in
+the source tree of JastAdd2, so the only external tools needed are Java
+and Ant.
+
+Building
+--------
 
 Builds are done by using the Apache Ant script build.xml:
 
-- Ordinary build (generate and compile):
-  > ant
+* Ordinary build (generate and compile):
+    > ant
+* Create a new jar file (jastadd2.jar)
+    > ant jar
+* Create a new source zip file (jastadd2-src.zip)
+    > ant source-zip
+* Create a zip file containing the main jar plus release notes and reference
+  manual (jastadd2-bin.zip)
+    > ant bin-zip
+* Make a new release (builds the source zip and binary zip):
+    > ant release
+* Delete generated files
+    > ant clean
+* Bootstrap jastadd2 (replace the jastadd2.jar used to build jastadd2).
+  For stability, bootstrap is done seldom and only with extra testing.
+    > ant bootstrap
 
-- Create a new jar file (jastadd2.jar)
-  > ant jar
+Release Process
+---------------
 
-- Create a new source zip file (jastadd2-src.zip)
-  > ant source-zip
-
-- Create a zip file containing the main jar plus release notes and reference manual (jastadd2-bin.zip)
-  > ant bin-zip
-
-- Make a new release (builds the source zip and binary zip):
-  > ant release
-
-- Delete generated files
-  > ant clean
-
-- Bootstrap jastadd2 (replace the jastadd2.jar used to build jastadd2)
-   (For stability, bootstrap is done seldom and only with extra testing.)
-  > ant bootstrap
-
---------------------------------------------------------
-MAKEFILE
-
-There exists a deprecated makefile (Makefile.deprecated).
-Use it at your own peril!
-
-WINDOWS / CYGWIN
-
-In Cygwin, since you are running the Windows version of Java and it can not
-understand the classpath arguments given in the AspectJ invocation,
-you need to modify the second line of the makefile so that it looks
-something like this:
-
-ASPECTJ=java -classpath "$(shell cygpath -wp tools/aspectj-1.5.3/aspectjlib.jar:tools/aspectj-1.5.3/aspectjrt.jar:tools/aspectj-1.5.3/aspectjtools.jar:tools/aspectj-1.5.3/aspectjweaver.jar:$(ANTPATH))" org.aspectj.tools.ajc.Main -source 1.4
-
---------------------------------------------------------
-RUN REGRESSION TEST SUITE
-
-Warning: There is a new test suite that includes more tests!
-It is recommended to use the new test suite rather than this one!
-
-1. Make sure JastAdd is compiled
-> ant jar
-
-2a. Compile the RunTests program
-> javac RunTests.java
-
-2b. Run the tests. You will get a lot of output.
-> java RunTests
-
-3a. Run as a regression test. The test results should be compared to the test/shouldpass file:
-
-> diff test/shouldpass <(java RunTests 2>&1 | grep "test/Test[0-9]*\.java passed" )
-
-3b. ALTERNATIVE: Use the test target in the Ant script:
-
-> ant test
-
-If the test suite passes you should see the lines
-
-     [echo] running unit tests
-     [echo] tests completed, output written to test_results
-     [exec] Files passed and test/shouldpass are identical
-     [exec] Files failed and test/shouldfail are identical
-
-Explanation:
-The testcases are documented in test/index.html . Some should fail.
-The testcases that should pass are documented in test/shouldpass.
-Error messages from non-passing tests generate output on standard error, but this is redirected to /dev/null here.
-
-4. To update the shouldpass file (to reflect what tests currently pass):
-
-> java RunTests 2>&1 | grep "test/Test[0-9]*\.java passed" > test/shouldpass
-
-5. Run an individual test case, e.g. 42:
-> java RunTests test/Test42
-
-6. Run a test case with verbose output:
-> java RunTests test/Test42 true
-(Note that when you run with verbose output, the test will reported as failed, even if it actually passes.
-This is because of a current bug in RunTests.)
-
-7. Sort and print the contents of the .info files for all the test cases:
-> awk 'BEGIN {OFS=": "} {print FILENAME,$0}' *.info | sort -n -k 1.5,1.9
---------------------------------------------------------
-TYPICAL BUGFIX PROCESS
-  1. Add a test case that exposes the problem.
-  2. Change jastadd to fix the bug.
-  3. > ant jar
-  4. Run the individual test case to verify that the test passes.
-  5. Run the regression test suite. An additional test now passes.
-  6. Update the shouldpass file, to reflect what tests currently pass.
-  7. Run the regression test suite. Exactly the tests in shouldpass should pass.
-  8. Update the ChangeLog file, and the reference-manual if needed.
-  9. > ant clean
- 10. Commit
---------------------------------------------------------
-ADD A TEST CASE
-  1. The new test case should get the next free number, e.g., 142.
-  2. Check that this is a free number both for JastAdd2 and JastAdd3 so we use the same number for the same test.
-  3. Add files Test142.* as for the other tests.
-  4. Run the individual test case to verify that it fails.
-  5. Go on fixing the bug, as above.
-
-Possibly, the test suites for JastAdd2 and JastAdd3 could be merged at some point. Niklas is looking into this.
-For the time being, we keep them as separate suites, but with the same numbers for the same tests.
---------------------------------------------------------
-MAKE A NEW RELEASE at JastAdd.org
-  1  Make sure the following files have appropriate content:
+  1. Make sure the following files have appropriate content:
      - ChangeLog (Check against commit log, add note about the release)
      - doc/reference-manual.html
      - doc/release-notes.html (Add suitable high-level content for this release)
@@ -149,31 +77,31 @@ MAKE A NEW RELEASE at JastAdd.org
      - Update documentation/reference_manual.php to link to latest reference manual
      - Commit the web pages
      - Do ./publish (to check out the newest web on the real web site)
---------------------------------------------------------
-DIRECTORIES, FILES, TOOLS
---------
+
+Tools Used
+----------
+
 Special tools used (jars included in the tools-dir):
   JastAdd2: The semantics are defined using JastAdd itself.
-  JavaCC:   For parsing and AST building
-  AspectJ:  Used for inserting unparsing code into generated files.
-            Also used for compiling ordinary Java files.
-
-Special libraries used (jars included in the tools-dir):
-  Ant jars: JastAdd includes an ant task implementation, so
-            these libraries are needed to compile JastAdd.
+  JJTree:   Builds the AST used by JavaCC
+  JavaCC:   For parsing aspect source files
 
 General tools used (assumed to be available on your platform):
   JVM:      A Java Virtual Machine
-  Make:     The Make program
---------
-File types:
+  Ant:      Building JastAdd2
+
+File Types
+----------
+
   .ast      JastAdd abstract syntax tree files
   .jrag     JastAdd semantics files. Usually declarative.
   .jadd     JastAdd semantics files. Usually imperative.
   .java     Either Java files or AspectJ files.
   .jjt      JavaCC files, using the JJTree AST-building commands.
---------  
-Directories and files:
+
+Directory Structure
+-------------------
+
   README      This file.
   doc         Documentation html files.
     reference-manual.html   The reference manual
@@ -224,27 +152,9 @@ Directories and files:
                   Implements an ANT task for running jastadd, including
                   support for various args and options.
 
-  test         Dir with regression tests.
-    ast           Dir for generated files. Empty on check out.
-    index.html    Description of the test cases.
-    testN.*       Files for the N'th test case:
-      testN.java    Main program for the test case.
-      testN.ast     Abstract syntax for the test case.
-      testN.jrag    Attributes for the test case.
-      testN.options Options for running the test case, if other than the default ones.
-      testN.result  Expected result output from running the test.
-      testN.info    Description of the test case
-    shouldpass    List of currently passing tests.
-
-  RunTests.java
-               Program for running all the tests.
-               Uses JastAdd.java directly (not the JastAdd.jar file)
   tools        Dir with special-purpose tools used when building.
-  org          Dir with aspectj class files, used when constructing the
-               jastadd2.jar file.
   LICENSE      Text file with the jastadd LICENSE.
   Makefile     For building JastAdd
-  manifest     Manifest file for building the jastadd2.jar file
   newrelease   A script for patching two files with a new version
                number: jastadd/JastAdd.java and manifest
   release.sh   A script printing the commands for doing a release.
@@ -253,9 +163,10 @@ Directories and files:
   ChangeLogUntil2010.txt
                A textfile containing cvs log messages until 2010 when the
                system was moved to svn.
---------------------------------------------------------
-UNDERSTANDING THE IMPLEMENTATION
---------
+
+Understanding the Implementation
+--------------------------------
+
 Overall behavior when running JastAdd:
 First, options are read and global flags are set.
 Then, an incomplete AST is built by parsing the .ast file.
@@ -263,22 +174,15 @@ Then, the .jrag files are parsed, and their information is weaved into the AST.
 Now, the AST is complete, and attributes can be accessed.
 Then, possible errors are printed.
 Then, target AST classes are generated.
+
+Versions
 --------
-Versions:
+
 To keep track of JastAdd versions, the version number (based on the current date) is patched into both the source file JastAdd.java, and the manifest file. The script doing this, newrelease, is called when building.
---------
-Parsing:
+
+Parsing
+-------
+
 JavaCC and its tree-building extension, JJTree, are used for parsing. They assume top classes called Node and SimpleNode. Normally, JJTree generates its own AST node subclasses, but we "fool" it to use the AST classes generated by JastAdd instead (by generating them before we run JavaCC/JJTree).
 
 However, we let JJTree generate the AST classes for the Java code used inside equations in .jrag files. This is because these expressions are not analyzed by JastAdd. They are just unparsed at appropriate places in the generated Java code.
---------------------------------------------------------
-UNDERSTANDING TESTING
-The test cases are copied and adapted from the JastAdd3 version developed at Oxford.
-The adaptation involved reorganizing each test case as a set of .ast and .jrag files
-instead of a .java file. (In JastAdd3, the .ast and .jrag info can be written in a .java file.)
-Also, the options have been adapted since they are different in JastAdd2 and JastAdd3.
-Test cases that are irrelevant for JastAdd2, e.g., using full aspects with local ast specs, have been removed.
-The Oxford suite included test/Test1 - test/Test81. New tests are added starting at test/Test101.
-
-An index.html file in the test dir contains info about the test cases, in particular some info about why certain tests fail.
---------------------------------------------------------
