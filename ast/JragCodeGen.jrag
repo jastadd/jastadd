@@ -220,8 +220,8 @@ aspect JragCodeGen {
       //buf.append(ind + "// Declared in " + o.fileName + " at line " + o.line + "\n");
       if(n instanceof jrag.AST.ASTAspectMethodDeclaration) {
         try {
-        jrag.AST.ASTAspectMethodDeclaration decl = (jrag.AST.ASTAspectMethodDeclaration)n;
-        decl.unparseAbstractClassBodyDeclaration(buf, name(), aspectJ);
+          jrag.AST.ASTAspectMethodDeclaration decl = (jrag.AST.ASTAspectMethodDeclaration)n;
+          ClassBodyDeclUnparser.unparseAbstract(decl, buf);
         } catch (Exception e) {
           System.err.println("Error generating " + o.signature() + " in " + name());
           e.printStackTrace();
@@ -229,12 +229,12 @@ aspect JragCodeGen {
       }
       else if(n instanceof jrag.AST.ASTAspectRefineMethodDeclaration) {
         try {
-              jrag.AST.ASTAspectRefineMethodDeclaration decl = (jrag.AST.ASTAspectRefineMethodDeclaration)n;
-              decl.unparseAbstractClassBodyDeclaration(buf, name(), aspectJ);
-              } catch (Exception e) {
-                System.err.println("Error generating " + o.signature() + " in " + name());
-                e.printStackTrace();
-              }
+          jrag.AST.ASTAspectRefineMethodDeclaration decl = (jrag.AST.ASTAspectRefineMethodDeclaration)n;
+          ClassBodyDeclUnparser.unparseAbstract(decl, buf);
+        } catch (Exception e) {
+          System.err.println("Error generating " + o.signature() + " in " + name());
+          e.printStackTrace();
+        }
       }
       else if(n instanceof jrag.AST.ASTBlock) {
         // do not emit refined implementations
