@@ -584,7 +584,7 @@ public aspect Attributes {
       
     n.firstToken = n.lastToken = jrag.AST.Token.newToken(0);
     s = new StringBuffer();
-    refinedEqu.getRHS().unparseClassBodyDeclaration(s, name(), false);
+    refinedEqu.getRHS().jjtAccept(new ClassBodyDeclUnparser(), s);
 
     String pattern = "\\brefined\\b";
     if(ASTNode.refineLegacy) {
@@ -710,7 +710,7 @@ public aspect Attributes {
       n = new jrag.AST.SimpleNode(0);
     n.firstToken = n.lastToken = jrag.AST.Token.newToken(0);
     s = new StringBuffer();
-    refinedEqu.getRHS().unparseClassBodyDeclaration(s, name(), false);
+    refinedEqu.getRHS().jjtAccept(new ClassBodyDeclUnparser(), s);
 
     String pattern = "refined\\(";
     if(ASTNode.refineLegacy)
@@ -898,7 +898,7 @@ public aspect Attributes {
                 node = child;
                 // replace "aspectName.typeName.methodName" in refinedDecl with "refined_aspectName_methodName"
                 StringBuffer buf = new StringBuffer();
-                node.unparseClassBodyDeclaration(buf, name(), false);
+                node.jjtAccept(new ClassBodyDeclUnparser(), buf);
                 String s = buf.toString();
 
                 String pattern = "\\brefined\\b";
@@ -953,7 +953,7 @@ public aspect Attributes {
                 node = child;
                 // replace "aspectName.typeName.methodName" in refinedDecl with "refined_aspectName_methodName"
                 StringBuffer buf = new StringBuffer();
-                node.unparseClassBodyDeclaration(buf, name(), false);
+                node.jjtAccept(new ClassBodyDeclUnparser(), buf);
                 String s = buf.toString();
                 if(child instanceof jrag.AST.ASTExplicitConstructorInvocation) {
                   s = "";
@@ -1001,7 +1001,7 @@ public aspect Attributes {
 
             // replace "aspectName.typeName.methodName" in refinedDecl with "refined_aspectName_methodName"
             StringBuffer buf = new StringBuffer();
-            node.unparseClassBodyDeclaration(buf, name(), false);
+            node.jjtAccept(new ClassBodyDeclUnparser(), buf);
             String s = buf.toString();
             String pattern = "\\brefined\\b";
             if(ASTNode.refineLegacy) {

@@ -964,7 +964,7 @@ aspect JaddCodeGen {
           jrag.AST.Token t2 = ((jrag.AST.SimpleNode)n.jjtGetChild(1)).firstToken;
           String name = t2.image;
           StringBuffer buf = new StringBuffer();
-          n.unparseClassBodyDeclaration(buf, name(), aspectJ);
+          n.jjtAccept(new ClassBodyDeclUnparser(), buf);
           String field = buf.toString();
           if(field.indexOf("static") == -1 && field.indexOf("final") == -1)
             stream.print(ind(2) + "node." + name + " = " + name + ";\n");

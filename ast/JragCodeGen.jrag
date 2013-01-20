@@ -243,7 +243,7 @@ aspect JragCodeGen {
         if(!o.comments.equals(""))
           buf.append(o.comments + " ");
         buf.append(o.modifiers);
-        n.unparseClassBodyDeclaration(buf, name(), aspectJ);
+        n.jjtAccept(new ClassBodyDeclUnparser(), buf);
       }
       buf.append("\n");
     }
@@ -299,7 +299,7 @@ aspect JragCodeGen {
       buf.append(obj.modifiers);
       buf.append(javadocComment(obj));
       buf.append(ind);
-      node.unparseClassBodyDeclaration(buf, name(), aspectJ);
+      node.jjtAccept(new ClassBodyDeclUnparser(), buf);
       buf.append("\n");
     }
     return buf.toString();

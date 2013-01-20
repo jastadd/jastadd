@@ -274,7 +274,7 @@ aspect JastAddCodeGen {
         
         if(!(n instanceof ASTAspectMethodDeclaration) && !(n instanceof ASTAspectFieldDeclaration)) {
           buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
-          n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
+          n.jjtAccept(new ClassBodyDeclUnparser(), buf);
           buf.append("\n\n");
         }
       }
@@ -325,7 +325,7 @@ aspect JastAddCodeGen {
         //if(!o.comments.equals(""))
           //buf.append(o.comments + " ");
         buf.append(o.modifiers);
-        n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
+        n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         buf.append("\n\n");
       }
       stream.println(buf.toString());
