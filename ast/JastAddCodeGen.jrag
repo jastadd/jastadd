@@ -6,8 +6,6 @@ import java.io.*;
 
 import java.util.*;
 
-import jrag.*;
-import jrag.AST.SimpleNode;
 import jrag.AST.ASTAspectMethodDeclaration;
 import jrag.AST.ASTAspectRefineMethodDeclaration;
 import jrag.AST.ASTAspectFieldDeclaration;
@@ -465,7 +463,7 @@ aspect JastAddCodeGen {
     }
       
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      buf.append(", " + Unparser.unparse((SimpleNode)iter.next()));
+      buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
     }
     if(name().equals("ASTNode") && ASTNode.java5)
       buf.append(", Iterable<T>");
@@ -483,9 +481,9 @@ aspect JastAddCodeGen {
     StringBuffer s = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if(iter.hasNext()) {
-      s.append(Unparser.unparse((SimpleNode)iter.next()));
+      s.append(Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
       while(iter.hasNext()) {
-        s.append(", " + Unparser.unparse((SimpleNode)iter.next()));
+        s.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
       }
     }
     return s.toString();
