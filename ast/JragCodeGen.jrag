@@ -67,7 +67,6 @@ aspect JragCodeGen {
   public static boolean ASTNode.lazyMaps;
   public static boolean ASTNode.noInhEqCheck;
 
-  public static boolean ASTNode.aspectJ = false;
   public static boolean ASTNode.rewriteEnabled = false;
   public static boolean ASTNode.circularEnabled = true;
   public static boolean ASTNode.visitCheckEnabled = true;
@@ -156,30 +155,6 @@ aspect JragCodeGen {
 //    return (Ast.CollDecl.getLazy() || cacheAll) && !noCaching;
   }
 
-
-  public void Grammar.genAGCode(PrintStream s, String aspectName) {
-    aspectJ = true;
-
-    s.print(genImportsList());
-    s.print("aspect " + aspectName + " {\n");
-    for(int i = 0; i < getNumTypeDecl(); i++) {
-      getTypeDecl(i).genAGCode(s);
-    }
-    s.print("}\n");
-  }
-
-  public void TypeDecl.genAGCode(PrintStream s) {
-  }
-
-  public void ASTDecl.genAGCode(PrintStream s) {
-    s.print(genImplementsList());
-    s.print(genMembers());
-    s.print(genAbstractSyns());
-    s.print(genSynEquations());
-    s.print(genInhDeclarations());
-    s.print(genInhEquations());
-  }
-
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
     for(Iterator iter = getCompUnits(); iter.hasNext(); ) {
@@ -193,23 +168,6 @@ aspect JragCodeGen {
       buf.append('\n');
     }
     return buf.toString();
-  }
-  public String ASTDecl.genImplementsList() {
-    if(ASTNode.aspectJ && ASTNode.parentInterface) {
-      StringBuffer buf = new StringBuffer();
-      Iterator iter = inhAttrSet();
-      if(iter.hasNext()) {
-        buf.append("    declare parents: " + name() + " implements " +
-            "Defines_" + (String)iter.next());
-        while(iter.hasNext()) {
-          buf.append(", Defines_" + (String)iter.next());
-        }
-        buf.append(";\n");
-      }
-      return buf.toString();
-    }
-    else
-      return "";
   }
 
   public String InterfaceDecl.genMembers() {
@@ -318,10 +276,7 @@ aspect JragCodeGen {
       ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
       buf.append(s);
@@ -345,10 +300,7 @@ aspect JragCodeGen {
         ind + "public abstract #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
         s = s.replaceAll("#TYPE#", attr.getType());
         s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-        if(!aspectJ)
-          s = s.replaceAll("#CLASS#\\.", "");
-        else
-          s = s.replaceAll("#CLASS#", name());
+        s = s.replaceAll("#CLASS#\\.", "");
         s = s.replaceAll("#METHODNAME#", attr.attributeName());
         s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
         buf.append(s);
@@ -1411,10 +1363,7 @@ aspect JragCodeGen {
        s = getCacheDeclarations(attr) + s;
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       if(!aspectJ)
-         s = s.replaceAll("#CLASS#\\.", "");
-       else
-         s = s.replaceAll("#CLASS#", name());
+       s = s.replaceAll("#CLASS#\\.", "");
        s = s.replaceAll("#NAME#", attr.attributeSignature());
        s = s.replaceAll("#METHODNAME#", attr.attributeName());
        s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
@@ -1554,10 +1503,7 @@ aspect JragCodeGen {
        String s = ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       if(!aspectJ)
-         s = s.replaceAll("#CLASS#\\.", "");
-       else
-         s = s.replaceAll("#CLASS#", name());
+       s = s.replaceAll("#CLASS#\\.", "");
        s = s.replaceAll("#NAME#", attr.attributeSignature());
        s = s.replaceAll("#METHODNAME#", attr.attributeName());
        s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -1585,10 +1531,7 @@ aspect JragCodeGen {
        s = getCacheDeclarations(attr) + s;
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       if(!aspectJ)
-         s = s.replaceAll("#CLASS#\\.", "");
-       else
-         s = s.replaceAll("#CLASS#", name());
+       s = s.replaceAll("#CLASS#\\.", "");
        s = s.replaceAll("#NAME#", attr.attributeSignature());
        s = s.replaceAll("#METHODNAME#", attr.attributeName());
        s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -1667,10 +1610,7 @@ aspect JragCodeGen {
       s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
       s = s.replaceAll("#TYPE#", decl.type());
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", decl.attributeSignature());
       s = s.replaceAll("#METHODNAME#", decl.attributeName());
       s = s.replaceAll("#PARMDECL#", decl.parametersDecl());

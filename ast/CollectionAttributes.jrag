@@ -36,10 +36,7 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -490,10 +487,7 @@ aspect CollectionAttributes {
       }
       buf.append(ind + "}\n");
       String s = buf.toString();
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       result.append(s);
     }
     return result.toString();
@@ -534,10 +528,7 @@ aspect CollectionAttributes {
       String s = buf.toString();
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", decl.attributeSignature());
       result.append(s);
     }
@@ -623,10 +614,7 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPE#", decl.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -709,10 +697,7 @@ aspect CollectionAttributes {
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          if(!aspectJ)
-            s = s.replaceAll("#CLASS#\\.", "");
-          else
-            s = s.replaceAll("#CLASS#", astDecl.name());
+          s = s.replaceAll("#CLASS#\\.", "");
           s = s.replaceAll("#NAME#", attr.attributeSignature());
           s = s.replaceAll("#METHODNAME#", attr.attributeName());
           s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -757,10 +742,7 @@ aspect CollectionAttributes {
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          if(!aspectJ)
-            s = s.replaceAll("#CLASS#\\.", "");
-          else
-            s = s.replaceAll("#CLASS#", rootDecl.name());
+          s = s.replaceAll("#CLASS#\\.", "");
           s = s.replaceAll("#NAME#", attr.attributeSignature());
           s = s.replaceAll("#METHODNAME#", attr.attributeName());
           s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
