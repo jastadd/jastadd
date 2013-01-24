@@ -91,11 +91,14 @@ aspect JaddCodeGen {
     String s;
     if(jjtree) {
       s = ind + "public #ID#.#ID#(int i) {\n" +
-        ind(2) + "super(i);\n" + finalInit +
+        ind(2) + "super(i);\n" +
+        (isASTNode() ? (ind(2) + "init$Children();") : "") +
+        finalInit +
         ind + "}\n" +
         ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
         ind(2) + "this(i);\n" +
-        ind(2) + "parser = p;\n" + finalInit +
+        ind(2) + "parser = p;\n" +
+        finalInit +
         ind + "}\n" +
         ind + "public #ID#.#ID#() {\n" + 
         ind(2) + "this(0);\n" + 
