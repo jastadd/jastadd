@@ -1,6 +1,9 @@
 <project name="JastAdd2" default="build">
 
-	<property name="tools.dir"	value="tools"/>
+	<property name="spec.dir" location="${basedir}"/>
+	<property name="gen.dir" location="src/gen"/>
+	<property name="bin.dir" location="bin"/>
+	<property name="tools.dir" value="tools"/>
 
 	<description>Build script for JastAdd2</description>
 
@@ -34,10 +37,29 @@
 		</copy>
 	</target>
 
-	<target name="build" description="build JastAdd2"
+	<target name="build" description="generate sources and build JastAdd2"
 		depends="build-resources">
+		<mkdir dir="${gen.dir}/ast/AST"/>
+		<mkdir dir="${gen.dir}/jrag/AST"/>
+		<mkdir dir="${gen.dir}/jastadd"/>
+		<mkdir dir="${bin.dir}"/>
+		<copy todir="${gen.dir}/ast">
+		  <fileset dir="${basedir}/ast">
+		    <include name="**/*.java"/>
+		  </fileset>
+		</copy>
+		<copy todir="${gen.dir}/jrag">
+		  <fileset dir="${basedir}/jrag">
+		    <include name="**/*.java"/>
+		  </fileset>
+		</copy>
+		<copy todir="${gen.dir}/jastadd">
+		  <fileset dir="${basedir}/jastadd">
+		    <include name="**/*.java"/>
+		  </fileset>
+		</copy>
 		<jastadd java14="true" jjtree="true" rewrite="true"
-			grammar="Ast" package="ast.AST" outdir="${basedir}"
+			grammar="Ast" package="ast.AST" outdir="${gen.dir}"
 			lazyMaps="false">
 			<fileset dir="ast" includes="*.jrag,*.jadd,*.ast"/>
 		</jastadd>
@@ -45,52 +67,35 @@
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="ast/Ast.jjt"/>
 		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
-			<arg value="-OUTPUT_DIRECTORY=${basedir}/ast/AST"/>
+			<arg value="-OUTPUT_DIRECTORY=${gen.dir}/ast/AST"/>
 			<arg value="-NODE_PREFIX=&quot;&quot;"/>
-			<arg value="${basedir}/ast/Ast.jjt"/>
+			<arg value="${spec.dir}/ast/Ast.jjt"/>
 		</java>
 		<!-- NODE_PREFIX is not set correctly on Windows: -->
 		<!--jjtree javacchome="${tools.dir}" nodeprefix="&quot;&quot;"
-			outputdirectory="${basedir}/ast/AST"
-			target="${basedir}/ast/Ast.jjt"/-->
+			outputdirectory="${gen.dir}/ast/AST"
+			target="${spec.dir}/ast/Ast.jjt"/-->
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
-			outputdirectory="${basedir}/ast/AST"
-			target="${basedir}/ast/AST/Ast.jj"/>
+			outputdirectory="${gen.dir}/ast/AST"
+			target="${gen.dir}/ast/AST/Ast.jj"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="jrag/Jrag.jjt"/>
 		<jjtree javacchome="${tools.dir}"
-			outputdirectory="${basedir}/jrag/AST"
-			target="${basedir}/jrag/Jrag.jjt"/>
+			outputdirectory="${gen.dir}/jrag/AST"
+			target="${spec.dir}/jrag/Jrag.jjt"/>
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
-			outputdirectory="${basedir}/jrag/AST"
-			target="${basedir}/jrag/AST/Jrag.jj"/>
-		<javac source="1.4" includeantruntime="true">
-			<src path="ast"/>
-			<src path="jrag"/>
-			<src path="jastadd"/>
+			outputdirectory="${gen.dir}/jrag/AST"
+			target="${gen.dir}/jrag/AST/Jrag.jj"/>
+		<javac destdir="${bin.dir}" source="1.4" includeantruntime="true">
+			<src path="${gen.dir}"/>
 		</javac>
 	</target>
 
 	<target name="clean">
 		<delete file="svn.info"/>
-		<delete dir="ast/AST"/>
 		<delete file="JastAdd.properties"/>
-		<delete file="jrag/AST/Jrag.jj"/>
-		<delete file="jrag/AST/TokenMgrError.java"/>
-		<delete>
-			<fileset dir="." includes="*.class"/>
-			<fileset dir="ast" includes="*.class"/>
-			<fileset dir="jastadd" includes="*.class"/>
-			<fileset dir="jrag" includes="**/*.class"/>
-			<filelist dir="jrag/AST">
-			</filelist>
-			<fileset dir="jrag/AST" includes="AST*"/>
-			<fileset dir="jrag/AST" includes="JragParser*"/>
-			<fileset dir="jrag/AST" includes="JJT*"/>
-			<fileset dir="jrag/AST" includes="Node.*"/>
-			<fileset dir="jrag/AST" includes="JavaCharStream*"/>
-			<fileset dir="jrag/AST" includes="ParseException*"/>
-		</delete>
+		<delete dir="${gen.dir}"/>
+		<delete dir="${bin.dir}"/>
 	</target>
 
 	<target name="jar" depends="build"
@@ -109,9 +114,9 @@
 			<fileset dir=".">
 				<include name="LICENSE"/>
 				<include name="JastAdd.properties"/>
-				<include name="ast/**/*.class"/>
-				<include name="jastadd/*.class"/>
-				<include name="jrag/**/*.class"/>
+			</fileset>
+			<fileset dir="${bin.dir}">
+				<include name="**/*"/>
 			</fileset>
 		</jar>
 	</target>
