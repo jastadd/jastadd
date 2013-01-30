@@ -499,7 +499,7 @@ public class JastAdd {
     ASTNode.noCaching = noCaching.matched();
     ASTNode.doxygen = doxygen.matched();
 
-    // EMMA_2009-11-16: Handle new flags
+    // Handle new flags
     ASTNode.cacheNone = cacheNone.matched();
     ASTNode.cacheImplicit = cacheImplicit.matched();
     ASTNode.ignoreLazy = ignoreLazy.matched();
@@ -560,8 +560,8 @@ public class JastAdd {
   }
 
   /**
-    Print help
-    */
+   * Print help
+   */
   public void printHelp(CommandLineArguments cla) {
     System.err.println("This program reads a number of .jrag, .jadd, and .ast files");
     System.err.println("and creates the nodes in the abstract syntax tree");
