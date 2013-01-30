@@ -303,7 +303,7 @@ public class JastAdd {
     Option version = new Option("version", "print version string and halts");
     Option help = new Option("help", "prints a short help output and halts");
     Option printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
-    Option indent = new Option("indent", "Type of indentation {space|tab}", true);
+    Option indent = new Option("indent", "Type of indentation {2space|4space|8space|tab}", true);
 
     defaultMap.setNonStandard();
     defaultSet.setNonStandard();
@@ -324,7 +324,7 @@ public class JastAdd {
     defaultSet.setDefaultValue("new java.util.HashSet(4)");
     outputDirOption.setValue(System.getProperty("user.dir"));
     packageOption.setDefaultValue("");
-    indent.setDefaultValue("space");
+    indent.setDefaultValue("2space");
 
     cla.addOption(jjtree);
     cla.addOption(grammarOption);
@@ -387,7 +387,16 @@ public class JastAdd {
     ASTNode.createDefaultMap = defaultMap.value();
     ASTNode.createDefaultSet = defaultSet.value();
 
-    if (indent.value().equals("tab")) {
+    if (indent.value().equals("2space")) {
+      // Use 2 spaces for indentation
+      ASTNode.ind = "  ";
+    } else if (indent.value().equals("4space")) {
+      // Use 4 spaces for indentation
+      ASTNode.ind = "    ";
+    } else if (indent.value().equals("8space")) {
+      // Use 8 spaces for indentation
+      ASTNode.ind = "        ";
+    } else if (indent.value().equals("tab")) {
       // Use tabs for indentation
       ASTNode.ind = "\t";
     }
