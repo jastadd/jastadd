@@ -318,6 +318,8 @@ public class JastAdd {
     //refineLegacy.setDeprecated();
     //noComponentCheck.setDeprecated();
 
+    doxygen.setDeprecated();
+
     // set default values
     grammarOption.setDefaultValue("Unknown");
     defaultMap.setDefaultValue("new java.util.HashMap(4)");
