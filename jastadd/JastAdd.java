@@ -561,6 +561,7 @@ public class JastAdd {
 
   /**
    * Print help
+   * @param cla Command line arguments to list in the help output
    */
   public void printHelp(CommandLineArguments cla) {
     System.err.println("This program reads a number of .jrag, .jadd, and .ast files");
