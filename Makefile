@@ -7,7 +7,8 @@ JASTADD=java -jar tools/jastadd2.jar --java1.4
 JRAGFILES=ast/ClassRelations.jrag ast/ComponentsUtil.jrag ast/ASTErrors.jrag \
 		  ast/JaddCodeGen.jrag ast/ASTNameBinding.jrag ast/Attributes.jrag \
 		  ast/Circular.jrag ast/CollectionAttributes.jrag \
-		  ast/Errorcheck.jrag ast/JragCodeGen.jrag ast/NameBinding.jrag
+		  ast/Errorcheck.jrag ast/JragCodeGen.jrag ast/NameBinding.jrag \
+		  ast/JastAddCodeGen.jadd
 
 all : ast/AST/Grammar.java ast/AST/Ast.java jrag/AST/JragParser.java jastadd/JastAdd.java
 	chmod u+x ./newrelease && ./newrelease && $(ASPECTJ) `find ast jastadd jrag org -name "*.java"`

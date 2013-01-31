@@ -1,132 +1,105 @@
-package jastadd;
 /*
  * Compilers and Interpreters
  *
  * GH 001106 Created
+ * JO 120427 Refactored
  */
+package jastadd;
+
+import java.util.*;
 
 /**
- * <P>A class for retrieving the command line arguments such as operands
- * and options.</P>
- *
- * <P>The intention is to follow POSIX conventions, but the implementation so
- * far is not complete, supporting only long options and operands.</P>
- *
- * <P> A long option is preceeded by two hyphens and is written
- * --name[=value] on the commandline, e.g.
- * <PRE>
- *   cmd --temperature=37 </PRE>
- *
- * <P> This example tests if the "temperature" option occurs in the commandline
- * <PRE>
- *   CommandLineArguments CLAs = new CommandLineArguments(args);
- *   if (CLAs.hasLongOption("temperature")) {
- *      ...
- *   };
- * </PRE>
- * </P>
- * <P> This example gets the value of the "temperature" option. If there is
- * no such option in the commandline, or it is not given any value,
- * the given default value "40" is returned.
- * <PRE>
- *   temp = CLAs.getLongOptionValue("temperature", "40");
- * </PRE>
- * </P>
- *
- * <P> Operands are normally used for filenames and occur after the options
- * on the command line, e.g.
- * <PRE>
- *   cmd --opt1 --opt2 file1 file2 file3
- * </PRE>
- * </P>
- * <P> The following example retrieves the number of operands and gets each
- * of them in a loop.
- * <PRE>
- *   CommandLineArguments CLAs = new CommandLineArguments(args);
- *   int n = CLAs.getNumOperands();
- *   for (int k=0; k&lt;n; k++) {
- *     ... = CLAs.getOperand(k);
- *   };
- * </PRE>
- * </P>
+ * A class for retrieving the command line arguments such as operands
+ * and options.
  */
-
 public class CommandLineArguments {
-  
-  // ---------------------------------------------------- PUBLIC CONSTRUCTORS
+
+  private List options = new LinkedList();
+  private List operands = new ArrayList();
+
+  public CommandLineArguments() {
+  }
+
+  public void addOption(Option option) {
+    options.add(option);
+  }
 
   /**
-   * @param args Use the args parameter from your main method.
+   * Match the options against the command line arguments.
    */
-  public CommandLineArguments(String[] args) {
-    theArgs = args;
-  };
-  
+  public void match(String[] args) {
+    int i = 0;
+    Option lastMatch = null;
+    while (i < args.length) {
+      Iterator iter = options.iterator();
+      while (iter.hasNext() && i < args.length) {
+        Option option = (Option) iter.next();
+        int num = option.match(args, i);
+        if (num > 0) {
 
-  // --------------------------------------------------------- PUBLIC METHODS
+          lastMatch = option;
+          i += num;
+          continue;
+
+        } else if (lastMatch == option) {
+
+          if (args[i].startsWith(Option.OPTION_PREFIX)) {
+            System.err.println("Unknown option \"" + args[i]
+                + "\" will be ignored");
+          } else {
+            // none of the options match this argument
+            // -- it's an operand
+            operands.add(args[i]);
+          }
+
+          i += 1;
+
+        } else if (lastMatch == null) {
+
+          lastMatch = option;
+
+        }
+      }
+    }
+  }
 
   /**
-   * Returns true if the long option longopt occurs in the command line.
+   * Print the description for each standard, non-deprecated,
+   * command line option.
    */
-  public boolean hasLongOption(String longopt) {
-    String prefix = "--" + longopt;
-    for (int k=0; k<theArgs.length; k++) {
-      if (theArgs[k].equals(prefix) || theArgs[k].startsWith(prefix+"="))
-        return true;
-    };
-    return false;
-  };
-  
+  public void printHelp() {
+    Iterator iter = options.iterator();
+    while (iter.hasNext()) {
+      Option option = (Option) iter.next();
+      if (!option.nonStandard && !option.deprecated)
+        option.printHelp();
+    }
+  }
+
   /**
-   * Returns the value of the long option longopt. If there is no such option,
-   * or if it has no associated value, the empty string is returned.
+   * Print the description for each non-standard command line option.
    */
-  public String getLongOptionValue(String longopt) {
-    String prefix = "--" + longopt + "=";
-    for (int k=0; k<theArgs.length; k++) {
-      if (theArgs[k].startsWith(prefix))
-        return theArgs[k].substring(prefix.length());
-    };
-    return "";
-  };
-  
+  public void printNonStandardOptions() {
+    Iterator iter = options.iterator();
+    while (iter.hasNext()) {
+      Option option = (Option) iter.next();
+      if (option.nonStandard)
+        option.printHelp();
+    }
+  }
+
   /**
-   * Returns the value of the long option longopt. If there is no such option,
-   * or if it has no associated value, defaultValue is returned.
-   */
-  public String getLongOptionValue(String longopt, String defaultValue) {
-    String val = getLongOptionValue(longopt);
-    if (val=="")
-      return defaultValue;
-    else
-      return val;
-  };
-  
-  /**
-   * Returns the number of operands at the end of the command line.
+   * @return the number of operands at the end of the command line.
    */
   public int getNumOperands() {
-    int lastOption = -1;
-    for (int k=0; k<theArgs.length; k++) {
-      if (!theArgs[k].startsWith("-"))
-        return theArgs.length-k;
-    };
-    return 0;
+    return operands.size();
   };
   
   /**
-   * Returns the k'th operand at the end of the command line,
+   * @return the k'th operand at the end of the command line,
    * where the operands are numbered from 0 to getNumOperands()-1.
    */
   public String getOperand(int k) {
-    return theArgs[theArgs.length-getNumOperands()+k];
+    return (String) operands.get(k);
   };
-  
-  // -------------------------------------------------------- PRIVATE METHODS
-
-  
-  // ----------------------------------------------------- PRIVATE ATTRIBUTES
-  
-  private String[] theArgs;
-  
 };

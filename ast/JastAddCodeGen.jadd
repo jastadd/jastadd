@@ -6,8 +6,6 @@ import java.io.*;
 
 import java.util.*;
 
-import jrag.*;
-import jrag.AST.SimpleNode;
 import jrag.AST.ASTAspectMethodDeclaration;
 import jrag.AST.ASTAspectRefineMethodDeclaration;
 import jrag.AST.ASTAspectFieldDeclaration;
@@ -30,13 +28,13 @@ aspect JastAddCodeGen {
               for(Iterator iter = d.getClassBodyDeclsItr(); iter.hasNext(); ) {
                 ClassBodyObject o = (ClassBodyObject)iter.next();
                 if(o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
-                    if(!dest.hasClassBodyDecl(o.signature()))
-                        dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
+                  if(!dest.hasClassBodyDecl(o.signature()))
+                    dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                 }
                 else if(o.node instanceof ASTAspectRefineMethodDeclaration) {
                   ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
                   object.refinesAspect = o.refinesAspect;
-                    dest.classBodyDecls.add(object);
+                  dest.classBodyDecls.add(object);
                 }
                 else if(o.node instanceof ASTBlock) {
                   dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
@@ -45,12 +43,12 @@ aspect JastAddCodeGen {
               for(Iterator iter = d.refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
                   ClassBodyObject o = (ClassBodyObject)iter.next();
                   if(o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
-                      if(!dest.hasClassBodyDecl(o.signature()))
-                          dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
+                    if(!dest.hasClassBodyDecl(o.signature()))
+                      dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                   }
                   else if(o.node instanceof ASTAspectRefineMethodDeclaration) {
                     ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
-                  object.refinesAspect = o.refinesAspect;
+                    object.refinesAspect = o.refinesAspect;
                     dest.refinedClassBodyDecls.add(object);
                   }
                   else if(o.node instanceof ASTBlock) {
@@ -147,6 +145,51 @@ aspect JastAddCodeGen {
   public String InterfaceDecl.javadocTag() { return "@ast interface"; }
   public String ASTDecl.javadocTag() { return "@ast node"; }
 
+  public String TypeDecl.extraDocCommentLines() {
+    return "";
+  }
+  public String ASTDecl.extraDocCommentLines() {
+    String superclass = "";
+    if (hasSuperClass())
+      superclass = " : {@link "+getSuperClass().getID()+"}";
+    String components = "";
+    if (getNumComponents() > 0)
+      components = " ::=" + componentString();
+    return "* @production " + getIdDecl().getID() + superclass + components + ";\n";
+  }
+  public String ASTDecl.componentString() {
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < getNumComponents(); ++i) {
+      buf.append(" ");
+      buf.append("<span class=\"component\">");
+      buf.append(getComponents(i).componentString());
+      buf.append("</span>");
+    }
+    return buf.toString();
+  }
+  public String Id.componentString() {
+    String id = "{@link "+getIdUse().getID()+"}";
+    if (hasNameNode())
+      return getNameNode().getID()+":"+id;
+    return id;
+  }
+  public String TokenId.componentString() {
+    return getID()+":"+getTYPE();
+  }
+  public abstract String Components.componentString();
+  public String ListComponents.componentString() {
+    return getId().componentString()+"*";
+  }
+  public String OptionalComponent.componentString() {
+    return "["+getId().componentString()+"]";
+  }
+  public String TokenComponent.componentString() {
+    return "&lt;"+getTokenId().componentString()+"&gt;";
+  }
+  public String AggregateComponents.componentString() {
+    return getId().componentString();
+  }
+
   public String TypeDecl.javadocComment() {
     String comment = getComment();
     if (comment == null)
@@ -168,8 +211,9 @@ aspect JastAddCodeGen {
   public String TypeDecl.augmentClassComment(String comment) {
     StringBuffer sb = new StringBuffer();
     sb.append(comment.substring(0, comment.length()-2));
-    sb.append("* " + javadocTag() + "\n");
-    sb.append(" * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+    sb.append(extraDocCommentLines());
+    sb.append(" * " + javadocTag() + "\n");
+    sb.append(" * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
     sb.append(" */\n");
     return sb.toString();
   }
@@ -309,6 +353,11 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
+
+      // Insert comment notifying that this is a generated file
+      stream.println("/* This file was generated with " +
+          JastAdd.getLongVersionString() + " */");
+        
       if(license != null && license.length() > 0)
         stream.println(license);
 
@@ -319,8 +368,6 @@ aspect JastAddCodeGen {
       stream.print(env().genImportsList());
 
       if(name().equals("ASTNode")) {
-        stream.print(JastAdd.VERSIONINFO);
-        
         if(doxygen) {
           for(Iterator iter = env().aspectMap.entrySet().iterator(); iter.hasNext(); ) {
             java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
@@ -416,7 +463,7 @@ aspect JastAddCodeGen {
     }
       
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      buf.append(", " + ((SimpleNode)iter.next()).unparse());
+      buf.append(", " + ((jrag.AST.SimpleNode)iter.next()).unparse());
     }
     if(name().equals("ASTNode") && ASTNode.java5)
       buf.append(", Iterable<T>");
@@ -434,9 +481,9 @@ aspect JastAddCodeGen {
     StringBuffer s = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if(iter.hasNext()) {
-      s.append(((SimpleNode)iter.next()).unparse());
+      s.append(((jrag.AST.SimpleNode)iter.next()).unparse());
       while(iter.hasNext()) {
-        s.append(", " + ((SimpleNode)iter.next()).unparse());
+        s.append(", " + ((jrag.AST.SimpleNode)iter.next()).unparse());
       }
     }
     return s.toString();

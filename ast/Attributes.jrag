@@ -399,6 +399,18 @@ public aspect Attributes {
     }
   }
 
+  public void Grammar.processInterfaceRefinements() {
+    for(int i = 0; i < getNumTypeDecl(); i++) {
+      TypeDecl typeDecl = getTypeDecl(i);
+      if (typeDecl instanceof InterfaceDecl) {
+        typeDecl.processReplacements();
+        typeDecl.processRefinedClassBodyDecls();
+        typeDecl.processSynEqReplacements();
+        typeDecl.processRefinedSynEqs();
+        typeDecl.processRefinedInhEqs();
+      }
+    }
+  }
 
   public LinkedList TypeDecl.refinedSynEqs = new LinkedList();
   public void Grammar.addRefinedSynEq(String name, String className, jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, ast.AST.List list, String aspectName, jrag.AST.SimpleNode node, String declaredAspect) {
