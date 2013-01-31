@@ -29,7 +29,7 @@ jrag/AST/Jrag.jj : jrag/Jrag.jjt
 	$(JJTREE) -OUTPUT_DIRECTORY=jrag/AST jrag/Jrag.jjt
 
 jar : all
-	jar -cmf manifest jastadd2.jar LICENSE ast/*.class ast/AST/*.class jastadd/*.class jrag/*.class jrag/AST/*.class org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class
+	jar -cmf manifest jastadd2.jar JastAdd.properties LICENSE ast/*.class ast/AST/*.class jastadd/*.class jrag/*.class jrag/AST/*.class org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class
 
 #source-jar: all
 #	jar -cmf manifest jastadd2-src.jar LICENSE manifest ast/*.ast ast/*.jjt ast/*.jrag ast/*.java jrag/*.jrag jrag/*.java jrag/*.jjt jrag/AST/SimpleNode.java jastadd/*.java jastadd/*.jrag Makefile newrelease org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class tools/*.jar jrag/AST/Token.java doc/reference-manual.html doc/release-notes.html
