@@ -60,12 +60,14 @@ release: jar source-zip
 	@echo "new release compiled into jastadd2.jar and jastadd2-src.zip"
 
 clean :
-	/bin/rm -f jastadd/*.class ast/AST/* jrag/*.class jrag/AST/*.class jrag/AST/AST* jrag/AST/Jrag.jj jrag/AST/JragParser* jrag/AST/JJT* jrag/AST/Node.* jrag/AST/JavaCharStream* jrag/AST/ParseException*
+	/bin/rm -f jastadd/*.class ast/AST/* jrag/*.class jrag/AST/*.class jrag/AST/AST* jrag/AST/Jrag.jj jrag/AST/JragParser* jrag/AST/JJT* jrag/AST/Node.* jrag/AST/JavaCharStream* jrag/AST/ParseException* ast/*.class jastadd2.jar passed
+	rm -rf test/ast
 
 RunTests.class: RunTests.java
 	javac $^
 
 test: jar RunTests.class
+	@mkdir test/ast
 	@echo "==================="
 	@echo Running unit tests!
 	@java RunTests | grep "test/Test[0-9]*\.java passed" > passed
