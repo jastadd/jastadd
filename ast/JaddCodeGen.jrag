@@ -517,6 +517,7 @@ aspect JaddCodeGen {
     if(rewriteEnabled) {
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       stream.println(ind(2) + "ASTNode node = this.getChildNoTransform(i);");
+      stream.println(ind(2) + "if(node == null) return null;");
       stream.println(ind(2) + "if(node.is$Final()) return " + returnTypeCast + "node;");
       stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
       if(ASTNode.stagedRewrites)
