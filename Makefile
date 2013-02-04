@@ -11,7 +11,7 @@ JRAGFILES=ast/ClassRelations.jrag ast/ComponentsUtil.jrag ast/ASTErrors.jrag \
 		  ast/JastAddCodeGen.jadd
 
 all : ast/AST/Grammar.java ast/AST/Ast.java jrag/AST/JragParser.java jastadd/JastAdd.java
-	chmod u+x ./newrelease && ./newrelease && $(ASPECTJ) `find ast jastadd jrag org -name "*.java"`
+	$(ASPECTJ) `find ast jastadd jrag org -name "*.java"`
 
 ast/AST/Ast.java : ast/AST/Ast.jj
 	$(JAVACC) -OUTPUT_DIRECTORY=ast/AST ast/AST/Ast.jj
@@ -32,7 +32,7 @@ jar : all
 	jar -cmf manifest jastadd2.jar JastAdd.properties LICENSE ast/*.class ast/AST/*.class jastadd/*.class jrag/*.class jrag/AST/*.class org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class
 
 #source-jar: all
-#	jar -cmf manifest jastadd2-src.jar LICENSE manifest ast/*.ast ast/*.jjt ast/*.jrag ast/*.java jrag/*.jrag jrag/*.java jrag/*.jjt jrag/AST/SimpleNode.java jastadd/*.java jastadd/*.jrag Makefile newrelease org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class tools/*.jar jrag/AST/Token.java doc/reference-manual.html doc/release-notes.html
+#	jar -cmf manifest jastadd2-src.jar LICENSE manifest ast/*.ast ast/*.jjt ast/*.jrag ast/*.java jrag/*.jrag jrag/*.java jrag/*.jjt jrag/AST/SimpleNode.java jastadd/*.java jastadd/*.jrag Makefile org/aspectj/lang/*.class org/aspectj/runtime/*.class org/aspectj/runtime/internal/*.class org/aspectj/runtime/reflect/*.class tools/*.jar jrag/AST/Token.java doc/reference-manual.html doc/release-notes.html
 #	mkdir jastadd2-src
 #	cd jastadd2-src && jar -xf ../jastadd2-src.jar && cd ..
 #	jar -cmf manifest jastadd2-src.jar jastadd2-src
