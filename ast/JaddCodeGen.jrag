@@ -1432,9 +1432,9 @@ aspect JaddCodeGen {
       stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");
       stream.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-      if(name().equals("List"))
+      if(name().equals("List")) {
         stream.println(ind(2) + "return true;");
-      else if(!hasRewrites())
+      } else if(!hasRewrites())
         stream.println(ind(2) + "return false;");
       else if(!stagedRewrites || rewriteWithNoPhaseCondition())
         stream.println(ind(2) + "return true;");
