@@ -1661,8 +1661,10 @@ aspect JragCodeGen {
         if(c instanceof ListComponents) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += " { \n   int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-                    Unparser.unparse(equ.getRHS()) + "\n}\n";
+            s +=
+              ind +"{ \n" +
+              ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
+              ind(2) + Unparser.unparse(equ.getRHS()) + "\n}\n";
           }
           else { // Expr
             s += " {\n" +
