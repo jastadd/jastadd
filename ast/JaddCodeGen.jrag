@@ -518,7 +518,9 @@ aspect JaddCodeGen {
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       stream.println(ind(2) + "ASTNode node = this.getChildNoTransform(i);");
       stream.println(ind(2) + "if(node == null) return null;");
-      stream.println(ind(2) + "if(node.is$Final()) return " + returnTypeCast + "node;");
+      stream.println(ind(2) + "if(node.is$Final()) {");
+      stream.println(ind(3) + "return " + returnTypeCast + "node;");
+      stream.println(ind(2) + "}");
       stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
       if(ASTNode.stagedRewrites)
         stream.println(ind(3) + "node.is$Final(this.is$Final);");
@@ -534,8 +536,9 @@ aspect JaddCodeGen {
       stream.println(ind(4) + "ASTNode oldNode = node;");
       stream.println(ind(4) + "oldNode.in$Circle(true);");
       stream.println(ind(4) + "node = node.rewriteTo();");
-      stream.println(ind(4) + "if(node != oldNode)");
+      stream.println(ind(4) + "if(node != oldNode) {");
       stream.println(ind(5) + "this.setChild(node, i);");
+      stream.println(ind(4) + "}");
       stream.println(ind(4) + "oldNode.in$Circle(false);");
       stream.println(ind(4) + "rewriteState = this.state().pop();");
       stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
@@ -716,6 +719,7 @@ aspect JaddCodeGen {
     stream.println(ind + " * @apilevel low-level");
     stream.println(ind + " */");
     stream.println(ind + "public int ASTNode.getIndexOfChild(ASTNode node) {");
+
     stream.println(ind(2) + "if(node != null && node.childIndex < getNumChildNoTransform() && node == getChildNoTransform(node.childIndex))");
     stream.println(ind(3) + "return node.childIndex;");
     stream.println(ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
@@ -847,16 +851,25 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "if(children != null) {");
     stream.println(ind(3) + "ASTNode child = (ASTNode)children[i];");
     stream.println(ind(3) + "if(child != null) {");
-    stream.println(ind(4) + "child.setParent(null);");
+    stream.println(ind(4) + "child.parent = null;");
     stream.println(ind(4) + "child.childIndex = -1;");
     stream.println(ind(3) + "}");
-    stream.println(ind(3) + "System.arraycopy(children, i+1, children, i, children.length-i-1);");
-    stream.println(ind(3) + "numChildren--;");
-    stream.println(ind(3) + "for(int j = i; j < numChildren; ++j) {");
-    stream.println(ind(4) + "if(children[j] != null) {");
-    stream.println(ind(5) + "child = (ASTNode) children[j];");
-    stream.println(ind(5) + "child.childIndex = j;");
-    stream.println(ind(4) + "}");
+    // ES_2012-03-01: Adding a check of this instance to make sure its a List, a move of children doesn't make
+    // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
+    // and siblings are moved one step to the right, with null at the end.
+    stream.println(ind(3) + "if (this instanceof List || this instanceof Opt) {");
+    stream.println(ind(4) +   "System.arraycopy(children, i+1, children, i, children.length-i-1);");
+    stream.println(ind(4) +   "children[children.length-1] = null;");
+    stream.println(ind(4) +   "numChildren--;");
+    // fix child indices
+    stream.println(ind(4) +   "for(int j = i; j < numChildren; ++j) {");
+    stream.println(ind(5) +     "if(children[j] != null) {");
+    stream.println(ind(6) +       "child = (ASTNode) children[j];");
+    stream.println(ind(6) +       "child.childIndex = j;");
+    stream.println(ind(5) +     "}");
+    stream.println(ind(4) +   "}");
+    stream.println(ind(3) + "} else {");
+    stream.println(ind(4) +   "children[i] = null;");
     stream.println(ind(3) + "}");
     stream.println(ind(2) + "}");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
