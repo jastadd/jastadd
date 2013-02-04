@@ -1,14 +1,14 @@
 ANTPATH=./tools/ant.jar:./tools/ant-launcher.jar
 ASPECTJ=java -classpath tools/aspectj-1.5.3/aspectjlib.jar:tools/aspectj-1.5.3/aspectjrt.jar:tools/aspectj-1.5.3/aspectjtools.jar:tools/aspectj-1.5.3/aspectjweaver.jar:$(ANTPATH) org.aspectj.tools.ajc.Main -source 1.4
-JAVACC=java -classpath tools/JavaCC.jar org.javacc.parser.Main -JDK_VERSION=1.4
-JJTREE=java -classpath tools/JavaCC.jar org.javacc.jjtree.Main -JDK_VERSION=1.4
+JAVACC=java -classpath tools/javacc.jar org.javacc.parser.Main -JDK_VERSION=1.4
+JJTREE=java -classpath tools/javacc.jar org.javacc.jjtree.Main -JDK_VERSION=1.4
 JASTADD=java -jar tools/jastadd2.jar --java1.4
 
 JRAGFILES=ast/ClassRelations.jrag ast/ComponentsUtil.jrag ast/ASTErrors.jrag \
 		  ast/JaddCodeGen.jrag ast/ASTNameBinding.jrag ast/Attributes.jrag \
 		  ast/Circular.jrag ast/CollectionAttributes.jrag \
 		  ast/Errorcheck.jrag ast/JragCodeGen.jrag ast/NameBinding.jrag \
-		  ast/JastAddCodeGen.jadd
+		  ast/JastAddCodeGen.jadd ast/SimpleNode.jadd ast/Unparse.jadd
 
 all : ast/AST/Grammar.java ast/AST/Ast.java jrag/AST/JragParser.java jastadd/JastAdd.java
 	$(ASPECTJ) `find ast jastadd jrag org -name "*.java"`

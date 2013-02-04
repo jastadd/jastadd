@@ -272,7 +272,7 @@ aspect JastAddCodeGen {
         
         if(!(n instanceof ASTAspectMethodDeclaration) && !(n instanceof ASTAspectFieldDeclaration)) {
           buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
-          n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
+          n.jjtAccept(new ClassBodyDeclUnparser(), buf);
           buf.append("\n\n");
         }
       }
@@ -323,7 +323,7 @@ aspect JastAddCodeGen {
         //if(!o.comments.equals(""))
           //buf.append(o.comments + " ");
         buf.append(o.modifiers);
-        n.unparseClassBodyDeclaration(buf, name(), false); //  Fix AspectJ
+        n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         buf.append("\n\n");
       }
       stream.println(buf.toString());
@@ -463,7 +463,7 @@ aspect JastAddCodeGen {
     }
       
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      buf.append(", " + ((jrag.AST.SimpleNode)iter.next()).unparse());
+      buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
     }
     if(name().equals("ASTNode") && ASTNode.java5)
       buf.append(", Iterable<T>");
@@ -481,9 +481,9 @@ aspect JastAddCodeGen {
     StringBuffer s = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if(iter.hasNext()) {
-      s.append(((jrag.AST.SimpleNode)iter.next()).unparse());
+      s.append(Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
       while(iter.hasNext()) {
-        s.append(", " + ((jrag.AST.SimpleNode)iter.next()).unparse());
+        s.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
       }
     }
     return s.toString();

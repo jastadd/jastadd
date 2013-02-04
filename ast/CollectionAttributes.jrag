@@ -105,7 +105,7 @@ aspect CollectionAttributes {
          ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n") +
          ind(2) + "if (!#NAME#_initialized) {\n" +
          ind(3) + "#NAME#_initialized = true;\n" +
-         ind(3) + "#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+         ind(3) + "#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
          ind(2) + "}\n" +
          ind(2) + "if (!state().IN_CIRCLE) {\n" +
          ind(3) + "state().IN_CIRCLE = true;\n" +
@@ -116,8 +116,8 @@ aspect CollectionAttributes {
          ind(4) + "#NAME#_visited = state().CIRCLE_INDEX;\n" +
          ind(4) + "state().CHANGE = false;\n" +
          (separateEvaluation ?
-         ind(4) + "new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" :
-         ind(4) + "#TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n") +
+         ind(4) + "new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" :
+         ind(4) + "#TYPE# new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n") +
          (separateEvaluation ? "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" :
          ind(4) + "combine_#NAME#_contributions(new_#NAME#_value);\n") +
          ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
@@ -144,8 +144,8 @@ aspect CollectionAttributes {
          attr.resetCycleCheck() +
          attr.addAddToComponent() +
          (separateEvaluation ?
-         ind(3) + "new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" :
-         ind(3) + "#TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n") +
+         ind(3) + "new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" :
+         ind(3) + "#TYPE# new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n") +
          (separateEvaluation ? "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" :
          ind(3) + "combine_#NAME#_contributions(new_#NAME#_value);\n") +
          ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
@@ -180,7 +180,7 @@ aspect CollectionAttributes {
          ind(2) + "if (!#NAME#_initialized.contains(_parameters)) {\n" +
          ind(3) + "#NAME#_initialized.add(_parameters);\n" +
          ind(3) + "#NAME#_values.put(_parameters, " + toReferenceType(
-               attr.getBottomValue().unparse(), attr.getType()) + ");\n" +
+               Unparser.unparse(attr.getBottomValue()), attr.getType()) + ");\n" +
          ind(2) + "}\n" +
          ind(2) + "if (!state().IN_CIRCLE) {\n" +
          ind(3) + "state().IN_CIRCLE = true;\n" +
@@ -192,7 +192,7 @@ aspect CollectionAttributes {
          ind(4) + "#NAME#_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));\n" +
          ind(4) + "state().CHANGE = false;\n" +
          ind(4) + "new_#NAME#_value = " +
-         attr.getBottomValue().unparse() + ";\n" +
+         Unparser.unparse(attr.getBottomValue()) + ";\n" +
          ind(4) + "combine_#NAME#_contributions(new_#NAME#_value);\n" +
          ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
          ind(5) + "state().CHANGE = true;\n" +
@@ -216,7 +216,7 @@ aspect CollectionAttributes {
          ind(3) + "#NAME#_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));\n" +
          attr.cacheCycleCheck() +
          attr.resetCycleCheck() +
-         ind(3) + "#TYPE# new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+         ind(3) + "#TYPE# new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
          ind(3) + "combine_#NAME#_contributions(new_#NAME#_value);\n" +
          ind(3) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
          ind(4) + "state().CHANGE = true;\n" +
@@ -255,9 +255,9 @@ aspect CollectionAttributes {
   // only used by circular collection attributes
   public String CollDecl.circularComputeCall() {
     if(separateEvaluation())
-      return "new_#NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      return "new_#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
              "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this)";
-    return "#NAME#_value = combine_#NAME#_contributions(" + getBottomValue().unparse() + ")";
+    return "#NAME#_value = combine_#NAME#_contributions(" + Unparser.unparse(getBottomValue()) + ")";
   }
 
   // only used by non-circular collection attributes
@@ -274,7 +274,7 @@ aspect CollectionAttributes {
       ind(3) + "node = node.getParent();\n" +
       collDebugString() +
       ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
-      ind(2) + "#NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      ind(2) + "#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
       ind(2) + "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" +
       ind(2) + "return #NAME#_value;\n" +
       ind + "}\n\n";
@@ -290,7 +290,8 @@ aspect CollectionAttributes {
       collDebugString() +
       ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
       ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-      ind(2) + "if(#NAME#_value == null) #NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      ind(2) + "if(#NAME#_value == null) #NAME#_value = " +
+      Unparser.unparse(getBottomValue()) + ";\n" +
       ind(2) + "return #NAME#_value;\n" +
       ind + "}\n\n";
     else
@@ -310,7 +311,7 @@ aspect CollectionAttributes {
       collDebugString() +
       ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
       ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-      ind(2) + "#NAME#_value = " + getBottomValue().unparse() + ";\n" +
+      ind(2) + "#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
       (lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
       ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
       ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
@@ -430,7 +431,7 @@ aspect CollectionAttributes {
                 buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
                 buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
                 buf.append(ind(4) + "if(ref != null) {\n");
-                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + decl.getBottomValue().unparse() + ";\n");
+                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";\n");
                 buf.append(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
                 buf.append(ind(4) + "}\n");
                 buf.append(ind(3) + "}\n");
@@ -439,7 +440,7 @@ aspect CollectionAttributes {
                 buf.append(ind(3) + "{\n");
                 buf.append(ind(4) + attr.getTargetName() + " ref = " + attr.getReference() + ";\n");
                 buf.append(ind(4) + "if(ref != null) {\n");
-                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + decl.getBottomValue().unparse() + ";\n");
+                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";\n");
                 buf.append(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
                 buf.append(ind(4) + "}\n");
                 buf.append(ind(3) + "}\n");
@@ -792,7 +793,7 @@ aspect CollectionAttributes {
       decl.setCombOp(combOp);
       decl.setAnnotations(annotations);
       decl.setCircularCollection(isCircular || annotations.contains("@Circular"));
-      decl.setComment(node.unparseComment());
+      decl.setComment(Unparser.unparseComment(node));
       decl.setTarget(className);
       decl.root = root;
       decl.setAspectName(aspectName);
@@ -837,7 +838,19 @@ aspect CollectionAttributes {
   public void Grammar.addCollEq(String targetName, String targetAttributeName, String attributeType, String reference, ast.AST.List contributionList, String fileName, int startLine, int endLine, boolean refSet, jrag.AST.SimpleNode node, String aspectName) {
     TypeDecl c = lookup(attributeType);
     if(c != null && c instanceof ASTDecl) {
-      CollEq collEq = new CollEq(new List(), targetName, fileName, startLine, endLine, node.unparseComment(), aspectName, contributionList, targetName, targetAttributeName, refSet, reference);
+      CollEq collEq = new CollEq(
+          new List(),
+          targetName,
+          fileName,
+          startLine,
+          endLine,
+          Unparser.unparseComment(node),
+          aspectName,
+          contributionList,
+          targetName,
+          targetAttributeName,
+          refSet,
+          reference);
       ((ASTDecl)c).addCollEq(collEq);
     }
     else

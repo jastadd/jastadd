@@ -27,11 +27,12 @@ public class ClassBodyObject {
       this.aspectName = aspectName;
     }
     public ClassBodyObject(SimpleNode node, String fileName, int line, String aspectName) {
-      this(node, fileName, line, node.unparseComment(), aspectName);
+      this(node, fileName, line, Unparser.unparseComment(node), aspectName);
     }
 
     public String signature() {
-      String s = node.signature().replace('.', '_');
+      String signature = (String) node.jjtAccept(new SignatureUnparser(), null);
+      String s = signature.replace('.', '_');
       s = s.replace('<', '_');
       s = s.replace('>', '_');
       return s;

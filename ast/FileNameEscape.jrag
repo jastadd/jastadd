@@ -1,0 +1,10 @@
+/**
+ * Escape file names when they should be inserted into string literals
+ * in generated Java code.
+ *
+ * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
+ */
+aspect FileNameEscape {
+  syn String Rewrite.getFileNameEscaped() =
+    getFileName().replace("\\", "\\\\").replace("\"", "\\\"");
+}
