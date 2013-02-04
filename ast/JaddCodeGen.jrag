@@ -45,6 +45,23 @@ aspect JaddCodeGen {
     return num;
   }
 
+  /**
+   * Number of children, including NTAs but excluding tokens
+   */
+  syn int ASTDecl.childCount() {
+    int i = 0;
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(!(c instanceof TokenComponent)) {
+        i++;
+      }
+    }
+    return i;
+  }
+
+  /**
+   * Number of children, excluding NTAs and tokens
+   */
   syn int ASTDecl.numRegularChildren() {
     int i = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -77,33 +94,34 @@ aspect JaddCodeGen {
     // ES_2011-10-05: Code generation for incremental evaluation  
     if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
     //
-    i = 0;
-    int j = 0;
+    int param = 0;
+    int childIndex = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(!c.isNTA()) {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
-          s.append(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");\n");
+          String tokenId = t.getTokenId().getID();
+          s.append(ind(2) + "set" + tokenId + "(p" + param + ");\n");
         }
         else {
-          s.append(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");\n");
-          j++;
+          s.append(ind(2) + "setChild(p" + param + ", " + childIndex + ");\n");
+          childIndex++;
         }
-        i++;
+        param += 1;
       }
       else {
         if(c instanceof ListComponents) {
-          s.append(ind(2) + "setChild(new List(), " + j + ");\n");
-          j++;
+          s.append(ind(2) + "setChild(new List(), " + childIndex + ");\n");
+          childIndex++;
         }
         else if(c instanceof OptionalComponent) {
-          s.append(ind(2) + "setChild(new Opt(), " + j + ");\n");
-          j++;
+          s.append(ind(2) + "setChild(new Opt(), " + childIndex + ");\n");
+          childIndex++;
         }
         else if(c instanceof AggregateComponents) {
-          s.append(ind(2) + "setChild(null, " + j + ");\n");
-          j++;
+          s.append(ind(2) + "setChild(null, " + childIndex + ");\n");
+          childIndex++;
         }
       }
     }
@@ -252,8 +270,6 @@ aspect JaddCodeGen {
   public String AggregateComponents.genIncrementalConstructorEndConstruction() {
     return ind(2) + "state().exitConstruction();\n";
   }
-
-
 
   public void Grammar.genReset(PrintWriter stream) {
     stream.println(ind + "/**");

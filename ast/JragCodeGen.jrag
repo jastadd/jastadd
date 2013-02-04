@@ -2023,8 +2023,17 @@ aspect JragCodeGen {
       s = s.replaceAll("#INTERFACEPARMDECL#", decl.interfaceParametersDecl());
       buf.append(s);
 
+      // have we already generated a component equation?
+      boolean hasComponentEq = false;
+      boolean hasGetChildEq = false;
+
       do {
         s = ind(2);
+        if (hasComponentEq) {
+          s += "else ";
+        }
+        hasComponentEq = true;
+
         Components c = equ.getComponents();
         if(c instanceof ListComponents) {
           s += "if(caller == get#NAME#ListNoTransform())";
@@ -2036,7 +2045,7 @@ aspect JragCodeGen {
           s += "if(caller == get#NAME#NoTransform())";
         }
         else if(equ.getSonName().equals("getChild")) {
-          s = ind(2) + "if(true)";
+          hasGetChildEq = true;
         }
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
@@ -2115,36 +2124,43 @@ aspect JragCodeGen {
         }
       } while(equ != null);
 
-      if(superClass() != null && superClass().hasInhEq(decl.name())) {
-        s = ind(2) + "return super.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
-            ind + "}\n";
+      if (!hasGetChildEq) {
+        s = ind(2);
+        if (hasComponentEq) {
+          s += "else {";
+        }
+        if(superClass() != null && superClass().hasInhEq(decl.name())) {
+          s += ind(3) + "return super.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
+              ind(2) + "}\n";
+        }
+        else {
+          // TODO: INH
+          if(!ASTNode.parentInterface)
+          s += decl.inhDebugString() +
+              ind(3) + "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + decl.interfaceParametersContinue() + ");\n" +
+              ind(2) + "}\n";
+          else
+          s += ind(3) + "ASTNode n = getParent();\n" +
+              ind(3) + "caller = this;\n" +
+              ind(3) + "child = null;\n" +
+              ind(3) + "while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#)) {\n" +
+              ind(4) + "child = caller;\n" +
+              ind(4) + "caller = n;\n" +
+              ind(4) + "n = n.getParent();\n" +
+              ind(3) + "}\n" +
+              decl.inhDebugString() +
+              ind(3) + "return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
+              ind(2) + "}\n";
+        }
+        s = s.replaceAll("#NAME#", decl.attributeSignature());
+        s = s.replaceAll("#METHODNAME#", decl.attributeName());
+        s = s.replaceAll("#TYPE#", decl.type());
+        s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
+        s = s.replaceAll("#PARM#", decl.parameters());
+        s = s.replaceAll("#INTERFACEPARM#", decl.interfaceParameters());
+        buf.append(s);
       }
-      else {
-        // TODO: INH
-        if(!ASTNode.parentInterface)
-        s = decl.inhDebugString() +
-            ind(2) + "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + decl.interfaceParametersContinue() + ");\n" +
-            ind + "}\n";
-        else
-        s = ind(2) + "ASTNode n = getParent();\n" +
-            ind(2) + "caller = this;\n" +
-            ind(2) + "child = null;\n" +
-            ind(2) + "while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#)) {\n" +
-            ind(3) + "child = caller;\n" +
-            ind(3) + "caller = n;\n" +
-            ind(3) + "n = n.getParent();\n" +
-            ind(2) + "}\n" +
-            decl.inhDebugString() +
-            ind(2) + "return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
-            ind + "}\n";
-      }
-      s = s.replaceAll("#NAME#", decl.attributeSignature());
-      s = s.replaceAll("#METHODNAME#", decl.attributeName());
-      s = s.replaceAll("#TYPE#", decl.type());
-      s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-      s = s.replaceAll("#PARM#", decl.parameters());
-      s = s.replaceAll("#INTERFACEPARM#", decl.interfaceParameters());
-      buf.append(s);
+      buf.append(ind + "}\n");
     }
     return buf.toString();
   }
@@ -2177,18 +2193,8 @@ aspect JragCodeGen {
     return set;
   }
 
-  syn lazy String Rewrite.aspectName() {
-    String name = getFileName();
-    if(name.endsWith(".jrag"))
-      name = name.substring(0, name.length() - 5);
-    else if(name.endsWith(".jadd"))
-      name = name.substring(0, name.length() - 5);
-    else if(name.endsWith(".ast"))
-      name = name.substring(0, name.length() - 4);
-    String pattern = File.separator.equals("\\") ? pattern = "\\\\" : File.separator;
-    String[] names = name.split(pattern);
-    return names[names.length-1];
-  }
+  syn lazy String Rewrite.aspectName() =
+    getAspectName();
 
   public void Grammar.genResetDuringCounters(PrintWriter out) {
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
