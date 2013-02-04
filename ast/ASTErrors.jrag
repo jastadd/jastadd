@@ -4,7 +4,7 @@ import ast.AST.*;
 
 import java.util.*;
 
-aspect ErrorCollector {
+aspect ASTErrorCollector {
   syn String Grammar.astErrors() {
     return collectAstErrors();
   }
