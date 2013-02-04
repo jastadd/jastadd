@@ -79,7 +79,7 @@ public class RunTests {
 				System.err.println("[" + result + "]" + "\nDoes not equal\n" + "[" + correct + "]");
 			}
 			
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -166,37 +166,10 @@ public class RunTests {
 			
 			// Compile java files in test/ast
 			StringBuffer buf = new StringBuffer();
-			File dir = new File(System.getProperty("user.dir") + "/test/ast");
-			FilenameFilter filter = new FilenameFilter() {
-			    public boolean accept(File dir, String name) {
-			        return name.endsWith(".java") || name.endsWith(".class");
-			    }
-			};
-			File[] files = dir.listFiles(filter);
+			File dir = new File("test/ast");
+			File[] files = dir.listFiles();
 			for (int i = 0; i < files.length; i++) {
-				buf.append(files[i] + " ");
-			}
-			
-			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("rm " + buf.toString());
-			int i = process.waitFor();
-			String s = null;
-			if (i == 0){
-				BufferedReader input = new
-				BufferedReader(new InputStreamReader(process.getInputStream()));
-				while ((s = input.readLine()) != null)
-				{
-					System.out.println(s);
-				}
-			} else {
-
-				// STDERR
-				BufferedReader stderr = new
-				BufferedReader(new InputStreamReader(process.getErrorStream()));
-				while ((s = stderr.readLine()) !=
-					null) {
-					System.out.println(s);
-				}
+				files[i].delete();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -334,6 +307,8 @@ public class RunTests {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
