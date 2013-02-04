@@ -1,0 +1,222 @@
+aspect ASTCloneNode {
+
+  public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
+    if(j2me) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel internal");
+      stream.println(ind + " */");
+      stream.print(ind + "public void init$copy(Object o) {\n");
+      stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
+      for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
+        ClassBodyObject o = (ClassBodyObject)iter.next();
+        jrag.AST.SimpleNode n = o.node;
+        if(n instanceof jrag.AST.ASTAspectFieldDeclaration) {
+          jrag.AST.Token t2 = ((jrag.AST.SimpleNode)n.jjtGetChild(1)).firstToken;
+          String name = t2.image;
+          StringBuffer buf = new StringBuffer();
+          n.jjtAccept(new ClassBodyDeclUnparser(), buf);
+          String field = buf.toString();
+          if(field.indexOf("static") == -1 && field.indexOf("final") == -1)
+            stream.print(ind(2) + "node." + name + " = " + name + ";\n");
+        }
+      }
+
+      if(name().equals("ASTNode")) {
+        stream.print(ind(2) + "if(children != null) {\n");
+        stream.print(ind(3) + "node.children = new ASTNode[children.length];\n");
+        stream.print(ind(3) + "for(int i = 0; i < children.length; i++)\n");
+        stream.print(ind(4) + "node.children[i] = children[i];\n");
+        stream.print(ind(2) + "}\n");
+      }
+      else {
+        stream.print(ind(2) + "super.init$copy(o);\n");
+      }
+
+    }
+    else if(ASTNode.java5) {
+      // covariant return type when using Java 5
+      String name = name();
+      if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
+        name = name + "<T>";
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel internal");
+      stream.println(ind + " */");
+      stream.println(ASTNode.suppressWarnings() + ind + "public " + name + " clone() throws CloneNotSupportedException {");
+    }
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel internal");
+      stream.println(ind + " */");
+      stream.println(ASTNode.suppressWarnings() + ind + "public Object clone() throws CloneNotSupportedException {");
+    }
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+
+    if(!j2me)
+      stream.print(ind(2) + name() + " node = (" + name() + ")super.clone();\n");
+
+    for(int k = 0; k < getNumSynEq(); k++) {
+      AttrEq equ = getSynEq(k);
+      AttrDecl attr = equ.decl();
+      String u = attr.resetVisit() + attr.resetCache();
+      u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
+      stream.print(u);
+    }
+    for(int k = 0; k < getNumInhDecl(); k++) {
+      AttrDecl attr = getInhDecl(k);
+      String u = attr.resetVisit() + attr.resetCache();
+      u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
+      stream.print(u);
+    }
+
+    if(ASTNode.rewriteEnabled) {
+      stream.print(ind(2) + "node.in$Circle(false);\n");
+      if(ASTNode.stagedRewrites)
+        stream.print(ind(2) + "node.is$Final(0);\n");
+      else
+        stream.print(ind(2) + "node.is$Final(false);\n");
+    }
+
+    // I'd like to set the parent to null, but this would change the interface of fullCopy,
+    // and existing applications might depend on the copy to still be parented by the original
+    // AST. So I don't do it. Yet. 20100416/GH.
+    //
+    /* 20120301/JO: Updated fullCopy to set parent to null.
+     * P.S. Is the shallow copy method really needed/used?
+     */
+
+    if(!j2me)
+      stream.print(ind(2) + "return node;\n");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.print(ind + "}\n");
+
+    if(!hasAbstract()) {
+      String copyBody;
+      if(j2me) {
+        copyBody =
+          ind(2) + "#CLASS# node = new #CLASS#();\n" +
+          ind(2) + "this.init$copy(node);\n" +
+          ind(2) + "return node;\n";
+      }
+      else {
+        copyBody =
+          ind(2) + "try {\n" +
+          ind(3) + "#CLASS# node = (#CLASS#)clone();\n" +
+          ind(3) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
+          ind(3) + "return node;\n" +
+          ind(2) + "} catch (CloneNotSupportedException e) {\n" +
+          ind(2) + "}\n" +
+          ind(2) + "System.err.println(\"Error: Could not clone node of type \" + getClass().getName() + \"!\");\n" +
+          ind(2) + "return null;\n";
+      }
+
+      // We skip copying NTA children
+      // Build list of NTA indices - these are skipped when copying the children
+      LinkedList ntaAggregateIndices = new LinkedList();
+      LinkedList ntaOptIndices = new LinkedList();
+      LinkedList ntaListIndices = new LinkedList();
+      int i = 0;
+      for(Iterator iter = getComponents(); iter.hasNext(); i += 1) {
+        Components c = (Components)iter.next();
+        if (c.isNTA()) {
+          if (c instanceof ListComponentsNTA)
+            ntaListIndices.add(new Integer(i));
+          else if (c instanceof OptionalComponentNTA)
+            ntaOptIndices.add(new Integer(i));
+          else if (c instanceof AggregateComponentsNTA)
+            ntaAggregateIndices.add(new Integer(i));
+        }
+      }
+
+    // The skipNTAs string will include a switch statement that excludes
+    // the NTA children from the full copy, but for Opt and List NTAs
+    // we still need to create a placeholder Opt/List node
+      String skipNTAs = "";
+      if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
+        !ntaListIndices.isEmpty()) {
+
+        skipNTAs = ind(5) + "switch (i) {\n";
+        Iterator iter;
+        if (!ntaAggregateIndices.isEmpty()) {
+          iter = ntaAggregateIndices.iterator();
+          while (iter.hasNext()) {
+            Object index = iter.next();
+            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+          }
+          skipNTAs += ind(6) + "tree.children[i] = null;\n";
+          skipNTAs += ind(6) + "continue;\n";
+        }
+        if (!ntaOptIndices.isEmpty()) {
+          iter = ntaOptIndices.iterator();
+          while (iter.hasNext()) {
+            Object index = iter.next();
+            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+          }
+          skipNTAs += ind(6) + "tree.children[i] = new Opt();\n";
+          skipNTAs += ind(6) + "continue;\n";
+        }
+        if (!ntaListIndices.isEmpty()) {
+          iter = ntaListIndices.iterator();
+          while (iter.hasNext()) {
+            Object index = iter.next();
+            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+          }
+          skipNTAs += ind(6) + "tree.children[i] = new List();\n";
+          skipNTAs += ind(6) + "continue;\n";
+        }
+        skipNTAs += ind(5) + "}\n";
+      }
+
+      String s =
+        ind + "/**\n" +
+        ind + " * @apilevel internal\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #RETURN# copy() {\n" + 
+        (ASTNode.block ? ASTNode.blockBegin : "") +
+        copyBody +
+        (ASTNode.block ? ASTNode.blockEnd : "") +
+        ind + "}\n" +
+        ind + "/**\n" +
+        ind + " * Create a deep copy of the AST subtree at this node.\n" +
+        ind + " * The copy is dangling, i.e. has no parent.\n" +
+        ind + " * @return dangling copy of the subtree at this node\n" +
+        ind + " * @apilevel low-level\n" +
+        ind + " */\n" +
+        "#ANNOTATIONS#" +
+        ind + "public #RETURN# fullCopy() {\n" + 
+        (ASTNode.block ? ASTNode.blockBegin : "") +
+        ind(2) + "try {\n" +
+        ind(3) + "#ID# tree = (#ID#) clone();\n" +
+        ind(3) + "tree.setParent(null);// make dangling\n" +
+        ind(3) + "if (children != null) {\n" +
+        ind(4) + "tree.children = new ASTNode[children.length];\n" +
+        ind(4) + "for (int i = 0; i < children.length; ++i) {\n" +
+        skipNTAs +
+        ind(5) + "if (children[i] == null) {\n" +
+        ind(6) + "tree.children[i] = null;\n" +
+        ind(5) + "} else {\n" +
+        ind(6) + "tree.children[i] = ((ASTNode) children[i]).fullCopy();\n" +
+        ind(6) + "((ASTNode) tree.children[i]).setParent(tree);\n" +
+        ind(5) + "}\n" +
+        ind(4) + "}\n" +
+        ind(3) + "}\n" +
+        ind(3) + "return tree;\n" +
+        ind(2) + "} catch (CloneNotSupportedException e) {\n" +
+        ind(3) + "throw new Error(\"Error: clone not supported for \" +\n" +
+        ind(4) + "getClass().getName());\n" +
+        ind(2) + "}\n" +
+        ind + "}\n" +
+        (ASTNode.block ? ASTNode.blockEnd : "");
+
+      String returnName = name();
+      if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
+        returnName = returnName + "<T>";
+      s = s.replaceAll("#RETURN#", ASTNode.java5 ? returnName : "ASTNode");
+      s = s.replaceAll("#ANNOTATIONS#", ASTNode.suppressWarnings());
+      s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#ID#", name());
+      stream.print(s);
+    }
+  }
+
+}
