@@ -1664,13 +1664,15 @@ aspect JragCodeGen {
             s +=
               ind +"{ \n" +
               ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-              ind(2) + Unparser.unparse(equ.getRHS()) + "\n}\n";
+              ind(2) + Unparser.unparse(equ.getRHS()) + "\n" +
+              ind + "}\n";
           }
           else { // Expr
-            s += " {\n" +
-                  ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-                  ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-                  ind(2) + "}\n";
+            s +=
+              ind + "{\n" +
+              ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
+              ind(2) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
+              ind + "}\n";
           }
 
         }
