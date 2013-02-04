@@ -912,7 +912,7 @@ aspect JaddCodeGen {
     // ES_2011-10-06: Code generation for incremental evaluation, set child
     if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild2(stream);
     //
-    stream.println(ind + "} else if (i >= children.length) {");
+    stream.println(ind(2) + "} else if (i >= children.length) {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
     stream.println(ind(3) + "children = c;");
@@ -949,7 +949,7 @@ aspect JaddCodeGen {
     if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild3(stream);
     //
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    stream.println(ind(3) + "children = new ASTNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
     stream.println(ind(3) + "children[i] = node;");
     // ES_2011-09-20: Code generation for incremental evaluation, ast change
     if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild1(stream);
@@ -958,8 +958,9 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[children.length + 1];");
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, i);");
     stream.println(ind(3) + "c[i] = node;");
-    stream.println(ind(3) + "if(i < children.length)");
+    stream.println(ind(3) + "if(i < children.length) {");
     stream.println(ind(4) + "System.arraycopy(children, i, c, i+1, children.length-i);");
+    stream.println(ind(3) + "}");
     stream.println(ind(3) + "children = c;");
     // ES_2011-09-20: Code generation for incremental evaluation, ast change
     if (ASTNode.incremental) jjtGenIncrementalASTChangeInsertChild2(stream);
