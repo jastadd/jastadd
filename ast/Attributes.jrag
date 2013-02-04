@@ -6,6 +6,8 @@ import java.util.*;
 
 import jrag.AST.ASTExpression;
 
+import jrag.Unparser;
+
 public aspect Attributes {
   public static void ASTNode.resetGlobalErrors() { globalErrors = ""; }
   public static String ASTNode.globalErrors = "";
@@ -47,6 +49,7 @@ public aspect Attributes {
       r.setReturnType(type);
       r.setParentName(parentName);
       r.setChildName(childName);
+      r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
     }
     else if(c != null) {
@@ -76,6 +79,7 @@ public aspect Attributes {
       r.setCondition(condition);
       r.setResult(result);
       r.setReturnType(type);
+      r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
     }
     else if(c != null) {

@@ -28,7 +28,10 @@ aspect CollectionAttributes {
       if(attr.circularCollection()) {
         s = genCircular(attr, attr.hostFileComment(ind)) + attr.combineMethod();
       } else {
-        s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
+        s += attr.hostFileComment(ind);
+        s += genEquation(attr);
+        s += attr.computeMethod();
+        s = getCacheDeclarations(attr) + s;
       }
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
