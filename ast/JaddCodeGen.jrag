@@ -557,7 +557,8 @@ aspect JaddCodeGen {
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
     } else {
       // No rewrites
-      stream.println(ind(2) + "return " + returnTypeCast + "getChildNoTransform(i);");
+      stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
+      stream.println(ind(2) + "return " + returnTypeCast + "child;");
     }
 
     stream.println(ind + "}");
