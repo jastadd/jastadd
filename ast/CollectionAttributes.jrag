@@ -33,10 +33,7 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -182,7 +179,8 @@ aspect CollectionAttributes {
          attr.addComponentCheck() +
          ind(2) + "if (!#NAME#_initialized.contains(_parameters)) {\n" +
          ind(3) + "#NAME#_initialized.add(_parameters);\n" +
-         ind(3) + "#NAME#_values.put(_parameters, " + toReferenceType(attr.getBottomValue().unparse(), attr.getType()) + ");\n" +
+         ind(3) + "#NAME#_values.put(_parameters, " + toReferenceType(
+               attr.getBottomValue().unparse(), attr.getType()) + ");\n" +
          ind(2) + "}\n" +
          ind(2) + "if (!state().IN_CIRCLE) {\n" +
          ind(3) + "state().IN_CIRCLE = true;\n" +
@@ -193,7 +191,8 @@ aspect CollectionAttributes {
          ind(3) + "do {\n" +
          ind(4) + "#NAME#_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));\n" +
          ind(4) + "state().CHANGE = false;\n" +
-         ind(4) + "new_#NAME#_value = " + attr.getBottomValue().unparse() + ";\n" +
+         ind(4) + "new_#NAME#_value = " +
+         attr.getBottomValue().unparse() + ";\n" +
          ind(4) + "combine_#NAME#_contributions(new_#NAME#_value);\n" +
          ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
          ind(5) + "state().CHANGE = true;\n" +
@@ -238,7 +237,7 @@ aspect CollectionAttributes {
          ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
-         clearVisited() +
+         clearVisited(ind(4)) +
          ind(4) + "#NAME#_computed = true;\n" +
          ind(4) + "return #NAME#_value;\n" +
          ind(3) + "}\n";
@@ -247,7 +246,7 @@ aspect CollectionAttributes {
          ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
-         clearVisited() +
+         clearVisited(ind(4)) +
          ind(4) + "#NAME#_computed.add(_parameters);\n" +
          ind(4) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , getType()) + ";\n" +
          ind(3) + "}\n";
@@ -484,10 +483,7 @@ aspect CollectionAttributes {
       }
       buf.append(ind + "}\n");
       String s = buf.toString();
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       result.append(s);
     }
     return result.toString();
@@ -528,10 +524,7 @@ aspect CollectionAttributes {
       String s = buf.toString();
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", decl.attributeSignature());
       result.append(s);
     }
@@ -617,10 +610,7 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPE#", decl.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      if(!aspectJ)
-        s = s.replaceAll("#CLASS#\\.", "");
-      else
-        s = s.replaceAll("#CLASS#", name());
+      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -703,10 +693,7 @@ aspect CollectionAttributes {
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          if(!aspectJ)
-            s = s.replaceAll("#CLASS#\\.", "");
-          else
-            s = s.replaceAll("#CLASS#", astDecl.name());
+          s = s.replaceAll("#CLASS#\\.", "");
           s = s.replaceAll("#NAME#", attr.attributeSignature());
           s = s.replaceAll("#METHODNAME#", attr.attributeName());
           s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -729,8 +716,8 @@ aspect CollectionAttributes {
               ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
               ind + "}\n\n";
             flush =
-              ind + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) { // TODO: replace !attr.naive() with !attr.separateEvaluation()
             if(!rootDecl.hasCollEq(attr)) {
               s =
@@ -746,15 +733,12 @@ aspect CollectionAttributes {
               ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
             }
             flush =
-              ind + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
           }
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          if(!aspectJ)
-            s = s.replaceAll("#CLASS#\\.", "");
-          else
-            s = s.replaceAll("#CLASS#", rootDecl.name());
+          s = s.replaceAll("#CLASS#\\.", "");
           s = s.replaceAll("#NAME#", attr.attributeSignature());
           s = s.replaceAll("#METHODNAME#", attr.attributeName());
           s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
