@@ -24,11 +24,12 @@ aspect CollectionAttributes {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
-      String s;
-      if(attr.circularCollection())
+      String s = "";
+      if(attr.circularCollection()) {
         s = genCircular(attr, attr.hostFileComment(ind)) + attr.combineMethod();
-      else
+      } else {
         s = genEquation(attr, attr.hostFileComment(ind)) + attr.computeMethod();
+      }
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());

@@ -13,6 +13,11 @@ public aspect Attributes {
     globalErrors += s + "\n";
   }
 
+  public static void ASTNode.refineError(String what, String file, int line) {
+    error("Can not find " + what + " to refine in " + file + " at line " + line + "\n" +
+        "Warning: implicitly generated methods and equations must be refined without an explicit aspect name");
+  }
+
   public HashMap Grammar.aspectMap = new HashMap();
 
   public void Grammar.registerAspect(String name, String comment) {
@@ -20,7 +25,17 @@ public aspect Attributes {
   }
 
   // Add attributes to AST
-  public void Grammar.addRewriteList(String className, jrag.AST.SimpleNode condition, jrag.AST.SimpleNode result, String type, String fileName, int startLine, int endLine, String parentName, String childName) {
+  public void Grammar.addRewriteList(
+      String className,
+      jrag.AST.SimpleNode condition,
+      jrag.AST.SimpleNode result,
+      String type,
+      String fileName,
+      int startLine,
+      int endLine,
+      String parentName,
+      String childName,
+      String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null && c instanceof ASTDecl) {
       RewriteList r = new RewriteList();
@@ -43,7 +58,15 @@ public aspect Attributes {
   }
   
  
-  public void Grammar.addRewrite(String className, jrag.AST.SimpleNode condition, jrag.AST.SimpleNode result, String type, String fileName, int startLine, int endLine) {
+  public void Grammar.addRewrite(
+      String className,
+      jrag.AST.SimpleNode condition,
+      jrag.AST.SimpleNode result,
+      String type,
+      String fileName,
+      int startLine,
+      int endLine,
+      String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null && c instanceof ASTDecl) {
       Rewrite r = new Rewrite();
@@ -81,10 +104,10 @@ public aspect Attributes {
           if(paramOK) {
 
             if (shouldBeCached && s.getLazy()) {
-                System.out.println("Warning: syn attribute " + name + " in " + className + 
+                System.err.println("Warning: syn attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
-                System.out.println("Warning: syn attribute " + name + " in " + className + 
+                System.err.println("Warning: syn attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already not lazy");
             } else {
 
@@ -120,10 +143,10 @@ public aspect Attributes {
           if(paramOK) {
 
             if (shouldBeCached && s.getLazy()) {
-                System.out.println("Warning: inh attribute " + name + " in " + className + 
+                System.err.println("Warning: inh attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
-                System.out.println("Warning: inh attribute " + name + " in " + className + 
+                System.err.println("Warning: inh attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already not lazy");
             } else {
 
@@ -135,7 +158,7 @@ public aspect Attributes {
 /*
             if (shouldBeCached) {
               if(s.getLazy())
-                System.out.println("Warning: attribute " + name + " in " + className + 
+                System.err.println("Warning: attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already lazy");
               else {
                 s.setLazy(true);
@@ -144,7 +167,7 @@ public aspect Attributes {
               }
             } else {
               if(!s.getLazy())
-                System.out.println("Warning: attribute " + name + " in " + className + 
+                System.err.println("Warning: attribute " + name + " in " + className + 
                     " defined in aspect " + aspectName + " is already not lazy");
               else {
                 s.setLazy(false);
@@ -330,7 +353,7 @@ public aspect Attributes {
 
   public void Grammar.addInterface(jrag.AST.SimpleNode nameList, String className, String fileName) {
     if(nameList == null) {
-      System.out.println("Panic");
+      System.err.println("Panic");
     }
     else {
         
@@ -347,7 +370,7 @@ public aspect Attributes {
 
   public void Grammar.extendInterface(jrag.AST.SimpleNode nameList, String className, String fileName) {
     if(nameList == null) {
-      System.out.println("Panic");
+      System.err.println("Panic");
     }
     else {
       TypeDecl c = lookup(className);
@@ -391,11 +414,13 @@ public aspect Attributes {
   public void Grammar.processRefinements() {
     for(int i = 0; i < getNumTypeDecl(); i++) {
       TypeDecl typeDecl = getTypeDecl(i);
-      typeDecl.processReplacements();
-      typeDecl.processRefinedClassBodyDecls();
-      typeDecl.processSynEqReplacements();
-      typeDecl.processRefinedSynEqs();
-      typeDecl.processRefinedInhEqs();
+      if (!(typeDecl instanceof InterfaceDecl)) {
+        typeDecl.processReplacements();
+        typeDecl.processRefinedClassBodyDecls();
+        typeDecl.processSynEqReplacements();
+        typeDecl.processRefinedSynEqs();
+        typeDecl.processRefinedInhEqs();
+      }
     }
   }
 
@@ -489,7 +514,7 @@ public aspect Attributes {
     }
     for(Iterator iter = replacedSynEqs.iterator(); iter.hasNext(); ) {
       SynEq decl = (SynEq)iter.next();
-      error("Can not find equation to refine in " + decl.getFileName() + " at line " + decl.getStartLine());
+      refineError("equation", decl.getFileName(), decl.getStartLine());
     }
   }
 
@@ -528,7 +553,7 @@ public aspect Attributes {
     }
     for(Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
       SynEq equ = (SynEq)iter.next();
-      error("Can not find syn equation to refine in " + equ.getFileName() + " at line " + equ.getStartLine());
+      refineError("syn equation", equ.getFileName(), equ.getStartLine());
     }
   }
 
@@ -557,10 +582,19 @@ public aspect Attributes {
     s = new StringBuffer();
     refinedEqu.getRHS().unparseClassBodyDeclaration(s, name(), false);
 
-    String pattern = "refined";
-    if(ASTNode.refineLegacy)
-      pattern = "(" + pattern + ")|("
-      + equ.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\." + equ.attributeName() + ")";
+    String pattern = "\\brefined\\b";
+    if(ASTNode.refineLegacy) {
+      StringBuffer buf = new StringBuffer();
+      buf.append("(");
+      buf.append(pattern);
+      buf.append(")|(");
+      buf.append("\\b");
+      buf.append(equ.legacyAspectName());
+      buf.append("\\.[a-zA-Z0-9_$]+\\.");
+      buf.append(equ.attributeName());
+      buf.append("\\b)");
+      pattern = buf.toString();
+    }
     java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s.toString());
     if(matcher.find()) {
       n.firstToken.image = matcher.replaceAll(newMethodName);
@@ -633,7 +667,7 @@ public aspect Attributes {
     }
     for(Iterator iter = refinedInhEqs.iterator(); iter.hasNext(); ) {
       InhEq equ = (InhEq)iter.next();
-      error("Can not find inh equation to refine in " + equ.getFileName() + " at line " + equ.getStartLine());
+      refineError("inh equation", equ.getFileName(), equ.getStartLine());
     }
   }
 
@@ -772,7 +806,7 @@ public aspect Attributes {
     }
     for(Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
       ClassBodyObject decl = (ClassBodyObject)iter.next();
-      error("Can not find method to refine in " + decl.getFileName() + " at line " + decl.getStartLine());
+      refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }
   public LinkedList TypeDecl.replacements = new LinkedList();
@@ -810,7 +844,7 @@ public aspect Attributes {
     }
     for(Iterator iter = replacements.iterator(); iter.hasNext(); ) {
       ClassBodyObject decl = (ClassBodyObject)iter.next();
-      error("Can not find method to refine in " + decl.getFileName() + " at line " + decl.getStartLine());
+      refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }
   private void TypeDecl.replaceWith(ClassBodyObject o) {
@@ -863,11 +897,19 @@ public aspect Attributes {
                 node.unparseClassBodyDeclaration(buf, name(), false);
                 String s = buf.toString();
 
-                String pattern = "refined";
-                if(ASTNode.refineLegacy)
-                  pattern = "(" + pattern + ")|("
-                    + decl.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\." + methodName
-                    + ")";
+                String pattern = "\\brefined\\b";
+                if(ASTNode.refineLegacy) {
+                  buf = new StringBuffer();
+                  buf.append("(");
+                  buf.append(pattern);
+                  buf.append(")|(");
+                  buf.append("\\b");
+                  buf.append(decl.legacyAspectName());
+                  buf.append("\\.[a-zA-Z0-9_$]+\\.");
+                  buf.append(methodName);
+                  buf.append("\\b)");
+                  pattern = buf.toString();
+                }
                 String newContents = "refined_" + decl.aspectName() + "_" + name() + "_" + methodName;
                 //s = s.replaceAll(pattern, newContents);
                 // TODO: update keep to false if no strings are replaced
@@ -957,11 +999,19 @@ public aspect Attributes {
             StringBuffer buf = new StringBuffer();
             node.unparseClassBodyDeclaration(buf, name(), false);
             String s = buf.toString();
-            String pattern = "refined";
-            if(ASTNode.refineLegacy)
-              pattern = "(" + pattern + ")|("
-                + decl.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\." + methodName
-                + ")";
+            String pattern = "\\brefined\\b";
+            if(ASTNode.refineLegacy) {
+              buf = new StringBuffer();
+              buf.append("(");
+              buf.append(pattern);
+              buf.append(")|(");
+              buf.append("\\b");
+              buf.append(decl.legacyAspectName());
+              buf.append("\\.[a-zA-Z0-9_$]+\\.");
+              buf.append(methodName);
+              buf.append("\\b)");
+              pattern = buf.toString();
+            }
             String newContents = "refined_" + decl.aspectName() + "_" + name() + "_" + methodName;
             //s = s.replaceAll(pattern, newContents);
             // TODO: update keep to false if no strings are replaced

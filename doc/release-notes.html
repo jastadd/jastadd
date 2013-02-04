@@ -8,6 +8,53 @@
 <body>
 <h1>JastAdd2 Release Notes
 </h1>
+<h2>R20121112</h2>
+<blockquote>
+  <h3>Bugfix Release</h3>
+  <ul>
+     <li>Fixed error in fullCopy causing some non-NTA children to not be copied correctly. This bug sometimes caused NullPointerExceptions or faulty behaviour in generated code.
+  </ul>
+</blockquote>
+<h2>R20121026</h2>
+<blockquote>
+  <h3>Various bug fixes</h3>
+  <ul>
+     <li>Fixed bug on Windows - backslashes in file paths now work correctly.
+     <li>NTA children are no longer copied by fullCopy.
+     <li>Removed the generated method for accessing value maps of parameterized attributes.
+     <li>Fixed error related to two synthesized attributes with the same name but different parameters.
+     <li>It is now possible to use static import statements in aspect files.
+     <li>Added a method getNumXNoTransform to count the number of elements in a list child without triggering rewrites.
+  </ul>
+</blockquote>
+<h2>R20121011</h2>
+<blockquote>
+  <h3>Various bug fixes</h3>
+  <ul>
+     <li>getChild now returns null if the children array is null
+     <li>inherited equations lacking a return statement now give compilation error
+     <li>improved recognition of the "refined" keyword inside Java code in equations.
+     <li>Synthesized NTA with parameters may now have null values
+     <li>fullCopy now sets the parent of the copied tree to null
+     <li>insertChild and removeChild now update the childIndex field correctly
+     <li>Fixed how debug code escapes file names, to work also for Windows OS.
+     <li>Fixed bug in code generation for Contributes-clauses without when-part.
+     <li>Circular attributes now generate Java 1.4 code when the java1.4 option is set.
+  </ul>
+  <h3>Improved output handling</h3>
+  <ul>
+    <li>Error messages, warnings, and help messages are now printed on stderr instead of on stdout.
+    <li>JastAdd now returns exit code zero when just printing version or help information.
+  </ul>
+  <h3>Improved option handling</h3>
+  <ul>
+     <li>The options --noComponentCheck, --lazyMaps, and --refineLegacy are now by default ON when running from the command line.
+     <li>The default behavior is now the same when running from the command line as when running through ANT.
+     <li>Command line options are no longer case sensitive.
+     <li>Some options are deprecated. A warning is printed if such an option is used.
+     <li>Warnings are printed for some other cases, like giving an option twice, giving an option without an expected argument, etc.
+  </ul>
+</blockquote>
 <h2>R20110902</h2>
 <blockquote>
   <h3>JavaDoc support</h3>

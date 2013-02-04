@@ -6,7 +6,7 @@
 </head>
 
 <body>
-<h1>Reference manual for JastAdd2 R20110902
+<h1>Reference manual for JastAdd2 R20121112
 </h1>
 <h3>Index</h3>
 <ul>
@@ -449,7 +449,7 @@ class D extends A {
          NTAs</A>.</P>
       </TD>
       <TD>
-         <PRE>abstract class A {
+         <PRE>class A {
    B getB();
    C getC();
    D getD();
@@ -775,7 +775,7 @@ aspect A {
 aspect B {
    refine A void C.m() { // similar to overriding
       ...
-      A.C.m(); // similar to call to super
+      refined(); // similar to call to super
       ...
    }
 }
@@ -785,6 +785,25 @@ aspect B {
          Additional aspects may further refine the method. For example, an aspect C can refine
          the method refined in B.
          </P>
+         <P>The original method can be called using the keyword "refined". JastAdd2 replaces
+         all occurrences of this keyword with the new name of the refined method. Be careful with
+         how you use refined - even occurrences in string literals or comments are replaced!
+         With the command line flag "--refineLegacy" you can use the legacy syntax for calling the
+         refined method:
+         </P>
+         <PRE>
+aspect A {
+   void C.m() { ... }
+}
+
+aspect B {
+   refine A void C.m() { // similar to overriding
+      ...
+      AspectFile.C.m(); // NB: AspectFile is the name of the file (minus extension) that contains the original declaration
+      ...
+   }
+}
+</PRE>
       </TD>
    </TR>
 </TABLE>
@@ -1564,7 +1583,7 @@ for each N2-ref-set-exp;</pre>
 </td>
 <td>
 A contribution declaration can define that a certain value is contributed to a whole set of collection attributes by using the "for each" form.<br>
-<ul><li>N2-ref-set-exp should denote an object should denote an object of the Java type java.lang.Iterable, which should contain objects of type N2.</li><li>The contribution is added to each of these N2 objects.</li><li>Examples of&nbsp;<a class="external-link" href="http://www.google.com/codesearch?as_q=%5E.*contributes%5C+&amp;btnG=Search+Code&amp;hl=en&amp;as_lang=&amp;as_license_restrict=i&amp;as_license=&amp;as_package=&amp;as_filename=%5C.%28jrag%7Cjadd%29%24&amp;as_case=y">contribution&nbsp;</a>declarations at Google Code Search.</li></ul>
+<ul><li>N2-ref-set-exp should denote an object of the Java type java.lang.Iterable, which should contain objects of type N2.</li><li>The contribution is added to each of these N2 objects.</li><li>Examples of&nbsp;<a class="external-link" href="http://www.google.com/codesearch?as_q=%5E.*contributes%5C+&amp;btnG=Search+Code&amp;hl=en&amp;as_lang=&amp;as_license_restrict=i&amp;as_license=&amp;as_package=&amp;as_filename=%5C.%28jrag%7Cjadd%29%24&amp;as_case=y">contribution&nbsp;</a>declarations at Google Code Search.</li></ul>
 
 </td>
 </tr>
