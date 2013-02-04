@@ -763,6 +763,7 @@ aspect JragCodeGen {
       type.equals("float") || type.equals("double") || type.equals("boolean") ||
       type.equals("char") || type.equals("byte");
   }
+
   public boolean AttrDecl.isPrimitive(String type) {
     return type.equals("int") || type.equals("short") || type.equals("long") ||
       type.equals("float") || type.equals("double") || type.equals("boolean") ||
@@ -950,16 +951,17 @@ aspect JragCodeGen {
   public String AttrDecl.cacheStore() {
     if(!getLazy())
       return "";
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return cacheStoreRewrite() + "{" +
         (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
         " #NAME#_computed = true; }\n" +
         (ASTNode.incremental ? genIncrementalTrackingStackClear() : "");
-    else
+    } else {
       return cacheStoreRewrite() + "{" +
         (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
         " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n" +
         (ASTNode.incremental ? genIncrementalTrackingStackClear() + "\n" : "");
+	}
   }
 
   public String AttrDecl.returnStmt() {
@@ -1834,9 +1836,9 @@ aspect JragCodeGen {
           else
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
-									 // ES_2012-02-21: Code generation for incremental evaluation
-									 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
-									 //
+                   // ES_2012-02-21: Code generation for incremental evaluation
+                   (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                   //
                    ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
@@ -1852,9 +1854,9 @@ aspect JragCodeGen {
           else
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
-									 // ES_2012-02-21: Code generation for incremental evaluation
-									 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
-									 //
+                   // ES_2012-02-21: Code generation for incremental evaluation
+                   (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                   //
                    ind(3) + "#NAME#_list.is$Final = true;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
@@ -1873,9 +1875,9 @@ aspect JragCodeGen {
         else
           return ind(2) + "if(#NAME#_list == null) {\n" +
                  ind(3) + "#NAME#_list = new List();\n" +
- 								 // ES_2012-02-21: Code generation for incremental evaluation
-	 							 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
-								 //
+                 // ES_2012-02-21: Code generation for incremental evaluation
+                 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                 //
                  ind(3) + "#NAME#_list.setParent(this);\n" +
                  ind(2) + "}\n" +
                  ind(2) + "#NAME#_list.add(#NAME#_value);\n";
