@@ -256,7 +256,7 @@ aspect JragCodeGen {
     sb.append("* @ast method \n");
     if (obj.aspectName() != null && obj.aspectName().length() > 0)
       sb.append(ind + " * @aspect " + obj.aspectName() + "\n");
-    sb.append(ind + " * @declaredat " + obj.getFileName() + ":" + obj.getStartLine() + "\n");
+    sb.append(ind + " * " + ASTNode.declaredat(obj.getFileName(), obj.getStartLine()) + "\n");
     sb.append(ind + " */\n");
     return sb.toString();
   }
@@ -305,7 +305,7 @@ aspect JragCodeGen {
       AttrDecl attr = getSynDecl(i);
       boolean equ = false;
       for(int j = 0; j < getNumSynEq(); j++) {
-        if(getSynEq(j).getName().equals(attr.getName())) {
+        if(getSynEq(j).signature().equals(attr.signature())) {
           equ = true;
         }
       }
@@ -426,7 +426,7 @@ aspect JragCodeGen {
       res.append(comment.substring(0, comment.indexOf("*/")));
       res.append("* @attribute " + attributeKind() + "\n");
       res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+      res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
       res.append(ind + " */\n");
       return res.toString();
     }
@@ -434,7 +434,7 @@ aspect JragCodeGen {
       return ind + "/**\n" +
              ind + " * @attribute " + attributeKind() + "\n" +
              ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+             ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
              ind + " */\n";
     }
   }
@@ -454,7 +454,7 @@ aspect JragCodeGen {
       res.append(comment.substring(0, comment.indexOf("*/")));
       res.append("* @attribute " + decl.attributeKind() + "\n");
       res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n");
+      res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
       res.append(ind + " */\n");
       return res.toString();
     }
@@ -462,7 +462,7 @@ aspect JragCodeGen {
       return ind + "/**\n" +
              ind + " * @attribute " + decl.attributeKind() + "\n" +
              ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+             ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
              ind + " */\n";
     }
   }
@@ -788,7 +788,7 @@ aspect JragCodeGen {
                 //
                ind(2) + "if(#NAME#_computed) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
+               ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition());\n" +
                ind(2) + "}\n";
       else
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
@@ -796,7 +796,7 @@ aspect JragCodeGen {
                 //
                ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition()));\n" +
+               ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition()));\n" +
                ind(2) + "}\n";
     }
     if(getNumParameter() == 0)
@@ -1213,7 +1213,7 @@ aspect JragCodeGen {
            (ASTNode.block ? ASTNode.blockEnd : "") +
            ind + "}\n";
       }
-      else
+      else {
         return
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
@@ -1319,6 +1319,7 @@ aspect JragCodeGen {
            ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
            (ASTNode.block ? ASTNode.blockEnd : "") +
            ind + "}\n";
+      }
     }
   }
 
@@ -2009,7 +2010,7 @@ aspect JragCodeGen {
 
       String s;
       buf.append(ind + "/**\n");
-      buf.append(ind + " * @declaredat " + equ.getFileName() + ":" + equ.getStartLine() + "\n");
+      buf.append(ind + " * " + ASTNode.declaredat(equ.getFileName(), equ.getStartLine()) + "\n");
       buf.append(ind + " * @apilevel internal\n");
       buf.append(ind + " */\n");
       s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
@@ -2023,15 +2024,16 @@ aspect JragCodeGen {
       buf.append(s);
 
       do {
+        s = ind(2);
         Components c = equ.getComponents();
         if(c instanceof ListComponents) {
-          s = ind(2) + "if(caller == get#NAME#ListNoTransform())";
+          s += "if(caller == get#NAME#ListNoTransform())";
         }
         else if(c instanceof OptionalComponent) {
-          s = ind(2) + "if(caller == get#NAME#OptNoTransform())";
+          s += "if(caller == get#NAME#OptNoTransform())";
         }
         else if(c != null) {
-          s = ind(2) + "if(caller == get#NAME#NoTransform())";
+          s += "if(caller == get#NAME#NoTransform())";
         }
         else if(equ.getSonName().equals("getChild")) {
           s = ind(2) + "if(true)";
@@ -2039,9 +2041,9 @@ aspect JragCodeGen {
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
           if(attrDecl.getNumParameter() == 0)
-            s = ind(2) + "if(caller == #NAME#_value)";
+            s += "if(caller == #NAME#_value)";
           else
-            s = ind(2) + "if(caller == " + attrDecl.signature() + "_list)";
+            s += "if(caller == " + attrDecl.signature() + "_list)";
         }
 
         s = s.replaceAll("#NAME#", String.valueOf(equ.sonName()));
@@ -2310,7 +2312,7 @@ aspect JragCodeGen {
 
   public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
-               ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+               ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
                ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
@@ -2318,7 +2320,7 @@ aspect JragCodeGen {
       if(rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileName() + " at line " +
+          "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");\n");
       buf.append(Unparser.unparse(getResult()));
       buf.append(ind + "}\n");
@@ -2328,7 +2330,7 @@ aspect JragCodeGen {
       if(rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileName() + " at line " +
+          "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");\n");
       buf.append(ind(2) + "return " + Unparser.unparse(getResult()) + ";\n");
       buf.append(ind + "}\n");
@@ -2336,7 +2338,7 @@ aspect JragCodeGen {
   }
   public void RewriteList.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
-               ind + " * @declaredat " + getFileName() + ":" + getStartLine() + "\n" +
+               ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
                ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
@@ -2344,7 +2346,7 @@ aspect JragCodeGen {
       if(rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileName() + " at line " +
+          "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");\n");
       buf.append(Unparser.unparse(getResult()));
       buf.append(ind + "}\n");
@@ -2354,7 +2356,7 @@ aspect JragCodeGen {
       if(rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileName() + " at line " +
+          "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");\n");
       buf.append(ind(2) + "return " + Unparser.unparse(getResult()) + ";\n");
       buf.append(ind + "}\n");
