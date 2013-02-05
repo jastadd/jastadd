@@ -961,17 +961,17 @@ aspect JragCodeGen {
         (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
         " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n" +
         (ASTNode.incremental ? genIncrementalTrackingStackClear() + "\n" : "");
-	}
+    }
   }
 
   public String AttrDecl.returnStmt() {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
       // ES_2011-09-22: Code generation for incremental evaluation, stack
-      return getType() + " node = (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n" +
+      return getType() + " node = (" + getType() + ") this.getChild(#NAME#ChildPosition());\n" +
           (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
           ind(2) + "return node;\n";
-      // OLD: return "return (" + getType() + ")ASTNode.getChild(this, #NAME#ChildPosition());\n";
+      // OLD: return "return (" + getType() + ") this.getChild(#NAME#ChildPosition());\n";
       //
     }
 

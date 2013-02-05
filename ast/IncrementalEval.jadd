@@ -198,45 +198,15 @@ aspect IncrementalEval {
     }
   }
 
-  // ES_2011-12-12_ Code generation for incremental evalutaion, crossing between regions
-  public void ASTDecl.jjtGenIncrementalTrackRewrite9(PrintWriter stream) {
-    if (ASTNode.incrementalLevelRegion) {
-      if (isRegionRoot()) {
-        stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
-        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0) {");
-        stream.println(ind(3) +   "child.handler().addDependant(handler);");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "return (T)child;");
-      } else {
-        stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
-      }
-    } else {
-      stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
-    }
-  }
-
-  // ES_2011-12-12_ Code generation for incremental evalutaion, crossing between regions
-  public void ASTDecl.jjtGenIncrementalTrackRewrite10(PrintWriter stream) {
-    if (ASTNode.incrementalLevelRegion) {
-      if (isRegionRoot()) {
-        stream.println(ind(2) + "ASTNode child = ASTNode.getChild(this, i);");
-        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0) {");
-        stream.println(ind(3) +   "child.handler().addDependant(handler);");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "return child;");
-      } else {
-        stream.println(ind(2) + "return ASTNode.getChild(this, i);");
-      }
-    } else {
-      stream.println(ind(2) + "return ASTNode.getChild(this, i);");
-    }
-  }
-
   // JO 2013-02-05 Incremental code gen
   public void ASTDecl.genIncrementalTrackRewrite12(PrintWriter stream) {
-    stream.println(ind(2) + "if (state().IN_COMPUTATION > 0) {");
-    stream.println(ind(3) +   "node.handler().addDependant(handler);");
-    stream.println(ind(2) + "}");
+    if (ASTNode.incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0) {");
+        stream.println(ind(3) +   "node.handler().addDependant(handler);");
+        stream.println(ind(2) + "}");
+      }
+    }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites

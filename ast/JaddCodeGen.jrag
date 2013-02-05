@@ -483,39 +483,19 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.genGetChild(PrintWriter stream, boolean rewriteEnabled) {
     if(rewriteEnabled) {
-      if(ASTNode.java5) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-        // ES_2011-12-12: Code generation for incremental evaluation, crossing between regions
-        if (ASTNode.incremental) jjtGenIncrementalTrackRewrite9(stream);
-        else 
-        //
-        stream.println(ind(2) + "return (T)ASTNode.getChild(this, i);");
-        stream.println(ind + "}");
-      }
-      else {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-        // ES_2011-12-12: Code generation for incremental evaluation, crossing between regions
-        if (ASTNode.incremental) jjtGenIncrementalTrackRewrite10(stream);
-        else 
-        //
-        stream.println(ind(2) + "return ASTNode.getChild(this, i);");
-        stream.println(ind + "}");
-      }
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
-      stream.println(ind + "public static ASTNode ASTNode.getChild(ASTNode that, int i) {");
+      stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+      stream.println(ind(2) + "ASTNode that = this;");
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       stream.println(ind(2) + "ASTNode node = that.getChildNoTransform(i);");
       stream.println(ind(2) + "if(node.is$Final()) {");
       // ES_2011-10-05: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
+      if (ASTNode.incremental) {
+        jjtGenIncrementalTrackRewrite4(stream);
+        genIncrementalTrackRewrite12(stream);
+      }
       //
       stream.println(ind(3) +   "return node;");
       stream.println(ind(3) + "}");
@@ -525,7 +505,10 @@ aspect JaddCodeGen {
       else
         stream.println(ind(3) + "node.is$Final(that.is$Final());");
       // ES_2011-10-05: Code generation for incremental evaluation, rewrites
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite4(stream);
+      if (ASTNode.incremental) {
+        jjtGenIncrementalTrackRewrite4(stream);
+        genIncrementalTrackRewrite12(stream);
+      }
       //
       stream.println(ind(3) + "return node;");
       stream.println(ind(2) + "}");
@@ -582,7 +565,10 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "else if(that.is$Final() != node.is$Final()) that.state().boundariesCrossed++;");
       // ES_2011-12-12: Code generation for incremental evaluation, rewrites 
-      if (ASTNode.incremental) jjtGenIncrementalTrackRewrite11(stream);
+      if (ASTNode.incremental) {
+        jjtGenIncrementalTrackRewrite11(stream);
+        genIncrementalTrackRewrite12(stream);
+      }
       //
       stream.println(ind(2) + "return node;");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
