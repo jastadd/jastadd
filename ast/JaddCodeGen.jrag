@@ -833,9 +833,9 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "if(i < children.length) {");
     stream.println(ind(4) + "System.arraycopy(children, i, c, i+1, children.length-i);");
     stream.println(ind(4) + "for(int j = i+1; j < c.length; ++j) {");
-    stream.println(ind(5) + "if(c[j] != null)");
-    stream.println(ind(6) + "c[j].childIndex = j;");
-    stream.println(ind(4) + "}");
+    stream.println(ind(5) +   "if(c[j] != null)");
+    stream.println(ind(6) +     "c[j].childIndex = j;");
+    stream.println(ind(4) +   "}");
     stream.println(ind(3) + "}");
     stream.println(ind(3) + "children = c;");
     stream.println(ind(2) + "}");
@@ -1516,6 +1516,9 @@ aspect JaddCodeGen {
     if(!isNTA()) {
       s +=
         getNameOptComment() +
+        ind + "/**\n" +
+        ind + " * @apilevel low-level\n" +
+        ind + " */\n" +
         "#ANNOTATIONS#" +
         ind + "public #OPTTYPE# #HOST#.get#NAME#Opt() {\n" +
         (ASTNode.block ? ASTNode.blockBegin : "") +
