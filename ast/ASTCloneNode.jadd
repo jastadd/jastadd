@@ -127,9 +127,9 @@ aspect ASTCloneNode {
         }
       }
 
-    // The skipNTAs string will include a switch statement that excludes
-    // the NTA children from the full copy, but for Opt and List NTAs
-    // we still need to create a placeholder Opt/List node
+      // The skipNTAs string will include a switch statement that excludes
+      // the NTA children from the full copy, but for Opt and List NTAs
+      // we still need to create a placeholder Opt/List node
       String skipNTAs = "";
       if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
         !ntaListIndices.isEmpty()) {
