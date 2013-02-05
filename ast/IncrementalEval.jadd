@@ -686,7 +686,7 @@ aspect IncrementalEval {
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 1
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild2(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) 
-      stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i + 1];");
+      stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
   }
 
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 2

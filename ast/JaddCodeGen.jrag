@@ -883,7 +883,7 @@ aspect JaddCodeGen {
     if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild1(stream);
     //
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i + 1];");
+    stream.println(ind(3) + "children = new ASTNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
     // ES_2011-10-06: Code generation for incremental evaluation, set child
     if (ASTNode.incremental) jjtGenIncrementalASTChangeSetChild2(stream);
     //
