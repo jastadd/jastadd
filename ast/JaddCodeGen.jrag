@@ -846,12 +846,13 @@ aspect JaddCodeGen {
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       // ES_2011-09-20: Code generation for incremental evaluation
       if (ASTNode.incremental) {
+        stream.println(ind(2) + "if (children == null) return null;");
         stream.println(ind(2) + "T child = (T)children[i];");
         jjtGenIncrementalTrackGetChildNoTransform(stream);
         stream.println(ind(2) + "return child;");        
       } else 
       //
-      stream.println(ind(2) + "return (T)children[i];");
+      stream.println(ind(2) + "return (T) (children != null ? children[i] : null);");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
     }
@@ -868,12 +869,13 @@ aspect JaddCodeGen {
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       // ES_2011-09-20: Code generation for incremental evaluation
       if (ASTNode.incremental) {
+        stream.println(ind(2) + "if (children == null) return null;");
         stream.println(ind(2) + "ASTNode child = (ASTNode)children[i];");
         jjtGenIncrementalTrackGetChildNoTransform(stream);
         stream.println(ind(2) + "return child;");        
       } else 
       //
-      stream.println(ind(2) + "return (ASTNode)children[i];");
+      stream.println(ind(2) + "return (ASTNode) (children != null ? children[i] : null);");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
       stream.println(ind + "}");
     }
