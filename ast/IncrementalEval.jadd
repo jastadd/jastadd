@@ -149,22 +149,22 @@ aspect IncrementalEval {
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(4) + "that.state().enterRewriteEval(node.handler);");
+      stream.println(ind(4) + "this.state().enterRewriteEval(node.handler);");
     }
     if (ASTNode.incrementalLevelRegion) {
-      //stream.println(ind(4) + "that.state().IN_REWRITE_EVAL = true;");
-      stream.println(ind(4) + "that.state().IN_COMPUTATION++;");
+      //stream.println(ind(4) + "this.state().IN_REWRITE_EVAL = true;");
+      stream.println(ind(4) + "this.state().IN_COMPUTATION++;");
     }
   }
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite6(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(4) + "that.state().exitRewriteEval(oldNode.handler);");
+      stream.println(ind(4) + "this.state().exitRewriteEval(oldNode.handler);");
     }
     if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(4) + "that.state().IN_COMPUTATION--;");
-      //stream.println(ind(4) + "that.state().IN_REWRITE_EVAL = false;");
+      stream.println(ind(4) + "this.state().IN_COMPUTATION--;");
+      //stream.println(ind(4) + "this.state().IN_REWRITE_EVAL = false;");
     }
   }
 
@@ -172,29 +172,29 @@ aspect IncrementalEval {
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
     if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion || 
           ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
-      stream.println(ind(5) + "ASTNode initial = that.init_children[i];");
+      stream.println(ind(5) + "ASTNode initial = this.init_children[i];");
     }
   }
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(6) + "oldNode.inc_flush_subtree(that.getChild_handler[i]);");
-      stream.println(ind(5) + "that.init_children[i] = initial;");
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(this.getChild_handler[i]);");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(6) + "oldNode.inc_flush_subtree(that.getChild_handler);");
-      stream.println(ind(5) + "that.init_children[i] = initial;");
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(this.getChild_handler);");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
-      stream.println(ind(5) + "that.init_children[i] = initial;");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
     }
     if (ASTNode.incrementalLevelRegion) {
       stream.println(ind(5) + "if (node.isRegionRoot()) {");
       stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
       stream.println(ind(5) + "}");
-      stream.println(ind(5) + "that.init_children[i] = initial;");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
     }
   }
 
@@ -212,30 +212,30 @@ aspect IncrementalEval {
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
-    stream.println(ind(2) + "if(that.init_children == null) {");
-    stream.println(ind(3) +   "that.init_children = new ASTNode[that.children.length];");
-    stream.println(ind(3) +   "that.rewritten_children = new boolean[that.children.length];");
+    stream.println(ind(2) + "if(this.init_children == null) {");
+    stream.println(ind(3) +   "this.init_children = new ASTNode[this.children.length];");
+    stream.println(ind(3) +   "this.rewritten_children = new boolean[this.children.length];");
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if(!node.inc_hasEnclosingRewrittenNode()) {");
-    stream.println(ind(3) +   "that.init_children[i] = node.fullCopy();");
-    stream.println(ind(3) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(3) +   "this.init_children[i] = node.fullCopy();");
+    stream.println(ind(3) +   "this.rewritten_children[i] = true;");
     stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler[i]);");
+      stream.println(ind(2) + "this.state().enterRewriteEval(this.getChild_handler[i]);");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "that.state().enterRewriteEval(that.getChild_handler);");
+      stream.println(ind(2) + "this.state().enterRewriteEval(this.getChild_handler);");
     }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler[i]);");
+      stream.println(ind(2) + "this.state().exitRewriteEval(this.getChild_handler[i]);");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "that.state().exitRewriteEval(that.getChild_handler);");
+      stream.println(ind(2) + "this.state().exitRewriteEval(this.getChild_handler);");
     }
   }
 
@@ -243,7 +243,7 @@ aspect IncrementalEval {
   public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
     if (!ASTNode.fullFlush) {
     stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
-    stream.println(ind(5) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(5) +   "this.rewritten_children[i] = true;");
     stream.println(ind(4) + "}");
     }
   }
@@ -251,21 +251,21 @@ aspect IncrementalEval {
   // ES_2011-10-05: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(3) + "if (that.getChild_handler[i] == null) {");
+      stream.println(ind(3) + "if (this.getChild_handler[i] == null) {");
       if (ASTNode.incrementalPropLimit) {
-      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
-      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       }
       stream.println(ind(3) + "}");
-      stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
+      stream.println(ind(3) + "this.state().addHandlerDepTo(this.getChild_handler[i]);");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "that.state().addHandlerDepTo(that.getChild_handler);");  
+      stream.println(ind(2) + "this.state().addHandlerDepTo(this.getChild_handler);");  
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
-      stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler);");
+      stream.println(ind(3) + "  this.state().addHandlerDepTo(node.handler);");
       stream.println(ind(2) + "}");
     }
   }
@@ -273,32 +273,34 @@ aspect IncrementalEval {
   // ES_2011-12-12: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite11(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(3) + "if (that.getChild_handler[i] == null) {");
+      stream.println(ind(3) + "if (this.getChild_handler[i] == null) {");
       if (ASTNode.incrementalPropLimit) {
-      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
-      stream.println(ind(4) +   "that.getChild_handler[i] = new ASTNode$DepGraphNode(that, \"getChild\", new Integer(i));");
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       }
       stream.println(ind(3) + "}");
-      stream.println(ind(3) + "that.state().addHandlerDepTo(that.getChild_handler[i]);");
+      stream.println(ind(3) + "this.state().addHandlerDepTo(this.getChild_handler[i]);");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(2) + "that.state().addHandlerDepTo(that.getChild_handler);");  
+      stream.println(ind(2) + "this.state().addHandlerDepTo(this.getChild_handler);");  
     }
     if (ASTNode.incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
-      stream.println(ind(3) + "  that.state().addHandlerDepTo(node.handler);");
+      stream.println(ind(3) + "  this.state().addHandlerDepTo(node.handler);");
       // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
+      // JO 2013-02-05: "this" is used instead of "that"
       // The possibility of a dependency requires one.
-      stream.println(ind(3) + "  that.handler.addDependant(node.handler);");
+      stream.println(ind(3) + "  this.handler.addDependant(node.handler);");
       stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelRegion) {
       // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
+      // JO 2013-02-05: "this" is used instead of "that"
       // The possibility of a dependency requires one.
       stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
-      stream.println(ind(3) +   "that.handler().addDependant(node.handler());");
-      stream.println(ind(3) +   "node.handler().addDependant(that.handler());");
+      stream.println(ind(3) +   "this.handler().addDependant(node.handler());");
+      stream.println(ind(3) +   "node.handler().addDependant(this.handler());");
       stream.println(ind(2) + "}");
     }
   }
@@ -519,20 +521,20 @@ aspect IncrementalEval {
 
   // ES_2011-10-10: Code generation for full flush, creating initial copy store
   public void ASTDecl.jjtGenFullFlush1(PrintWriter stream) {
-    stream.println(ind(2) + "if(that.init_children == null) {");
-    stream.println(ind(3) +   "that.init_children = new ASTNode[that.children.length];");
-    stream.println(ind(3) +   "that.rewritten_children = new boolean[that.children.length];");
+    stream.println(ind(2) + "if(this.init_children == null) {");
+    stream.println(ind(3) +   "this.init_children = new ASTNode[this.children.length];");
+    stream.println(ind(3) +   "this.rewritten_children = new boolean[this.children.length];");
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "if(!node.inc_hasEnclosingRewrittenNode()) {");
-    stream.println(ind(3) +   "that.init_children[i] = node.fullCopy();");
-    stream.println(ind(3) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(3) +   "this.init_children[i] = node.fullCopy();");
+    stream.println(ind(3) +   "this.rewritten_children[i] = true;");
     stream.println(ind(2) + "}");
   }
 
   // ES_2011-10-10: Code generation for full flush, storing initial copy setting rewrite to true
   public void ASTDecl.jjtGenFullFlush2(PrintWriter stream) {
     stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
-    stream.println(ind(5) +   "that.rewritten_children[i] = true;");
+    stream.println(ind(5) +   "this.rewritten_children[i] = true;");
     stream.println(ind(4) + "}");
   }
   
