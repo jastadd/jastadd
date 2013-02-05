@@ -1,0 +1,38 @@
+/**
+ * Dump the cached value for comparison.
+ * Debug method for incremental evaluation.
+ */
+aspect IncrementalDumpCache {
+
+  // EMMA_2011-09-19: Dumping cached value for comparison, incremental evaluation
+  public String AttrDecl.dumpCache() {
+    if(!getLazy() && !isCircular())
+      return "";
+    if(getNumParameter() == 0) {
+      StringBuffer buf = new StringBuffer();
+      buf.append("        if (#NAME#_computed) {\n");
+      if (isPrimitive() || getType().equals("String")) {
+        buf.append("          System.out.println(\"value(\" + relativeNodeID() + \":#NAME#, \" + #NAME#_value + \")\");\n");
+      } else {
+        buf.append("          Object obj = #NAME#_value;\n");
+        buf.append("          System.out.println(\"value(\" + relativeNodeID() + \":#NAME#, \" + ");
+        buf.append("(obj instanceof ASTNode ? ((ASTNode)obj).relativeNodeID() : obj) + \")\");\n");
+      }
+      buf.append("        }\n");
+      return buf.toString();
+    }
+    else {
+      return "        if (#NAME#_values != null) {\n" +
+             "          for (java.util.Iterator itr = #NAME#_values.keySet().iterator();itr.hasNext();) {\n" +
+             "            Object key = (Object)itr.next();\n" + 
+             "            Object value = #NAME#_values.get(key);\n" +
+             "            System.out.println(\"value(\" + relativeNodeID() + \":#NAME#[\" + \n" +
+             "                 (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : " +
+                "(key instanceof java.util.List ? printParamList((java.util.List)key) : key)) + \"], \" + \n" + 
+             "                 (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : printValue(value)) + \")\");\n" +
+             "          }\n" +
+             "        }\n";
+    }
+  }
+
+}
