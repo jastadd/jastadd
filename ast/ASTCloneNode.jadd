@@ -99,17 +99,17 @@ aspect ASTCloneNode {
       }
       else {
         copyBody =
-          ind(3) + "try {\n" +
-          ind(4) + "#CLASS# node = (#CLASS#)clone();\n" +
-          ind(4) + "node.parent = null;\n" +
-          ind(4) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
+          ind(2) + "try {\n" +
+          ind(3) + "#CLASS# node = (#CLASS#)clone();\n" +
+          ind(3) + "node.parent = null;\n" +
+          ind(3) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
           // ES_2011-10-07: Code generation for incremental evaluation, copy
            (ASTNode.incremental ? genIncrementalCopyNode() : "") +
-          ind(4) + "return node;\n" +
-          ind(3) + "} catch (CloneNotSupportedException e) {\n" +
-          ind(3) + "}\n" +
-          ind(3) + "System.err.println(\"Error: Could not clone node of type \" + getClass().getName() + \"!\");\n" +
-          ind(3) + "return null;\n";
+          ind(3) + "return node;\n" +
+          ind(2) + "} catch (CloneNotSupportedException e) {\n" +
+          ind(2) + "}\n" +
+          ind(2) + "System.err.println(\"Error: Could not clone node of type \" + getClass().getName() + \"!\");\n" +
+          ind(2) + "return null;\n";
       }
 
       String s =
