@@ -92,6 +92,7 @@ aspect JaddCodeGen {
     if(jjtree) {
       s = ind + "public #ID#.#ID#(int i) {\n" +
         ind(2) + "super(i);\n" +
+        (isASTNode() ? (ind(2) + "init$Children();") : "") +
         finalInit +
         ind + "}\n" +
         ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
@@ -109,27 +110,33 @@ aspect JaddCodeGen {
         "#NTA#";
     }
     String t = new String();
-    int i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(c instanceof ListComponentsNTA) {
-        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
-        i++;
-      }
-      if(c instanceof OptionalComponentNTA) {
-        //t = t + ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");\n";
-        i++;
-      }
-      if(c instanceof AggregateComponentsNTA) {
-        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
-        i++;
-      }
-    }
     s = s.replaceAll("#ID#", name());
     s = s.replaceAll("#NTA#", t);
     out.println(s);
-    // Initialize node
-    i = 0;
+    if (isASTNode()) {
+      out.println(ind(2) + "init$Children();");
+    }
+    out.println(finalInit);
+    out.println(ind + "}");
+  }
+
+  /**
+   * Emits the (nta) child initialization method
+   */
+  public void ASTDecl.emitChildInitMethod(PrintWriter out) {
+    out.println(ind + "/**");
+    out.println(ind + " * Initializes the child array to the correct size.");
+    out.println(ind + " * Initializes List and Opt nta children.");
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " * @ast method");
+    out.println(ind + " */");
+    out.println(ind + "public void " + name() + ".init$Children() {");
+    if (childCount() > 0) {
+      out.println(ind(2) + "children = new ASTNode[" + childCount() + "];");
+      if (ASTNode.incremental && ASTNode.incrementalLevelParam)
+        out.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[" + childCount() + "];");
+    }
+    int i = 0;
     // ES_2011-11-23: Code generation for incremental evaluation  
     if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorStartConstruction());
     //
@@ -151,40 +158,6 @@ aspect JaddCodeGen {
     // ES_2011-11-23: Code generation for incremental evaluation  
     if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorEndConstruction());
     //
-    out.println(finalInit);
-    out.println(ind + "}");
-  }
-
-  /**
-   * Emits the (nta) child initialization method
-   */
-  public void ASTDecl.emitChildInitMethod(PrintWriter out) {
-    out.println(ind + "/**");
-    out.println(ind + " * Initializes the child array to the correct size.");
-    out.println(ind + " * Initializes List and Opt nta children.");
-    out.println(ind + " * @apilevel internal");
-    out.println(ind + " * @ast method");
-    out.println(ind + " */");
-    out.println(ind + "public void " + name() + ".init$Children() {");
-    if (childCount() > 0) {
-      out.println(ind(2) + "children = new ASTNode[" + childCount() + "];");
-    }
-    int i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(c instanceof ListComponents) {
-        out.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
-        i++;
-      }
-      else if(c instanceof OptionalComponent) {
-        out.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
-        i++;
-      }
-      else if(c instanceof AggregateComponents) {
-        //out.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
-        i++;
-      }
-    }
     out.println(ind + "}");
   }
 
@@ -1338,7 +1311,7 @@ aspect JaddCodeGen {
 
     emitDefaultConstructor(out, parserName, jjtree, rewriteEnabled);
 
-    //emitChildInitMethod(out);
+    emitChildInitMethod(out);
 
     if(numNonNTAComponents() != 0) {
       emitBuildingConstructor(out);
@@ -2008,7 +1981,6 @@ aspect JaddCodeGen {
     parse(s);
 
   }
-
 
   String AggregateComponents.setNameComment() {
     return ind + "/**\n" +
