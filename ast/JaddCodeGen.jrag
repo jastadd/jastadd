@@ -91,11 +91,13 @@ aspect JaddCodeGen {
     String s;
     if(jjtree) {
       s = ind + "public #ID#.#ID#(int i) {\n" +
-        ind(2) + "super(i);\n" + finalInit +
+        ind(2) + "super(i);\n" +
+        finalInit +
         ind + "}\n" +
         ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
         ind(2) + "this(i);\n" +
-        ind(2) + "parser = p;\n" + finalInit +
+        ind(2) + "parser = p;\n" +
+        finalInit +
         ind + "}\n" +
         ind + "public #ID#.#ID#() {\n" + 
         ind(2) + "this(0);\n" + 
@@ -150,7 +152,7 @@ aspect JaddCodeGen {
     if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorEndConstruction());
     //
     out.println(finalInit);
-    out.println(ind + "}\n");
+    out.println(ind + "}");
   }
 
   /**
@@ -209,19 +211,20 @@ aspect JaddCodeGen {
           childIndex++;
         }
         param += 1;
-      }
-      else {
+      } else {
         if(c instanceof ListComponents) {
           out.println(ind(2) + "setChild(new List(), " + childIndex + ");");
-          childIndex++;
         }
         else if(c instanceof OptionalComponent) {
           out.println(ind(2) + "setChild(new Opt(), " + childIndex + ");");
-          childIndex++;
         }
         else if(c instanceof AggregateComponents) {
           out.println(ind(2) + "setChild(null, " + childIndex + ");");
-          childIndex++;
+        }
+        if(c instanceof ListComponents ||
+          c instanceof OptionalComponent ||
+          c instanceof AggregateComponents) {
+        childIndex++;
         }
       }
     }
@@ -289,54 +292,7 @@ aspect JaddCodeGen {
       }
     }
     out.println(") {");
-    if(ASTNode.block) out.print(ASTNode.blockBegin);
-    // ES_2011-10-05: Code generation for incremental evaluation, construction 
-    if (ASTNode.incremental) out.print(genIncrementalConstructorStartConstruction());
-    //
-    i = 0;
-    int j = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(c instanceof TokenComponent) {
-          TokenComponent t = (TokenComponent)c;
-          out.println(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");");
-        }
-        else {
-          out.println(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");");
-          j++;
-        }
-        i++;
-      }
-      else {
-        if(c instanceof ListComponents) {
-          out.println(ind(2) + "setChild(new List(), " + j + ");");
-          j++;
-        }
-        else if(c instanceof OptionalComponent) {
-          out.println(ind(2) + "setChild(new Opt(), " + j + ");");
-          j++;
-        }
-        else if(c instanceof AggregateComponents) {
-          out.println(ind(2) + "setChild(null, " + j + ");");
-          j++;
-        }
-      }
-    }
-    if(rewriteEnabled && isRootNode()) {
-      if(ASTNode.stagedRewrites)
-        out.println(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
-      else {
-        out.println(ind(2) + "is$Final(true);");
-      }
-    }
-    // ES_2011-10-05: Code generation for incremental evaluation, construction
-    if (ASTNode.incremental) out.print(genIncrementalConstructorEndConstruction());
-    //
-    // ES_2011-12-11: Code generation for incremental evaluation, track creation
-    if (ASTNode.incremental) out.print(genIncrementalTrackCreation());
-    //
-    if(ASTNode.block) out.print(ASTNode.blockEnd);
+    emitBuildingConstructorBody(out);
     out.println(ind + "}");
   }
 
