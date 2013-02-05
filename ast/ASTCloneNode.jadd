@@ -112,6 +112,63 @@ aspect ASTCloneNode {
           ind(2) + "return null;\n";
       }
 
+      // We skip copying NTA children
+      // Build list of NTA indices - these are skipped when copying the children
+      LinkedList ntaAggregateIndices = new LinkedList();
+      LinkedList ntaOptIndices = new LinkedList();
+      LinkedList ntaListIndices = new LinkedList();
+      int i = 0;
+      for(Iterator iter = getComponents(); iter.hasNext(); i += 1) {
+        Components c = (Components)iter.next();
+        if (c.isNTA()) {
+          if (c instanceof ListComponentsNTA)
+            ntaListIndices.add(new Integer(i));
+          else if (c instanceof OptionalComponentNTA)
+            ntaOptIndices.add(new Integer(i));
+          else if (c instanceof AggregateComponentsNTA)
+            ntaAggregateIndices.add(new Integer(i));
+        }
+      }
+
+      // The skipNTAs string will include a switch statement that excludes
+      // the NTA children from the full copy, but for Opt and List NTAs
+      // we still need to create a placeholder Opt/List node
+      String skipNTAs = "";
+      if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
+        !ntaListIndices.isEmpty()) {
+
+        skipNTAs = ind(5) + "switch (i) {\n";
+        Iterator iter;
+        if (!ntaAggregateIndices.isEmpty()) {
+          iter = ntaAggregateIndices.iterator();
+          while (iter.hasNext()) {
+            Object index = iter.next();
+            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+          }
+          skipNTAs += ind(6) + "res.children[i] = null;\n";
+          skipNTAs += ind(6) + "continue;\n";
+        }
+        if (!ntaOptIndices.isEmpty()) {
+          iter = ntaOptIndices.iterator();
+          while (iter.hasNext()) {
+            Object index = iter.next();
+            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+          }
+          skipNTAs += ind(6) + "res.children[i] = new Opt();\n";
+          skipNTAs += ind(6) + "continue;\n";
+        }
+        if (!ntaListIndices.isEmpty()) {
+          iter = ntaListIndices.iterator();
+          while (iter.hasNext()) {
+            Object index = iter.next();
+            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+          }
+          skipNTAs += ind(6) + "res.children[i] = new List();\n";
+          skipNTAs += ind(6) + "continue;\n";
+        }
+        skipNTAs += ind(5) + "}\n";
+      }
+
       String s =
         ind + "/**\n" +
         ind + " * @apilevel internal\n" +
@@ -135,6 +192,7 @@ aspect ASTCloneNode {
         // ES_2011-10-04: Code generation for incremental evaluation, clone
         (ASTNode.incremental ? jjtGenIncrementalCloneNode2() : 
           ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
+        skipNTAs +
           ind(3) + "ASTNode node = getChildNoTransform(i);\n") +
         // OLD: ind(2) + "for(int i = 0; i < getNumChildNoTransform(); i++) {\n" + 
         // OLD: ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
