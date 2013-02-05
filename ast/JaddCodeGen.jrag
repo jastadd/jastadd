@@ -73,26 +73,60 @@ aspect JaddCodeGen {
     return i;
   }
 
-  // Constructor to build trees bottom up
-  public String ASTDecl.buildingConstructor() {
+  /**
+   * Emits the (nta) child initialization method
+   */
+  public void ASTDecl.emitChildInitMethod(PrintWriter out) {
+    out.println(ind + "/**");
+    out.println(ind + " * Initializes the child array to the correct size.");
+    out.println(ind + " * Initializes List and Opt nta children.");
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " * @ast method");
+    out.println(ind + " */");
+    out.println(ind + "public void " + name() + ".init$Children() {");
+    if (childCount() > 0) {
+      out.println(ind(2) + "children = new ASTNode[" + childCount() + "];");
+    }
+    int i = 0;
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(c instanceof ListComponents) {
+        out.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
+        i++;
+      }
+      else if(c instanceof OptionalComponent) {
+        out.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
+        i++;
+      }
+      else if(c instanceof AggregateComponents) {
+        //stream.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
+        i++;
+      }
+    }
+    out.println(ind + "}");
+  }
+
+  /**
+   * Constructor to build trees bottom up
+   */
+  public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
     // we only build constructors if there are components
     if(!getComponents().hasNext())
-      return "";
-    StringBuffer s = new StringBuffer();
-    s.append(ind + "public #ID#.#ID#(");
+      return;
+    out.print(ind + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(!c.isNTA()) {
-        if(i != 0) s.append(", ");
-        s.append(c.constrParmType() + " p" + i);
+        if(i != 0) out.print(", ");
+        out.print(c.constrParmType() + " p" + i);
         i++;
       }
     }
-    s.append(") {\n");
-    if(ASTNode.block) s.append(ASTNode.blockBegin);
+    out.println(") {");
+    if(ASTNode.block) out.print(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation  
-    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
+    if (ASTNode.incremental) out.print(genIncrementalConstructorStartConstruction());
     //
     int param = 0;
     int childIndex = 0;
@@ -102,45 +136,44 @@ aspect JaddCodeGen {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
           String tokenId = t.getTokenId().getID();
-          s.append(ind(2) + "set" + tokenId + "(p" + param + ");\n");
+          out.println(ind(2) + "set" + tokenId + "(p" + param + ");");
         }
         else {
-          s.append(ind(2) + "setChild(p" + param + ", " + childIndex + ");\n");
+          out.println(ind(2) + "setChild(p" + param + ", " + childIndex + ");");
           childIndex++;
         }
         param += 1;
       }
       else {
         if(c instanceof ListComponents) {
-          s.append(ind(2) + "setChild(new List(), " + childIndex + ");\n");
+          out.println(ind(2) + "setChild(new List(), " + childIndex + ");");
           childIndex++;
         }
         else if(c instanceof OptionalComponent) {
-          s.append(ind(2) + "setChild(new Opt(), " + childIndex + ");\n");
+          out.println(ind(2) + "setChild(new Opt(), " + childIndex + ");");
           childIndex++;
         }
         else if(c instanceof AggregateComponents) {
-          s.append(ind(2) + "setChild(null, " + childIndex + ");\n");
+          out.println(ind(2) + "setChild(null, " + childIndex + ");");
           childIndex++;
         }
       }
     }
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
+        out.println(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
       else {
-        s.append(ind(2) + "is$Final(true);\n");
+        out.println(ind(2) + "is$Final(true);");
       }
     }
     // ES_2011-10-05: Code generation for incremental evaluation  
-    if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
+    if (ASTNode.incremental) out.print(genIncrementalConstructorEndConstruction());
     //
     // ES_2011-12-11: Code generation for incremental evaluation, track creation
-    if (ASTNode.incremental) s.append(genIncrementalTrackCreation());
+    if (ASTNode.incremental) out.print(genIncrementalTrackCreation());
     //
-    if(ASTNode.block) s.append(ASTNode.blockEnd);
-    s.append(ind + "}\n");
-    return s.toString().replaceAll("#ID#", name());
+    if(ASTNode.block) out.print(ASTNode.blockEnd);
+    out.println(ind + "}");
   }
 
   public String ASTDecl.buildingSymbolConstructor() {
@@ -1333,7 +1366,7 @@ aspect JaddCodeGen {
     stream.println(ind + "}\n");
 
     if(numNonNTAComponents() != 0) {
-      stream.print(buildingConstructor());
+      emitBuildingConstructor(stream);
       if(ASTNode.beaver)
         stream.print(buildingSymbolConstructor());
     }
