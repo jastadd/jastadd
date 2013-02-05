@@ -262,10 +262,10 @@ aspect JaddCodeGen {
     out.println(ind + "}");
   }
 
-  public String ASTDecl.buildingSymbolConstructor() {
+  public void ASTDecl.emitSymbolConstructor(PrintWriter out) {
     // we only build constructors if there are components ...
     if(!getComponents().hasNext())
-      return "";
+      return;
     // ... and one of these components is a string token component
     boolean stringArg = false;
     for(Iterator iter = getComponents(); !stringArg && iter.hasNext(); ) {
@@ -273,26 +273,25 @@ aspect JaddCodeGen {
       if(!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
         stringArg = true;
     }
-    if(!stringArg) return "";
+    if(!stringArg) return;
 
-    StringBuffer s = new StringBuffer();
-    s.append(ind + "public #ID#.#ID#(");
+    out.print(ind + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(!c.isNTA()) {
-        if(i != 0) s.append(", ");
+        if(i != 0) out.print(", ");
         if(c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
-          s.append("beaver.Symbol p" + i);
+          out.print("beaver.Symbol p" + i);
         else
-          s.append(c.constrParmType() + " p" + i);
+          out.print(c.constrParmType() + " p" + i);
         i++;
       }
     }
-    s.append(") {\n");
-    if(ASTNode.block) s.append(ASTNode.blockBegin);
+    out.println(") {");
+    if(ASTNode.block) out.print(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation, construction 
-    if (ASTNode.incremental) s.append(genIncrementalConstructorStartConstruction());
+    if (ASTNode.incremental) out.print(genIncrementalConstructorStartConstruction());
     //
     i = 0;
     int j = 0;
@@ -301,45 +300,44 @@ aspect JaddCodeGen {
       if(!c.isNTA()) {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
-          s.append(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");\n");
+          out.println(ind(2) + "set" + t.getTokenId().getID() + "(p" + i + ");");
         }
         else {
-          s.append(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");\n");
+          out.println(ind(2) + "setChild(p" + String.valueOf(i) + ", " + j + ");");
           j++;
         }
         i++;
       }
       else {
         if(c instanceof ListComponents) {
-          s.append(ind(2) + "setChild(new List(), " + j + ");\n");
+          out.println(ind(2) + "setChild(new List(), " + j + ");");
           j++;
         }
         else if(c instanceof OptionalComponent) {
-          s.append(ind(2) + "setChild(new Opt(), " + j + ");\n");
+          out.println(ind(2) + "setChild(new Opt(), " + j + ");");
           j++;
         }
         else if(c instanceof AggregateComponents) {
-          s.append(ind(2) + "setChild(null, " + j + ");\n");
+          out.println(ind(2) + "setChild(null, " + j + ");");
           j++;
         }
       }
     }
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        s.append(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);\n");
+        out.println(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
       else {
-        s.append(ind(2) + "is$Final(true);\n");
+        out.println(ind(2) + "is$Final(true);");
       }
     }
     // ES_2011-10-05: Code generation for incremental evaluation, construction
-    if (ASTNode.incremental) s.append(genIncrementalConstructorEndConstruction());
+    if (ASTNode.incremental) out.print(genIncrementalConstructorEndConstruction());
     //
     // ES_2011-12-11: Code generation for incremental evaluation, track creation
-    if (ASTNode.incremental) s.append(genIncrementalTrackCreation());
+    if (ASTNode.incremental) out.print(genIncrementalTrackCreation());
     //
-    if(ASTNode.block) s.append(ASTNode.blockEnd);
-    s.append(ind + "}\n");
-    return s.toString().replaceAll("#ID#", name());
+    if(ASTNode.block) out.print(ASTNode.blockEnd);
+    out.println(ind + "}");
   }
 
   public void Grammar.genReset(PrintWriter stream) {
@@ -1389,7 +1387,7 @@ aspect JaddCodeGen {
     if(numNonNTAComponents() != 0) {
       emitBuildingConstructor(out);
       if(ASTNode.beaver)
-        out.print(buildingSymbolConstructor());
+        emitSymbolConstructor(out);
     }
 
     if(name().equals("Opt")) {
