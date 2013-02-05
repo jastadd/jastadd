@@ -589,38 +589,31 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
     else {
+      String returnTypeCast;
       if(ASTNode.java5) {
         stream.println(ind + "/**");
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
-        stream.println(ind + "@SuppressWarnings(\"cast\")");
-        stream.println(ind + "public T ASTNode.getChild(int i) {");
-        // ES_2011-09-20: Code generation for incremental evaluation
-        if (ASTNode.incremental) {
-          stream.println(ind(2) + "T child = (T)getChildNoTransform(i);");
-          jjtGenIncrementalTrackGetChildNoTransform(stream);
-          stream.println(ind(2) + "return child;");        
-        } else 
-        //
-        stream.println(ind(2) + "return (T)getChildNoTransform(i);");
-        stream.println(ind + "}");
+        stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
+        returnTypeCast = "(T) ";
       }
       else {
         stream.println(ind + "/**");
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-        // ES_2011-09-20: Code generation for incremental evaluation
-        if (ASTNode.incremental) {
-          stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
-          jjtGenIncrementalTrackGetChildNoTransform(stream);
-          stream.println(ind(2) + "return child;");        
-        } else 
-        //
-        stream.println(ind(2) + "return getChildNoTransform(i);");
-        stream.println(ind + "}");
+        returnTypeCast = "";
       }
-	}
+
+      stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
+      // ES_2011-09-20: Code generation for incremental evaluation
+      if (ASTNode.incremental) {
+        jjtGenIncrementalTrackGetChildNoTransform(stream);
+      }
+      //
+      stream.println(ind(2) + "return " + returnTypeCast + "child;");
+      stream.println(ind + "}");
+    }
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
@@ -5030,117 +5023,6 @@ aspect JaddCodeGen {
 
   }
 
-
-  // ES_2011-09-20: Code generation for incremental evaluation
-  String TokenComponent.jaddGenIncrementalTokenHandler() {
-    if (!isNTA()) {
-    if (ASTNode.incrementalLevelParam)
-      if (ASTNode.incrementalPropLimit) {
-        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null, true);\n";
-      } else {
-        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
-      }
-    if (ASTNode.incrementalLevelAttr)
-      return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                 "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
-    }
-    return ""; // ASTNode.incrementalLevelNode
-  }
-  // ES_2011-09-20: Code generation for incremental evaluation
-  String TokenComponent.jaddGenIncrementalTokenChange(String varName) {
-    StringBuffer buf = new StringBuffer();
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
-//      buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {\n");
-      buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {\n");
-    }
-    if (ASTNode.incrementalLevelRegion) {
-      buf.append("    if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {\n");
-    }
-    if (isNTA()) {
-      buf.append("     if (get#ID#_computed) {\n");
-      buf.append("       get#ID#_computed = false;\n");
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-      buf.append("       get#ID#_handler.notifyDependencies();\n");
-      }
-      if (ASTNode.incrementalLevelNode) {
-      buf.append("       handler.flushRegion();\n");
-      }
-      if (ASTNode.incrementalLevelRegion) {
-      buf.append("       handler().flushRegion();\n");
-      }
-      buf.append("     }\n");
-    } else {
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-        if (ASTNode.incrementalTrack) {
-          buf.append("       get#ID#_handler.trackChange();\n");    
-        }
-        buf.append("       get#ID#_handler.notifyDependencies();\n");
-      }
-      if (ASTNode.incrementalLevelNode) {
-        buf.append("       handler.flushRegion();\n");
-        String type = getTokenId().getTYPE();
-        boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
-        boolean isPrimitiveToken = isPrimitive();
-        if (!isStringToken && !isPrimitiveToken) {
-          buf.append("       if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
-          buf.append("         token#TYPEINSIGNATURE#_#ID#.handler.flushRegion();\n");
-          buf.append("       }\n");
-        }
-      }
-      if (ASTNode.incrementalLevelRegion) {
-        buf.append("       handler().flushRegion();\n");
-        String type = getTokenId().getTYPE();
-        boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
-        boolean isPrimitiveToken = isPrimitive();
-        if (!isStringToken && !isPrimitiveToken) {
-          buf.append("       if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n");
-          buf.append("         token#TYPEINSIGNATURE#_#ID#.handler().flushRegion();\n");
-          buf.append("       }\n");
-        }
-      }
-      buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
-      buf.append("       if (initial != null) {\n");
-      buf.append("         state().enterConstruction();\n");
-      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
-      buf.append("         state().exitConstruction();\n");
-      buf.append("         return;\n");
-      buf.append("       }\n");
-    }
-    buf.append("    }\n");
-    return buf.toString();
-  }
-  // ES_2011-09-20: Code generation for incremental evaluation
-  String TokenComponent.jaddGenIncrementalTokenTrack() {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
-      return "        state().addHandlerDepTo(get#ID#_handler);\n";
-    if (ASTNode.incrementalLevelNode) {
-      String type = getTokenId().getTYPE();
-      boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
-      boolean isPrimitiveToken = isPrimitive();
-      if (!isStringToken && !isPrimitiveToken) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
-        buf.append("          state().addHandlerDepTo(((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler);\n");
-        buf.append("        }\n");
-        return buf.toString();
-      }
-    }
-    if (ASTNode.incrementalLevelRegion) {
-      String type = getTokenId().getTYPE();
-      boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
-      boolean isPrimitiveToken = isPrimitive();
-      if (!isStringToken && !isPrimitiveToken) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n");
-        buf.append("          ((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler().addDependant(handler());\n");
-        buf.append("        }\n");
-        return buf.toString();
-      }
-    }
-    return "";
-  }
 
   String AggregateComponents.setNameComment() {
     return ind + "/**\n" +
