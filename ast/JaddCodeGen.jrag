@@ -937,6 +937,7 @@ aspect JaddCodeGen {
     stream.println(ind + " */");
     stream.print(ind + "public void flushCache() {\n");
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
+
     if(!name().equals("ASTNode"))
       stream.print(ind(2) + "super.flushCache();\n");
     for(int k = 0; k < getNumSynEq(); k++) {
@@ -1000,8 +1001,10 @@ aspect JaddCodeGen {
       stream.println(ind + "}\n");
     }
   }
+
   public void Components.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
   }
+
   public void ListComponents.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
     stream.println(ind(2) + "if(i == " + j + ") {");
     stream.println(
@@ -1016,6 +1019,7 @@ aspect JaddCodeGen {
         type() + "\");");
     stream.println(ind(2) + "}");
   }
+
   public void OptionalComponent.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
     stream.println(ind(2) + "if(i == " + j + ") {");
     stream.println(
@@ -1029,6 +1033,7 @@ aspect JaddCodeGen {
         type() + "\");");
     stream.println(ind(2) + "}");
   }
+
   public void AggregateComponents.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
     stream.println(ind(2) + "if(i == " + j + " && !(n instanceof " + type() + ")) " + 
         " throw new Error(\"Child number " + j + " of " + hostClass().name() +
