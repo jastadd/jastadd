@@ -482,13 +482,26 @@ aspect JaddCodeGen {
    * Print the getChild method to the output stream.
    */
   public void ASTDecl.genGetChild(PrintWriter stream, boolean rewriteEnabled) {
-    if(rewriteEnabled) {
+    String returnTypeCast;
+    if(ASTNode.java5) {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel low-level");
+      stream.println(ind + " */");
+      stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
+      returnTypeCast = "(T) ";
+    }
+    else {
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel low-level");
       stream.println(ind + " */");
       stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
+      returnTypeCast = "";
+    }
+
+    if(rewriteEnabled) {
       if(ASTNode.block) stream.print(ASTNode.blockBegin);
       stream.println(ind(2) + "ASTNode node = this.getChildNoTransform(i);");
+      stream.println(ind(2) + "if(node == null) return null;");
       stream.println(ind(2) + "if(node.is$Final()) {");
       // ES_2011-10-05: Code generation for incremental evaluation, rewrites
       if (ASTNode.incremental) {
@@ -496,7 +509,7 @@ aspect JaddCodeGen {
         genIncrementalTrackRewrite12(stream);
       }
       //
-      stream.println(ind(3) +   "return node;");
+      stream.println(ind(3) +   "return " + returnTypeCast + "node;");
       stream.println(ind(3) + "}");
       stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
       if(ASTNode.stagedRewrites)
@@ -509,7 +522,7 @@ aspect JaddCodeGen {
         genIncrementalTrackRewrite12(stream);
       }
       //
-      stream.println(ind(3) + "return node;");
+      stream.println(ind(3) + "return " + returnTypeCast + "node;");
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "if(!node.in$Circle()) {");
       // ES_2011-09-26: Code generation for incremental evaluation, rewrites
@@ -569,27 +582,10 @@ aspect JaddCodeGen {
         genIncrementalTrackRewrite12(stream);
       }
       //
-      stream.println(ind(2) + "return node;");
+      stream.println(ind(2) + "return " + returnTypeCast + "node;");
       if(ASTNode.block) stream.print(ASTNode.blockEnd);
-      stream.println(ind + "}");
-    }
-    else {
-      String returnTypeCast;
-      if(ASTNode.java5) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-        returnTypeCast = "(T) ";
-      }
-      else {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-        returnTypeCast = "";
-      }
-
+    } else {
+      // No rewrites
       stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
       // ES_2011-09-20: Code generation for incremental evaluation
       if (ASTNode.incremental) {
@@ -597,8 +593,9 @@ aspect JaddCodeGen {
       }
       //
       stream.println(ind(2) + "return " + returnTypeCast + "child;");
-      stream.println(ind + "}");
     }
+
+    stream.println(ind + "}");
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
