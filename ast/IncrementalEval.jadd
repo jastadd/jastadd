@@ -592,31 +592,31 @@ aspect IncrementalEval {
   // ES_2012-01-31: Code generation for incremental evaluation, modifying tree, add child 1
   public void ASTDecl.jjtGenIncrementalASTChangeAddChild1(PrintWriter stream) {
     if (ASTNode.incrementalLevelParam) {
-      stream.println(ind(3) + "int i = getNumChildNoTransform() - 1;");
-      stream.println(ind(3) + "if (getChild_handler[i] == null)");
+      stream.println(ind(2) + "int i = getNumChildNoTransform() - 1;");
+      stream.println(ind(2) + "if (getChild_handler[i] == null)");
       if (ASTNode.incrementalPropLimit) {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
-      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       }
-      stream.println(ind(3) + "state().addHandlerDepTo(getChild_handler[i]);");    
-      stream.println(ind(3) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");    
+      stream.println(ind(2) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
     }
     if (ASTNode.incrementalLevelAttr) {
-      stream.println(ind(3) + "state().addHandlerDepTo(getChild_handler);");
-      stream.println(ind(3) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");
+      stream.println(ind(2) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
     }
     if (ASTNode.incrementalLevelNode) {
-      stream.println(ind(3) + "if (node != null) {");
-      stream.println(ind(4) +   "state().addHandlerDepTo(node.handler);");
-      stream.println(ind(4) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
-      stream.println(ind(3) + "}");
+      stream.println(ind(2) + "if (node != null) {");
+      stream.println(ind(3) +   "state().addHandlerDepTo(node.handler);");
+      stream.println(ind(3) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
+      stream.println(ind(2) + "}");
     }
     if (ASTNode.incrementalLevelRegion) {
-      stream.println(ind(3) + "if (node != null && node.isRegionRoot()) {");
-      stream.println(ind(4) +   "state().addHandlerDepTo(node.handler());");
-      stream.println(ind(4) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
-      stream.println(ind(3) + "}");
+      stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
+      stream.println(ind(3) +   "state().addHandlerDepTo(node.handler());");
+      stream.println(ind(3) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
+      stream.println(ind(2) + "}");
     }
   }
 
