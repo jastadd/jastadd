@@ -74,6 +74,86 @@ aspect JaddCodeGen {
   }
 
   /**
+   * Default constructor: creates list and opt nodes for
+   * all list and opt children. Initializes NTAs.
+   */
+  public void ASTDecl.emitDefaultConstructor(PrintWriter out, String parserName,
+      boolean jjtree, boolean rewriteEnabled) {
+
+    String finalInit = "";
+    if(rewriteEnabled && isRootNode()) {
+      if(ASTNode.stagedRewrites)
+        finalInit = ind(2) + "is$Final(state().rewritePhase);\n";
+      else
+        finalInit = ind(2) + "is$Final(true);\n";
+    }
+
+    String s;
+    if(jjtree) {
+      s = ind + "public #ID#.#ID#(int i) {\n" +
+        ind(2) + "super(i);\n" + finalInit +
+        ind + "}\n" +
+        ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
+        ind(2) + "this(i);\n" +
+        ind(2) + "parser = p;\n" + finalInit +
+        ind + "}\n" +
+        ind + "public #ID#.#ID#() {\n" + 
+        ind(2) + "this(0);\n" + 
+        "#NTA#";
+    }
+    else {
+      s = ind + "public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
+        ind(2) + "super();\n" + 
+        "#NTA#";
+    }
+    String t = new String();
+    int i = 0;
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(c instanceof ListComponentsNTA) {
+        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
+        i++;
+      }
+      if(c instanceof OptionalComponentNTA) {
+        //t = t + ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");\n";
+        i++;
+      }
+      if(c instanceof AggregateComponentsNTA) {
+        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
+        i++;
+      }
+    }
+    s = s.replaceAll("#ID#", name());
+    s = s.replaceAll("#NTA#", t);
+    out.println(s);
+    // Initialize node
+    i = 0;
+    // ES_2011-11-23: Code generation for incremental evaluation  
+    if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorStartConstruction());
+    //
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(c instanceof ListComponents) {
+        out.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
+        i++;
+      }
+      else if(c instanceof OptionalComponent) {
+        out.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
+        i++;
+      }
+      else if(c instanceof AggregateComponents) {
+        //out.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
+        i++;
+      }
+    }
+    // ES_2011-11-23: Code generation for incremental evaluation  
+    if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorEndConstruction());
+    //
+    out.println(finalInit);
+    out.println(ind + "}\n");
+  }
+
+  /**
    * Emits the (nta) child initialization method
    */
   public void ASTDecl.emitChildInitMethod(PrintWriter out) {
@@ -99,7 +179,7 @@ aspect JaddCodeGen {
         i++;
       }
       else if(c instanceof AggregateComponents) {
-        //stream.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
+        //out.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
         i++;
       }
     }
@@ -107,23 +187,9 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Constructor to build trees bottom up
+   * Emits the constructor body for tree building constructors
    */
-  public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
-    // we only build constructors if there are components
-    if(!getComponents().hasNext())
-      return;
-    out.print(ind + "public " + name() + "." + name() + "(");
-    int i = 0; // parameter index
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(i != 0) out.print(", ");
-        out.print(c.constrParmType() + " p" + i);
-        i++;
-      }
-    }
-    out.println(") {");
+  public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
     if(ASTNode.block) out.print(ASTNode.blockBegin);
     // ES_2011-10-05: Code generation for incremental evaluation  
     if (ASTNode.incremental) out.print(genIncrementalConstructorStartConstruction());
@@ -162,9 +228,8 @@ aspect JaddCodeGen {
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
         out.println(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
-      else {
+      else
         out.println(ind(2) + "is$Final(true);");
-      }
     }
     // ES_2011-10-05: Code generation for incremental evaluation  
     if (ASTNode.incremental) out.print(genIncrementalConstructorEndConstruction());
@@ -173,6 +238,27 @@ aspect JaddCodeGen {
     if (ASTNode.incremental) out.print(genIncrementalTrackCreation());
     //
     if(ASTNode.block) out.print(ASTNode.blockEnd);
+  }
+
+  /**
+   * Constructor to build trees bottom up
+   */
+  public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
+    // we only build constructors if there are components
+    if(!getComponents().hasNext())
+      return;
+    out.print(ind + "public " + name() + "." + name() + "(");
+    int i = 0; // parameter index
+    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      if(!c.isNTA()) {
+        if(i != 0) out.print(", ");
+        out.print(c.constrParmType() + " p" + i);
+        i++;
+      }
+    }
+    out.println(") {");
+    emitBuildingConstructorBody(out);
     out.println(ind + "}");
   }
 
@@ -1293,99 +1379,33 @@ aspect JaddCodeGen {
         ind + "}\n");
   }
 
-  public void ASTDecl.jjtGenConstructor(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
-    String finalInit = "";
-    if(rewriteEnabled && isRootNode()) {
-      if(ASTNode.stagedRewrites)
-        finalInit = ind(2) + "is$Final(state().rewritePhase);\n";
-      else
-        finalInit = ind(2) + "is$Final(true);\n";
-    }
-    String s;
-    if(jjtree) {
-      s = ind + "public #ID#.#ID#(int i) {\n" +
-        ind(2) + "super(i);\n" + finalInit +
-        ind + "}\n" +
-        ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
-        ind(2) + "this(i);\n" +
-        ind(2) + "parser = p;\n" + finalInit +
-        ind + "}\n" +
-        ind + "public #ID#.#ID#() {\n" + 
-        ind(2) + "this(0);\n" + 
-        "#NTA#";
-    }
-    else {
-      s = ind + "public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
-        ind(2) + "super();\n" + 
-        "#NTA#";
-    }
-    String t = new String();
-    int i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(c instanceof ListComponentsNTA) {
-        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
-        i++;
-      }
-      if(c instanceof OptionalComponentNTA) {
-        //t = t + ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");\n";
-        i++;
-      }
-      if(c instanceof AggregateComponentsNTA) {
-        //t = t + ind(2) + "setChild(null, " + String.valueOf(i) + ");\n";
-        i++;
-      }
-    }
-    s = s.replaceAll("#ID#", name());
-    s = s.replaceAll("#NTA#", t);
-    stream.println(s);
-    // Initialize node
-    i = 0;
-    // ES_2011-11-23: Code generation for incremental evaluation  
-    if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorStartConstruction());
-    //
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if(c instanceof ListComponents) {
-        stream.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
-        i++;
-      }
-      else if(c instanceof OptionalComponent) {
-        stream.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
-        i++;
-      }
-      else if(c instanceof AggregateComponents) {
-        //stream.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
-        i++;
-      }
-    }
-    // ES_2011-11-23: Code generation for incremental evaluation  
-    if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorEndConstruction());
-    //
-    stream.println(finalInit);
-    stream.println(ind + "}\n");
+  public void ASTDecl.jjtGenConstructor(PrintWriter out, String parserName,
+      boolean jjtree, boolean rewriteEnabled) {
+
+    emitDefaultConstructor(out, parserName, jjtree, rewriteEnabled);
+
+    //emitChildInitMethod(out);
 
     if(numNonNTAComponents() != 0) {
-      emitBuildingConstructor(stream);
+      emitBuildingConstructor(out);
       if(ASTNode.beaver)
-        stream.print(buildingSymbolConstructor());
+        out.print(buildingSymbolConstructor());
     }
 
     if(name().equals("Opt")) {
       if(ASTNode.java5)
-        stream.println(ind + "public Opt.Opt(T opt) {");
+        out.println(ind + "public Opt.Opt(T opt) {");
       else
-        stream.println(ind + "public Opt.Opt(ASTNode opt) {");
+        out.println(ind + "public Opt.Opt(ASTNode opt) {");
       // ES_2011-11-23: Code generation for incremental evaluation  
-      if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorStartConstruction());
+      if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorStartConstruction());
       //
-      stream.println(ind(2) + "setChild(opt, 0);");
+      out.println(ind(2) + "setChild(opt, 0);");
       // ES_2011-11-23: Code generation for incremental evaluation  
-      if (ASTNode.incremental) stream.println(ind(2) + genIncrementalConstructorEndConstruction());
+      if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorEndConstruction());
       //
-      stream.println(ind + "}\n");
+      out.println(ind + "}\n");
     }
-
   }
 
   public void ASTDecl.jjtGen(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
