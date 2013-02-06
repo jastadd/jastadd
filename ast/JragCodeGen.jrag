@@ -1328,7 +1328,7 @@ aspect JragCodeGen {
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        ind(2) + "if(#NAME#_visited && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
+        ind(2) + "if(#NAME#_visited != -1 && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
@@ -1344,7 +1344,7 @@ aspect JragCodeGen {
           ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";    
       } else
         return
-        ind(2) + "if(_value.visited && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+        ind(2) + "if(_value.visited != -1 && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
