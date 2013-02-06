@@ -82,11 +82,8 @@ aspect Errorcheck {
       SynEq equation = hostClass().lookupSynEq(signature());
       if(equation != null && equation != this) {
         result.append(getFileName() + ":" + getStartLine() + " ");
-        result.append("Multiple equations for synthesized attribute " + name() +
-          " in class " + hostClass().name());
-        result.append(" and " + equation.name() + " in class " + equation.hostClass().name() +
-           " in " + equation.getFileName() + ":" + equation.getStartLine()
-          + "\n");
+        result.append("Multiple equations for synthesized attribute " + hostClass() + "." + name());
+        result.append(", previously defined in " + equation.getFileName() + ":" + equation.getStartLine() + "\n");
       }
       SynDecl decl = hostClass().lookupSynDecl(signature());
       if(!decl.parametersDecl().equals(parametersDecl())) {
@@ -118,11 +115,8 @@ aspect Errorcheck {
     SynDecl decl = hostClass().lookupSynDecl(signature());
     if(decl != null && decl != this) {
       result.append(getFileName() + ":" + getStartLine() + " ");
-      result.append("Multiple declaration of attribute " + name() +
-          " in class " + hostClass().name());
-      result.append(" and " + decl.name() + " in class " + decl.hostClass().name() +
-           " in " + decl.getFileName() + ":" + decl.getStartLine()
-      + "\n");
+      result.append("Multiple declaration of attribute " + hostClass().name() + "." + name());
+      result.append(", previously declared in " + decl.getFileName() + ":" + decl.getStartLine() + "\n");
     }
     else {
       StringBuffer r = new StringBuffer();
@@ -222,12 +216,13 @@ aspect Errorcheck {
   syn String InhDecl.error() {
     StringBuffer result = new StringBuffer();
     if(!ASTNode.noInhEqCheck) {
-     if(hostClass().lookupInhDecl(signature()) != this) {
+		  InhDecl decl = hostClass().lookupInhDecl(signature());
+      if(decl != this) {
        result.append(getFileName() + ":" + getStartLine() + " ");
-       result.append("Multiple declaration of attribute " + name() +
-           " in class " + hostClass().name() + "\n");
-     }
-     else {
+       result.append("Multiple declaration of attribute " + hostClass().name() + "." + name());
+       result.append(", previously declared in " + decl.getFileName() + ":" + decl.getStartLine() + "\n");
+      }
+      else {
         //System.out.println("Processing " + name() + " in " + hostClass().name());
         HashSet set = new HashSet();
         //LinkedList set = new LinkedList();
