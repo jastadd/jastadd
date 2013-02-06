@@ -145,7 +145,7 @@ aspect ASTCloneNode {
             Object index = iter.next();
             skipNTAs += ind(5) + "case " + index.toString() + ":\n";
           }
-          skipNTAs += ind(6) + "res.children[i] = null;\n";
+          skipNTAs += ind(6) + "tree.children[i] = null;\n";
           skipNTAs += ind(6) + "continue;\n";
         }
         if (!ntaOptIndices.isEmpty()) {
@@ -154,7 +154,7 @@ aspect ASTCloneNode {
             Object index = iter.next();
             skipNTAs += ind(5) + "case " + index.toString() + ":\n";
           }
-          skipNTAs += ind(6) + "res.children[i] = new Opt();\n";
+          skipNTAs += ind(6) + "tree.children[i] = new Opt();\n";
           skipNTAs += ind(6) + "continue;\n";
         }
         if (!ntaListIndices.isEmpty()) {
@@ -163,7 +163,7 @@ aspect ASTCloneNode {
             Object index = iter.next();
             skipNTAs += ind(5) + "case " + index.toString() + ":\n";
           }
-          skipNTAs += ind(6) + "res.children[i] = new List();\n";
+          skipNTAs += ind(6) + "tree.children[i] = new List();\n";
           skipNTAs += ind(6) + "continue;\n";
         }
         skipNTAs += ind(5) + "}\n";
@@ -188,26 +188,27 @@ aspect ASTCloneNode {
         "#ANNOTATIONS#" +
         ind + "public #RETURN# fullCopy() {\n" + 
         (ASTNode.block ? ASTNode.blockBegin : "") +
-        ind(2) + "#ID# res = (#ID#)copy();\n" +
-        ind(3) + "if (children != null) {\n" +
+        ind(2) + "#ID# tree = (#ID#) copy();\n" +
+        ind(2) + "if (children != null) {\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
-        ind(2) + "for(int i = 0; i < children.length; i++) {\n" + 
+        ind(3) + "for(int i = 0; i < children.length; i++) {\n" + 
         skipNTAs +
-        ind(3) + "ASTNode node = children[i];\n" +
+        ind(4) + "ASTNode node = children[i];\n" +
         // OLD: ind(2) + "for(int i = 0; i < children.length; i++) {\n" + 
         // OLD: ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
         //
-        ind(3) +  "if(node != null) {\n" +
-        ind(4) +   "node = node.fullCopy();\n" +
+        ind(4) +  "if(node != null) {\n" +
+        ind(5) +   "node = node.fullCopy();\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
         (ASTNode.incremental ? jjtGenIncrementalCloneNode() : 
-          ind(3) + "res.setChild(node, i);\n") +
-        // OLD: ind(3) + "res.setChild(node, i);\n"
+          ind(5) + "tree.setChild(node, i);\n") +
+        // OLD: ind(5) + "tree.setChild(node, i);\n"
         //
-        ind(3) +  "}\n" +
+        ind(4) +   "}\n" +
         ind(3) +  "}\n" +
         ind(2) + "}\n" +
-        ind(2) + "return res;\n    }\n" +
+        ind(2) + "return tree;\n" +
+        ind + "}\n" +
         (ASTNode.block ? ASTNode.blockEnd : "");
 
       String returnName = name();
