@@ -100,16 +100,17 @@ aspect ASTCloneNode {
       else {
         copyBody =
           ind(2) + "try {\n" +
-          ind(3) + "#CLASS# node = (#CLASS#)clone();\n" +
-          ind(3) + "node.parent = null;\n" +
-          ind(3) + "if(children != null) node.children = (ASTNode[])children.clone();\n" +
+          ind(3) +   "#CLASS# node = (#CLASS#) clone();\n" +
+          ind(3) +   "node.parent = null;\n" +
+          ind(3) +   "if(children != null)\n" +
+          ind(4) +     "node.children = (ASTNode[]) children.clone();\n" +
           // ES_2011-10-07: Code generation for incremental evaluation, copy
            (ASTNode.incremental ? genIncrementalCopyNode() : "") +
-          ind(3) + "return node;\n" +
+          ind(3) +   "return node;\n" +
           ind(2) + "} catch (CloneNotSupportedException e) {\n" +
-          ind(2) + "}\n" +
-          ind(2) + "System.err.println(\"Error: Could not clone node of type \" + getClass().getName() + \"!\");\n" +
-          ind(2) + "return null;\n";
+          ind(3) +   "throw new Error(\"Error: clone not supported for \" +\n" +
+          ind(4) +     "getClass().getName());\n" +
+          ind(2) + "}\n";
       }
 
       // We skip copying NTA children
@@ -191,21 +192,16 @@ aspect ASTCloneNode {
         ind(2) + "#ID# tree = (#ID#) copy();\n" +
         ind(2) + "if (children != null) {\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
-        ind(3) + "for(int i = 0; i < children.length; i++) {\n" + 
+        ind(3) +   "for (int i = 0; i < children.length; ++i) {\n" +
         skipNTAs +
-        ind(4) + "ASTNode node = children[i];\n" +
-        // OLD: ind(2) + "for(int i = 0; i < children.length; i++) {\n" + 
-        // OLD: ind(3) + "ASTNode node = getChildNoTransform(i);\n" +
-        //
-        ind(4) +  "if(node != null) {\n" +
-        ind(5) +   "node = node.fullCopy();\n" +
+        ind(4) +     "ASTNode child = (ASTNode) children[i];\n" +
+        ind(4) +     "if(child != null) {\n" +
+        ind(5) +       "child = child.fullCopy();\n" +
         // ES_2011-10-04: Code generation for incremental evaluation, clone
         (ASTNode.incremental ? jjtGenIncrementalCloneNode() : 
-          ind(5) + "tree.setChild(node, i);\n") +
-        // OLD: ind(5) + "tree.setChild(node, i);\n"
-        //
-        ind(4) +   "}\n" +
-        ind(3) +  "}\n" +
+        ind(5) +       "tree.setChild(child, i);\n") +
+        ind(4) +     "}\n" +
+        ind(3) +   "}\n" +
         ind(2) + "}\n" +
         ind(2) + "return tree;\n" +
         ind + "}\n" +

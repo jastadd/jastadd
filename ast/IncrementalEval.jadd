@@ -3513,9 +3513,9 @@ aspect IncrementalEval {
   // ES_2011-10-04: Changing this to an internal set of child via the children array to not send notifications
   public String ASTDecl.jjtGenIncrementalCloneNode() {
     StringBuffer buf = new StringBuffer();
-    buf.append(ind(3) + "tree.children[i] = node;\n");
-    buf.append(ind(3) + "node.parent = tree;\n");
-    //buf.append(ind(3) + "state().enterConstruction(); tree.setChild(node, i); state().exitConstruction();\n");
+    buf.append(ind(5) + "tree.children[i] = child;\n");
+    buf.append(ind(5) + "child.parent = tree;\n");
+    //buf.append(ind(5) + "state().enterConstruction(); tree.setChild(node, i); state().exitConstruction();\n");
     return buf.toString();
   }
 
