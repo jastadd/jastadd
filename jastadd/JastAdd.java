@@ -462,15 +462,18 @@ public class JastAdd {
     outputDir = new File(outputDirName);
 
     if(!outputDir.exists()) {
-      System.err.println("Output directory does not exist");
+      System.err.println("Output directory " + outputDir.getPath() +
+        " does not exist");
       System.exit(1);
     }
     if(!outputDir.isDirectory()) {
-      System.err.println("Output directory is not a directory");
+      System.err.println("Output directory " + outputDir.getPath() +
+        " is not a directory");
       System.exit(1);
     }
     if(!outputDir.canWrite()) {
-      System.err.println("Output directory is write protected");
+      System.err.println("Output directory " + outputDir.getPath() +
+        " is write protected");
       System.exit(1);
     }
 
