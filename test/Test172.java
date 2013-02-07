@@ -1,6 +1,5 @@
 package test;
 import java.io.*;
-import java.util.*;
 import test.ast.*;
 
 public class Test172 {
