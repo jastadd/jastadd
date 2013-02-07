@@ -1,9 +1,0 @@
-aspect Test62 {
-	  syn boolean A.a(String name) circular [false] {
-	  	return (a(1) == 1);
-	  }
-	  
-	  //syn boolean A.a(int i) circular [1] = 1;
-	  
-	  syn int A.a(int i) circular  [1] = 1;
-}
