@@ -448,7 +448,7 @@ public class JastAdd {
       ASTNode.ind = "\t";
     }
 
-    ASTNode.lazyMaps = lazyMaps.matched();
+    ASTNode.lazyMaps = !noLazyMaps.matched();
 
     publicModifier = !privateOption.matched();
 
@@ -456,7 +456,7 @@ public class JastAdd {
     ASTNode.beaver = beaver.matched();
     ASTNode.visitCheckEnabled = !noVisitCheck.matched();
     ASTNode.cacheCycle = !noCacheCycle.matched();
-    ASTNode.componentCheck = !noComponentCheck.matched();
+    ASTNode.componentCheck = componentCheck.matched();
     ASTNode.noInhEqCheck = noInhEqCheck.matched();
 
     ASTNode.suppressWarnings = suppressWarnings.matched();
