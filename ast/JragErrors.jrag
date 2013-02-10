@@ -219,7 +219,7 @@ aspect Errorcheck {
 		  InhDecl decl = hostClass().lookupInhDecl(signature());
       if(decl != this) {
        result.append(getFileName() + ":" + getStartLine() + " ");
-       result.append("Multiple declaration of attribute " + hostClass().name() + "." + name());
+       result.append("Multiple declaration of inherited attribute " + hostClass().name() + "." + name());
        result.append(", previously declared in " + decl.getFileName() + ":" + decl.getStartLine() + "\n");
       }
       else {
