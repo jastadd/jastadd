@@ -1,3 +1,19 @@
+2013-02-10  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Removed obsolete file Makefile.deprecated
+    * Equivalent inherited attribute re-declarations now only raise a
+      warning rather than an error
+
+2013-02-07  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Improved error messages for multiple declaration of synthesized and
+      inherited attributes
+
+2013-02-06  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Include output directory path in missing output dir error message
+    * ASTNode.copy() now sets the parent pointer of the copy to null
+
 2013-01-31  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Fixed issue http://svn.cs.lth.se/trac/jastadd-trac/ticket/112

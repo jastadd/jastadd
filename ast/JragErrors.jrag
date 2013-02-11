@@ -218,9 +218,19 @@ aspect Errorcheck {
     if(!ASTNode.noInhEqCheck) {
 		  InhDecl decl = hostClass().lookupInhDecl(signature());
       if(decl != this) {
-       result.append(getFileName() + ":" + getStartLine() + " ");
-       result.append("Multiple declaration of attribute " + hostClass().name() + "." + name());
-       result.append(", previously declared in " + decl.getFileName() + ":" + decl.getStartLine() + "\n");
+       System.err.println("Warning:");
+       System.err.print(getFileName() + ":" + getStartLine() + " ");
+       System.err.print("Multiple declaration of inherited attribute " + hostClass().name() + "." + name());
+       System.err.println(", previously declared in " + decl.getFileName() + ":" + decl.getStartLine());
+
+       // detach this decl from the parent ASTDecl's InhDecl list
+       List parent = (List) getParent();
+       for (int i = 0; i < parent.getNumChild(); ++i) {
+         if (parent.getChild(i) == this) {
+           parent.removeChild(i);
+           break;
+         }
+       }
       }
       else {
         //System.out.println("Processing " + name() + " in " + hostClass().name());
