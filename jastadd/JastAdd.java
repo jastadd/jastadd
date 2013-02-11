@@ -331,11 +331,11 @@ public class JastAdd {
     Option printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
     Option indent = new Option("indent", "Type of indentation {2space|4space|8space|tab}", true);
 
-	// Incremental flags
+    // Incremental flags
     Option incremental = new Option("incremental", "turns on incremental evaluation with the given configuration", true);
-	Option fullFlush = new Option("fullFlush", "full flush in incremental evaluation");
-	// TODO!
-	/*System.out.println("  --incremental=CONFIGURATION  (turns on incremental evaluation with the given configuration)");
+    Option fullFlush = new Option("fullFlush", "full flush in incremental evaluation");
+    // TODO!
+    /*System.out.println("  --incremental=CONFIGURATION  (turns on incremental evaluation with the given configuration)");
     System.out.println("    CONFIGURATION: ATTRIBUTE(,ATTRIBUTE)* (comma separated list of attributes)");
     System.out.println("    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable with attr, node, region)");
     System.out.println("    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not combinable with param, node, region)");
@@ -552,11 +552,11 @@ public class JastAdd {
     // ES_2011-09-06: Handle incremental flag
     ASTNode.incremental = incremental.matched();
     String incrementalConfig;
-	if (incremental.matched()) {
-    	incrementalConfig = incremental.value();
-	} else {
-		incrementalConfig = "";
-	}
+    if (incremental.matched()) {
+      incrementalConfig = incremental.value();
+    } else {
+      incrementalConfig = "";
+    }
     Map incrementalArgMap = parseIncrementalConfig(incrementalConfig);
     ASTNode.incrementalLevelParam = incrementalArgMap.containsKey("param");
     ASTNode.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
@@ -573,7 +573,12 @@ public class JastAdd {
     }
 
     // ES_2011-10-10: Handle full flush flag
-    ASTNode.fullFlush = fullFlush.matched();
+    if (!incremental.matched()) {
+      // fullFlush is implicitly ON when incremental is OFF
+      ASTNode.fullFlush = true;
+    } else {
+      ASTNode.fullFlush = fullFlush.matched();
+    }
 
     pack = packageOption.value().replace('/', '.');
     int n = cla.getNumOperands();
