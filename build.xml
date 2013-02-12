@@ -43,7 +43,7 @@
 		</jastadd>
 		<mkdir dir="ast/AST"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
-		<touch file="ast/Ast.jjt"/>
+		<touch file="${spec.dir}/javacc/ast/Ast.jjt"/>
 		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
 			<arg value="-OUTPUT_DIRECTORY=${gen.dir}/ast/AST"/>
 			<arg value="-NODE_PREFIX=&quot;&quot;"/>
