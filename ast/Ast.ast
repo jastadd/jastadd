@@ -1,4 +1,8 @@
-Grammar ::= TypeDecl*;
+Grammar ::= TypeDecl*  RegionDecl* ; // ES_2011-12-05: Region declarations for coarse incremental dependency tracking
+
+// ES_2011-12-05: Region declarations for coarse incremental dependency tracking, e.g., "region A;"
+RegionDecl ::= IdUse; 
+//
 
 abstract TypeDecl ::= IdDecl ClassBodyDecl* SynDecl* SynEq* InhDecl* InhEq* Components* CollDecl*
   <FileName> <StartLine:int> <EndLine:int> <Comment:String>;

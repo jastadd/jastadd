@@ -1,0 +1,80 @@
+
+=== Flag
+
+jastadd2.jar --incremental="attr,mark,limit"
+
+Adding a configurable flag to simplify testing of incremental configurations and
+to avoid adding of a lot of flags. The flag takes a comma separated list of attributes.
+
+?? Can there be white spaces in the comma separated list? If not, will apostrophes help?
+
+The occurence of this flag is represented as a boolean static field in ASTNode
+(defined in jrag/JragCodeGen.jrag): ASTNode.incremental
+
+(Changes in jastadd/JastAddTask.java, jastadd/JastAdd.java, jrag/JragCodeGen.jrag)
+
+==== Flag Attributes
+
+The flag attribute string should be a comma separated list of the following attributes:
+
+1) "param" | "attr"  | "node"  - The level on which to track dynamic dependencies. 
+                       Only one can be choosen. Default is "attr".
+
+2) "flush" | "mark"  - The invalidation strategy. Only one can be chosen. Defaul is "flush".
+
+3) "full"  | "limit" - The propagation strategy. Only one can be chosen. Default is "nolimit".
+
+The values of these attributes are represented as boolean public static fiels on ASTNode
+(defined in jrag/JragCodeGen.jrag). Each attribute is given its own boolean static field.
+
+"param"   : ASTNode.incrementalLevelParam
+"attr"    : ASTNode.incrementalLevelAttr 
+"node"    : ASTNode.incrementalLevelNode
+"flush"   : ASTNode.incrementalChangeFlush
+"mark"    : ASTNode.incrementalChangeMark
+"full"    : ASTNode.incrementalPropFull
+"limit"   : ASTNode.incrementalPropLimit
+
+(Changes in jastadd/JastAdd.java)
+
+
+==== Dependency Graph Node
+
+We call this a "handler" and this is a generic construct that can be placed on parameter level, 
+attribute level, node level, and node group level.
+
+It is created as an innerclass of ASTNode.
+
+
+
+(Changes in ast/JaddCodeGen.jrag)
+
+
+
+==== Dependency tracking
+
+
+== Tree modifications
+
+setChild: notify all sibling children if they are ordinary children accessible via a getNumChild iteration.
+Do NOT notify NTA children. They do not have the same dependency to the child list. They are accessed independently.
+
+
+
+======= Rewrites
+
+init_child is saved when a static rewrite is investigated. This must not lead to a real rewrite -- the condition
+may be false. Regardless of if there is an actual rewrite the initial child will at this point be stored. This will
+cause a cache dump to write out that a rewrite has happend. It may then be hard to determine if there was a rewrite
+if the root of the rewritten tree is the same as that of the initial tree.
+
+Dependants in the initial rewritten AST will be preserved at rewrite unless all dependants are removed. This is currently
+done during set via the "clearDependants" in the handler class. This is a temporary solution until we move on to full
+tracking during rewrites. The implementation of "clearDepsInTree" should not invoke new dependencies during its execution.
+For this reason, the looping over child nodes uses the "numChildren" attribute directly to circumvent a call to "getNumChild"
+or "getNumChildNoTransform".
+
+There is a default rewrite on List included to allow for the "rewrite A in B" construct allowing rewrites affecting siblings
+in a list. The typical (only?) example is the rewrite of "int x,y;" to "int x; int y;", or similar.
+
+

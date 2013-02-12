@@ -7,6 +7,10 @@ aspect Environment {
   inh Grammar Components.env();
   inh Grammar IdUse.env();
   inh Grammar TypeDecl.env();
+
+  // ES_2011-12-05: Equation for the RegionDecl child of Grammar, coarse incremental dependency tracking
+  eq Grammar.getRegionDecl().env() = this;
+  //
 }
 
 aspect Lookup {
@@ -71,6 +75,10 @@ aspect Names {
   syn String IdUse.name() = getID();
 
   syn String TokenId.name() = getID();
+
+  // ES_2011-12-05: Name to RegionDecl, coarse incremental evaluation
+  syn String RegionDecl.name() = getIdUse().name();
+  //
 }
 
 aspect Types {

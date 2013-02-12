@@ -120,6 +120,21 @@ aspect JragCodeGen {
   public static boolean ASTNode.cacheImplicit = false;
   public static boolean ASTNode.ignoreLazy = false;
 
+  // EMMA_2011-09-19: Adding attribute fields for incremental evalution
+  public static boolean ASTNode.incremental = false; // the flag
+  public static boolean ASTNode.incrementalLevelParam = false; // track on param level
+  public static boolean ASTNode.incrementalLevelAttr = false; // track on attribute level
+  public static boolean ASTNode.incrementalLevelNode = false; // track on node level
+  public static boolean ASTNode.incrementalLevelRegion = false; // track on region level
+  public static boolean ASTNode.incrementalChangeFlush = false; // invalidate with flush
+  public static boolean ASTNode.incrementalChangeMark = false; // invalidate with mark
+  public static boolean ASTNode.incrementalPropFull = false; // full propagation of change
+  public static boolean ASTNode.incrementalPropLimit = false; // limited propagation of change
+  public static boolean ASTNode.incrementalDebug = false; // debugging
+  public static boolean ASTNode.incrementalTrack = false; // tracking
+
+  // ES_2011-10-10: Adding field for full flush support
+  public static boolean ASTNode.fullFlush = false;
 
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine  public boolean AttrDecl.getLazy() {
@@ -737,24 +752,36 @@ aspect JragCodeGen {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
       if(getNumParameter() == 0)
-        return ind(2) + "if(#NAME#_computed) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+                //
+               ind(2) + "if(#NAME#_computed) {\n" +
                traceEndCachedAttr() +
                ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition());\n" +
                ind(2) + "}\n";
       else
-        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+                //
+               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
                ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition()));\n" +
                ind(2) + "}\n";
     }
     if(getNumParameter() == 0)
-      return ind(2) + "if(#NAME#_computed) {\n" +
+      return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+             (ASTNode.incremental ? genIncrementalTracking() : "") +
+             //
+             ind(2) + "if(#NAME#_computed) {\n" +
              traceEndCachedAttr() +
              ind(3) + "return #NAME#_value;\n" +
              ind(2) + "}\n";
     else {
       if(isCircular())
-        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               //
+               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                ind(3) + "Object _o = #NAME#_values.get(_parameters);\n" +
                ind(3) + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
                traceEndCachedAttr() +
@@ -764,7 +791,10 @@ aspect JragCodeGen {
                ind(4) + "_value = (ASTNode$State.CircularValue)_o;\n" +
                ind(2) + "}\n";
       else
-        return ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+        return // ES_2011-09-22: Code generation for incremental evaluation, tracking
+               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               //
+               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
                ind(3) + "return " + fromReferenceType("#NAME#_values.get(_parameters)", getType()) + ";\n" +
                ind(2) + "}\n";
@@ -839,21 +869,39 @@ aspect JragCodeGen {
   public String AttrDecl.cacheStore() {
     if(!getLazy())
       return "";
-    if(getNumParameter() == 0)
-      return ind(2) + cacheStoreRewrite() +
-        " #NAME#_computed = true;\n";
-    else
-      return ind(2) + cacheStoreRewrite() +
-        " #NAME#_values.put(_parameters, " +
-        toReferenceType("#NAME#_value", getType()) + ");\n";
+    if(getNumParameter() == 0) {
+      return cacheStoreRewrite() + "{" +
+        (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
+        " #NAME#_computed = true; }\n" +
+        (ASTNode.incremental ? genIncrementalTrackingStackClear() : "");
+    } else {
+      return cacheStoreRewrite() + "{" +
+        (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
+        " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n" +
+        (ASTNode.incremental ? genIncrementalTrackingStackClear() + "\n" : "");
+    }
   }
 
   public String AttrDecl.returnStmt() {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
-      return "return (" + getType() + ") getChild(#NAME#ChildPosition());\n";
+      // ES_2011-09-22: Code generation for incremental evaluation, stack
+      return getType() + " node = (" + getType() + ") this.getChild(#NAME#ChildPosition());\n" +
+          (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+          ind(2) + "return node;\n";
+      // OLD: return "return (" + getType() + ") this.getChild(#NAME#ChildPosition());\n";
+      //
     }
-    return "return #NAME#_value;\n";
+
+    if (isCircular()) {
+      return ind(2) + "return #NAME#_value;\n";
+    }
+
+    // ES_2011-09-22: Code generation for incremental evaluation, stack
+    return (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+        ind(2) + "return #NAME#_value;\n";
+    // OLD: return "return #NAME#_value;\n";
+    //
   }
 
   syn boolean AttrEq.hasComputeBlock() = true;
@@ -987,7 +1035,10 @@ aspect JragCodeGen {
            attr.traceBeginAttr() +
            attr.initLazyMaps() +
            attr.cacheCheck() +
-           (ASTNode.rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
+           // ES_2011-09-22: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter() : "") + 
+           //
+           (ASTNode.rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
            attr.addInterruptedCircleDeclaration() +
            attr.visitedCheck() +
            attr.setVisited() +
@@ -1029,7 +1080,13 @@ aspect JragCodeGen {
            ind(4) + "state.CHANGE = false;\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
+           // ES_2012-01-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           //
            ind(4) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           // ES_2012-01-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           //
            ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
            ind(5) + "state.CHANGE = true;\n" +
            ind(4) + "#NAME#_value = new_#NAME#_value; \n" +
@@ -1058,7 +1115,13 @@ aspect JragCodeGen {
            attr.addAddToComponent() +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
+           // ES_2012-01-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           //
            ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           // ES_2012-01-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           //
            ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
            ind(4) + "state.CHANGE = true;\n" +
            ind(3) + "#NAME#_value = new_#NAME#_value; \n" +
@@ -1104,7 +1167,13 @@ aspect JragCodeGen {
            ind(4) + "state.CHANGE = false;\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
+           // ES_2012-09-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           //
            ind(4) + "new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           // ES_2012-09-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           //
            ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
            ind(5) + "state.CHANGE = true;\n" +
            ind(5) + "_value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" +
@@ -1145,7 +1214,13 @@ aspect JragCodeGen {
             ) +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
+           // ES_2012-09-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           //
            ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           // ES_2012-09-25: Code generation for incremental evaluation, tracking
+           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           //
            attr.cacheCycleCheck() + 
            attr.resetCycleCheck() +
            ind(3) + "else if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
@@ -1217,7 +1292,14 @@ aspect JragCodeGen {
          ind(3) + "if (state.LAST_CYCLE) {\n" +
          ind(4) + "#NAME#_computed = true;\n" +
          inhDebugString() +
-         ind(4) + "return " + circularComputeCall() + ";\n" +
+         // ES_2011-09-23: Code generation for incremental evaluation, 
+         // separating return stmt to place a tracking statement in the middle 
+         (ASTNode.incremental ? genIncrementalTrackingStackEnter2() : "") +
+         ind(4) + "#TYPE# new_#NAME#_value = " + circularComputeCall() + ";\n" +
+         (ASTNode.incremental ? genIncrementalTrackingStackExit2() : "") +
+         ind(4) + "return new_#NAME#_value;\n" +
+         // OLD: ind(4) + "return " + circularComputeCall() + ";\n" +
+         //
          ind(3) + "}\n";
      else {
        // EMMA_2011-09-08: Adding java1.4 code
@@ -1246,7 +1328,7 @@ aspect JragCodeGen {
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        ind(2) + "if(#NAME#_visited && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
+        ind(2) + "if(#NAME#_visited != -1 && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
@@ -1262,7 +1344,7 @@ aspect JragCodeGen {
           ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";    
       } else
         return
-        ind(2) + "if(_value.visited && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+        ind(2) + "if(_value.visited != -1 && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
@@ -1457,6 +1539,9 @@ aspect JragCodeGen {
           else
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
+                   // ES_2012-02-21: Code generation for incremental evaluation
+                   (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                   //
                    ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
@@ -1472,11 +1557,17 @@ aspect JragCodeGen {
           else
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
+                   // ES_2012-02-21: Code generation for incremental evaluation
+                   (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                   //
                    ind(3) + "#NAME#_list.is$Final = true;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
                    ind(2) + "}\n" +
                    ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
                    ind(2) + "if(#NAME#_value != null) {\n" +
+                   // ES_2012-03-11: A parameterized NTA may have values with rewrites
+                   ind(3) + "#NAME#_value = (#TYPE#)#NAME#_list.getChild(#NAME#_list.numChildren-1);\n" +
+                   //
                    ind(3) + "#NAME#_value.is$Final = true;\n" +
                    ind(2) + "}\n";
         }
@@ -1487,6 +1578,9 @@ aspect JragCodeGen {
         else
           return ind(2) + "if(#NAME#_list == null) {\n" +
                  ind(3) + "#NAME#_list = new List();\n" +
+                 // ES_2012-02-21: Code generation for incremental evaluation
+                 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                 //
                  ind(3) + "#NAME#_list.setParent(this);\n" +
                  ind(2) + "}\n" +
                  ind(2) + "#NAME#_list.add(#NAME#_value);\n";
@@ -1846,12 +1940,18 @@ aspect JragCodeGen {
     buf.append(ind + " */\n");
     buf.append(ind + "public ASTNode rewriteTo() {\n");
     if(name().equals("List")) {
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      if (!(ASTNode.incremental || ASTNode.fullFlush)) {
+      //
       buf.append(ind(2) + "if(list$touched) {\n");
       buf.append(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
       buf.append(ind(4) + "getChild(i);\n");
       buf.append(ind(3) + "list$touched = false;\n");
       buf.append(ind(3) + "return this;\n");
       buf.append(ind(2) + "}\n");
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      }
+      //
     }
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);

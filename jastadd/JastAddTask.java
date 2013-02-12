@@ -148,6 +148,14 @@ public class JastAddTask extends Task {
   private boolean ignoreLazy = false;
   public void setIgnoreLazy(boolean b) { ignoreLazy = true; }
 
+  // ES_2011-09-06: Adding flag for incremental evaluation
+  private String incremental = "";
+  public void setIncremental(String s) { incremental = s; }
+
+  // ES_2011-10-10: Adding flag for full flush
+  private boolean fullFlush = false;
+  public void setFullFlush(boolean b) { fullFlush = b; }
+
   public void execute() throws BuildException {
     if(jjtree && grammar == null)
       throw new BuildException("JJTree option requires grammar to be set");
@@ -237,6 +245,12 @@ public class JastAddTask extends Task {
     if (cacheNone) args.add("--cacheNone");
     if (cacheImplicit) args.add("--cacheImplicit");
     if (ignoreLazy) args.add("--ignoreLazy");
+
+    // ES_2011-09-06: Adding incremental attribute as JastAdd arguments
+    if (!incremental.equals("")) args.add("--incremental=" + incremental);
+
+    // ES_2011-10-10: Adding full flush attribute as JastAdd argument
+    if (fullFlush) args.add("--fullFlush");
 
     args.addAll(files);
 

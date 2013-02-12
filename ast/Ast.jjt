@@ -167,6 +167,9 @@ TOKEN : /* Reserved words */
   | < DOUBLE: "double" >
   | < SUPER: "super" >
   | < EXTENDS: "extends" >
+  // EMMA_2011-12-05: Adding words "region" for grammar annotations for coarse dependency tracking
+  | < REGION: "region" >
+  //
 }
 
 TOKEN : /* Literals */
@@ -178,8 +181,23 @@ TOKEN : /* Literals */
 Grammar Grammar() #Grammar: {}
 {
   ClassList()
+  // EMMA_2011-12-05: Coarse dependency tracking, allow a list of region declarations in the grammar
+  RegionList()
+  // 
   { return jjtThis; }
 }
+
+// EMMA_2011-12-05: Coarse dependency tracking, region declaration list and region declaration
+void RegionList() #List : {}
+{
+	( RegionDecl() )*
+}
+void RegionDecl() #RegionDecl : {}
+{
+	<REGION> IdUse() <SEMICOLON>
+}
+//
+
 
 void ClassList() #List: {}
 {
