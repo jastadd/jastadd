@@ -1,3 +1,7 @@
+2013-02-12  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * New release: 20130212
+
 2013-02-10  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Removed obsolete file Makefile.deprecated
@@ -57,7 +61,7 @@
 
 2012-11-22  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-    * Generate improved error messages for method/equation refinement errors
+    * Improved error messages for method/equation refinement errors
 
 2012-11-14  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
@@ -65,15 +69,17 @@
     introductions.  This allows interface methods to be refined again.
     Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/69
 
-    * Increased the minimum list size limit (above zero) to 4 (was 1)
+    * Increased minimum (non-empty) child array size from 1 to 4
 
     * Added init$Children method to initialize the child array with the
     correct initial size. This also avoids some redundant initialization of
-
     nta children.
+
     * Refactored constructor code generation
 
 2012-11-12  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * New release: 20121112
 
     * Generate fewer compute methods. Regular non-lazy synthesized
     attributes do not need a separate compute method.
@@ -89,7 +95,7 @@
 
     * Added SVN revision number to version string
 
-2012-10-26  Jesper Öqvist
+2012-10-26  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * New release: 20121026
 
