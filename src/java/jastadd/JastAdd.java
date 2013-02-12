@@ -7,8 +7,6 @@ import jrag.AST.*;
 import java.util.*;
 import java.io.*;
 
-import jrag.*;
-
 public class JastAdd {
 
   private static ResourceBundle resources = null;
