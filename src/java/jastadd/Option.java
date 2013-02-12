@@ -116,6 +116,7 @@ public class Option {
    * Set a value for this option.
    * This works just like a default value,  except that
    * it is not printed in the help line for the option.
+   * @param v New value
    */
   public void setValue(String v) {
     value = v;
