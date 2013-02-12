@@ -61,7 +61,7 @@
 
 2012-11-22  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-    * Generate improved error messages for method/equation refinement errors
+    * Improved error messages for method/equation refinement errors
 
 2012-11-14  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
@@ -69,7 +69,7 @@
     introductions.  This allows interface methods to be refined again.
     Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/69
 
-    * Increased the minimum list size limit (above zero) to 4 (was 1)
+    * Increased minimum (non-empty) child array size from 1 to 4
 
     * Added init$Children method to initialize the child array with the
     correct initial size. This also avoids some redundant initialization of
