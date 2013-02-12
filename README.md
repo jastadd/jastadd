@@ -97,11 +97,13 @@ Tools Used
 ----------
 
 Special tools used (jars included in the tools-dir):
+
 * JastAdd2: The semantics are defined using JastAdd itself.
 * JJTree:   Builds the AST used by JavaCC
 * JavaCC:   For parsing aspect source files
 
 General tools used (assumed to be available on your platform):
+
 * JVM:      A Java Virtual Machine
 * Ant:      Building JastAdd2
 
