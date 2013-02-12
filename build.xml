@@ -4,6 +4,7 @@
 	<property name="gen.dir" location="src/gen"/>
 	<property name="bin.dir" location="bin"/>
 	<property name="tools.dir" value="tools"/>
+	<property name="tt.src.dir" value="tinytemplate/src/java"/>
 
 	<description>Build script for JastAdd2</description>
 
@@ -73,8 +74,9 @@
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
 			outputdirectory="${gen.dir}/jrag/AST"
 			target="${gen.dir}/jrag/AST/Jrag.jj"/>
-		<javac destdir="${bin.dir}" source="1.4" includeantruntime="true">
+		<javac destdir="${bin.dir}" includeantruntime="true">
 			<src path="${gen.dir}"/>
+			<src path="${tt.src.dir}"/>
 		</javac>
 		<copy todir="${bin.dir}">
 			<fileset dir="${gen.dir}">
