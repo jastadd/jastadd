@@ -17,14 +17,14 @@ echo "# 2. Create the release zip files jastadd2-src.zip and jastadd2-bin.zip"
 echo "ant release"
 echo
 echo "# 3. Create a new dir at jastadd.org"
-echo "ssh login.cs.lth.se \"umask 002;"\
-	"mkdir /cs/jastadd/releases/jastadd2/${VERSION}\""
+echo "ssh login.cs.lth.se \"mkdir /cs/jastadd/releases/jastadd2/${VERSION}\""
 echo
 echo "# 4.1 Upload the zip files and appropriate documentation to jastadd.org"
 echo "scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php\\"
 echo "    login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
 echo
 echo "# 4.2 Make sure the new files have group write permission"
+echo "ssh login.cs.lth.se \"chmod -R g+w /cs/jastadd/releases/jastadd2/${VERSION}\""
 echo
 echo "# 5. Cleaning up"
 echo "rm -f jastadd2-bin.zip jastadd2-src.zip"
