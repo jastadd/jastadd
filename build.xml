@@ -12,19 +12,6 @@
 
 	<target name="build-resources">
 		<mkdir dir="${gen.dir}"/>
-		<echo message="Revision: -1" file="svn.info"/>
-		<delete file="svn.info"/>
-		<exec executable="svn" failonerror="false"
-			failifexecutionfails="false" output="svn.info">
-			<arg value="info"/>
-		</exec>
-		<loadproperties srcfile="svn.info">
-			<filterchain>
-				<linecontains>
-					<contains value="Revision"/>
-				</linecontains>
-			</filterchain>
-		</loadproperties>
 		<tstamp>
 			<format property="build.date" pattern="yyyyMMdd"/>
 		</tstamp>
@@ -32,8 +19,7 @@
 		<copy file="resources/JastAdd.txt" overwrite="true"
 			toFile="${gen.dir}/JastAdd.properties">
 			<filterset>
-				<filter token="VERSION"
-					value="${version.name} (r${Revision})"/>
+				<filter token="VERSION" value="${version.name}"/>
 			</filterset>
 		</copy>
 	</target>
