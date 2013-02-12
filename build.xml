@@ -28,7 +28,7 @@
 
 	<target name="build" description="generate sources and build JastAdd2"
 		depends="build-resources">
-		<mkdir dir="${gen.dir}/ast"/>
+		<mkdir dir="${gen.dir}/ast/AST"/>
 		<mkdir dir="${gen.dir}/jrag/AST"/>
 		<mkdir dir="${bin.dir}"/>
 		<copy todir="${gen.dir}/jrag">
@@ -41,7 +41,6 @@
 			lazyMaps="false">
 			<fileset dir="${spec.dir}/jastadd/ast" includes="*.jrag,*.jadd,*.ast"/>
 		</jastadd>
-		<mkdir dir="ast/AST"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="${spec.dir}/javacc/ast/Ast.jjt"/>
 		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
