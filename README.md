@@ -34,21 +34,21 @@ Building
 Builds are done by using the Apache Ant script build.xml:
 
 * Ordinary build (generate and compile):
-    > ant
+    `> ant`
 * Create a new jar file (jastadd2.jar)
-    > ant jar
+    `> ant jar`
 * Create a new source zip file (jastadd2-src.zip)
-    > ant source-zip
+    `> ant source-zip`
 * Create a zip file containing the main jar plus release notes and reference
   manual (jastadd2-bin.zip)
-    > ant bin-zip
+    `> ant bin-zip`
 * Make a new release (builds the source zip and binary zip):
-    > ant release
+    `> ant release`
 * Delete generated files
-    > ant clean
+    `> ant clean`
 * Bootstrap jastadd2 (replace the jastadd2.jar used to build jastadd2).
   For stability, bootstrap is done seldom and only with extra testing.
-    > ant bootstrap
+    `> ant bootstrap`
 
 Release Process
 ---------------
@@ -58,10 +58,10 @@ Release Process
      - doc/reference-manual.html
      - doc/release-notes.html (Add suitable high-level content for this release)
   2. Create a new jar file:
-      > ant jar
+      `> ant jar`
   3. Run all test cases.
   4. Run the release script which will show you commands for doing the release.
-     > ./release.sh
+     `> ./release.sh`
      This will involve:
      - Creating a new tagged version R20110506 (or other appropriate date)
      - Patching html files with version R20110506
@@ -78,7 +78,7 @@ Release Process
      - Update download.html to link to the new release
      - Update documentation/reference_manual.php to link to latest reference manual
      - Commit the web pages
-     - Do ./publish (to check out the newest web on the real web site)
+     - Do `./publish` (to check out the newest web on the real web site)
 
 Tools Used
 ----------
@@ -95,11 +95,11 @@ General tools used (assumed to be available on your platform):
 File Types
 ----------
 
-  .ast      JastAdd abstract syntax tree files
-  .jrag     JastAdd semantics files. Usually declarative.
-  .jadd     JastAdd semantics files. Usually imperative.
-  .java     Regular Java sources
-  .jjt      JavaCC files, using the JJTree AST-building commands.
+* `.ast`      JastAdd abstract syntax tree files
+* `.jrag`     JastAdd semantics files. Usually declarative.
+* `.jadd`     JastAdd semantics files. Usually imperative.
+* `.java`     Regular Java sources
+* `.jjt`      JavaCC files, using the JJTree AST-building commands.
 
 Directory Structure
 -------------------
