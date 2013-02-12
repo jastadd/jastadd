@@ -99,7 +99,11 @@
 
 	<target name="clean">
 		<delete file="svn.info"/>
-		<delete dir="${gen.dir}"/>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${gen.dir}">
+				<exclude name=".gitignore"/>
+			</fileset>
+		</delete>
 		<delete dir="${bin.dir}"/>
 	</target>
 
