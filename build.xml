@@ -1,7 +1,8 @@
 <project name="JastAdd2" default="build">
 
 	<property name="spec.dir" location="${basedir}"/>
-	<property name="gen.dir" location="src/gen"/>
+	<property name="src.dir" location="src"/>
+	<property name="gen.dir" location="${src.dir}/gen"/>
 	<property name="bin.dir" location="bin"/>
 	<property name="tools.dir" value="tools"/>
 	<property name="tt.src.dir" value="tinytemplate/src/java"/>
@@ -29,7 +30,6 @@
 		depends="build-resources">
 		<mkdir dir="${gen.dir}/ast/AST"/>
 		<mkdir dir="${gen.dir}/jrag/AST"/>
-		<mkdir dir="${gen.dir}/jastadd"/>
 		<mkdir dir="${bin.dir}"/>
 		<copy todir="${gen.dir}/ast">
 		  <fileset dir="${basedir}/ast">
@@ -38,11 +38,6 @@
 		</copy>
 		<copy todir="${gen.dir}/jrag">
 		  <fileset dir="${basedir}/jrag">
-		    <include name="**/*.java"/>
-		  </fileset>
-		</copy>
-		<copy todir="${gen.dir}/jastadd">
-		  <fileset dir="${basedir}/jastadd">
 		    <include name="**/*.java"/>
 		  </fileset>
 		</copy>
@@ -75,6 +70,7 @@
 			outputdirectory="${gen.dir}/jrag/AST"
 			target="${gen.dir}/jrag/AST/Jrag.jj"/>
 		<javac destdir="${bin.dir}" includeantruntime="true">
+			<src path="${src.dir}/java"/>
 			<src path="${gen.dir}"/>
 			<src path="${tt.src.dir}"/>
 		</javac>
