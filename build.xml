@@ -11,6 +11,7 @@
 		classpath="${tools.dir}/jastadd2.jar"/>
 
 	<target name="build-resources">
+		<mkdir dir="${gen.dir}"/>
 		<echo message="Revision: -1" file="svn.info"/>
 		<delete file="svn.info"/>
 		<exec executable="svn" failonerror="false"
@@ -29,7 +30,7 @@
 		</tstamp>
 		<property name="version.name" value="R${build.date}"/>
 		<copy file="resources/JastAdd.txt" overwrite="true"
-			toFile="JastAdd.properties">
+			toFile="${gen.dir}/JastAdd.properties">
 			<filterset>
 				<filter token="VERSION"
 					value="${version.name} (r${Revision})"/>
@@ -89,11 +90,15 @@
 		<javac destdir="${bin.dir}" source="1.4" includeantruntime="true">
 			<src path="${gen.dir}"/>
 		</javac>
+		<copy todir="${bin.dir}">
+			<fileset dir="${gen.dir}">
+				<include name="**/*.properties"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="clean">
 		<delete file="svn.info"/>
-		<delete file="JastAdd.properties"/>
 		<delete dir="${gen.dir}"/>
 		<delete dir="${bin.dir}"/>
 	</target>
@@ -113,7 +118,6 @@
 			</manifest>
 			<fileset dir=".">
 				<include name="LICENSE"/>
-				<include name="JastAdd.properties"/>
 			</fileset>
 			<fileset dir="${bin.dir}">
 				<include name="**/*"/>
