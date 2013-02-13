@@ -1,0 +1,18 @@
+ast.copy =
+[[/**
+ * @apilevel internal
+ */
+$(Annotations)public $ReturnType copy() {
+  $BlockBegin
+  try {
+    #name node = (#name) clone();
+    node.parent = null;
+    if(children != null)
+      node.children = (ASTNode[]) children.clone();
+    $IncrementalCopyNode
+    return node;
+  } catch (CloneNotSupportedException e) {
+    throw new Error("Error: clone not supported for " + getClass().getName());
+  }
+  $BlockEnd
+}]]

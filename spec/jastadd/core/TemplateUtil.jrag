@@ -1,0 +1,23 @@
+import org.jastadd.tinytemplate.*;
+
+aspect TemplateUtil {
+  inh lazy TemplateContext ASTDecl.parentContext();
+
+  eq Grammar.getChild().parentContext() {
+    TinyTemplate tt = new TinyTemplate();
+    try {
+      InputStream in = getClass().getResourceAsStream("/template/ast/CopyNode.tt");
+      tt.loadTemplates(in);
+      in.close();
+    } catch (TemplateParser.SyntaxError e) {
+      System.err.println(e.getMessage());
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+    return tt;
+  }
+
+  syn lazy TemplateContext ASTDecl.tt() {
+    return new SimpleContext(parentContext(), this);
+  }
+}

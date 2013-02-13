@@ -84,20 +84,6 @@ aspect ASTCloneNode {
     stream.print(ind + "}\n");
 
     if(!hasAbstract()) {
-      String copyBody =
-          ind(2) + "try {\n" +
-          ind(3) +   "#CLASS# node = (#CLASS#) clone();\n" +
-          ind(3) +   "node.parent = null;\n" +
-          ind(3) +   "if(children != null)\n" +
-          ind(4) +     "node.children = (ASTNode[]) children.clone();\n" +
-          // ES_2011-10-07: Code generation for incremental evaluation, copy
-          (ASTNode.incremental ? genIncrementalCopyNode() : "") +
-          ind(3) +   "return node;\n" +
-          ind(2) + "} catch (CloneNotSupportedException e) {\n" +
-          ind(3) +   "throw new Error(\"Error: clone not supported for \" +\n" +
-          ind(4) +     "getClass().getName());\n" +
-          ind(2) + "}\n";
-
       // We skip copying NTA children
       // Build list of NTA indices - these are skipped when copying the children
       LinkedList ntaAggregateIndices = new LinkedList();
@@ -157,15 +143,6 @@ aspect ASTCloneNode {
 
       String s =
         ind + "/**\n" +
-        ind + " * @apilevel internal\n" +
-        ind + " */\n" +
-        "#ANNOTATIONS#" +
-        ind + "public #RETURN# copy() {\n" + 
-        (ASTNode.block ? ASTNode.blockBegin : "") +
-        copyBody +
-        (ASTNode.block ? ASTNode.blockEnd : "") +
-        ind + "}\n" +
-        ind + "/**\n" +
         ind + " * Create a deep copy of the AST subtree at this node.\n" +
         ind + " * The copy is dangling, i.e. has no parent.\n" +
         ind + " * @return dangling copy of the subtree at this node\n" +
@@ -199,6 +176,16 @@ aspect ASTCloneNode {
       s = s.replaceAll("#ANNOTATIONS#", ASTNode.suppressWarnings());
       s = s.replaceAll("#CLASS#", name());
       s = s.replaceAll("#ID#", name());
+
+      TemplateContext tt = tt();
+      tt.bind("ReturnType", ASTNode.java5 ? returnName : "ASTNode");
+      tt.bind("Annotations", ASTNode.suppressWarnings());
+      tt.bind("BlockBegin", (ASTNode.block ? ASTNode.blockBegin : ""));
+      tt.bind("BlockEnd", (ASTNode.block ? ASTNode.blockEnd : ""));
+      tt.bind("IncrementalCopyNode",
+          (ASTNode.incremental ? genIncrementalCopyNode() : ""));
+      stream.print(tt.expand("ast.copy"));
+
       stream.print(s);
     }
   }

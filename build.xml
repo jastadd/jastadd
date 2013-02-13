@@ -39,7 +39,11 @@
 		<jastadd java14="true" jjtree="true" rewrite="true"
 			grammar="Ast" package="ast.AST" outdir="${gen.dir}"
 			lazyMaps="false">
-			<fileset dir="${spec.dir}/jastadd/ast" includes="*.jrag,*.jadd,*.ast"/>
+			<fileset dir="${spec.dir}/jastadd">
+				<include name="**/*.jrag"/>
+				<include name="**/*.jadd"/>
+				<include name="**/*.ast"/>
+			</fileset>
 		</jastadd>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="${spec.dir}/javacc/ast/Ast.jjt"/>
@@ -71,6 +75,12 @@
 		<copy todir="${bin.dir}">
 			<fileset dir="${gen.dir}">
 				<include name="**/*.properties"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${bin.dir}/template"/>
+		<copy todir="${bin.dir}/template">
+			<fileset dir="${spec.dir}/template">
+				<include name="**/*.tt"/>
 			</fileset>
 		</copy>
 	</target>
