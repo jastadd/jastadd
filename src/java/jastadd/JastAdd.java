@@ -7,6 +7,10 @@ import jrag.AST.*;
 import java.util.*;
 import java.io.*;
 
+/**
+ * JastAdd main class
+ */
+@SuppressWarnings("javadoc")
 public class JastAdd {
 
   private static ResourceBundle resources = null;
@@ -30,8 +34,8 @@ public class JastAdd {
       getString("jastadd.version");
   }
 
-  protected java.util.List files;
-  protected java.util.List cacheFiles;
+  protected java.util.List<String> files;
+  protected java.util.List<String> cacheFiles;
 
   protected Grammar root; // root of the ast for the ast-grammar file
   protected String pack;
@@ -46,8 +50,8 @@ public class JastAdd {
 
   public void compile(String[] args) {
     try {
-      files = new ArrayList();
-      cacheFiles = new ArrayList();
+      files = new ArrayList<String>();
+      cacheFiles = new ArrayList<String>();
       if (readArgs(args)) {
         System.exit(1);
       }
@@ -59,9 +63,9 @@ public class JastAdd {
 
       // Parse ast-grammar
       //System.out.println("parsing grammars");
-      Collection errors = new ArrayList();
-      for(Iterator iter = files.iterator(); iter.hasNext(); ) {
-        String fileName = (String)iter.next();
+      Collection<String> errors = new ArrayList<String>();
+      for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
+        String fileName = iter.next();
         if(fileName.endsWith(".ast")) {
           try {
             Ast parser = new Ast(new FileInputStream(fileName));
@@ -77,9 +81,10 @@ public class JastAdd {
             }
             //
 
-            for(Iterator errorIter = parser.getErrors(); errorIter.hasNext(); ) {
-              String[] s = ((String)errorIter.next()).split(";");
-              errors.add("Syntax error in " + fileName + " at line " + s[0] + ", column " + s[1]);
+            for (Iterator<?> errorIter = parser.getErrors(); errorIter.hasNext();) {
+              String[] s = ((String) errorIter.next()).split(";");
+              errors.add("Syntax error in " + fileName + " at line " + s[0] +
+                  ", column " + s[1]);
             }
 
           } catch (ast.AST.TokenMgrError e) {
@@ -95,8 +100,9 @@ public class JastAdd {
       }
 
       if(!errors.isEmpty()) {
-        for(Iterator iter = errors.iterator(); iter.hasNext(); )
+        for (Iterator<String> iter = errors.iterator(); iter.hasNext();) {
           System.err.println(iter.next());
+        }
         System.exit(1);
       }
 
@@ -128,7 +134,8 @@ public class JastAdd {
           while(true)
             jp.AspectBodyDeclaration();
         } catch (Exception e) {
-          String s = e.getMessage();
+          // TODO: handle error?
+          // String s = e.getMessage();
         }
         jp.popTopLevelOrAspect();
       }
@@ -147,14 +154,15 @@ public class JastAdd {
           while(true)
             jp.AspectBodyDeclaration();
         } catch (Exception e) {
-          String s = e.getMessage();
+          // TODO: handle error?
+          // String s = e.getMessage();
         }
         jp.popTopLevelOrAspect();
       }
 
       // Parse all jrag files and build tables
-      for(Iterator iter = files.iterator(); iter.hasNext(); ) {
-        String fileName = (String)iter.next();
+      for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
+        String fileName = iter.next();
         if(fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
           try {
             FileInputStream inputStream = new FileInputStream(fileName);
@@ -201,17 +209,17 @@ public class JastAdd {
             while(true)
               jp.AspectBodyDeclaration();
           } catch (Exception e) {
-            String s = e.getMessage();
+            // TODO: handle error?
+            // String s = e.getMessage();
           }
           jp.popTopLevelOrAspect();
 
           int j = 0;
-          for(Iterator iter = decl.getComponents(); iter.hasNext(); ) {
-            Components c = (Components)iter.next();
-            if(c instanceof TokenComponent) {
+          for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
+            Components c = (Components) iter.next();
+            if (c instanceof TokenComponent) {
               c.jaddGen(null, j, publicModifier, decl);
-            }
-            else {
+            } else {
               c.jaddGen(null, j, publicModifier, decl);
               j++;
             }
@@ -222,8 +230,8 @@ public class JastAdd {
       //System.out.println("processing refinements");
       root.processRefinements();
 
-      for(Iterator iter = cacheFiles.iterator(); iter.hasNext(); ) {
-        String fileName = (String)iter.next();
+      for (Iterator<String> iter = cacheFiles.iterator(); iter.hasNext();) {
+        String fileName = iter.next();
         //System.out.println("Processing cache file: " + fileName);
         try {
           FileInputStream inputStream = new FileInputStream(fileName);
@@ -262,6 +270,8 @@ public class JastAdd {
         System.err.println("File error: Output directory " + outputDir + " does not exist or is write protected");
         System.exit(1);
       }
+      
+      @SuppressWarnings("unused")
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
 
       //System.out.println("AST parse time: " + astParseTime + ", AST error check: " + astErrorTime + ", JRAG parse time: " + 
@@ -534,7 +544,7 @@ public class JastAdd {
 	} else {
 		incrementalConfig = "";
 	}
-    Map incrementalArgMap = parseIncrementalConfig(incrementalConfig);
+    Map<String, String> incrementalArgMap = parseIncrementalConfig(incrementalConfig);
     ASTNode.incrementalLevelParam = incrementalArgMap.containsKey("param");
     ASTNode.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
     ASTNode.incrementalLevelNode = incrementalArgMap.containsKey("node");
@@ -586,8 +596,8 @@ public class JastAdd {
   // ES_2011-09-06: Incremental evaluation
   //   Method parsing the incremental configuration argument given to
   //   the flag turning on incremental evaluation.
-  private Map parseIncrementalConfig(String str) {
-    Map map = new HashMap();
+  private Map<String, String> parseIncrementalConfig(String str) {
+    Map<String, String> map = new HashMap<String, String>();
     StringTokenizer st = new StringTokenizer(str, ",");
     while (st.hasMoreTokens()) {
       map.put(st.nextToken().trim(), "");
@@ -662,6 +672,7 @@ public class JastAdd {
     return buf.toString();
   }
 
+  @SuppressWarnings("unused")
   private void checkMem() {
     Runtime runtime = Runtime.getRuntime();
     long total = runtime.totalMemory();

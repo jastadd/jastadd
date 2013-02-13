@@ -5,8 +5,8 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
 import java.util.*;
 import java.io.*;
-import ast.AST.ASTNode;
 
+@SuppressWarnings("javadoc")
 public class JastAddTask extends Task {
   public JastAddTask() {
     super();
@@ -15,7 +15,7 @@ public class JastAddTask extends Task {
     super.init();
   }
 
-  private LinkedHashSet files = new LinkedHashSet();
+  private Set<String> files = new LinkedHashSet<String>();
   public void addConfiguredFileSet(FileSet fileset) {
     DirectoryScanner s = fileset.getDirectoryScanner(getProject());
     String[] files = s.getIncludedFiles();
@@ -172,10 +172,10 @@ public class JastAddTask extends Task {
     }
     name.append("ASTNode.java");
     File generated = new File(name.toString());
-    if(generated.exists()) {
+    if (generated.exists()) {
       boolean changed = false;
-      for(Iterator iter = files.iterator(); iter.hasNext(); ) {
-        String fileName = (String)iter.next();
+      for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
+        String fileName = iter.next();
         File file = new File(fileName);
         if(!file.exists() || file.lastModified() > generated.lastModified())
           changed = true;
@@ -184,7 +184,7 @@ public class JastAddTask extends Task {
         return;
       }
     }
-    ArrayList args = new ArrayList();
+    Collection<String> args = new ArrayList<String>();
     if(jjtree) {
       args.add("--jjtree");
       args.add("--grammar=" + grammar);
@@ -251,8 +251,9 @@ public class JastAddTask extends Task {
 
     int i = 0;
     String[] argsArray = new String[args.size()];
-    for(Iterator iter = args.iterator(); iter.hasNext(); i++)
-      argsArray[i] = ((String)iter.next()).trim();
+    for (Iterator<String> iter = args.iterator(); iter.hasNext(); i++) {
+      argsArray[i] = iter.next().trim();
+    }
     System.err.println("generating node types and weaving aspects");
     JastAdd.main(argsArray);
     System.err.println("done");
