@@ -43,7 +43,7 @@ aspect CollectionAttributes {
       s = s.replaceAll("#PARM#", attr.parameters());
       buf.append(s);
     }
-    return filterIterators(buf.toString());
+    return buf.toString();
   }
 
   public String InterfaceDecl.genInterfaceCollections() {
@@ -379,23 +379,8 @@ aspect CollectionAttributes {
     result.append(contributeTo());
     // and similar code for separate evaluation
     result.append(nextIteration());
-    return filterIterators(result.toString());
+    return result.toString();
   }
-
-  static String ASTNode.filterIterators(String s) {
-    if(!j2me)
-      return s;
-    // if we are using iterators we need to replace them enumerations
-    // this is a dirty hack but gets the job done
-
-    s = s.replaceAll("java\\.util\\.Iterator", "java.util.Enumeration");
-    s = s.replaceAll("iter\\.hasNext", "iter.hasMoreElements");
-    s = s.replaceAll("iter\\.next", "iter.nextElement");
-    s = s.replaceAll("iterator", "elements");
-
-    return s;
-  }
-
 
   private String ASTDecl.collectContributors() {
     HashMap map = new LinkedHashMap();

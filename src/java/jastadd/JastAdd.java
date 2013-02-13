@@ -314,7 +314,6 @@ public class JastAdd {
     Option synch = new Option("synch", "");
     Option noStatic = new Option("noStatic", "the generated state field is non-static");
     Option deterministic = new Option("deterministic", "");
-    Option j2me = new Option("j2me", "generate for J2ME");
     Option outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
     Option tracing = new Option("tracing", "weaves in code generating a cache tree");
     Option cacheAll = new Option("cacheAll", "cache all attributes");
@@ -395,7 +394,6 @@ public class JastAdd {
     cla.addOption(synch);
     cla.addOption(noStatic);
     cla.addOption(deterministic);
-    cla.addOption(j2me);
     cla.addOption(outputDirOption);
     cla.addOption(tracing);
     cla.addOption(cacheAll);
@@ -499,8 +497,6 @@ public class JastAdd {
       ASTNode.createDefaultSet = "new java.util.LinkedHashSet(4)";
     }
 
-    ASTNode.j2me = j2me.matched();
-
     String outputDirName = outputDirOption.value();
     outputDir = new File(outputDirName);
 
@@ -518,26 +514,6 @@ public class JastAdd {
       System.err.println("Output directory " + outputDir.getAbsolutePath() +
         " is write protected");
       System.exit(1);
-    }
-
-    if(ASTNode.j2me) {
-      if(ASTNode.deterministic) {
-        System.err.println("J2ME can not be used in deterministic mode");
-        System.exit(1);
-      }
-      if(ASTNode.debugMode) {
-        System.err.println("J2ME can not be used in debug mode");
-        System.exit(1);
-      }
-      if(ASTNode.java5) {
-        System.err.println("J2ME can not be used in java5 mode");
-        System.exit(1);
-      }
-      ASTNode.createDefaultMap = "new java.util.Hashtable(4)";
-      ASTNode.createDefaultSet = "new ASTNode$State.HashtableBasedSet(4)";
-      ASTNode.typeDefaultMap = "java.util.Hashtable";
-      ASTNode.typeDefaultSet = "ASTNode$State.HashtableBasedSet";
-      ASTNode.createContributorSet = "new ASTNode$State.HashtableBasedSet(4)";
     }
 
     ASTNode.tracing = tracing.matched();

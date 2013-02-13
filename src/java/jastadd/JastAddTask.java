@@ -114,9 +114,6 @@ public class JastAddTask extends Task {
   private boolean deterministic = false;
   public void setDeterministic(boolean b) { deterministic = b; }
 
-  private boolean j2me = false;
-  public void setj2me(boolean b) { j2me = b; }
-
   private boolean tracing = false;
   public void setTracing(boolean b) { tracing = b; }
 
@@ -227,8 +224,6 @@ public class JastAddTask extends Task {
     if(stagedRewrites) args.add("--stagedRewrites");
 
     if(deterministic) args.add("--deterministic");
-
-    if(j2me) args.add("--j2me");
 
     if(tracing) args.add("--tracing");
     if(cacheAll) {

@@ -433,26 +433,7 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
 
-    if(j2me) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "static class HashtableBasedSet  {");
-      stream.println(ind(2) + "public HashtableBasedSet(int initialCapacity) {");
-      stream.println(ind(3) + "map = new java.util.Hashtable(initialCapacity);");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "private java.util.Hashtable map;");
-      stream.println(ind(2) + "private static final Object PRESENT = new Object();");
-      stream.println(ind(2) + "public java.util.Enumeration elements() { return map.keys(); }");
-      stream.println(ind(2) + "public int size() { return map.size(); }");
-      stream.println(ind(2) + "public boolean isEmpty() { return map.isEmpty(); }");
-      stream.println(ind(2) + "public boolean contains(Object o) { return map.containsKey(o); }");
-      stream.println(ind(2) + "public boolean add(Object o) { return map.put(o, PRESENT)==null; }");
-      stream.println(ind(2) + "public boolean remove(Object o) { return map.remove(o)==PRESENT; }");
-      stream.println(ind(2) + "public void clear() { map.clear(); }");
-      stream.println(ind + "}");
-    }
-    else if(deterministic) {
+    if(deterministic) {
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel internal");
       stream.println(ind + " */");

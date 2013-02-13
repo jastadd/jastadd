@@ -467,14 +467,7 @@ aspect JastAddCodeGen {
     }
     if(name().equals("ASTNode") && ASTNode.java5)
       buf.append(", Iterable<T>");
-    String s = buf.toString();
-    if(ASTNode.j2me) {
-      if(s.equals(" implements Cloneable"))
-        s = "";
-      else 
-        s = s.replace("Cloneable, ", "");
-    }
-    return s;
+    return buf.toString();
   }
 
   public String TypeDecl.interfacesString() {

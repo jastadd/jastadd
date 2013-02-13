@@ -1,39 +1,7 @@
 aspect ASTCloneNode {
 
   public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
-    if(j2me) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.print(ind + "public void init$copy(Object o) {\n");
-      stream.print(ind(2) + name() + " node = (" + name() + ")o;\n");
-      for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-        ClassBodyObject o = (ClassBodyObject)iter.next();
-        jrag.AST.SimpleNode n = o.node;
-        if(n instanceof jrag.AST.ASTAspectFieldDeclaration) {
-          jrag.AST.Token t2 = ((jrag.AST.SimpleNode)n.jjtGetChild(1)).firstToken;
-          String name = t2.image;
-          StringBuffer buf = new StringBuffer();
-          n.jjtAccept(new ClassBodyDeclUnparser(), buf);
-          String field = buf.toString();
-          if(field.indexOf("static") == -1 && field.indexOf("final") == -1)
-            stream.print(ind(2) + "node." + name + " = " + name + ";\n");
-        }
-      }
-
-      if(name().equals("ASTNode")) {
-        stream.print(ind(2) + "if(children != null) {\n");
-        stream.print(ind(3) + "node.children = new ASTNode[children.length];\n");
-        stream.print(ind(3) + "for(int i = 0; i < children.length; i++)\n");
-        stream.print(ind(4) + "node.children[i] = children[i];\n");
-        stream.print(ind(2) + "}\n");
-      }
-      else {
-        stream.print(ind(2) + "super.init$copy(o);\n");
-      }
-
-    }
-    else if(ASTNode.java5) {
+    if(ASTNode.java5) {
       // covariant return type when using Java 5
       String name = name();
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
@@ -51,8 +19,7 @@ aspect ASTCloneNode {
     }
     if(ASTNode.block) stream.print(ASTNode.blockBegin);
 
-    if(!j2me)
-      stream.print(ind(2) + name() + " node = (" + name() + ")super.clone();\n");
+    stream.print(ind(2) + name() + " node = (" + name() + ")super.clone();\n");
 
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
@@ -84,34 +51,24 @@ aspect ASTCloneNode {
      * P.S. Is the shallow copy method really needed/used?
      */
 
-    if(!j2me)
-      stream.print(ind(2) + "return node;\n");
+    stream.print(ind(2) + "return node;\n");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.print(ind + "}\n");
 
     if(!hasAbstract()) {
-      String copyBody;
-      if(j2me) {
-        copyBody =
-          ind(2) + "#CLASS# node = new #CLASS#();\n" +
-          ind(2) + "this.init$copy(node);\n" +
-          ind(2) + "return node;\n";
-      }
-      else {
-        copyBody =
+      String copyBody =
           ind(2) + "try {\n" +
           ind(3) +   "#CLASS# node = (#CLASS#) clone();\n" +
           ind(3) +   "node.parent = null;\n" +
           ind(3) +   "if(children != null)\n" +
           ind(4) +     "node.children = (ASTNode[]) children.clone();\n" +
           // ES_2011-10-07: Code generation for incremental evaluation, copy
-           (ASTNode.incremental ? genIncrementalCopyNode() : "") +
+          (ASTNode.incremental ? genIncrementalCopyNode() : "") +
           ind(3) +   "return node;\n" +
           ind(2) + "} catch (CloneNotSupportedException e) {\n" +
           ind(3) +   "throw new Error(\"Error: clone not supported for \" +\n" +
           ind(4) +     "getClass().getName());\n" +
           ind(2) + "}\n";
-      }
 
       // We skip copying NTA children
       // Build list of NTA indices - these are skipped when copying the children
