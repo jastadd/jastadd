@@ -145,17 +145,28 @@ aspect ASTCloneNode {
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
         returnName = returnName + "<T>";
 
+      String returnType = ASTNode.java5 ? returnName : "ASTNode";
+
       TemplateContext tt = tt();
-      tt.bind("ReturnType", ASTNode.java5 ? returnName : "ASTNode");
+      tt.bind("ReturnType", returnType);
       tt.bind("Annotations", ASTNode.suppressWarnings());
-      tt.bind("BlockBegin", ASTNode.block ? ASTNode.blockBegin : "");
-      tt.bind("BlockEnd", ASTNode.block ? ASTNode.blockEnd : "");
-      tt.bind("IncrementalCopyNode",
-          (ASTNode.incremental ? genIncrementalCopyNode() : ""));
+      if (ASTNode.block) {
+        tt.bind("BlockBegin", ASTNode.blockBegin);
+        tt.bind("BlockEnd", ASTNode.blockEnd);
+      } else {
+        tt.bind("BlockBegin", "");
+        tt.bind("BlockEnd", "");
+      }
+      if (ASTNode.incremental) {
+        tt.bind("IncrementalCopyNode", genIncrementalCopyNode());
+        tt.bind("SetChild", jjtGenIncrementalCloneNode());
+      } else {
+        tt.bind("IncrementalCopyNode", "");
+        tt.bind("SetChild", "tree.setChild(child, i);");
+      }
+
       stream.print(tt.expand("ast.copy"));
 
-      tt.bind("SetChild", ASTNode.incremental ? jjtGenIncrementalCloneNode() : 
-        "tree.setChild(child, i);");
       tt.bind("SkipNTAs", skipNTAs);
       stream.print(tt.expand("ast.fullCopy"));
     }
