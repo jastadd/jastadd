@@ -1,42 +1,42 @@
-ast.copy =
-[[/**
- * @apilevel internal
- */
-$(Annotations)public $ReturnType copy() {
-  $BlockBegin
-  try {
-    #name node = (#name) clone();
-    node.parent = null;
-    if(children != null)
-      node.children = (ASTNode[]) children.clone();
-    $IncrementalCopyNode
-    return node;
-  } catch (CloneNotSupportedException e) {
-    throw new Error("Error: clone not supported for " + getClass().getName());
-  }
-  $BlockEnd
-}]]
+ast.copy = [[
+  /**
+   * @apilevel internal
+   */
+  $(Annotations)public $ReturnType copy() {
+    $BlockBegin
+    try {
+      #name node = (#name) clone();
+      node.parent = null;
+      if(children != null)
+        node.children = (ASTNode[]) children.clone();
+      $IncrementalCopyNode
+      return node;
+    } catch (CloneNotSupportedException e) {
+      throw new Error("Error: clone not supported for " + getClass().getName());
+    }
+    $BlockEnd
+  }]]
 
-ast.fullCopy =
-[[/**
- * Create a deep copy of the AST subtree at this node.
- * The copy is dangling, i.e. has no parent.
- * @return dangling copy of the subtree at this node
- * @apilevel low-level
- */
-$(Annotations)public $ReturnType fullCopy() {
-  $BlockBegin
-  #name tree = (#name) copy();
-  if (children != null) {
-    for (int i = 0; i < children.length; ++i) {
-      $SkipNTAs
-      ASTNode child = (ASTNode) children[i];
-      if(child != null) {
-        child = child.fullCopy();
-        $SetChild
+ast.fullCopy = [[
+  /**
+   * Create a deep copy of the AST subtree at this node.
+   * The copy is dangling, i.e. has no parent.
+   * @return dangling copy of the subtree at this node
+   * @apilevel low-level
+   */
+  $(Annotations)public $ReturnType fullCopy() {
+    $BlockBegin
+    #name tree = (#name) copy();
+    if (children != null) {
+      for (int i = 0; i < children.length; ++i) {
+        $SkipNTAs
+        ASTNode child = (ASTNode) children[i];
+        if(child != null) {
+          child = child.fullCopy();
+          $SetChild
+        }
       }
     }
-  }
-  return tree;
-  $BlockEnd
-}]]
+    return tree;
+    $BlockEnd
+  }]]

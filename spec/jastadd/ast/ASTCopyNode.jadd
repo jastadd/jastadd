@@ -109,36 +109,36 @@ aspect ASTCloneNode {
       if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
         !ntaListIndices.isEmpty()) {
 
-        skipNTAs = ind(5) + "switch (i) {\n";
+        skipNTAs = "switch (i) {\n";
         Iterator iter;
         if (!ntaAggregateIndices.isEmpty()) {
           iter = ntaAggregateIndices.iterator();
           while (iter.hasNext()) {
             Object index = iter.next();
-            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+            skipNTAs += "case " + index.toString() + ":\n";
           }
-          skipNTAs += ind(6) + "tree.children[i] = null;\n";
-          skipNTAs += ind(6) + "continue;\n";
+          skipNTAs += ind + "tree.children[i] = null;\n";
+          skipNTAs += ind + "continue;\n";
         }
         if (!ntaOptIndices.isEmpty()) {
           iter = ntaOptIndices.iterator();
           while (iter.hasNext()) {
             Object index = iter.next();
-            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+            skipNTAs += "case " + index.toString() + ":\n";
           }
-          skipNTAs += ind(6) + "tree.children[i] = new Opt();\n";
-          skipNTAs += ind(6) + "continue;\n";
+          skipNTAs += ind + "tree.children[i] = new Opt();\n";
+          skipNTAs += ind + "continue;\n";
         }
         if (!ntaListIndices.isEmpty()) {
           iter = ntaListIndices.iterator();
           while (iter.hasNext()) {
             Object index = iter.next();
-            skipNTAs += ind(5) + "case " + index.toString() + ":\n";
+            skipNTAs += "case " + index.toString() + ":\n";
           }
-          skipNTAs += ind(6) + "tree.children[i] = new List();\n";
-          skipNTAs += ind(6) + "continue;\n";
+          skipNTAs += ind + "tree.children[i] = new List();\n";
+          skipNTAs += ind + "continue;\n";
         }
-        skipNTAs += ind(5) + "}\n";
+        skipNTAs += "}\n";
       }
 
       String returnName = name();

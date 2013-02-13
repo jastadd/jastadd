@@ -5,6 +5,7 @@ aspect TemplateUtil {
 
   eq Grammar.getChild().parentContext() {
     TinyTemplate tt = new TinyTemplate();
+    tt.setIndentation(ASTNode.ind);
     try {
       InputStream in = getClass().getResourceAsStream("/template/ast/CopyNode.tt");
       tt.loadTemplates(in);
