@@ -71,14 +71,6 @@ aspect ASTCloneNode {
         stream.print(ind(2) + "node.is$Final(false);\n");
     }
 
-    // I'd like to set the parent to null, but this would change the interface of fullCopy,
-    // and existing applications might depend on the copy to still be parented by the original
-    // AST. So I don't do it. Yet. 20100416/GH.
-    //
-    /* 20120301/JO: Updated fullCopy to set parent to null.
-     * P.S. Is the shallow copy method really needed/used?
-     */
-
     stream.print(ind(2) + "return node;\n");
     if(ASTNode.block) stream.print(ASTNode.blockEnd);
     stream.print(ind + "}\n");
