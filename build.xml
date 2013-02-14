@@ -76,11 +76,8 @@
 			<fileset dir="${gen.dir}">
 				<include name="**/*.properties"/>
 			</fileset>
-		</copy>
-		<mkdir dir="${bin.dir}/template"/>
-		<copy todir="${bin.dir}/template">
-			<fileset dir="${spec.dir}/template">
-				<include name="**/*.tt"/>
+			<fileset dir="${src.dir}/res">
+				<include name="**/*"/>
 			</fileset>
 		</copy>
 	</target>
