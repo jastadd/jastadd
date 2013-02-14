@@ -79,93 +79,95 @@ aspect ASTCloneNode {
 
   public void ASTDecl.emitCopyNode(PrintWriter stream) {
 
-    if(!hasAbstract()) {
-      // We skip copying NTA children
-      // Build list of NTA indices - these are skipped when copying the children
-      LinkedList ntaAggregateIndices = new LinkedList();
-      LinkedList ntaOptIndices = new LinkedList();
-      LinkedList ntaListIndices = new LinkedList();
-      int i = 0;
-      for(Iterator iter = getComponents(); iter.hasNext(); i += 1) {
-        Components c = (Components)iter.next();
-        if (c.isNTA()) {
-          if (c instanceof ListComponentsNTA)
-            ntaListIndices.add(new Integer(i));
-          else if (c instanceof OptionalComponentNTA)
-            ntaOptIndices.add(new Integer(i));
-          else if (c instanceof AggregateComponentsNTA)
-            ntaAggregateIndices.add(new Integer(i));
-        }
+    if (hasAbstract())
+      // Don't generate copy methods for abstract node types
+      return;
+
+    // We skip copying NTA children
+    // Build list of NTA indices - these are skipped when copying the children
+    LinkedList ntaAggregateIndices = new LinkedList();
+    LinkedList ntaOptIndices = new LinkedList();
+    LinkedList ntaListIndices = new LinkedList();
+    int i = 0;
+    for(Iterator iter = getComponents(); iter.hasNext(); i += 1) {
+      Components c = (Components)iter.next();
+      if (c.isNTA()) {
+        if (c instanceof ListComponentsNTA)
+          ntaListIndices.add(new Integer(i));
+        else if (c instanceof OptionalComponentNTA)
+          ntaOptIndices.add(new Integer(i));
+        else if (c instanceof AggregateComponentsNTA)
+          ntaAggregateIndices.add(new Integer(i));
       }
-
-      // The skipNTAs string will include a switch statement that excludes
-      // the NTA children from the full copy, but for Opt and List NTAs
-      // we still need to create a placeholder Opt/List node
-      String skipNTAs = "";
-      if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
-        !ntaListIndices.isEmpty()) {
-
-        skipNTAs = "switch (i) {\n";
-        Iterator iter;
-        if (!ntaAggregateIndices.isEmpty()) {
-          iter = ntaAggregateIndices.iterator();
-          while (iter.hasNext()) {
-            Object index = iter.next();
-            skipNTAs += "case " + index.toString() + ":\n";
-          }
-          skipNTAs += ind + "tree.children[i] = null;\n";
-          skipNTAs += ind + "continue;\n";
-        }
-        if (!ntaOptIndices.isEmpty()) {
-          iter = ntaOptIndices.iterator();
-          while (iter.hasNext()) {
-            Object index = iter.next();
-            skipNTAs += "case " + index.toString() + ":\n";
-          }
-          skipNTAs += ind + "tree.children[i] = new Opt();\n";
-          skipNTAs += ind + "continue;\n";
-        }
-        if (!ntaListIndices.isEmpty()) {
-          iter = ntaListIndices.iterator();
-          while (iter.hasNext()) {
-            Object index = iter.next();
-            skipNTAs += "case " + index.toString() + ":\n";
-          }
-          skipNTAs += ind + "tree.children[i] = new List();\n";
-          skipNTAs += ind + "continue;\n";
-        }
-        skipNTAs += "}\n";
-      }
-
-      String returnName = name();
-      if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
-        returnName = returnName + "<T>";
-
-      String returnType = ASTNode.java5 ? returnName : "ASTNode";
-
-      TemplateContext tt = tt();
-      tt.bind("ReturnType", returnType);
-      tt.bind("Annotations", ASTNode.suppressWarnings());
-      if (ASTNode.block) {
-        tt.bind("BlockBegin", ASTNode.blockBegin);
-        tt.bind("BlockEnd", ASTNode.blockEnd);
-      } else {
-        tt.bind("BlockBegin", "");
-        tt.bind("BlockEnd", "");
-      }
-      if (ASTNode.incremental) {
-        tt.bind("IncrementalCopyNode", genIncrementalCopyNode());
-        tt.bind("SetChild", jjtGenIncrementalCloneNode());
-      } else {
-        tt.bind("IncrementalCopyNode", "");
-        tt.bind("SetChild", "tree.setChild(child, i);");
-      }
-
-      stream.print(tt.expand("ast.copy"));
-
-      tt.bind("SkipNTAs", skipNTAs);
-      stream.print(tt.expand("ast.fullCopy"));
     }
+
+    // The skipNTAs string will include a switch statement that excludes
+    // the NTA children from the full copy, but for Opt and List NTAs
+    // we still need to create a placeholder Opt/List node
+    String skipNTAs = "";
+    if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
+      !ntaListIndices.isEmpty()) {
+
+      skipNTAs = "switch (i) {\n";
+      Iterator iter;
+      if (!ntaAggregateIndices.isEmpty()) {
+        iter = ntaAggregateIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind + "tree.children[i] = null;\n";
+        skipNTAs += ind + "continue;\n";
+      }
+      if (!ntaOptIndices.isEmpty()) {
+        iter = ntaOptIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind + "tree.children[i] = new Opt();\n";
+        skipNTAs += ind + "continue;\n";
+      }
+      if (!ntaListIndices.isEmpty()) {
+        iter = ntaListIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind + "tree.children[i] = new List();\n";
+        skipNTAs += ind + "continue;\n";
+      }
+      skipNTAs += "}\n";
+    }
+
+    String returnName = name();
+    if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
+      returnName = returnName + "<T>";
+
+    String returnType = ASTNode.java5 ? returnName : "ASTNode";
+
+    TemplateContext tt = tt();
+    tt.bind("ReturnType", returnType);
+    tt.bind("Annotations", ASTNode.suppressWarnings());
+    if (ASTNode.block) {
+      tt.bind("BlockBegin", ASTNode.blockBegin);
+      tt.bind("BlockEnd", ASTNode.blockEnd);
+    } else {
+      tt.bind("BlockBegin", "");
+      tt.bind("BlockEnd", "");
+    }
+    if (ASTNode.incremental) {
+      tt.bind("IncrementalCopyNode", genIncrementalCopyNode());
+      tt.bind("SetChild", jjtGenIncrementalCloneNode());
+    } else {
+      tt.bind("IncrementalCopyNode", "");
+      tt.bind("SetChild", "tree.setChild(child, i);");
+    }
+
+    stream.print(tt.expand("ast.copy"));
+
+    tt.bind("SkipNTAs", skipNTAs);
+    stream.print(tt.expand("ast.fullCopy"));
   }
 
 }
