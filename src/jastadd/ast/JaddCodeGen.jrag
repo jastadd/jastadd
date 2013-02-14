@@ -1340,7 +1340,7 @@ aspect JaddCodeGen {
     String s;
 
     jjtGenConstructor(stream, parserName, jjtree, rewriteEnabled);
-    //jjtGenCloneNode(stream, parserName, jjtree, rewriteEnabled);
+    //emitCloneNode(stream, parserName, jjtree, rewriteEnabled);
     //jjtGenFlushCache(stream);
     if(jjtree) {
       jjtGenDumpTree(stream, parserName, jjtree, rewriteEnabled);

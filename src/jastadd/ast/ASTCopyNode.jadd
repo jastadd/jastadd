@@ -28,7 +28,9 @@
 
 aspect ASTCloneNode {
 
-  public void ASTDecl.jjtGenCloneNode(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
+  public void ASTDecl.emitCloneNode(PrintWriter stream,
+      String parserName, boolean jjtree, boolean rewriteEnabled) {
+
     if(ASTNode.java5) {
       // covariant return type when using Java 5
       String name = name();
