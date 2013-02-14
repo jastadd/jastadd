@@ -455,7 +455,8 @@ aspect JastAddCodeGen {
 
       java.io.PrintWriter writer = new java.io.PrintWriter(stream);
       jjtGenFlushCache(writer);
-      emitCloneNode(writer, grammarName, ASTNode.jjtree, ASTNode.rewriteEnabled);
+      emitCloneNode(writer);
+      emitCopyNode(writer);
       writer.flush();
 
       /*
