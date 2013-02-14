@@ -163,10 +163,9 @@ aspect ASTCloneNode {
       tt.bind("IncrementalCopyNode", "");
       tt.bind("SetChild", "tree.setChild(child, i);");
     }
+    tt.bind("SkipNTAs", skipNTAs);
 
     stream.print(tt.expand("ast.copy"));
-
-    tt.bind("SkipNTAs", skipNTAs);
     stream.print(tt.expand("ast.fullCopy"));
   }
 
