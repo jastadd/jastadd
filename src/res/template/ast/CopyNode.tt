@@ -9,13 +9,23 @@ ast.copy = [[
       node.parent = null;
       if(children != null)
         node.children = (ASTNode[]) children.clone();
-      $IncrementalCopyNode
+      $CopyBody
       return node;
     } catch (CloneNotSupportedException e) {
       throw new Error("Error: clone not supported for " + getClass().getName());
     }
     $BlockEnd
   }]]
+
+# inserted into ast.copy if incremental is enabled
+ast.copy:incremental =
+[[node.inc_state = inc_CLONED;
+for (int i = 0; node.children != null && i < node.children.length; i++) {
+  node.children[i] = null;
+}
+node.init_children = null;
+node.rewritten_children = null;
+inc_copyHandlers(node);]]
 
 ast.fullCopy = [[
   /**
@@ -40,3 +50,8 @@ ast.fullCopy = [[
     return tree;
     $BlockEnd
   }]]
+
+# used to set tree child in fullCopy if incremental is enabled
+ast.fullCopy.setChild:incremental =
+[[tree.children[i] = child;
+child.parent = tree;]]

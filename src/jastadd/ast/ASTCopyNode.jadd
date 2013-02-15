@@ -157,10 +157,10 @@ aspect ASTCloneNode {
       tt.bind("BlockEnd", "");
     }
     if (ASTNode.incremental) {
-      tt.bind("IncrementalCopyNode", genIncrementalCopyNode());
-      tt.bind("SetChild", jjtGenIncrementalCloneNode());
+      tt.bindExpansion("CopyBody", "ast.copy:incremental");
+      tt.bindExpansion("SetChild", "ast.fullCopy.setChild:incremental");
     } else {
-      tt.bind("IncrementalCopyNode", "");
+      tt.bind("CopyBody", "");
       tt.bind("SetChild", "tree.setChild(child, i);");
     }
     tt.bind("SkipNTAs", skipNTAs);
