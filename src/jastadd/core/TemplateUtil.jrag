@@ -34,8 +34,15 @@ aspect TemplateUtil {
   eq Grammar.getChild().parentContext() {
     TinyTemplate tt = new TinyTemplate();
     tt.setIndentation(ASTNode.ind);
+    loadTemplates(tt, "ast/CopyNode");
+    loadTemplates(tt, "ast/NodeConstructor");
+    return tt;
+  }
+
+  private void Grammar.loadTemplates(TinyTemplate tt, String templateFile) {
     try {
-      InputStream in = getClass().getResourceAsStream("/template/ast/CopyNode.tt");
+      InputStream in = getClass().getResourceAsStream(
+          "/template/" + templateFile + ".tt");
       tt.loadTemplates(in);
       in.close();
     } catch (TemplateParser.SyntaxError e) {
@@ -43,10 +50,9 @@ aspect TemplateUtil {
     } catch (IOException e) {
       System.err.println(e.getMessage());
     }
-    return tt;
   }
 
-  syn lazy TemplateContext ASTDecl.tt() {
+  syn lazy TemplateContext ASTDecl.templateContext() {
     return new SimpleContext(parentContext(), this);
   }
 }

@@ -1,0 +1,23 @@
+constructor.jjtree = [[
+  public #name.#name(int i) {
+    super(i);
+    $InitChildren
+    $FinalInit
+  }
+
+  public #name.#name($ParserName p, int i) {
+    this(i);
+    parser = p;
+  }
+
+  public #name.#name() {
+    this(0);
+  }
+]]
+
+constructor.default = [[
+  public #name.#name() {
+    super();
+    $InitChildren
+    $FinalInit
+  }]]

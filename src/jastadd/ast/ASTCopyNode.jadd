@@ -146,7 +146,7 @@ aspect ASTCloneNode {
 
     String returnType = ASTNode.java5 ? returnName : "ASTNode";
 
-    TemplateContext tt = tt();
+    TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
     tt.bind("Annotations", ASTNode.suppressWarnings());
     if (ASTNode.block) {
