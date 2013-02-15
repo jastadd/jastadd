@@ -191,21 +191,39 @@ ast.state:deterministic = [[
       };
     }
 
-    public boolean contains(Object o) { return super.contains(wrap(o)); }
+    public boolean contains(Object o) {
+      return super.contains(wrap(o));
+    }
 
-    public boolean add(Object o) { return super.add(wrap(o)); }
+    public boolean add(Object o) {
+      return super.add(wrap(o));
+    }
 
-    public boolean remove(Object o) { return super.remove(wrap(o)); }
+    public boolean remove(Object o) {
+      return super.remove(wrap(o));
+    }
 
-    private Wrapper wrap(Object o) { return new Wrapper(o); }
+    private Wrapper wrap(Object o) {
+      return new Wrapper(o);
+    }
+
     /**
      * @apilevel internal
      */
     private static class Wrapper {
       private Object o;
-      private Wrapper(Object o) { this.o = o; }
-      public boolean equals(Object other) { return other instanceof Wrapper && ((Wrapper)other).o == o; }
-      public int hashCode() { return System.identityHashCode(o); }
+
+      private Wrapper(Object o) {
+        this.o = o;
+      }
+
+      public boolean equals(Object other) {
+        return other instanceof Wrapper && ((Wrapper)other).o == o;
+      }
+
+      public int hashCode() {
+        return System.identityHashCode(o);
+      }
     }
   }]]
 
@@ -214,16 +232,40 @@ ast.state:nodeterministic = [[
    * @apilevel internal
    */
   static class IdentityHashSet extends java.util.AbstractSet implements java.util.Set {
+
     public IdentityHashSet(int initialCapacity) {
       map = new java.util.IdentityHashMap(initialCapacity);
     }
+
     private java.util.IdentityHashMap map;
+
     private static final Object PRESENT = new Object();
-    public java.util.Iterator iterator() { return map.keySet().iterator(); }
-    public int size() { return map.size(); }
-    public boolean isEmpty() { return map.isEmpty(); }
-    public boolean contains(Object o) { return map.containsKey(o); }
-    public boolean add(Object o) { return map.put(o, PRESENT)==null; }
-    public boolean remove(Object o) { return map.remove(o)==PRESENT; }
-    public void clear() { map.clear(); }
+
+    public java.util.Iterator iterator() {
+      return map.keySet().iterator();
+    }
+
+    public int size() {
+      return map.size();
+    }
+
+    public boolean isEmpty() {
+      return map.isEmpty();
+    }
+
+    public boolean contains(Object o) {
+      return map.containsKey(o);
+    }
+ 
+    public boolean add(Object o) {
+      return map.put(o, PRESENT)==null;
+    }
+
+    public boolean remove(Object o) {
+      return map.remove(o)==PRESENT;
+    }
+
+    public void clear() {
+      map.clear();
+    }
   }]]
