@@ -31,12 +31,18 @@ import org.jastadd.tinytemplate.*;
 aspect TemplateUtil {
   inh lazy TemplateContext ASTDecl.parentContext();
 
-  eq Grammar.getChild().parentContext() {
+  eq Grammar.getChild().parentContext() = templateContext();
+
+  /**
+   * Root template context for the grammar
+   */
+  syn lazy TemplateContext Grammar.templateContext() {
     TinyTemplate tt = new TinyTemplate();
     tt.setIndentation(ASTNode.ind);
     loadTemplates(tt, "ast/CopyNode");
     loadTemplates(tt, "ast/NodeConstructor");
-    return tt;
+    loadTemplates(tt, "ast/State");
+    return new SimpleContext(tt, this);
   }
 
   private void Grammar.loadTemplates(TinyTemplate tt, String templateFile) {

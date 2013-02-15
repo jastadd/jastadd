@@ -300,204 +300,50 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
   }
 
-  public void Grammar.jjtGenASTNode$State(PrintWriter stream, String parserName, boolean jjtree, boolean rewriteEnabled) {
+  public void Grammar.jjtGenASTNode$State(PrintWriter stream,
+      String parserName, boolean jjtree, boolean rewriteEnabled) {
+
     stream.println("/**");
     stream.println(" * @apilevel internal");
     stream.println(" */");
     stream.println("static public class ASTNode$State {");
-    if(circularEnabled) {
-      stream.println("/**");
-      stream.println(" * @apilevel internal");
-      stream.println(" */");
-      stream.println(ind + "public boolean IN_CIRCLE = false;");
-      stream.println("/**");
-      stream.println(" * @apilevel internal");
-      stream.println(" */");
-      stream.println(ind + "public int CIRCLE_INDEX = 1;");
-      stream.println("/**");
-      stream.println(" * @apilevel internal");
-      stream.println(" */");
-      stream.println(ind + "public boolean CHANGE = false;");
-      if(cacheCycle) {
-        stream.println("/**");
-        stream.println(" * @apilevel internal");
-        stream.println(" */");
-        stream.println(ind + "public boolean LAST_CYCLE = false;");
+
+    TemplateContext tt = templateContext();
+    tt.bind("ASTNode.typeDefaultSet", ASTNode.typeDefaultSet);
+    tt.bind("ASTNode.createDefaultSet", ASTNode.createDefaultSet);
+
+    if (circularEnabled) {
+      if (cacheCycle) {
+        tt.expand("ast.state:circular+cachecycle", stream);
       }
-      stream.println("/**");
-      stream.println(" * @apilevel internal");
-      stream.println(" */");
-      stream.println(ind + "public boolean RESET_CYCLE = false;");
-
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "static public class CircularValue {");
-      stream.println(ind(2) + "Object value;");
-      stream.println(ind(2) + "int visited = -1;");
-      stream.println(ind + "}");
-
-      if(componentCheck) {
-        stream.println(ind + "public " + ASTNode.typeDefaultSet + " circularEvalSet = " + ASTNode.createDefaultSet + ";");
-        stream.println(ind + "public java.util.Stack circularEvalStack = new java.util.Stack();");
-
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "static class CircularEvalEntry {");
-        stream.println(ind(2) + "ASTNode node;");
-        stream.println(ind(2) + "String attrName;");
-        stream.println(ind(2) + "Object parameters;");
-
-        stream.println(ind(2) + "public CircularEvalEntry(ASTNode node, String attrName, Object parameters) {");
-        stream.println(ind(3) + "this.node = node;");
-        stream.println(ind(3) + "this.attrName = attrName;");
-        stream.println(ind(3) + "this.parameters = parameters;");
-        stream.println(ind(2) + "}");
-
-        stream.println(ind(2) + "public boolean equals(Object rhs) {");
-        stream.println(ind(3) + "CircularEvalEntry s = (CircularEvalEntry) rhs;");
-        stream.println(ind(3) + "if (parameters == null && s.parameters == null)");
-        stream.println(ind(4) + "return node == s.node && attrName.equals(s.attrName);");
-        stream.println(ind(3) + "else if (parameters != null && s.parameters != null)");
-        stream.println(ind(4) + "return node == s.node && attrName.equals(s.attrName) && parameters.equals(s.parameters);");
-        stream.println(ind(3) + "else");
-        stream.println(ind(4) + "return false;");
-        stream.println(ind(2) + "}");
-
-        stream.println(ind(2) + "public int hashCode() {");
-        stream.println(ind(3) + "return node.hashCode();");
-        stream.println(ind(2) + "}");
-        stream.println(ind + "}");
-
-        stream.println(ind + "public void addEvalEntry(ASTNode node, String attrName, Object parameters) {");
-        stream.println(ind(2) + "circularEvalSet.add(new CircularEvalEntry(node,attrName,parameters));");
-        stream.println(ind + "}");
-
-        stream.println(ind + "public boolean containsEvalEntry(ASTNode node, String attrName, Object parameters) {");
-        stream.println(ind(2) + "return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));");
-        stream.println(ind + "}");
-
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "static class CircularStackEntry {");
-        stream.println(ind(2) + "" + ASTNode.typeDefaultSet + " circularEvalSet;");
-        stream.println(ind(2) + "boolean changeValue;");
-
-        stream.println(ind(2) + "public CircularStackEntry(" + ASTNode.typeDefaultSet + " set, boolean change) {");
-        stream.println(ind(3) + "circularEvalSet = set;");
-        stream.println(ind(3) + "changeValue = change;");
-        stream.println(ind(2) + "}");
-        stream.println(ind + "}");
-
-        stream.println(ind + "public void pushEvalStack() {");
-        stream.println(ind(2) + "circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));");
-        stream.println(ind(2) + "circularEvalSet = " + ASTNode.createDefaultSet + ";");
-        stream.println(ind(2) + "CHANGE = false;");
-        stream.println(ind + "}");
-
-        stream.println(ind + "public void popEvalStack() {");
-        stream.println(ind(2) + "CircularStackEntry c = (CircularStackEntry) circularEvalStack.pop();");
-        stream.println(ind(2) + "circularEvalSet = c.circularEvalSet;");
-        stream.println(ind(2) + "CHANGE = c.changeValue;");
-        stream.println(ind + "}");
-
+      tt.expand("ast.state:circular", stream);
+      if (componentCheck) {
+        tt.expand("ast.state:circular+componentcheck", stream);
       }
     }
-    if(rewriteEnabled) {
-      stream.println(ind + "public static final int REWRITE_CHANGE = 1;");
-      stream.println(ind + "public static final int REWRITE_NOCHANGE = 2;");
-      stream.println(ind + "public static final int REWRITE_INTERRUPT = 3;");
+
+    if (rewriteEnabled) {
       if(rewriteLimit > 0) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public java.util.HashMap debugRewrite = " + ASTNode.createDefaultMap + ";\n");
+        tt.expand("ast.state:rewrite+rewritelimit>0", stream);
       }
-      stream.println(ind + "public int boundariesCrossed = 0;\n");
-      if(stagedRewrites)
-        stream.println(ind + "public int rewritePhase = 1;");
-      // state code
-      stream.println(ind + "private int[] stack;");
-      stream.println(ind + "private int pos;");
-      stream.println(ind + "public ASTNode$State() {");
-      stream.println(ind(3) + "stack = new int[64];");
-      stream.println(ind(3) + "pos = 0;");
-      stream.println(ind + "}");
-      stream.println(ind + "private void ensureSize(int size) {");
-      stream.println(ind(3) + "if(size < stack.length)");
-      stream.println(ind(4) + "return;");
-      stream.println(ind(3) + "int[] newStack = new int[stack.length * 2];");
-      stream.println(ind(3) + "System.arraycopy(stack, 0, newStack, 0, stack.length);");
-      stream.println(ind(3) + "stack = newStack;");
-      stream.println(ind + "}");
-      stream.println(ind + "public void push(int i) {");
-      stream.println(ind(2) + "ensureSize(pos+1);");
-      stream.println(ind(2) + "stack[pos++] = i;");
-      stream.println(ind + "}");
-      stream.println(ind + "public int pop() {");
-      stream.println(ind(2) + "return stack[--pos];");
-      stream.println(ind + "}");
-      stream.println(ind + "public int peek() {");
-      stream.println(ind(2) + "return stack[pos-1];");
-      stream.println(ind + "}");
+
+      tt.expand("ast.state:rewrite", stream);
+
+      if (stagedRewrites) {
+        tt.expand("ast.state:rewrite+stagedrewrites", stream);
+      }
     }
 
-    if(deterministic) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "static class IdentityHashSet extends java.util.LinkedHashSet {");
-      stream.println(ind(2) + "public IdentityHashSet(int initialCapacity) { super(initialCapacity); }");
-      stream.println(ind(2) + "/**");
-      stream.println(ind(2) + " * @apilevel internal");
-      stream.println(ind(2) + " */");
-      stream.println(ind(2) + "public java.util.Iterator iterator() {");
-      stream.println(ind(3) + "final java.util.Iterator i = super.iterator();");
-      stream.println(ind(3) + "return new java.util.Iterator() {");
-      stream.println(ind(4) + "public boolean hasNext() { return i.hasNext(); }");
-      stream.println(ind(4) + "public Object next() { return ((Wrapper)i.next()).o; }");
-      stream.println(ind(4) + "public void remove() { i.remove(); }");
-      stream.println(ind(3) + "};");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "public boolean contains(Object o) { return super.contains(wrap(o)); }");
-      stream.println(ind(2) + "public boolean add(Object o) { return super.add(wrap(o)); }");
-      stream.println(ind(2) + "public boolean remove(Object o) { return super.remove(wrap(o)); }");
-      stream.println(ind(2) + "private Wrapper wrap(Object o) { return new Wrapper(o); }");
-      stream.println(ind(2) + "/**");
-      stream.println(ind(2) + " * @apilevel internal");
-      stream.println(ind(2) + " */");
-      stream.println(ind(2) + "private static class Wrapper {");
-      stream.println(ind(3) + "private Object o;");
-      stream.println(ind(3) + "private Wrapper(Object o) { this.o = o; }");
-      stream.println(ind(3) + "public boolean equals(Object other) { return other instanceof Wrapper && ((Wrapper)other).o == o; }");
-      stream.println(ind(3) + "public int hashCode() { return System.identityHashCode(o); }");
-      stream.println(ind(2) + "}");
-      stream.println(ind + "}");
-    }
-    else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "static class IdentityHashSet extends java.util.AbstractSet implements java.util.Set {");
-      stream.println(ind(2) + "public IdentityHashSet(int initialCapacity) {");
-      stream.println(ind(3) + "map = new java.util.IdentityHashMap(initialCapacity);");
-      stream.println(ind(3) + "}");
-      stream.println(ind(2) + "private java.util.IdentityHashMap map;");
-      stream.println(ind(2) + "private static final Object PRESENT = new Object();");
-      stream.println(ind(2) + "public java.util.Iterator iterator() { return map.keySet().iterator(); }");
-      stream.println(ind(2) + "public int size() { return map.size(); }");
-      stream.println(ind(2) + "public boolean isEmpty() { return map.isEmpty(); }");
-      stream.println(ind(2) + "public boolean contains(Object o) { return map.containsKey(o); }");
-      stream.println(ind(2) + "public boolean add(Object o) { return map.put(o, PRESENT)==null; }");
-      stream.println(ind(2) + "public boolean remove(Object o) { return map.remove(o)==PRESENT; }");
-      stream.println(ind(2) + "public void clear() { map.clear(); }");
-      stream.println(ind + "}");
+    if (deterministic) {
+      tt.expand("ast.state:deterministic", stream);
+    } else {
+      tt.expand("ast.state:nodeterministic", stream);
     }
 
     // ES_2011-09-20: Code generation for incremental evaluation, evaluation stack
-    if (ASTNode.incremental) jjtGenIncrementalEvaluationStack(stream);
+    if (ASTNode.incremental) {
+      jjtGenIncrementalEvaluationStack(stream);
+    }
 
     stream.println("}"); // End ASTNode$State
   }

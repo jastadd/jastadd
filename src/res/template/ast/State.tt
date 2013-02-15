@@ -2,7 +2,7 @@ ast.state = [[
 /**
  * @apilevel internal
  */
-static public class ASTNode$State {
+static public class ASTNode$$State {
 $StateBody
 $IncrementalEvaluationStack
 }]]
@@ -111,6 +111,15 @@ ast.state:circular+componentcheck = [[
     CHANGE = c.changeValue;
   }]]
 
+ast.state:rewrite+rewritelimit>0 = [[
+  /**
+   * @apilevel internal
+   */
+  public java.util.HashMap debugRewrite = $(ASTNode.createDefaultMap);]]
+
+ast.state.rewrite+stagedrewrites = [[
+  public int rewritePhase = 1;]]
+
 ast.state:rewrite = [[
   /**
    * @apilevel internal
@@ -127,24 +136,14 @@ ast.state:rewrite = [[
    */
   public static final int REWRITE_INTERRUPT = 3;
 
-  if(rewriteLimit > 0) {
-    /**
-     * @apilevel internal
-     */
-    public java.util.HashMap debugRewrite = $(ASTNode.createDefaultMap);
-  }
-
   public int boundariesCrossed = 0;
-
-  #if(stagedRewrites)
-    public int rewritePhase = 1;
 
   // state code
   private int[] stack;
 
   private int pos;
 
-  public ASTNode$State() {
+  public ASTNode$$State() {
     stack = new int[64];
     pos = 0;
   }
