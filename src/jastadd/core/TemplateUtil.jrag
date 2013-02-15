@@ -46,8 +46,12 @@ aspect TemplateUtil {
       tt.loadTemplates(in);
       in.close();
     } catch (TemplateParser.SyntaxError e) {
+      System.err.println("WARNING: Could not load template file " +
+          templateFile);
       System.err.println(e.getMessage());
     } catch (IOException e) {
+      System.err.println("WARNING: Could not load template file " +
+          templateFile);
       System.err.println(e.getMessage());
     }
   }
