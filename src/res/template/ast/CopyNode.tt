@@ -2,7 +2,7 @@ ast.copy = [[
   /**
    * @apilevel internal
    */
-  $(Annotations)public $ReturnType copy() {
+  #(annotations)public $ReturnType copy() {
     $BlockBegin
     try {
       #name node = (#name) clone();
@@ -34,7 +34,7 @@ ast.fullCopy = [[
    * @return dangling copy of the subtree at this node
    * @apilevel low-level
    */
-  $(Annotations)public $ReturnType fullCopy() {
+  #(annotations)public $ReturnType fullCopy() {
     $BlockBegin
     #name tree = (#name) copy();
     if (children != null) {

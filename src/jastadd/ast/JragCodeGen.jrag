@@ -306,8 +306,10 @@ aspect JragCodeGen {
 
   public static String ASTNode.suppressWarnings() {
     return (suppressWarnings || java5) ?
-      ind + "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
+      "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
   }
+
+  syn String ASTDecl.annotations() = ASTNode.suppressWarnings();
 
   public String TypeDecl.genAbstractSyns() {
     StringBuffer buf = new StringBuffer();

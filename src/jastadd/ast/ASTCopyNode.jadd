@@ -148,7 +148,6 @@ aspect ASTCloneNode {
 
     TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
-    tt.bind("Annotations", ASTNode.suppressWarnings());
     if (ASTNode.block) {
       tt.bind("BlockBegin", ASTNode.blockBegin);
       tt.bind("BlockEnd", ASTNode.blockEnd);
