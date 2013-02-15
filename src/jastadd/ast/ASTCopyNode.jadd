@@ -165,8 +165,8 @@ aspect ASTCloneNode {
     }
     tt.bind("SkipNTAs", skipNTAs);
 
-    stream.print(tt.expand("ast.copy"));
-    stream.print(tt.expand("ast.fullCopy"));
+    tt.expand("ast.copy", stream);
+    tt.expand("ast.fullCopy", stream);
   }
 
 }

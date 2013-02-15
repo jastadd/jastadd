@@ -127,9 +127,9 @@ aspect JaddCodeGen {
 
     if (jjtree) {
       tt.bind("ParserName", parserName);
-      out.print(tt.expand("constructor.jjtree"));
+      tt.expand("constructor.jjtree", out);
     } else {
-      out.print(tt.expand("constructor.default"));
+      tt.expand("constructor.default", out);
     }
   }
 
