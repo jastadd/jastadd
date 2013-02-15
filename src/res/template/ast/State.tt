@@ -92,7 +92,7 @@ ast.state:circular+componentcheck = [[
     $(ASTNode.typeDefaultSet) circularEvalSet;
     boolean changeValue;
 
-    public CircularStackEntry(" + ASTNode.typeDefaultSet + " set, boolean change) {
+    public CircularStackEntry($(ASTNode.typeDefaultSet) set, boolean change) {
       circularEvalSet = set;
       changeValue = change;
     }
@@ -100,7 +100,7 @@ ast.state:circular+componentcheck = [[
 
   public void pushEvalStack() {
     circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));
-    circularEvalSet = " + ASTNode.createDefaultSet + ";
+    circularEvalSet = $(ASTNode.createDefaultSet);
     CHANGE = false;
   }
 
