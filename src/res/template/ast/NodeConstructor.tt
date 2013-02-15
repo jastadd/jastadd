@@ -12,12 +12,23 @@ constructor.jjtree = [[
 
   public #name.#name() {
     this(0);
-  }
-]]
+  }]]
 
 constructor.default = [[
   public #name.#name() {
     super();
     $InitChildren
     $FinalInit
+  }]]
+
+initChildren = [[
+  /**
+   * Initializes the child array to the correct size.
+   * Initializes List and Opt nta children.
+   * @apilevel internal
+   * @ast method
+   */
+  public void #name.init$$Children() {
+    $InitChildArray
+    $ChildInit
   }]]

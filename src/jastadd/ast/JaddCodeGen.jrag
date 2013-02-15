@@ -137,41 +137,39 @@ aspect JaddCodeGen {
    * Emits the (nta) child initialization method
    */
   public void ASTDecl.emitChildInitMethod(PrintWriter out) {
-    out.println(ind + "/**");
-    out.println(ind + " * Initializes the child array to the correct size.");
-    out.println(ind + " * Initializes List and Opt nta children.");
-    out.println(ind + " * @apilevel internal");
-    out.println(ind + " * @ast method");
-    out.println(ind + " */");
-    out.println(ind + "public void " + name() + ".init$Children() {");
+    TemplateContext tt = templateContext();
+
+    String initChildArray = "";
     if (childCount() > 0) {
-      out.println(ind(2) + "children = new ASTNode[" + childCount() + "];");
+      initChildArray = "children = new ASTNode[" + childCount() + "];";
       if (ASTNode.incremental && ASTNode.incrementalLevelParam)
-        out.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[" + childCount() + "];");
+        initChildArray += "\ngetChild_handler = new ASTNode$DepGraphNode[" +
+          childCount() + "];";
     }
+
+    tt.bind("InitChildArray", initChildArray);
+
+    StringBuffer childInit = new StringBuffer();
+    if (ASTNode.incremental)
+      childInit.append(genIncrementalConstructorStartConstruction());
     int i = 0;
-    // ES_2011-11-23: Code generation for incremental evaluation  
-    if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorStartConstruction());
-    //
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof ListComponents) {
-        out.println(ind(2) + "setChild(new List(), " + String.valueOf(i) + ");");
+        childInit.append("setChild(new List(), " + i + ");\n");
         i++;
-      }
-      else if(c instanceof OptionalComponent) {
-        out.println(ind(2) + "setChild(new Opt(), " + String.valueOf(i) + ");");
+      } else if(c instanceof OptionalComponent) {
+        childInit.append("setChild(new Opt(), " + i + ");\n");
         i++;
-      }
-      else if(c instanceof AggregateComponents) {
-        //out.println(ind(2) + "setChild(null, " + String.valueOf(i) + ");");
+      } else if(c instanceof AggregateComponents) {
         i++;
       }
     }
-    // ES_2011-11-23: Code generation for incremental evaluation  
-    if (ASTNode.incremental) out.println(ind(2) + genIncrementalConstructorEndConstruction());
-    //
-    out.println(ind + "}");
+    if (ASTNode.incremental)
+      childInit.append(genIncrementalConstructorEndConstruction());
+
+    tt.bind("ChildInit", childInit.toString());
+    tt.expand("initChildren", out);
   }
 
   /**
