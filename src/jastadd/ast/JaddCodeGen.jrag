@@ -107,44 +107,30 @@ aspect JaddCodeGen {
   public void ASTDecl.emitDefaultConstructor(PrintWriter out, String parserName,
       boolean jjtree, boolean rewriteEnabled) {
 
+    TemplateContext tt = templateContext();
+
     String finalInit = "";
     if(rewriteEnabled && isRootNode()) {
       if(ASTNode.stagedRewrites)
-        finalInit = ind(2) + "is$Final(state().rewritePhase);\n";
+        finalInit = "is$Final(state().rewritePhase);";
       else
-        finalInit = ind(2) + "is$Final(true);\n";
+        finalInit = "is$Final(true);";
     }
 
-    String s;
-    if(jjtree) {
-      s = ind + "public #ID#.#ID#(int i) {\n" +
-        ind(2) + "super(i);\n" +
-        (isASTNode() ? (ind(2) + "init$Children();") : "") +
-        finalInit +
-        ind + "}\n" +
-        ind + "public #ID#.#ID#(" + parserName + " p, int i) {\n" +
-        ind(2) + "this(i);\n" +
-        ind(2) + "parser = p;\n" +
-        finalInit +
-        ind + "}\n" +
-        ind + "public #ID#.#ID#() {\n" + 
-        ind(2) + "this(0);\n" + 
-        "#NTA#";
-    }
-    else {
-      s = ind + "public #ID#.#ID#() {\n" + // Lägg till null för agg, tom lista för list, false för opt
-        ind(2) + "super();\n" + 
-        "#NTA#";
-    }
-    String t = new String();
-    s = s.replaceAll("#ID#", name());
-    s = s.replaceAll("#NTA#", t);
-    out.println(s);
+    tt.bind("FinalInit", finalInit);
+
     if (isASTNode()) {
-      out.println(ind(2) + "init$Children();");
+      tt.bind("InitChildren", "init$Children();");
+    } else {
+      tt.bind("InitChildren", "");
     }
-    out.println(finalInit);
-    out.println(ind + "}");
+
+    if (jjtree) {
+      tt.bind("ParserName", parserName);
+      tt.expand("constructor.jjtree", out);
+    } else {
+      tt.expand("constructor.default", out);
+    }
   }
 
   /**
@@ -1340,7 +1326,8 @@ aspect JaddCodeGen {
     String s;
 
     jjtGenConstructor(stream, parserName, jjtree, rewriteEnabled);
-    //jjtGenCloneNode(stream, parserName, jjtree, rewriteEnabled);
+    //emitCloneNode(stream);
+    //emitCopyNode(stream);
     //jjtGenFlushCache(stream);
     if(jjtree) {
       jjtGenDumpTree(stream, parserName, jjtree, rewriteEnabled);

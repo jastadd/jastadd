@@ -1,6 +1,5 @@
 <project name="JastAdd2" default="build">
 
-	<property name="spec.dir" location="spec"/>
 	<property name="src.dir" location="src"/>
 	<property name="gen.dir" location="${src.dir}/gen"/>
 	<property name="bin.dir" location="bin"/>
@@ -32,34 +31,38 @@
 		<mkdir dir="${gen.dir}/jrag/AST"/>
 		<mkdir dir="${bin.dir}"/>
 		<copy todir="${gen.dir}/jrag">
-			<fileset dir="${spec.dir}/javacc/jrag">
+			<fileset dir="${src.dir}/javacc/jrag">
 				<include name="**/*.java"/>
 			</fileset>
 		</copy>
 		<jastadd java14="true" jjtree="true" rewrite="true"
 			grammar="Ast" package="ast.AST" outdir="${gen.dir}"
 			lazyMaps="false">
-			<fileset dir="${spec.dir}/jastadd/ast" includes="*.jrag,*.jadd,*.ast"/>
+			<fileset dir="${src.dir}/jastadd">
+				<include name="**/*.jrag"/>
+				<include name="**/*.jadd"/>
+				<include name="**/*.ast"/>
+			</fileset>
 		</jastadd>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
-		<touch file="${spec.dir}/javacc/ast/Ast.jjt"/>
+		<touch file="${src.dir}/javacc/ast/Ast.jjt"/>
 		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
 			<arg value="-OUTPUT_DIRECTORY=${gen.dir}/ast/AST"/>
 			<arg value="-NODE_PREFIX=&quot;&quot;"/>
-			<arg value="${spec.dir}/javacc/ast/Ast.jjt"/>
+			<arg value="${src.dir}/javacc/ast/Ast.jjt"/>
 		</java>
 		<!-- NODE_PREFIX is not set correctly on Windows: -->
 		<!--jjtree javacchome="${tools.dir}" nodeprefix="&quot;&quot;"
 			outputdirectory="${gen.dir}/ast/AST"
-			target="${spec.dir}/javacc/ast/Ast.jjt"/-->
+			target="${src.dir}/javacc/ast/Ast.jjt"/-->
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
 			outputdirectory="${gen.dir}/ast/AST"
 			target="${gen.dir}/ast/AST/Ast.jj"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
-		<touch file="${spec.dir}/javacc/jrag/Jrag.jjt"/>
+		<touch file="${src.dir}/javacc/jrag/Jrag.jjt"/>
 		<jjtree javacchome="${tools.dir}"
 			outputdirectory="${gen.dir}/jrag/AST"
-			target="${spec.dir}/javacc/jrag/Jrag.jjt"/>
+			target="${src.dir}/javacc/jrag/Jrag.jjt"/>
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
 			outputdirectory="${gen.dir}/jrag/AST"
 			target="${gen.dir}/jrag/AST/Jrag.jj"/>
@@ -71,6 +74,9 @@
 		<copy todir="${bin.dir}">
 			<fileset dir="${gen.dir}">
 				<include name="**/*.properties"/>
+			</fileset>
+			<fileset dir="${src.dir}/res">
+				<include name="**/*"/>
 			</fileset>
 		</copy>
 	</target>

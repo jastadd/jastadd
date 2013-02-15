@@ -1,0 +1,172 @@
+/* Copyright (c) 2005-2013, The JastAdd Team
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+aspect ASTCloneNode {
+
+  public void ASTDecl.emitCloneNode(PrintWriter stream) {
+
+    if(ASTNode.java5) {
+      // covariant return type when using Java 5
+      String name = name();
+      if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
+        name = name + "<T>";
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel internal");
+      stream.println(ind + " */");
+      stream.println(ASTNode.suppressWarnings() + ind + "public " + name + " clone() throws CloneNotSupportedException {");
+    }
+    else {
+      stream.println(ind + "/**");
+      stream.println(ind + " * @apilevel internal");
+      stream.println(ind + " */");
+      stream.println(ASTNode.suppressWarnings() + ind + "public Object clone() throws CloneNotSupportedException {");
+    }
+    if(ASTNode.block) stream.print(ASTNode.blockBegin);
+
+    stream.print(ind(2) + name() + " node = (" + name() + ")super.clone();\n");
+
+    for(int k = 0; k < getNumSynEq(); k++) {
+      AttrEq equ = getSynEq(k);
+      AttrDecl attr = equ.decl();
+      String u = attr.resetVisit() + attr.resetCache();
+      u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
+      stream.print(u);
+    }
+    for(int k = 0; k < getNumInhDecl(); k++) {
+      AttrDecl attr = getInhDecl(k);
+      String u = attr.resetVisit() + attr.resetCache();
+      u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
+      stream.print(u);
+    }
+
+    if(ASTNode.rewriteEnabled) {
+      stream.print(ind(2) + "node.in$Circle(false);\n");
+      if(ASTNode.stagedRewrites)
+        stream.print(ind(2) + "node.is$Final(0);\n");
+      else
+        stream.print(ind(2) + "node.is$Final(false);\n");
+    }
+
+    stream.print(ind(2) + "return node;\n");
+    if(ASTNode.block) stream.print(ASTNode.blockEnd);
+    stream.print(ind + "}\n");
+  }
+
+  public void ASTDecl.emitCopyNode(PrintWriter stream) {
+
+    if (hasAbstract())
+      // Don't generate copy methods for abstract node types
+      return;
+
+    // We skip copying NTA children
+    // Build list of NTA indices - these are skipped when copying the children
+    LinkedList ntaAggregateIndices = new LinkedList();
+    LinkedList ntaOptIndices = new LinkedList();
+    LinkedList ntaListIndices = new LinkedList();
+    int i = 0;
+    for(Iterator iter = getComponents(); iter.hasNext(); i += 1) {
+      Components c = (Components)iter.next();
+      if (c.isNTA()) {
+        if (c instanceof ListComponentsNTA)
+          ntaListIndices.add(new Integer(i));
+        else if (c instanceof OptionalComponentNTA)
+          ntaOptIndices.add(new Integer(i));
+        else if (c instanceof AggregateComponentsNTA)
+          ntaAggregateIndices.add(new Integer(i));
+      }
+    }
+
+    // The skipNTAs string will include a switch statement that excludes
+    // the NTA children from the full copy, but for Opt and List NTAs
+    // we still need to create a placeholder Opt/List node
+    String skipNTAs = "";
+    if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
+      !ntaListIndices.isEmpty()) {
+
+      skipNTAs = "switch (i) {\n";
+      Iterator iter;
+      if (!ntaAggregateIndices.isEmpty()) {
+        iter = ntaAggregateIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind + "tree.children[i] = null;\n";
+        skipNTAs += ind + "continue;\n";
+      }
+      if (!ntaOptIndices.isEmpty()) {
+        iter = ntaOptIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind + "tree.children[i] = new Opt();\n";
+        skipNTAs += ind + "continue;\n";
+      }
+      if (!ntaListIndices.isEmpty()) {
+        iter = ntaListIndices.iterator();
+        while (iter.hasNext()) {
+          Object index = iter.next();
+          skipNTAs += "case " + index.toString() + ":\n";
+        }
+        skipNTAs += ind + "tree.children[i] = new List();\n";
+        skipNTAs += ind + "continue;\n";
+      }
+      skipNTAs += "}\n";
+    }
+
+    String returnName = name();
+    if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
+      returnName = returnName + "<T>";
+
+    String returnType = ASTNode.java5 ? returnName : "ASTNode";
+
+    TemplateContext tt = templateContext();
+    tt.bind("ReturnType", returnType);
+    tt.bind("Annotations", ASTNode.suppressWarnings());
+    if (ASTNode.block) {
+      tt.bind("BlockBegin", ASTNode.blockBegin);
+      tt.bind("BlockEnd", ASTNode.blockEnd);
+    } else {
+      tt.bind("BlockBegin", "");
+      tt.bind("BlockEnd", "");
+    }
+    if (ASTNode.incremental) {
+      tt.bind("IncrementalCopyNode", genIncrementalCopyNode());
+      tt.bind("SetChild", jjtGenIncrementalCloneNode());
+    } else {
+      tt.bind("IncrementalCopyNode", "");
+      tt.bind("SetChild", "tree.setChild(child, i);");
+    }
+    tt.bind("SkipNTAs", skipNTAs);
+
+    tt.expand("ast.copy", stream);
+    tt.expand("ast.fullCopy", stream);
+  }
+
+}
