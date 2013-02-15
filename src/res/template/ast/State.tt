@@ -1,0 +1,229 @@
+ast.state = [[
+/**
+ * @apilevel internal
+ */
+static public class ASTNode$State {
+$StateBody
+$IncrementalEvaluationStack
+}]]
+
+ast.state:circular+cachecycle = [[
+  /**
+   * @apilevel internal
+   */
+  public boolean LAST_CYCLE = false;
+]]
+
+ast.state:circular = [[
+  /**
+   * @apilevel internal
+   */
+  public boolean IN_CIRCLE = false;
+
+  /**
+   * @apilevel internal
+   */
+  public int CIRCLE_INDEX = 1;
+
+  /**
+   * @apilevel internal
+   */
+  public boolean CHANGE = false;
+
+  /**
+   * @apilevel internal
+   */
+  public boolean RESET_CYCLE = false;
+
+  /**
+   * @apilevel internal
+   */
+  static public class CircularValue {
+    Object value;
+    int visited = -1;
+  }]]
+
+ast.state:circular+componentcheck = [[
+  public $(ASTNode.typeDefaultSet) circularEvalSet = $(ASTNode.createDefaultSet);
+
+  public java.util.Stack circularEvalStack = new java.util.Stack();
+
+  /**
+   * @apilevel internal
+   */
+  static class CircularEvalEntry {
+    ASTNode node;
+    String attrName;
+    Object parameters;
+
+    public CircularEvalEntry(ASTNode node, String attrName, Object parameters) {
+      this.node = node;
+      this.attrName = attrName;
+      this.parameters = parameters;
+    }
+
+    public boolean equals(Object rhs) {
+      CircularEvalEntry s = (CircularEvalEntry) rhs;
+      if (parameters == null && s.parameters == null)
+        return node == s.node && attrName.equals(s.attrName);
+      else if (parameters != null && s.parameters != null)
+        return node == s.node && attrName.equals(s.attrName) && parameters.equals(s.parameters);
+      else
+        return false;
+    }
+
+    public int hashCode() {
+      return node.hashCode();
+    }
+  }
+
+  public void addEvalEntry(ASTNode node, String attrName, Object parameters) {
+    circularEvalSet.add(new CircularEvalEntry(node,attrName,parameters));
+  }
+
+  public boolean containsEvalEntry(ASTNode node, String attrName, Object parameters) {
+    return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));
+  }
+
+  /**
+   * @apilevel internal
+   */
+  static class CircularStackEntry {
+    $(ASTNode.typeDefaultSet) circularEvalSet;
+    boolean changeValue;
+
+    public CircularStackEntry(" + ASTNode.typeDefaultSet + " set, boolean change) {
+      circularEvalSet = set;
+      changeValue = change;
+    }
+  }
+
+  public void pushEvalStack() {
+    circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));
+    circularEvalSet = " + ASTNode.createDefaultSet + ";
+    CHANGE = false;
+  }
+
+  public void popEvalStack() {
+    CircularStackEntry c = (CircularStackEntry) circularEvalStack.pop();
+    circularEvalSet = c.circularEvalSet;
+    CHANGE = c.changeValue;
+  }]]
+
+ast.state:rewrite = [[
+  /**
+   * @apilevel internal
+   */
+  public static final int REWRITE_CHANGE = 1;
+
+  /**
+   * @apilevel internal
+   */
+  public static final int REWRITE_NOCHANGE = 2;
+
+  /**
+   * @apilevel internal
+   */
+  public static final int REWRITE_INTERRUPT = 3;
+
+  if(rewriteLimit > 0) {
+    /**
+     * @apilevel internal
+     */
+    public java.util.HashMap debugRewrite = $(ASTNode.createDefaultMap);
+  }
+
+  public int boundariesCrossed = 0;
+
+  #if(stagedRewrites)
+    public int rewritePhase = 1;
+
+  // state code
+  private int[] stack;
+
+  private int pos;
+
+  public ASTNode$State() {
+    stack = new int[64];
+    pos = 0;
+  }
+
+  private void ensureSize(int size) {
+    if(size < stack.length)
+      return;
+    int[] newStack = new int[stack.length * 2];
+    System.arraycopy(stack, 0, newStack, 0, stack.length);
+    stack = newStack;
+  }
+
+  public void push(int i) {
+    ensureSize(pos+1);
+    stack[pos++] = i;
+  }
+
+  public int pop() {
+    return stack[--pos];
+  }
+
+  public int peek() {
+    return stack[pos-1];
+  }]]
+
+ast.state:deterministic = [[
+  /**
+   * @apilevel internal
+   */
+  static class IdentityHashSet extends java.util.LinkedHashSet {
+
+    public IdentityHashSet(int initialCapacity) {
+      super(initialCapacity);
+    }
+
+    /**
+     * @apilevel internal
+     */
+    public java.util.Iterator iterator() {
+      final java.util.Iterator i = super.iterator();
+      return new java.util.Iterator() {
+        public boolean hasNext() { return i.hasNext(); }
+        public Object next() { return ((Wrapper)i.next()).o; }
+        public void remove() { i.remove(); }
+      };
+    }
+
+    public boolean contains(Object o) { return super.contains(wrap(o)); }
+
+    public boolean add(Object o) { return super.add(wrap(o)); }
+
+    public boolean remove(Object o) { return super.remove(wrap(o)); }
+
+    private Wrapper wrap(Object o) { return new Wrapper(o); }
+    /**
+     * @apilevel internal
+     */
+    private static class Wrapper {
+      private Object o;
+      private Wrapper(Object o) { this.o = o; }
+      public boolean equals(Object other) { return other instanceof Wrapper && ((Wrapper)other).o == o; }
+      public int hashCode() { return System.identityHashCode(o); }
+    }
+  }]]
+
+ast.state:nodeterministic = [[
+  /**
+   * @apilevel internal
+   */
+  static class IdentityHashSet extends java.util.AbstractSet implements java.util.Set {
+    public IdentityHashSet(int initialCapacity) {
+      map = new java.util.IdentityHashMap(initialCapacity);
+    }
+    private java.util.IdentityHashMap map;
+    private static final Object PRESENT = new Object();
+    public java.util.Iterator iterator() { return map.keySet().iterator(); }
+    public int size() { return map.size(); }
+    public boolean isEmpty() { return map.isEmpty(); }
+    public boolean contains(Object o) { return map.containsKey(o); }
+    public boolean add(Object o) { return map.put(o, PRESENT)==null; }
+    public boolean remove(Object o) { return map.remove(o)==PRESENT; }
+    public void clear() { map.clear(); }
+  }]]
