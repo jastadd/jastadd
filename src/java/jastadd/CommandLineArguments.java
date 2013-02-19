@@ -36,26 +36,34 @@ import java.util.*;
  */
 public class CommandLineArguments {
 
-  private List options = new LinkedList();
-  private List operands = new ArrayList();
+  private List<Option> options = new LinkedList<Option>();
+  private List<String> operands = new ArrayList<String>();
 
+  /**
+   * Constructor
+   */
   public CommandLineArguments() {
   }
 
+  /**
+   * Add an option
+   * @param option
+   */
   public void addOption(Option option) {
     options.add(option);
   }
 
   /**
    * Match the options against the command line arguments.
+   * @param args Command-line arguments
    */
   public void match(String[] args) {
     int i = 0;
     Option lastMatch = null;
     while (i < args.length) {
-      Iterator iter = options.iterator();
+      Iterator<Option> iter = options.iterator();
       while (iter.hasNext() && i < args.length) {
-        Option option = (Option) iter.next();
+        Option option = iter.next();
         int num = option.match(args, i);
         if (num > 0) {
 
@@ -90,9 +98,9 @@ public class CommandLineArguments {
    * command line option.
    */
   public void printHelp() {
-    Iterator iter = options.iterator();
+    Iterator<Option> iter = options.iterator();
     while (iter.hasNext()) {
-      Option option = (Option) iter.next();
+      Option option = iter.next();
       if (!option.nonStandard && !option.deprecated)
         option.printHelp();
     }
@@ -102,9 +110,9 @@ public class CommandLineArguments {
    * Print the description for each non-standard command line option.
    */
   public void printNonStandardOptions() {
-    Iterator iter = options.iterator();
+    Iterator<Option> iter = options.iterator();
     while (iter.hasNext()) {
-      Option option = (Option) iter.next();
+      Option option = iter.next();
       if (option.nonStandard)
         option.printHelp();
     }
@@ -118,6 +126,7 @@ public class CommandLineArguments {
   };
   
   /**
+   * @param k Index of operand to return
    * @return the k'th operand at the end of the command line,
    * where the operands are numbered from 0 to getNumOperands()-1.
    */
