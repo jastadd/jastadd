@@ -39,6 +39,7 @@ aspect TemplateUtil {
   syn lazy TemplateContext Grammar.templateContext() {
     TinyTemplate tt = new TinyTemplate();
     tt.setIndentation(ASTNode.ind);
+    tt.throwExceptions(true);
     loadTemplates(tt, "ast/CopyNode");
     loadTemplates(tt, "ast/NodeConstructor");
     loadTemplates(tt, "ast/State");
