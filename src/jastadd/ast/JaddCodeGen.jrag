@@ -311,6 +311,7 @@ aspect JaddCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ASTNode.typeDefaultSet", ASTNode.typeDefaultSet);
     tt.bind("ASTNode.createDefaultSet", ASTNode.createDefaultSet);
+    tt.bind("ASTNode.createDefaultMap", ASTNode.createDefaultMap);
 
     if (circularEnabled) {
       if (cacheCycle) {
