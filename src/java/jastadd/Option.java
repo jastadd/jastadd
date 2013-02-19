@@ -67,7 +67,6 @@ public class Option {
    *
    * @param optionName The name of the option
    * @param description The description that will be printed in the help line
-   * @param needsValue <code>true</code> if this option requires a value
    */
   public Option(String optionName, String description) {
     this(optionName, description, false);
