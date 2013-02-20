@@ -30,51 +30,50 @@ aspect ASTCloneNode {
 
   public void ASTDecl.emitCloneNode(PrintWriter stream) {
 
+    String returnType;
     if(ASTNode.java5) {
-      // covariant return type when using Java 5
-      String name = name();
+      returnType = name();
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
-        name = name + "<T>";
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ASTNode.suppressWarnings() + ind + "public " + name + " clone() throws CloneNotSupportedException {");
+        returnType += "<T>";
+    } else {
+      returnType = "Object";
     }
-    else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ASTNode.suppressWarnings() + ind + "public Object clone() throws CloneNotSupportedException {");
-    }
-    if(ASTNode.block) stream.print(ASTNode.blockBegin);
-
-    stream.print(ind(2) + name() + " node = (" + name() + ")super.clone();\n");
-
+    
+    StringBuffer cloneBody = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
       AttrDecl attr = equ.decl();
       String u = attr.resetVisit() + attr.resetCache();
       u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
-      stream.print(u);
+      cloneBody.append(u);
     }
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
       String u = attr.resetVisit() + attr.resetCache();
       u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
-      stream.print(u);
+      cloneBody.append(u);
     }
 
     if(ASTNode.rewriteEnabled) {
-      stream.print(ind(2) + "node.in$Circle(false);\n");
+      cloneBody.append(ind(2) + "node.in$Circle(false);\n");
       if(ASTNode.stagedRewrites)
-        stream.print(ind(2) + "node.is$Final(0);\n");
+        cloneBody.append(ind(2) + "node.is$Final(0);\n");
       else
-        stream.print(ind(2) + "node.is$Final(false);\n");
+        cloneBody.append(ind(2) + "node.is$Final(false);\n");
     }
+    
+    TemplateContext tt = templateContext();
+    tt.bind("ReturnType", returnType);
+    if (ASTNode.block) {
+      tt.bind("BlockBegin", ASTNode.blockBegin);
+      tt.bind("BlockEnd", ASTNode.blockEnd);
+    } else {
+      tt.bind("BlockBegin", "");
+      tt.bind("BlockEnd", "");
+    }
+    tt.bind("CloneBody", cloneBody.toString());
 
-    stream.print(ind(2) + "return node;\n");
-    if(ASTNode.block) stream.print(ASTNode.blockEnd);
-    stream.print(ind + "}\n");
+    tt.expand("ast.clone", stream);
   }
 
   public void ASTDecl.emitCopyNode(PrintWriter stream) {

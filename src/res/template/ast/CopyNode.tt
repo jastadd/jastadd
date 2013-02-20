@@ -55,3 +55,17 @@ ast.fullCopy = [[
 ast.fullCopy.setChild:incremental =
 [[tree.children[i] = child;
 child.parent = tree;]]
+
+# ASTNode.clone
+ast.clone = [[
+  /**
+   * @apilevel internal
+   */
+   #(annotations)public $ReturnType clone() throws CloneNotSupportedException {
+     $BlockBegin
+     #name node = (#name) super.clone();
+     $CloneBody
+     return node;
+     $BlockEnd
+   }
+]]
