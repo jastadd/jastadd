@@ -64,7 +64,10 @@ public class JastAdd {
   protected java.util.List<String> files;
   protected java.util.List<String> cacheFiles;
 
-  protected Grammar root; // root of the ast for the ast-grammar file
+  /**
+   * Root of the AST for the parsed ast-grammar file
+   */
+  protected final Grammar root = new Grammar();
   protected String pack;
   protected File outputDir;
   protected String grammar;
@@ -85,7 +88,6 @@ public class JastAdd {
 
       long time = System.currentTimeMillis();
 
-      root = new Grammar();
       root.abstractAncestors();
 
       // Parse ast-grammar
