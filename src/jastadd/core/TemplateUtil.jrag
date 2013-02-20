@@ -29,7 +29,7 @@
 import org.jastadd.tinytemplate.*;
 
 aspect TemplateUtil {
-  inh lazy TemplateContext ASTDecl.parentContext();
+  inh lazy TemplateContext ASTNode.parentContext();
 
   eq Grammar.getChild().parentContext() = templateContext();
 
@@ -64,6 +64,10 @@ aspect TemplateUtil {
   }
 
   syn lazy TemplateContext ASTDecl.templateContext() {
+    return new SimpleContext(parentContext(), this);
+  }
+  
+  syn lazy TemplateContext AttrDecl.templateContext() {
     return new SimpleContext(parentContext(), this);
   }
 }

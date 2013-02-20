@@ -969,7 +969,7 @@ aspect JragCodeGen {
 
   public String AttrDecl.computeMethodInline(AttrDecl attr) {
     // TODO: INH
-    if(!ASTNode.parentInterface)
+    if (!ASTNode.parentInterface)
       return  "";
     return
         ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
@@ -1001,26 +1001,11 @@ aspect JragCodeGen {
       ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + computeMethodBody() + "\n";
   }
 
-  public String AttrDecl.computeMethod() {
+  public void AttrDecl.emitComputeMethod(StringBuffer buf) {
     // TODO: INH
-    if(!ASTNode.parentInterface)
-      return  "";
-    return
-        ind + "/**\n" +
-        ind + " * @apilevel internal\n" +
-        ind + " */\n" +
-        ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
-        ind(2) + "ASTNode n = getParent();\n" +
-        ind(2) + "ASTNode caller = this;\n" +
-        ind(2) + "ASTNode child = null;\n" +
-        ind(2) + "while(!(n instanceof Defines_#TYPEINSIGNATURE#_#NAME#) && n != null) {\n" +
-        ind(3) + "child = caller;\n" +
-        ind(3) + "caller = n;\n" +
-        ind(3) + "n = n.getParent();\n" +
-        ind(2) + "}\n" +
-        inhDebugString() +
-        ind(2) + "return ((Defines_#TYPEINSIGNATURE#_#NAME#)n).Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
-        ind + "}\n";
+    if (ASTNode.parentInterface) {
+      templateContext().expand("AttrDecl.computeMethod", buf);
+    }
   }
 
   syn String AttrDecl.inhDebugString() {
@@ -1096,7 +1081,8 @@ aspect JragCodeGen {
            attr.tracePrintCycleBeginString() +
            attr.addAddToComponent() +
            attr.cacheInitRewrite(ind(2)) +
-        //   ind(3) + "state().CIRCLE_INDEX = 1;\n" + // TODO: fixme
+           // TODO: fixme
+           // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
            ind(3) + "do {\n" +
            ind(4) + "#NAME#_visited = state.CIRCLE_INDEX;\n" +
            ind(4) + "state.CHANGE = false;\n" +
@@ -1177,7 +1163,8 @@ aspect JragCodeGen {
            attr.tracePrintCycleBeginString() +
            attr.cacheInitRewrite(ind(3)) +
            attr.addAddToComponent() +
-  // TODO: fixme         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
+           // TODO: fixme
+           // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
            ind(3) + "#TYPE# new_#NAME#_value;\n" +
            ind(3) + "do {\n" + 
            // EMMA_2011-09-08: Adding java1.4 code
@@ -1652,15 +1639,8 @@ aspect JragCodeGen {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
        String s = "";
-       /*if (attr.getLazy() || attr.isCircular()) {*/
-         s += attr.hostFileComment(ind);
-         s += genEquation(attr);
-         s += attr.computeMethod();
-       /*} else {
-         s += attr.computeMethodInline(attr);
-         if (!s.isEmpty())
-           s = attr.hostFileComment(ind) + s;
-       }*/
+       s += attr.hostFileComment(ind);
+       s += genEquation(attr);
        s = getCacheDeclarations(attr) + s;
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
@@ -1671,6 +1651,8 @@ aspect JragCodeGen {
        s = s.replaceAll("#PARM#", attr.parameters());
        s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
        buf.append(s);
+       
+       attr.emitComputeMethod(buf);
     }
     return buf.toString();
   }
