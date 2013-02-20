@@ -1619,19 +1619,13 @@ aspect JragCodeGen {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
        buf.append(attr.hostFileComment(ind));
-
-       String s = ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
-       s = s.replaceAll("#TYPE#", attr.getType());
-       s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       s = s.replaceAll("#CLASS#\\.", "");
-       s = s.replaceAll("#NAME#", attr.attributeSignature());
-       s = s.replaceAll("#METHODNAME#", attr.attributeName());
-       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-       s = s.replaceAll("#PARM#", attr.parameters());
-       s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
-       buf.append(s);
+       attr.emitInhDecl(buf);
     }
     return buf.toString();
+  }
+
+  public void AttrDecl.emitInhDecl(StringBuffer buf) {
+    templateContext().expand("AttrDecl.inhDecl", buf);
   }
 
   public String ASTDecl.genInhDeclarations() {
