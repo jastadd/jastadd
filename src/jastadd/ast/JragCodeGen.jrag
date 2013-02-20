@@ -309,21 +309,20 @@ aspect JragCodeGen {
   }
 
   syn String ASTDecl.annotations() = ASTNode.suppressWarnings();
+  syn String AttrDecl.annotations() = ASTNode.suppressWarnings();
 
   public String TypeDecl.genAbstractSyns() {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      String s = attr.hostFileComment(ind) + suppressWarnings() +
-      ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#);\n";
-      s = s.replaceAll("#TYPE#", attr.getType());
-      s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-      s = s.replaceAll("#CLASS#\\.", "");
-      s = s.replaceAll("#METHODNAME#", attr.attributeName());
-      s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-      buf.append(s);
+      buf.append(attr.hostFileComment(ind));
+      attr.emitSynDecl(buf);
     }
     return buf.toString();
+  }
+
+  public void AttrDecl.emitSynDecl(StringBuffer buf) {
+    templateContext().expand("AttrDecl.synDecl", buf);
   }
 
   public String ASTDecl.genAbstractSyns() {

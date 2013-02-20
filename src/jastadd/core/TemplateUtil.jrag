@@ -43,6 +43,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/CopyNode");
     loadTemplates(tt, "ast/NodeConstructor");
     loadTemplates(tt, "ast/State");
+    loadTemplates(tt, "ast/Attributes");
     return new SimpleContext(tt, this);
   }
 
