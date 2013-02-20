@@ -44,6 +44,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/NodeConstructor");
     loadTemplates(tt, "ast/State");
     loadTemplates(tt, "ast/Attributes");
+    loadTemplates(tt, "core/Synchronization");
     return new SimpleContext(tt, this);
   }
 

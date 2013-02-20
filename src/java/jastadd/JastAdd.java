@@ -34,6 +34,8 @@ import jrag.AST.*;
 import java.util.*;
 import java.io.*;
 
+import org.jastadd.tinytemplate.TemplateContext;
+
 /**
  * JastAdd main class
  */
@@ -530,6 +532,15 @@ public class JastAdd {
     }
 
     root.block = synch.matched();
+    
+    TemplateContext tt = root.templateContext();
+    if (synch.matched()) {
+      tt.bindExpansion("SynchBegin", "synchronized-block.begin");
+      tt.bindExpansion("SynchEnd", "synchronized-block.end");
+    } else {
+      tt.bind("SynchBegin", "");
+      tt.bind("SynchEnd", "");
+    }
 
     root.noStatic = noStatic.matched();
 

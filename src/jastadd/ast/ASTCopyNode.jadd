@@ -64,13 +64,6 @@ aspect ASTCloneNode {
     
     TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
-    if (grammar().block) {
-      tt.bind("BlockBegin", grammar().blockBegin);
-      tt.bind("BlockEnd", grammar().blockEnd);
-    } else {
-      tt.bind("BlockBegin", "");
-      tt.bind("BlockEnd", "");
-    }
     tt.bind("CloneBody", cloneBody.toString());
 
     tt.expand("ast.clone", stream);
@@ -147,13 +140,6 @@ aspect ASTCloneNode {
 
     TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
-    if (grammar().block) {
-      tt.bind("BlockBegin", grammar().blockBegin);
-      tt.bind("BlockEnd", grammar().blockEnd);
-    } else {
-      tt.bind("BlockBegin", "");
-      tt.bind("BlockEnd", "");
-    }
     if (grammar().incremental) {
       tt.bindExpansion("CopyBody", "ast.copy:incremental");
       tt.bindExpansion("SetChild", "ast.fullCopy.setChild:incremental");

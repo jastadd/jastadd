@@ -3,7 +3,7 @@ ast.copy = [[
    * @apilevel internal
    */
   #(annotations)public $ReturnType copy() {
-    $BlockBegin
+    $SynchBegin
     try {
       #name node = (#name) clone();
       node.parent = null;
@@ -14,7 +14,7 @@ ast.copy = [[
     } catch (CloneNotSupportedException e) {
       throw new Error("Error: clone not supported for " + getClass().getName());
     }
-    $BlockEnd
+    $SynchEnd
   }]]
 
 # inserted into ast.copy if incremental is enabled
@@ -35,7 +35,7 @@ ast.fullCopy = [[
    * @apilevel low-level
    */
   #(annotations)public $ReturnType fullCopy() {
-    $BlockBegin
+    $SynchBegin
     #name tree = (#name) copy();
     if (children != null) {
       for (int i = 0; i < children.length; ++i) {
@@ -48,7 +48,7 @@ ast.fullCopy = [[
       }
     }
     return tree;
-    $BlockEnd
+    $SynchEnd
   }]]
 
 # used to set tree child in fullCopy if incremental is enabled
@@ -62,10 +62,10 @@ ast.clone = [[
    * @apilevel internal
    */
    #(annotations)public $ReturnType clone() throws CloneNotSupportedException {
-     $BlockBegin
+     $SynchBegin
      #name node = (#name) super.clone();
      $CloneBody
      return node;
-     $BlockEnd
+     $SynchEnd
    }
 ]]
