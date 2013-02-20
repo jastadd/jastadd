@@ -109,7 +109,7 @@ aspect Errorcheck {
       SynEq equation = hostClass().lookupSynEq(signature());
       if(equation != null && equation != this) {
         result.append(getFileName() + ":" + getStartLine() + " ");
-        result.append("Multiple equations for synthesized attribute " + hostClass() + "." + name());
+        result.append("Multiple equations for synthesized attribute " + hostClass().name() + "." + name());
         result.append(", previously defined in " + equation.getFileName() + ":" + equation.getStartLine() + "\n");
       }
       SynDecl decl = hostClass().lookupSynDecl(signature());
