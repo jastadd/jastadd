@@ -33,6 +33,20 @@
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
  */
 aspect FileNameEscape {
-  syn String Rewrite.getFileNameEscaped() =
-    getFileName().replace("\\", "\\\\").replace("\"", "\\\"");
+
+  /**
+   * Escape backslashes and quote characters so that the file name string can
+   * be inserted into a documentation comment.
+   * 
+   * This avoids creating unintentional (and possibly illegal) unicode escape
+   * sequences.
+   * 
+   * @param fileName The file name to escape
+   * @return The escaped file name
+   */
+  public static String ASTNode.escapedFileName(String fileName) {
+    return fileName.replace("\\", "\\\\").replace("\"", "\\\"");
+  }
+
+  syn String Rewrite.getFileNameEscaped() = escapedFileName(getFileName());
 }
