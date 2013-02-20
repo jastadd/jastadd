@@ -367,21 +367,26 @@ public class JastAdd {
     Option printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
     Option indent = new Option("indent", "Type of indentation {2space|4space|8space|tab}", true);
 
-	// Incremental flags
-    Option incremental = new Option("incremental", "turns on incremental evaluation with the given configuration", true);
-	Option fullFlush = new Option("fullFlush", "full flush in incremental evaluation");
-	// TODO!
-	/*System.out.println("  --incremental=CONFIGURATION  (turns on incremental evaluation with the given configuration)");
-    System.out.println("    CONFIGURATION: ATTRIBUTE(,ATTRIBUTE)* (comma separated list of attributes)");
-    System.out.println("    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable with attr, node, region)");
-    System.out.println("    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not combinable with param, node, region)");
-    System.out.println("    ATTRIBUTE: node  (dependency tracking on node level, not combinable with param, attr, region)");
-    System.out.println("    ATTRIBUTE: region (dependency tracking on region level, not combinable with param, attr, node)");
-    System.out.println("    ATTRIBUTE: flush (invalidate with flush, default, not combinable with mark)");
-    System.out.println("    ATTRIBUTE: mark  (invalidate with mark, not combinable with flush, NOT SUPPORTED YET)");
-    System.out.println("    ATTRIBUTE: full  (full change propagation, default, not combinable with limit)");
-    System.out.println("    ATTRIBUTE: limit (limited change propagation, not combinable with full, NOT SUPPORTED YET)");
-    System.out.println("    ATTRIBUTE: debug (generate code for debugging and dumping of dependencies)");*/
+    // Incremental flags
+    Option incremental = new Option("incremental", "turns on incremental evaluation with the given configuration\n" +
+    "    CONFIGURATION: ATTRIBUTE(,ATTRIBUTE)* (comma separated list of attributes)\n" +
+    "    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable\n" +
+    "                       with attr, node, region)\n" +
+    "    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not\n" +
+    "                      combinable with param, node, region)\n" +
+    "    ATTRIBUTE: node  (dependency tracking on node level, not combinable with\n" +
+    "                      param, attr, region)\n" +
+    "    ATTRIBUTE: region (dependency tracking on region level, not combinable\n" +
+    "                       with param, attr, node)\n" +
+    "    ATTRIBUTE: flush (invalidate with flush, default, not combinable with mark)\n" +
+    "    ATTRIBUTE: mark  (invalidate with mark, not combinable with flush, NOT\n" +
+    "                      SUPPORTED YET)\n" +
+    "    ATTRIBUTE: full  (full change propagation, default, not combinable with\n" +
+    "                      limit)\n" +
+    "    ATTRIBUTE: limit (limited change propagation, not combinable with full,\n" +
+    "                      NOT SUPPORTED YET)\n" +
+    "    ATTRIBUTE: debug (generate code for debugging and dumping of dependencies)", true);
+    Option fullFlush = new Option("fullFlush", "full flush in incremental evaluation");
 
 
     defaultMap.setNonStandard();
