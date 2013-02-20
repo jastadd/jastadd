@@ -70,7 +70,6 @@ public class JastAdd {
   protected final Grammar root = new Grammar();
   protected String pack;
   protected File outputDir;
-  protected String grammar;
   protected boolean publicModifier;
 
   public static void main(String[] args) {
@@ -152,7 +151,7 @@ public class JastAdd {
       {
         //System.out.println("generating ASTNode");
         java.io.StringWriter writer = new java.io.StringWriter();
-        root.jjtGenASTNode$State(new PrintWriter(writer), grammar, ASTNode.jjtree, ASTNode.rewriteEnabled);
+        root.jjtGenASTNode$State(new PrintWriter(writer));
 
         jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
         jp.root = root;
@@ -170,9 +169,9 @@ public class JastAdd {
       }
 
       // ES_2011-09-06: Incremental evaluation
-      if (ASTNode.incremental) {
+      if (root.incremental) {
         java.io.StringWriter writer = new java.io.StringWriter();
-        root.jjtGenASTNode$DepGraphNode(new PrintWriter(writer), grammar);
+        root.jjtGenASTNode$DepGraphNode(new PrintWriter(writer));
         jrag.AST.JragParser jp = new jrag.AST.JragParser(
             new java.io.StringReader(writer.toString()));
         jp.root = root;
@@ -227,7 +226,7 @@ public class JastAdd {
         if(root.getTypeDecl(i) instanceof ASTDecl) {
           ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
           java.io.StringWriter writer = new java.io.StringWriter();
-          decl.jjtGen(new PrintWriter(writer), grammar, ASTNode.jjtree, ASTNode.rewriteEnabled);
+          decl.jjtGen(new PrintWriter(writer));
 
           jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
           jp.root = root;
@@ -292,7 +291,7 @@ public class JastAdd {
 
       long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
 
-      root.jastAddGen(outputDir, grammar, pack, publicModifier);
+      root.jastAddGen(outputDir, root.parserName, pack, publicModifier);
       try {
         root.createInterfaces(outputDir, pack);
       } catch (FileNotFoundException e) {
@@ -468,11 +467,11 @@ public class JastAdd {
       return true;
     }
 
-    ASTNode.jjtree = jjtree.matched();
-    grammar = grammarOption.value();
+    root.jjtree = jjtree.matched();
+    root.parserName = grammarOption.value();
 
-    ASTNode.createDefaultMap = defaultMap.value();
-    ASTNode.createDefaultSet = defaultSet.value();
+    root.createDefaultMap = defaultMap.value();
+    root.createDefaultSet = defaultSet.value();
 
     if (indent.value().equals("2space")) {
       // Use 2 spaces for indentation
@@ -488,32 +487,32 @@ public class JastAdd {
       ASTNode.ind = "\t";
     }
 
-    ASTNode.lazyMaps = !noLazyMaps.matched();
+    root.lazyMaps = !noLazyMaps.matched();
 
     publicModifier = !privateOption.matched();
 
-    ASTNode.rewriteEnabled = rewrite.matched();
-    ASTNode.beaver = beaver.matched();
-    ASTNode.visitCheckEnabled = !noVisitCheck.matched();
-    ASTNode.cacheCycle = !noCacheCycle.matched();
-    ASTNode.componentCheck = componentCheck.matched();
-    ASTNode.noInhEqCheck = noInhEqCheck.matched();
+    root.rewriteEnabled = rewrite.matched();
+    root.beaver = beaver.matched();
+    root.visitCheckEnabled = !noVisitCheck.matched();
+    root.cacheCycle = !noCacheCycle.matched();
+    root.componentCheck = componentCheck.matched();
+    root.noInhEqCheck = noInhEqCheck.matched();
 
-    ASTNode.suppressWarnings = suppressWarnings.matched();
-    ASTNode.parentInterface = parentInterface.matched();
+    root.suppressWarnings = suppressWarnings.matched();
+    root.parentInterface = parentInterface.matched();
 
-    ASTNode.refineLegacy = !noRefineLegacy.matched();
+    root.refineLegacy = !noRefineLegacy.matched();
 
-    ASTNode.stagedRewrites = stagedRewrites.matched();
+    root.stagedRewrites = stagedRewrites.matched();
 
-    ASTNode.doc = doc.matched();
+    root.doc = doc.matched();
 
-    ASTNode.license = "";
+    root.license = "";
     if(license.matched()) {
       String fileName = license.value();
       try {
         if(fileName != null) {
-          ASTNode.license = readFile(fileName);
+          root.license = readFile(fileName);
         }
       } catch (java.io.IOException e) {
         System.err.println("Error loading license file " + fileName);
@@ -521,24 +520,24 @@ public class JastAdd {
       }
     }
 
-    ASTNode.java5 = !java1_4.matched();
+    root.java5 = !java1_4.matched();
 
     if (debug.matched()) {
-      ASTNode.debugMode = true;
-      ASTNode.cycleLimit = 100;
-      ASTNode.rewriteLimit = 100;
-      ASTNode.visitCheckEnabled = true;
+      root.debugMode = true;
+      root.cycleLimit = 100;
+      root.rewriteLimit = 100;
+      root.visitCheckEnabled = true;
     }
 
-    ASTNode.block = synch.matched();
+    root.block = synch.matched();
 
-    ASTNode.noStatic = noStatic.matched();
+    root.noStatic = noStatic.matched();
 
-    ASTNode.deterministic = deterministic.matched();
-    if(ASTNode.deterministic) {
+    root.deterministic = deterministic.matched();
+    if(root.deterministic) {
       // overrides values set by the defaultMap and defaultSet options
-      ASTNode.createDefaultMap = "new java.util.LinkedHashMap(4)";
-      ASTNode.createDefaultSet = "new java.util.LinkedHashSet(4)";
+      root.createDefaultMap = "new java.util.LinkedHashMap(4)";
+      root.createDefaultSet = "new java.util.LinkedHashSet(4)";
     }
 
     String outputDirName = outputDirOption.value();
@@ -560,41 +559,41 @@ public class JastAdd {
       System.exit(1);
     }
 
-    ASTNode.tracing = tracing.matched();
-    ASTNode.cacheAll = cacheAll.matched();
-    ASTNode.noCaching = noCaching.matched();
-    ASTNode.doxygen = doxygen.matched();
+    root.tracing = tracing.matched();
+    root.cacheAll = cacheAll.matched();
+    root.noCaching = noCaching.matched();
+    root.doxygen = doxygen.matched();
 
     // Handle new flags
-    ASTNode.cacheNone = cacheNone.matched();
-    ASTNode.cacheImplicit = cacheImplicit.matched();
-    ASTNode.ignoreLazy = ignoreLazy.matched();
+    root.cacheNone = cacheNone.matched();
+    root.cacheImplicit = cacheImplicit.matched();
+    root.ignoreLazy = ignoreLazy.matched();
 
     // ES_2011-09-06: Handle incremental flag
-    ASTNode.incremental = incremental.matched();
+    root.incremental = incremental.matched();
     String incrementalConfig;
-	if (incremental.matched()) {
-    	incrementalConfig = incremental.value();
-	} else {
-		incrementalConfig = "";
-	}
+    if (incremental.matched()) {
+      incrementalConfig = incremental.value();
+    } else {
+      incrementalConfig = "";
+    }
     Map<String, String> incrementalArgMap = parseIncrementalConfig(incrementalConfig);
-    ASTNode.incrementalLevelParam = incrementalArgMap.containsKey("param");
-    ASTNode.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
-    ASTNode.incrementalLevelNode = incrementalArgMap.containsKey("node");
-    ASTNode.incrementalLevelRegion = incrementalArgMap.containsKey("region");
-    ASTNode.incrementalChangeFlush = incrementalArgMap.containsKey("flush");
-    ASTNode.incrementalChangeMark = incrementalArgMap.containsKey("mark");
-    ASTNode.incrementalPropFull = incrementalArgMap.containsKey("full");
-    ASTNode.incrementalPropLimit = incrementalArgMap.containsKey("limit");
-    ASTNode.incrementalDebug = incrementalArgMap.containsKey("debug");
-    ASTNode.incrementalTrack = incrementalArgMap.containsKey("track");
+    root.incrementalLevelParam = incrementalArgMap.containsKey("param");
+    root.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
+    root.incrementalLevelNode = incrementalArgMap.containsKey("node");
+    root.incrementalLevelRegion = incrementalArgMap.containsKey("region");
+    root.incrementalChangeFlush = incrementalArgMap.containsKey("flush");
+    root.incrementalChangeMark = incrementalArgMap.containsKey("mark");
+    root.incrementalPropFull = incrementalArgMap.containsKey("full");
+    root.incrementalPropLimit = incrementalArgMap.containsKey("limit");
+    root.incrementalDebug = incrementalArgMap.containsKey("debug");
+    root.incrementalTrack = incrementalArgMap.containsKey("track");
     if (!checkIncrementalConfig()) {
       return true;
     }
 
     // ES_2011-10-10: Handle full flush flag
-    ASTNode.fullFlush = fullFlush.matched();
+    root.fullFlush = fullFlush.matched();
 
     pack = packageOption.value().replace('/', '.');
     int n = cla.getNumOperands();
@@ -642,51 +641,51 @@ public class JastAdd {
   private boolean checkIncrementalConfig() {
 
     // check level: only one level at a time
-    if (ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelNode ||
-        ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelParam ||
-        ASTNode.incrementalLevelNode && ASTNode.incrementalLevelParam ||
-        ASTNode.incrementalLevelParam && ASTNode.incrementalLevelRegion ||
-        ASTNode.incrementalLevelAttr && ASTNode.incrementalLevelRegion ||
-        ASTNode.incrementalLevelNode && ASTNode.incrementalLevelRegion) {
+    if (root.incrementalLevelAttr && root.incrementalLevelNode ||
+        root.incrementalLevelAttr && root.incrementalLevelParam ||
+        root.incrementalLevelNode && root.incrementalLevelParam ||
+        root.incrementalLevelParam && root.incrementalLevelRegion ||
+        root.incrementalLevelAttr && root.incrementalLevelRegion ||
+        root.incrementalLevelNode && root.incrementalLevelRegion) {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"param\", \"attr\", \"node\" and \"region\".");
       return false;
         }
     // check level: no chosen level means default -- "attr"
-    if (!ASTNode.incrementalLevelAttr && !ASTNode.incrementalLevelNode && 
-        !ASTNode.incrementalLevelParam && !ASTNode.incrementalLevelRegion) {
-      ASTNode.incrementalLevelAttr = true;
+    if (!root.incrementalLevelAttr && !root.incrementalLevelNode && 
+        !root.incrementalLevelParam && !root.incrementalLevelRegion) {
+      root.incrementalLevelAttr = true;
         }
 
     // check invalidate: only one strategy at a time
-    if (ASTNode.incrementalChangeFlush && ASTNode.incrementalChangeMark) {
+    if (root.incrementalChangeFlush && root.incrementalChangeMark) {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"flush\" and \"mark\".");
       return false;            
     }
     // check invalidate: no chosen strategy means default -- "flush"
-    if (!ASTNode.incrementalChangeFlush && !ASTNode.incrementalChangeMark) {
-      ASTNode.incrementalChangeFlush = true;
+    if (!root.incrementalChangeFlush && !root.incrementalChangeMark) {
+      root.incrementalChangeFlush = true;
     }
     // check invalidate: currently not supporting mark startegy -- "mark"
-    if (ASTNode.incrementalChangeMark) {
+    if (root.incrementalChangeMark) {
       System.err.println("error: Unsupported incremental evaluation configuration: " +
           "\"mark\".");
       return false;            
     }
 
     // check propagation: only one strategy at a time
-    if (ASTNode.incrementalPropFull && ASTNode.incrementalPropLimit) {
+    if (root.incrementalPropFull && root.incrementalPropLimit) {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"full\" and \"limit\".");
       return false;                    
     }
     // check propagation: no chosen strategy means default -- "full"
-    if (!ASTNode.incrementalPropFull && !ASTNode.incrementalPropLimit) {
-      ASTNode.incrementalPropFull = true;
+    if (!root.incrementalPropFull && !root.incrementalPropLimit) {
+      root.incrementalPropFull = true;
     }
     // check propagration: currently not supporting limit strategy -- "limit" - we do now
-    //if (ASTNode.incrementalPropLimit) {
+    //if (root.incrementalPropLimit) {
     //    System.err.println("error: Unsupported incremental evaluation configuration: " +
     //        "\"limit\".");
     //    return false;                        

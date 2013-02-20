@@ -242,7 +242,7 @@ aspect Errorcheck {
 
   syn String InhDecl.error() {
     StringBuffer result = new StringBuffer();
-    if(!ASTNode.noInhEqCheck) {
+    if(!grammar().noInhEqCheck) {
 		  InhDecl decl = hostClass().lookupInhDecl(signature());
       if(decl != this) {
        System.err.println("Warning:");

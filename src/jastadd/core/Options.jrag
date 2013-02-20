@@ -1,0 +1,127 @@
+/* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * Options for JastAdd
+ * 
+ * These used to be static fields in ASTNode.
+ * They are now moved to the Grammar node and made non-static.
+ */
+aspect JastAddOptions {
+  /**
+   * Provides a reference to the grammar root node for all
+   * nodes in the AST.
+   */
+  inh lazy Grammar ASTNode.grammar();
+  eq Grammar.getChild().grammar() = this;
+  syn Grammar Grammar.grammar() = this;
+
+  syn String Grammar.suppressWarnings() =
+    (suppressWarnings || java5) ?
+    "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
+
+  syn String ASTNode.suppressWarnings() = grammar().suppressWarnings();
+
+  public boolean Grammar.jjtree;
+  public String Grammar.parserName;
+
+  public boolean Grammar.beaver;
+  public boolean Grammar.lazyMaps;
+  public boolean Grammar.noInhEqCheck;
+
+  public boolean Grammar.rewriteEnabled = false;
+  public boolean Grammar.circularEnabled = true;
+  public boolean Grammar.visitCheckEnabled = true;
+  public boolean Grammar.traceVisitCheck = false;
+  public boolean Grammar.cacheCycle = true;
+  public boolean Grammar.componentCheck = true;
+
+  public boolean Grammar.suppressWarnings = false;
+
+  public boolean Grammar.parentInterface = false;
+
+  public boolean Grammar.doc = false;
+
+  public String Grammar.license = "";
+
+  public boolean Grammar.java5 = true;
+
+  public boolean Grammar.refineLegacy = false;
+  public boolean Grammar.stagedRewrites = false;
+
+  public boolean Grammar.doxygen = false;
+
+  //public int Grammar.cycleLimit = 100;
+  //public int Grammar.rewriteLimit = 100;
+  //public boolean Grammar.debugMode = true;
+
+  public int Grammar.cycleLimit = 0;
+  public int Grammar.rewriteLimit = 0;
+  public boolean Grammar.debugMode = false;
+
+  public boolean Grammar.block = false;
+  public String Grammar.blockBegin = "synchronized(ASTNode.class) {\n";
+  public String Grammar.blockEnd =   "}\n";
+
+  public boolean Grammar.noStatic = false;
+
+  public String Grammar.createDefaultMap = "new java.util.HashMap(4)";
+  public String Grammar.createDefaultSet = "new java.util.HashSet(4)";
+  public String Grammar.typeDefaultMap = "java.util.Map";
+  public String Grammar.typeDefaultSet = "java.util.Set";
+
+  public boolean Grammar.deterministic;
+
+  public boolean Grammar.tracing;
+  public boolean Grammar.cacheAll = false;
+  public boolean Grammar.noCaching = false;
+
+  // EMMA_2009-11-16: Adding attributes for new JastAdd flags
+  public boolean Grammar.cacheNone = false;
+  public boolean Grammar.cacheImplicit = false;
+  public boolean Grammar.ignoreLazy = false;
+
+  // EMMA_2011-09-19: Adding attribute fields for incremental evalution
+  public boolean Grammar.incremental = false; // the flag
+  public boolean Grammar.incrementalLevelParam = false; // track on param level
+  public boolean Grammar.incrementalLevelAttr = false; // track on attribute level
+  public boolean Grammar.incrementalLevelNode = false; // track on node level
+  public boolean Grammar.incrementalLevelRegion = false; // track on region level
+  public boolean Grammar.incrementalChangeFlush = false; // invalidate with flush
+  public boolean Grammar.incrementalChangeMark = false; // invalidate with mark
+  public boolean Grammar.incrementalPropFull = false; // full propagation of change
+  public boolean Grammar.incrementalPropLimit = false; // limited propagation of change
+  public boolean Grammar.incrementalDebug = false; // debugging
+  public boolean Grammar.incrementalTrack = false; // tracking
+
+  // ES_2011-10-10: Adding field for full flush support
+  public boolean Grammar.fullFlush = false;
+
+  public String Grammar.createContributorSet = "new ASTNode$State.IdentityHashSet(4)";
+
+}

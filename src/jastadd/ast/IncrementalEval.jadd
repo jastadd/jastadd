@@ -42,7 +42,7 @@ aspect IncrementalEval {
 
   // ES_2011-12-11: Code generation for incremental evaluation, track creation
   public String ASTDecl.genIncrementalTrackCreation() {
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       //return ind(2) + "state().addHandlerDepTo(handler);\n";
     }
     return "";
@@ -80,7 +80,7 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, evaluation stack
   public void Grammar.jjtGenIncrementalEvaluationStack(PrintWriter stream) {
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
     stream.println(ind + "public int IN_COMPUTATION = 0;");
     }
     stream.println(ind + "protected java.util.Stack handlerAttrStack = new java.util.Stack();");
@@ -90,7 +90,7 @@ aspect IncrementalEval {
 //    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL && !IN_REWRITE_EVAL || handler == null) {");
     stream.println(ind(3) +   "return;");
     stream.println(ind(2) + "}");
-    if (ASTNode.incrementalTrack) {
+    if (grammar().incrementalTrack) {
     stream.println(ind(2) + "ASTNode$DepGraphNode.trackedReads++;");
     }
     stream.println(ind(2) + "java.util.Stack handlerStack = handlerAttrStack;");
@@ -100,7 +100,7 @@ aspect IncrementalEval {
     stream.println(ind(3) +   "//throw new Error(\"Handler stack is empty at addition of dependency!\");");
     stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
     stream.println(ind(3) +   "handler.addDependant(top);");
-    if (ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalPropLimit) {
     stream.println(ind(3) +   "if (!handler.cacheInDependent)");
     stream.println(ind(4) +     "top.noCacheRead = false;");
     }
@@ -108,7 +108,7 @@ aspect IncrementalEval {
     stream.println(ind + "}");
     stream.println(ind + "public boolean IN_ATTR_STORE_EVAL = false;");
     stream.println(ind + "public void enterAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
-    if (ASTNode.incrementalTrack) {
+    if (grammar().incrementalTrack) {
     stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComputes++;");
     }
 //    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
@@ -127,7 +127,7 @@ aspect IncrementalEval {
 //    stream.println(ind + "public boolean IN_REWRITE_EVAL = false;");
     stream.println(ind + "public void enterRewriteEval(ASTNode$DepGraphNode handler) {"); 
     stream.println(ind(2) + "enterAttrStoreEval(handler);");
-//    if (ASTNode.incrementalTrack) {
+//    if (grammar().incrementalTrack) {
 //    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComp++;");
 //    }
 //    stream.println(ind(2) + "IN_REWRITE_EVAL = true;");
@@ -152,7 +152,7 @@ aspect IncrementalEval {
     stream.println(ind(3) +   "IN_CONSTRUCTION = false;");
     stream.println(ind + "}"); 
     stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
-    if (ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalPropLimit) {
     stream.println(ind(2) + "// assume that evaluation will be clean from cached values");
     stream.println(ind(2) + "handler.noCacheRead = true;");
     }
@@ -163,7 +163,7 @@ aspect IncrementalEval {
     stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
     stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
     // Skip this for now, deal with transitive dependencies later
-    //if (ASTNode.incrementalPropLimit) {
+    //if (grammar().incrementalPropLimit) {
     //stream.println(ind(2) + "h.setCacheInDependent(h.noCacheRead);");
     //stream.println(ind(2) + "if (!stack.isEmpty()) {");
     //stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
@@ -179,10 +179,10 @@ aspect IncrementalEval {
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(4) + "this.state().enterRewriteEval(node.handler);");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       //stream.println(ind(4) + "this.state().IN_REWRITE_EVAL = true;");
       stream.println(ind(4) + "this.state().IN_COMPUTATION++;");
     }
@@ -190,10 +190,10 @@ aspect IncrementalEval {
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite6(PrintWriter stream) {
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(4) + "this.state().exitRewriteEval(oldNode.handler);");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(4) + "this.state().IN_COMPUTATION--;");
       //stream.println(ind(4) + "this.state().IN_REWRITE_EVAL = false;");
     }
@@ -201,27 +201,27 @@ aspect IncrementalEval {
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion || 
-          ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion || 
+          grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
       stream.println(ind(5) + "ASTNode initial = this.init_children[i];");
     }
   }
 
   // ES_2011-12-10: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(6) + "oldNode.inc_flush_subtree(this.getChild_handler[i]);");
       stream.println(ind(5) + "this.init_children[i] = initial;");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(6) + "oldNode.inc_flush_subtree(this.getChild_handler);");
       stream.println(ind(5) + "this.init_children[i] = initial;");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
       stream.println(ind(5) + "this.init_children[i] = initial;");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(5) + "if (node.isRegionRoot()) {");
       stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
       stream.println(ind(5) + "}");
@@ -231,7 +231,7 @@ aspect IncrementalEval {
 
   // JO 2013-02-05 Incremental code gen
   public void ASTDecl.genIncrementalTrackRewrite12(PrintWriter stream) {
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot()) {
         stream.println(ind(2) + "if (state().IN_COMPUTATION > 0) {");
         stream.println(ind(3) +   "node.handler().addDependant(handler);");
@@ -242,7 +242,7 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
-    if (!ASTNode.fullFlush) {
+    if (!grammar().fullFlush) {
     stream.println(ind(2) + "if(this.init_children == null) {");
     stream.println(ind(3) +   "this.init_children = new ASTNode[this.children.length];");
     stream.println(ind(3) +   "this.rewritten_children = new boolean[this.children.length];");
@@ -252,27 +252,27 @@ aspect IncrementalEval {
     stream.println(ind(3) +   "this.rewritten_children[i] = true;");
     stream.println(ind(2) + "}");
     }
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(2) + "this.state().enterRewriteEval(this.getChild_handler[i]);");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "this.state().enterRewriteEval(this.getChild_handler);");
     }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(2) + "this.state().exitRewriteEval(this.getChild_handler[i]);");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "this.state().exitRewriteEval(this.getChild_handler);");
     }
   }
 
   // ES_2011-09-30: Code generation for incremental evaluation, tracking rewrites
   public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
-    if (!ASTNode.fullFlush) {
+    if (!grammar().fullFlush) {
     stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
     stream.println(ind(5) +   "this.rewritten_children[i] = true;");
     stream.println(ind(4) + "}");
@@ -281,9 +281,9 @@ aspect IncrementalEval {
 
   // ES_2011-10-05: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(3) + "if (this.getChild_handler[i] == null) {");
-      if (ASTNode.incrementalPropLimit) {
+      if (grammar().incrementalPropLimit) {
       stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
       stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
@@ -291,10 +291,10 @@ aspect IncrementalEval {
       stream.println(ind(3) + "}");
       stream.println(ind(3) + "this.state().addHandlerDepTo(this.getChild_handler[i]);");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "this.state().addHandlerDepTo(this.getChild_handler);");  
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
       stream.println(ind(3) + "  this.state().addHandlerDepTo(node.handler);");
       stream.println(ind(2) + "}");
@@ -303,9 +303,9 @@ aspect IncrementalEval {
 
   // ES_2011-12-12: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackRewrite11(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(3) + "if (this.getChild_handler[i] == null) {");
-      if (ASTNode.incrementalPropLimit) {
+      if (grammar().incrementalPropLimit) {
       stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
       stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
@@ -313,10 +313,10 @@ aspect IncrementalEval {
       stream.println(ind(3) + "}");
       stream.println(ind(3) + "this.state().addHandlerDepTo(this.getChild_handler[i]);");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "this.state().addHandlerDepTo(this.getChild_handler);");  
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
       stream.println(ind(3) + "  this.state().addHandlerDepTo(node.handler);");
       // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
@@ -325,7 +325,7 @@ aspect IncrementalEval {
       stream.println(ind(3) + "  this.handler.addDependant(node.handler);");
       stream.println(ind(2) + "}");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
       // JO 2013-02-05: "this" is used instead of "that"
       // The possibility of a dependency requires one.
@@ -348,9 +348,9 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getChild
   public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler[i] == null) {");
-      if (ASTNode.incrementalPropLimit) {
+      if (grammar().incrementalPropLimit) {
       stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !child.mayHaveRewrite());");
       } else {
       stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
@@ -358,14 +358,14 @@ aspect IncrementalEval {
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");  
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "if (child != null)");
       stream.println(ind(3) + "  state().addHandlerDepTo(child.handler);");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot()) {
         stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child != null) {");
         stream.println(ind(3) + "  child.handler().addDependant(handler);");
@@ -376,14 +376,14 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking getParent
   public void ASTDecl.jjtGenIncrementalTrackGetParent(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "state().addHandlerDepTo(getParent_handler);");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "if (parent != null)");
       stream.println(ind(3) +   "state().addHandlerDepTo(((ASTNode)parent).handler);");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot()) {
         stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && parent != null)");
         stream.println(ind(3) +   "parent.handler().addDependant(handler);");
@@ -393,29 +393,29 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, tracking numChildren
   public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
     }
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set parent
   public void ASTDecl.jjtGenIncrementalSetParent(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
 //    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
     }
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       stream.println(ind(3) + "getParent_handler.notifyDependencies();");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "if (parent != null) {");
       stream.println(ind(3) +   "parent.handler.flushRegion();");
       stream.println(ind(2) + "}");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(2) + "if (parent != null) {");
       stream.println(ind(3) +   "parent.handler().flushRegion();");
       stream.println(ind(2) + "}");
@@ -440,52 +440,52 @@ aspect IncrementalEval {
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenHandler() {
     if (!isNTA()) {
-    if (ASTNode.incrementalLevelParam)
-      if (ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalLevelParam)
+      if (grammar().incrementalPropLimit) {
         return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
                    "new ASTNode$DepGraphNode(this, \"get#ID#\", null, true);\n";
       } else {
         return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
                    "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
       }
-    if (ASTNode.incrementalLevelAttr)
+    if (grammar().incrementalLevelAttr)
       return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
                  "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
     }
-    return ""; // ASTNode.incrementalLevelNode
+    return ""; // grammar().incrementalLevelNode
   }
 
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenChange(String varName) {
     StringBuffer buf = new StringBuffer();
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
 //      buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {\n");
       buf.append("    if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {\n");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       buf.append("    if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {\n");
     }
     if (isNTA()) {
       buf.append("     if (get#ID#_computed) {\n");
       buf.append("       get#ID#_computed = false;\n");
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       buf.append("       get#ID#_handler.notifyDependencies();\n");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
       buf.append("       handler.flushRegion();\n");
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
       buf.append("       handler().flushRegion();\n");
       }
       buf.append("     }\n");
     } else {
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
-        if (ASTNode.incrementalTrack) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+        if (grammar().incrementalTrack) {
           buf.append("       get#ID#_handler.trackChange();\n");    
         }
         buf.append("       get#ID#_handler.notifyDependencies();\n");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         buf.append("       handler.flushRegion();\n");
         String type = getTokenId().getTYPE();
         boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
@@ -496,7 +496,7 @@ aspect IncrementalEval {
           buf.append("       }\n");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         buf.append("       handler().flushRegion();\n");
         String type = getTokenId().getTYPE();
         boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
@@ -521,9 +521,9 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation
   String TokenComponent.jaddGenIncrementalTokenTrack() {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr)
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr)
       return "        state().addHandlerDepTo(get#ID#_handler);\n";
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       String type = getTokenId().getTYPE();
       boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
       boolean isPrimitiveToken = isPrimitive();
@@ -535,7 +535,7 @@ aspect IncrementalEval {
         return buf.toString();
       }
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       String type = getTokenId().getTYPE();
       boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
       boolean isPrimitiveToken = isPrimitive();
@@ -622,10 +622,10 @@ aspect IncrementalEval {
 
   // ES_2012-01-31: Code generation for incremental evaluation, modifying tree, add child 1
   public void ASTDecl.jjtGenIncrementalASTChangeAddChild1(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(2) + "int i = getNumChildNoTransform() - 1;");
       stream.println(ind(2) + "if (getChild_handler[i] == null)");
-      if (ASTNode.incrementalPropLimit) {
+      if (grammar().incrementalPropLimit) {
       stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
       } else {
       stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
@@ -633,17 +633,17 @@ aspect IncrementalEval {
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");    
       stream.println(ind(2) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");
       stream.println(ind(2) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "if (node != null) {");
       stream.println(ind(3) +   "state().addHandlerDepTo(node.handler);");
       stream.println(ind(3) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
       stream.println(ind(2) + "}");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
       stream.println(ind(3) +   "state().addHandlerDepTo(node.handler());");
       stream.println(ind(3) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
@@ -653,21 +653,21 @@ aspect IncrementalEval {
 
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 1
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
 //    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
     }
     // notify current child
     stream.println(ind(3) +   "if (children != null && i < children.length && children[i] != null) {");
     stream.println(ind(4) +     "children[i].inc_notifyForRemove();");
-    //if (ASTNode.incrementalDebug) stream.println(ind(4) +     "children[i].inc_clearDepsInTree();");
+    //if (grammar().incrementalDebug) stream.println(ind(4) +     "children[i].inc_clearDepsInTree();");
     stream.println(ind(3) +   "}");
 
     // notify dependencies
-    if (ASTNode.incrementalLevelParam) {  
+    if (grammar().incrementalLevelParam) {  
       // notify empty
       stream.println(ind(3) +   "if (children == null) {");
       stream.println(ind(4) +     "numChildren_handler.notifyDependencies();");
@@ -680,23 +680,23 @@ aspect IncrementalEval {
       stream.println(ind(3) +   "}");
     }
     // notify set
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(3) +   "else {");
       stream.println(ind(4) +     "if (getChild_handler[i] != null) {");
       stream.println(ind(5) +       "getChild_handler[i].notifyDependencies();");
       stream.println(ind(4) +     "} else getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
       stream.println(ind(3) +   "}");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       //stream.println(ind(3) +   "getChild_handler.notifyDependencies();");
       stream.println(ind(3) +   "getChild_handler.flushRegion();");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       //stream.println(ind(3) +   "handler.notifyDependencies();");
       stream.println(ind(3) +   "if (children != null && i < children.length && children[i] != null) children[i].handler.notifyDependencies();");
       stream.println(ind(3) +   "if (i == numChildren) handler.notifyDependencies();");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(3) +   "ASTNode$DepGraphNode h = (children != null && i < children.length && children[i] != null) ? children[i].handler() : handler();");
       stream.println(ind(3) +   "if (h != null) h.notifyDependencies();");
       stream.println(ind(3) +   "if (i == numChildren) handler.notifyDependencies();");
@@ -716,14 +716,14 @@ aspect IncrementalEval {
 
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 1
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild2(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) 
+    if (grammar().incrementalLevelParam) 
       stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
   }
 
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, set child 2
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild3(PrintWriter stream) {
     // rewrite code
-    if (!ASTNode.fullFlush) {
+    if (!grammar().fullFlush) {
       stream.println(ind(3) + "if (init_children != null) {");
       stream.println(ind(4) +   "ASTNode d[] = new ASTNode[i << 1];");
       stream.println(ind(4) +   "System.arraycopy(init_children, 0, d, 0, init_children.length);");
@@ -736,7 +736,7 @@ aspect IncrementalEval {
       stream.println(ind(3) + "}");
     }
     //
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(3) + "if (getChild_handler != null) {");
       stream.println(ind(4) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[i << 1];");
       stream.println(ind(4) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
@@ -747,7 +747,7 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, set child 3
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild4(PrintWriter stream) {
-    if (!ASTNode.fullFlush) {
+    if (!grammar().fullFlush) {
       stream.println(ind(2) + "if (rewritten_children != null) {");
       stream.println(ind(3) +   "rewritten_children[i] = false;"); 
       stream.println(ind(2) + "}");   
@@ -764,7 +764,7 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 1
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild1(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i + 1];");
       stream.println(ind(3) + "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
     }
@@ -773,7 +773,7 @@ aspect IncrementalEval {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, insert child 2
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild2(PrintWriter stream) {
     // rewrite code
-    if (!ASTNode.fullFlush) {
+    if (!grammar().fullFlush) {
       stream.println(ind(2) + "if (init_children != null) {");
       stream.println(ind(3) +   "ASTNode d[] = new ASTNode[init_children.length + 1];");
       stream.println(ind(3) +   "System.arraycopy(init_children, 0, d, 0, init_children.length);");
@@ -792,7 +792,7 @@ aspect IncrementalEval {
       stream.println(ind(2) + "}");
     }
     //
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(2) + "if (getChild_handler != null) {");
       stream.println(ind(3) +   "ASTNode$DepGraphNode h[] = new ASTNode$DepGraphNode[getChild_handler.length + 1];");
       stream.println(ind(3) +   "System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);");
@@ -811,33 +811,33 @@ aspect IncrementalEval {
 
   // ES_2011-10-06: Code generation for incremental evaluation, modifying tree, insert child 4
   public void ASTDecl.jjtGenIncrementalASTChangeInsertChild3(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
 //    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
     }
     // notify
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       stream.println(ind(3) + "if (children == null || i > numChildren) {");
       stream.println(ind(4) +   "numChildren_handler.notifyDependencies();");
       stream.println(ind(3) + "} else {");
       stream.println(ind(4) +   "numChildren_handler.notifyDependencies();");
-      if (ASTNode.incrementalLevelParam) { 
+      if (grammar().incrementalLevelParam) { 
         stream.println(ind(4) +   "for (int k = i; k < children.length; k++) {");
         stream.println(ind(5) +     "if (getChild_handler[k] != null) {");
         stream.println(ind(6) +       "getChild_handler[k].notifyDependencies();");
         stream.println(ind(5) +     "}");
        stream.println(ind(4) +   "}");
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         //stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
         stream.println(ind(4) +   "getChild_handler.flushRegion();");
       }
       stream.println(ind(3) + "}");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
       stream.println(ind(4) +   "if (child != null) {");
@@ -845,7 +845,7 @@ aspect IncrementalEval {
       stream.println(ind(4) +   "}");
       stream.println(ind(3) + "}");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
       stream.println(ind(4) +   "if (child != null) {");
@@ -866,17 +866,17 @@ aspect IncrementalEval {
 
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, remove child 1
   public void ASTDecl.jjtGenIncrementalASTChangeRemoveChild1(PrintWriter stream) {
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
 //    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
     stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
     }
     // notify
     stream.println(ind(4) +   "if (children[i] != null)");
     stream.println(ind(5) +     "children[i].inc_notifyForRemove();");
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
     stream.println(ind(4) +   "numChildren_handler.notifyDependencies();");
     stream.println(ind(4) +   "for (int k = i; k < children.length; k++) {");
     stream.println(ind(5) +     "if (getChild_handler[k] != null) {");
@@ -884,11 +884,11 @@ aspect IncrementalEval {
     stream.println(ind(5) +     "}");
     stream.println(ind(4) +   "}");
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       //stream.println(ind(4) +   "getChild_handler.notifyDependencies();");
       stream.println(ind(4) +   "getChild_handler.flushRegion();");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(4) +   "handler.flushRegion();");
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
@@ -897,7 +897,7 @@ aspect IncrementalEval {
       stream.println(ind(4) +   "}");
       stream.println(ind(3) + "}");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind(4) + "handler().flushRegion();");
       stream.println(ind(3) + "for (int k = i; k < children.length; k++) {");
       stream.println(ind(4) +   "ASTNode child = children[i];");
@@ -920,7 +920,7 @@ aspect IncrementalEval {
   // ES_2011-09-20: Code generation for incremental evaluation, modifying tree, remove child 1
   public void ASTDecl.jjtGenIncrementalASTChangeRemoveChild2(PrintWriter stream) {
     // rewrite code
-    if (!ASTNode.fullFlush) {
+    if (!grammar().fullFlush) {
       stream.println(ind(3) + "if (init_children != null) {");
       stream.println(ind(4) +   "if (i < init_children.length && init_children[i] != null) {");
       stream.println(ind(5) +     "init_children[i].inc_throwAway();");
@@ -934,7 +934,7 @@ aspect IncrementalEval {
       stream.println(ind(3) + "}");
     }
     //
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println(ind(3) + "if (getChild_handler != null && this instanceof List) {");
       stream.println(ind(4) +   "getChild_handler[numChildren] = null;");
 //      stream.println(ind(4) +   "System.arraycopy(getChild_handler, i+1, " + 
@@ -957,7 +957,7 @@ aspect IncrementalEval {
   // ES_2011-09-20: Code generation for incremental evaluation
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
 
-    if (ASTNode.incremental && !ASTNode.incrementalDebug && name().equals("ASTNode")) {
+    if (grammar().incremental && !grammar().incrementalDebug && name().equals("ASTNode")) {
       stream.println(ind + "public String ASTNode.relativeNodeID() {");
       stream.println(ind(2) + "ASTNode parent = this.parent;");
       stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
@@ -988,7 +988,7 @@ aspect IncrementalEval {
     jjtGenIncrementalReactToASTChange(stream);
     jjtGenIncrementalState(stream);
     jjtGenIncrementalRegions(stream);
-    if (ASTNode.incrementalDebug) jjtGenIncrementalDebug(stream);
+    if (grammar().incrementalDebug) jjtGenIncrementalDebug(stream);
   }
 
   // ES_2011-10-06: Code generation for incremental evaluation, tree modification
@@ -997,7 +997,7 @@ aspect IncrementalEval {
     if (name().equals("ASTNode")) {
 
       // rewrite code: intial copy store -- full flush also adds this
-      if (!ASTNode.fullFlush) {
+      if (!grammar().fullFlush) {
 
         // ES_TODO: These should be protected, public now for debugging reasons
         stream.println(ind + "public ASTNode[] ASTNode.init_children;");
@@ -1021,7 +1021,7 @@ aspect IncrementalEval {
         stream.println(ind + "}"); // end method: inc_hasEnclosingRewrittenNode
 
         // method: inc_locateEnclosingRewrittenNode
-        if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
           stream.println(ind + "protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {");
           stream.println(ind(2) + "ASTNode child = this;");
           stream.println(ind(2) + "ASTNode parent = this.parent;");
@@ -1037,7 +1037,7 @@ aspect IncrementalEval {
           stream.println(ind(2) + "return null;");
           stream.println(ind + "}"); 
         }
-        if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+        if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {
           stream.println(ind + "protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {");
           stream.println(ind(2) + "ASTNode node = parent;");
           stream.println(ind(2) + "while (node != null) {");
@@ -1071,7 +1071,7 @@ aspect IncrementalEval {
       }
 
       // method: inc_restoreEnclosingRewrite  
-      if (ASTNode.incrementalLevelParam) {  
+      if (grammar().incrementalLevelParam) {  
         stream.println(ind + "protected void ASTNode.inc_restoreEnclosingRewrite() {");
         stream.println(ind(2) + "ASTNode child = this;");
         stream.println(ind(2) + "ASTNode parent = this.parent;");
@@ -1094,7 +1094,7 @@ aspect IncrementalEval {
       // end method: inc_restoreEnclosingRewrite
     
       // method: inc_restoreInitialForIndex
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {      
+      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {      
         stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
         stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
@@ -1110,7 +1110,7 @@ aspect IncrementalEval {
         stream.println(ind(2) + "return false;");
         stream.println(ind + "}"); 
       }
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         stream.println(ind + "protected boolean ASTNode.inc_restoreInitialForIndex(int index, ASTNode$DepGraphNode h) {");
         stream.println(ind(2) + "if (init_children != null && index < init_children.length " + 
                                                   "&& init_children[index] != null) {");
@@ -1182,13 +1182,13 @@ aspect IncrementalEval {
 
     // if a change has been made to a list then the list should again be touched by the "touch rewrite"
     // but this does not happen if the list is final.
-    //if (name().equals("List") && !ASTNode.fullFlush) {
+    //if (name().equals("List") && !grammar().fullFlush) {
     //  stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
     //}
     //
 
     // level region: one handler per region, non-region root nodes need a method to find the handler of their region
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
         stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
           ".handler = new ASTNode$DepGraphNode(this);");                    
@@ -1196,7 +1196,7 @@ aspect IncrementalEval {
     }
 
     // level node: one handler per node
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       if (name().equals("ASTNode")) {
         stream.println(ind + "protected ASTNode$DepGraphNode " + 
           "ASTNode.handler = new ASTNode$DepGraphNode(this);");                    
@@ -1204,11 +1204,11 @@ aspect IncrementalEval {
     } 
 
     // level param, attr: at least one handler per attribute
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       // handlers specific for ASTNode
       if (name().equals("ASTNode")) {
-        if (ASTNode.incrementalLevelParam) {
-          if (ASTNode.incrementalPropLimit) {
+        if (grammar().incrementalLevelParam) {
+          if (grammar().incrementalPropLimit) {
             stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
                 "new ASTNode$DepGraphNode(this, \"getParent\", null, true);");
             stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
@@ -1221,7 +1221,7 @@ aspect IncrementalEval {
           }
           stream.println(ind + "protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
         } 
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
               "new ASTNode$DepGraphNode(this, \"getParent\");");
           stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
@@ -1249,7 +1249,7 @@ aspect IncrementalEval {
       // attribute code 
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           // level param: check if this is a parameterized attribute
           if (attr.getNumParameter() > 0) {
             stream.println(ind + "protected java.util.Map " + name() + "." + attr.attributeSignature() + 
@@ -1260,7 +1260,7 @@ aspect IncrementalEval {
           }
         }
         // level attr: Add one handler per attribute
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind + "protected ASTNode$DepGraphNode " + name() + "." + 
                   attr.attributeSignature() + "_handler;");            
         }
@@ -1275,7 +1275,7 @@ aspect IncrementalEval {
     stream.println(ind + "protected void " + name() + ".inc_copyHandlers(" + name() + " copy) {");
     // ast handlers
     if (name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         stream.println(ind(2) + "if (getChild_handler != null)");
         stream.println(ind(3) +   "copy.getChild_handler = (ASTNode$DepGraphNode[])getChild_handler.clone();");
         stream.println(ind(2) + "copy.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, copy);");
@@ -1286,31 +1286,31 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "copy.getChild_handler = new ASTNode$DepGraphNode(getChild_handler, copy);");
         stream.println(ind(2) + "copy.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, copy);");
         stream.println(ind(2) + "copy.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, copy);");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         if (isRegionRoot())
           stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
       }
     } else {
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {
         if (isRegionRoot()) {
           stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);"); 
         } else {
           stream.println(ind(2) + "super.inc_copyHandlers(copy);");
         }
       }
-      if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
         stream.println(ind(2) + "super.inc_copyHandlers(copy);");
       }
     }
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       // tokens
       for (int c = 0; c < getNumComponents(); c++) {
         Components comp = getComponents(c);
@@ -1339,7 +1339,7 @@ aspect IncrementalEval {
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         if (attr.getNumParameter() > 0) {
-          if (ASTNode.incrementalLevelParam) {
+          if (grammar().incrementalLevelParam) {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   "copy." + attr.attributeSignature() + "_handler = new java.util.HashMap(4);");
             stream.println(ind(2) + "}");
@@ -1412,7 +1412,7 @@ aspect IncrementalEval {
   public void ASTDecl.jjtGenIncrementalAffectedValue(PrintWriter stream) {
 
     // start method: inc_valueAffected
-    if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalLevelParam && grammar().incrementalPropLimit) {
       stream.println(ind + "public boolean " + name() + ".inc_valueAffected(String attrID, Object _parameters) {");      
 
       ArrayList list = new ArrayList();
@@ -1540,23 +1540,23 @@ aspect IncrementalEval {
   public void ASTDecl.jjtGenIncrementalReactToChange(PrintWriter stream) {
 
     // method: reactToDependencyChange
-    if (ASTNode.incrementalLevelParam)
+    if (grammar().incrementalLevelParam)
       stream.println(ind + "public void " + name() + ".reactToDependencyChange(String attrID, Object _parameters) {");      
-    if (ASTNode.incrementalLevelAttr) 
+    if (grammar().incrementalLevelAttr) 
       stream.println(ind + "public void " + name() + ".reactToDependencyChange(String attrID) {");      
-    if (ASTNode.incrementalLevelNode) 
+    if (grammar().incrementalLevelNode) 
       if (name().equals("ASTNode"))
         stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "public void " + name() + ".reactToDependencyChange() {");      
     }
 
-    if (ASTNode.incrementalChangeFlush) {
-      if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalChangeFlush) {
+      if (grammar().incrementalLevelRegion) {
         if (isRegionRoot())
           jjtGenIncrementalChangeFlush(stream);
-      } else if (ASTNode.incrementalLevelNode) {
+      } else if (grammar().incrementalLevelNode) {
         if (name().equals("ASTNode")) 
           jjtGenIncrementalChangeFlush(stream);
       } else {
@@ -1566,17 +1566,17 @@ aspect IncrementalEval {
 
     // super class if not ASTNode
     if (!name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelParam)
+      if (grammar().incrementalLevelParam)
         stream.println(ind(2) + "super.reactToDependencyChange(attrID, _parameters);");      
-      if (ASTNode.incrementalLevelAttr) 
+      if (grammar().incrementalLevelAttr) 
         stream.println(ind(2) + "super.reactToDependencyChange(attrID);");   
     }
 
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot() || name().equals("ASTNode")) 
         stream.println(ind + "}");      
     } 
-    else if (ASTNode.incrementalLevelNode) {
+    else if (grammar().incrementalLevelNode) {
       if (name().equals("ASTNode")) {
         stream.println(ind + "}");
       }
@@ -1588,7 +1588,7 @@ aspect IncrementalEval {
 
 
     // method: inc_flush
-    if (ASTNode.incrementalChangeFlush) {
+    if (grammar().incrementalChangeFlush) {
 
       // collect attributes: syn, inh
       ArrayList list = new ArrayList();
@@ -1604,7 +1604,7 @@ aspect IncrementalEval {
       }
 
       // start method: inc_flush
-      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
         stream.println(ind + "public void " + name() + ".inc_flush() {");
         // flush attributes
         for(Iterator itr = list.iterator(); itr.hasNext();) {
@@ -1613,7 +1613,7 @@ aspect IncrementalEval {
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
 
-            if (ASTNode.incrementalLevelRegion) {
+            if (grammar().incrementalLevelRegion) {
               // TODO: Add a flush of non-region root NTA children
             }
 
@@ -1627,7 +1627,7 @@ aspect IncrementalEval {
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);              
-              //if (ASTNode.incrementalTrack) {
+              //if (grammar().incrementalTrack) {
               //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
               //}
               stream.println(ind(2) + "}");
@@ -1636,7 +1636,7 @@ aspect IncrementalEval {
               String u = attr.resetVisit() + attr.resetCache();
               u = u.replaceAll("#NAME#", attr.attributeSignature());
               stream.print(u);              
-              //if (ASTNode.incrementalTrack) {
+              //if (grammar().incrementalTrack) {
               //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
               //}
               //stream.println(ind(2) + "}");
@@ -1652,7 +1652,7 @@ aspect IncrementalEval {
       // end method: inc_flush
 
       // methods: inc_flush_child
-      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
         if (name().equals("ASTNode")) {
         stream.println(ind + "public boolean ASTNode.inc_flush_child(ASTNode node) {");
         stream.println(ind(2) + "for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {");        
@@ -1669,7 +1669,7 @@ aspect IncrementalEval {
       // end methods: inc_flush_child
 
       // methods: inc_flush_NTA
-      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
         stream.println(ind + "public boolean " + name() + ".inc_flush_NTA(ASTNode node) {");
         if (name().equals("List") || name().equals("Opt")) {
 
@@ -1707,7 +1707,7 @@ aspect IncrementalEval {
           stream.println(ind(4) +     "node.inc_flush_subtree(node.handler());");
           stream.println(ind(4) +     "node.handler().clearDependencies();");
           stream.println(ind(4) +     "state().exitConstruction();");
-          //if (ASTNode.incrementalTrack) {
+          //if (grammar().incrementalTrack) {
           //  stream.println(ind(4) +     "ASTNode$DepGraphNode.trackedFlushes++;");
           //}
           stream.println(ind(4) +     "return true;");
@@ -1738,7 +1738,7 @@ aspect IncrementalEval {
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
-                if (ASTNode.incrementalTrack) {
+                if (grammar().incrementalTrack) {
                   stream.println(ind(5) + "ASTNode$DepGraphNode.trackedFlush++;");
                 }
                 stream.println(ind(5) +       "return true;");
@@ -1759,7 +1759,7 @@ aspect IncrementalEval {
                   String u = attr.resetVisit() + attr.resetCache();
                   u = u.replaceAll("#NAME#", attr.attributeSignature());
                   stream.print(u);
-                  //if (ASTNode.incrementalTrack) {
+                  //if (grammar().incrementalTrack) {
                   //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
                   //}
                   stream.println(ind(2) + "}");
@@ -1775,10 +1775,10 @@ aspect IncrementalEval {
       // end methods: inc_flush_NTA
 
       // method: inc_flushRegionRoot
-      if ((ASTNode.incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || 
-            (ASTNode.incrementalLevelNode && name().equals("ASTNode"))) {
+      if ((grammar().incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || 
+            (grammar().incrementalLevelNode && name().equals("ASTNode"))) {
         stream.println(ind + "public boolean " + name() + ".inc_flushRegionRoot() {");
-        if (ASTNode.incrementalLevelRegion) {
+        if (grammar().incrementalLevelRegion) {
           // Check for rewrites
           stream.println(ind(2) + "// check for inner rewrite in region root");
           stream.println(ind(2) + "boolean rewriteFlushed = true;");
@@ -1816,7 +1816,7 @@ aspect IncrementalEval {
           stream.println(ind(2) + "return true;"); 
           stream.println(ind + "}"); 
         }
-        if (ASTNode.incrementalLevelNode) {
+        if (grammar().incrementalLevelNode) {
           stream.println(ind(2) + "inc_flush();");
           stream.println(ind(2) + "boolean rewriteFlushed = true;");
           stream.println(ind(2) + "if (parent != null) {");
@@ -1841,16 +1841,16 @@ aspect IncrementalEval {
       // end method: inc_flushRegionRoot
 
       // method: inc_checkRegionForInnerRewrite
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode || grammar().incrementalLevelAttr) {
         if (name().equals("ASTNode")) {
           stream.println(ind + "public boolean ASTNode.inc_checkRegionForInnerRewrite() {");
           stream.println(ind(2) + "for (int i = 0; children != null && rewritten_children != null && " + 
                                             "i < children.length && i < rewritten_children.length; i++) {");
           stream.println(ind(3) +   "ASTNode child = children[i];");
-          if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+          if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {
           stream.println(ind(3) +   "if (child != null && !child.isRegionRoot()) {");
           } 
-          if (ASTNode.incrementalLevelAttr) {
+          if (grammar().incrementalLevelAttr) {
           stream.println(ind(3) +   "if (child != null) {");
           }
           stream.println(ind(4) +     "if (rewritten_children[i]) {");
@@ -1858,7 +1858,7 @@ aspect IncrementalEval {
           stream.println(ind(6) +         "return true;");
           stream.println(ind(5) +       "}");
           stream.println(ind(4) +     "}");
-          if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode) {
+          if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {
           stream.println(ind(4) +     "else {");
           stream.println(ind(5) +       "if (child.inc_checkRegionForInnerRewrite()) {");
           stream.println(ind(6) +         "return true;");
@@ -1874,7 +1874,7 @@ aspect IncrementalEval {
       // end method: inc_checkRegionForInnerRewrite
 
       // method: inc_flushRegion
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
         if (name().equals("ASTNode")) {
           stream.println(ind(2) + "inc_flush();");
@@ -1919,7 +1919,7 @@ aspect IncrementalEval {
 //              String u = attr.resetVisit() + attr.resetCache();
 //              u = u.replaceAll("#NAME#", attr.attributeSignature());
 //              stream.print(u);
-              //if (ASTNode.incrementalTrack) {
+              //if (grammar().incrementalTrack) {
               //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
               //}
               //stream.println(ind(5) +       "return true;");
@@ -1939,7 +1939,7 @@ aspect IncrementalEval {
                 String u = attr.resetVisit() + attr.resetCache();
                 u = u.replaceAll("#NAME#", attr.attributeSignature());
                 stream.print(u);
-                //if (ASTNode.incrementalTrack) {
+                //if (grammar().incrementalTrack) {
                 //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
                 //}
                 stream.println(ind(2) + "}");
@@ -1952,12 +1952,12 @@ aspect IncrementalEval {
       // end method: inc_flushRegion
 
       // method: inc_flushRegion_rewrites
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelRegion || grammar().incrementalLevelAttr) {
         if (name().equals("ASTNode")) {
           stream.println(ind + "public boolean ASTNode.inc_flushRegion_rewrites() {");
           stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {"); 
           stream.println(ind(3) +   "ASTNode child = children[i];");
-          if (ASTNode.incrementalLevelRegion) {
+          if (grammar().incrementalLevelRegion) {
             stream.println(ind(3) +   "if (child == null || child.isRegionRoot()) continue;");
             stream.println(ind(3) +   "// rewritten child");
 
@@ -1974,7 +1974,7 @@ aspect IncrementalEval {
             stream.println(ind(4) +     "}");
             stream.println(ind(3) +   "}");
           }
-          if (ASTNode.incrementalLevelAttr) {
+          if (grammar().incrementalLevelAttr) {
             stream.println(ind(3) +   "if (child == null) continue;");
             stream.println(ind(3) +   "// rewritten child");
             stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length && " +
@@ -1993,8 +1993,8 @@ aspect IncrementalEval {
 
 
       // method: inc_flush_subtree
-      if (ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelNode || 
-          ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode || 
+          grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
         stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
         stream.println(ind(2) + "inc_state = inc_GARBAGE;");
         // NTAs
@@ -2019,7 +2019,7 @@ aspect IncrementalEval {
         }
 
         // attributes and tokens
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
             stream.println(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
@@ -2031,7 +2031,7 @@ aspect IncrementalEval {
              }
            }
         }
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           for(Iterator itr = list.iterator(); itr.hasNext();) {
             AttrDecl attr = (AttrDecl)itr.next();
             if (attr.getNumParameter() > 0) {
@@ -2055,22 +2055,22 @@ aspect IncrementalEval {
 
         if (name().equals("ASTNode")) {    
           stream.println(ind(2) + "// flush subtree of values, take sets from encountered handler and remove it from DDG");
-          if (ASTNode.incrementalLevelRegion) {
+          if (grammar().incrementalLevelRegion) {
             stream.println(ind(2) + "if (isRegionRoot()) {");
             stream.println(ind(3) +   "h.transferSetsFrom(handler());");
             stream.println(ind(2) + "}");
             stream.println(ind(2) + "inc_flush();");
           }
-          if (ASTNode.incrementalLevelNode) {
+          if (grammar().incrementalLevelNode) {
             stream.println(ind(2) + "h.transferSetsFrom(handler());");
             stream.println(ind(2) + "inc_flush();");
           }
-          if (ASTNode.incrementalLevelAttr) {
+          if (grammar().incrementalLevelAttr) {
             stream.println(ind(3) +   "h.transferSetsFrom(getParent_handler);");
             stream.println(ind(3) +   "h.transferSetsFrom(getChild_handler);");
             stream.println(ind(3) +   "h.transferSetsFrom(numChildren_handler);");
           }
-          if (ASTNode.incrementalLevelParam) {
+          if (grammar().incrementalLevelParam) {
             stream.println(ind(3) +   "h.transferSetsFrom(getParent_handler);");
             stream.println(ind(3) +   "h.transferSetsFrom(numChildren_handler);");
             stream.println(ind(3) +   "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {");
@@ -2100,11 +2100,11 @@ aspect IncrementalEval {
   // ES_2011-09-20: Code generation for incremental evaluation, change strategy: flush
   public void ASTDecl.jjtGenIncrementalChangeFlush(PrintWriter stream) {
 
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       stream.println(ind(2) + "inc_flushRegionRoot();");
       stream.println(ind(2) + "handler.notifyDependencies();");
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot()) {
         stream.println(ind(2) + "if (inc_flushRegionRoot()) {");
         stream.println(ind(3) +   "handler.clearDependencies();");
@@ -2114,7 +2114,7 @@ aspect IncrementalEval {
     }
 
     // flush child start
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       if (name().equals("ASTNode")) {
         // stream.println("    if (attrID.equals(\"getChild\") && !state().IN_REWRITE_EVAL) {");
         stream.println(ind(2) + "if (attrID.equals(\"getChild\")) {");
@@ -2146,7 +2146,7 @@ aspect IncrementalEval {
         stream.println(ind(2) + "}");
       }
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       if (name().equals("ASTNode")) {
         stream.println(ind(2) + "if (attrID.equals(\"getChild\")) {");
         stream.println(ind(3) +   "if (inc_checkRegionForInnerRewrite()) {");
@@ -2165,7 +2165,7 @@ aspect IncrementalEval {
 
 
     // flush attributes start
-    if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
       ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynEq(); k++) {
         AttrDecl attr = getSynEq(k).decl();
@@ -2184,7 +2184,7 @@ aspect IncrementalEval {
         AttrDecl attr = (AttrDecl)itr.next();
 
         // start match attribute statement
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           stream.print(ind(2) + (first ? "" : "else "));
           stream.print("if (" + "attrID.equals(\"" + attr.attributeSignature() + "\")");
           if (attr.getNumParameter() > 0) 
@@ -2193,7 +2193,7 @@ aspect IncrementalEval {
           else stream.print(" && " + attr.attributeSignature() + "_computed");
           stream.println(") {");
         }
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.print(ind(2) + (first ? "" : "else "));
           stream.print("if (attrID.equals(\"" + attr.attributeSignature() + "\")");
           if (attr.getNumParameter() > 0) {
@@ -2206,7 +2206,7 @@ aspect IncrementalEval {
         // handle parameterized attributes
         if (attr.getNumParameter() > 0) {
 
-          if (ASTNode.incrementalLevelParam) {
+          if (grammar().incrementalLevelParam) {
             // handler NTA
             if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
                 && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
@@ -2251,11 +2251,11 @@ aspect IncrementalEval {
             stream.println(ind(3) + "if (" + attr.attributeSignature() + "_value instanceof ASTNode) {");
             stream.println(ind(4) + attr.attributeSignature() + "_value.setParent(null);");
             // using dummy node to flush dependencies from NTA 
-            if (ASTNode.incrementalLevelParam) {
+            if (grammar().incrementalLevelParam) {
 //              stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\", null));");
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(" + attr.attributeSignature() + "_handler);");
             }
-            else if (ASTNode.incrementalLevelAttr) {
+            else if (grammar().incrementalLevelAttr) {
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt(), \"\"));");
             } else {
               stream.println(ind(4) + attr.attributeSignature() + "_value.inc_flush_subtree(new ASTNode$DepGraphNode(new Opt()));");
@@ -2270,7 +2270,7 @@ aspect IncrementalEval {
         }
 
         // notify
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
             stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)" + 
                                         attr.attributeSignature() + "_handler.remove(_parameters);");
@@ -2282,7 +2282,7 @@ aspect IncrementalEval {
           if (!name().equals("ASTNode"))
             stream.println(ind(3) +   "super.reactToDependencyChange(attrID, _parameters);");
         } 
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind(3) + attr.attributeSignature() + "_handler.notifyDependencies();");
           stream.println(ind(3) +   "super.reactToDependencyChange(attrID);");
         }
@@ -2298,12 +2298,12 @@ aspect IncrementalEval {
   public void ASTDecl.jjtGenIncrementalReactToASTChange(PrintWriter stream) {
 
     /*
-    if (ASTNode.incrementalDebug) {
+    if (grammar().incrementalDebug) {
 
       // method: inc_clearDepsInTree
       stream.println(ind + "public void " + name() + ".inc_clearDepsInTree() {");
       if (name().equals("ASTNode")) {
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.clearDependants();");
         stream.println(ind(2) + "numChildren_handler.clearDependants();");
         stream.println(ind(2) + "for (int i = 0; i < numChildren; i++) {");
@@ -2313,7 +2313,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
         }
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.clearDependants();");
         stream.println(ind(2) + "numChildren_handler.clearDependants();");
         stream.println(ind(2) + "if (getChild_handler.hasDependants()) {");
@@ -2323,7 +2323,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
         }
-        if (ASTNode.incrementalLevelNode) {
+        if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "handler.clearDependants();");
         stream.println(ind(2) + "for (int i = 0; i < getNumChildNoTransform(); i++) {");
         stream.println(ind(3) +   "getChildNoTransform(i).inc_clearDepsInTree();");
@@ -2331,7 +2331,7 @@ aspect IncrementalEval {
         }
       } else {
         stream.println(ind(2) + "super.inc_clearDepsInTree();");
-        if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         // tokens
         for (int c = 0; c < getNumComponents(); c++) {
            Components comp = getComponents(c);
@@ -2356,7 +2356,7 @@ aspect IncrementalEval {
         // attributes
         for(Iterator itr = list.iterator(); itr.hasNext();) {
           AttrDecl attr = (AttrDecl)itr.next();
-          if (ASTNode.incrementalLevelParam) {
+          if (grammar().incrementalLevelParam) {
             if (attr.getNumParameter() > 0) {
             stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                     "_handler.values().iterator(); itr.hasNext();) {");
@@ -2369,7 +2369,7 @@ aspect IncrementalEval {
             stream.println(ind(2) + "}");
             }
           }
-          if (ASTNode.incrementalLevelAttr) {
+          if (grammar().incrementalLevelAttr) {
             stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
             stream.println(ind(3) +   attr.attributeSignature() + "_handler.clearDependants();");
              stream.println(ind(2) + "}");
@@ -2383,13 +2383,13 @@ aspect IncrementalEval {
     // method: inc_notifyForRemove
     if (name().equals("ASTNode")) {  
       stream.println(ind + "public void ASTNode.inc_notifyForRemove() {");
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.notifyDependencies();");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "handler.flushRegion();");
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         stream.println(ind(2) + "handler().flushRegion();");
       }
       stream.println(ind + "}"); 
@@ -2430,7 +2430,7 @@ aspect IncrementalEval {
     stream.println(ind + "public void " + name() + ".inc_changeState(int newState) {");
     if (name().equals("ASTNode")) {
       stream.println(ind(2) + "inc_state = newState;");
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.changeState(newState);");
         stream.println(ind(2) + "numChildren_handler.changeState(newState);");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
@@ -2440,7 +2440,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "if (child != null) child.inc_changeState(newState);");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.changeState(newState);");
         stream.println(ind(2) + "numChildren_handler.changeState(newState);");
         stream.println(ind(2) + "getChild_handler.changeState(newState);");
@@ -2449,14 +2449,14 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "if (child != null) child.inc_changeState(newState);");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "handler.changeState(newState);");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
         stream.println(ind(3) +   "if (child != null) child.inc_changeState(newState);");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         stream.println(ind(2) + "if (isRegionRoot()) handler().changeState(newState);");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -2465,7 +2465,7 @@ aspect IncrementalEval {
       }
     } else {
       stream.println(ind(2) + "super.inc_changeState(newState);");
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         // tokens
         for (int c = 0; c < getNumComponents(); c++) {
            Components comp = getComponents(c);
@@ -2481,7 +2481,7 @@ aspect IncrementalEval {
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         // handlers
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
             stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                   "_handler.values().iterator(); itr.hasNext();) {");
@@ -2494,7 +2494,7 @@ aspect IncrementalEval {
             stream.println(ind(2) + "}");
           }
         }
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
           stream.println(ind(3) +   attr.attributeSignature() + "_handler.changeState(newState);");
           stream.println(ind(2) + "}");
@@ -2502,8 +2502,8 @@ aspect IncrementalEval {
         // values for NTAs
         if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
             !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-          if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || 
-              ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+          if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || 
+              grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
               stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_changeState(newState);");
@@ -2526,7 +2526,7 @@ aspect IncrementalEval {
     stream.println(ind + "public void " + name() + ".inc_throwAway() {");
     stream.println(ind(2) + "inc_state = inc_GARBAGE;");
     if (name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.throwAway();");
         stream.println(ind(2) + "numChildren_handler.throwAway();");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
@@ -2539,7 +2539,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.throwAway();");
         stream.println(ind(2) + "numChildren_handler.throwAway();");
         stream.println(ind(2) + "getChild_handler.throwAway();");
@@ -2551,7 +2551,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "handler.throwAway();");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -2561,7 +2561,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         stream.println(ind(2) + "if (isRegionRoot()) handler().throwAway();");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -2573,7 +2573,7 @@ aspect IncrementalEval {
       }
     } else {
       stream.println(ind(2) + "super.inc_throwAway();");
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         // tokens
         for (int c = 0; c < getNumComponents(); c++) {
            Components comp = getComponents(c);
@@ -2588,7 +2588,7 @@ aspect IncrementalEval {
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         // handlers
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
             stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                   "_handler.values().iterator(); itr.hasNext();) {");
@@ -2601,7 +2601,7 @@ aspect IncrementalEval {
             stream.println(ind(2) + "}");
           }
         }
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
           stream.println(ind(3) +   attr.attributeSignature() + "_handler.throwAway();");
           stream.println(ind(2) + "}");
@@ -2609,8 +2609,8 @@ aspect IncrementalEval {
         // values for NTAs
         if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
             !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-          if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || 
-              ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+          if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || 
+              grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
               stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_throwAway();");
@@ -2632,7 +2632,7 @@ aspect IncrementalEval {
     // method: inc_cleanUpGarbage
     stream.println(ind + "public void " + name() + ".inc_cleanUpGarbage() {");
     if (name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         stream.println(ind(2) + "getParent_handler.cleanUpGarbage();");
         stream.println(ind(2) + "numChildren_handler.cleanUpGarbage);");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
@@ -2644,7 +2644,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.cleanUpGarbage();");
         stream.println(ind(2) + "numChildren_handler.cleanUpGarbage();");
         stream.println(ind(2) + "getChild_handler.cleanUpGarbage();");
@@ -2656,7 +2656,7 @@ aspect IncrementalEval {
         stream.println(ind(3) +   "}");
         stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "handler.cleanUpGarbage();");
         stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
         stream.println(ind(3) +   "ASTNode child = children[i];");
@@ -2668,7 +2668,7 @@ aspect IncrementalEval {
       }
     } else {
       stream.println(ind(2) + "super.inc_cleanUpGarbage();");
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         // tokens
         for (int c = 0; c < getNumComponents(); c++) {
            Components comp = getComponents(c);
@@ -2682,7 +2682,7 @@ aspect IncrementalEval {
       // attributes
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           if (attr.getNumParameter() > 0) {
             stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                   "_handler.values().iterator(); itr.hasNext();) {");
@@ -2709,12 +2709,12 @@ aspect IncrementalEval {
             stream.println(ind(2) + "}");
           }
         }
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
           stream.println(ind(3) +   attr.attributeSignature() + "_handler.cleanUpGarbage();");
           stream.println(ind(2) + "}");
         }
-        if (ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+        if (grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
           if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
               !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
             if (attr.getNumParameter() > 0) {
@@ -2741,14 +2741,14 @@ aspect IncrementalEval {
   public void ASTDecl.jjtGenIncrementalRegions(PrintWriter stream) {
 
     // method: isRegionRoot()
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       if (name().equals("ASTNode")) {
         stream.println(ind + "public boolean ASTNode.isRegionRoot() {");
         stream.println(ind(2) + "return true;");
         stream.println(ind + "}"); 
       }
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       stream.println(ind + "public boolean " + name() + ".isRegionRoot() {");
       if (isRegionRoot())
         stream.println(ind(2) + "return true;");
@@ -2764,7 +2764,7 @@ aspect IncrementalEval {
     // method end: isRegionRoot()
 
     // method: regionRoot()
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (name().equals("ASTNode")) {
         if (isRegionRoot()) {
           stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
@@ -2790,7 +2790,7 @@ aspect IncrementalEval {
     // method end: regionRoot()
 
     // method: handler()
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot()) {
         stream.println(ind + "public ASTNode$DepGraphNode " + name() + ".handler() {");
         stream.println(ind(2) + "return handler;");
@@ -2809,7 +2809,7 @@ aspect IncrementalEval {
         stream.println(ind + "}"); 
       }
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       if (name().equals("ASTNode")) {
         stream.println(ind + "public ASTNode$DepGraphNode ASTNode.handler() {");
         stream.println(ind(2) + "return handler;");
@@ -2819,7 +2819,7 @@ aspect IncrementalEval {
     // method end: handler()
 
     // method: getParent() -- overloaded for region tracking
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionRoot() && !name().equals("ASTNode")) {
         stream.println(ind + "public ASTNode " + name() + ".getParent() {");
         stream.println(ind(2) + "// region root");
@@ -2833,13 +2833,13 @@ aspect IncrementalEval {
     // end method: getParent() -- overloaded for region tracking
 
     // method: getChild(int) -- overloaded for region tracking
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
 //      stream.println(ind + "private boolean " + name() + ".IS_REGION_LEAF = " + isRegionLeaf() + ";");
 //      stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";");
 
       if (isRegionLeaf()) {
         if (name().equals("List") || name().equals("Opt")) {
-          if(ASTNode.java5) {
+          if(grammar().java5) {
             stream.println(ind + "/**");
             stream.println(ind + " * @apilevel low-level");
             stream.println(ind + " */");
@@ -2918,7 +2918,7 @@ aspect IncrementalEval {
     // TODO revisit this method
 /*
     // method: removeChild(int) -- overloaded for region tracking
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionLeaf() && !name().equals("ASTNode")) {
         stream.println(ind + "public void " + name() + ".removeChild(int index) {");
         stream.println(ind(2) + "// region leaf");
@@ -2935,7 +2935,7 @@ aspect IncrementalEval {
 
     // TODO revisit this method
     // method: insertChild(ASTNode,int) -- overloaded for region tracking
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (isRegionLeaf() && !name().equals("ASTNode")) {
         stream.println("    public void " + name() + ".insertChild(ASTNode node, int index) {");
         stream.println("      // region leaf");
@@ -3071,25 +3071,25 @@ aspect IncrementalEval {
     // method: dumpDependencies()
     stream.println(ind + "public void " + name() + ".dumpDependencies() {");
     if (name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "getParent_handler.dumpDeps();");
         stream.println(ind(2) + "numChildren_handler.dumpDeps();");
-        if (ASTNode.incrementalLevelParam) {
+        if (grammar().incrementalLevelParam) {
           stream.println(ind(2) + "for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
           stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
           stream.println(ind(4) +     "getChild_handler[k].dumpDeps();");
           stream.println(ind(3) +   "}");
           stream.println(ind(2) + "}");
         }
-        if (ASTNode.incrementalLevelAttr) {
+        if (grammar().incrementalLevelAttr) {
           stream.println(ind(2) + "getChild_handler.dumpDeps();");
         }
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         stream.println(ind(2) + "handler.dumpDeps();");
       }
     } 
-    if (ASTNode.incrementalLevelRegion && isRegionRoot()) {
+    if (grammar().incrementalLevelRegion && isRegionRoot()) {
       stream.println(ind(2) + "handler.dumpDeps();");
     }
     // collect attributes
@@ -3105,7 +3105,7 @@ aspect IncrementalEval {
         list.add(attr);
     }
     // tokens
-    if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
          if (c instanceof TokenComponent && !c.isNTA()) {
@@ -3119,7 +3119,7 @@ aspect IncrementalEval {
     for(Iterator itr = list.iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       // handlers
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         if (attr.getNumParameter() > 0) {
           stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
                                 "_handler.values().iterator(); itr.hasNext();) {");
@@ -3132,16 +3132,16 @@ aspect IncrementalEval {
           stream.println(ind(2) + "}");
         }
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
          stream.println(ind(3) +   attr.attributeSignature() + "_handler.dumpDeps();");
          stream.println(ind(2) + "}");
       }
-      if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
         // values for NTAs
         if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
             !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-          if (ASTNode.incrementalLevelParam || ASTNode.incrementalLevelAttr || ASTNode.incrementalLevelNode) {
+          if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
               stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDependencies();");
@@ -3159,7 +3159,7 @@ aspect IncrementalEval {
     stream.println(ind(2) + "// TODO: dump collection values");
     // super call
     if (!name().equals("ASTNode")) {
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         if (!isRegionRoot()) 
           stream.println(ind(2) + "super.dumpDependencies();");
       } else {
@@ -3203,11 +3203,11 @@ aspect IncrementalEval {
   }
 
   // ES_2011-09-06: Code generation for incremental evaluation, dependency node class / handler class
-  public void Grammar.jjtGenASTNode$DepGraphNode(PrintWriter stream, String parserName) {
+  public void Grammar.jjtGenASTNode$DepGraphNode(PrintWriter stream) {
     // class: ASTNode$DepGraphNode
     stream.println("  static public class ASTNode$DepGraphNode {");
 
-    if (ASTNode.incrementalTrack) {
+    if (grammar().incrementalTrack) {
     stream.println("    public static int trackedReads = 0;");
     stream.println("    public static int trackedComputes = 0;");
     stream.println("    public static int trackedFlushes = 0;");
@@ -3243,7 +3243,7 @@ aspect IncrementalEval {
     stream.println("      for (ASTNode$DepGraphNode l : node.fDependencySet) {");
     stream.println("        l.addDependant(this);");
     stream.println("      }");
-    if (ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalPropLimit) {
       stream.println("      setCacheInDependent(node.cacheInDependent);");
     }
     stream.println("      node.clearDependencies();");
@@ -3303,7 +3303,7 @@ aspect IncrementalEval {
     // level: node, attr, param all need a node to store the dependency node in
     stream.println("    public ASTNode fNode;");
     // level: param needs both an attr ID and a param ID
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       stream.println("    public String fAttrID;");
       stream.println("    protected Object fParams;");
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params) {");
@@ -3323,7 +3323,7 @@ aspect IncrementalEval {
       stream.println("    public void setParams(Object params) {");
       stream.println("      fParams = params;");
       stream.println("    }");
-      if (ASTNode.incrementalPropLimit) {
+      if (grammar().incrementalPropLimit) {
       stream.println("    public boolean cacheInDependent = false;");
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params, boolean cacheInDependent) {");
       stream.println("      this(node, attrID, params);");
@@ -3339,7 +3339,7 @@ aspect IncrementalEval {
       }
     }
     // level: attr also needs an attr ID 
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       stream.println("    public String fAttrID;");
       stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
       stream.println("      fNode = node;");
@@ -3355,7 +3355,7 @@ aspect IncrementalEval {
       stream.println("    }");
     }
     // level: node, region
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
       stream.println("    public ASTNode$DepGraphNode(ASTNode node) {");
       stream.println("      fNode = node;");
       stream.println("      fState = node.inc_state;");
@@ -3367,7 +3367,7 @@ aspect IncrementalEval {
       //stream.println("      createdHandlers.add(this);");
       stream.println("    }");
     }
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion || ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion || grammar().incrementalLevelAttr) {
 
       stream.println("    public void flushRegion() {");
       stream.println("      // Remove dependencies");
@@ -3376,9 +3376,9 @@ aspect IncrementalEval {
       stream.println("      for (ASTNode$DepGraphNode node : k) {");
       stream.println("        node.removeDependant(this);");
       stream.println("      }");
-      if (ASTNode.incrementalLevelAttr) 
+      if (grammar().incrementalLevelAttr) 
         stream.println("          fNode.reactToDependencyChange(fAttrID);");
-      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion)
         stream.println("          fNode.reactToDependencyChange();");
       stream.println("    }");          
     }
@@ -3443,11 +3443,11 @@ aspect IncrementalEval {
     stream.println("    public void dependencyChanged() {");
     stream.println("      if (!visitedChange) {");
     stream.println("        visitedChange = true;");
-    if (ASTNode.incrementalTrack) {
+    if (grammar().incrementalTrack) {
     stream.println("        trackedFlushes++;");
     stream.println("        System.out.println(\"not(\" + this + \")\");");
     }
-    if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalLevelParam && grammar().incrementalPropLimit) {
     stream.println("        if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {");
     stream.println("        } else {");
     }
@@ -3458,21 +3458,21 @@ aspect IncrementalEval {
     stream.println("          for (ASTNode$DepGraphNode node : k) {");
     stream.println("            node.removeDependant(this);");
     stream.println("          }");
-    if (ASTNode.incrementalLevelParam)
+    if (grammar().incrementalLevelParam)
     stream.println("          fNode.reactToDependencyChange(fAttrID, fParams);");
-    if (ASTNode.incrementalLevelAttr) 
+    if (grammar().incrementalLevelAttr) 
     stream.println("          fNode.reactToDependencyChange(fAttrID);");
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion)
     stream.println("          fNode.reactToDependencyChange();");
     stream.println("        }");
-    if (ASTNode.incrementalLevelParam && ASTNode.incrementalPropLimit) {
+    if (grammar().incrementalLevelParam && grammar().incrementalPropLimit) {
       stream.println("        }");
     }
     stream.println("        visitedChange = false;");
     stream.println("      }");
     stream.println("    }");
     // Debugging methods:
-    if (ASTNode.incrementalDebug) {
+    if (grammar().incrementalDebug) {
       stream.println("    private int dumpDependents_visited = 0;");
       stream.println("    public void dumpDependents(boolean changed, int visited) {");
       stream.println("      if (visited != dumpDependents_visited) {");
@@ -3511,13 +3511,13 @@ aspect IncrementalEval {
       stream.println("      }");
       stream.println("    }");
       stream.println("    public String toString() {");
-      if (ASTNode.incrementalLevelParam) 
+      if (grammar().incrementalLevelParam) 
         stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID + " +
             "(fParams != null ? (\"[\" + (fParams instanceof ASTNode ? " +
             "((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
-      if (ASTNode.incrementalLevelAttr)
+      if (grammar().incrementalLevelAttr)
         stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID;");
-      if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion)
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion)
         stream.println("      return fNode.relativeNodeID();");
       stream.println("    }");
     }

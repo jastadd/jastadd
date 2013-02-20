@@ -34,7 +34,7 @@ aspect IncrementalTracking {
   // ES_2011-09-22: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTracking() {
     StringBuffer buf = new StringBuffer();
-    if (ASTNode.incrementalLevelParam) {
+    if (grammar().incrementalLevelParam) {
       if (getNumParameter() == 0) {
         buf.append(ind(2) + "if (#NAME#_handler == null) {\n");
         buf.append(ind(3) +   "#NAME#_handler = new ASTNode$DepGraphNode(this, \"#NAME#\", null);\n");
@@ -48,13 +48,13 @@ aspect IncrementalTracking {
         buf.append(ind(2) + "state().addHandlerDepTo((ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
       }
     }
-    if (ASTNode.incrementalLevelAttr) {
+    if (grammar().incrementalLevelAttr) {
       buf.append(ind(2) + "if (#NAME#_handler == null) {\n");
       buf.append(ind(3) +   "#NAME#_handler = new ASTNode$DepGraphNode(this, \"#NAME#\");\n");
       buf.append(ind(2) + "}\n");
       buf.append(ind(2) + "state().addHandlerDepTo(#NAME#_handler);\n");
     }
-    if (ASTNode.incrementalLevelNode) {
+    if (grammar().incrementalLevelNode) {
       if (getNTA()) {
         if (getNumParameter() == 0) {
           buf.append(ind(2) + "if (#NAME#_computed)\n");
@@ -65,7 +65,7 @@ aspect IncrementalTracking {
         }
       }
     }
-    if (ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelRegion) {
       if (getNTA()) {
         if (getNumParameter() == 0) {
           buf.append(ind(2) + "if (#NAME#_computed && #NAME#_value.isRegionRoot())\n");
@@ -84,7 +84,7 @@ aspect IncrementalTracking {
   public String AttrDecl.genIncrementalTrackingStackEnter() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         buf.append(ind(2) + "ASTNode$DepGraphNode tmpHandler = new ASTNode$DepGraphNode(this, \"\", null);\n");
         buf.append(ind(2) + "state().enterAttrStoreEval(tmpHandler);\n");
         //if (getNumParameter() == 0) {
@@ -94,12 +94,12 @@ aspect IncrementalTracking {
         //      "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
         //}
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         buf.append(ind(2) + "ASTNode$DepGraphNode tmpHandler = new ASTNode$DepGraphNode(this, \"\");\n");
         buf.append(ind(2) + "state().enterAttrStoreEval(tmpHandler);\n");
         //buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         if (getNTA()) {
           buf.append(ind(2) + "// Creating a dummy handler to collect dependencies\n");
           buf.append(ind(2) + "ASTNode$DepGraphNode newHandler = new ASTNode$DepGraphNode(this);\n");
@@ -112,7 +112,7 @@ aspect IncrementalTracking {
           //buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         //buf.append(ind(2) + "state().IN_ATTR_STORE_EVAL = true;\n");
         buf.append(ind(2) + "state().IN_COMPUTATION++;\n");
       }
@@ -124,7 +124,7 @@ aspect IncrementalTracking {
   public String AttrDecl.genIncrementalTrackingStackEnter2() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         if (getNumParameter() == 0) {
           buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
         } else {
@@ -132,10 +132,10 @@ aspect IncrementalTracking {
               "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
         }
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         buf.append(ind(2) + "state().enterAttrStoreEval(#NAME#_handler);\n");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         if (getNTA()) {
           buf.append(ind(2) + "// Creating a dummy handler to collect dependencies\n");
           buf.append(ind(2) + "ASTNode$DepGraphNode newHandler = new ASTNode$DepGraphNode(this);\n");
@@ -146,7 +146,7 @@ aspect IncrementalTracking {
           buf.append(ind(2) + "state().enterAttrStoreEval(handler);\n");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         //buf.append(ind(2) + "state().IN_ATTR_STORE_EVAL = true;\n");
         buf.append(ind(2) + "state().IN_COMPUTATION++;\n");
       }
@@ -159,7 +159,7 @@ aspect IncrementalTracking {
   public String AttrDecl.genIncrementalTrackingStackExit() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         buf.append(ind(2) + "state().exitAttrStoreEval(tmpHandler);\n");
         //if (getNumParameter() == 0) {
         //  buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
@@ -168,11 +168,11 @@ aspect IncrementalTracking {
         //      "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
         //}
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         buf.append(ind(2) + "state().exitAttrStoreEval(tmpHandler);\n");
         //buf.append("state().exitAttrStoreEval(#NAME#_handler);\n");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         if (getNTA()) {
           buf.append(ind(2) + "#NAME#_value.handler = newHandler;\n");
           buf.append(ind(2) + "#NAME#_value.handler.fNode = #NAME#_value;\n");
@@ -183,7 +183,7 @@ aspect IncrementalTracking {
           //buf.append("state().exitAttrStoreEval(handler);\n");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         buf.append(ind(2)+ "state().IN_COMPUTATION--;\n");
         if (getNTA()) {
           buf.append(ind(2) + "if (#NAME#_value.isRegionRoot()) {\n");
@@ -201,7 +201,7 @@ aspect IncrementalTracking {
   public String AttrDecl.genIncrementalTrackingStackExit2() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         if (getNumParameter() == 0) {
           buf.append(ind(2) + "state().exitAttrStoreEval(#NAME#_handler);\n");
         } else {
@@ -209,10 +209,10 @@ aspect IncrementalTracking {
               "(ASTNode$DepGraphNode)#NAME#_handler.get(_parameters));\n");
         }
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         buf.append(ind(2) + "state().exitAttrStoreEval(#NAME#_handler);\n");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         if (getNTA()) {
           buf.append(ind(2) + "#NAME#_value.handler = newHandler;\n");
           buf.append(ind(2) + "#NAME#_value.handler.fNode = #NAME#_value;\n");
@@ -222,7 +222,7 @@ aspect IncrementalTracking {
           buf.append(ind(2) + "state().exitAttrStoreEval(handler);\n");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
         buf.append(ind(2)+ "state().IN_COMPUTATION--;\n");
         if (getNTA()) {
           buf.append(ind(2) + "if (#NAME#_value.isRegionRoot()) {\n");
@@ -241,22 +241,22 @@ aspect IncrementalTracking {
   public String AttrDecl.genIncrementalTrackingStackTransfer() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         if (getNumParameter() == 0) {
           buf.append("#NAME#_handler.transferDependenciesFrom(tmpHandler);");
         } else {
           buf.append("((ASTNode$DepGraphNode)#NAME#_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);");
         }
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         buf.append("#NAME#_handler.transferDependenciesFrom(tmpHandler);");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         if (!getNTA()) {
           buf.append("handler.transferDependenciesFrom(tmpHandler);");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
       }
     }
     return buf.toString();
@@ -266,18 +266,18 @@ aspect IncrementalTracking {
   public String AttrDecl.genIncrementalTrackingStackClear() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
-      if (ASTNode.incrementalLevelParam) {
+      if (grammar().incrementalLevelParam) {
         buf.append("else tmpHandler.clearDependencies();");
       }
-      if (ASTNode.incrementalLevelAttr) {
+      if (grammar().incrementalLevelAttr) {
         buf.append("else tmpHandler.clearDependencies();");
       }
-      if (ASTNode.incrementalLevelNode) {
+      if (grammar().incrementalLevelNode) {
         if (!getNTA()) {
           buf.append("else tmpHandler.clearDependencies();");
         }
       }
-      if (ASTNode.incrementalLevelRegion) {
+      if (grammar().incrementalLevelRegion) {
       }
     }
     return buf.toString();
@@ -286,7 +286,7 @@ aspect IncrementalTracking {
   // ES_2012-02-21: Code generation for incremental evaluation
   public String AttrDecl.genIncrementalInternalNTAList() {
     StringBuffer buf = new StringBuffer();
-    if (ASTNode.incrementalLevelNode || ASTNode.incrementalLevelRegion) {
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
       if (getNTA()) 
           buf.append(ind(3) + "#NAME#_list.inc_internalNTAList(#NAME#_values);\n");
     }

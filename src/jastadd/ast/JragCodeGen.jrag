@@ -88,111 +88,38 @@ aspect JragCodeGen {
     }
   }
 
-  public static boolean ASTNode.jjtree;
-  public static boolean ASTNode.beaver;
-  public static boolean ASTNode.lazyMaps;
-  public static boolean ASTNode.noInhEqCheck;
-
-  public static boolean ASTNode.rewriteEnabled = false;
-  public static boolean ASTNode.circularEnabled = true;
-  public static boolean ASTNode.visitCheckEnabled = true;
-  public static boolean ASTNode.traceVisitCheck = false;
-  public static boolean ASTNode.cacheCycle = true;
-  public static boolean ASTNode.componentCheck = true;
-
-  public static boolean ASTNode.suppressWarnings = false;
-
-  public static boolean ASTNode.parentInterface = false;
-
-  public static boolean ASTNode.doc = false;
-
-  public static String ASTNode.license = "";
-
-  public static boolean ASTNode.java5 = true;
-
-  public static boolean ASTNode.refineLegacy = false;
-  public static boolean ASTNode.stagedRewrites = false;
-
-  public static boolean ASTNode.doxygen = false;
-
-  //public static int ASTNode.cycleLimit = 100;
-  //public static int ASTNode.rewriteLimit = 100;
-  //public static boolean ASTNode.debugMode = true;
-
-  public static int ASTNode.cycleLimit = 0;
-  public static int ASTNode.rewriteLimit = 0;
-  public static boolean ASTNode.debugMode = false;
-
-  public static boolean ASTNode.block = false;
-  public static String ASTNode.blockBegin = "synchronized(ASTNode.class) {\n";
-  public static String ASTNode.blockEnd =   "}\n";
-
-  public static boolean ASTNode.noStatic = false;
-
-  public static String ASTNode.createDefaultMap = "new java.util.HashMap(4)";
-  public static String ASTNode.createDefaultSet = "new java.util.HashSet(4)";
-  public static String ASTNode.typeDefaultMap = "java.util.Map";
-  public static String ASTNode.typeDefaultSet = "java.util.Set";
-
-  public static boolean ASTNode.deterministic;
-
-  public static boolean ASTNode.tracing;
-  public static boolean ASTNode.cacheAll = false;
-  public static boolean ASTNode.noCaching = false;
-
-  // EMMA_2009-11-16: Adding attributes for new JastAdd flags
-  public static boolean ASTNode.cacheNone = false;
-  public static boolean ASTNode.cacheImplicit = false;
-  public static boolean ASTNode.ignoreLazy = false;
-
-  // EMMA_2011-09-19: Adding attribute fields for incremental evalution
-  public static boolean ASTNode.incremental = false; // the flag
-  public static boolean ASTNode.incrementalLevelParam = false; // track on param level
-  public static boolean ASTNode.incrementalLevelAttr = false; // track on attribute level
-  public static boolean ASTNode.incrementalLevelNode = false; // track on node level
-  public static boolean ASTNode.incrementalLevelRegion = false; // track on region level
-  public static boolean ASTNode.incrementalChangeFlush = false; // invalidate with flush
-  public static boolean ASTNode.incrementalChangeMark = false; // invalidate with mark
-  public static boolean ASTNode.incrementalPropFull = false; // full propagation of change
-  public static boolean ASTNode.incrementalPropLimit = false; // limited propagation of change
-  public static boolean ASTNode.incrementalDebug = false; // debugging
-  public static boolean ASTNode.incrementalTrack = false; // tracking
-
-  // ES_2011-10-10: Adding field for full flush support
-  public static boolean ASTNode.fullFlush = false;
-
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine  public boolean AttrDecl.getLazy() {
-    if (cacheAll)
+    if (grammar().cacheAll)
       return true;
-    if (cacheNone)
+    if (grammar().cacheNone)
       return declaredNTA();
     return declaredNTA() || refined(); //Ast.AttrDecl.getLazy(); 
-//    return (Ast.AttrDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
+//    return (Ast.AttrDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
   refine  public boolean SynDecl.getLazy() {
-    if (cacheAll)
+    if (grammar().cacheAll)
       return true;
-    if (cacheNone)
+    if (grammar().cacheNone)
       return declaredNTA();
     return declaredNTA() || refined(); //Ast.SynDecl.getLazy();
-//    return (Ast.SynDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
+//    return (Ast.SynDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
   refine  public boolean InhDecl.getLazy() {
-    if (cacheAll)
+    if (grammar().cacheAll)
       return true;
-    if (cacheNone)
+    if (grammar().cacheNone)
       return declaredNTA();
     return declaredNTA() || refined(); //Ast.InhDecl.getLazy(); 
-//    return (Ast.InhDecl.getLazy() || cacheAll) && (!noCaching || declaredNTA());
+//    return (Ast.InhDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
   refine  public boolean CollDecl.getLazy() {
-    if (cacheAll)
+    if (grammar().cacheAll)
       return true;
-    if (cacheNone)
+    if (grammar().cacheNone)
       return false;
     return declaredNTA() || refined(); //Ast.CollDecl.getLazy();
-//    return (Ast.CollDecl.getLazy() || cacheAll) && !noCaching;
+//    return (Ast.CollDecl.getLazy() || grammar().cacheAll) && !noCaching;
   }
 
   public String Grammar.genImportsList() {
@@ -303,13 +230,8 @@ aspect JragCodeGen {
     return buf.toString();
   }
 
-  public static String ASTNode.suppressWarnings() {
-    return (suppressWarnings || java5) ?
-      "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
-  }
-
-  syn String ASTDecl.annotations() = ASTNode.suppressWarnings();
-  syn String AttrDecl.annotations() = ASTNode.suppressWarnings();
+  syn String ASTDecl.annotations() = suppressWarnings();
+  syn String AttrDecl.annotations() = suppressWarnings();
 
   public String TypeDecl.genAbstractSyns() {
     StringBuffer buf = new StringBuffer();
@@ -381,7 +303,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.hostFileComment(String ind) {
-    if(doxygen)
+    if(grammar().doxygen)
       return doxygenFileComment(ind);
     else
       return javadocFileComment(ind);
@@ -463,23 +385,21 @@ aspect JragCodeGen {
 
   public String AttrDecl.initLazyMaps() {
     StringBuffer s = new StringBuffer();
-    if(ASTNode.lazyMaps) {
+    if(grammar().lazyMaps) {
       if(!isCircular()) {
-        if(getNumParameter() != 0 && visitCheckEnabled() && rewriteEnabled) {
-          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + createDefaultMap + ";\n");
+        if(getNumParameter() != 0 && grammar().visitCheckEnabled && grammar().rewriteEnabled) {
+          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + grammar().createDefaultMap + ";\n");
         }
-        else if(getNumParameter() != 0 && visitCheckEnabled()) {
-          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + createDefaultSet + ";\n");
+        else if(getNumParameter() != 0 && grammar().visitCheckEnabled) {
+          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + grammar().createDefaultSet + ";\n");
         }
       }
       if(getNumParameter() != 0 && (getLazy() || isCircular())) {
-        s.append(ind(2) + "if(#NAME#_values == null) #NAME#_values = " + createDefaultMap + ";\n");
+        s.append(ind(2) + "if(#NAME#_values == null) #NAME#_values = " + grammar().createDefaultMap + ";\n");
       }
     }
     return s.toString();
   }
-
-  syn boolean AttrDecl.visitCheckEnabled() = visitCheckEnabled;
 
   public String AttrDecl.visitedDeclarations() {
     if(isCircular()) {
@@ -493,24 +413,24 @@ aspect JragCodeGen {
         return "";
       }
     }
-    if(!visitCheckEnabled() && !isCircular()) return "";
-    if(rewriteEnabled) {
+    if(!grammar().visitCheckEnabled && !isCircular()) return "";
+    if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
       else {
-        if(ASTNode.lazyMaps)
+        if(grammar().lazyMaps)
           return ind + "/**\n" +
                  ind + " * @apilevel internal\n" +
                  ind + " */\n" +
-                 ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
+                 ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
         else
           return ind + "/**\n" +
                  ind + " * @apilevel internal\n" +
                  ind + " */\n" +
-                 ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_visited = " + createDefaultMap + ";\n";
+                 ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_visited = " + grammar().createDefaultMap + ";\n";
       }
     }
     if(getNumParameter() == 0)
@@ -519,22 +439,22 @@ aspect JragCodeGen {
              ind + " */\n" +
              ind + "protected boolean #CLASS#.#NAME#_visited = false;\n";
     else {
-      if(ASTNode.lazyMaps)
+      if(grammar().lazyMaps)
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
-               ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
+               ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
       else
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
-               ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_visited = " + createDefaultSet + ";\n";
+               ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_visited = " + grammar().createDefaultSet + ";\n";
     }
   }
 
   public String AttrDecl.visitedException() {
-    if(!visitCheckEnabled()) return "";
-    if(!traceVisitCheck)
+    if(!grammar().visitCheckEnabled) return "";
+    if(!grammar().traceVisitCheck)
       return ind(3) + "throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: #CLASS#.\");\n";
     else
       return ind(3) + "System.out.println(\"Circular definition of attr: #METHODNAME# in class: \" + getClass().getName());\n";
@@ -549,35 +469,35 @@ aspect JragCodeGen {
         return "";
       }
     }
-    if(!visitCheckEnabled()) return "";
-    else if(rewriteEnabled) {
+    if(!grammar().visitCheckEnabled) return "";
+    else if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
         return ind(2) + "#NAME#_visited = -1;\n";
       else {
-        if(ASTNode.lazyMaps)
+        if(grammar().lazyMaps)
           return ind(2) + "#NAME#_visited = null;\n";
         else
-          return ind(2) + "#NAME#_visited = " + createDefaultMap + ";\n";
+          return ind(2) + "#NAME#_visited = " + grammar().createDefaultMap + ";\n";
       }
     }
     if(getNumParameter() == 0)
       return ind(2) + "#NAME#_visited = false;\n";
     else {
-      if(ASTNode.lazyMaps)
+      if(grammar().lazyMaps)
         return ind(2) + "#NAME#_visited = null;\n";
       else
-        return ind(2) + "#NAME#_visited = " + createDefaultSet + ";\n";
+        return ind(2) + "#NAME#_visited = " + grammar().createDefaultSet + ";\n";
     }
   }
 
   public String AttrDecl.visitedCheck() {
-    if(!visitCheckEnabled()) return "";
-    if(rewriteEnabled) {
+    if(!grammar().visitCheckEnabled) return "";
+    if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
         return ind(2) + "if(#NAME#_visited == state().boundariesCrossed)\n" +
                           visitedException();
       else {
-        if(ASTNode.java5)
+        if(grammar().java5)
           return ind(2) + "if(Integer.valueOf(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" +
                           visitedException();
         else
@@ -594,12 +514,12 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.setVisited() {
-    if(!visitCheckEnabled() && !isCircular()) return "";
-    if(rewriteEnabled) {
+    if(!grammar().visitCheckEnabled && !isCircular()) return "";
+    if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
         return ind(2) + "#NAME#_visited = state().boundariesCrossed;\n";
       else {
-        if(ASTNode.java5)
+        if(grammar().java5)
             return ind(2) + "#NAME#_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));\n";
         else
             return ind(2) + "#NAME#_visited.put(_parameters, new Integer(state().boundariesCrossed));\n";
@@ -612,9 +532,9 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.clearVisited(String ind) {
-    if(!visitCheckEnabled() && !isCircular()) {
+    if(!grammar().visitCheckEnabled && !isCircular()) {
       return "";
-    } else if(rewriteEnabled) {
+    } else if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
         return ind + "#NAME#_visited = -1;\n";
       else
@@ -639,11 +559,11 @@ aspect JragCodeGen {
              ind + " */\n" +
              ind + "protected #TYPE# #CLASS#.#NAME#_value;\n";
     else if(declaredNTA()) {
-      if(ASTNode.lazyMaps)
+      if(grammar().lazyMaps)
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
-               ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
+               ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
                ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
@@ -652,17 +572,17 @@ aspect JragCodeGen {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
-               ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
+               ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n" +
                ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
     }
     else {
-      if(ASTNode.lazyMaps)
-        return ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values;\n";
+      if(grammar().lazyMaps)
+        return ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values;\n";
       else
-        return ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n";
+        return ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n";
     }
   }
   syn boolean AttrDecl.declaredNTA() = false;
@@ -689,23 +609,23 @@ aspect JragCodeGen {
                ind(2) + "#NAME#_value = null;\n";
     }
     else if(isCircular()) {
-        if(ASTNode.lazyMaps)
+        if(grammar().lazyMaps)
           return ind(2) + "#NAME#_values = null;\n";
         else
-          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
+          return ind(2) + "#NAME#_values = " + grammar().createDefaultMap + ";\n";
     }
     else {
       // ES: Must also set the internal list to null when flushing parameterized NTAs
       if (getNTA()) {
-        if(ASTNode.lazyMaps)
+        if(grammar().lazyMaps)
           return ind(2) + "#NAME#_values = null;\n" + ind(2) + "#NAME#_list = null;";
         else
-          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n" + ind(2) + "#NAME#_list = null;\n";        
+          return ind(2) + "#NAME#_values = " + grammar().createDefaultMap + ";\n" + ind(2) + "#NAME#_list = null;\n";        
       } else {
-        if(ASTNode.lazyMaps)
+        if(grammar().lazyMaps)
           return ind(2) + "#NAME#_values = null;\n";
         else
-          return ind(2) + "#NAME#_values = " + createDefaultMap + ";\n";
+          return ind(2) + "#NAME#_values = " + grammar().createDefaultMap + ";\n";
       }        
     }
   }
@@ -716,19 +636,19 @@ aspect JragCodeGen {
 
   public String ASTNode.toReferenceType(String value, String type) {
     if(type.equals("int"))
-      return java5 ? "Integer.valueOf(" + value + ")" : "new Integer(" + value + ")";
+      return grammar().java5 ? "Integer.valueOf(" + value + ")" : "new Integer(" + value + ")";
     else if(type.equals("short"))
-      return java5 ? "Short.valueOf(" + value + ")" : "new Short(" + value + ")";
+      return grammar().java5 ? "Short.valueOf(" + value + ")" : "new Short(" + value + ")";
     else if(type.equals("long"))
-      return java5 ? "Long.valueOf(" + value + ")" : "new Long(" + value + ")";
+      return grammar().java5 ? "Long.valueOf(" + value + ")" : "new Long(" + value + ")";
     else if(type.equals("float"))
-      return java5 ? "Float.valueOf(" + value + ")" : "new Float(" + value + ")";
+      return grammar().java5 ? "Float.valueOf(" + value + ")" : "new Float(" + value + ")";
     else if(type.equals("double"))
-      return java5 ? "Double.valueOf(" + value + ")" : "new Double(" + value + ")";
+      return grammar().java5 ? "Double.valueOf(" + value + ")" : "new Double(" + value + ")";
     else if(type.equals("boolean"))
       return "Boolean.valueOf(" + value + ")";
     else if(type.equals("char"))
-      return java5 ? "Character.valueOf(" + value + ")" : "new Character(" + value + ")";
+      return grammar().java5 ? "Character.valueOf(" + value + ")" : "new Character(" + value + ")";
     else return value;
   }
 
@@ -779,7 +699,7 @@ aspect JragCodeGen {
       int index = indexNTAchild();
       if(getNumParameter() == 0)
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
-               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               (grammar().incremental ? genIncrementalTracking() : "") +
                 //
                ind(2) + "if(#NAME#_computed) {\n" +
                traceEndCachedAttr() +
@@ -787,7 +707,7 @@ aspect JragCodeGen {
                ind(2) + "}\n";
       else
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
-               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               (grammar().incremental ? genIncrementalTracking() : "") +
                 //
                ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
@@ -796,7 +716,7 @@ aspect JragCodeGen {
     }
     if(getNumParameter() == 0)
       return // ES_2011-09-22: Code generation for incremental evaluation, tracking
-             (ASTNode.incremental ? genIncrementalTracking() : "") +
+             (grammar().incremental ? genIncrementalTracking() : "") +
              //
              ind(2) + "if(#NAME#_computed) {\n" +
              traceEndCachedAttr() +
@@ -805,7 +725,7 @@ aspect JragCodeGen {
     else {
       if(isCircular())
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
-               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               (grammar().incremental ? genIncrementalTracking() : "") +
                //
                ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                ind(3) + "Object _o = #NAME#_values.get(_parameters);\n" +
@@ -818,7 +738,7 @@ aspect JragCodeGen {
                ind(2) + "}\n";
       else
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
-               (ASTNode.incremental ? genIncrementalTracking() : "") +
+               (grammar().incremental ? genIncrementalTracking() : "") +
                //
                ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
@@ -828,7 +748,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.parameterStructure() {
-    if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !visitCheckEnabled())) {
+    if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !grammar().visitCheckEnabled)) {
       return "";
     } else if(getNumParameter() == 1) {
       return ind(2) + "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
@@ -849,7 +769,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheInitRewrite(String ind) {
-    if(!ASTNode.rewriteEnabled) {
+    if(!grammar().rewriteEnabled) {
       return "";
     }
     else {
@@ -867,7 +787,7 @@ aspect JragCodeGen {
 
   // TODO: INH
   public String InhDecl.callCompute() {
-    if(ASTNode.parentInterface) {
+    if(grammar().parentInterface) {
       return super.callCompute();
     } else {
       if(getLazy() && getNumParameter() == 0)
@@ -880,7 +800,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheStoreRewrite() {
-    if(!ASTNode.rewriteEnabled || getFinal())
+    if(!grammar().rewriteEnabled || getFinal())
       return ind + "if(true)";
     else
       return ind + "if(isFinal && num == state().boundariesCrossed)";
@@ -891,14 +811,14 @@ aspect JragCodeGen {
       return "";
     if(getNumParameter() == 0) {
       return cacheStoreRewrite() + "{" +
-        (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
+        (grammar().incremental ? genIncrementalTrackingStackTransfer() : "") +
         " #NAME#_computed = true; }\n" +
-        (ASTNode.incremental ? genIncrementalTrackingStackClear() : "");
+        (grammar().incremental ? genIncrementalTrackingStackClear() : "");
     } else {
       return cacheStoreRewrite() + "{" +
-        (ASTNode.incremental ? genIncrementalTrackingStackTransfer() : "") +
+        (grammar().incremental ? genIncrementalTrackingStackTransfer() : "") +
         " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n" +
-        (ASTNode.incremental ? genIncrementalTrackingStackClear() + "\n" : "");
+        (grammar().incremental ? genIncrementalTrackingStackClear() + "\n" : "");
     }
   }
 
@@ -907,7 +827,7 @@ aspect JragCodeGen {
       int index = indexNTAchild();
       // ES_2011-09-22: Code generation for incremental evaluation, stack
       return getType() + " node = (" + getType() + ") this.getChild(#NAME#ChildPosition());\n" +
-          (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+          (grammar().incremental ? genIncrementalTrackingStackExit() : "") +
           ind(2) + "return node;\n";
       // OLD: return "return (" + getType() + ") this.getChild(#NAME#ChildPosition());\n";
       //
@@ -918,7 +838,7 @@ aspect JragCodeGen {
     }
 
     // ES_2011-09-22: Code generation for incremental evaluation, stack
-    return (ASTNode.incremental ? genIncrementalTrackingStackExit() : "") +
+    return (grammar().incremental ? genIncrementalTrackingStackExit() : "") +
         ind(2) + "return #NAME#_value;\n";
     // OLD: return "return #NAME#_value;\n";
     //
@@ -933,12 +853,12 @@ aspect JragCodeGen {
   public String AttrEq.computeMethodInline(AttrDecl attr) {
     return
       ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
-      (ASTNode.block ? ind(2) + ASTNode.blockBegin : "") +
+      (grammar().block ? ind(2) + grammar().blockBegin : "") +
       attr.parameterStructure() +
       attr.traceBeginAttr() +
       attr.initLazyMaps() +
       attr.cacheCheck() +
-      (ASTNode.rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
+      (grammar().rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
       attr.addInterruptedCircleDeclaration() +
       attr.visitedCheck() +
       attr.setVisited() +
@@ -950,7 +870,7 @@ aspect JragCodeGen {
       attr.addClearInterruptedCircle() +
       attr.traceEndAttr() +
       ind(2) + "}\n" +
-      (ASTNode.block ? ind(2) + ASTNode.blockEnd : "") +
+      (grammar().block ? ind(2) + grammar().blockEnd : "") +
       ind + "}\n";
   }
 
@@ -967,7 +887,7 @@ aspect JragCodeGen {
 
   public String AttrDecl.computeMethodInline(AttrDecl attr) {
     // TODO: INH
-    if (!ASTNode.parentInterface)
+    if (!grammar().parentInterface)
       return  "";
     return
         ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
@@ -1001,14 +921,14 @@ aspect JragCodeGen {
 
   public void AttrDecl.emitComputeMethod(StringBuffer buf) {
     // TODO: INH
-    if (ASTNode.parentInterface) {
+    if (grammar().parentInterface) {
       templateContext().expand("AttrDecl.computeMethod", buf);
     }
   }
 
   syn String AttrDecl.inhDebugString() {
-    if(!debugMode) return "";
-    if(ASTNode.parentInterface)
+    if(!grammar().debugMode) return "";
+    if(grammar().parentInterface)
       return ind(2) + "if(n == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
     else
       return ind(2) + "if(getParent() == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
@@ -1035,15 +955,15 @@ aspect JragCodeGen {
       return
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
-           (ASTNode.block ? ind(2) + ASTNode.blockBegin : "") +
+           (grammar().block ? ind(2) + grammar().blockBegin : "") +
            attr.parameterStructure() +
            attr.traceBeginAttr() +
            attr.initLazyMaps() +
            attr.cacheCheck() +
            // ES_2011-09-22: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackEnter() : "") + 
            //
-           (ASTNode.rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
+           (grammar().rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
            attr.addInterruptedCircleDeclaration() +
            attr.visitedCheck() +
            attr.setVisited() +
@@ -1056,7 +976,7 @@ aspect JragCodeGen {
            attr.addClearInterruptedCircle() +
            attr.traceEndAttr() +
            ind(2) + attr.returnStmt() +
-           (ASTNode.block ? ind(2) + ASTNode.blockEnd : "") +
+           (grammar().block ? ind(2) + grammar().blockEnd : "") +
            ind + "}\n";
     }
     else {
@@ -1064,7 +984,7 @@ aspect JragCodeGen {
         return
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
-           (ASTNode.block ? ASTNode.blockBegin : "") +
+           (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
            attr.cacheCheck() +
@@ -1087,11 +1007,11 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
            ind(4) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
            ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
            ind(5) + "state.CHANGE = true;\n" +
@@ -1122,11 +1042,11 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
            ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
            ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
            ind(4) + "state.CHANGE = true;\n" +
@@ -1136,14 +1056,14 @@ aspect JragCodeGen {
            ind(2) + "}\n" +
            attr.tracePrintReturnPreviousValue("#NAME#_value") +
            ind(2) + attr.returnStmt() +
-           (ASTNode.block ? ASTNode.blockEnd : "") +
+           (grammar().block ? grammar().blockEnd : "") +
            ind + "}\n";
       }
       else {
         return
            suppressWarnings() +
            ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
-           (ASTNode.block ? ASTNode.blockBegin : "") +
+           (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
            attr.initLazyMaps() +
@@ -1166,7 +1086,7 @@ aspect JragCodeGen {
            ind(3) + "#TYPE# new_#NAME#_value;\n" +
            ind(3) + "do {\n" + 
            // EMMA_2011-09-08: Adding java1.4 code
-           (ASTNode.java5 ? 
+           (grammar().java5 ? 
              ind(4) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
            :
              ind(4) + "_value.visited = state.CIRCLE_INDEX;\n"
@@ -1175,11 +1095,11 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
            ind(4) + "new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
            ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
            ind(5) + "state.CHANGE = true;\n" +
@@ -1191,7 +1111,7 @@ aspect JragCodeGen {
            ind(3) + "} while (state.CHANGE);\n" +
            ind(3) + attr.cacheStoreRewrite() + " {\n" +
            // EMMA_2011-09-08: Adding java1.4 code
-           (ASTNode.java5 ?
+           (grammar().java5 ?
              ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n"
            : 
              ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n"
@@ -1208,13 +1128,13 @@ aspect JragCodeGen {
            ind(3) + "return new_#NAME#_value;\n" +
            ind(2) + "}\n" +
            // EMMA_2011-09-08: Adding java1.4 code
-           (ASTNode.java5 ?
+           (grammar().java5 ?
              ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {\n"
            :
              ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {\n"
            ) +
            // EMMA_2011-09-08: Adding java1.4 code
-           (ASTNode.java5 ?
+           (grammar().java5 ?
              ind(3) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
            :
              ind(3) + "_value.visited = state.CIRCLE_INDEX;\n" 
@@ -1222,18 +1142,18 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
            ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
-           (ASTNode.incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
+           (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
            attr.cacheCycleCheck() + 
            attr.resetCycleCheck() +
            ind(3) + "else if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
            ind(4) + "state.CHANGE = true;\n" +
            // EMMA_2011-09-08: Adding java1.4 code
-           (ASTNode.java5 ?
+           (grammar().java5 ?
              ind(4) + "_value.value = new_#NAME#_value;\n" 
            :
              ind(4) + "_value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" 
@@ -1244,7 +1164,7 @@ aspect JragCodeGen {
            ind(2) + "}\n" +
            attr.tracePrintReturnPreviousValue(fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType())) +
            ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
-           (ASTNode.block ? ASTNode.blockEnd : "") +
+           (grammar().block ? grammar().blockEnd : "") +
            ind + "}\n";
       }
     }
@@ -1253,7 +1173,7 @@ aspect JragCodeGen {
   public String AttrDecl.circularComputeCall() { return ""; }
   public String SynDecl.circularComputeCall() { return "#METHODNAME#_compute(#PARM#)"; }
   public String InhDecl.circularComputeCall() {
-    if(!ASTNode.parentInterface)
+    if(!grammar().parentInterface)
       return "getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ")";
     else
       return "#METHODNAME#_compute(#PARM#)";
@@ -1284,7 +1204,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheCycleInit() {
-     if (! cacheCycle) return "";
+     if (!grammar().cacheCycle) return "";
      return
         ind(3) + "state.LAST_CYCLE = true;\n" +
         inhDebugString() +
@@ -1293,7 +1213,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheCycleCheck() {
-     if (! cacheCycle) return "";
+     if (!grammar().cacheCycle) return "";
      if(getNumParameter() == 0)
        return
          ind(3) + "if (state.LAST_CYCLE) {\n" +
@@ -1301,16 +1221,16 @@ aspect JragCodeGen {
          inhDebugString() +
          // ES_2011-09-23: Code generation for incremental evaluation, 
          // separating return stmt to place a tracking statement in the middle 
-         (ASTNode.incremental ? genIncrementalTrackingStackEnter2() : "") +
+         (grammar().incremental ? genIncrementalTrackingStackEnter2() : "") +
          ind(4) + "#TYPE# new_#NAME#_value = " + circularComputeCall() + ";\n" +
-         (ASTNode.incremental ? genIncrementalTrackingStackExit2() : "") +
+         (grammar().incremental ? genIncrementalTrackingStackExit2() : "") +
          ind(4) + "return new_#NAME#_value;\n" +
          // OLD: ind(4) + "return " + circularComputeCall() + ";\n" +
          //
          ind(3) + "}\n";
      else {
        // EMMA_2011-09-08: Adding java1.4 code
-       if (ASTNode.java5) 
+       if (grammar().java5) 
          return
            ind(3) + "if (state.LAST_CYCLE) {\n" +
            inhDebugString() +
@@ -1326,10 +1246,10 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.addComponentCheck() {
-    if(!componentCheck || !visitCheckEnabled) return "";
+    if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
     String arg = getNumParameter() == 0 ? "null" : "_parameters";
     if(getNumParameter() == 0) {
-      if(rewriteEnabled)
+      if(grammar().rewriteEnabled)
         return
         ind(2) + "if(#NAME#_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
@@ -1339,9 +1259,9 @@ aspect JragCodeGen {
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
-      if(rewriteEnabled) {
+      if(grammar().rewriteEnabled) {
         // EMMA_2011-09-08: Adding support for java1.4
-        if (ASTNode.java5) 
+        if (grammar().java5) 
           return
           ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
           ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
@@ -1357,7 +1277,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.addAddToComponent() {
-    if(!componentCheck || !visitCheckEnabled) return "";
+    if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
     if(getNumParameter() == 0)
       return
         ind(2) + "state.addEvalEntry(this, \"#NAME#\", null);\n";
@@ -1367,12 +1287,12 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.addInterruptedCircleDeclaration() {
-    if(!componentCheck) return "";
+    if(!grammar().componentCheck) return "";
     return "boolean interruptedCircle = false;\n";
   }
 
   public String AttrDecl.addCheckInterruptedCircle() {
-    if(!componentCheck) return "";
+    if(!grammar().componentCheck) return "";
     return
       ind(2) + "if(state.IN_CIRCLE) {\n" +
       ind(3) + "interruptedCircle = true;\n" +
@@ -1382,7 +1302,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.addClearInterruptedCircle() {
-    if(!componentCheck) return "";
+    if(!grammar().componentCheck) return "";
     return
       ind(2) + "if(interruptedCircle) {\n" +
       ind(3) + "state.IN_CIRCLE = true;\n" +
@@ -1444,8 +1364,8 @@ aspect JragCodeGen {
           needsCacheDeclaration
           ?(
               attr.visitedDeclarations() +
-              ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values" +
-              (ASTNode.lazyMaps ? "" : (" = " + createDefaultMap)) + ";\n"
+              ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values" +
+              (grammar().lazyMaps ? "" : (" = " + grammar().createDefaultMap)) + ";\n"
            ) : "";
       }
     }
@@ -1538,8 +1458,8 @@ aspect JragCodeGen {
   public String SynDecl.higherOrderAttributeCode() {
     StringBuffer result = new StringBuffer();
     if(getNTA()) {
-      if(ASTNode.rewriteEnabled) {
-        if(ASTNode.stagedRewrites) {
+      if(grammar().rewriteEnabled) {
+        if(grammar().stagedRewrites) {
           if(getNumParameter() == 0)
             return ind(2) + "#NAME#_value.setParent(this);\n" +
                    ind(2) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
@@ -1547,7 +1467,7 @@ aspect JragCodeGen {
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
                    // ES_2012-02-21: Code generation for incremental evaluation
-                   (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                   (grammar().incremental ? genIncrementalInternalNTAList() : "") +
                    //
                    ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
@@ -1565,7 +1485,7 @@ aspect JragCodeGen {
             return ind(2) + "if(#NAME#_list == null) {\n" +
                    ind(3) + "#NAME#_list = new List();\n" +
                    // ES_2012-02-21: Code generation for incremental evaluation
-                   (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                   (grammar().incremental ? genIncrementalInternalNTAList() : "") +
                    //
                    ind(3) + "#NAME#_list.is$Final = true;\n" +
                    ind(3) + "#NAME#_list.setParent(this);\n" +
@@ -1586,7 +1506,7 @@ aspect JragCodeGen {
           return ind(2) + "if(#NAME#_list == null) {\n" +
                  ind(3) + "#NAME#_list = new List();\n" +
                  // ES_2012-02-21: Code generation for incremental evaluation
-                 (ASTNode.incremental ? genIncrementalInternalNTAList() : "") +
+                 (grammar().incremental ? genIncrementalInternalNTAList() : "") +
                  //
                  ind(3) + "#NAME#_list.setParent(this);\n" +
                  ind(2) + "}\n" +
@@ -1711,7 +1631,7 @@ aspect JragCodeGen {
 
       String s;
       buf.append(ind + "/**\n");
-      buf.append(ind + " * " + ASTNode.declaredat(equ.getFileName(), equ.getStartLine()) + "\n");
+      buf.append(ind + " * " + grammar().declaredat(equ.getFileName(), equ.getStartLine()) + "\n");
       buf.append(ind + " * @apilevel internal\n");
       buf.append(ind + " */\n");
       s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
@@ -1836,7 +1756,7 @@ aspect JragCodeGen {
         }
         else {
           // TODO: INH
-          if(!ASTNode.parentInterface)
+          if(!grammar().parentInterface)
           s += decl.inhDebugString() +
               ind(3) + "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + decl.interfaceParametersContinue() + ");\n" +
               ind(2) + "}\n";
@@ -1937,7 +1857,7 @@ aspect JragCodeGen {
     buf.append(ind + "public ASTNode rewriteTo() {\n");
     if(name().equals("List")) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
-      if (!(ASTNode.incremental || ASTNode.fullFlush)) {
+      if (!(grammar().incremental || grammar().fullFlush)) {
       //
       buf.append(ind(2) + "if(list$touched) {\n");
       buf.append(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
@@ -2024,7 +1944,7 @@ aspect JragCodeGen {
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
       buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
-      if(rewriteLimit > 0)
+      if(grammar().rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -2034,7 +1954,7 @@ aspect JragCodeGen {
     }
     else {
       buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
-      if(rewriteLimit > 0)
+      if(grammar().rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -2050,7 +1970,7 @@ aspect JragCodeGen {
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
       buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
-      if(rewriteLimit > 0)
+      if(grammar().rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -2060,7 +1980,7 @@ aspect JragCodeGen {
     }
     else {
       buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
-      if(rewriteLimit > 0)
+      if(grammar().rewriteLimit > 0)
         buf.append(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -2072,7 +1992,7 @@ aspect JragCodeGen {
 
   public void Grammar.createInterfaces(File outputDir, String pack)
     throws FileNotFoundException {
-      if(!ASTNode.parentInterface)
+      if(!parentInterface)
         return;
     for(Iterator iter = inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
       java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
@@ -2116,7 +2036,7 @@ aspect JragCodeGen {
 
   //  TODO: INH
   public void ASTDecl.emitInhEqSignatures(PrintStream p) {
-    if(ASTNode.parentInterface)
+    if(grammar().parentInterface)
       return;
     if(name().equals("ASTNode")) {
       for(Iterator iter = env().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
@@ -2243,7 +2163,7 @@ aspect JragCodeGen {
   }
 
   protected String AttrDecl.trace(String s) {
-    if(!tracing)
+    if(!grammar().tracing)
       return "";
     StringBuilder b = new StringBuilder();
     b.append("System.out.println(\"");

@@ -161,7 +161,7 @@ aspect JastAddCodeGen {
   }
 
   public String TypeDecl.classComment() {
-    if(doxygen)
+    if(grammar().doxygen)
       return doxygenComment();
     else
       return javadocComment();
@@ -280,8 +280,8 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
-      if(license != null && license.length() > 0)
-        stream.println(license);
+      if(grammar().license != null && grammar().license.length() > 0)
+        stream.println(grammar().license);
 
       if(packageName != null && !packageName.equals("")) {
         stream.println("package " + packageName + ";\n");
@@ -331,8 +331,8 @@ aspect JastAddCodeGen {
         file = new File(outputDir, name() + ".java");
       }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
-      if(license != null && license.length() > 0)
-        stream.println(license);
+      if(grammar().license != null && grammar().license.length() > 0)
+        stream.println(grammar().license);
 
       if(packageName != null && !packageName.equals("")) {
         stream.println("package " + packageName + ";\n");
@@ -385,8 +385,8 @@ aspect JastAddCodeGen {
       stream.println("/* This file was generated with " +
           JastAdd.getLongVersionString() + " */");
         
-      if(license != null && license.length() > 0)
-        stream.println(license);
+      if(grammar().license != null && grammar().license.length() > 0)
+        stream.println(grammar().license);
 
       if(packageName != null && !packageName.equals("")) {
         stream.println("package " + packageName + ";\n");
@@ -395,7 +395,7 @@ aspect JastAddCodeGen {
       stream.print(env().genImportsList());
 
       if(name().equals("ASTNode")) {
-        if(doxygen) {
+        if(grammar().doxygen) {
           for(Iterator iter = env().aspectMap.entrySet().iterator(); iter.hasNext(); ) {
             java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
             String key = (String)entry.getKey();
@@ -431,18 +431,18 @@ aspect JastAddCodeGen {
         stream.print("abstract ");
       }
       stream.print("class " + name());
-      if(ASTNode.java5 && (name().equals("Opt") || name().equals("List") || name().equals("ASTNode")))
+      if(grammar().java5 && (name().equals("Opt") || name().equals("List") || name().equals("ASTNode")))
         stream.print("<T extends ASTNode>");
-      if(ASTNode.jjtree && name().equals("ASTNode")) {
+      if(grammar().jjtree && name().equals("ASTNode")) {
         stream.print(" extends SimpleNode ");
       }
-      else if(ASTNode.beaver && name().equals("ASTNode")) {
+      else if(grammar().beaver && name().equals("ASTNode")) {
         stream.print(" extends beaver.Symbol ");
       }
       else if(hasSuperClass()) {
         stream.print(" extends ");
         String name = getSuperClass().name();
-        if(ASTNode.java5) {
+        if(grammar().java5) {
           if(name().equals("List") || name().equals("Opt"))
             name = name + "<T>";
           else if(name.equals("ASTNode"))
@@ -461,7 +461,7 @@ aspect JastAddCodeGen {
 
       /*
        // Now done before refinements
-      jjtGen(new java.io.PrintWriter(stream), grammarName, JastAdd.jjtree, JastAdd.rewriteEnabled);
+      jjtGen(new java.io.PrintWriter(stream));
       int j = 0;
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
@@ -484,7 +484,7 @@ aspect JastAddCodeGen {
     StringBuffer buf = new StringBuffer();
     buf.append(" implements Cloneable");
     
-    if(ASTNode.parentInterface) {
+    if(grammar().parentInterface) {
       for(Iterator iter = inhAttrSet(); iter.hasNext(); ) {
         buf.append(", Defines_" + (String)iter.next());
       }
@@ -493,7 +493,7 @@ aspect JastAddCodeGen {
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
       buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
     }
-    if(name().equals("ASTNode") && ASTNode.java5)
+    if(name().equals("ASTNode") && grammar().java5)
       buf.append(", Iterable<T>");
     return buf.toString();
   }
@@ -516,7 +516,7 @@ aspect JastAddCodeGen {
     s.print(genSynEquations());
     s.print(genInhDeclarations());
     s.print(genInhEquations());
-    if(ASTNode.rewriteEnabled)
+    if(grammar().rewriteEnabled)
       s.print(genRewrites());
     s.print(genCollDecls());
     s.print(genCollContributions());

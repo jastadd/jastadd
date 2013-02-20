@@ -27,18 +27,13 @@
  */
 aspect CollectionAttributes {
 
-  public static String ASTNode.createContributorSet = "new ASTNode$State.IdentityHashSet(4)";
-
-  // code generation
-  //eq CollDecl.visitCheckEnabled() = true;
-
   public String ASTDecl.flushCollectionCacheString() {
     StringBuffer res = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       String s = attr.resetVisit() + attr.resetCache();
       if(!attr.separateEvaluation() && !attr.onePhase())
-        s += ind(2) + "#NAME#_contributors = " + (lazyMaps ? "null" : ASTNode.createContributorSet) + ";\n";
+        s += ind(2) + "#NAME#_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n";
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       res.append(s);
 
@@ -81,7 +76,7 @@ aspect CollectionAttributes {
         buf.append(ind + "/**\n");
         buf.append(ind + " * @apilevel internal\n");
         buf.append(ind + " */\n");
-        buf.append(ind + "public " + typeDefaultSet + " " + attr.attributeSignature() + "_contributors();\n");
+        buf.append(ind + "public " + grammar().typeDefaultSet + " " + attr.attributeSignature() + "_contributors();\n");
       }
     }
     return buf.toString();
@@ -91,7 +86,7 @@ aspect CollectionAttributes {
   eq CollDecl.root() = root != null ? hostClass().env().lookup(root) : super.root();
 
   syn String AttrDecl.collDebugString() {
-    if(!debugMode)
+    if(!grammar().debugMode)
       return "";
     else
       return "if(node == null) throw new RuntimeException(\"Trying to evaluate collection attribute in subtree not attached to main tree\");";
@@ -119,7 +114,7 @@ aspect CollectionAttributes {
          (separateEvaluation ? ind + "protected #TYPE# #CLASS#.new_#NAME#_value;\n" : "") +
          comment + suppressWarnings() +
          ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
-         (ASTNode.block ? ASTNode.blockBegin : "") +
+         (grammar().block ? grammar().blockBegin : "") +
          attr.parameterStructure() +
          attr.cacheCheck() +
          ind(2) + "ASTNode node = this;\n" +
@@ -184,25 +179,25 @@ aspect CollectionAttributes {
          ind(3) + attr.returnStmt() +
          ind(2) + "}\n" +
          ind(2) + attr.returnStmt() +
-         (ASTNode.block ? ASTNode.blockEnd : "") +
+         (grammar().block ? grammar().blockEnd : "") +
          ind + "}\n\n";
     else
       return attr.visitedDeclarations() +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_computed = " + createDefaultSet + ";\n" +
+         ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_computed = " + grammar().createDefaultSet + ";\n" +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected " + typeDefaultSet + " #CLASS#.#NAME#_initialized = " + createDefaultSet + ";\n" +
+         ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_initialized = " + grammar().createDefaultSet + ";\n" +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected " + typeDefaultMap + " #CLASS#.#NAME#_values = " + createDefaultMap + ";\n" +
+         ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n" +
          comment + suppressWarnings() +
          ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
-         (ASTNode.block ? ASTNode.blockBegin : "") +
+         (grammar().block ? grammar().blockBegin : "") +
          attr.parameterStructure() +
          attr.initLazyMaps() +
          attr.cacheCheck() +
@@ -254,14 +249,14 @@ aspect CollectionAttributes {
          ind(3) + "return new_#NAME#_value;\n" +
          ind(2) + "}\n" +
          ind(2) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType()) + ";\n" +
-         (ASTNode.block ? ASTNode.blockEnd : "") +
+         (grammar().block ? grammar().blockEnd : "") +
          ind + "}\n\n";
   }
 
   public String CollDecl.cacheCycleCheck() {
     if(!separateEvaluation())
       return super.cacheCycleCheck();
-    if (!cacheCycle) return "";
+    if (!grammar().cacheCycle) return "";
     if(getNumParameter() == 0)
       return
          ind(3) + "if (state().LAST_CYCLE) {\n" +
@@ -326,9 +321,9 @@ aspect CollectionAttributes {
       ind + "}\n\n";
     else
       return
-      ind + typeDefaultSet + " #CLASS#.#NAME#_contributors" + (lazyMaps ? "" : (" = " + ASTNode.createContributorSet)) + ";\n" +
-      ind + "public " + typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
-      (lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + ASTNode.createContributorSet + ";\n") : "") +
+      ind + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + "public " + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
+      (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
       ind + "}\n" +
       ind + "/**\n" +
@@ -342,13 +337,13 @@ aspect CollectionAttributes {
       ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
       ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
       ind(2) + "#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
-      (lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
+      (grammar().lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
       ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
       ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
       ind(3) + "contributor.contributeTo_" + getTarget() + "_#NAME#(#NAME#_value);\n" +
       ind(2) + "}\n" +
       // TODO: disabled temporarily since collections may not be cached
-      //(lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
+      //(grammar().lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
       ind(2) + "return #NAME#_value;\n" +
       ind + "}\n\n";
   }
@@ -359,19 +354,19 @@ aspect CollectionAttributes {
 
     String rootType = root().name();
     String s =
-      ind + typeDefaultSet + " #CLASS#.#NAME#_contributors" + (lazyMaps ? "" : (" = " + ASTNode.createContributorSet)) + ";\n" +
-      ind + "public " + typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
-      (lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + ASTNode.createContributorSet + ";\n") : "") +
+      ind + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + "public " + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
+      (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
       ind + "}\n" +
       ind + "private #TYPE# #CLASS#.combine_#NAME#_contributions(#TYPE# h) {\n" +
-      (lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
+      (grammar().lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
       ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
       ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
       ind(3) + "contributor.contributeTo_" + getTarget() + "_#NAME#(h);\n" +
       ind(2) + "}\n" +
       // TODO: disabled temporarily since collections may not be cached
-      //(lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
+      //(grammar().lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
       ind(2) + "return h;\n" +
       ind + "}\n\n";
       return s;

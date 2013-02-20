@@ -31,7 +31,7 @@ aspect ASTCloneNode {
   public void ASTDecl.emitCloneNode(PrintWriter stream) {
 
     String returnType;
-    if(ASTNode.java5) {
+    if(grammar().java5) {
       returnType = name();
       if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
         returnType += "<T>";
@@ -54,9 +54,9 @@ aspect ASTCloneNode {
       cloneBody.append(u);
     }
 
-    if(ASTNode.rewriteEnabled) {
+    if(grammar().rewriteEnabled) {
       cloneBody.append(ind(2) + "node.in$Circle(false);\n");
-      if(ASTNode.stagedRewrites)
+      if(grammar().stagedRewrites)
         cloneBody.append(ind(2) + "node.is$Final(0);\n");
       else
         cloneBody.append(ind(2) + "node.is$Final(false);\n");
@@ -64,9 +64,9 @@ aspect ASTCloneNode {
     
     TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
-    if (ASTNode.block) {
-      tt.bind("BlockBegin", ASTNode.blockBegin);
-      tt.bind("BlockEnd", ASTNode.blockEnd);
+    if (grammar().block) {
+      tt.bind("BlockBegin", grammar().blockBegin);
+      tt.bind("BlockEnd", grammar().blockEnd);
     } else {
       tt.bind("BlockBegin", "");
       tt.bind("BlockEnd", "");
@@ -143,18 +143,18 @@ aspect ASTCloneNode {
     if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
       returnName = returnName + "<T>";
 
-    String returnType = ASTNode.java5 ? returnName : "ASTNode";
+    String returnType = grammar().java5 ? returnName : "ASTNode";
 
     TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
-    if (ASTNode.block) {
-      tt.bind("BlockBegin", ASTNode.blockBegin);
-      tt.bind("BlockEnd", ASTNode.blockEnd);
+    if (grammar().block) {
+      tt.bind("BlockBegin", grammar().blockBegin);
+      tt.bind("BlockEnd", grammar().blockEnd);
     } else {
       tt.bind("BlockBegin", "");
       tt.bind("BlockEnd", "");
     }
-    if (ASTNode.incremental) {
+    if (grammar().incremental) {
       tt.bindExpansion("CopyBody", "ast.copy:incremental");
       tt.bindExpansion("SetChild", "ast.fullCopy.setChild:incremental");
     } else {
