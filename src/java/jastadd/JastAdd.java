@@ -327,7 +327,7 @@ public class JastAdd {
    * @param args Command line arguments
    */
   public boolean readArgs(String[] args) {
-    CommandLineArguments cla = new CommandLineArguments();
+    CommandLineArguments options = new CommandLineArguments();
     Option jjtree = new Option("jjtree", "use jjtree base node, this requires --grammar to be set");
     Option grammarOption = new Option("grammar", "the name of the grammar's parser, required when using --jjtree", true);
     Option defaultMap = new Option("defaultMap", "use this expression to construct maps for attribute caches", true);
@@ -413,54 +413,54 @@ public class JastAdd {
     packageOption.setDefaultValue("");
     indent.setDefaultValue("2space");
 
-    cla.addOption(jjtree);
-    cla.addOption(grammarOption);
-    cla.addOption(defaultMap);
-    cla.addOption(defaultSet);
-    cla.addOption(lazyMaps);
-    cla.addOption(noLazyMaps);
-    cla.addOption(privateOption);
-    cla.addOption(rewrite);
-    cla.addOption(beaver);
-    cla.addOption(noVisitCheck);
-    cla.addOption(noCacheCycle);
-    cla.addOption(noComponentCheck);
-    cla.addOption(componentCheck);
-    cla.addOption(noInhEqCheck);
-    cla.addOption(suppressWarnings);
-    cla.addOption(parentInterface);
-    cla.addOption(refineLegacy);
-    cla.addOption(noRefineLegacy);
-    cla.addOption(stagedRewrites);
-    cla.addOption(doc);
-    cla.addOption(license);
-    cla.addOption(java1_4);
-    cla.addOption(debug);
-    cla.addOption(synch);
-    cla.addOption(noStatic);
-    cla.addOption(deterministic);
-    cla.addOption(outputDirOption);
-    cla.addOption(tracing);
-    cla.addOption(cacheAll);
-    cla.addOption(noCaching);
-    cla.addOption(doxygen);
-    cla.addOption(cacheNone);
-    cla.addOption(cacheImplicit);
-    cla.addOption(ignoreLazy);
-    cla.addOption(packageOption);
-    cla.addOption(version);
-    cla.addOption(help);
-    cla.addOption(printNonStandardOptions);
-    cla.addOption(indent);
-    cla.addOption(incremental);
-    cla.addOption(fullFlush);
+    options.addOption(jjtree);
+    options.addOption(grammarOption);
+    options.addOption(defaultMap);
+    options.addOption(defaultSet);
+    options.addOption(lazyMaps);
+    options.addOption(noLazyMaps);
+    options.addOption(privateOption);
+    options.addOption(rewrite);
+    options.addOption(beaver);
+    options.addOption(noVisitCheck);
+    options.addOption(noCacheCycle);
+    options.addOption(noComponentCheck);
+    options.addOption(componentCheck);
+    options.addOption(noInhEqCheck);
+    options.addOption(suppressWarnings);
+    options.addOption(parentInterface);
+    options.addOption(refineLegacy);
+    options.addOption(noRefineLegacy);
+    options.addOption(stagedRewrites);
+    options.addOption(doc);
+    options.addOption(license);
+    options.addOption(java1_4);
+    options.addOption(debug);
+    options.addOption(synch);
+    options.addOption(noStatic);
+    options.addOption(deterministic);
+    options.addOption(outputDirOption);
+    options.addOption(tracing);
+    options.addOption(cacheAll);
+    options.addOption(noCaching);
+    options.addOption(doxygen);
+    options.addOption(cacheNone);
+    options.addOption(cacheImplicit);
+    options.addOption(ignoreLazy);
+    options.addOption(packageOption);
+    options.addOption(version);
+    options.addOption(help);
+    options.addOption(printNonStandardOptions);
+    options.addOption(indent);
+    options.addOption(incremental);
+    options.addOption(fullFlush);
 
     // parse the argument list
-    cla.match(args);
+    options.match(args);
 
     if (printNonStandardOptions.matched()) {
       System.err.println("Non-standard options:");
-      cla.printNonStandardOptions();
+      options.printNonStandardOptions();
       System.exit(0);
     }
 
@@ -533,15 +533,6 @@ public class JastAdd {
 
     root.block = synch.matched();
     
-    TemplateContext tt = root.templateContext();
-    if (synch.matched()) {
-      tt.bindExpansion("SynchBegin", "synchronized-block.begin");
-      tt.bindExpansion("SynchEnd", "synchronized-block.end");
-    } else {
-      tt.bind("SynchBegin", "");
-      tt.bind("SynchEnd", "");
-    }
-
     root.noStatic = noStatic.matched();
 
     root.deterministic = deterministic.matched();
@@ -607,9 +598,9 @@ public class JastAdd {
     root.fullFlush = fullFlush.matched();
 
     pack = packageOption.value().replace('/', '.');
-    int n = cla.getNumOperands();
+    int n = options.getNumOperands();
     for (int k=0; k<n; k++) {
-      String fileName = cla.getOperand(k);
+      String fileName = options.getOperand(k);
       if(fileName.endsWith(".ast") || fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
         files.add(fileName);
       }
@@ -631,9 +622,26 @@ public class JastAdd {
     if (help.matched() || files.isEmpty()) {
       // just print version and exit
       System.err.println(getLongVersionString() + "\n");
-      printHelp(cla);
+      printHelp(options);
       System.exit(0);
     }
+    
+    // Bind template variables the first time we access templateContext the
+    // Grammar.ind option needs to have been set already!
+    TemplateContext tt = root.templateContext();
+    if (synch.matched()) {
+      tt.bindExpansion("SynchBegin", "synchronized-block.begin");
+      tt.bindExpansion("SynchEnd", "synchronized-block.end");
+    } else {
+      tt.bind("SynchBegin", "");
+      tt.bind("SynchEnd", "");
+    }
+    tt.bind("CreateDefaultMap", root.createDefaultMap);
+    tt.bind("DefaultMapType", root.typeDefaultMap);
+    tt.bind("CreateDefaultSet", root.createDefaultSet);
+    tt.bind("DefaultSetType", root.typeDefaultSet);
+    tt.bind("CreateContributorSet", root.createContributorSet);
+    
     return false;
   }
 
