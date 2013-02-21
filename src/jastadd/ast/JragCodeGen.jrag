@@ -1819,24 +1819,24 @@ aspect JragCodeGen {
   }
 
   public boolean Rewrite.genRewrite(StringBuffer buf, int index) {
-      buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
-      if(getCondition() != null) {
-        buf.append(ind(2) + "if(" + Unparser.unparse(getCondition()) + ") {\n");
-        buf.append(ind(3) + "state().during" + aspectName() + "++;\n");
-        buf.append(ind(3) + "ASTNode result = rewriteRule" + index + "();\n");
-        buf.append(ind(3) + "state().during" + aspectName() + "--;\n");
-        buf.append(ind(3) + "return result;\n");
-        buf.append(ind(2) + "}\n");
-        buf.append("\n");
-        return false;
-      }
-      else {
-        buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
-        buf.append(ind(2) + "ASTNode result = rewriteRule" + index + "();\n");
-        buf.append(ind(2) + "state().during" + aspectName() + "--;\n");
-        buf.append(ind(2) + "return result;\n");
-        return true;
-      }
+    buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+    if(getCondition() != null) {
+      buf.append(ind(2) + "if(" + Unparser.unparse(getCondition()) + ") {\n");
+      buf.append(ind(3) + "state().during" + aspectName() + "++;\n");
+      buf.append(ind(3) + "ASTNode result = rewriteRule" + index + "();\n");
+      buf.append(ind(3) + "state().during" + aspectName() + "--;\n");
+      buf.append(ind(3) + "return result;\n");
+      buf.append(ind(2) + "}\n");
+      buf.append("\n");
+      return false;
+    }
+    else {
+      buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
+      buf.append(ind(2) + "ASTNode result = rewriteRule" + index + "();\n");
+      buf.append(ind(2) + "state().during" + aspectName() + "--;\n");
+      buf.append(ind(2) + "return result;\n");
+      return true;
+    }
   }
   public boolean RewriteList.genRewrite(StringBuffer buf, int index) {
       buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
