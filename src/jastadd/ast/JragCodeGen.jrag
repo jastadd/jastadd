@@ -303,28 +303,18 @@ aspect JragCodeGen {
     return javadocFileComment(ind);
   }
 
+  syn String AttrDecl.declaredat() =
+    ASTNode.declaredat(getFileName(), getStartLine());
+
   public String AttrDecl.javadocFileComment(String ind) {
+    TemplateContext tt = templateContext();
     String comment = getComment().trim();
-    if (comment.length() >= 5 &&
-        comment.charAt(0) == '/' &&
-        comment.charAt(1) == '*' &&
-        comment.charAt(1) == '*') {
-      StringBuffer res = new StringBuffer();
-      res.append(ind);
-      res.append(comment.substring(0, comment.indexOf("*/")));
-      res.append("* @attribute " + attributeKind() + "\n");
-      res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
-      res.append(ind + " */\n");
-      return res.toString();
+    if (comment.length() >= 5 && comment.startsWith("/**")) {
+      tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
+    } else {
+      tt.bind("SourceComment", "");
     }
-    else {
-      return ind + "/**\n" +
-             ind + " * @attribute " + attributeKind() + "\n" +
-             ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
-             ind + " */\n";
-    }
+    return tt.expand("AttrDecl.javaDoc");
   }
 
   public String AttrEq.hostFileComment(String ind, AttrDecl decl) {
