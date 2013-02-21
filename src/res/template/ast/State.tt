@@ -45,7 +45,7 @@ ast.state:circular = [[
   }]]
 
 ast.state:circular+componentcheck = [[
-  public $(ASTNode.typeDefaultSet) circularEvalSet = $(ASTNode.createDefaultSet);
+  public $DefaultSetType circularEvalSet = $CreateDefaultSet;
 
   public java.util.Stack circularEvalStack = new java.util.Stack();
 
@@ -90,10 +90,10 @@ ast.state:circular+componentcheck = [[
    * @apilevel internal
    */
   static class CircularStackEntry {
-    $(ASTNode.typeDefaultSet) circularEvalSet;
+    $DefaultSetType circularEvalSet;
     boolean changeValue;
 
-    public CircularStackEntry($(ASTNode.typeDefaultSet) set, boolean change) {
+    public CircularStackEntry($DefaultSetType set, boolean change) {
       circularEvalSet = set;
       changeValue = change;
     }
@@ -101,7 +101,7 @@ ast.state:circular+componentcheck = [[
 
   public void pushEvalStack() {
     circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));
-    circularEvalSet = $(ASTNode.createDefaultSet);
+    circularEvalSet = $CreateDefaultSet;
     CHANGE = false;
   }
 
@@ -115,7 +115,7 @@ ast.state:rewrite+rewritelimit>0 = [[
   /**
    * @apilevel internal
    */
-  public java.util.HashMap debugRewrite = $(ASTNode.createDefaultMap);]]
+  public $DefaultMapType debugRewrite = $CreateDefaultMap;]]
 
 ast.state.rewrite+stagedrewrites = [[
   public int rewritePhase = 1;]]
