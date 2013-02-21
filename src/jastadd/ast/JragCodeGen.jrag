@@ -1839,29 +1839,29 @@ aspect JragCodeGen {
     }
   }
   public boolean RewriteList.genRewrite(StringBuffer buf, int index) {
-      buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
-      buf.append(ind(2) + "if(getParent().getParent() instanceof " + getParentName() + " && \n");
-      buf.append(ind(3) + "((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
-      if(getCondition() != null) {
-        buf.append(" && " + Unparser.unparse(getCondition()) + ") {\n");
-      }
-      else {
-        buf.append(") {\n");
-      }
+    buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+    buf.append(ind(2) + "if(getParent().getParent() instanceof " + getParentName() + " && \n");
+    buf.append(ind(3) + "((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
+    if(getCondition() != null) {
+      buf.append(" && " + Unparser.unparse(getCondition()) + ") {\n");
+    }
+    else {
+      buf.append(") {\n");
+    }
 
-      buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
-      buf.append(ind(3) + "List list = (List)getParent();\n");
-      buf.append(ind(3) + "int i = list.getIndexOfChild(this);\n");
-      buf.append(ind(3) + "List newList = rewrite" + getParentName() + "_" + getChildName() + "();\n");
-      // the first child is set by the normal rewrite loop
-      //buf.append(ind(3) + "list.setChild(newList.getChildNoTransform(0), i);\n");
-      buf.append(ind(3) + "for(int j = 1; j < newList.getNumChildNoTransform(); j++)\n");
-      buf.append(ind(4) + "list.insertChild(newList.getChildNoTransform(j), ++i);\n");
+    buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
+    buf.append(ind(3) + "List list = (List)getParent();\n");
+    buf.append(ind(3) + "int i = list.getIndexOfChild(this);\n");
+    buf.append(ind(3) + "List newList = rewrite" + getParentName() + "_" + getChildName() + "();\n");
+    // the first child is set by the normal rewrite loop
+    //buf.append(ind(3) + "list.setChild(newList.getChildNoTransform(0), i);\n");
+    buf.append(ind(3) + "for(int j = 1; j < newList.getNumChildNoTransform(); j++)\n");
+    buf.append(ind(4) + "list.insertChild(newList.getChildNoTransform(j), ++i);\n");
 
-      buf.append(ind(4) + "state().during" + aspectName() + "--;\n");
-      buf.append(ind(3) + "return newList.getChildNoTransform(0);\n");
-      buf.append(ind(2) + "}\n");
-      return false;
+    buf.append(ind(4) + "state().during" + aspectName() + "--;\n");
+    buf.append(ind(3) + "return newList.getChildNoTransform(0);\n");
+    buf.append(ind(2) + "}\n");
+    return false;
   }
 
   public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
