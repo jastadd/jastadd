@@ -1977,7 +1977,6 @@ aspect JragCodeGen {
   syn String AttrDecl.tracePrintStartingCycle() = "";
   syn String AttrDecl.traceComputeContext() = "";
 
-  // EMMA_2009-11-27: Adding coll in front of collection attributes
   syn String AttrDecl.traceSignature() {
     StringBuilder b = new StringBuilder();
     b.append(getAspectName());
