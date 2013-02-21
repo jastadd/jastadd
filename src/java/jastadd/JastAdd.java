@@ -358,7 +358,6 @@ public class JastAdd {
     Option tracing = new Option("tracing", "weaves in code generating a cache tree");
     Option cacheAll = new Option("cacheAll", "cache all attributes");
     Option noCaching = new Option("noCaching", "");// what does this actually do? the same as cacheNone?? - Jesper
-    Option doxygen = new Option("doxygen", "enhance navigation and documentation when using doxygen");
     Option cacheNone = new Option("cacheNone", "cache no attributes, except NTAs");
     Option cacheImplicit = new Option("cacheImplicit", "make caching implicit, .caching files have higher priority");
     Option ignoreLazy = new Option("ignoreLazy", "ignore the \"lazy\" keyword");
@@ -403,8 +402,6 @@ public class JastAdd {
     //refineLegacy.setDeprecated();
     //noComponentCheck.setDeprecated();
 
-    doxygen.setDeprecated();
-
     // set default values
     grammarOption.setDefaultValue("Unknown");
     defaultMap.setDefaultValue("new java.util.HashMap(4)");
@@ -443,7 +440,6 @@ public class JastAdd {
     options.addOption(tracing);
     options.addOption(cacheAll);
     options.addOption(noCaching);
-    options.addOption(doxygen);
     options.addOption(cacheNone);
     options.addOption(cacheImplicit);
     options.addOption(ignoreLazy);
@@ -564,7 +560,6 @@ public class JastAdd {
     root.tracing = tracing.matched();
     root.cacheAll = cacheAll.matched();
     root.noCaching = noCaching.matched();
-    root.doxygen = doxygen.matched();
 
     // Handle new flags
     root.cacheNone = cacheNone.matched();

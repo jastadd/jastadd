@@ -153,11 +153,6 @@ public class JastAddTask extends Task {
       noCaching = true;
   }
 
-  private boolean doxygen = false;
-  public void setDoxygen(boolean b) {
-    doxygen = b;
-  }
-
   // EMMA_2009-11-16: Adding a new ant attributes cacheNone to replace noCaching
   private boolean cacheNone = false;
   public void setCacheNone(boolean b) { cacheNone = true; }
@@ -258,9 +253,6 @@ public class JastAddTask extends Task {
     }
     if(noCaching) {
       args.add("--noCaching");
-    }
-    if(doxygen) {
-      args.add("--doxygen");
     }
 
     // EMMA_2009-11-16: Adding ant task attributes as JastAdd arguments

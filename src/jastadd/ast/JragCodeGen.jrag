@@ -300,32 +300,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.hostFileComment(String ind) {
-    if(grammar().doxygen)
-      return doxygenFileComment(ind);
-    else
-      return javadocFileComment(ind);
-  }
-
-  public String AttrDecl.doxygenFileComment(String ind) {
-    String comment = getComment().trim();
-    String extraString = "#LINE# \\ingroup aspect_" + getAspectName();
-    if(comment.length() == 0) {
-      comment =
-        ind + "/**\n" +
-        ind + " * Attribute " + getName() + "\n" +
-        ind + extraString.replaceAll("#LINE#", " * ") + "\n" +
-        ind + " */\n";
-    }
-    else {
-      int index = comment.lastIndexOf("*/");
-      if(index == -1) {
-        comment = ind + comment + "\n" + extraString.replaceAll("#LINE#", " // ") + "\n";
-      }
-      else {
-        comment = ind + comment.substring(0, index) + "\n" + extraString.replaceAll("#LINE#", " * ") + "\n" + comment.substring(index, comment.length());
-      }
-    }
-    return comment + "\n";
+    return javadocFileComment(ind);
   }
 
   public String AttrDecl.javadocFileComment(String ind) {
