@@ -1946,28 +1946,6 @@ aspect JragCodeGen {
         }
       }
     }
-    //else if(name().equals("Block") || name().equals("Binary") || name().equals("TypeDecl") || name().equals("Dot")) {
-    /*
-    else if(name().equals("Block")) {
-      for(Iterator iter = env().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
-        java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
-        String attrId = (String)entry.getKey();
-        AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
-        if(inhAttrEqs(attrId) == null && lookupInhDecl(attr.signature()) == null && !attr.decl().isCircular()) {
-          String s = genInhCache(attr.decl());
-          s = s.replaceAll("#TYPE#", attr.type());
-          s = s.replaceAll("#TYPEINSIGNATURE#", attr.type().replace('.', '_'));
-          s = s.replaceAll("#NAME#", attr.attributeSignature());
-          s = s.replaceAll("#METHODNAME#", attr.attributeName());
-          s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-          s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
-          s = s.replaceAll("#INTERFACEPARMDECL#", attr.interfaceParametersDecl());
-          s = s.replaceAll("#CLASS#\\.", "");
-          p.print(s);
-        }
-      }
-    }
-    */
   }
   public String ASTDecl.genInhCache(AttrDecl attr) {
       boolean isLazy = attr.getLazy();
