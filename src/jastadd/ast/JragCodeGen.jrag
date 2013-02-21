@@ -323,10 +323,7 @@ aspect JragCodeGen {
     if(comment.equals(""))
       comment = decl().getComment().trim();
 
-    if (comment.length() >= 5 &&
-        comment.charAt(0) == '/' &&
-        comment.charAt(1) == '*' &&
-        comment.charAt(1) == '*') {
+    if (comment.length() >= 5 && comment.startsWith("/**")) {
       StringBuffer res = new StringBuffer();
       res.append(ind);
       res.append(comment.substring(0, comment.indexOf("*/")));
