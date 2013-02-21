@@ -431,7 +431,7 @@ aspect CollectionAttributes {
         CollEq attr = (CollEq)i2.next();
         CollDecl decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        buf.append(ind + attr.hostFileComment(ind, decl));
+        buf.append(ind + attr.hostFileComment(ind));
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(decl.onePhase() || decl.separateEvaluation()) { // TODO: add || decl.separateEvaluation()
@@ -566,7 +566,7 @@ aspect CollectionAttributes {
         attr = (CollEq)i2.next();
         decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        buf.append(ind + attr.hostFileComment(ind, decl));
+        buf.append(ind + attr.hostFileComment(ind));
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(c.getCondition() != null && c.getCondition().trim().length()>0) {

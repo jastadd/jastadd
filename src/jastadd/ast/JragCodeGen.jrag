@@ -323,28 +323,18 @@ aspect JragCodeGen {
   syn String AttrEq.attributeKind() = decl().attributeKind();
 
   public String AttrEq.hostFileComment(String ind) {
+    TemplateContext tt = templateContext();
     String comment = getComment().trim();
 
     if (comment.isEmpty())
       comment = decl().getComment().trim();
 
     if (comment.length() >= 5 && comment.startsWith("/**")) {
-      StringBuffer res = new StringBuffer();
-      res.append(ind);
-      res.append(comment.substring(3, comment.indexOf("*/")));
-      res.append("* @attribute " + attributeKind() + "\n");
-      res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * " + declaredat() + "\n");
-      res.append(ind + " */\n");
-      return res.toString();
+      tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
+    } else {
+      tt.bind("SourceComment", "");
     }
-    else {
-      return ind + "/**\n" +
-             ind + " * @attribute " + attributeKind() + "\n" +
-             ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * " + declaredat() + "\n" +
-             ind + " */\n";
-    }
+    return tt.expand("AttrEq.javaDoc");
   }
 
   public String AttrDecl.initLazyMaps() {

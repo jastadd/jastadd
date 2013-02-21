@@ -73,4 +73,8 @@ aspect TemplateUtil {
   syn lazy TemplateContext AttrDecl.templateContext() {
     return new SimpleContext(parentContext(), this);
   }
+
+  syn lazy TemplateContext AttrEq.templateContext() {
+    return new SimpleContext(parentContext(), this);
+  }
 }
