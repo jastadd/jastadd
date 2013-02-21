@@ -46,7 +46,7 @@ aspect AttributeKind {
 aspect JragCodeGen {
 
   public static String ASTNode.ind = "  ";
-  public static Map ASTNode.indMap = new HashMap();
+  public static java.util.List<String> ASTNode.indList = new ArrayList<String>(32);
 
   /**
    * Generate the declaredat documentation tag. If no file name is available
@@ -71,21 +71,18 @@ aspect JragCodeGen {
    * Builds an indentation string equal to a certain level of
    * indentation.
    *
-   * @param count the required indentation level
+   * @param level the required indentation level
    * @return the indentation string
    */
-  public static final String ASTNode.ind(int count) {
-    Integer key = new Integer(count);
-    if (indMap.containsKey(key))
-      return (String) indMap.get(key);
-    else {
-      StringBuffer sb = new StringBuffer();
-      for (int i = 0; i < count; ++i)
-        sb.append(ind);
-      String indentation = sb.toString();
-      indMap.put(key, indentation);
-      return indentation;
+  public static final String ASTNode.ind(int level) {
+    while (indList.size() <= level) {
+      if (indList.size() == 0) {
+        indList.add("");
+      } else {
+        indList.add(indList.get(indList.size()-1) + ind);
+      }
     }
+    return indList.get(level);
   }
 
   // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
