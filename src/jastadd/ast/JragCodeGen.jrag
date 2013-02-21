@@ -317,7 +317,12 @@ aspect JragCodeGen {
     return tt.expand("AttrDecl.javaDoc");
   }
 
-  public String AttrEq.hostFileComment(String ind, AttrDecl decl) {
+  syn String AttrEq.declaredat() =
+    ASTNode.declaredat(getFileName(), getStartLine());
+
+  syn String AttrEq.attributeKind() = decl().attributeKind();
+
+  public String AttrEq.hostFileComment(String ind) {
     String comment = getComment().trim();
 
     if (comment.isEmpty())
@@ -327,17 +332,17 @@ aspect JragCodeGen {
       StringBuffer res = new StringBuffer();
       res.append(ind);
       res.append(comment.substring(3, comment.indexOf("*/")));
-      res.append("* @attribute " + decl.attributeKind() + "\n");
+      res.append("* @attribute " + attributeKind() + "\n");
       res.append(ind + " * @aspect " + getAspectName() + "\n");
-      res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
+      res.append(ind + " * " + declaredat() + "\n");
       res.append(ind + " */\n");
       return res.toString();
     }
     else {
       return ind + "/**\n" +
-             ind + " * @attribute " + decl.attributeKind() + "\n" +
+             ind + " * @attribute " + attributeKind() + "\n" +
              ind + " * @aspect " + getAspectName() + "\n" +
-             ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
+             ind + " * " + declaredat() + "\n" +
              ind + " */\n";
     }
   }
@@ -1337,7 +1342,7 @@ aspect JragCodeGen {
        AttrDecl attr = equ.decl();
        String s = "";
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
-         s += equ.hostFileComment(ind, attr);
+         s += equ.hostFileComment(ind);
          s += genEquation(attr);
          s += equ.computeMethod();
        } else {
