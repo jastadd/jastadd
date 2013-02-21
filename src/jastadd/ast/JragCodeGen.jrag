@@ -89,33 +89,37 @@ aspect JragCodeGen {
   refine  public boolean AttrDecl.getLazy() {
     if (grammar().cacheAll)
       return true;
-    if (grammar().cacheNone)
+    else if (grammar().cacheNone)
       return declaredNTA();
-    return declaredNTA() || refined(); //Ast.AttrDecl.getLazy(); 
+    else
+      return declaredNTA() || refined(); //Ast.AttrDecl.getLazy(); 
 //    return (Ast.AttrDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
   refine  public boolean SynDecl.getLazy() {
     if (grammar().cacheAll)
       return true;
-    if (grammar().cacheNone)
+    else if (grammar().cacheNone)
       return declaredNTA();
-    return declaredNTA() || refined(); //Ast.SynDecl.getLazy();
+    else
+      return declaredNTA() || refined(); //Ast.SynDecl.getLazy();
 //    return (Ast.SynDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
   refine  public boolean InhDecl.getLazy() {
     if (grammar().cacheAll)
       return true;
-    if (grammar().cacheNone)
+    else if (grammar().cacheNone)
       return declaredNTA();
-    return declaredNTA() || refined(); //Ast.InhDecl.getLazy(); 
+    else
+      return declaredNTA() || refined(); //Ast.InhDecl.getLazy(); 
 //    return (Ast.InhDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
   refine  public boolean CollDecl.getLazy() {
     if (grammar().cacheAll)
       return true;
-    if (grammar().cacheNone)
+    else if (grammar().cacheNone)
       return false;
-    return declaredNTA() || refined(); //Ast.CollDecl.getLazy();
+    else
+      return declaredNTA() || refined(); //Ast.CollDecl.getLazy();
 //    return (Ast.CollDecl.getLazy() || grammar().cacheAll) && !noCaching;
   }
 
@@ -176,23 +180,25 @@ aspect JragCodeGen {
 
   public String ASTDecl.javadocComment(ClassBodyObject obj) {
     String comment = obj.comments;
-    if (comment == null)
+    if (comment == null) {
       return ind + augmentComment(obj,
                             "/**\n" +
                             ind + " */");
+    }
     comment.trim();
-    if (comment.length() < 5)
+    if (comment.length() < 5) {
       return ind + augmentComment(obj,
                             "/**\n" +
                             ind + " */");
+    }
 
     int end = comment.lastIndexOf("*/");
     int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
 
-    if (start != -1)
+    if (start != -1) {
       return ind +
         augmentComment(obj, comment.substring(start, end+2));
-    else {
+    } else {
       return ind + augmentComment(obj,
                        "/**\n" +
                        ind + " */");
@@ -203,8 +209,9 @@ aspect JragCodeGen {
     StringBuffer sb = new StringBuffer();
     sb.append(comment.substring(0, comment.length()-2));
     sb.append("* @ast method \n");
-    if (obj.aspectName() != null && obj.aspectName().length() > 0)
+    if (obj.aspectName() != null && obj.aspectName().length() > 0) {
       sb.append(ind + " * @aspect " + obj.aspectName() + "\n");
+    }
     sb.append(ind + " * " + ASTNode.declaredat(obj.getFileName(), obj.getStartLine()) + "\n");
     sb.append(ind + " */\n");
     return sb.toString();
@@ -270,8 +277,9 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.attributeSignature() {
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return getName();
+    }
     StringBuffer s = new StringBuffer();
     s.append(getName());
     for(int i = 0; i < getNumParameter(); i++) {
@@ -285,8 +293,9 @@ aspect JragCodeGen {
   }
 
   public String AttrEq.attributeSignature() {
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return getName();
+    }
     StringBuffer s = new StringBuffer();
     s.append(getName());
     for(int i = 0; i < getNumParameter(); i++) {
@@ -326,8 +335,9 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     String comment = getComment().trim();
 
-    if (comment.isEmpty())
+    if (comment.isEmpty()) {
       comment = decl().getComment().trim();
+    }
 
     if (comment.length() >= 5 && comment.startsWith("/**")) {
       tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
@@ -357,61 +367,64 @@ aspect JragCodeGen {
 
   public String AttrDecl.visitedDeclarations() {
     if(isCircular()) {
-      if(getNumParameter() == 0)
+      if(getNumParameter() == 0) {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
-      else {
+      } else {
         // the visited flag is part of the State$Value object
         return "";
       }
     }
     if(!grammar().visitCheckEnabled && !isCircular()) return "";
     if(grammar().rewriteEnabled) {
-      if(getNumParameter() == 0)
+      if(getNumParameter() == 0) {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
-      else {
-        if(grammar().lazyMaps)
+      } else {
+        if(grammar().lazyMaps) {
           return ind + "/**\n" +
                  ind + " * @apilevel internal\n" +
                  ind + " */\n" +
                  ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
-        else
+        } else {
           return ind + "/**\n" +
                  ind + " * @apilevel internal\n" +
                  ind + " */\n" +
                  ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_visited = " + grammar().createDefaultMap + ";\n";
+        }
       }
     }
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return ind + "/**\n" +
              ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected boolean #CLASS#.#NAME#_visited = false;\n";
-    else {
-      if(grammar().lazyMaps)
+    } else {
+      if(grammar().lazyMaps) {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
-      else
+      } else {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_visited = " + grammar().createDefaultSet + ";\n";
+      }
     }
   }
 
   public String AttrDecl.visitedException() {
     if(!grammar().visitCheckEnabled) return "";
-    if(!grammar().traceVisitCheck)
+    if(!grammar().traceVisitCheck) {
       return ind(3) + "throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: #CLASS#.\");\n";
-    else
+    } else {
       return ind(3) + "System.out.println(\"Circular definition of attr: #METHODNAME# in class: \" + getClass().getName());\n";
+    }
   }
 
   public String AttrDecl.resetVisit() {
@@ -503,7 +516,7 @@ aspect JragCodeGen {
   public String AttrDecl.cacheDeclarations() {
     if(!getLazy())
       return "";
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return ind + "/**\n" +
              ind + " * @apilevel internal\n" +
              ind + " */\n" +
@@ -512,8 +525,8 @@ aspect JragCodeGen {
              ind + " * @apilevel internal\n" +
              ind + " */\n" +
              ind + "protected #TYPE# #CLASS#.#NAME#_value;\n";
-    else if(declaredNTA()) {
-      if(grammar().lazyMaps)
+    } else if(declaredNTA()) {
+      if(grammar().lazyMaps) {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
@@ -522,7 +535,7 @@ aspect JragCodeGen {
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
-      else
+      } else {
         return ind + "/**\n" +
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
@@ -531,12 +544,14 @@ aspect JragCodeGen {
                ind + " * @apilevel internal\n" +
                ind + " */\n" +
                ind + "protected List #CLASS#.#NAME#_list;\n";
+      }
     }
     else {
-      if(grammar().lazyMaps)
+      if(grammar().lazyMaps) {
         return ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values;\n";
-      else
+      } else {
         return ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n";
+      }
     }
   }
   syn boolean AttrDecl.declaredNTA() = false;
