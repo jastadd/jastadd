@@ -326,7 +326,7 @@ aspect JragCodeGen {
     if (comment.length() >= 5 && comment.startsWith("/**")) {
       StringBuffer res = new StringBuffer();
       res.append(ind);
-      res.append(comment.substring(0, comment.indexOf("*/")));
+      res.append(comment.substring(3, comment.indexOf("*/")));
       res.append("* @attribute " + decl.attributeKind() + "\n");
       res.append(ind + " * @aspect " + getAspectName() + "\n");
       res.append(ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
