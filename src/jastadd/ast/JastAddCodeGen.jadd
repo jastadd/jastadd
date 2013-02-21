@@ -428,17 +428,13 @@ aspect JastAddCodeGen {
     StringBuffer buf = new StringBuffer();
     buf.append(" implements Cloneable");
     
-    if(grammar().parentInterface) {
-      for(Iterator iter = inhAttrSet(); iter.hasNext(); ) {
-        buf.append(", Defines_" + (String)iter.next());
-      }
-    }
-      
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
       buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
     }
-    if(name().equals("ASTNode") && grammar().java5)
+
+    if(name().equals("ASTNode") && grammar().java5) {
       buf.append(", Iterable<T>");
+    }
     return buf.toString();
   }
 

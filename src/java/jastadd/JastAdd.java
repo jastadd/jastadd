@@ -294,12 +294,6 @@ public class JastAdd {
       long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
 
       root.jastAddGen(outputDir, root.parserName, pack, publicModifier);
-      try {
-        root.createInterfaces(outputDir, pack);
-      } catch (FileNotFoundException e) {
-        System.err.println("File error: Output directory " + outputDir + " does not exist or is write protected");
-        System.exit(1);
-      }
       
       @SuppressWarnings("unused")
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
@@ -343,7 +337,6 @@ public class JastAdd {
     Option componentCheck = new Option("componentCheck", "disable strongly connected component optimization for circular attributes");
     Option noInhEqCheck = new Option("noInhEqCheck", "disable check for inherited equations");
     Option suppressWarnings = new Option("suppressWarnings", "suppress warnings when using Java 5");
-    Option parentInterface = new Option("parentInterface", "search equations for inherited attributes using interfaces");
     Option refineLegacy = new Option("refineLegacy", "enable the legacy refine syntax");
     Option noRefineLegacy = new Option("noRefineLegacy", "disable the legacy refine syntax");
     Option stagedRewrites = new Option("stagedRewrites", "");
@@ -425,7 +418,6 @@ public class JastAdd {
     options.addOption(componentCheck);
     options.addOption(noInhEqCheck);
     options.addOption(suppressWarnings);
-    options.addOption(parentInterface);
     options.addOption(refineLegacy);
     options.addOption(noRefineLegacy);
     options.addOption(stagedRewrites);
@@ -497,7 +489,6 @@ public class JastAdd {
     root.noInhEqCheck = noInhEqCheck.matched();
 
     root.suppressWarnings = suppressWarnings.matched();
-    root.parentInterface = parentInterface.matched();
 
     root.refineLegacy = !noRefineLegacy.matched();
 
@@ -664,18 +655,18 @@ public class JastAdd {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"param\", \"attr\", \"node\" and \"region\".");
       return false;
-        }
+    }
     // check level: no chosen level means default -- "attr"
     if (!root.incrementalLevelAttr && !root.incrementalLevelNode && 
         !root.incrementalLevelParam && !root.incrementalLevelRegion) {
       root.incrementalLevelAttr = true;
-        }
+    }
 
     // check invalidate: only one strategy at a time
     if (root.incrementalChangeFlush && root.incrementalChangeMark) {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"flush\" and \"mark\".");
-      return false;            
+      return false;
     }
     // check invalidate: no chosen strategy means default -- "flush"
     if (!root.incrementalChangeFlush && !root.incrementalChangeMark) {
@@ -685,7 +676,7 @@ public class JastAdd {
     if (root.incrementalChangeMark) {
       System.err.println("error: Unsupported incremental evaluation configuration: " +
           "\"mark\".");
-      return false;            
+      return false;
     }
 
     // check propagation: only one strategy at a time

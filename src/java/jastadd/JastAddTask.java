@@ -105,10 +105,6 @@ public class JastAddTask extends Task {
   private boolean suppressWarnings = false;
   public void setSuppressWarnings(boolean b) { suppressWarnings = b; }
 
-  // search equtions for inherited attributes using interfaces
-  private boolean parentInterface = false;
-  public void setParentInterface(boolean b) { parentInterface = b; }
-
   // generate javadoc like .html pages for sources
   private boolean doc = false;
   public void setDoc(boolean b) { doc = b; }
@@ -228,7 +224,6 @@ public class JastAddTask extends Task {
 
     if(noInhEqCheck)        args.add("--noInhEqCheck");
     if(suppressWarnings)    args.add("--suppressWarnings");
-    if(parentInterface)     args.add("--parentInterface");
 
     if(doc)     args.add("--doc");
     if(debug)   args.add("--debug");
