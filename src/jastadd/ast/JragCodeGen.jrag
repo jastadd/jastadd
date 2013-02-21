@@ -320,7 +320,7 @@ aspect JragCodeGen {
   public String AttrEq.hostFileComment(String ind, AttrDecl decl) {
     String comment = getComment().trim();
 
-    if(comment.equals(""))
+    if (comment.isEmpty())
       comment = decl().getComment().trim();
 
     if (comment.length() >= 5 && comment.startsWith("/**")) {
