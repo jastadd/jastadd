@@ -1,0 +1,11 @@
+Grammar.genRewriteOrderChecks = [[
+protected int ASTNode$$State.during$(RewriteName) = 0;
+protected boolean ASTNode.during$(RewriteName)() {
+  if(state().during$(RewriteName) == 0) {
+    return false;
+  } else {
+    state().pop();
+    state().push(ASTNode$$State.REWRITE_INTERRUPT);
+    return true;
+  }
+}]]

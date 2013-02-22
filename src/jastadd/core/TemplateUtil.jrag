@@ -46,6 +46,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/Attributes");
     loadTemplates(tt, "core/Synchronization");
     loadTemplates(tt, "ast/Comments");
+    loadTemplates(tt, "ast/Rewrites");
     return new SimpleContext(tt, this);
   }
 

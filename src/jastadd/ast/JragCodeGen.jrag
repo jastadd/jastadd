@@ -1752,20 +1752,10 @@ aspect JragCodeGen {
   }
 
   public void Grammar.genRewriteOrderChecks(PrintWriter out) {
+    TemplateContext tt = templateContext();
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
-      String name = (String)iter.next();
-      String s = ind + "protected int ASTNode$State.during" + name + " = 0;\n" +
-                 ind + "protected boolean ASTNode.during" + name + "() {\n" +
-                 ind(2) + "if(state().during" + name + " == 0) {\n" +
-                 ind(3) + "return false;\n" +
-                 ind(2) + "}\n" +
-                 ind(2) + "else {\n" +
-                 ind(3) + "state().pop();\n" +
-                 ind(3) + "state().push(ASTNode$State.REWRITE_INTERRUPT);\n" +
-                 ind(3) + "return true;\n" +
-                 ind(2) + "}\n" +
-                 ind + "}\n";
-      out.print(s);
+      tt.bind("RewriteName", (String) iter.next());
+      tt.expand("Grammar.genRewriteOrderChecks", out);
     }
   }
 
