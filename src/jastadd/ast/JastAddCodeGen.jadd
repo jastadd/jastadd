@@ -282,7 +282,7 @@ aspect JastAddCodeGen {
       */
 
       emitMembers(stream);
-      stream.print(genAbstractSyns());
+      emitAbstractSyns(stream);
       //stream.print(genSynEquations());
       stream.print(genInhDeclarations());
       //stream.print(genInhEquations());
@@ -331,7 +331,7 @@ aspect JastAddCodeGen {
       stream.println(buf.toString());
 
       //emitMembers(stream);
-      stream.print(genAbstractSyns());
+      emitAbstractSyns(stream);
       //stream.print(genSynEquations());
       stream.print(genInhDeclarations());
       //stream.print(genInhEquations());
@@ -439,28 +439,28 @@ aspect JastAddCodeGen {
   }
 
   public String TypeDecl.interfacesString() {
-    StringBuffer s = new StringBuffer();
+    StringBuffer buf = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if(iter.hasNext()) {
-      s.append(Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
+      buf.append(Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
       while(iter.hasNext()) {
-        s.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
+        buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
       }
     }
-    return s.toString();
+    return buf.toString();
   }
   
-  public void ASTDecl.jastAddAttributes(PrintStream s) {
-    emitMembers(s);
-    s.print(genAbstractSyns());
-    s.print(genSynEquations());
-    s.print(genInhDeclarations());
-    s.print(genInhEquations());
+  public void ASTDecl.jastAddAttributes(PrintStream out) {
+    emitMembers(out);
+    emitAbstractSyns(out);
+    out.print(genSynEquations());
+    out.print(genInhDeclarations());
+    out.print(genInhEquations());
     if(grammar().rewriteEnabled)
-      s.print(genRewrites());
-    s.print(genCollDecls());
-    s.print(genCollContributions());
-    emitInhEqSignatures(s);
+      out.print(genRewrites());
+    out.print(genCollDecls());
+    out.print(genCollContributions());
+    emitInhEqSignatures(out);
   }
 
 }
