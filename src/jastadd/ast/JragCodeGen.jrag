@@ -1470,28 +1470,24 @@ aspect JragCodeGen {
     return result.toString();
   }
 
-  public String TypeDecl.genInhDeclarations() {
-    StringBuffer buf = new StringBuffer();
+  public void TypeDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       buf.append(attr.hostFileComment(ind));
-       attr.emitInhDecl(buf);
+       out.print(attr.hostFileComment(ind));
+       attr.emitInhDecl(out);
     }
-    return buf.toString();
   }
 
-  public void AttrDecl.emitInhDecl(StringBuffer buf) {
-    templateContext().expand("AttrDecl.inhDecl", buf);
+  public void AttrDecl.emitInhDecl(PrintStream out) {
+    templateContext().expand("AttrDecl.inhDecl", out);
   }
 
-  public String ASTDecl.genInhDeclarations() {
-    StringBuffer buf = new StringBuffer();
+  public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       String s = "";
-       s += attr.hostFileComment(ind);
-       s += genEquation(attr);
-       s = getCacheDeclarations(attr) + s;
+       out.print(attr.hostFileComment(ind));
+       String s;
+       s = genEquation(attr) + getCacheDeclarations(attr);
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        s = s.replaceAll("#CLASS#\\.", "");
@@ -1500,9 +1496,8 @@ aspect JragCodeGen {
        s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
        s = s.replaceAll("#PARM#", attr.parameters());
        s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
-       buf.append(s);
+       out.print(s);
     }
-    return buf.toString();
   }
 
   syn boolean TypeDecl.hasInhEq(String attrName) {
