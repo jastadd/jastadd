@@ -109,6 +109,9 @@ public class JastAddTask extends Task {
   private boolean doc = false;
   public void setDoc(boolean b) { doc = b; }
 
+  // TODO: remove
+  public void setDoxygen(boolean b) { doc = b; }
+
   // include the following license file in all generated files
   private String license = null;
   public void setLicense(String license) {
