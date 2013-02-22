@@ -283,7 +283,7 @@ aspect JastAddCodeGen {
 
       emitMembers(stream);
       emitAbstractSyns(stream);
-      //stream.print(genSynEquations());
+      //emitSynEquations(stream);
       stream.print(genInhDeclarations());
       //stream.print(genInhEquations());
       stream.print(genInterfaceCollections());
@@ -332,7 +332,7 @@ aspect JastAddCodeGen {
 
       //emitMembers(stream);
       emitAbstractSyns(stream);
-      //stream.print(genSynEquations());
+      //emitSynEquations(stream);
       stream.print(genInhDeclarations());
       //stream.print(genInhEquations());
       
@@ -453,7 +453,7 @@ aspect JastAddCodeGen {
   public void ASTDecl.jastAddAttributes(PrintStream out) {
     emitMembers(out);
     emitAbstractSyns(out);
-    out.print(genSynEquations());
+    emitSynEquations(out);
     out.print(genInhDeclarations());
     out.print(genInhEquations());
     if(grammar().rewriteEnabled)
