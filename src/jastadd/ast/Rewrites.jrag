@@ -87,22 +87,15 @@ aspect Rewrites {
   }
 
   public boolean Rewrite.genRewrite(PrintStream out, int index) {
-    out.println(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine());
+    TemplateContext tt = templateContext();
+    tt.bind("RewriteIndex", "" + index);
+    tt.expand("Rewrite.genRewrite.declaredat", out);
     if(getCondition() != null) {
-      out.println(ind(2) + "if(" + Unparser.unparse(getCondition()) + ") {");
-      out.println(ind(3) + "state().during" + aspectName() + "++;");
-      out.println(ind(3) + "ASTNode result = rewriteRule" + index + "();");
-      out.println(ind(3) + "state().during" + aspectName() + "--;");
-      out.println(ind(3) + "return result;");
-      out.println(ind(2) + "}");
-      out.println();
+      tt.bind("Condition", Unparser.unparse(getCondition()));
+      tt.expand("Rewrite.genRewrite:conditional", out);
       return false;
-    }
-    else {
-      out.println(ind(2) + "state().during" + aspectName() + "++;");
-      out.println(ind(2) + "ASTNode result = rewriteRule" + index + "();");
-      out.println(ind(2) + "state().during" + aspectName() + "--;");
-      out.println(ind(2) + "return result;");
+    } else {
+      tt.expand("Rewrite.genRewrite:unconditional", out);
       return true;
     }
   }

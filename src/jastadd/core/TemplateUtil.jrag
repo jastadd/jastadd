@@ -78,4 +78,12 @@ aspect TemplateUtil {
   syn lazy TemplateContext AttrEq.templateContext() {
     return new SimpleContext(parentContext(), this);
   }
+
+  syn lazy TemplateContext Rewrite.templateContext() {
+    return new SimpleContext(parentContext(), this);
+  }
+
+  syn lazy TemplateContext RewriteList.templateContext() {
+    return new SimpleContext(parentContext(), this);
+  }
 }
