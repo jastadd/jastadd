@@ -1,3 +1,32 @@
+ASTDecl.emitRewrites.begin = [[
+  /**
+   * @apilevel internal
+   */
+  public ASTNode rewriteTo() {]]
+
+ASTDecl.emitRewrites.touch_list = [[
+    if(list$$touched) {
+      for(int i = 0 ; i < getNumChildNoTransform(); i++) {
+        getChild(i);
+      }
+      list$$touched = false;
+      return this;
+    }]]
+
+ASTDecl.emitRewrites.end:ASTNode = [[
+    if(state().peek() == ASTNode$$State.REWRITE_CHANGE) {
+      state().pop();
+      state().push(ASTNode$$State.REWRITE_NOCHANGE);
+    }
+    return this;
+  }]]
+
+ASTDecl.emitRewrites.end:!unconditional = [[
+    return super.rewriteTo();
+  }]]
+
+ASTDecl.emitRewrites.end = [[  }]]
+
 Grammar.genRewriteOrderChecks = [[
 protected int ASTNode$$State.during$(RewriteName) = 0;
 protected boolean ASTNode.during$(RewriteName)() {

@@ -26,6 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * Code generation for rewrites.
+ */
 aspect Rewrites {
 
   syn lazy Collection Grammar.rewriteAspects() {
@@ -51,24 +54,16 @@ aspect Rewrites {
   }
 
   public void ASTDecl.emitRewrites(PrintStream out) {
+    TemplateContext tt = templateContext();
     boolean unconditional = false;
-    out.println(ind + "/**");
-    out.println(ind + " * @apilevel internal");
-    out.println(ind + " */");
-    out.println(ind + "public ASTNode rewriteTo() {");
+
+    tt.expand("ASTDecl.emitRewrites.begin", out);
+
     if(name().equals("List")) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
-      //
-      out.println(ind(2) + "if(list$touched) {");
-      out.println(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)");
-      out.println(ind(4) + "getChild(i);");
-      out.println(ind(3) + "list$touched = false;");
-      out.println(ind(3) + "return this;");
-      out.println(ind(2) + "}");
-      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+        tt.expand("ASTDecl.emitRewrites.touch_list", out);
       }
-      //
     }
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
@@ -76,16 +71,15 @@ aspect Rewrites {
         unconditional = true;
       }
     }
+
     if(name().equals("ASTNode")) {
-      out.println(ind(2) + "if(state().peek() == ASTNode$State.REWRITE_CHANGE) {");
-      out.println(ind(3) + "state().pop();");
-      out.println(ind(3) + "state().push(ASTNode$State.REWRITE_NOCHANGE);");
-      out.println(ind(2) + "}");
-      out.println(ind(2) + "return this;");
+      tt.expand("ASTDecl.emitRewrites.end:ASTNode", out);
+    } else if(!unconditional) {
+      tt.expand("ASTDecl.emitRewrites.end:!unconditional", out);
+    } else {
+      tt.expand("ASTDecl.emitRewrites.end", out);
     }
-    else if(!unconditional)
-      out.println(ind(2) + "return super.rewriteTo();");
-    out.println(ind + "}");
+
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
       r.genRewritesExtra(out, i);
@@ -191,6 +185,7 @@ aspect Rewrites {
     }
   }
 
-  syn lazy boolean ASTDecl.hasRewrites() = getNumRewrite() > 0 || (superClass() != null && superClass().hasRewrites());
+  syn lazy boolean ASTDecl.hasRewrites() =
+    getNumRewrite() > 0 || (superClass() != null && superClass().hasRewrites());
 
 }
