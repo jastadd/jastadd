@@ -459,7 +459,7 @@ aspect JastAddCodeGen {
     if (grammar().rewriteEnabled) {
       emitRewrites(out);
     }
-    out.print(genCollDecls());
+    emitCollDecls(out);
     out.print(genCollContributions());
     emitInhEqSignatures(out);
   }

@@ -42,15 +42,14 @@ aspect CollectionAttributes {
     return res.toString();
   }
 
-  public String ASTDecl.genCollDecls() {
-    StringBuffer buf = new StringBuffer();
+  public void ASTDecl.emitCollDecls(PrintStream out) {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       String s = "";
       if(attr.circularCollection()) {
         s = genCircular(attr, attr.hostFileComment(ind)) + attr.combineMethod();
       } else {
-        s += attr.hostFileComment(ind);
+        out.print(attr.hostFileComment(ind));
         s += genEquation(attr);
         s += attr.computeMethod();
         s = getCacheDeclarations(attr) + s;
@@ -63,9 +62,8 @@ aspect CollectionAttributes {
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
       s = s.replaceAll("#PARM#", attr.parameters());
-      buf.append(s);
+      out.print(s);
     }
-    return buf.toString();
   }
 
   public String InterfaceDecl.genInterfaceCollections() {
