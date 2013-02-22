@@ -126,10 +126,8 @@ aspect Rewrites {
   }
 
   public void Rewrite.genRewritesExtra(PrintStream out, int index) {
-    out.println(ind + "/**");
-    out.println(ind + " * " + declaredat());
-    out.println(ind + " * @apilevel internal");
-    out.println(ind + " */");
+    TemplateContext tt = templateContext();
+    tt.expand("Rewrite.javaDoc:internal", out);
     if(getResult() instanceof jrag.AST.ASTBlock) {
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
@@ -152,10 +150,8 @@ aspect Rewrites {
     }
   }
   public void RewriteList.genRewritesExtra(PrintStream out, int index) {
-    out.println(ind + "/**");
-    out.println(ind + " * " + declaredat());
-    out.println(ind + " * @apilevel internal");
-    out.println(ind + " */");
+    TemplateContext tt = templateContext();
+    tt.expand("Rewrite.javaDoc:internal", out);
     if(getResult() instanceof jrag.AST.ASTBlock) {
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
