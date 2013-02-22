@@ -100,28 +100,16 @@ aspect Rewrites {
     }
   }
   public boolean RewriteList.genRewrite(PrintStream out, int index) {
-    out.println(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine());
-    out.println(ind(2) + "if(getParent().getParent() instanceof " + getParentName() + " &&");
-    out.print(ind(3) + "((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
+    TemplateContext tt = templateContext();
+    tt.expand("Rewrite.genRewrite.declaredat", out);
+
     if(getCondition() != null) {
-      out.println(" && " + Unparser.unparse(getCondition()) + ") {");
-    }
-    else {
-      out.println(") {");
+      tt.bind("Condition", " && " + Unparser.unparse(getCondition()));
+    } else {
+      tt.bind("Condition", "");
     }
 
-    out.println(ind(2) + "state().during" + aspectName() + "++;");
-    out.println(ind(3) + "List list = (List)getParent();");
-    out.println(ind(3) + "int i = list.getIndexOfChild(this);");
-    out.println(ind(3) + "List newList = rewrite" + getParentName() + "_" + getChildName() + "();");
-    // the first child is set by the normal rewrite loop
-    //out.println(ind(3) + "list.setChild(newList.getChildNoTransform(0), i);");
-    out.println(ind(3) + "for(int j = 1; j < newList.getNumChildNoTransform(); j++)");
-    out.println(ind(4) + "list.insertChild(newList.getChildNoTransform(j), ++i);");
-
-    out.println(ind(4) + "state().during" + aspectName() + "--;");
-    out.println(ind(3) + "return newList.getChildNoTransform(0);");
-    out.println(ind(2) + "}");
+    tt.expand("RewriteList.genRewrite", out);
     return false;
   }
 
