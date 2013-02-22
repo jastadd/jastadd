@@ -1769,145 +1769,144 @@ aspect JragCodeGen {
     }
   }
 
-  public String ASTDecl.genRewrites() {
-    StringBuffer buf = new StringBuffer();
+  public void ASTDecl.emitRewrites(PrintStream out) {
     boolean unconditional = false;
-    buf.append(ind + "/**\n");
-    buf.append(ind + " * @apilevel internal\n");
-    buf.append(ind + " */\n");
-    buf.append(ind + "public ASTNode rewriteTo() {\n");
+    out.println(ind + "/**");
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " */");
+    out.println(ind + "public ASTNode rewriteTo() {");
     if(name().equals("List")) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
       //
-      buf.append(ind(2) + "if(list$touched) {\n");
-      buf.append(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)\n");
-      buf.append(ind(4) + "getChild(i);\n");
-      buf.append(ind(3) + "list$touched = false;\n");
-      buf.append(ind(3) + "return this;\n");
-      buf.append(ind(2) + "}\n");
+      out.println(ind(2) + "if(list$touched) {");
+      out.println(ind(3) + "for(int i = 0 ; i < getNumChildNoTransform(); i++)");
+      out.println(ind(4) + "getChild(i);");
+      out.println(ind(3) + "list$touched = false;");
+      out.println(ind(3) + "return this;");
+      out.println(ind(2) + "}");
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
       }
       //
     }
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
-      if(r.genRewrite(buf, i))
+      if (r.genRewrite(out, i)) {
         unconditional = true;
+      }
     }
     if(name().equals("ASTNode")) {
-      buf.append(ind(2) + "if(state().peek() == ASTNode$State.REWRITE_CHANGE) {\n");
-      buf.append(ind(3) + "state().pop();\n");
-      buf.append(ind(3) + "state().push(ASTNode$State.REWRITE_NOCHANGE);\n");
-      buf.append(ind(2) + "}\n");
-      buf.append(ind(2) + "return this;\n");
+      out.println(ind(2) + "if(state().peek() == ASTNode$State.REWRITE_CHANGE) {");
+      out.println(ind(3) + "state().pop();");
+      out.println(ind(3) + "state().push(ASTNode$State.REWRITE_NOCHANGE);");
+      out.println(ind(2) + "}");
+      out.println(ind(2) + "return this;");
     }
     else if(!unconditional)
-      buf.append(ind(2) + "return super.rewriteTo();\n");
-    buf.append(ind + "}\n");
+      out.println(ind(2) + "return super.rewriteTo();");
+    out.println(ind + "}");
     for(int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
-      r.genRewritesExtra(buf, i);
+      r.genRewritesExtra(out, i);
     }
-    return buf.toString();
   }
 
-  public boolean Rewrite.genRewrite(StringBuffer buf, int index) {
-    buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
+  public boolean Rewrite.genRewrite(PrintStream out, int index) {
+    out.println(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine());
     if(getCondition() != null) {
-      buf.append(ind(2) + "if(" + Unparser.unparse(getCondition()) + ") {\n");
-      buf.append(ind(3) + "state().during" + aspectName() + "++;\n");
-      buf.append(ind(3) + "ASTNode result = rewriteRule" + index + "();\n");
-      buf.append(ind(3) + "state().during" + aspectName() + "--;\n");
-      buf.append(ind(3) + "return result;\n");
-      buf.append(ind(2) + "}\n");
-      buf.append("\n");
+      out.println(ind(2) + "if(" + Unparser.unparse(getCondition()) + ") {");
+      out.println(ind(3) + "state().during" + aspectName() + "++;");
+      out.println(ind(3) + "ASTNode result = rewriteRule" + index + "();");
+      out.println(ind(3) + "state().during" + aspectName() + "--;");
+      out.println(ind(3) + "return result;");
+      out.println(ind(2) + "}");
+      out.println();
       return false;
     }
     else {
-      buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
-      buf.append(ind(2) + "ASTNode result = rewriteRule" + index + "();\n");
-      buf.append(ind(2) + "state().during" + aspectName() + "--;\n");
-      buf.append(ind(2) + "return result;\n");
+      out.println(ind(2) + "state().during" + aspectName() + "++;");
+      out.println(ind(2) + "ASTNode result = rewriteRule" + index + "();");
+      out.println(ind(2) + "state().during" + aspectName() + "--;");
+      out.println(ind(2) + "return result;");
       return true;
     }
   }
-  public boolean RewriteList.genRewrite(StringBuffer buf, int index) {
-    buf.append(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine() + "\n");
-    buf.append(ind(2) + "if(getParent().getParent() instanceof " + getParentName() + " && \n");
-    buf.append(ind(3) + "((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
+  public boolean RewriteList.genRewrite(PrintStream out, int index) {
+    out.println(ind(2) + "// Declared in " + getFileName() + " at line " + getStartLine());
+    out.println(ind(2) + "if(getParent().getParent() instanceof " + getParentName() + " &&");
+    out.print(ind(3) + "((" + getParentName() + ")getParent().getParent())." + getChildName() + "ListNoTransform() == getParent()");
     if(getCondition() != null) {
-      buf.append(" && " + Unparser.unparse(getCondition()) + ") {\n");
+      out.println(" && " + Unparser.unparse(getCondition()) + ") {");
     }
     else {
-      buf.append(") {\n");
+      out.println(") {");
     }
 
-    buf.append(ind(2) + "state().during" + aspectName() + "++;\n");
-    buf.append(ind(3) + "List list = (List)getParent();\n");
-    buf.append(ind(3) + "int i = list.getIndexOfChild(this);\n");
-    buf.append(ind(3) + "List newList = rewrite" + getParentName() + "_" + getChildName() + "();\n");
+    out.println(ind(2) + "state().during" + aspectName() + "++;");
+    out.println(ind(3) + "List list = (List)getParent();");
+    out.println(ind(3) + "int i = list.getIndexOfChild(this);");
+    out.println(ind(3) + "List newList = rewrite" + getParentName() + "_" + getChildName() + "();");
     // the first child is set by the normal rewrite loop
-    //buf.append(ind(3) + "list.setChild(newList.getChildNoTransform(0), i);\n");
-    buf.append(ind(3) + "for(int j = 1; j < newList.getNumChildNoTransform(); j++)\n");
-    buf.append(ind(4) + "list.insertChild(newList.getChildNoTransform(j), ++i);\n");
+    //out.println(ind(3) + "list.setChild(newList.getChildNoTransform(0), i);");
+    out.println(ind(3) + "for(int j = 1; j < newList.getNumChildNoTransform(); j++)");
+    out.println(ind(4) + "list.insertChild(newList.getChildNoTransform(j), ++i);");
 
-    buf.append(ind(4) + "state().during" + aspectName() + "--;\n");
-    buf.append(ind(3) + "return newList.getChildNoTransform(0);\n");
-    buf.append(ind(2) + "}\n");
+    out.println(ind(4) + "state().during" + aspectName() + "--;");
+    out.println(ind(3) + "return newList.getChildNoTransform(0);");
+    out.println(ind(2) + "}");
     return false;
   }
 
-  public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
-    buf.append(ind + "/**\n" +
-               ind + " * " + declaredat() + "\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */");
+  public void Rewrite.genRewritesExtra(PrintStream out, int index) {
+    out.println(ind + "/**");
+    out.println(ind + " * " + declaredat());
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
-      buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
+      out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
-        buf.append(ind(2) +
+        out.println(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");\n");
-      buf.append(Unparser.unparse(getResult()));
-      buf.append(ind + "}\n");
+          getStartLine() + "\");");
+      out.print(Unparser.unparse(getResult()));
+      out.println(ind + "}");
     }
     else {
-      buf.append(ind + "private " + getReturnType() + " rewriteRule" + index + "() {\n");
+      out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
-        buf.append(ind(2) +
+        out.println(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");\n");
-      buf.append(ind(2) + "return " + Unparser.unparse(getResult()) + ";\n");
-      buf.append(ind + "}\n");
+          getStartLine() + "\");");
+      out.println(ind(2) + "return " + Unparser.unparse(getResult()) + ";");
+      out.println(ind + "}");
     }
   }
-  public void RewriteList.genRewritesExtra(StringBuffer buf, int index) {
-    buf.append(ind + "/**\n" +
-               ind + " * " + declaredat() + "\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */");
+  public void RewriteList.genRewritesExtra(PrintStream out, int index) {
+    out.println(ind + "/**");
+    out.println(ind + " * " + declaredat());
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
-      buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
+      out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
-        buf.append(ind(2) +
+        out.println(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");\n");
-      buf.append(Unparser.unparse(getResult()));
-      buf.append(ind + "}\n");
+          getStartLine() + "\");");
+      out.print(Unparser.unparse(getResult()));
+      out.println(ind + "}");
     }
     else {
-      buf.append(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {\n");
+      out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
-        buf.append(ind(2) +
+        out.println(ind(2) +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");\n");
-      buf.append(ind(2) + "return " + Unparser.unparse(getResult()) + ";\n");
-      buf.append(ind + "}\n");
+          getStartLine() + "\");");
+      out.println(ind(2) + "return " + Unparser.unparse(getResult()) + ";");
+      out.println(ind + "}");
     }
   }
 

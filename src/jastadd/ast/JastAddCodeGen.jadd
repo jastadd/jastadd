@@ -456,8 +456,9 @@ aspect JastAddCodeGen {
     emitSynEquations(out);
     emitInhDeclarations(out);
     emitInhEquations(out);
-    if(grammar().rewriteEnabled)
-      out.print(genRewrites());
+    if (grammar().rewriteEnabled) {
+      emitRewrites(out);
+    }
     out.print(genCollDecls());
     out.print(genCollContributions());
     emitInhEqSignatures(out);
