@@ -67,6 +67,18 @@ aspect JragCodeGen {
     }
   }
 
+  syn String AttrDecl.declaredat() =
+    ASTNode.declaredat(getFileName(), getStartLine());
+
+  syn String AttrEq.declaredat() =
+    ASTNode.declaredat(getFileName(), getStartLine());
+
+  syn String Rewrite.declaredat() =
+    ASTNode.declaredat(getFileName(), getStartLine());
+
+  syn String RewriteList.declaredat() =
+    ASTNode.declaredat(getFileName(), getStartLine());
+
   /**
    * Builds an indentation string equal to a certain level of
    * indentation.
@@ -310,9 +322,6 @@ aspect JragCodeGen {
     return javadocFileComment(ind);
   }
 
-  syn String AttrDecl.declaredat() =
-    ASTNode.declaredat(getFileName(), getStartLine());
-
   public String AttrDecl.javadocFileComment(String ind) {
     TemplateContext tt = templateContext();
     String comment = getComment().trim();
@@ -323,9 +332,6 @@ aspect JragCodeGen {
     }
     return tt.expand("AttrDecl.javaDoc");
   }
-
-  syn String AttrEq.declaredat() =
-    ASTNode.declaredat(getFileName(), getStartLine());
 
   syn String AttrEq.attributeKind() = decl().attributeKind();
 
@@ -1561,7 +1567,7 @@ aspect JragCodeGen {
 
       String s;
       out.println(ind + "/**");
-      out.println(ind + " * " + grammar().declaredat(equ.getFileName(), equ.getStartLine()));
+      out.println(ind + " * " + equ.declaredat());
       out.println(ind + " * @apilevel internal");
       out.println(ind + " */");
       s = ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {";
@@ -1854,7 +1860,7 @@ aspect JragCodeGen {
 
   public void Rewrite.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
-               ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
+               ind + " * " + declaredat() + "\n" +
                ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
@@ -1880,7 +1886,7 @@ aspect JragCodeGen {
   }
   public void RewriteList.genRewritesExtra(StringBuffer buf, int index) {
     buf.append(ind + "/**\n" +
-               ind + " * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n" +
+               ind + " * " + declaredat() + "\n" +
                ind + " * @apilevel internal\n" +
                ind + " */");
     if(getResult() instanceof jrag.AST.ASTBlock) {
