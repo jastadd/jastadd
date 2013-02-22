@@ -138,16 +138,17 @@ aspect JragCodeGen {
     return buf.toString();
   }
 
-  public String InterfaceDecl.genMembers() {
-    StringBuffer buf = new StringBuffer();
+  public void InterfaceDecl.emitMembers(PrintStream out) {
     for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject o = (ClassBodyObject)iter.next();
       jrag.AST.SimpleNode n = o.node;
-      //buf.append(ind + "// Declared in " + o.fileName + " at line " + o.line + "\n");
+      //out.println(ind + "// Declared in " + o.fileName + " at line " + o.line);
       if(n instanceof jrag.AST.ASTAspectMethodDeclaration) {
         try {
+          StringBuffer buf = new StringBuffer();
           jrag.AST.ASTAspectMethodDeclaration decl = (jrag.AST.ASTAspectMethodDeclaration)n;
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
+          out.print(buf);
         } catch (Exception e) {
           System.err.println("Error generating " + o.signature() + " in " + name());
           e.printStackTrace();
@@ -155,8 +156,10 @@ aspect JragCodeGen {
       }
       else if(n instanceof jrag.AST.ASTAspectRefineMethodDeclaration) {
         try {
+          StringBuffer buf = new StringBuffer();
           jrag.AST.ASTAspectRefineMethodDeclaration decl = (jrag.AST.ASTAspectRefineMethodDeclaration)n;
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
+          out.print(buf);
         } catch (Exception e) {
           System.err.println("Error generating " + o.signature() + " in " + name());
           e.printStackTrace();
@@ -166,17 +169,19 @@ aspect JragCodeGen {
         // do not emit refined implementations
       }
       else {
-        if(!o.comments.equals(""))
-          buf.append(o.comments + " ");
-        buf.append(o.modifiers);
+        if(!o.comments.equals("")) {
+          out.print(o.comments + " ");
+        }
+        out.print(o.modifiers);
+        StringBuffer buf = new StringBuffer();
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
+        out.print(buf.toString());
       }
-      buf.append("\n");
+      out.println();
     }
-    return buf.toString();
   }
 
-  public String TypeDecl.genMembers() { return ""; }
+  public void TypeDecl.emitMembers(PrintStream out) { }
 
   public String ASTDecl.javadocComment(ClassBodyObject obj) {
     String comment = obj.comments;
@@ -217,21 +222,18 @@ aspect JragCodeGen {
     return sb.toString();
   }
 
-  public String ASTDecl.genMembers() {
-    StringBuffer buf = new StringBuffer();
-    for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
+  public void ASTDecl.emitMembers(PrintStream out) {
+    for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       jrag.AST.SimpleNode node = obj.node;
-      //buf.append(ind + "// Declared in " + obj.fileName + " at line " + obj.line + "\n");
-      //if (!obj.comments.equals(""))
-        //buf.append(obj.comments + " ");
-      buf.append(obj.modifiers);
-      buf.append(javadocComment(obj));
-      buf.append(ind);
+      out.print(obj.modifiers);
+      out.print(javadocComment(obj));
+      out.print(ind);
+      StringBuffer buf = new StringBuffer();
       node.jjtAccept(new ClassBodyDeclUnparser(), buf);
-      buf.append("\n");
+      out.print(buf.toString());
+      out.println();
     }
-    return buf.toString();
   }
 
   syn String ASTDecl.annotations() = suppressWarnings();
