@@ -1552,8 +1552,7 @@ aspect JragCodeGen {
   }
 
 
-  public String ASTDecl.genInhEquations() {
-    StringBuffer buf = new StringBuffer();
+  public void ASTDecl.emitInhEquations(PrintStream out) {
     for(Iterator idIter = inhAttrSet(); idIter.hasNext(); ) {
       String attrId = (String)idIter.next();
       Iterator iter = inhAttrEqs(attrId);
@@ -1561,19 +1560,18 @@ aspect JragCodeGen {
       InhDecl decl = (InhDecl)equ.decl();
 
       String s;
-      buf.append(ind + "/**\n");
-      buf.append(ind + " * " + grammar().declaredat(equ.getFileName(), equ.getStartLine()) + "\n");
-      buf.append(ind + " * @apilevel internal\n");
-      buf.append(ind + " */\n");
-      s = ind + "public #TYPE# #CLASS#.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n";
+      out.println(ind + "/**");
+      out.println(ind + " * " + grammar().declaredat(equ.getFileName(), equ.getStartLine()));
+      out.println(ind + " * @apilevel internal");
+      out.println(ind + " */");
+      s = ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {";
       s = s.replaceAll("#TYPE#", decl.type());
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", decl.attributeSignature());
       s = s.replaceAll("#METHODNAME#", decl.attributeName());
       s = s.replaceAll("#PARMDECL#", decl.parametersDecl());
       s = s.replaceAll("#INTERFACEPARMDECL#", decl.interfaceParametersDecl());
-      buf.append(s);
+      out.println(s);
 
       // have we already generated a component equation?
       boolean hasComponentEq = false;
@@ -1666,7 +1664,7 @@ aspect JragCodeGen {
                     ind(2) + "}\n";
           }
         }
-        buf.append(s);
+        out.print(s);
 
         if(iter.hasNext()) {
           equ = (InhEq)iter.next();
@@ -1697,11 +1695,10 @@ aspect JragCodeGen {
         s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
         s = s.replaceAll("#PARM#", decl.parameters());
         s = s.replaceAll("#INTERFACEPARM#", decl.interfaceParameters());
-        buf.append(s);
+        out.print(s);
       }
-      buf.append(ind + "}\n");
+      out.println(ind + "}");
     }
-    return buf.toString();
   }
 
   public Iterator Grammar.inhAttrSet() {
