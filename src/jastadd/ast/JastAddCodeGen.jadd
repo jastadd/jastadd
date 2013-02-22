@@ -460,7 +460,7 @@ aspect JastAddCodeGen {
       emitRewrites(out);
     }
     emitCollDecls(out);
-    out.print(genCollContributions());
+    emitCollContributions(out);
     emitInhEqSignatures(out);
   }
 

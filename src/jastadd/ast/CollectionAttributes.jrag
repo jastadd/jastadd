@@ -392,14 +392,12 @@ aspect CollectionAttributes {
   syn boolean AttrDecl.naive() = hasAnnotation("@Naive");
   syn boolean AttrEq.naive() = decl().naive();
 
-  public String ASTDecl.genCollContributions() {
+  public void ASTDecl.emitCollContributions(PrintStream out) {
     // find all coll eq in this node and group them according to either the coll decl or group name
-    StringBuffer result = new StringBuffer();
-    result.append(collectContributors());
-    result.append(contributeTo());
+    out.print(collectContributors());
+    out.print(contributeTo());
     // and similar code for separate evaluation
-    result.append(nextIteration());
-    return result.toString();
+    out.print(nextIteration());
   }
 
   private String ASTDecl.collectContributors() {
