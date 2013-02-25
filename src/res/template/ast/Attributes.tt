@@ -1,21 +1,3 @@
 # attribute declarations
 AttrDecl.synDecl = AttrDecl.inhDecl = [[  #(annotations)public #getType #attributeName(#parametersDecl);
 ]]
-
-# Probably obsolete
-AttrDecl.computeMethod = [[
-  /**
-   * @apilevel internal
-   */
-  private #getType #(attributeName)_compute(#parametersDecl) {
-    ASTNode n = getParent();
-    ASTNode caller = this;
-    ASTNode child = null;
-    while (!(n instanceof Defines_#(getTypeSignature)_#attributeSignature) && n != null) {
-      child = caller;
-      caller = n;
-      n = n.getParent();
-    }
-    #inhDebugString
-    return ((Defines_#(getTypeSignature)_#attributeSignature)n).Define_#(getTypeSignature)_#attributeName(#interfaceParameters);
-  }]]
