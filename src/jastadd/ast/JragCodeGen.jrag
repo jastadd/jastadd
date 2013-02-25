@@ -369,55 +369,63 @@ aspect JragCodeGen {
     return s.toString();
   }
 
-  public String AttrDecl.visitedDeclarations() {
+  public void AttrDecl.emitVisitedDeclarations(PrintStream out) {
     if(isCircular()) {
       if(getNumParameter() == 0) {
-        return ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected int " + attributeSignature() + "_visited = -1;");
+        return;
       } else {
         // the visited flag is part of the State$Value object
-        return "";
+        return;
       }
     }
-    if(!grammar().visitCheckEnabled && !isCircular()) return "";
+    if(!grammar().visitCheckEnabled && !isCircular()) return;
+
     if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0) {
-        return ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected int #CLASS#.#NAME#_visited = -1;\n";
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected int " + attributeSignature() + "_visited = -1;");
+        return;
       } else {
         if(grammar().lazyMaps) {
-          return ind + "/**\n" +
-                 ind + " * @apilevel internal\n" +
-                 ind + " */\n" +
-                 ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_visited;\n";
+          out.println(ind + "/**");
+          out.println(ind + " * @apilevel internal");
+          out.println(ind + " */");
+          out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_visited;");
+          return;
         } else {
-          return ind + "/**\n" +
-                 ind + " * @apilevel internal\n" +
-                 ind + " */\n" +
-                 ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_visited = " + grammar().createDefaultMap + ";\n";
+          out.println(ind + "/**");
+          out.println(ind + " * @apilevel internal");
+          out.println(ind + " */");
+          out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_visited = " + grammar().createDefaultMap + ";");
+          return;
         }
       }
     }
     if(getNumParameter() == 0) {
-      return ind + "/**\n" +
-             ind + " * @apilevel internal\n" +
-             ind + " */\n" +
-             ind + "protected boolean #CLASS#.#NAME#_visited = false;\n";
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel internal");
+      out.println(ind + " */");
+      out.println(ind + "protected boolean " + attributeSignature() + "_visited = false;");
+      return;
     } else {
       if(grammar().lazyMaps) {
-        return ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_visited;\n";
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected " + grammar().typeDefaultSet + " " + attributeSignature() + "_visited;");
+        return;
       } else {
-        return ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_visited = " + grammar().createDefaultSet + ";\n";
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected " + grammar().typeDefaultSet + " " + attributeSignature() + "_visited = " + grammar().createDefaultSet + "");
+        return;
       }
     }
   }
@@ -517,47 +525,53 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.cacheDeclarations() {
+  public void AttrDecl.emitCacheDeclarations(PrintStream out) {
     if(!getLazy())
-      return "";
+      return;
     if(getNumParameter() == 0) {
-      return ind + "/**\n" +
-             ind + " * @apilevel internal\n" +
-             ind + " */\n" +
-             ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
-             ind + "/**\n" +
-             ind + " * @apilevel internal\n" +
-             ind + " */\n" +
-             ind + "protected #TYPE# #CLASS#.#NAME#_value;\n";
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel internal");
+      out.println(ind + " */");
+      out.println(ind + "protected boolean " + attributeSignature() + "_computed = false;");
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel internal");
+      out.println(ind + " */");
+      out.println(ind + "protected " + getType() + " " + attributeSignature() + "_value;");
+      return;
     } else if(declaredNTA()) {
       if(grammar().lazyMaps) {
-        return ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values;\n" +
-               ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected List #CLASS#.#NAME#_list;\n";
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values;");
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected List " + attributeSignature() + "_list;");
+        return;
       } else {
-        return ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n" +
-               ind + "/**\n" +
-               ind + " * @apilevel internal\n" +
-               ind + " */\n" +
-               ind + "protected List #CLASS#.#NAME#_list;\n";
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";");
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "protected List " + attributeSignature() + "_list;");
+        return;
       }
     }
     else {
-      if(grammar().lazyMaps) {
-        return ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values;\n";
+      if (grammar().lazyMaps) {
+        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values;");
+        return;
       } else {
-        return ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n";
+        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";");
+        return;
       }
     }
   }
+
   syn boolean AttrDecl.declaredNTA() = false;
   eq SynDecl.declaredNTA() = getNTA();
   eq InhDecl.declaredNTA() = getNTA();
@@ -1263,56 +1277,55 @@ aspect JragCodeGen {
       return "(" + s1 + "==null && " + s2 + "!=null)" + " || " + "(" + s1 + "!=null && " + "!" + s1 + ".equals(" + s2 + ")" + ")";
   }
 
-  public String ASTDecl.getCacheDeclarations(AttrDecl attr) {
+  public void ASTDecl.emitCacheDeclarations(PrintStream out, AttrDecl attr) {
     boolean needsCacheDeclaration = true;
     if(attr instanceof SynDecl) {
       // EMMA_2011-09-13: Setting this to true to get declarations for each 
       // equation of an attribute. If an equation lacks its own visited declaration
       // and calls an overriden equation it can cause a circularity exception.
       needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
-      // OLD      needsCacheDeclaration = superClass() == null || !superClass().hasLazySynEqFor(attr);
     }
     if (!attr.isCircular()) {
-      return
-        needsCacheDeclaration
-        ?(
-            attr.visitedDeclarations() + attr.cacheDeclarations()
-         ) : "";
-    }
-    else {
-      if(attr.getNumParameter() == 0) {
-        if(!needsCacheDeclaration && attr instanceof SynDecl &&
+      if (needsCacheDeclaration) {
+        attr.emitVisitedDeclarations(out);
+        attr.emitCacheDeclarations(out);
+      }
+    } else {
+      if (attr.getNumParameter() == 0) {
+        if (!needsCacheDeclaration && attr instanceof SynDecl &&
             superClass() != null && superClass().lookupSynEq(attr.signature()) != null
             && !superClass().lookupSynEq(attr.signature()).decl().isCircular()) {
 
           needsCacheDeclaration = true;
         }
-        return
-          needsCacheDeclaration
-          ?(
-              attr.visitedDeclarations() +
-              ind + "/**\n" +
-              ind + " * @apilevel internal\n" +
-              ind + " */\n" +
-              ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
-              ind + "/**\n" +
-              ind + " * @apilevel internal\n" +
-              ind + " */\n" +
-              ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
-              ind + "/**\n" +
-              ind + " * @apilevel internal\n" +
-              ind + " */\n" +
-              ind + "protected #TYPE# #CLASS#.#NAME#_value;\n"
-           ) : "";
+        if (needsCacheDeclaration) {
+          attr.emitVisitedDeclarations(out);
+          out.println(ind + "/**");
+          out.println(ind + " * @apilevel internal");
+          out.println(ind + " */");
+          out.println(ind + "protected boolean " + attr.attributeSignature() + "_computed = false;");
+          out.println(ind + "/**");
+          out.println(ind + " * @apilevel internal");
+          out.println(ind + " */");
+          out.println(ind + "protected boolean " + attr.attributeSignature() + "_initialized = false;");
+          out.println(ind + "/**");
+          out.println(ind + " * @apilevel internal");
+          out.println(ind + " */");
+          out.println(ind + "protected " + attr.getType() + " " + attr.attributeSignature() + "_value;");
+          return;
+        }
       }
       else {
-        return
-          needsCacheDeclaration
-          ?(
-              attr.visitedDeclarations() +
-              ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values" +
-              (grammar().lazyMaps ? "" : (" = " + grammar().createDefaultMap)) + ";\n"
-           ) : "";
+        if (needsCacheDeclaration) {
+          attr.emitVisitedDeclarations(out);
+          if (grammar().lazyMaps) {
+            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.attributeSignature() + "_values;");
+            return;
+          } else {
+            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.attributeSignature() + "_values = " + grammar().createDefaultMap + ";");
+            return;
+          }
+        }
       }
     }
   }
@@ -1331,7 +1344,6 @@ aspect JragCodeGen {
          if (!s.isEmpty())
            s = attr.hostFileComment(ind) + s;
        }
-       s = getCacheDeclarations(attr) + s;
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        s = s.replaceAll("#CLASS#\\.", "");
@@ -1340,6 +1352,8 @@ aspect JragCodeGen {
        s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
        s = s.replaceAll("#PARM#", attr.parameters());
        out.print(s);
+
+       emitCacheDeclarations(out, attr);
     }
   }
 
@@ -1493,7 +1507,7 @@ aspect JragCodeGen {
        AttrDecl attr = getInhDecl(i);
        out.print(attr.hostFileComment(ind));
        String s;
-       s = genEquation(attr) + getCacheDeclarations(attr);
+       s = genEquation(attr);
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        s = s.replaceAll("#CLASS#\\.", "");
@@ -1503,6 +1517,8 @@ aspect JragCodeGen {
        s = s.replaceAll("#PARM#", attr.parameters());
        s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
        out.print(s);
+
+       emitCacheDeclarations(out, attr);
     }
   }
 
@@ -1765,27 +1781,6 @@ aspect JragCodeGen {
       }
     }
   }
-  public String ASTDecl.genInhCache(AttrDecl attr) {
-      boolean isLazy = attr.getLazy();
-      attr.setLazy(true);
-      String s =
-           attr.cacheDeclarations() +
-           ind + "/**\n" +
-           ind + " * @apilevel internal\n" +
-           ind + " */\n" +
-           ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
-           attr.parameterStructure() +
-           attr.initLazyMaps() +
-           attr.cacheCheck() +
-           attr.cacheInit(ind) +
-           attr.callCompute() +
-           attr.cacheStore() +
-           ind(2) + attr.returnStmt() +
-           ind + "}\n";
-       attr.setLazy(isLazy);
-       return s;
-    }
-
 
   syn String AttrDecl.tracePrintReturnPreviousValue(String varName) = "";
   syn String AttrDecl.tracePrintReturnNewValue(String varName) = "";

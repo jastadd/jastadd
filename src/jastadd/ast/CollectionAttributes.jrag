@@ -48,11 +48,12 @@ aspect CollectionAttributes {
       String s = "";
       if(attr.circularCollection()) {
         s = genCircular(attr, attr.hostFileComment(ind)) + attr.combineMethod();
+        attr.emitVisitedDeclarations(out);
       } else {
         out.print(attr.hostFileComment(ind));
         s += genEquation(attr);
         s += attr.computeMethod();
-        s = getCacheDeclarations(attr) + s;
+        emitCacheDeclarations(out, attr);
       }
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
@@ -96,7 +97,7 @@ aspect CollectionAttributes {
     boolean separateEvaluation = attr.separateEvaluation();
     String rootType = attr.root().name();
     if(attr.getNumParameter() == 0)
-      return attr.visitedDeclarations() +
+      return
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
@@ -180,7 +181,7 @@ aspect CollectionAttributes {
          (grammar().block ? grammar().blockEnd : "") +
          ind + "}\n\n";
     else
-      return attr.visitedDeclarations() +
+      return
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
