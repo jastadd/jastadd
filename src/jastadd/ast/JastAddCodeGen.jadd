@@ -286,7 +286,7 @@ aspect JastAddCodeGen {
       //emitSynEquations(stream);
       emitInhDeclarations(stream);
       //emitInhEquations(stream);
-      stream.print(genInterfaceCollections());
+      emitInterfaceCollections(stream);
       
       stream.println("}");
       stream.close();

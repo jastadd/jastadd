@@ -66,18 +66,16 @@ aspect CollectionAttributes {
     }
   }
 
-  public String InterfaceDecl.genInterfaceCollections() {
-    StringBuffer buf = new StringBuffer();
+  public void InterfaceDecl.emitInterfaceCollections(PrintStream out) {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       if(!attr.separateEvaluation() && (attr.isCircular() || !attr.onePhase())) {
-        buf.append(ind + "/**\n");
-        buf.append(ind + " * @apilevel internal\n");
-        buf.append(ind + " */\n");
-        buf.append(ind + "public " + grammar().typeDefaultSet + " " + attr.attributeSignature() + "_contributors();\n");
+        out.println(ind + "/**");
+        out.println(ind + " * @apilevel internal");
+        out.println(ind + " */");
+        out.println(ind + "public " + grammar().typeDefaultSet + " " + attr.attributeSignature() + "_contributors();");
       }
     }
-    return buf.toString();
   }
 
   syn TypeDecl AttrDecl.root() = hostClass().env().root();
