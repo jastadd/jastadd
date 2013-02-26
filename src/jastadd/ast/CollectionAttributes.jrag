@@ -394,13 +394,13 @@ aspect CollectionAttributes {
 
   public void ASTDecl.emitCollContributions(PrintStream out) {
     // find all coll eq in this node and group them according to either the coll decl or group name
-    out.print(collectContributors());
-    out.print(contributeTo());
+    collectContributors(out);
+    contributeTo(out);
     // and similar code for separate evaluation
-    out.print(nextIteration());
+    nextIteration(out);
   }
 
-  private String ASTDecl.collectContributors() {
+  private void ASTDecl.collectContributors(PrintStream out) {
     HashMap map = new LinkedHashMap();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
@@ -413,7 +413,6 @@ aspect CollectionAttributes {
       }
     }
 
-    StringBuffer result = new StringBuffer();
     for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
@@ -489,14 +488,11 @@ aspect CollectionAttributes {
         }
       }
       buf.append(ind + "}\n");
-      String s = buf.toString();
-      result.append(s);
+      out.print(buf.toString());
     }
-    return result.toString();
   }
 
-  private String ASTDecl.contributeTo() {
-    StringBuffer result = new StringBuffer();
+  private void ASTDecl.contributeTo(PrintStream out) {
     HashMap map = new LinkedHashMap();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
@@ -531,12 +527,11 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
       s = s.replaceAll("#NAME#", decl.attributeSignature());
-      result.append(s);
+      out.print(s);
     }
-    return result.toString();
   }
 
-  private String ASTDecl.nextIteration() {
+  private void ASTDecl.nextIteration(PrintStream out) {
     HashMap map = new LinkedHashMap();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
@@ -548,7 +543,6 @@ aspect CollectionAttributes {
       }
     }
 
-    StringBuffer result = new StringBuffer();
     for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
@@ -619,9 +613,8 @@ aspect CollectionAttributes {
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
       s = s.replaceAll("#PARM#", attr.parameters());
-      result.append(s);
+      out.print(s);
     }
-    return result.toString();
   }
 
 
