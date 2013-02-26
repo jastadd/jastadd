@@ -106,10 +106,10 @@ aspect CollectionAttributes {
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected #TYPE# #NAME#_value;\n" +
-         (separateEvaluation ? ind + "protected #TYPE# new_#NAME#_value;\n" : "") +
+         ind + "protected " + attr.getType() + " #NAME#_value;\n" +
+         (separateEvaluation ? ind + "protected " + attr.getType() + " new_#NAME#_value;\n" : "") +
          comment + suppressWarnings() +
-         ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+         ind + "public " + attr.getType() + " #METHODNAME#(#PARMDECL#) {\n" +
          (grammar().block ? grammar().blockBegin : "") +
          attr.parameterStructure() +
          attr.cacheCheck() +
@@ -138,7 +138,7 @@ aspect CollectionAttributes {
          ind(4) + "state().CHANGE = false;\n" +
          (separateEvaluation ?
          ind(4) + "new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" :
-         ind(4) + "#TYPE# new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n") +
+         ind(4) + "" + attr.getType() + " new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n") +
          (separateEvaluation ? "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" :
          ind(4) + "combine_#NAME#_contributions(new_#NAME#_value);\n") +
          ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
@@ -166,7 +166,7 @@ aspect CollectionAttributes {
          attr.addAddToComponent() +
          (separateEvaluation ?
          ind(3) + "new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" :
-         ind(3) + "#TYPE# new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n") +
+         ind(3) + "" + attr.getType() + " new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n") +
          (separateEvaluation ? "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" :
          ind(3) + "combine_#NAME#_contributions(new_#NAME#_value);\n") +
          ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
@@ -192,7 +192,7 @@ aspect CollectionAttributes {
          ind + " */\n" +
          ind + "protected " + grammar().typeDefaultMap + " #NAME#_values = " + grammar().createDefaultMap + ";\n" +
          comment + suppressWarnings() +
-         ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+         ind + "public " + attr.getType() + " #METHODNAME#(#PARMDECL#) {\n" +
          (grammar().block ? grammar().blockBegin : "") +
          attr.parameterStructure() +
          attr.initLazyMaps() +
@@ -208,7 +208,7 @@ aspect CollectionAttributes {
          attr.cacheInitRewrite(ind(2)) +
          attr.addAddToComponent() +
          ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-         ind(3) + "#TYPE# new_#NAME#_value;\n" +
+         ind(3) + "" + attr.getType() + " new_#NAME#_value;\n" +
          ind(3) + "do {\n" +
          ind(4) + "#NAME#_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));\n" +
          ind(4) + "state().CHANGE = false;\n" +
@@ -237,7 +237,7 @@ aspect CollectionAttributes {
          ind(3) + "#NAME#_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));\n" +
          attr.cacheCycleCheck() +
          attr.resetCycleCheck() +
-         ind(3) + "#TYPE# new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
+         ind(3) + "" + attr.getType() + " new_#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
          ind(3) + "combine_#NAME#_contributions(new_#NAME#_value);\n" +
          ind(3) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("#NAME#_values.get(_parameters)", attr.getType())) + ")\n" +
          ind(4) + "state().CHANGE = true;\n" +
