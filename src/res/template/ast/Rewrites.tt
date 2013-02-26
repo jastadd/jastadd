@@ -33,14 +33,14 @@ Rewrite.genRewrite.declaredat = [[
 Rewrite.genRewrite:conditional [[
     if ($Condition) {
       state().during#aspectName++;
-      ASTNode result = rewriteRule$RewriteIndex();
+      ASTNode result = rewriteRule$(RewriteIndex)();
       state().during#aspectName--;
       return result;
     }]]
 
 Rewrite.genRewrite:unconditional [[
     state().during#aspectName++;
-    ASTNode result = rewriteRule$RewriteIndex();
+    ASTNode result = rewriteRule$(RewriteIndex)();
     state().during#aspectName--;
     return result;]]
 
