@@ -433,7 +433,7 @@ aspect JragCodeGen {
   public String AttrDecl.visitedException() {
     if(!grammar().visitCheckEnabled) return "";
     if(!grammar().traceVisitCheck) {
-      return ind(3) + "throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: #CLASS#.\");\n";
+      return ind(3) + "throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: \");\n";
     } else {
       return ind(3) + "System.out.println(\"Circular definition of attr: #METHODNAME# in class: \" + getClass().getName());\n";
     }
@@ -836,7 +836,7 @@ aspect JragCodeGen {
    */
   public String AttrEq.computeMethodInline(AttrDecl attr) {
     return
-      ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+      ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
       (grammar().block ? ind(2) + grammar().blockBegin : "") +
       attr.parameterStructure() +
       attr.traceBeginAttr() +
@@ -886,7 +886,7 @@ aspect JragCodeGen {
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) " + computeMethodBody() + "\n";
+      ind + "private #TYPE# #METHODNAME#_compute(#PARMDECL#) " + computeMethodBody() + "\n";
   }
 
   syn String AttrDecl.inhDebugString() {
@@ -917,7 +917,7 @@ aspect JragCodeGen {
     if (!attr.isCircular()) {
       return
            suppressWarnings() +
-           ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
            (grammar().block ? ind(2) + grammar().blockBegin : "") +
            attr.parameterStructure() +
            attr.traceBeginAttr() +
@@ -946,7 +946,7 @@ aspect JragCodeGen {
       if(attr.getNumParameter() == 0) {
         return
            suppressWarnings() +
-           ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
@@ -1025,7 +1025,7 @@ aspect JragCodeGen {
       else {
         return
            suppressWarnings() +
-           ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
@@ -1346,7 +1346,6 @@ aspect JragCodeGen {
        }
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       s = s.replaceAll("#CLASS#\\.", "");
        s = s.replaceAll("#NAME#", attr.attributeSignature());
        s = s.replaceAll("#METHODNAME#", attr.attributeName());
        s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
@@ -1510,7 +1509,6 @@ aspect JragCodeGen {
        s = genEquation(attr);
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       s = s.replaceAll("#CLASS#\\.", "");
        s = s.replaceAll("#NAME#", attr.attributeSignature());
        s = s.replaceAll("#METHODNAME#", attr.attributeName());
        s = s.replaceAll("#PARMDECL#", attr.parametersDecl());

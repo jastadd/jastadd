@@ -58,7 +58,6 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPE#", attr.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", name());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -101,18 +100,18 @@ aspect CollectionAttributes {
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected boolean #CLASS#.#NAME#_computed = false;\n" +
+         ind + "protected boolean #NAME#_computed = false;\n" +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected boolean #CLASS#.#NAME#_initialized = false;\n" +
+         ind + "protected boolean #NAME#_initialized = false;\n" +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected #TYPE# #CLASS#.#NAME#_value;\n" +
-         (separateEvaluation ? ind + "protected #TYPE# #CLASS#.new_#NAME#_value;\n" : "") +
+         ind + "protected #TYPE# #NAME#_value;\n" +
+         (separateEvaluation ? ind + "protected #TYPE# new_#NAME#_value;\n" : "") +
          comment + suppressWarnings() +
-         ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+         ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
          (grammar().block ? grammar().blockBegin : "") +
          attr.parameterStructure() +
          attr.cacheCheck() +
@@ -185,17 +184,17 @@ aspect CollectionAttributes {
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_computed = " + grammar().createDefaultSet + ";\n" +
+         ind + "protected " + grammar().typeDefaultSet + " #NAME#_computed = " + grammar().createDefaultSet + ";\n" +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected " + grammar().typeDefaultSet + " #CLASS#.#NAME#_initialized = " + grammar().createDefaultSet + ";\n" +
+         ind + "protected " + grammar().typeDefaultSet + " #NAME#_initialized = " + grammar().createDefaultSet + ";\n" +
          ind + "/**\n" +
          ind + " * @apilevel internal\n" +
          ind + " */\n" +
-         ind + "protected " + grammar().typeDefaultMap + " #CLASS#.#NAME#_values = " + grammar().createDefaultMap + ";\n" +
+         ind + "protected " + grammar().typeDefaultMap + " #NAME#_values = " + grammar().createDefaultMap + ";\n" +
          comment + suppressWarnings() +
-         ind + "public #TYPE# #CLASS#.#METHODNAME#(#PARMDECL#) {\n" +
+         ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
          (grammar().block ? grammar().blockBegin : "") +
          attr.parameterStructure() +
          attr.initLazyMaps() +
@@ -292,7 +291,7 @@ aspect CollectionAttributes {
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+      ind + "private #TYPE# #METHODNAME#_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
@@ -307,7 +306,7 @@ aspect CollectionAttributes {
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+      ind + "private #TYPE# #METHODNAME#_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
@@ -320,15 +319,15 @@ aspect CollectionAttributes {
       ind + "}\n\n";
     else
       return
-      ind + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
-      ind + "public " + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
+      ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + "public " + grammar().typeDefaultSet + " #NAME#_contributors() {\n" +
       (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
       ind + "}\n" +
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# #CLASS#.#METHODNAME#_compute(#PARMDECL#) {\n" +
+      ind + "private #TYPE# #METHODNAME#_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
@@ -353,12 +352,12 @@ aspect CollectionAttributes {
 
     String rootType = root().name();
     String s =
-      ind + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
-      ind + "public " + grammar().typeDefaultSet + " #CLASS#.#NAME#_contributors() {\n" +
+      ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + "public " + grammar().typeDefaultSet + " #NAME#_contributors() {\n" +
       (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
       ind + "}\n" +
-      ind + "private #TYPE# #CLASS#.combine_#NAME#_contributions(#TYPE# h) {\n" +
+      ind + "private #TYPE# combine_#NAME#_contributions(#TYPE# h) {\n" +
       (grammar().lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
       ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
       ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
@@ -419,7 +418,7 @@ aspect CollectionAttributes {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
       StringBuffer buf = new StringBuffer();
-      buf.append(ind + "protected void #CLASS#.collect_contributors_" + key + "() {\n"); // once per group
+      buf.append(ind + "protected void collect_contributors_" + key + "() {\n"); // once per group
 
       if(isRootNode()) {
         buf.append(ind(2) + "if(collect_contributors_" + key + ") return;\n");
@@ -491,7 +490,6 @@ aspect CollectionAttributes {
       }
       buf.append(ind + "}\n");
       String s = buf.toString();
-      s = s.replaceAll("#CLASS#\\.", "");
       result.append(s);
     }
     return result.toString();
@@ -513,7 +511,7 @@ aspect CollectionAttributes {
       CollDecl decl = (CollDecl)iter.next();
       ArrayList list = (ArrayList)map.get(decl);
       StringBuffer buf = new StringBuffer();
-      buf.append(ind + "protected void #CLASS#.contributeTo_#TYPEINSIGNATURE#_#NAME#(" + decl.getType() + " collection) {\n");
+      buf.append(ind + "protected void contributeTo_#TYPEINSIGNATURE#_#NAME#(" + decl.getType() + " collection) {\n");
       buf.append(ind(2) + "super.contributeTo_#TYPEINSIGNATURE#_#NAME#(collection);\n");
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         CollEq attr = (CollEq)i2.next();
@@ -532,7 +530,6 @@ aspect CollectionAttributes {
       String s = buf.toString();
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", decl.attributeSignature());
       result.append(s);
     }
@@ -556,7 +553,7 @@ aspect CollectionAttributes {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
       StringBuffer buf = new StringBuffer();
-      buf.append(ind + "protected void #CLASS#.#TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n");
+      buf.append(ind + "protected void #TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n");
       CollDecl decl = null;
       CollEq attr = null;
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
@@ -618,7 +615,6 @@ aspect CollectionAttributes {
       s = s.replaceAll("#TYPE#", decl.getType());
       s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
       s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      s = s.replaceAll("#CLASS#\\.", "");
       s = s.replaceAll("#NAME#", attr.attributeSignature());
       s = s.replaceAll("#METHODNAME#", attr.attributeName());
       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -683,25 +679,24 @@ aspect CollectionAttributes {
         if(!astDecl.hasCollEq(attr) && process) {
           if(separateEvaluation)
             s =
-            ind + "protected void #CLASS#.#TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n" +
+            ind + "protected void #TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n" +
             ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
             ind(3) + "getChild(i).#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n" +
             ind + "}\n\n";
           if(process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) // TODO: replace !attr.naive() with !(!attr.isCircular() && separateEvaluation)
             s = s +
-            ind + "protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
+            ind + "protected void collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
             ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
             ind(3) + "getChild(i).collect_contributors_#COLLECTINGSIGNATURE#();\n" +
             ind + "}\n\n";
 
           if(!separateEvaluation && (attr.isCircular() || !attr.onePhase())) // TODO: add && !attr.separateEvaluation()
           s = s +
-            ind + "protected void #CLASS#.contributeTo_#TYPEINSIGNATURE#_#NAME#(" + attr.getType() + " collection) {\n" +
+            ind + "protected void contributeTo_#TYPEINSIGNATURE#_#NAME#(" + attr.getType() + " collection) {\n" +
             ind + "}\n";
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          s = s.replaceAll("#CLASS#\\.", "");
           s = s.replaceAll("#NAME#", attr.attributeSignature());
           s = s.replaceAll("#METHODNAME#", attr.attributeName());
           s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
@@ -714,9 +709,9 @@ aspect CollectionAttributes {
           String flush = "";
           if(attr.circularCollection() && !separateEvaluation) { // TODO: remove && !attr.naive()
             s =
-              ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "public boolean #CLASS#.collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
+              ind + "private boolean collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "public boolean collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "protected void collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
               ind(2) + "if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
               ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = true;\n" +
               ind(2) + "super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
@@ -729,8 +724,8 @@ aspect CollectionAttributes {
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) { // TODO: replace !attr.naive() with !attr.separateEvaluation()
             if(!rootDecl.hasCollEq(attr)) {
               s =
-              ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "protected void #CLASS#.collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
+              ind + "private boolean collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
+              ind + "protected void collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
               ind(2) + "if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
               ind(2) + "super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
               ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
@@ -738,7 +733,7 @@ aspect CollectionAttributes {
             }
             else {
               s =
-              ind + "private boolean #CLASS#.collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind + "private boolean collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
             }
             flush =
               ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
@@ -746,7 +741,6 @@ aspect CollectionAttributes {
           s = s.replaceAll("#TYPE#", attr.getType());
           s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
           s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          s = s.replaceAll("#CLASS#\\.", "");
           s = s.replaceAll("#NAME#", attr.attributeSignature());
           s = s.replaceAll("#METHODNAME#", attr.attributeName());
           s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
