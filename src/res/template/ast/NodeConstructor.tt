@@ -1,21 +1,21 @@
 ast.constructor.default:jjtree = [[
-  public #name.#(name)(int i) {
+  public #(name).#(name)(int i) {
     super(i);
     $InitChildren
     $FinalInit
   }
 
-  public #name.#(name)($ParserName p, int i) {
+  public #(name).#(name)($ParserName p, int i) {
     this(i);
     parser = p;
   }
 
-  public #name.#(name)() {
+  public #(name).#(name)() {
     this(0);
   }]]
 
 ast.constructor.default = [[
-  public #name.#(name)() {
+  public #(name).#(name)() {
     super();
     $InitChildren
     $FinalInit
@@ -28,7 +28,7 @@ initChildren = [[
    * @apilevel internal
    * @ast method
    */
-  public void #name.init$$Children() {
+  public void #(name).init$$Children() {
     $InitChildArray
     $ChildInit
   }]]
