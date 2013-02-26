@@ -752,16 +752,15 @@ aspect JragCodeGen {
   public String AttrDecl.cacheInit(String ind) {
     if(!getLazy())
       return "";
-    return cacheInitRewrite(ind);
+    return cacheInitRewrite();
   }
 
-  public String AttrDecl.cacheInitRewrite(String ind) {
+  public String AttrDecl.cacheInitRewrite() {
     if(!grammar().rewriteEnabled) {
       return "";
-    }
-    else {
-      return ind + "int num = state.boundariesCrossed;\n" +
-             ind + "boolean isFinal = this.is$Final();\n";
+    } else {
+      return "int num = state.boundariesCrossed;\n" +
+             "boolean isFinal = this.is$Final();";
     }
   }
 
@@ -961,7 +960,7 @@ aspect JragCodeGen {
            ind(3) + "state.IN_CIRCLE = true;\n" +
            attr.tracePrintCycleBeginString() +
            attr.addAddToComponent() +
-           attr.cacheInitRewrite(ind(2)) +
+           attr.cacheInitRewrite() +
            // TODO: fixme
            // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
            ind(3) + "do {\n" +
@@ -1042,7 +1041,7 @@ aspect JragCodeGen {
            ind(2) + "if (!state.IN_CIRCLE) {\n" +
            ind(3) + "state.IN_CIRCLE = true;\n" +
            attr.tracePrintCycleBeginString() +
-           attr.cacheInitRewrite(ind(3)) +
+           attr.cacheInitRewrite() +
            attr.addAddToComponent() +
            // TODO: fixme
            // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
@@ -1274,7 +1273,7 @@ aspect JragCodeGen {
     if (isPrimitive())
       return s1 + "!=" + s2;
     else
-      return "(" + s1 + "==null && " + s2 + "!=null)" + " || " + "(" + s1 + "!=null && " + "!" + s1 + ".equals(" + s2 + ")" + ")";
+      return "(" + s1 + "==null && " + s2 + "!=null) || (" + s1 + "!=null && !" + s1 + ".equals(" + s2 + "))";
   }
 
   public void ASTDecl.emitCacheDeclarations(PrintStream out, AttrDecl attr) {

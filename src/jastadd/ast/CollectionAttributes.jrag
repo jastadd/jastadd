@@ -48,7 +48,7 @@ aspect CollectionAttributes {
       String s = "";
       if(attr.circularCollection()) {
         attr.emitVisitedDeclarations(out);
-        out.print(attr.genCircular());
+        attr.emitCircular(out);
         s = attr.combineMethod();
       } else {
         out.print(attr.hostFileComment(ind));
@@ -90,164 +90,25 @@ aspect CollectionAttributes {
   }
 
   // only used by circular collection attributes
-  public String AttrDecl.genCircular() {
-    String comment = hostFileComment(ind);
-    String bottomValue = Unparser.unparse(getBottomValue());
-    boolean needsCacheDeclaration = true;
-    boolean separateEvaluation = separateEvaluation();
-    String rootType = root().name();
-    if(getNumParameter() == 0)
-      return
-         ind + "/**\n" +
-         ind + " * @apilevel internal\n" +
-         ind + " */\n" +
-         ind + "protected boolean " + attributeSignature() + "_computed = false;\n" +
-         ind + "/**\n" +
-         ind + " * @apilevel internal\n" +
-         ind + " */\n" +
-         ind + "protected boolean " + attributeSignature() + "_initialized = false;\n" +
-         ind + "/**\n" +
-         ind + " * @apilevel internal\n" +
-         ind + " */\n" +
-         ind + "protected " + getType() + " " + attributeSignature() + "_value;\n" +
-         (separateEvaluation ? ind + "protected " + getType() + " new_" + attributeSignature() + "_value;\n" : "") +
-         comment + suppressWarnings() +
-         ind + "public " + getType() + " " + attributeName() + "(" + parametersDecl() + ") {\n" +
-         (grammar().block ? grammar().blockBegin : "") +
-         parameterStructure() +
-         cacheCheck() +
-         ind(2) + "ASTNode node = this;\n" +
-         ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
-         ind(3) + "node = node.getParent();\n" +
-         ind(2) + collDebugString() +
-         ind(2) + rootType + " root = (" + rootType + ")node;\n" +
-         (separateEvaluation ? "" :
-         (ind(2) + "if(root.collecting_contributors_" + collectingSignature() + ")\n" +
-         ind(3) + "throw new RuntimeException(\"Circularity during phase 1\");\n")) +
-         addComponentCheck() +
-         (separateEvaluation ? "" :
-         ind(2) + "root.collect_contributors_" + collectingSignature() + "();\n") +
-         ind(2) + "if (!" + attributeSignature() + "_initialized) {\n" +
-         ind(3) + "" + attributeSignature() + "_initialized = true;\n" +
-         ind(3) + "" + attributeSignature() + "_value = " + bottomValue + ";\n" +
-         ind(2) + "}\n" +
-         ind(2) + "if (!state().IN_CIRCLE) {\n" +
-         ind(3) + "state().IN_CIRCLE = true;\n" +
-         addAddToComponent() +
-         cacheInitRewrite(ind(3)) +
-         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-         ind(3) + "do {\n" +
-         ind(4) + "" + attributeSignature() + "_visited = state().CIRCLE_INDEX;\n" +
-         ind(4) + "state().CHANGE = false;\n" +
-         (separateEvaluation ?
-         ind(4) + "new_" + attributeSignature() + "_value = " + bottomValue + ";\n" :
-         ind(4) + "" + getType() + " new_" + attributeSignature() + "_value = " + bottomValue + ";\n") +
-         (separateEvaluation ? "root." + name() + "_" + attributeSignature() + "_nextIteration(this);\n" :
-         ind(4) + "combine_" + attributeSignature() + "_contributions(new_" + attributeSignature() + "_value);\n") +
-         ind(4) + "if (" + differs("new_" + attributeSignature() + "_value", "" + attributeSignature() + "_value") + ")\n" +
-         ind(5) + "state().CHANGE = true;\n" +
-         ind(4) + "" + attributeSignature() + "_value = new_" + attributeSignature() + "_value; \n" +
-         ind(4) + "state().CIRCLE_INDEX++;\n" +
-         cycleLimitCheck() +
-         ind(3) + "} while (state().CHANGE);\n" +
-         ind(3) + cacheStoreRewrite() + "{\n" +
-         ind(3) + "" + attributeSignature() + "_computed = true;\n" +
-         cacheCycleInit() +
-         ind(2) + "}\n" +
-         ind(2) + "else {\n" +
-         resetCycleInit() +
-         ind(3) + "" + attributeSignature() + "_computed = false;\n" +
-         ind(3) + "" + attributeSignature() + "_initialized = false;\n" +
-         ind(2) + "}\n" +
-         ind(2) + "state().IN_CIRCLE = false; \n" +
-         ind(2) + returnStmt() +
-         ind(2) + "}\n" +
-         ind(2) + "if(" + attributeSignature() + "_visited != state().CIRCLE_INDEX) {\n" +
-         ind(3) + "" + attributeSignature() + "_visited = state().CIRCLE_INDEX;\n" +
-         cacheCycleCheck() +
-         resetCycleCheck() +
-         addAddToComponent() +
-         (separateEvaluation ?
-         ind(3) + "new_" + attributeSignature() + "_value = " + bottomValue + ";\n" :
-         ind(3) + "" + getType() + " new_" + attributeSignature() + "_value = " + bottomValue + ";\n") +
-         (separateEvaluation ? "root." + name() + "_" + attributeSignature() + "_nextIteration(this);\n" :
-         ind(3) + "combine_" + attributeSignature() + "_contributions(new_" + attributeSignature() + "_value);\n") +
-         ind(3) + "if (" + differs("new_" + attributeSignature() + "_value", "" + attributeSignature() + "_value") + ")\n" +
-         ind(4) + "state().CHANGE = true;\n" +
-         ind(3) + "" + attributeSignature() + "_value = new_" + attributeSignature() + "_value; \n" +
-         ind(3) + returnStmt() +
-         ind(2) + "}\n" +
-         ind(2) + returnStmt() +
-         (grammar().block ? grammar().blockEnd : "") +
-         ind + "}\n\n";
-    else
-      return
-         ind + "/**\n" +
-         ind + " * @apilevel internal\n" +
-         ind + " */\n" +
-         ind + "protected " + grammar().typeDefaultSet + " " + attributeSignature() + "_computed = " + grammar().createDefaultSet + ";\n" +
-         ind + "/**\n" +
-         ind + " * @apilevel internal\n" +
-         ind + " */\n" +
-         ind + "protected " + grammar().typeDefaultSet + " " + attributeSignature() + "_initialized = " + grammar().createDefaultSet + ";\n" +
-         ind + "/**\n" +
-         ind + " * @apilevel internal\n" +
-         ind + " */\n" +
-         ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";\n" +
-         comment + suppressWarnings() +
-         ind + "public " + getType() + " " + attributeName() + "(" + parametersDecl() + ") {\n" +
-         (grammar().block ? grammar().blockBegin : "") +
-         parameterStructure() +
-         initLazyMaps() +
-         cacheCheck() +
-         addComponentCheck() +
-         ind(2) + "if (!" + attributeSignature() + "_initialized.contains(_parameters)) {\n" +
-         ind(3) + "" + attributeSignature() + "_initialized.add(_parameters);\n" +
-         ind(3) + "" + attributeSignature() + "_values.put(_parameters, " + toReferenceType(bottomValue, getType()) + ");\n" +
-         ind(2) + "}\n" +
-         ind(2) + "if (!state().IN_CIRCLE) {\n" +
-         ind(3) + "state().IN_CIRCLE = true;\n" +
-         cacheInitRewrite(ind(2)) +
-         addAddToComponent() +
-         ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-         ind(3) + "" + getType() + " new_" + attributeSignature() + "_value;\n" +
-         ind(3) + "do {\n" +
-         ind(4) + "" + attributeSignature() + "_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));\n" +
-         ind(4) + "state().CHANGE = false;\n" +
-         ind(4) + "new_" + attributeSignature() + "_value = " + bottomValue + ";\n" +
-         ind(4) + "combine_" + attributeSignature() + "_contributions(new_" + attributeSignature() + "_value);\n" +
-         ind(4) + "if (" + differs("new_" + attributeSignature() + "_value", fromReferenceType("" + attributeSignature() + "_values.get(_parameters)", getType())) + ")\n" +
-         ind(5) + "state().CHANGE = true;\n" +
-         ind(4) + "" + attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attributeSignature() + "_value", getType()) + ");\n" +
-         ind(4) + "state().CIRCLE_INDEX++;\n" +
-         cycleLimitCheck() +
-         ind(3) + "} while (state().CHANGE);\n" +
-         ind(3) +  cacheStoreRewrite() + "{\n" +
-         ind(3) + "" + attributeSignature() + "_computed.add(_parameters);\n" +
-         cacheCycleInit() +
-         ind(3) + "}\n" +
-         ind(3) + "else {\n" +
-         resetCycleInit() +
-         ind(3) + "" + attributeSignature() + "_computed.remove(_parameters);\n" +
-         ind(3) + "" + attributeSignature() + "_initialized.remove(_parameters);\n" +
-         ind(3) + "}\n" +
-         ind(3) + "state().IN_CIRCLE = false; \n" +
-         ind(3) + "return new_" + attributeSignature() + "_value;\n" +
-         ind(2) + "}\n" +
-         ind(2) + "if(!new Interger(state().CIRCLE_INDEX).equals(" + attributeSignature() + "_visited.get(_parameters))) {\n" +
-         ind(3) + "" + attributeSignature() + "_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));\n" +
-         cacheCycleCheck() +
-         resetCycleCheck() +
-         ind(3) + "" + getType() + " new_" + attributeSignature() + "_value = " + bottomValue + ";\n" +
-         ind(3) + "combine_" + attributeSignature() + "_contributions(new_" + attributeSignature() + "_value);\n" +
-         ind(3) + "if (" + differs("new_" + attributeSignature() + "_value", fromReferenceType("" + attributeSignature() + "_values.get(_parameters)", getType())) + ")\n" +
-         ind(4) + "state().CHANGE = true;\n" +
-         ind(3) + "" + attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attributeSignature() + "_value", getType()) + ");\n" +
-         ind(3) + "return new_" + attributeSignature() + "_value;\n" +
-         ind(2) + "}\n" +
-         ind(2) + "return " + fromReferenceType("" + attributeSignature() + "_values.get(_parameters)" , getType()) + ";\n" +
-         (grammar().block ? grammar().blockEnd : "") +
-         ind + "}\n\n";
+  public void AttrDecl.emitCircular(PrintStream out) {
+    TemplateContext tt = templateContext();
+    tt.bind("Comment", hostFileComment(ind));
+    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
+    tt.bind("RootType", root().name());
+    tt.bind("SeparateEvaluation", "" + separateEvaluation());
+    if(getNumParameter() == 0) {
+      tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
+      tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
+      tt.expand("AttrDecl.emitCircular:non-parameterized", out);
+    } else {
+      tt.bind("Cond3", differs("new_" + attributeSignature() + "_value", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType())));
+      tt.bind("Cond4", differs("new_" + attributeSignature() + "_value", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType())));
+      tt.bind("RefType1", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
+      tt.bind("RefType2", toReferenceType("new_#(attributeSignature)_value", getType()));
+      tt.bind("RefType3", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+      tt.bind("FromRefType", fromReferenceType("" + attributeSignature() + "_values.get(_parameters)" , getType()));
+      tt.expand("AttrDecl.emitCircular:parameterized", out);
+    }
   }
 
   public String CollDecl.cacheCycleCheck() {

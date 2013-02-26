@@ -47,6 +47,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "core/Synchronization");
     loadTemplates(tt, "ast/Comments");
     loadTemplates(tt, "ast/Rewrites");
+    loadTemplates(tt, "ast/CircularCollection");
     return new SimpleContext(tt, this);
   }
 
@@ -54,6 +55,11 @@ aspect TemplateUtil {
     try {
       InputStream in = getClass().getResourceAsStream(
           "/template/" + templateFile + ".tt");
+      if (in == null) {
+        System.err.println("WARNING: Could not load template file " +
+            templateFile);
+        return;
+      }
       tt.loadTemplates(in);
       in.close();
     } catch (TemplateParser.SyntaxError e) {
