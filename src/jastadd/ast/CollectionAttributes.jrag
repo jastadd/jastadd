@@ -47,9 +47,9 @@ aspect CollectionAttributes {
       CollDecl attr = getCollDecl(i);
       String s = "";
       if(attr.circularCollection()) {
-        s = attr.genCircular();
-        s += attr.combineMethod();
         attr.emitVisitedDeclarations(out);
+        out.print(attr.genCircular());
+        s = attr.combineMethod();
       } else {
         out.print(attr.hostFileComment(ind));
         s += genEquation(attr);
@@ -112,7 +112,7 @@ aspect CollectionAttributes {
          ind + "protected " + getType() + " " + attributeSignature() + "_value;\n" +
          (separateEvaluation ? ind + "protected " + getType() + " new_" + attributeSignature() + "_value;\n" : "") +
          comment + suppressWarnings() +
-         ind + "public " + getType() + " #METHODNAME#(#PARMDECL#) {\n" +
+         ind + "public " + getType() + " " + attributeName() + "(" + parametersDecl() + ") {\n" +
          (grammar().block ? grammar().blockBegin : "") +
          parameterStructure() +
          cacheCheck() +
@@ -122,11 +122,11 @@ aspect CollectionAttributes {
          ind(2) + collDebugString() +
          ind(2) + rootType + " root = (" + rootType + ")node;\n" +
          (separateEvaluation ? "" :
-         (ind(2) + "if(root.collecting_contributors_#COLLECTINGSIGNATURE#)\n" +
+         (ind(2) + "if(root.collecting_contributors_" + collectingSignature() + ")\n" +
          ind(3) + "throw new RuntimeException(\"Circularity during phase 1\");\n")) +
          addComponentCheck() +
          (separateEvaluation ? "" :
-         ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n") +
+         ind(2) + "root.collect_contributors_" + collectingSignature() + "();\n") +
          ind(2) + "if (!" + attributeSignature() + "_initialized) {\n" +
          ind(3) + "" + attributeSignature() + "_initialized = true;\n" +
          ind(3) + "" + attributeSignature() + "_value = " + bottomValue + ";\n" +
@@ -142,7 +142,7 @@ aspect CollectionAttributes {
          (separateEvaluation ?
          ind(4) + "new_" + attributeSignature() + "_value = " + bottomValue + ";\n" :
          ind(4) + "" + getType() + " new_" + attributeSignature() + "_value = " + bottomValue + ";\n") +
-         (separateEvaluation ? "root.#TYPEINSIGNATURE#_" + attributeSignature() + "_nextIteration(this);\n" :
+         (separateEvaluation ? "root." + name() + "_" + attributeSignature() + "_nextIteration(this);\n" :
          ind(4) + "combine_" + attributeSignature() + "_contributions(new_" + attributeSignature() + "_value);\n") +
          ind(4) + "if (" + differs("new_" + attributeSignature() + "_value", "" + attributeSignature() + "_value") + ")\n" +
          ind(5) + "state().CHANGE = true;\n" +
@@ -170,7 +170,7 @@ aspect CollectionAttributes {
          (separateEvaluation ?
          ind(3) + "new_" + attributeSignature() + "_value = " + bottomValue + ";\n" :
          ind(3) + "" + getType() + " new_" + attributeSignature() + "_value = " + bottomValue + ";\n") +
-         (separateEvaluation ? "root.#TYPEINSIGNATURE#_" + attributeSignature() + "_nextIteration(this);\n" :
+         (separateEvaluation ? "root." + name() + "_" + attributeSignature() + "_nextIteration(this);\n" :
          ind(3) + "combine_" + attributeSignature() + "_contributions(new_" + attributeSignature() + "_value);\n") +
          ind(3) + "if (" + differs("new_" + attributeSignature() + "_value", "" + attributeSignature() + "_value") + ")\n" +
          ind(4) + "state().CHANGE = true;\n" +
@@ -195,7 +195,7 @@ aspect CollectionAttributes {
          ind + " */\n" +
          ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";\n" +
          comment + suppressWarnings() +
-         ind + "public " + getType() + " #METHODNAME#(#PARMDECL#) {\n" +
+         ind + "public " + getType() + " " + attributeName() + "(" + parametersDecl() + ") {\n" +
          (grammar().block ? grammar().blockBegin : "") +
          parameterStructure() +
          initLazyMaps() +
