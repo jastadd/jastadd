@@ -356,14 +356,14 @@ aspect JragCodeGen {
     if(grammar().lazyMaps) {
       if(!isCircular()) {
         if(getNumParameter() != 0 && grammar().visitCheckEnabled && grammar().rewriteEnabled) {
-          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + grammar().createDefaultMap + ";\n");
+          s.append(ind(2) + "if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultMap + ";\n");
         }
         else if(getNumParameter() != 0 && grammar().visitCheckEnabled) {
-          s.append(ind(2) + "if(#NAME#_visited == null) #NAME#_visited = " + grammar().createDefaultSet + ";\n");
+          s.append(ind(2) + "if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultSet + ";\n");
         }
       }
       if(getNumParameter() != 0 && (getLazy() || isCircular())) {
-        s.append(ind(2) + "if(#NAME#_values == null) #NAME#_values = " + grammar().createDefaultMap + ";\n");
+        s.append(ind(2) + "if(" + attributeSignature() + "_values == null) " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";\n");
       }
     }
     return s.toString();
@@ -688,34 +688,34 @@ aspect JragCodeGen {
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                 //
-               ind(2) + "if(#NAME#_computed) {\n" +
+               ind(2) + "if(" + attributeSignature() + "_computed) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition());\n" +
+               ind(3) + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition());\n" +
                ind(2) + "}\n";
       else
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                 //
-               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+               ind(2) + "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ") getChild(#NAME#ChildPosition()));\n" +
+               ind(3) + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition()));\n" +
                ind(2) + "}\n";
     }
     if(getNumParameter() == 0)
       return // ES_2011-09-22: Code generation for incremental evaluation, tracking
              (grammar().incremental ? genIncrementalTracking() : "") +
              //
-             ind(2) + "if(#NAME#_computed) {\n" +
+             ind(2) + "if(" + attributeSignature() + "_computed) {\n" +
              traceEndCachedAttr() +
-             ind(3) + "return #NAME#_value;\n" +
+             ind(3) + "return " + attributeSignature() + "_value;\n" +
              ind(2) + "}\n";
     else {
       if(isCircular())
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                //
-               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
-               ind(3) + "Object _o = #NAME#_values.get(_parameters);\n" +
+               ind(2) + "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
+               ind(3) + "Object _o = " + attributeSignature() + "_values.get(_parameters);\n" +
                ind(3) + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
                traceEndCachedAttr() +
                ind(4) + "return " + fromReferenceType("_o", getType()) + ";\n" +
@@ -727,9 +727,9 @@ aspect JragCodeGen {
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                //
-               ind(2) + "if(#NAME#_values.containsKey(_parameters)) {\n" +
+               ind(2) + "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return " + fromReferenceType("#NAME#_values.get(_parameters)", getType()) + ";\n" +
+               ind(3) + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()) + ";\n" +
                ind(2) + "}\n";
     }
   }
@@ -767,19 +767,19 @@ aspect JragCodeGen {
 
   public String AttrDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0)
-      return ind(2) + "#NAME#_value = #METHODNAME#_compute(#PARM#);\n";
+      return ind(2) + "" + attributeSignature() + "_value = #METHODNAME#_compute(#PARM#);\n";
     else
-      return ind(2) + "#TYPE# #NAME#_value = #METHODNAME#_compute(#PARM#);\n";
+      return ind(2) + "#TYPE# " + attributeSignature() + "_value = #METHODNAME#_compute(#PARM#);\n";
   }
 
   // TODO: INH
   public String InhDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0) {
       return inhDebugString() +
-        ind(2) + "#NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
+        ind(2) + "" + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
     } else {
       return inhDebugString() +
-        ind(2) + "#TYPE# #NAME#_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
+        ind(2) + "#TYPE# " + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
     }
   }
 
@@ -796,12 +796,12 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       return cacheStoreRewrite() + "{" +
         (grammar().incremental ? genIncrementalTrackingStackTransfer() : "") +
-        " #NAME#_computed = true; }\n" +
+        " " + attributeSignature() + "_computed = true; }\n" +
         (grammar().incremental ? genIncrementalTrackingStackClear() : "");
     } else {
       return cacheStoreRewrite() + "{" +
         (grammar().incremental ? genIncrementalTrackingStackTransfer() : "") +
-        " #NAME#_values.put(_parameters, " + toReferenceType("#NAME#_value", getType()) + "); }\n" +
+        " " + attributeSignature() + "_values.put(_parameters, " + toReferenceType("" + attributeSignature() + "_value", getType()) + "); }\n" +
         (grammar().incremental ? genIncrementalTrackingStackClear() + "\n" : "");
     }
   }
@@ -810,21 +810,21 @@ aspect JragCodeGen {
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
       // ES_2011-09-22: Code generation for incremental evaluation, stack
-      return getType() + " node = (" + getType() + ") this.getChild(#NAME#ChildPosition());\n" +
+      return getType() + " node = (" + getType() + ") this.getChild(" + attributeSignature() + "ChildPosition());\n" +
           (grammar().incremental ? genIncrementalTrackingStackExit() : "") +
           ind(2) + "return node;\n";
-      // OLD: return "return (" + getType() + ") this.getChild(#NAME#ChildPosition());\n";
+      // OLD: return "return (" + getType() + ") this.getChild(" + attributeSignature() + "ChildPosition());\n";
       //
     }
 
     if (isCircular()) {
-      return ind(2) + "return #NAME#_value;\n";
+      return ind(2) + "return " + attributeSignature() + "_value;\n";
     }
 
     // ES_2011-09-22: Code generation for incremental evaluation, stack
     return (grammar().incremental ? genIncrementalTrackingStackExit() : "") +
-        ind(2) + "return #NAME#_value;\n";
-    // OLD: return "return #NAME#_value;\n";
+        ind(2) + "return " + attributeSignature() + "_value;\n";
+    // OLD: return "return " + attributeSignature() + "_value;\n";
     //
   }
 
@@ -953,9 +953,9 @@ aspect JragCodeGen {
            attr.cacheCheck() +
            ind(2) + "ASTNode$State state = state();\n" +
            attr.addComponentCheck() +
-           ind(2) + "if (!#NAME#_initialized) {\n" +
-           ind(3) + "#NAME#_initialized = true;\n" +
-           ind(3) + "#NAME#_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
+           ind(2) + "if (!" + attr.attributeSignature() + "_initialized) {\n" +
+           ind(3) + "" + attr.attributeSignature() + "_initialized = true;\n" +
+           ind(3) + "" + attr.attributeSignature() + "_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
            ind(2) + "}\n" +
            ind(2) + "if (!state.IN_CIRCLE) {\n" +
            ind(3) + "state.IN_CIRCLE = true;\n" +
@@ -965,40 +965,40 @@ aspect JragCodeGen {
            // TODO: fixme
            // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
            ind(3) + "do {\n" +
-           ind(4) + "#NAME#_visited = state.CIRCLE_INDEX;\n" +
+           ind(4) + "" + attr.attributeSignature() + "_visited = state.CIRCLE_INDEX;\n" +
            ind(4) + "state.CHANGE = false;\n" +
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(4) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(4) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
-           ind(4) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
+           ind(4) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", "" + attr.attributeSignature() + "_value") + ")\n" +
            ind(5) + "state.CHANGE = true;\n" +
-           ind(4) + "#NAME#_value = new_#NAME#_value; \n" +
+           ind(4) + "" + attr.attributeSignature() + "_value = new_" + attr.attributeSignature() + "_value; \n" +
            ind(4) + "state.CIRCLE_INDEX++;\n" +
            attr.tracePrintStartingCycle() +
            attr.cycleLimitCheck() +
            ind(3) + "} while (state.CHANGE);\n" +
            ind(3) + attr.cacheStoreRewrite() + " {\n" +
-           ind(3) + "#NAME#_computed = true;\n" +
+           ind(3) + "" + attr.attributeSignature() + "_computed = true;\n" +
            attr.cacheCycleInit() +
            ind(3) + "}\n" +
            ind(3) + "else {\n" +
            attr.resetCycleInit() +
-           ind(4) + "#NAME#_computed = false;\n" +
-           ind(4) + "#NAME#_initialized = false;\n" +
+           ind(4) + "" + attr.attributeSignature() + "_computed = false;\n" +
+           ind(4) + "" + attr.attributeSignature() + "_initialized = false;\n" +
            ind(3) + "}\n" +
            ind(3) + "state.IN_CIRCLE = false; \n" +
-           attr.tracePrintReturnNewValue("#NAME#_value") +
+           attr.tracePrintReturnNewValue("" + attr.attributeSignature() + "_value") +
            attr.tracePrintCycleEndString() +
            ind(3) + attr.returnStmt() +
            ind(2) + "}\n" +
-           ind(2) + "if(#NAME#_visited != state.CIRCLE_INDEX) {\n" +
-           ind(3) + "#NAME#_visited = state.CIRCLE_INDEX;\n" +
+           ind(2) + "if(" + attr.attributeSignature() + "_visited != state.CIRCLE_INDEX) {\n" +
+           ind(3) + "" + attr.attributeSignature() + "_visited = state.CIRCLE_INDEX;\n" +
            attr.cacheCycleCheck() +
            attr.resetCycleCheck() +
            attr.addAddToComponent() +
@@ -1007,17 +1007,17 @@ aspect JragCodeGen {
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
-           ind(3) + "if (" + attr.differs("new_#NAME#_value", "#NAME#_value") + ")\n" +
+           ind(3) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", "" + attr.attributeSignature() + "_value") + ")\n" +
            ind(4) + "state.CHANGE = true;\n" +
-           ind(3) + "#NAME#_value = new_#NAME#_value; \n" +
-           attr.tracePrintReturnNewValue("#NAME#_value") +
+           ind(3) + "" + attr.attributeSignature() + "_value = new_" + attr.attributeSignature() + "_value; \n" +
+           attr.tracePrintReturnNewValue("" + attr.attributeSignature() + "_value") +
            ind(3) + attr.returnStmt() +
            ind(2) + "}\n" +
-           attr.tracePrintReturnPreviousValue("#NAME#_value") +
+           attr.tracePrintReturnPreviousValue("" + attr.attributeSignature() + "_value") +
            ind(2) + attr.returnStmt() +
            (grammar().block ? grammar().blockEnd : "") +
            ind + "}\n";
@@ -1034,7 +1034,7 @@ aspect JragCodeGen {
            attr.cacheCheck() +
            ind(2) + "else {\n" +
            ind(3) + "_value = new ASTNode$State.CircularValue();\n" +
-           ind(3) + "#NAME#_values.put(_parameters, _value);\n" +
+           ind(3) + "" + attr.attributeSignature() + "_values.put(_parameters, _value);\n" +
            ind(3) + "_value.value = " + toReferenceType(Unparser.unparse(attr.getBottomValue()), attr.getType()) + ";\n" +
            ind(2) + "}\n" +
            ind(2) + "ASTNode$State state = state();\n" +
@@ -1046,7 +1046,7 @@ aspect JragCodeGen {
            attr.addAddToComponent() +
            // TODO: fixme
            // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-           ind(3) + "#TYPE# new_#NAME#_value;\n" +
+           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value;\n" +
            ind(3) + "do {\n" + 
            // EMMA_2011-09-08: Adding java1.4 code
            (grammar().java5 ? 
@@ -1060,13 +1060,13 @@ aspect JragCodeGen {
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(4) + "new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(4) + "new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
-           ind(4) + "if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
+           ind(4) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
            ind(5) + "state.CHANGE = true;\n" +
-           ind(5) + "_value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" +
+           ind(5) + "_value.value = " + toReferenceType("new_" + attr.attributeSignature() + "_value", attr.getType()) + ";\n" +
            ind(4) + "}\n" +
            ind(4) + "state.CIRCLE_INDEX++;\n" +
            attr.tracePrintStartingCycle() +
@@ -1075,20 +1075,20 @@ aspect JragCodeGen {
            ind(3) + attr.cacheStoreRewrite() + " {\n" +
            // EMMA_2011-09-08: Adding java1.4 code
            (grammar().java5 ?
-             ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n"
+             ind(4) + "" + attr.attributeSignature() + "_values.put(_parameters, new_" + attr.attributeSignature() + "_value);\n"
            : 
-             ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", attr.getType()) + ");\n"
+             ind(4) + "" + attr.attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attr.attributeSignature() + "_value", attr.getType()) + ");\n"
            ) +
            attr.cacheCycleInit() +
            ind(3) + "}\n" +
            ind(3) + "else {\n" +
-           ind(4) + "#NAME#_values.remove(_parameters);\n" +
+           ind(4) + "" + attr.attributeSignature() + "_values.remove(_parameters);\n" +
            attr.resetCycleInit() +
            ind(3) + "}\n" +
            ind(3) + "state.IN_CIRCLE = false; \n" +
-           attr.tracePrintReturnNewValue("new_#NAME#_value") +
+           attr.tracePrintReturnNewValue("new_" + attr.attributeSignature() + "_value") +
            attr.tracePrintCycleEndString() +
-           ind(3) + "return new_#NAME#_value;\n" +
+           ind(3) + "return new_" + attr.attributeSignature() + "_value;\n" +
            ind(2) + "}\n" +
            // EMMA_2011-09-08: Adding java1.4 code
            (grammar().java5 ?
@@ -1107,25 +1107,25 @@ aspect JragCodeGen {
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(3) + "#TYPE# new_#NAME#_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
            attr.cacheCycleCheck() + 
            attr.resetCycleCheck() +
-           ind(3) + "else if (" + attr.differs("new_#NAME#_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
+           ind(3) + "else if (" + attr.differs("new_" + attr.attributeSignature() + "_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
            ind(4) + "state.CHANGE = true;\n" +
            // EMMA_2011-09-08: Adding java1.4 code
            (grammar().java5 ?
-             ind(4) + "_value.value = new_#NAME#_value;\n" 
+             ind(4) + "_value.value = new_" + attr.attributeSignature() + "_value;\n" 
            :
-             ind(4) + "_value.value = " + toReferenceType("new_#NAME#_value", attr.getType()) + ";\n" 
+             ind(4) + "_value.value = " + toReferenceType("new_" + attr.attributeSignature() + "_value", attr.getType()) + ";\n" 
            ) +
            ind(3) + "}\n" +
-           attr.tracePrintReturnNewValue("new_#NAME#_value") +
-           ind(3) + "return new_#NAME#_value;\n" +
+           attr.tracePrintReturnNewValue("new_" + attr.attributeSignature() + "_value") +
+           ind(3) + "return new_" + attr.attributeSignature() + "_value;\n" +
            ind(2) + "}\n" +
-           attr.tracePrintReturnPreviousValue(fromReferenceType("#NAME#_values.get(_parameters)" , attr.getType())) +
+           attr.tracePrintReturnPreviousValue(fromReferenceType("" + attr.attributeSignature() + "_values.get(_parameters)" , attr.getType())) +
            ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
            (grammar().block ? grammar().blockEnd : "") +
            ind + "}\n";
@@ -1151,15 +1151,15 @@ aspect JragCodeGen {
      if(getNumParameter() == 0)
        return
          ind(3) + "if (state.RESET_CYCLE) {\n" +
-         ind(4) + "#NAME#_computed = false;\n" +
-         ind(4) + "#NAME#_initialized = false;\n" +
-         ind(4) + "#NAME#_visited = -1;\n" +
+         ind(4) + "" + attributeSignature() + "_computed = false;\n" +
+         ind(4) + "" + attributeSignature() + "_initialized = false;\n" +
+         ind(4) + "" + attributeSignature() + "_visited = -1;\n" +
          ind(4) + returnStmt() +
          ind(3) + "}\n";
      else
        return
          ind(3) + "if (state.RESET_CYCLE) {\n" +
-         ind(4) + "#NAME#_values.remove(_parameters);\n" +
+         ind(4) + "" + attributeSignature() + "_values.remove(_parameters);\n" +
          ind(3) + "}\n";
   }
 
@@ -1177,14 +1177,14 @@ aspect JragCodeGen {
      if(getNumParameter() == 0)
        return
          ind(3) + "if (state.LAST_CYCLE) {\n" +
-         ind(4) + "#NAME#_computed = true;\n" +
+         ind(4) + "" + attributeSignature() + "_computed = true;\n" +
          inhDebugString() +
          // ES_2011-09-23: Code generation for incremental evaluation, 
          // separating return stmt to place a tracking statement in the middle 
          (grammar().incremental ? genIncrementalTrackingStackEnter2() : "") +
-         ind(4) + "#TYPE# new_#NAME#_value = " + circularComputeCall() + ";\n" +
+         ind(4) + "#TYPE# new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
          (grammar().incremental ? genIncrementalTrackingStackExit2() : "") +
-         ind(4) + "return new_#NAME#_value;\n" +
+         ind(4) + "return new_" + attributeSignature() + "_value;\n" +
          // OLD: ind(4) + "return " + circularComputeCall() + ";\n" +
          //
          ind(3) + "}\n";
@@ -1194,13 +1194,13 @@ aspect JragCodeGen {
          return
            ind(3) + "if (state.LAST_CYCLE) {\n" +
            inhDebugString() +
-           ind(4) + "#NAME#_values.put(_parameters, new_#NAME#_value);\n" +
+           ind(4) + "" + attributeSignature() + "_values.put(_parameters, new_" + attributeSignature() + "_value);\n" +
            ind(3) + "}\n";
        else
          return
            ind(3) + "if (state.LAST_CYCLE) {\n" +
            inhDebugString() +
-           ind(4) + "#NAME#_values.put(_parameters, " + toReferenceType("new_#NAME#_value", getType()) + ");\n" +
+           ind(4) + "" + attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attributeSignature() + "_value", getType()) + ");\n" +
            ind(3) + "}\n";
      }
   }
@@ -1211,11 +1211,11 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       if(grammar().rewriteEnabled)
         return
-        ind(2) + "if(#NAME#_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
+        ind(2) + "if(" + attributeSignature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        ind(2) + "if(#NAME#_visited != -1 && !state.containsEvalEntry(this, \"#NAME#\", null))\n" +
+        ind(2) + "if(" + attributeSignature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
@@ -1223,15 +1223,15 @@ aspect JragCodeGen {
         // EMMA_2011-09-08: Adding support for java1.4
         if (grammar().java5) 
           return
-          ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+          ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
           ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
         else 
           return
-          ind(2) + "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+          ind(2) + "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
           ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";    
       } else
         return
-        ind(2) + "if(_value.visited != -1 && !state.containsEvalEntry(this, \"#NAME#\", _parameters))\n" +
+        ind(2) + "if(_value.visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
         ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
@@ -1240,10 +1240,10 @@ aspect JragCodeGen {
     if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
     if(getNumParameter() == 0)
       return
-        ind(2) + "state.addEvalEntry(this, \"#NAME#\", null);\n";
+        ind(2) + "state.addEvalEntry(this, \"" + attributeSignature() + "\", null);\n";
     else
       return
-        ind(2) + "state.addEvalEntry(this, \"#NAME#\", _parameters);\n";
+        ind(2) + "state.addEvalEntry(this, \"" + attributeSignature() + "\", _parameters);\n";
   }
 
   public String AttrDecl.addInterruptedCircleDeclaration() {
