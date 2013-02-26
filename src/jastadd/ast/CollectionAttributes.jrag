@@ -414,79 +414,77 @@ aspect CollectionAttributes {
     for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
       String key = (String)iter.next();
       ArrayList list = (ArrayList)map.get(key);
-      StringBuffer buf = new StringBuffer();
-      buf.append(ind + "protected void collect_contributors_" + key + "() {\n"); // once per group
+      out.println(ind + "protected void collect_contributors_" + key + "() {"); // once per group
 
       if(isRootNode()) {
-        buf.append(ind(2) + "if(collect_contributors_" + key + ") return;\n");
+        out.println(ind(2) + "if(collect_contributors_" + key + ") return;");
       }
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         CollEq attr = (CollEq)i2.next();
         CollDecl decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        buf.append(ind + attr.hostFileComment(ind));
+        out.print(ind + attr.hostFileComment(ind));
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(decl.onePhase() || decl.separateEvaluation()) { // TODO: add || decl.separateEvaluation()
             if(c.getCondition() != null && c.getCondition().trim().length()>0)
-              buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
+              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
             if(attr.getRefSet()) {
-                buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-                buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-                buf.append(ind(4) + "if(ref != null) {\n");
-                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";\n");
-                buf.append(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append(ind(4) + "}\n");
-                buf.append(ind(3) + "}\n");
+                out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
+                out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
+                out.println(ind(4) + "if(ref != null) {");
+                out.println(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
+                out.println(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(4) + "}");
+                out.println(ind(3) + "}");
             }
             else {
-                buf.append(ind(3) + "{\n");
-                buf.append(ind(4) + attr.getTargetName() + " ref = " + attr.getReference() + ";\n");
-                buf.append(ind(4) + "if(ref != null) {\n");
-                buf.append(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";\n");
-                buf.append(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append(ind(4) + "}\n");
-                buf.append(ind(3) + "}\n");
+                out.println(ind(3) + "{");
+                out.println(ind(4) + attr.getTargetName() + " ref = " + attr.getReference() + ";");
+                out.println(ind(4) + "if(ref != null) {");
+                out.println(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
+                out.println(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(4) + "}");
+                out.println(ind(3) + "}");
             }
             if(c.getCondition() != null && c.getCondition().trim().length()>0)
-              buf.append(ind(2) + "}\n");
+              out.println(ind(2) + "}");
           }
           else {
             if(c.getCondition() != null && c.getCondition().trim().length()>0 && !decl.lazyCondition())
-              buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
+              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
 
             if(attr.getRefSet()) {
-              buf.append(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-              buf.append(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-              buf.append(ind(3) + "if(ref != null)\n");
-              buf.append(ind(3) + "ref." + NAME + "_contributors().add(this);\n"); // one name per collection attribute
-              buf.append(ind(2) + "}\n");
+              out.println(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
+              out.println(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
+              out.println(ind(3) + "if(ref != null)");
+              out.println(ind(3) + "ref." + NAME + "_contributors().add(this);"); // one name per collection attribute
+              out.println(ind(2) + "}");
             }
             else {
-              buf.append(ind(2) + "{\n");
-              buf.append(ind(3) + "" + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")(" + attr.getReference().trim() + ");\n");
-              buf.append(ind(3) + "if(ref != null)\n");
-              buf.append(ind(4) + "ref." + NAME + "_contributors().add(this);\n"); // one name per collection attribute
-              buf.append(ind(3) + "}");
+              out.println(ind(2) + "{");
+              out.println(ind(3) + "" + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")(" + attr.getReference().trim() + ");");
+              out.println(ind(3) + "if(ref != null)");
+              out.println(ind(4) + "ref." + NAME + "_contributors().add(this);"); // one name per collection attribute
+              out.println(ind(3) + "}");
             }
 
             if(c.getCondition() != null  && c.getCondition().trim().length()>0 && !decl.lazyCondition())
-              buf.append(ind(2) + "}\n");
+              out.println(ind(2) + "}");
           }
         }
       }
       if(isASTNode()) {
-        buf.append(ind(2) + "for(int i = 0; i < getNumChild(); i++)\n");
-        buf.append(ind(3) + "getChild(i).collect_contributors_" + key + "();\n"); // once per group
+        out.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
+        out.println(ind(3) + "getChild(i).collect_contributors_" + key + "();"); // once per group
       }
       else {
-        buf.append(ind(2) + "super.collect_contributors_" + key + "();\n");
+        out.println(ind(2) + "super.collect_contributors_" + key + "();");
         if(isRootNode()) {
-          buf.append(ind(2) + "collect_contributors_" + key + " = true;\n");
+          out.println(ind(2) + "collect_contributors_" + key + " = true;");
         }
       }
-      buf.append(ind + "}\n");
-      out.print(buf.toString());
+      out.println(ind + "}");
     }
   }
 
@@ -509,16 +507,16 @@ aspect CollectionAttributes {
       buf.append(ind(2) + "super.contributeTo_#TYPEINSIGNATURE#_#NAME#(collection);\n");
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         CollEq attr = (CollEq)i2.next();
-      for(int j = 0; j < attr.getNumContribution(); j++) {
-        Contribution c = attr.getContribution(j);
-        if(c.getCondition() != null && c.getCondition().trim().length()>0 /* && attr.getNumContribution() > 1*/) {
-          buf.append(ind(2) + "if(" + c.getCondition().trim() + ")\n");
-          buf.append(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+        for(int j = 0; j < attr.getNumContribution(); j++) {
+          Contribution c = attr.getContribution(j);
+          if(c.getCondition() != null && c.getCondition().trim().length()>0 /* && attr.getNumContribution() > 1*/) {
+            buf.append(ind(2) + "if(" + c.getCondition().trim() + ")\n");
+            buf.append(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+          }
+          else {
+            buf.append(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+          }
         }
-        else {
-          buf.append(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-        }
-      }
       }
       buf.append(ind + "}\n\n");
       String s = buf.toString();
