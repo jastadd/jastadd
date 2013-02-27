@@ -140,13 +140,6 @@ aspect ASTCloneNode {
 
     TemplateContext tt = templateContext();
     tt.bind("ReturnType", returnType);
-    if (grammar().incremental) {
-      tt.bindExpansion("CopyBody", "ast.copy:incremental");
-      tt.bindExpansion("SetChild", "ast.fullCopy.setChild:incremental");
-    } else {
-      tt.bind("CopyBody", "");
-      tt.bind("SetChild", "tree.setChild(child, i);");
-    }
     tt.bind("SkipNTAs", skipNTAs);
 
     tt.expand("ast.copy", stream);
