@@ -275,13 +275,7 @@ aspect JragCodeGen {
       if(!equ) {
         out.print(attr.hostFileComment(ind));
         out.print(suppressWarnings());
-        String s;
-        s = ind + "public abstract #TYPE# #METHODNAME#(#PARMDECL#);";
-        s = s.replaceAll("#TYPE#", attr.getType());
-        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-        s = s.replaceAll("#METHODNAME#", attr.attributeName());
-        s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-        out.println(s);
+        out.println(ind + "public abstract " + attr.getType() + " " + attr.attributeName() + "(" + attr.parametersDecl() + ");");
       }
     }
   }
