@@ -48,6 +48,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/Comments");
     loadTemplates(tt, "ast/Rewrites");
     loadTemplates(tt, "ast/CircularCollection");
+    loadTemplates(tt, "ast/InheritedAttributes");
     return new SimpleContext(tt, this);
   }
 

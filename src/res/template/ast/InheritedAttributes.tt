@@ -1,0 +1,10 @@
+AttrEq.emitInhEqSignature = [[
+  /**
+   * @apilevel internal
+   */
+  public #type Define_#(getTypeInSignature)_#(attributeName)(#interfaceParametersDecl) {
+    #inhDebugString
+    return getParent().Define_#(getTypeInSignature)_#(attributeName)(#interfaceParametersContinue);
+  }
+]]
+

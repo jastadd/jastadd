@@ -1744,30 +1744,21 @@ aspect JragCodeGen {
 
   }
 
+  syn String AttrEq.inhDebugString() = decl().inhDebugString();
+
+  public void AttrEq.emitInhEqSignature(PrintStream out) {
+    templateContext().expand("AttrEq.emitInhEqSignature", out);
+  }
+
   //  TODO: INH
-  public void ASTDecl.emitInhEqSignatures(PrintStream p) {
+  public void ASTDecl.emitInhEqSignatures(PrintStream out) {
     if(name().equals("ASTNode")) {
       for(Iterator iter = env().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
         java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
         String attrId = (String)entry.getKey();
         AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
         if(!hasInhEq(attr.decl().name())) {
-          String s =
-            ind + "/**\n" +
-            ind + " * @apilevel internal\n" +
-            ind + " */\n" +
-            ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {\n" +
-            attr.decl().inhDebugString() +
-            ind(2) + "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + attr.interfaceParametersContinue() + ");\n" +
-            ind + "}\n";
-          s = s.replaceAll("#TYPE#", attr.type());
-          s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-          s = s.replaceAll("#NAME#", attr.attributeSignature());
-          s = s.replaceAll("#METHODNAME#", attr.attributeName());
-          s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-          s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
-          s = s.replaceAll("#INTERFACEPARMDECL#", attr.interfaceParametersDecl());
-          p.print(s);
+          attr.emitInhEqSignature(out);
         }
       }
     }
