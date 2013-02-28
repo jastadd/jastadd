@@ -15,9 +15,9 @@ AttrDecl.emitCircular:non-parameterized = [[
    */
   protected #(getType) #(attributeSignature)_value;
 
-$if(SeparateEvaluation)\
+$if(SeparateEvaluation)
   protected #(getType) new_#(attributeSignature)_value;
-$endif\
+$endif
 
   $(Comment)#(suppressWarnings)public #(getType) #(attributeName)(#(parametersDecl)) {
     $BlockBegin
@@ -29,14 +29,14 @@ $endif\
     #collDebugString
     $RootType root = ($RootType) node;
 
-$if(!SeparateEvaluation)\
+$if(!SeparateEvaluation)
     if(root.collecting_contributors_#(collectingSignature))
       throw new RuntimeException("Circularity during phase 1");
-$endif\
+$endif
     #addComponentCheck
-$if(!SeparateEvaluation)\
+$if(!SeparateEvaluation)
     root.collect_contributors_#(collectingSignature)();
-$endif\
+$endif
 
     if (!#(attributeSignature)_initialized) {
       #(attributeSignature)_initialized = true;
@@ -52,13 +52,13 @@ $endif\
         #(attributeSignature)_visited = state().CIRCLE_INDEX;
         state().CHANGE = false;
 
-$if(SeparateEvaluation)\
+$if(SeparateEvaluation)
         new_#(attributeSignature)_value = $BottomValue;
         root.#(name)_#(attributeSignature)_nextIteration(this);
-$else\
+$else
         #(getType) new_#(attributeSignature)_value = $BottomValue;
         combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
-$endif\
+$endif
         if ($Cond1) {
           state().CHANGE = true;
         }
@@ -82,13 +82,13 @@ $endif\
       #cacheCycleCheck
       #resetCycleCheck
       #addAddToComponent
-$if(SeparateEvaluation)\
+$if(SeparateEvaluation)
       new_#(attributeSignature)_value = $BottomValue;
       root.#(name)_#(attributeSignature)_nextIteration(this);
-$else\
+$else
       #(getType) new_#(attributeSignature)_value = $BottomValue;
       combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
-$endif\
+$endif
       if ($Cond2) {
         state().CHANGE = true;
       }
