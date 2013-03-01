@@ -30,53 +30,67 @@
  * Incremental evaluation code generation helper methods.
  */
 aspect IncrementalEval {
-  // ES_2011-10-05: Code generation for incremental evaluation, enter construction
+
+  public String ASTDecl.genIncrementalChildInitMethod() {
+    if (!grammar().incremental) return "";
+    if (grammar().incrementalLevelParam) {
+      return "\ngetChild_handler = new ASTNode$DepGraphNode[" + childCount() + "];";
+    }
+    return "";  
+  }
+
   public String ASTDecl.genIncrementalConstructorStartConstruction() {
+    if (!grammar().incremental) return "";    
     return ind(2) + "state().enterConstruction();\n";
   }
 
-  // ES_2011-10-05: Code generation for incremental evaluation, end construction
+  public String ListComponents.genIncrementalConstructorStartConstruction() {
+    if (!grammar().incremental) return "";
+    return ind(2) + "state().enterConstruction();\n";
+  }
+
+  public String OptionalComponent.genIncrementalConstructorStartConstruction() {
+    if (!grammar().incremental) return "";
+    return ind(2) + "state().enterConstruction();\n";
+  }
+
+  public String AggregateComponents.genIncrementalConstructorStartConstruction() {
+    if (!grammar().incremental) return "";
+    return ind(2) + "state().enterConstruction();\n";
+  }
+  
+
   public String ASTDecl.genIncrementalConstructorEndConstruction() {
+    if (!grammar().incremental) return "";
+    return ind(2) + "state().exitConstruction();\n";
+  }
+  
+  public String ListComponents.genIncrementalConstructorEndConstruction() {
+    if (!grammar().incremental) return "";
     return ind(2) + "state().exitConstruction();\n";
   }
 
-  // ES_2011-12-11: Code generation for incremental evaluation, track creation
+  public String OptionalComponent.genIncrementalConstructorEndConstruction() {
+    if (!grammar().incremental) return "";
+    return ind(2) + "state().exitConstruction();\n";
+  }
+
+  public String AggregateComponents.genIncrementalConstructorEndConstruction() {
+    if (!grammar().incremental) return "";
+    return ind(2) + "state().exitConstruction();\n";
+  }
+
+
   public String ASTDecl.genIncrementalTrackCreation() {
+    if (!grammar().incremental) return "";
     if (grammar().incrementalLevelNode) {
       //return ind(2) + "state().addHandlerDepTo(handler);\n";
     }
     return "";
   }
 
-  // ES_2011-11-23: Code generation for incremental evaluation, enter construction
-  public String ListComponents.genIncrementalConstructorStartConstruction() {
-    return ind(2) + "state().enterConstruction();\n";
-  }
 
-  // ES_2011-11-23: Code generation for incremental evaluation, end construction
-  public String ListComponents.genIncrementalConstructorEndConstruction() {
-    return ind(2) + "state().exitConstruction();\n";
-  }
 
-  // ES_2011-11-23: Code generation for incremental evaluation, enter construction
-  public String OptionalComponent.genIncrementalConstructorStartConstruction() {
-    return ind(2) + "state().enterConstruction();\n";
-  }
-
-  // ES_2011-11-23: Code generation for incremental evaluation, end construction
-  public String OptionalComponent.genIncrementalConstructorEndConstruction() {
-    return ind(2) + "state().exitConstruction();\n";
-  }
-
-  // ES_2011-11-23: Code generation for incremental evaluation, enter construction
-  public String AggregateComponents.genIncrementalConstructorStartConstruction() {
-    return ind(2) + "state().enterConstruction();\n";
-  }
-
-  // ES_2011-11-23: Code generation for incremental evaluation, end construction
-  public String AggregateComponents.genIncrementalConstructorEndConstruction() {
-    return ind(2) + "state().exitConstruction();\n";
-  }
 
   // ES_2011-09-20: Code generation for incremental evaluation, evaluation stack
   public void Grammar.jjtGenIncrementalEvaluationStack(PrintWriter stream) {
