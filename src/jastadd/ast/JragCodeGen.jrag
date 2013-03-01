@@ -364,64 +364,48 @@ aspect JragCodeGen {
   }
 
   public void AttrDecl.emitVisitedDeclarations(PrintStream out) {
+    if(!grammar().visitCheckEnabled && !isCircular()) {
+      return;
+    }
+
+    String type;
+    String init;
     if(isCircular()) {
       if(getNumParameter() == 0) {
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected int " + attributeSignature() + "_visited = -1;");
-        return;
+        type = "int";
+        init = " = -1";
       } else {
         // the visited flag is part of the State$Value object
         return;
       }
-    }
-    if(!grammar().visitCheckEnabled && !isCircular()) return;
-
-    if(grammar().rewriteEnabled) {
+    } else if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0) {
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected int " + attributeSignature() + "_visited = -1;");
-        return;
+        type = "int";
+        init = " = -1";
       } else {
+        type = grammar().typeDefaultMap;
         if(grammar().lazyMaps) {
-          out.println(ind + "/**");
-          out.println(ind + " * @apilevel internal");
-          out.println(ind + " */");
-          out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_visited;");
-          return;
+          init = "";
         } else {
-          out.println(ind + "/**");
-          out.println(ind + " * @apilevel internal");
-          out.println(ind + " */");
-          out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_visited = " + grammar().createDefaultMap + ";");
-          return;
+          init = " = " + grammar().createDefaultMap;
         }
       }
-    }
-    if(getNumParameter() == 0) {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel internal");
-      out.println(ind + " */");
-      out.println(ind + "protected boolean " + attributeSignature() + "_visited = false;");
-      return;
+    } else if(getNumParameter() == 0) {
+      type = "boolean";
+      init = " = false";
     } else {
+      type = grammar().typeDefaultSet;
       if(grammar().lazyMaps) {
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected " + grammar().typeDefaultSet + " " + attributeSignature() + "_visited;");
-        return;
+          init = "";
       } else {
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected " + grammar().typeDefaultSet + " " + attributeSignature() + "_visited = " + grammar().createDefaultSet + "");
-        return;
+          init = " = " + grammar().createDefaultSet;
       }
     }
+
+    TemplateContext tt = templateContext();
+    tt.bind("Type", type);
+    tt.bind("Init", init);
+    tt.expand("AttrDecl.emitVisitedDeclarations", out);
   }
 
   public String AttrDecl.visitedException() {
