@@ -445,27 +445,9 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.visitedCheck() {
-    if(!grammar().visitCheckEnabled) return "";
-    if(grammar().rewriteEnabled) {
-      if(getNumParameter() == 0) {
-        return ind(2) + "if(#NAME#_visited == state().boundariesCrossed)\n" +
-                          visitedException();
-      } else {
-        if(grammar().java5)
-          return ind(2) + "if(Integer.valueOf(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" +
-                          visitedException();
-        else
-          return ind(2) + "if(new Integer(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" +
-                          visitedException();
-      }
-    }
-    if(getNumParameter() == 0) {
-      return ind(2) + "if(#NAME#_visited)\n" +
-                          visitedException();
-    } else {
-      return ind(2) + "if(#NAME#_visited.contains(_parameters))\n" +
-                          visitedException();
-    }
+    TemplateContext tt = templateContext();
+    tt.bind("NonParameterized", getNumParameter() == 0);
+    return tt.expand("AttrDecl.visitedCheck");
   }
 
   public String AttrDecl.setVisited() {

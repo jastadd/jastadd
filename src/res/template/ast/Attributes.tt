@@ -28,3 +28,35 @@ $else
 throw new RuntimeException("Circular definition of attr: #attributeName in class: $ClassName");
 $endif
 ]]
+
+AttrDecl.visitedCheck = [[
+$if (VisitCheckEnabled)
+  $if (RewriteEnabled)
+    $if (NonParameterized)
+if (#(attributeSignature)_visited == state().boundariesCrossed) {
+  #visitedException
+}
+    $else
+      $if (Java5)
+if (Integer.valueOf(state().boundariesCrossed).equals(#(attributeSignature)_visited.get(_parameters))) {
+  #visitedException
+}
+      $else
+if (new Integer(state().boundariesCrossed).equals(#(attributeSignature)_visited.get(_parameters))) {
+  #visitedException
+}
+      $endif
+    $endif
+  $else
+    $if (NonParameterized)
+if (#(attributeSignature)_visited) {
+  #visitedException
+}
+    $else
+if (#(attributeSignature)_visited.contains(_parameters)) {
+  #visitedException
+}
+    $endif
+  $endif
+$endif
+]]
