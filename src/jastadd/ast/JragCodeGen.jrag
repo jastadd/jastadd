@@ -1205,20 +1205,20 @@ aspect JragCodeGen {
   public String AttrDecl.addCheckInterruptedCircle() {
     if(!grammar().componentCheck) return "";
     return
-      ind(2) + "if(state.IN_CIRCLE) {\n" +
-      ind(3) + "interruptedCircle = true;\n" +
-      ind(3) + "state.IN_CIRCLE = false;\n" +
-      ind(3) + "state.pushEvalStack();\n" +
-      ind(2) + "}\n";
+      "if(state.IN_CIRCLE) {\n" +
+      ind + "interruptedCircle = true;\n" +
+      ind + "state.IN_CIRCLE = false;\n" +
+      ind + "state.pushEvalStack();\n" +
+      "}\n";
   }
 
   public String AttrDecl.addClearInterruptedCircle() {
     if(!grammar().componentCheck) return "";
     return
-      ind(2) + "if(interruptedCircle) {\n" +
-      ind(3) + "state.IN_CIRCLE = true;\n" +
-      ind(3) + "state.popEvalStack();\n" +
-      ind(2) + "}\n";
+      "if(interruptedCircle) {\n" +
+      ind + "state.IN_CIRCLE = true;\n" +
+      ind + "state.popEvalStack();\n" +
+      "}\n";
   }
 
   public String AttrDecl.differs(String s1, String s2) {
@@ -1364,8 +1364,10 @@ aspect JragCodeGen {
   }
 
   public String SynDecl.higherOrderAttributeCode() {
-    StringBuffer result = new StringBuffer();
     if(getNTA()) {
+      TemplateContext tt = templateContext();
+      tt.bind("NonParameterized", getNumParameter() == 0);
+
       if(grammar().rewriteEnabled) {
         if(grammar().stagedRewrites) {
           if(getNumParameter() == 0)
@@ -1406,38 +1408,30 @@ aspect JragCodeGen {
                    ind(3) + "#NAME#_value.is$Final = true;\n" +
                    ind(2) + "}\n";
         }
+      } else {
+        return tt.expand("SynDecl.higherOrderAttributeCode:norewrite");
       }
-      else {
-        if(getNumParameter() == 0)
-          return ind(2) + "#NAME#_value.setParent(this);\n";
-        else
-          return ind(2) + "if(#NAME#_list == null) {\n" +
-                 ind(3) + "#NAME#_list = new List();\n" +
-                 // ES_2012-02-21: Code generation for incremental evaluation
-                 (grammar().incremental ? genIncrementalInternalNTAList() : "") +
-                 //
-                 ind(3) + "#NAME#_list.setParent(this);\n" +
-                 ind(2) + "}\n" +
-                 ind(2) + "#NAME#_list.add(#NAME#_value);\n";
+    } else {
+      // non-NTA
+      StringBuffer result = new StringBuffer();
+      Components comp = findCorrespondingNTA();
+      if(comp != null) {
+        String attrName = getName().substring(3); // remove get
+        if(comp.name().equals(attrName) && (
+              comp instanceof OptionalComponentNTA
+              || comp instanceof TokenComponentNTA
+              || comp instanceof AggregateComponentsNTA )) {
+          result.append(ind(3) + "set" + attrName + "(#NAME#_value);\n");
+        }
+        if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
+          result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
+        }
+        if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+          result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
+        }
       }
+      return result.toString();
     }
-    Components comp = findCorrespondingNTA();
-    if(comp != null) {
-      String attrName = getName().substring(3); // remove get
-      if(comp.name().equals(attrName) && (
-            comp instanceof OptionalComponentNTA
-            || comp instanceof TokenComponentNTA
-            || comp instanceof AggregateComponentsNTA )) {
-        result.append(ind(3) + "set" + attrName + "(#NAME#_value);\n");
-      }
-      if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-        result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
-      }
-      if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-        result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
-      }
-    }
-    return result.toString();
   }
 
   public void TypeDecl.emitInhDeclarations(PrintStream out) {

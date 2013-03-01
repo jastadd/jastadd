@@ -17,6 +17,14 @@ $endif
     #addInterruptedCircleDeclaration
     #visitedCheck
     #setVisited
+    #addCheckInterruptedCircle
+    try $ComputeBody
+    finally {
+      #higherOrderAttributeCode
+      #clearVisited
+      #addClearInterruptedCircle
+      #traceEndAttr
+    }
     $EndBlock
   }
 ]]
@@ -80,3 +88,19 @@ $else
   $endif
 $endif
 ]]
+
+SynDecl.higherOrderAttributeCode:norewrite = [[
+$if (NonParameterized)
+#(attributeSignature)_value.setParent(this);
+$else
+if(#(attributeSignature)_list == null) {
+  #(attributeSignature)_list = new List();
+$if(IncrementalEnabled)
+  #genIncrementalInternalNTAList
+$endif
+  #(attributeSignature)_list.setParent(this);
+}
+#(attributeSignature)_list.add(#(attributeSignature)_value);
+$endif
+]]
+
