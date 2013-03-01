@@ -3,3 +3,28 @@ AttrDecl.synDecl = AttrDecl.inhDecl = [[
   #annotations
   public #getType #attributeName(#parametersDecl);
 ]]
+
+AttrDecl.emitInlineCompute = [[
+  public #getType #attributeName($ParamDecl) {
+    $BeginBlock
+    #parameterStructure
+    #traceBeginAttr
+    #initLazyMaps
+    #cacheCheck
+$if(RewriteEnabled)
+    ASTNode$$State state = state();
+$endif
+    #addInterruptedCircleDeclaration
+    #visitedCheck
+    #setVisited
+    $EndBlock
+  }
+]]
+
+AttrDecl.visitedException = [[
+$if(TraceVisitCheck)
+System.out.println("Circular definition of attr: #attributeName in class: $ClassName");
+$else
+throw new RuntimeException("Circular definition of attr: #attributeName in class: $ClassName");
+$endif
+]]

@@ -350,14 +350,14 @@ aspect JragCodeGen {
     if(grammar().lazyMaps) {
       if(!isCircular()) {
         if(getNumParameter() != 0 && grammar().visitCheckEnabled && grammar().rewriteEnabled) {
-          s.append(ind(2) + "if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultMap + ";\n");
+          s.append("if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultMap + ";\n");
         }
         else if(getNumParameter() != 0 && grammar().visitCheckEnabled) {
-          s.append(ind(2) + "if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultSet + ";\n");
+          s.append("if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultSet + ";\n");
         }
       }
       if(getNumParameter() != 0 && (getLazy() || isCircular())) {
-        s.append(ind(2) + "if(" + attributeSignature() + "_values == null) " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";\n");
+        s.append("if(" + attributeSignature() + "_values == null) " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";\n");
       }
     }
     return s.toString();
@@ -409,12 +409,9 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.visitedException() {
-    if(!grammar().visitCheckEnabled) return "";
-    if(!grammar().traceVisitCheck) {
-      return ind(3) + "throw new RuntimeException(\"Circular definition of attr: #METHODNAME# in class: \");\n";
-    } else {
-      return ind(3) + "System.out.println(\"Circular definition of attr: #METHODNAME# in class: \" + getClass().getName());\n";
-    }
+    TemplateContext tt = templateContext();
+    tt.bind("ClassName", getClass().getName());
+    return tt.expand("AttrDecl.visitedException");
   }
 
   public String AttrDecl.resetVisit() {
@@ -450,10 +447,10 @@ aspect JragCodeGen {
   public String AttrDecl.visitedCheck() {
     if(!grammar().visitCheckEnabled) return "";
     if(grammar().rewriteEnabled) {
-      if(getNumParameter() == 0)
+      if(getNumParameter() == 0) {
         return ind(2) + "if(#NAME#_visited == state().boundariesCrossed)\n" +
                           visitedException();
-      else {
+      } else {
         if(grammar().java5)
           return ind(2) + "if(Integer.valueOf(state().boundariesCrossed).equals(#NAME#_visited.get(_parameters)))\n" +
                           visitedException();
@@ -462,12 +459,13 @@ aspect JragCodeGen {
                           visitedException();
       }
     }
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return ind(2) + "if(#NAME#_visited)\n" +
                           visitedException();
-    else
+    } else {
       return ind(2) + "if(#NAME#_visited.contains(_parameters))\n" +
                           visitedException();
+    }
   }
 
   public String AttrDecl.setVisited() {
@@ -666,49 +664,49 @@ aspect JragCodeGen {
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                 //
-               ind(2) + "if(" + attributeSignature() + "_computed) {\n" +
+               "if(" + attributeSignature() + "_computed) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition());\n" +
-               ind(2) + "}\n";
+               ind + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition());\n" +
+               "}\n";
       else
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                 //
-               ind(2) + "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
+               "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition()));\n" +
-               ind(2) + "}\n";
+               ind + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition()));\n" +
+               "}\n";
     }
     if(getNumParameter() == 0)
       return // ES_2011-09-22: Code generation for incremental evaluation, tracking
              (grammar().incremental ? genIncrementalTracking() : "") +
              //
-             ind(2) + "if(" + attributeSignature() + "_computed) {\n" +
+             "if(" + attributeSignature() + "_computed) {\n" +
              traceEndCachedAttr() +
-             ind(3) + "return " + attributeSignature() + "_value;\n" +
-             ind(2) + "}\n";
+             ind + "return " + attributeSignature() + "_value;\n" +
+             "}\n";
     else {
       if(isCircular())
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                //
-               ind(2) + "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
-               ind(3) + "Object _o = " + attributeSignature() + "_values.get(_parameters);\n" +
-               ind(3) + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
+               "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
+               ind + "Object _o = " + attributeSignature() + "_values.get(_parameters);\n" +
+               ind + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
                traceEndCachedAttr() +
-               ind(4) + "return " + fromReferenceType("_o", getType()) + ";\n" +
-               ind(3) + "}\n" +
-               ind(3) + "else\n" +
-               ind(4) + "_value = (ASTNode$State.CircularValue)_o;\n" +
-               ind(2) + "}\n";
+               ind(2) + "return " + fromReferenceType("_o", getType()) + ";\n" +
+               ind + "}\n" +
+               ind + "else\n" +
+               ind(2) + "_value = (ASTNode$State.CircularValue)_o;\n" +
+               "}\n";
       else
         return // ES_2011-09-22: Code generation for incremental evaluation, tracking
                (grammar().incremental ? genIncrementalTracking() : "") +
                //
-               ind(2) + "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
+               "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
                traceEndCachedAttr() +
-               ind(3) + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()) + ";\n" +
-               ind(2) + "}\n";
+               ind + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()) + ";\n" +
+               "}\n";
     }
   }
 
@@ -716,12 +714,12 @@ aspect JragCodeGen {
     if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !grammar().visitCheckEnabled)) {
       return "";
     } else if(getNumParameter() == 1) {
-      return ind(2) + "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
+      return "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
     } else {
       StringBuffer s = new StringBuffer();
-      s.append(ind(2) + "java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
+      s.append("java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
       for(int i = 0; i < getNumParameter(); i++) {
-        s.append(ind(2) + "_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
+        s.append("_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
       }
       return s.toString();
     }

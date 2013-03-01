@@ -622,7 +622,9 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
-    tt.bind("IncrementalEnabled", "" + root.incremental);
+    tt.bind("TraceVisitCheck", root.traceVisitCheck);
+    tt.bind("RewriteEnabled", root.rewriteEnabled);
+    tt.bind("IncrementalEnabled", root.incremental);
     tt.bind("CreateDefaultMap", root.createDefaultMap);
     tt.bind("DefaultMapType", root.typeDefaultMap);
     tt.bind("CreateDefaultSet", root.createDefaultSet);
