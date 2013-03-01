@@ -8,8 +8,9 @@ ast.copy = [[
     try {
       #name node = (#name) clone();
       node.parent = null;
-      if(children != null)
+      if(children != null) {
         node.children = (ASTNode[]) children.clone();
+      }
 $if(IncrementalEnabled)
       node.inc_state = inc_CLONED;
       for (int i = 0; node.children != null && i < node.children.length; i++) {
