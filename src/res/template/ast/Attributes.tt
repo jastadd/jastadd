@@ -60,3 +60,23 @@ if (#(attributeSignature)_visited.contains(_parameters)) {
   $endif
 $endif
 ]]
+
+AttrDecl.setVisited = [[
+$if (RewriteEnabled)
+  $if (NonParameterized)
+#(attributeSignature)_visited = state().boundariesCrossed;
+  $else
+    $if (Java5)
+#(attributeSignature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
+    $else
+#(attributeSignature)_visited.put(_parameters, new Integer(state().boundariesCrossed));
+    $endif
+  $endif
+$else
+  $if (NonParameterized)
+#(attributeSignature)_visited = true;
+  $else
+#(attributeSignature)_visited.add(_parameters);
+  $endif
+$endif
+]]
