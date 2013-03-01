@@ -104,3 +104,44 @@ $endif
 $endif
 ]]
 
+SynDecl.higherOrderAttributeCode:nostagedrewrites = [[
+$if (NonParameterized)
+#(attributeSignature)_value.setParent(this);
+#(attributeSignature)_value.is$$Final = true;
+$else
+if(#(attributeSignature)_list == null) {
+  #(attributeSignature)_list = new List();
+$if(IncrementalEnabled)
+  #genIncrementalInternalNTAList
+$endif
+  #(attributeSignature)_list.is$$Final = true;
+  #(attributeSignature)_list.setParent(this);
+}
+#(attributeSignature)_list.add(#(attributeSignature)_value);
+if(#(attributeSignature)_value != null) {
+  #(attributeSignature)_value = (#getType) #(attributeSignature)_list.getChild(#(attributeSignature)_list.numChildren-1);
+  #(attributeSignature)_value.is$$Final = true;
+}
+$endif
+]]
+
+SynDecl.higherOrderAttributeCode:stagedrewrites = [[
+$if (NonParameterized)
+#(attributeSignature)_value.setParent(this);
+#(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
+$else
+if(#(attributeSignature)_list == null) {
+  #(attributeSignature)_list = new List();
+$if(IncrementalEnabled)
+  #genIncrementalInternalNTAList
+$endif
+  #(attributeSignature)_list.is$$Final = java.lang.Integer.MAX_VALUE;
+  #(attributeSignature)_list.setParent(this);
+}
+if(#(attributeSignature)_value != null) {
+  #(attributeSignature)_list.add(#(attributeSignature)_value);
+  #(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
+}
+$endif
+]]
+

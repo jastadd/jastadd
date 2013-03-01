@@ -1370,43 +1370,9 @@ aspect JragCodeGen {
 
       if(grammar().rewriteEnabled) {
         if(grammar().stagedRewrites) {
-          if(getNumParameter() == 0)
-            return ind(2) + "#NAME#_value.setParent(this);\n" +
-                   ind(2) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n";
-          else
-            return ind(2) + "if(#NAME#_list == null) {\n" +
-                   ind(3) + "#NAME#_list = new List();\n" +
-                   // ES_2012-02-21: Code generation for incremental evaluation
-                   (grammar().incremental ? genIncrementalInternalNTAList() : "") +
-                   //
-                   ind(3) + "#NAME#_list.is$Final = java.lang.Integer.MAX_VALUE;\n" +
-                   ind(3) + "#NAME#_list.setParent(this);\n" +
-                   ind(2) + "}\n" +
-                   ind(2) + "if(#NAME#_value != null) {\n" +
-                   ind(3) + "#NAME#_list.add(#NAME#_value);\n" +
-                   ind(3) + "#NAME#_value.is$Final = java.lang.Integer.MAX_VALUE;\n" +
-                   ind(2) + "}\n";
-        }
-        else {
-          if(getNumParameter() == 0)
-            return ind(2) + "#NAME#_value.setParent(this);\n" +
-                   ind(2) + "#NAME#_value.is$Final = true;\n";
-          else
-            return ind(2) + "if(#NAME#_list == null) {\n" +
-                   ind(3) + "#NAME#_list = new List();\n" +
-                   // ES_2012-02-21: Code generation for incremental evaluation
-                   (grammar().incremental ? genIncrementalInternalNTAList() : "") +
-                   //
-                   ind(3) + "#NAME#_list.is$Final = true;\n" +
-                   ind(3) + "#NAME#_list.setParent(this);\n" +
-                   ind(2) + "}\n" +
-                   ind(2) + "#NAME#_list.add(#NAME#_value);\n" +
-                   ind(2) + "if(#NAME#_value != null) {\n" +
-                   // ES_2012-03-11: A parameterized NTA may have values with rewrites
-                   ind(3) + "#NAME#_value = (#TYPE#)#NAME#_list.getChild(#NAME#_list.numChildren-1);\n" +
-                   //
-                   ind(3) + "#NAME#_value.is$Final = true;\n" +
-                   ind(2) + "}\n";
+          return tt.expand("SynDecl.higherOrderAttributeCode:stagedrewrites");
+        } else {
+          return tt.expand("SynDecl.higherOrderAttributeCode:nostagedrewrites");
         }
       } else {
         return tt.expand("SynDecl.higherOrderAttributeCode:norewrite");
