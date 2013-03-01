@@ -6,7 +6,7 @@ AttrDecl.synDecl = AttrDecl.inhDecl = [[
 
 AttrDecl.emitInlineCompute = [[
   public #getType #attributeName($ParamDecl) {
-    $BeginBlock
+    $SynchBegin
     #parameterStructure
     #traceBeginAttr
     #initLazyMaps
@@ -25,7 +25,7 @@ $endif
       #addClearInterruptedCircle
       #traceEndAttr
     }
-    $EndBlock
+    $SynchEnd
   }
 ]]
 

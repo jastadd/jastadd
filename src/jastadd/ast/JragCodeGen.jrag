@@ -460,18 +460,18 @@ aspect JragCodeGen {
     return tt.expand("AttrDecl.setVisited");
   }
 
-  public String AttrDecl.clearVisited(String ind) {
+  public String AttrDecl.clearVisited() {
     if(!grammar().visitCheckEnabled && !isCircular()) {
       return "";
     } else if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
-        return ind + "#NAME#_visited = -1;\n";
+        return attributeSignature() + "_visited = -1;\n";
       else
-        return ind + "#NAME#_visited.remove(_parameters);\n";
+        return attributeSignature() + "_visited.remove(_parameters);\n";
     } else if(getNumParameter() == 0) {
-      return ind + "#NAME#_visited = false;\n";
+      return attributeSignature() + "_visited = false;\n";
     } else {
-      return ind + "#NAME#_visited.remove(_parameters);\n";
+      return attributeSignature() + "_visited.remove(_parameters);\n";
     }
   }
 
@@ -784,34 +784,10 @@ aspect JragCodeGen {
    * @return Compute method without "_compute" suffix
    */
   public void AttrDecl.emitInlineCompute(AttrEq equ, PrintStream out) {
-    String s =
-      ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
-      (grammar().block ? ind(2) + grammar().blockBegin : "") +
-      parameterStructure() +
-      traceBeginAttr() +
-      initLazyMaps() +
-      cacheCheck() +
-      (grammar().rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
-      addInterruptedCircleDeclaration() +
-      visitedCheck() +
-      setVisited() +
-      addCheckInterruptedCircle() +
-      ind(2) + "try " + equ.computeMethodBody() + "\n" +
-      ind(2) + "finally {\n" +
-      higherOrderAttributeCode() +
-      clearVisited(ind(3)) +
-      addClearInterruptedCircle() +
-      traceEndAttr() +
-      ind(2) + "}\n" +
-      (grammar().block ? ind(2) + grammar().blockEnd : "") +
-      ind + "}";
-    s = s.replaceAll("#TYPE#", getType());
-    s = s.replaceAll("#TYPEINSIGNATURE#", getTypeInSignature());
-    s = s.replaceAll("#NAME#", attributeSignature());
-    s = s.replaceAll("#METHODNAME#", attributeName());
-    s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
-    s = s.replaceAll("#PARM#", parameters());
-    out.println(s);
+    TemplateContext tt = templateContext();
+    tt.bind("ParamDecl", equ.parametersDecl());
+    tt.bind("ComputeBody", equ.computeMethodBody());
+    tt.expand("AttrDecl.emitInlineCompute", out);
   }
 
   public String AttrEq.computeMethodBody() {
@@ -886,7 +862,7 @@ aspect JragCodeGen {
            attr.callCompute() +
            attr.higherOrderAttributeCode() +
            attr.cacheStore() +
-           attr.clearVisited(ind(2)) +
+           attr.clearVisited() +
            attr.addClearInterruptedCircle() +
            attr.traceEndAttr() +
            ind(2) + attr.returnStmt() +
@@ -1387,13 +1363,13 @@ aspect JragCodeGen {
               comp instanceof OptionalComponentNTA
               || comp instanceof TokenComponentNTA
               || comp instanceof AggregateComponentsNTA )) {
-          result.append(ind(3) + "set" + attrName + "(#NAME#_value);\n");
+          result.append(ind(3) + "set" + attrName + "(" + attributeSignature() + "_value);\n");
         }
         if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-          result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
+          result.append(ind(2) + "set" + attrName + "(" + attributeSignature() + "_value);\n");
         }
         if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-          result.append(ind(2) + "set" + attrName + "(#NAME#_value);\n");
+          result.append(ind(2) + "set" + attrName + "(" + attributeSignature() + "_value);\n");
         }
       }
       return result.toString();

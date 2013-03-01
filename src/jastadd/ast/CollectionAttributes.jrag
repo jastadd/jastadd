@@ -120,7 +120,7 @@ aspect CollectionAttributes {
          ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
-         clearVisited(ind(4)) +
+         clearVisited() +
          ind(4) + "#NAME#_computed = true;\n" +
          ind(4) + "return #NAME#_value;\n" +
          ind(3) + "}\n";
@@ -129,7 +129,7 @@ aspect CollectionAttributes {
          ind(3) + "if (state().LAST_CYCLE) {\n" +
          setVisited() +
          circularComputeCall() + ";\n" +
-         clearVisited(ind(4)) +
+         clearVisited() +
          ind(4) + "#NAME#_computed.add(_parameters);\n" +
          ind(4) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , getType()) + ";\n" +
          ind(3) + "}\n";
