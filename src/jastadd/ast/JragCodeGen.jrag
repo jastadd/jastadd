@@ -804,16 +804,13 @@ aspect JragCodeGen {
   /**
    * @return Code for the method to compute this attribute
    */
-  public String AttrEq.computeMethod() {
-    return "";
+  public void AttrEq.emitComputeMethod(PrintStream out) {
   }
 
-  public String SynEq.computeMethod() {
-    return
-      ind + "/**\n" +
-      ind + " * @apilevel internal\n" +
-      ind + " */\n" +
-      ind + "private #TYPE# #METHODNAME#_compute(#PARMDECL#) " + computeMethodBody() + "\n";
+  public void SynEq.emitComputeMethod(PrintStream out) {
+    TemplateContext tt = templateContext();
+    tt.bind("ComputeBody", computeMethodBody());
+    tt.expand("SynEq.emitComputeMethod", out);
   }
 
   syn String AttrDecl.inhDebugString() {
@@ -1257,6 +1254,8 @@ aspect JragCodeGen {
     }
   }
 
+  syn String AttrEq.getType() = decl().getType();
+
   public void ASTDecl.emitSynEquations(PrintStream out) {
     for(int i = 0; i < getNumSynEq(); i++) {
        AttrEq equ = getSynEq(i);
@@ -1265,7 +1264,7 @@ aspect JragCodeGen {
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
          s += equ.hostFileComment(ind);
          s += genEquation(attr);
-         s += equ.computeMethod();
+         equ.emitComputeMethod(out);
        } else {
          attr.emitInlineCompute(equ, out);
          if (!s.isEmpty())

@@ -29,6 +29,13 @@ $endif
   }
 ]]
 
+SynEq.emitComputeMethod = [[
+  /**
+   * @apilevel internal
+   */
+  private #getType #(attributeName)_compute(#parametersDecl) $ComputeBody
+]]
+
 AttrDecl.visitedException = [[
 $if(TraceVisitCheck)
 System.out.println("Circular definition of attr: #attributeName in class: $ClassName");
