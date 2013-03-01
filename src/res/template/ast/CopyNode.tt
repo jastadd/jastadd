@@ -2,7 +2,7 @@ ast.copy = [[
   /**
    * @apilevel internal
    */
-  #(annotations)
+  #annotations
   public $ReturnType copy() {
     $SynchBegin
     try {
@@ -24,7 +24,8 @@ $endif
       throw new Error("Error: clone not supported for " + getClass().getName());
     }
     $SynchEnd
-  }]]
+  }
+]]
 
 ast.fullCopy = [[
   /**
@@ -33,7 +34,7 @@ ast.fullCopy = [[
    * @return dangling copy of the subtree at this node
    * @apilevel low-level
    */
-  #(annotations)
+  #annotations
   public $ReturnType fullCopy() {
     $SynchBegin
     #name tree = (#name) copy();
@@ -54,14 +55,15 @@ $endif
     }
     return tree;
     $SynchEnd
-  }]]
+  }
+]]
 
 # ASTNode.clone
 ast.clone = [[
   /**
    * @apilevel internal
    */
-  #(annotations)
+  #annotations
   public $ReturnType clone() throws CloneNotSupportedException {
      $SynchBegin
      #name node = (#name) super.clone();

@@ -28,44 +28,44 @@ ASTDecl.emitRewrites.end:!unconditional = [[
 ASTDecl.emitRewrites.end = [[  }]]
 
 Rewrite.genRewrite.declaredat = [[
-    // Declared at #(declaredat)
+    // Declared at #declaredat
 ]]
 
 Rewrite.genRewrite:conditional [[
     if ($Condition) {
-      state().during#(aspectName)++;
-      ASTNode result = rewriteRule$(RewriteIndex)();
-      state().during#(aspectName)--;
+      state().during#aspectName++;
+      ASTNode result = rewriteRule$RewriteIndex();
+      state().during#aspectName--;
       return result;
     }]]
 
 Rewrite.genRewrite:unconditional [[
-    state().during#(aspectName)++;
-    ASTNode result = rewriteRule$(RewriteIndex)();
-    state().during#(aspectName)--;
+    state().during#aspectName++;
+    ASTNode result = rewriteRule$RewriteIndex();
+    state().during#aspectName--;
     return result;]]
 
 RewriteList.genRewrite [[
-    if (getParent().getParent() instanceof #(getParentName) &&
-        ((#(getParentName))getParent().getParent()).#(getChildName)ListNoTransform() == getParent()$(Condition)) {
+    if (getParent().getParent() instanceof #getParentName &&
+        ((#getParentName)getParent().getParent()).#(getChildName)ListNoTransform() == getParent()$Condition) {
 
-      state().during#(aspectName)++;
+      state().during#aspectName++;
       List list = (List)getParent();
       int i = list.getIndexOfChild(this);
-      List newList = rewrite#(getParentName)_#(getChildName)();
+      List newList = rewrite#(getParentName)_#getChildName();
       // the first child is set by the normal rewrite loop
       //list.setChild(newList.getChildNoTransform(0), i);
       for(int j = 1; j < newList.getNumChildNoTransform(); j++)
         list.insertChild(newList.getChildNoTransform(j), ++i);
 
-      state().during#(aspectName)--;
+      state().during#aspectName--;
       return newList.getChildNoTransform(0);
     }]]
 
 Grammar.genRewriteOrderChecks = [[
-protected int ASTNode$$State.during$(RewriteName) = 0;
-protected boolean ASTNode.during$(RewriteName)() {
-  if(state().during$(RewriteName) == 0) {
+protected int ASTNode$$State.during$RewriteName = 0;
+protected boolean ASTNode.during$RewriteName() {
+  if(state().during$RewriteName == 0) {
     return false;
   } else {
     state().pop();
@@ -76,6 +76,6 @@ protected boolean ASTNode.during$(RewriteName)() {
 
 Rewrite.javaDoc:internal [[
   /**
-   * @declaredat #(declaredat)
+   * @declaredat #declaredat
    * @apilevel internal
    */]]

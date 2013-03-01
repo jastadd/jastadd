@@ -13,13 +13,15 @@ AttrDecl.emitCircular:non-parameterized = [[
   /**
    * @apilevel internal
    */
-  protected #(getType) #(attributeSignature)_value;
+  protected #getType #(attributeSignature)_value;
 
 $if(SeparateEvaluation)
-  protected #(getType) new_#(attributeSignature)_value;
+  protected #getType new_#(attributeSignature)_value;
 $endif
 
-  $(Comment)#(suppressWarnings)public #(getType) #(attributeName)(#(parametersDecl)) {
+  $Comment
+  #suppressWarnings
+  public #getType #attributeName(#parametersDecl) {
     $BlockBegin
     #parameterStructure
     #cacheCheck
@@ -30,12 +32,12 @@ $endif
     $RootType root = ($RootType) node;
 
 $if(!SeparateEvaluation)
-    if(root.collecting_contributors_#(collectingSignature))
+    if(root.collecting_contributors_#collectingSignature)
       throw new RuntimeException("Circularity during phase 1");
 $endif
     #addComponentCheck
 $if(!SeparateEvaluation)
-    root.collect_contributors_#(collectingSignature)();
+    root.collect_contributors_#collectingSignature();
 $endif
 
     if (!#(attributeSignature)_initialized) {
@@ -56,7 +58,7 @@ $if(SeparateEvaluation)
         new_#(attributeSignature)_value = $BottomValue;
         root.#(name)_#(attributeSignature)_nextIteration(this);
 $else
-        #(getType) new_#(attributeSignature)_value = $BottomValue;
+        #getType new_#(attributeSignature)_value = $BottomValue;
         combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
 $endif
         if ($Cond1) {
@@ -66,7 +68,8 @@ $endif
         state().CIRCLE_INDEX++;
         #cycleLimitCheck
       } while (state().CHANGE);
-      #(cacheStoreRewrite) {
+      
+      #cacheStoreRewrite {
         #(attributeSignature)_computed = true;
         #cacheCycleInit
       } else {
@@ -98,7 +101,6 @@ $endif
     #returnStmt
     $BlockEnd
   }
-
 ]]
 
 # parameterized circular
@@ -116,7 +118,9 @@ AttrDecl.emitCircular:parameterized = [[
    */
   protected $TypeDefaultMap #(attributeSignature)_values = $CreateDefaultMap;
 
-  $(Comment)#(suppressWarnings)public #(getType) #(attributeName)(#(parametersDecl)) {
+  $Comment
+  #suppressWarnings
+  public #getType #attributeName(#parametersDecl) {
     $BlockBegin
     #parameterStructure
     #initLazyMaps
@@ -131,7 +135,7 @@ AttrDecl.emitCircular:parameterized = [[
       #cacheInitRewrite
       #addAddToComponent
       state().CIRCLE_INDEX = 1;
-      #(getType) new_#(attributeSignature)_value;
+      #getType new_#(attributeSignature)_value;
       do {
         #(attributeSignature)_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));
         state().CHANGE = false;
@@ -145,7 +149,7 @@ AttrDecl.emitCircular:parameterized = [[
         #cycleLimitCheck
       } while (state().CHANGE);
 
-      #(cacheStoreRewrite) {
+      #cacheStoreRewrite {
         #(attributeSignature)_computed.add(_parameters);
         #cacheCycleInit
       } else {
@@ -160,7 +164,7 @@ AttrDecl.emitCircular:parameterized = [[
       #(attributeSignature)_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));
       #cacheCycleCheck
       #resetCycleCheck
-      #(getType) new_#(attributeSignature)_value = $BottomValue;
+      #getType new_#(attributeSignature)_value = $BottomValue;
       combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
       if ($Cond4) {
         state().CHANGE = true;
