@@ -811,28 +811,35 @@ aspect JragCodeGen {
   /**
    * @return Compute method without "_compute" suffix
    */
-  public String AttrEq.computeMethodInline(AttrDecl attr) {
-    return
+  public void AttrDecl.emitInlineCompute(AttrEq equ, PrintStream out) {
+    String s =
       ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
       (grammar().block ? ind(2) + grammar().blockBegin : "") +
-      attr.parameterStructure() +
-      attr.traceBeginAttr() +
-      attr.initLazyMaps() +
-      attr.cacheCheck() +
+      parameterStructure() +
+      traceBeginAttr() +
+      initLazyMaps() +
+      cacheCheck() +
       (grammar().rewriteEnabled ? ind(2) + "ASTNode$State state = state();\n" : "") +
-      attr.addInterruptedCircleDeclaration() +
-      attr.visitedCheck() +
-      attr.setVisited() +
-      attr.addCheckInterruptedCircle() +
-      ind(2) + "try " + computeMethodBody() + "\n" +
+      addInterruptedCircleDeclaration() +
+      visitedCheck() +
+      setVisited() +
+      addCheckInterruptedCircle() +
+      ind(2) + "try " + equ.computeMethodBody() + "\n" +
       ind(2) + "finally {\n" +
-      attr.higherOrderAttributeCode() +
-      attr.clearVisited(ind(3)) +
-      attr.addClearInterruptedCircle() +
-      attr.traceEndAttr() +
+      higherOrderAttributeCode() +
+      clearVisited(ind(3)) +
+      addClearInterruptedCircle() +
+      traceEndAttr() +
       ind(2) + "}\n" +
       (grammar().block ? ind(2) + grammar().blockEnd : "") +
-      ind + "}\n";
+      ind + "}";
+    s = s.replaceAll("#TYPE#", getType());
+    s = s.replaceAll("#TYPEINSIGNATURE#", getTypeInSignature());
+    s = s.replaceAll("#NAME#", attributeSignature());
+    s = s.replaceAll("#METHODNAME#", attributeName());
+    s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
+    s = s.replaceAll("#PARM#", parameters());
+    out.println(s);
   }
 
   public String AttrEq.computeMethodBody() {
@@ -844,11 +851,6 @@ aspect JragCodeGen {
       return Unparser.unparse(getRHS());
     else
       return "{  return " + Unparser.unparse(getRHS()) + ";  }";
-  }
-
-  public String AttrDecl.computeMethodInline(AttrDecl attr) {
-    // TODO: INH
-    return  "";
   }
 
   /**
@@ -1317,7 +1319,7 @@ aspect JragCodeGen {
          s += genEquation(attr);
          s += equ.computeMethod();
        } else {
-         s += equ.computeMethodInline(attr);
+         attr.emitInlineCompute(equ, out);
          if (!s.isEmpty())
            s = attr.hostFileComment(ind) + s;
        }
