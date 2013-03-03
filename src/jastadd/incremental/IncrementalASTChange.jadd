@@ -130,7 +130,6 @@ aspect IncrementalASTChange {
     return buf.toString();
   }
 
-
   public void ASTDecl.jjtGenIncrementalASTChangeAddChild1(PrintWriter stream) {
     if (!grammar().incremental) return; 
     if (grammar().incrementalLevelParam) {

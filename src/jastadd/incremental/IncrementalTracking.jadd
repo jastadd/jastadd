@@ -131,6 +131,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTracking() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (grammar().incrementalLevelParam) {
       if (getNumParameter() == 0) {
@@ -179,6 +180,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTrackingStackEnter() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (grammar().incrementalLevelParam) {
@@ -218,6 +220,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTrackingStackEnter2() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (grammar().incrementalLevelParam) {
@@ -251,6 +254,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTrackingStackExit() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (grammar().incrementalLevelParam) {
@@ -292,6 +296,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTrackingStackExit2() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (grammar().incrementalLevelParam) {
@@ -330,6 +335,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTrackingStackTransfer() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (grammar().incrementalLevelParam) {
@@ -354,6 +360,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalTrackingStackClear() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
       if (grammar().incrementalLevelParam) {
@@ -374,6 +381,7 @@ aspect IncrementalTracking {
   }
 
   public String AttrDecl.genIncrementalInternalNTAList() {
+    if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
     if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
       if (getNTA()) 
@@ -549,12 +557,12 @@ aspect IncrementalTracking {
     }
   }
 
-  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName1(PrintWriter stream) {
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName(PrintWriter stream) {
     if (!grammar().incremental) return; 
     stream.println(ind + "public ASTNode ASTNode.getChildNoTransform(int i) {");
   }
 
-  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName2(PrintWriter stream) {
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformNameGeneric(PrintWriter stream) {
     if (!grammar().incremental) return; 
     stream.println(ind + "public T ASTNode.getChildNoTransform(int i) {");
   }
@@ -641,5 +649,4 @@ aspect IncrementalTracking {
     }
     return "";
   }
-  
 }

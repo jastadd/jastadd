@@ -27,6 +27,104 @@
  */
 aspect Flush {
 
+  public void ASTDecl.jjtGenFlushCache(PrintWriter stream) {
+    if (grammar().fullFlush) {
+      if (name().equals("ASTNode")) {
+        // ES_TODO: These should be protected, public now for debugging reasons
+        stream.println(ind + "public ASTNode[] init_children;");
+        stream.println(ind + "public boolean[] rewritten_children;");
+        stream.println(ind + "protected boolean inc_hasEnclosingRewrittenNode() {");
+        stream.println(ind(2) + "ASTNode child = this;");
+        stream.println(ind(2) + "ASTNode parent = this.parent;");
+        stream.println(ind(2) + "while (parent != null) {");
+        //stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
+        stream.println(ind(3) +   "if (parent.mayHaveRewrite()) {");
+        //stream.println(ind(3) +   "if (parent.rewritten_children != null && parent.rewritten_children[index]) {");
+        stream.println(ind(4) +     "return true;");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(3) +   "child = parent;");
+        stream.println(ind(3) +   "parent = parent.parent;");
+        stream.println(ind(2) + "}");
+        stream.println(ind(2) + "return false;");
+        stream.println(ind + "}");
+      }
+    }
+    //if (name().equals("List")) {
+    //  stream.println(ind + "public boolean is$Final() { return super.is$Final() && !list$touched; }");
+    //}
+
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.print(ind + "public void flushCache() {\n");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    if (grammar().fullFlush) {
+      if(!name().equals("ASTNode"))
+        stream.print(ind(2) + "super.flushCache();\n");
+      else {
+        // flush rewrite or traverse to child
+        stream.println(ind(3) + "for (int i = 0; i < getNumChildNoTransform(); i++) {");
+        stream.println(ind(4) +   "if (rewritten_children != null && rewritten_children[i]) {");
+        stream.println(ind(5) +     "if (init_children[i] != null) {");
+        stream.println(ind(6) +       "setChild(init_children[i], i);");
+        stream.println(ind(6) +       "init_children[i] = null;");
+        stream.println(ind(5) +     "}");
+        stream.println(ind(5) +     "rewritten_children[i] = false;");
+        stream.println(ind(4) +   "} else {");
+        stream.println(ind(5) +     "getChildNoTransform(i).flushCache();");
+        stream.println(ind(4) +   "}");
+        stream.println(ind(3) + "}");
+      }
+      for(int k = 0; k < getNumSynEq(); k++) {
+        AttrEq equ = getSynEq(k);
+        AttrDecl attr = equ.decl();
+        String u = attr.resetVisit() + attr.resetCache();
+        u = u.replaceAll("#NAME#", attr.attributeSignature());
+        stream.print(u);
+        //if (grammar().incrementalTrack) {
+        //  stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlushes++;");
+        //}
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        String u = attr.resetVisit() + attr.resetCache();
+        u = u.replaceAll("#NAME#", attr.attributeSignature());
+        stream.print(u);
+        //if (grammar().incrementalTrack) {
+        //  stream.println(ind(2) + "ASTNode$DepGraphNode.trackedFlushes++;");
+        //}
+      }
+      // tokens
+      for (int c = 0; c < getNumComponents(); c++) {
+    	  Components comp = getComponents(c);
+     	  if (comp instanceof TokenComponent) {
+          String type = ASTNode.convTypeNameToSignature(((TokenComponent)comp).getTokenId().getTYPE());
+          boolean isStringToken = ((TokenComponent)comp).getTokenId().getTYPE().equals("String") || 
+            ((TokenComponent)comp).getTokenId().getTYPE().equals("java.lang.String");
+          if (!isStringToken) {
+  	   	    stream.println(ind(2) + "if (token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " instanceof ASTNode) {");
+	     		  stream.println(ind(3) +   "token" + type + "_" + ((TokenComponent)comp).getTokenId().getID() + " = null;");
+	     			stream.println(ind(2) + "}");
+          }
+    		}
+    	}
+      stream.print(flushCollectionCacheString());
+    }
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.print(ind + "}\n");
+
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel internal");
+    stream.println(ind + " */");
+    stream.print(ind + "public void flushCollectionCache() {\n");
+    if (grammar().fullFlush) {
+      if(!name().equals("ASTNode"))
+        stream.print(ind(2) + "super.flushCollectionCache();\n");
+      stream.print(flushCollectionCacheString());
+    }
+    stream.print(ind + "}\n");
+  }
+
   public void ASTDecl.jjtGenFullFlush1(PrintWriter stream) {
     if (!grammar().fullFlush) return;
     stream.println(ind(2) + "if(this.init_children == null) {");
