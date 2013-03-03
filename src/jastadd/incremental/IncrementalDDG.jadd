@@ -1,0 +1,768 @@
+/* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+aspect IncrementalDDG {
+
+  public String ASTDecl.genIncrementalChildInitMethod() {
+    if (!grammar().incremental) return "";
+    if (grammar().incrementalLevelParam) {
+      return "\ngetChild_handler = new ASTNode$DepGraphNode[" + childCount() + "];";
+    }
+    return "";  
+  }
+
+  String TokenComponent.jaddGenIncrementalTokenHandler() {
+    if (!grammar().incremental) return ""; 
+    if (!isNTA()) {
+    if (grammar().incrementalLevelParam)
+      if (grammar().incrementalPropLimit) {
+        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null, true);\n";
+      } else {
+        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
+      }
+    if (grammar().incrementalLevelAttr)
+      return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
+                 "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
+    }
+    return ""; // grammar().incrementalLevelNode
+  }
+
+  public void ASTDecl.jjtGenIncrementalRegions(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    // method: isRegionRoot()
+    if (grammar().incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "public boolean ASTNode.isRegionRoot() {");
+        stream.println(ind(2) + "return true;");
+        stream.println(ind + "}"); 
+      }
+    }
+    if (grammar().incrementalLevelRegion) {
+      stream.println(ind + "public boolean " + name() + ".isRegionRoot() {");
+      if (isRegionRoot())
+        stream.println(ind(2) + "return true;");
+      else {
+        if (name().equals("ASTNode")) {
+          stream.println(ind(2) + "return false;");
+        } else { 
+          stream.println(ind(2) + "return super.isRegionRoot();");
+        }
+      }
+      stream.println(ind + "}"); 
+    }
+    // method end: isRegionRoot()
+
+    // method: regionRoot()
+    if (grammar().incrementalLevelRegion) {
+      if (name().equals("ASTNode")) {
+        if (isRegionRoot()) {
+          stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+          stream.println(ind(2) + "return this;");
+          stream.println(ind + "}"); 
+        } else {
+          stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+          stream.println(ind(2) + "return parent != null ? parent.regionRoot() : null;");
+          stream.println(ind + "}"); 
+        }
+      } else {
+      if (isRegionRoot()) {
+        stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+        stream.println(ind(2) + "return this;");
+        stream.println(ind + "}"); 
+      } else {
+        stream.println(ind + "public ASTNode " + name() + ".regionRoot() {");
+        stream.println(ind(2) + "return super.regionRoot();");
+        stream.println(ind + "}"); 
+      }
+      }
+    }
+    // method end: regionRoot()
+
+    // method: handler()
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind + "public ASTNode$DepGraphNode " + name() + ".handler() {");
+        stream.println(ind(2) + "return handler;");
+        stream.println(ind + "}"); 
+      } else {
+        stream.println(ind + "public ASTNode$DepGraphNode " + name() + ".handler() {");
+        if (name().equals("ASTNode")) {
+          stream.println(ind(2) + "ASTNode root = regionRoot();");
+          stream.println(ind(2) + "return root != null ? root.handler() : null;");
+        } else {
+          stream.println(ind(2) + "ASTNode$DepGraphNode h = super.handler();");
+          stream.println(ind(2) + "if (h != null) return h;");
+          stream.println(ind(2) + "ASTNode root = regionRoot();");
+          stream.println(ind(2) + "return root != null ? root.handler() : null;");
+        }
+        stream.println(ind + "}"); 
+      }
+    }
+    if (grammar().incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "public ASTNode$DepGraphNode ASTNode.handler() {");
+        stream.println(ind(2) + "return handler;");
+        stream.println(ind + "}"); 
+      }
+    }
+    // method end: handler()
+
+    // method: getParent() -- overloaded for region tracking
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot() && !name().equals("ASTNode")) {
+        stream.println(ind + "public ASTNode " + name() + ".getParent() {");
+        stream.println(ind(2) + "// region root");
+        stream.println(ind(2) + "ASTNode parent = super.getParent();");
+        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && parent != null)");
+        stream.println(ind(3) +   "parent.handler().addDependant(handler);");
+        stream.println(ind(2) + "return parent;");
+        stream.println(ind + "}");          
+      }
+    }
+    // end method: getParent() -- overloaded for region tracking
+
+    // method: getChild(int) -- overloaded for region tracking
+    if (grammar().incrementalLevelRegion) {
+//      stream.println(ind + "private boolean " + name() + ".IS_REGION_LEAF = " + isRegionLeaf() + ";");
+//      stream.println(ind + "private boolean " + name() + ".IS_REGION_ROOT = " + isRegionRoot() + ";");
+
+      if (isRegionLeaf()) {
+        if (name().equals("List") || name().equals("Opt")) {
+          if(grammar().java5) {
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+            stream.println(ind + "@SuppressWarnings(\"cast\") public T " + name() + ".getChild(int i) {");
+            stream.println(ind(2) + "// region leaf");
+            stream.println(ind(2) + "ASTNode child = super.getChild(i);");
+            stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+            stream.println(ind(2) + "}");
+            stream.println(ind(2) + "return (T)child;");
+            stream.println(ind + "}");    
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+            stream.println(ind + "@SuppressWarnings(\"cast\") public T " + name() + ".getChildNoTransform(int i) {");
+            stream.println(ind(2) + "// region leaf");
+            stream.println(ind(2) + "ASTNode child = super.getChildNoTransform(i);");
+            stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+            stream.println(ind(2) + "}");
+            stream.println(ind(2) + "return (T)child;");
+            stream.println(ind + "}");    
+          } else {
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+            stream.println(ind + "public ASTNode " + name() + ".getChild(int i) {");
+            stream.println(ind(2) + "// region leaf");
+            stream.println(ind(2) + "ASTNode child = super.getChild(i);");
+            stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+            stream.println(ind(2) + "}");
+            stream.println(ind(2) + "return child;");
+            stream.println(ind + "}");
+            stream.println(ind + "/**");
+            stream.println(ind + " * @apilevel low-level");
+            stream.println(ind + " */");
+            stream.println(ind + "public ASTNode " + name() + ".getChildNoTransform(int i) {");
+            stream.println(ind(2) + "// region leaf");
+            stream.println(ind(2) + "ASTNode child = super.getChildNoTransform(i);");
+            stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+            stream.println(ind(3) +   "child.handler().addDependant(handler());");
+            stream.println(ind(2) + "}");
+            stream.println(ind(2) + "return child;");
+            stream.println(ind + "}");
+          }
+        }
+        else if (!name().equals("ASTNode")) {
+          stream.println(ind + "/**");
+          stream.println(ind + " * @apilevel low-level");
+          stream.println(ind + " */");
+          stream.println(ind + "public ASTNode " + name() + ".getChild(int i) {");
+          stream.println(ind(2) + "// region leaf");
+          stream.println(ind(2) + "ASTNode child = super.getChild(i);");
+          stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+          stream.println(ind(3) +   "child.handler().addDependant(handler());");
+          stream.println(ind(2) + "}");
+          stream.println(ind(2) + "return child;");
+          stream.println(ind + "}");
+          stream.println(ind + "/**");
+          stream.println(ind + " * @apilevel low-level");
+          stream.println(ind + " */");
+          stream.println(ind + "public ASTNode " + name() + ".getChildNoTransform(int i) {");
+          stream.println(ind(2) + "// region leaf");
+          stream.println(ind(2) + "ASTNode child = super.getChildNoTransform(i);");
+          stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {");
+          stream.println(ind(3) +   "child.handler().addDependant(handler());");
+          stream.println(ind(2) + "}");
+          stream.println(ind(2) + "return child;");
+          stream.println(ind + "}");
+        }
+      }
+    }
+    // end method: getChild(int) -- overloaded for region tracking
+
+    // TODO revisit this method
+/*
+    // method: removeChild(int) -- overloaded for region tracking
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals("ASTNode")) {
+        stream.println(ind + "public void " + name() + ".removeChild(int index) {");
+        stream.println(ind(2) + "// region leaf");
+        stream.println(ind(2) + "ASTNode child = getChild(index);");
+        stream.println(ind(2) + "if (child.isRegionRoot()) {");
+        stream.println(ind(3) +   "ASTNode$DepGraphNode handler = handler();");
+        stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
+        stream.println(ind(2) + "}");
+        stream.println(ind(2) + "super.removeChild(index);");
+        stream.println(ind + "}");
+      }
+    }
+    // end method: removeChild(int) -- overloaded for region tracking
+
+    // TODO revisit this method
+    // method: insertChild(ASTNode,int) -- overloaded for region tracking
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals("ASTNode")) {
+        stream.println("    public void " + name() + ".insertChild(ASTNode node, int index) {");
+        stream.println("      // region leaf");
+        stream.println("      if (node.isRegionRoot()) {");
+        stream.println(ind(3) +   "ASTNode$DepGraphNode handler = handler();");
+        stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
+        stream.println("      }");
+        stream.println("      super.insertChild(node, index);");
+        stream.println("    }");
+      }        
+    }
+    // end method: insertChild(ASTNode,int) -- overloaded for region tracking
+*/
+
+  } // end: jjtGenIncrementalRegions
+  
+
+  public void Grammar.jjtGenASTNode$DepGraphNode(PrintWriter stream) {
+      if (!grammar().incremental) return; 
+    // class: ASTNode$DepGraphNode
+    stream.println("  static public class ASTNode$DepGraphNode {");
+    if (grammar().incrementalTrack) {
+    stream.println("    public static int trackedReads = 0;");
+    stream.println("    public static int trackedComputes = 0;");
+    stream.println("    public static int trackedFlushes = 0;");
+    stream.println("    public void trackChange() {");
+    stream.println("      System.out.println(\"change(\" + this + \")\");");
+    stream.println("    }");
+    stream.println("    public static void resetTrackingCounters() {");
+    stream.println("      trackedReads = 0;");
+    stream.println("      trackedComputes = 0;");
+    stream.println("      trackedFlushes = 0;");
+    stream.println("    }");
+    stream.println("    public static String getTrackingResult() {");
+    stream.println("      return \"#reads = \" + trackedReads + \", #computes = \" + trackedComputes + \", #flushes = \" + trackedFlushes;");
+    stream.println("    }");
+    }
+    // add listeners/dependencies from another handler, used in rewrites
+    stream.println("    public void transferSetsFrom(ASTNode$DepGraphNode node) {");
+    stream.println("      if (node == null || this == node)");
+    stream.println("        return;");
+    stream.println("      for (ASTNode$DepGraphNode l : node.fListenerSet) {");
+    stream.println("        if (!l.isGarbage()) {");
+    stream.println("          this.addDependant(l);");
+    stream.println("        }");
+    stream.println("      }");
+    stream.println("      node.clearDependencies();");
+    stream.println("      node.clearDependants();");
+    stream.println("      node.throwAway();");
+    stream.println("    }");
+    stream.println("    public void transferDependenciesFrom(ASTNode$DepGraphNode node) {");
+    stream.println("      if (node == null || this == node)");
+    stream.println("        return;");
+    stream.println("      for (ASTNode$DepGraphNode l : node.fDependencySet) {");
+    stream.println("        l.addDependant(this);");
+    stream.println("      }");
+    if (grammar().incrementalPropLimit) {
+      stream.println("      setCacheInDependent(node.cacheInDependent);");
+    }
+    stream.println("      node.clearDependencies();");
+//    stream.println("      node.clearDependants();");
+    stream.println("    }");
+    // state
+    stream.println("    protected int fState = ASTNode.inc_CREATED;");
+    stream.println("    public void changeState(int newState) {");
+    stream.println("      fState = newState;");
+    stream.println("    }");
+    stream.println("    public void throwAway() {");
+    stream.println("      fState = ASTNode.inc_GARBAGE;");
+    //stream.println("      clearDependants();");
+    stream.println("    }");
+    stream.println("    public void keepAlive() {");
+    stream.println("      fState = ASTNode.inc_LIVE;");
+    stream.println("    }");
+    stream.println("    public boolean isGarbage() {");
+    stream.println("      return fState == ASTNode.inc_GARBAGE;");
+    stream.println("    }");
+    stream.println("    public boolean isCreated() {");
+    stream.println("      return fState == ASTNode.inc_CREATED;");
+    stream.println("    }");
+    stream.println("    public boolean isCloned() {");
+    stream.println("      return fState == ASTNode.inc_CLONED;");
+    stream.println("    }");
+    stream.println("    public boolean isLive() {");
+    stream.println("      return fState == ASTNode.inc_LIVE;");
+    stream.println("    }");
+    // clean up
+    stream.println("    public boolean visitedDuringCleanup = false;");
+    stream.println("    public static int nbr_cleanup = 0;");
+    stream.println("    public void cleanUpGarbage() {");
+    stream.println("      visitedDuringCleanup = true;");
+    stream.println("      nbr_cleanup++;");
+    stream.println("      // Clean up garbage");
+    stream.println("      java.util.Iterator<ASTNode$DepGraphNode> itr = fListenerSet.iterator();");
+    stream.println("      while (itr.hasNext()) {");
+    stream.println("        ASTNode$DepGraphNode cur = itr.next();");
+    stream.println("        if (cur.isGarbage()) {");
+    stream.println("          itr.remove();");
+    stream.println("        }");
+    stream.println("      }");
+    stream.println("    }");
+    /*
+    stream.println("    public static LinkedList<ASTNode$DepGraphNode> createdHandlers = new LinkedList<ASTNode$DepGraphNode>();");
+    stream.println("    public static void doCleanUp() {");
+    stream.println("      Iterator itr = createdHandlers.iterator();");
+    stream.println("      while (itr.hasNext()) {");
+    stream.println("        ASTNode$DepGraphNode node = (ASTNode$DepGraphNode)itr.next();");
+    stream.println("        if (node.isGarbage() || node.isCreated())");
+    stream.println("          itr.remove();");
+    stream.println("        else node.cleanUpGarbage();");
+    stream.println("      }");
+    stream.println("    }");
+    */
+    // level: node, attr, param all need a node to store the dependency node in
+    stream.println("    public ASTNode fNode;");
+    // level: param needs both an attr ID and a param ID
+    if (grammar().incrementalLevelParam) {
+      stream.println("    public String fAttrID;");
+      stream.println("    protected Object fParams;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = attrID;");
+      stream.println("      fParams = params;");
+      stream.println("      fState = node.inc_state;");
+      //stream.println("      createdHandlers.add(this);");
+      stream.println("    }");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = handler.fAttrID;");
+      stream.println("      fParams = handler.fParams;");
+      stream.println("      fState = node.inc_state;");
+      //stream.println("      createdHandlers.add(this);");
+      stream.println("    }");
+      stream.println("    public void setParams(Object params) {");
+      stream.println("      fParams = params;");
+      stream.println("    }");
+      if (grammar().incrementalPropLimit) {
+      stream.println("    public boolean cacheInDependent = false;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID, Object params, boolean cacheInDependent) {");
+      stream.println("      this(node, attrID, params);");
+      stream.println("      this.cacheInDependent = cacheInDependent;");
+      stream.println("    }");
+      stream.println("    public boolean isCacheInDependent() {");
+      stream.println("      return cacheInDependent;");
+      stream.println("    }");
+      stream.println("    public void setCacheInDependent(boolean b) {");
+      stream.println("      cacheInDependent = b;");
+      stream.println("    }");
+      stream.println("    public boolean noCacheRead = true;");
+      }
+    }
+    // level: attr also needs an attr ID 
+    if (grammar().incrementalLevelAttr) {
+      stream.println("    public String fAttrID;");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node, String attrID) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = attrID;");
+      stream.println("      fState = node.inc_state;");
+      //stream.println("      createdHandlers.add(this);");
+      stream.println("    }");
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fAttrID = handler.fAttrID;");
+      stream.println("      fState = node.inc_state;");
+      //stream.println("      createdHandlers.add(this);");
+      stream.println("    }");
+    }
+    // level: node, region
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
+      stream.println("    public ASTNode$DepGraphNode(ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fState = node.inc_state;");
+      //stream.println("      createdHandlers.add(this);");
+      stream.println("    }");    
+      stream.println("    public ASTNode$DepGraphNode(ASTNode$DepGraphNode handler, ASTNode node) {");
+      stream.println("      fNode = node;");
+      stream.println("      fState = node.inc_state;");
+      //stream.println("      createdHandlers.add(this);");
+      stream.println("    }");
+    }
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion || grammar().incrementalLevelAttr) {
+      stream.println("    public void flushRegion() {");
+      stream.println("      // Remove dependencies");
+      stream.println("      java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
+      stream.println("      fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+      stream.println("      for (ASTNode$DepGraphNode node : k) {");
+      stream.println("        node.removeDependant(this);");
+      stream.println("      }");
+      if (grammar().incrementalLevelAttr) 
+        stream.println("          fNode.reactToDependencyChange(fAttrID);");
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion)
+        stream.println("          fNode.reactToDependencyChange();");
+      stream.println("    }");          
+    }
+    // behavior generic for any kind of dependency region
+    stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fListenerSet = " +
+                   "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+    stream.println("    public boolean hasDependants() {");
+    stream.println("        return !fListenerSet.isEmpty();");
+    stream.println("    }");
+    stream.println("    public java.util.HashSet<ASTNode$DepGraphNode> fDependencySet = " +
+                   "new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+    stream.println("    public void clearDependants() {");
+    stream.println("      for (ASTNode$DepGraphNode node : fListenerSet) {");
+    stream.println("        node.removeDependency(this);");
+    stream.println("      }");
+    stream.println("      fListenerSet.clear();");
+    stream.println("    }");
+    stream.println("    public void clearDependencies() {");
+    stream.println("      for (ASTNode$DepGraphNode node : fDependencySet) {");
+    stream.println("        node.removeDependant(this);");
+    stream.println("      }");
+    stream.println("      fDependencySet.clear();");
+    stream.println("    }");
+    stream.println("    public void addDependency(ASTNode$DepGraphNode node) {");
+//    stream.println("      if (node != this) {");
+    stream.println("      fDependencySet.add(node);");
+//    stream.println("      }");
+    stream.println("    }");
+    stream.println("    public void removeDependency(ASTNode$DepGraphNode node) {");
+//    stream.println("      if (node != this) {");
+    stream.println("      fDependencySet.remove(node);");
+//    stream.println("      }");
+    stream.println("    }");
+    stream.println("    public void addDependant(ASTNode$DepGraphNode node) {");
+//    stream.println("      if (node != this) {");
+    stream.println("      fListenerSet.add(node);");
+    stream.println("      node.addDependency(this);");
+//    stream.println("      }");
+    stream.println("    }");
+    stream.println("    public void removeDependant(ASTNode$DepGraphNode node) {");
+//    stream.println("      if (node != this) {");
+    stream.println("      fListenerSet.remove(node);");
+    stream.println("    }");
+    //}
+    stream.println("    private boolean visited = false;");
+    stream.println("    public void notifyDependencies() {");
+    stream.println("      // Notify and remove listeners");
+    stream.println("      if (!visited) {");
+    stream.println("        visited = true;");
+    stream.println("        java.util.HashSet<ASTNode$DepGraphNode> k = fListenerSet;");
+    stream.println("        fListenerSet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+    stream.println("        for (ASTNode$DepGraphNode node : k) {");
+    stream.println("          if (!node.isGarbage())");
+    stream.println("            node.dependencyChanged();");
+    stream.println("          node.removeDependency(this);");
+    stream.println("        }");
+    stream.println("        visited = false;");
+    stream.println("      }");
+    stream.println("    }");
+    // React to change
+    stream.println("    private boolean visitedChange = false;");
+    stream.println("    public void dependencyChanged() {");
+    stream.println("      if (!visitedChange) {");
+    stream.println("        visitedChange = true;");
+    if (grammar().incrementalTrack) {
+    stream.println("        trackedFlushes++;");
+    stream.println("        System.out.println(\"not(\" + this + \")\");");
+    }
+    if (grammar().incrementalLevelParam && grammar().incrementalPropLimit) {
+    stream.println("        if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {");
+    stream.println("        } else {");
+    }
+    stream.println("        if (!fDependencySet.isEmpty()) {");
+    stream.println("          // Remove dependencies");
+    stream.println("          java.util.HashSet<ASTNode$DepGraphNode> k = fDependencySet;");
+    stream.println("          fDependencySet = new java.util.HashSet<ASTNode$DepGraphNode>(4);");
+    stream.println("          for (ASTNode$DepGraphNode node : k) {");
+    stream.println("            node.removeDependant(this);");
+    stream.println("          }");
+    if (grammar().incrementalLevelParam)
+    stream.println("          fNode.reactToDependencyChange(fAttrID, fParams);");
+    if (grammar().incrementalLevelAttr) 
+    stream.println("          fNode.reactToDependencyChange(fAttrID);");
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion)
+    stream.println("          fNode.reactToDependencyChange();");
+    stream.println("        }");
+    if (grammar().incrementalLevelParam && grammar().incrementalPropLimit) {
+      stream.println("        }");
+    }
+    stream.println("        visitedChange = false;");
+    stream.println("      }");
+    stream.println("    }");
+    // Debugging methods:
+    if (grammar().incrementalDebug) {
+      stream.println("    private int dumpDependents_visited = 0;");
+      stream.println("    public void dumpDependents(boolean changed, int visited) {");
+      stream.println("      if (visited != dumpDependents_visited) {");
+      stream.println("        dumpDependents_visited = visited;");
+      stream.println("        if (changed) {");
+      stream.println("          System.out.println(\"change(\" + this + \")\");");
+      stream.println("        } else {");
+      stream.println("          System.out.println(\"dep-change(\" + this + \")\");");
+      stream.println("         }");
+      stream.println("        class Entry implements Comparable<Entry> {");
+      stream.println("          public String id;");
+      stream.println("          public ASTNode$DepGraphNode node;");
+      stream.println("          public Entry(String id, ASTNode$DepGraphNode node) {");
+      stream.println("            this.id = id; this.node = node;");
+      stream.println("          }");
+      stream.println("          public int compareTo(Entry e) {");
+      stream.println("            return id.compareTo(e.id);");
+      stream.println("          }");
+      stream.println("        }");
+      stream.println("        java.util.TreeSet<Entry> sorted = new java.util.TreeSet<Entry>();");
+      stream.println("        for (ASTNode$DepGraphNode node : fListenerSet) {");
+      stream.println("          sorted.add(new Entry(node.toString(), node));");
+      stream.println("        }");
+      stream.println("        for (Entry e : sorted) {");
+      stream.println("          e.node.dumpDependents(false, visited);");
+      stream.println("        }");
+      stream.println("      }");
+      stream.println("    }");
+      stream.println("    public void dumpDeps() {");
+      stream.println("      java.util.TreeSet<String> sorted = new java.util.TreeSet<String>();");
+      stream.println("      for (ASTNode$DepGraphNode node : fListenerSet) {");
+      stream.println("        sorted.add(node.toString());");
+      stream.println("      }");
+      stream.println("      for (String s : sorted) {");
+      stream.println("        System.out.println(\"dep(\" + s + \" -> \" + this + \")\");");
+      stream.println("      }");
+      stream.println("    }");
+      stream.println("    public String toString() {");
+      if (grammar().incrementalLevelParam) 
+        stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID + " +
+            "(fParams != null ? (\"[\" + (fParams instanceof ASTNode ? " +
+            "((ASTNode)fParams).relativeNodeID() : fParams) + \"]\") : \"\");");
+      if (grammar().incrementalLevelAttr)
+        stream.println("      return fNode.relativeNodeID() + \":\" + fAttrID;");
+      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion)
+        stream.println("      return fNode.relativeNodeID();");
+      stream.println("    }");
+    }
+    stream.println("  }"); // End ASTNode$DepGraphNode
+  }
+
+  public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    // if a change has been made to a list then the list should again be touched by the "touch rewrite"
+    // but this does not happen if the list is final.
+    //if (name().equals("List") && !grammar().fullFlush) {
+    //  stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
+    //}
+    //
+    // level region: one handler per region, non-region root nodes need a method to find the handler of their region
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
+        stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
+          ".handler = new ASTNode$DepGraphNode(this);");                    
+      }
+    }
+    // level node: one handler per node
+    if (grammar().incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        stream.println(ind + "protected ASTNode$DepGraphNode " + 
+          "ASTNode.handler = new ASTNode$DepGraphNode(this);");                    
+      }
+    } 
+    // level param, attr: at least one handler per attribute
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      // handlers specific for ASTNode
+      if (name().equals("ASTNode")) {
+        if (grammar().incrementalLevelParam) {
+          if (grammar().incrementalPropLimit) {
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+                "new ASTNode$DepGraphNode(this, \"getParent\", null, true);");
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+                "new ASTNode$DepGraphNode(this, \"numChildren\", null, true);");
+          } else {
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+                "new ASTNode$DepGraphNode(this, \"getParent\", null);");
+            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+                "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
+          }
+          stream.println(ind + "protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
+        } 
+        if (grammar().incrementalLevelAttr) {
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
+              "new ASTNode$DepGraphNode(this, \"getParent\");");
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
+              "new ASTNode$DepGraphNode(this, \"numChildren\");");
+          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
+              "new ASTNode$DepGraphNode(this, \"getChild\");");
+        }
+      }
+      // collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynDecl(); k++) {
+        AttrDecl attr = getSynDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for (int k = 0; k < getNumCollDecl(); k++) {
+        CollDecl attr = getCollDecl(k);
+        list.add(attr);      
+      }
+      // attribute code 
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (grammar().incrementalLevelParam) {
+          // level param: check if this is a parameterized attribute
+          if (attr.getNumParameter() > 0) {
+            stream.println(ind + "protected java.util.Map " + name() + "." + attr.attributeSignature() + 
+                  "_handler = new java.util.HashMap(4);");
+          } else {
+            stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
+                  attr.attributeSignature() + "_handler;");
+          }
+        }
+        // level attr: Add one handler per attribute
+        if (grammar().incrementalLevelAttr) {
+          stream.println(ind + "protected ASTNode$DepGraphNode " + name() + "." + 
+                  attr.attributeSignature() + "_handler;");            
+        }
+      }
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalCopyHandlers(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    stream.println(ind + "protected void " + name() + ".inc_copyHandlers(" + name() + " copy) {");
+    // ast handlers
+    if (name().equals("ASTNode")) {
+      if (grammar().incrementalLevelParam) {
+        stream.println(ind(2) + "if (getChild_handler != null)");
+        stream.println(ind(3) +   "copy.getChild_handler = (ASTNode$DepGraphNode[])getChild_handler.clone();");
+        stream.println(ind(2) + "copy.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, copy);");
+        stream.println(ind(2) + "copy.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, copy);");
+        stream.println(ind(2) + "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {");
+        stream.println(ind(3) +   "if (getChild_handler[i] != null) {");
+        stream.println(ind(4) +     "copy.getChild_handler[i] = new ASTNode$DepGraphNode(getChild_handler[i], copy);");
+        stream.println(ind(3) +   "}");
+        stream.println(ind(2) + "}");
+      }
+      if (grammar().incrementalLevelAttr) {
+        stream.println(ind(2) + "copy.getChild_handler = new ASTNode$DepGraphNode(getChild_handler, copy);");
+        stream.println(ind(2) + "copy.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, copy);");
+        stream.println(ind(2) + "copy.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, copy);");
+      }
+      if (grammar().incrementalLevelNode) {
+        stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
+      }
+      if (grammar().incrementalLevelRegion) {
+        if (isRegionRoot())
+          stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
+      }
+    } else {
+      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {
+        if (isRegionRoot()) {
+          stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);"); 
+        } else {
+          stream.println(ind(2) + "super.inc_copyHandlers(copy);");
+        }
+      }
+      if (grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
+        stream.println(ind(2) + "super.inc_copyHandlers(copy);");
+      }
+    }
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      // tokens
+      for (int c = 0; c < getNumComponents(); c++) {
+        Components comp = getComponents(c);
+        if (comp instanceof TokenComponent) {
+          stream.println(ind(2) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + "_handler != null) {");
+          stream.println(ind(3) +   "copy.get" + ((TokenComponent)comp).getTokenId().getID() + 
+                                    "_handler = new ASTNode$DepGraphNode(get" + 
+                               ((TokenComponent)comp).getTokenId().getID() + "_handler, copy);\n");
+          stream.println(ind(2) + "}");
+
+         }
+       }
+      // Collect attributes: syn then inh
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynDecl(); k++) {
+        AttrDecl attr = getSynDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      // Attribute code: propagate change of all cached values being removed
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        if (attr.getNumParameter() > 0) {
+          if (grammar().incrementalLevelParam) {
+            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println(ind(3) +   "copy." + attr.attributeSignature() + "_handler = new java.util.HashMap(4);");
+            stream.println(ind(2) + "}");
+          } else {
+            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+            stream.println(ind(3) + "copy." + attr.attributeSignature() + "_handler = new ASTNode$DepGraphNode(" + 
+                                    attr.attributeSignature() + "_handler, copy);");
+            stream.println(ind(2) + "}");
+          }
+        } else {
+          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
+          stream.println(ind(3) + "copy." + attr.attributeSignature() + "_handler = new ASTNode$DepGraphNode(" + 
+                                  attr.attributeSignature() + "_handler, copy);");
+          stream.println(ind(2) + "}");
+        }
+      }    
+    }
+    // end of method
+    stream.println(ind + "}");
+  }
+
+}

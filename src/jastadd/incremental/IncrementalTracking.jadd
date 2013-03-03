@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2012, Emma Söderberg <emma.soderberg@cs.lth.se>
+/* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,109 @@
  */
 
 /**
- * Incremental tracing code generation helper methods.
+ * Incremental tracking code generation helper methods.
  */
 aspect IncrementalTracking {
 
-  // ES_2011-09-22: Code generation for incremental evaluation, tracking
+  public void Grammar.jjtGenIncrementalEvaluationStack(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelRegion) {
+    stream.println(ind + "public int IN_COMPUTATION = 0;");
+    }
+    stream.println(ind + "protected java.util.Stack handlerAttrStack = new java.util.Stack();");
+//    stream.println(ind + "protected java.util.Stack handlerRewriteStack = new java.util.Stack();");
+    stream.println(ind + "public void addHandlerDepTo(ASTNode$DepGraphNode handler) {");
+    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL || handler == null) {");
+//    stream.println(ind(2) + "if (!IN_ATTR_STORE_EVAL && !IN_REWRITE_EVAL || handler == null) {");
+    stream.println(ind(3) +   "return;");
+    stream.println(ind(2) + "}");
+    if (grammar().incrementalTrack) {
+    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedReads++;");
+    }
+    stream.println(ind(2) + "java.util.Stack handlerStack = handlerAttrStack;");
+//    stream.println(ind(2) + "if (IN_REWRITE_EVAL) ");
+//    stream.println(ind(3) +   "handlerStack = handlerRewriteStack;");
+    stream.println(ind(2) + "if (!handlerStack.isEmpty()) {");
+    stream.println(ind(3) +   "//throw new Error(\"Handler stack is empty at addition of dependency!\");");
+    stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)handlerStack.peek();");
+    stream.println(ind(3) +   "handler.addDependant(top);");
+    if (grammar().incrementalPropLimit) {
+    stream.println(ind(3) +   "if (!handler.cacheInDependent)");
+    stream.println(ind(4) +     "top.noCacheRead = false;");
+    }
+    stream.println(ind(2) + "}");
+    stream.println(ind + "}");
+    stream.println(ind + "public boolean IN_ATTR_STORE_EVAL = false;");
+    stream.println(ind + "public void enterAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
+    if (grammar().incrementalTrack) {
+    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComputes++;");
+    }
+//    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
+    stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = true;");
+    stream.println(ind(3) +   "//System.out.println(\"attr eval stack enter: \" + handler.fAttrID);");
+    stream.println(ind(3) +   "pushHandler(handlerAttrStack, handler);");
+//    stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public void exitAttrStoreEval(ASTNode$DepGraphNode handler) {"); 
+//    stream.println(ind(2) + "if (!IN_REWRITE_EVAL) {");
+    stream.println(ind(3) +   "popHandler(handlerAttrStack, handler);");
+    stream.println(ind(3) +   "//System.out.println(\"attr eval stack exit: \" + handler.fAttrID);");
+    stream.println(ind(3) +   "IN_ATTR_STORE_EVAL = !handlerAttrStack.isEmpty();");
+//    stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+//    stream.println(ind + "public boolean IN_REWRITE_EVAL = false;");
+    stream.println(ind + "public void enterRewriteEval(ASTNode$DepGraphNode handler) {"); 
+    stream.println(ind(2) + "enterAttrStoreEval(handler);");
+//    if (grammar().incrementalTrack) {
+//    stream.println(ind(2) + "ASTNode$DepGraphNode.trackedComp++;");
+//    }
+//    stream.println(ind(2) + "IN_REWRITE_EVAL = true;");
+//    stream.println(ind(2) + "pushHandler(handlerRewriteStack, handler);");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public void exitRewriteEval(ASTNode$DepGraphNode handler) {"); 
+    stream.println(ind(2) + "exitAttrStoreEval(handler);");
+//    stream.println(ind(2) + "if (IN_REWRITE_EVAL) {");
+//    stream.println(ind(3) +   "popHandler(handlerRewriteStack, handler);");
+//    stream.println(ind(3) +   "IN_REWRITE_EVAL = !handlerRewriteStack.isEmpty();");
+//    stream.println(ind(2) + "}");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public boolean IN_CONSTRUCTION = false;");
+    stream.println(ind + "private int inc_constructionCount = 0;");
+    stream.println(ind + "public void enterConstruction() {"); 
+    stream.println(ind(2) + "IN_CONSTRUCTION = true;");
+    stream.println(ind(2) + "inc_constructionCount++;");
+    stream.println(ind + "}"); 
+    stream.println(ind + "public void exitConstruction() {"); 
+    stream.println(ind(2) + "inc_constructionCount--;");
+    stream.println(ind(2) + "if (inc_constructionCount == 0)");
+    stream.println(ind(3) +   "IN_CONSTRUCTION = false;");
+    stream.println(ind + "}"); 
+    stream.println(ind + "protected void pushHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
+    if (grammar().incrementalPropLimit) {
+    stream.println(ind(2) + "// assume that evaluation will be clean from cached values");
+    stream.println(ind(2) + "handler.noCacheRead = true;");
+    }
+    stream.println(ind(2) + "stack.push(handler);");
+    stream.println(ind + "}");        
+    stream.println(ind + "protected ASTNode$DepGraphNode popHandler(java.util.Stack stack, ASTNode$DepGraphNode handler) {");
+    stream.println(ind(2) + "if (stack.isEmpty())");
+    stream.println(ind(3) +   "throw new Error(\"Handler stack is empty at exit!\");");
+    stream.println(ind(2) + "ASTNode$DepGraphNode h = (ASTNode$DepGraphNode)stack.pop();");
+    // Skip this for now, deal with transitive dependencies later
+    //if (grammar().incrementalPropLimit) {
+    //stream.println(ind(2) + "h.setCacheInDependent(h.noCacheRead);");
+    //stream.println(ind(2) + "if (!stack.isEmpty()) {");
+    //stream.println(ind(3) +   "ASTNode$DepGraphNode top = (ASTNode$DepGraphNode)stack.peek();");
+    //stream.println(ind(3) +   "top.noCacheRead &= h.noCacheRead;");
+    //stream.println(ind(2) + "}");
+    //}
+    stream.println(ind(2) + "if (h != handler)");
+    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop!\");");
+//    stream.println(ind(3) +   "throw new Error(\"Top of handler stack does not match at pop! [\" + handler.fAttrID + \"]\");");
+    stream.println(ind(2) + "return h;");
+    stream.println(ind + "}");
+  }
+
   public String AttrDecl.genIncrementalTracking() {
     StringBuffer buf = new StringBuffer();
     if (grammar().incrementalLevelParam) {
@@ -80,7 +178,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-  // ES_2011-09-22: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTrackingStackEnter() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
@@ -120,7 +217,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-  // ES_2012-09-25: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTrackingStackEnter2() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
@@ -154,8 +250,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-
-  // ES_2011-09-22: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTrackingStackExit() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
@@ -197,7 +291,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-  // ES_2012-09-25: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTrackingStackExit2() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
@@ -236,8 +329,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-
-  // ES_2012-01-22: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTrackingStackTransfer() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
@@ -262,7 +353,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-  // ES_2012-01-22: Code generation for incremental evaluation, tracking
   public String AttrDecl.genIncrementalTrackingStackClear() {
     StringBuffer buf = new StringBuffer();
     if (getLazy() || isCircular()) {
@@ -283,7 +373,6 @@ aspect IncrementalTracking {
     return buf.toString();
   }
 
-  // ES_2012-02-21: Code generation for incremental evaluation
   public String AttrDecl.genIncrementalInternalNTAList() {
     StringBuffer buf = new StringBuffer();
     if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
@@ -292,5 +381,265 @@ aspect IncrementalTracking {
     }
     return buf.toString();
   }
+  
+  public String ASTDecl.genIncrementalTrackCreation() {
+    if (!grammar().incremental) return "";
+    if (grammar().incrementalLevelNode) {
+      //return ind(2) + "state().addHandlerDepTo(handler);\n";
+    }
+    return "";
+  }
+  
+  public void ASTDecl.jjtGenIncrementalTrackRewrite6(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(4) + "this.state().exitRewriteEval(oldNode.handler);");
+    }
+    if (grammar().incrementalLevelRegion) {
+      stream.println(ind(4) + "this.state().IN_COMPUTATION--;");
+      //stream.println(ind(4) + "this.state().IN_REWRITE_EVAL = false;");
+    }
+  }
 
+  public void ASTDecl.jjtGenIncrementalTrackRewrite7(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion || 
+          grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
+      stream.println(ind(5) + "ASTNode initial = this.init_children[i];");
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackRewrite8(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelParam) {
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(this.getChild_handler[i]);");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
+    }
+    if (grammar().incrementalLevelAttr) {
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(this.getChild_handler);");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
+    }
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(6) + "oldNode.inc_flush_subtree(node.handler());");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
+    }
+    if (grammar().incrementalLevelRegion) {
+      stream.println(ind(5) + "if (node.isRegionRoot()) {");
+      stream.println(ind(6) +   "oldNode.inc_flush_subtree(node.handler());");
+      stream.println(ind(5) + "}");
+      stream.println(ind(5) + "this.init_children[i] = initial;");
+    }
+  }
+
+  public void ASTDecl.genIncrementalTrackRewrite12(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0) {");
+        stream.println(ind(3) +   "node.handler().addDependant(handler);");
+        stream.println(ind(2) + "}");
+      }
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackRewrite1(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (!grammar().fullFlush) {
+    stream.println(ind(2) + "if(this.init_children == null) {");
+    stream.println(ind(3) +   "this.init_children = new ASTNode[this.children.length];");
+    stream.println(ind(3) +   "this.rewritten_children = new boolean[this.children.length];");
+    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "if(!node.inc_hasEnclosingRewrittenNode()) {");
+    stream.println(ind(3) +   "this.init_children[i] = node.fullCopy();");
+    stream.println(ind(3) +   "this.rewritten_children[i] = true;");
+    stream.println(ind(2) + "}");
+    }
+    if (grammar().incrementalLevelParam) {
+      stream.println(ind(2) + "this.state().enterRewriteEval(this.getChild_handler[i]);");
+    }
+    if (grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "this.state().enterRewriteEval(this.getChild_handler);");
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackRewrite2(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelParam) {
+      stream.println(ind(2) + "this.state().exitRewriteEval(this.getChild_handler[i]);");
+    }
+    if (grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "this.state().exitRewriteEval(this.getChild_handler);");
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackRewrite3(PrintWriter stream) {
+    if (!grammar().incremental) return;  
+    if (!grammar().fullFlush) {
+    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
+    stream.println(ind(5) +   "this.rewritten_children[i] = true;");
+    stream.println(ind(4) + "}");
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackRewrite4(PrintWriter stream) {
+    if (!grammar().incremental) return;  
+    if (grammar().incrementalLevelParam) {
+      stream.println(ind(3) + "if (this.getChild_handler[i] == null) {");
+      if (grammar().incrementalPropLimit) {
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      } else {
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      }
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "this.state().addHandlerDepTo(this.getChild_handler[i]);");
+    }
+    if (grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "this.state().addHandlerDepTo(this.getChild_handler);");  
+    }
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(2) + "if (node != null) {");
+      stream.println(ind(3) + "  this.state().addHandlerDepTo(node.handler);");
+      stream.println(ind(2) + "}");
+    }
+  }
+  
+  public void ASTDecl.jjtGenIncrementalTrackRewrite5(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(4) + "this.state().enterRewriteEval(node.handler);");
+    }
+    if (grammar().incrementalLevelRegion) {
+      //stream.println(ind(4) + "this.state().IN_REWRITE_EVAL = true;");
+      stream.println(ind(4) + "this.state().IN_COMPUTATION++;");
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackRewrite11(PrintWriter stream) {
+    if (!grammar().incremental) return;
+    if (grammar().incrementalLevelParam) {
+      stream.println(ind(3) + "if (this.getChild_handler[i] == null) {");
+      if (grammar().incrementalPropLimit) {
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
+      } else {
+      stream.println(ind(4) +   "this.getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      }
+      stream.println(ind(3) + "}");
+      stream.println(ind(3) + "this.state().addHandlerDepTo(this.getChild_handler[i]);");
+    }
+    if (grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "this.state().addHandlerDepTo(this.getChild_handler);");  
+    }
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(2) + "if (node != null) {");
+      stream.println(ind(3) + "  this.state().addHandlerDepTo(node.handler);");
+      // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
+      // JO 2013-02-05: "this" is used instead of "that"
+      // The possibility of a dependency requires one.
+      stream.println(ind(3) + "  this.handler.addDependant(node.handler);");
+      stream.println(ind(2) + "}");
+    }
+    if (grammar().incrementalLevelRegion) {
+      // rewrite is evaluated in "that" and may use attributes in that node, but this is not tracked. 
+      // JO 2013-02-05: "this" is used instead of "that"
+      // The possibility of a dependency requires one.
+      stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
+      stream.println(ind(3) +   "this.handler().addDependant(node.handler());");
+      stream.println(ind(3) +   "node.handler().addDependant(this.handler());");
+      stream.println(ind(2) + "}");
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName1(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    stream.println(ind + "public ASTNode ASTNode.getChildNoTransform(int i) {");
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName2(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    stream.println(ind + "public T ASTNode.getChildNoTransform(int i) {");
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    if (grammar().incrementalLevelParam) {
+      stream.println(ind(2) + "if (getChild_handler[i] == null) {");
+      if (grammar().incrementalPropLimit) {
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !child.mayHaveRewrite());");
+      } else {
+      stream.println(ind(4) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
+      }
+      stream.println(ind(2) + "}");
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");
+    }
+    if (grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");  
+    }
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(2) + "if (child != null)");
+      stream.println(ind(3) + "  state().addHandlerDepTo(child.handler);");
+    }
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && child != null) {");
+        stream.println(ind(3) + "  child.handler().addDependant(handler);");
+        stream.println(ind(2) + "}");
+      }
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackGetParent(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(getParent_handler);");
+    }
+    if (grammar().incrementalLevelNode) {
+      stream.println(ind(2) + "if (parent != null)");
+      stream.println(ind(3) +   "state().addHandlerDepTo(((ASTNode)parent).handler);");
+    }
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot()) {
+        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && parent != null)");
+        stream.println(ind(3) +   "parent.handler().addDependant(handler);");
+      }
+    }
+  }
+
+  public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
+    }
+  }
+  
+    String TokenComponent.jaddGenIncrementalTokenTrack() {
+    if (!grammar().incremental) return ""; 
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr)
+      return "        state().addHandlerDepTo(get#ID#_handler);\n";
+    if (grammar().incrementalLevelNode) {
+      String type = getTokenId().getTYPE();
+      boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
+      boolean isPrimitiveToken = isPrimitive();
+      if (!isStringToken && !isPrimitiveToken) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
+        buf.append("          state().addHandlerDepTo(((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler);\n");
+        buf.append("        }\n");
+        return buf.toString();
+      }
+    }
+    if (grammar().incrementalLevelRegion) {
+      String type = getTokenId().getTYPE();
+      boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
+      boolean isPrimitiveToken = isPrimitive();
+      if (!isStringToken && !isPrimitiveToken) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n");
+        buf.append("          ((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler().addDependant(handler());\n");
+        buf.append("        }\n");
+        return buf.toString();
+      }
+    }
+    return "";
+  }
+  
 }
