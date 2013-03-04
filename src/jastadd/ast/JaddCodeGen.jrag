@@ -964,7 +964,7 @@ aspect JaddCodeGen {
     //emitCloneNode(stream);
     //emitCopyNode(stream);
     //emitFullCopy(stream);
-    //emitFlushCache(stream);
+    //jjtGenFlushCache(stream);
     if(grammar().jjtree) {
       jjtGenDumpTree(stream);
       jjtGenVisitor(stream);
