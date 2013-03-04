@@ -401,6 +401,7 @@ aspect JastAddCodeGen {
       jjtGenFlushCache(writer);
       emitCloneNode(writer);
       emitCopyNode(writer);
+      emitFullCopy(writer);
       writer.flush();
 
       /*

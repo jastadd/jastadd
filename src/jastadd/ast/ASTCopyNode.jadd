@@ -28,17 +28,22 @@
 
 aspect ASTCloneNode {
 
+  syn String ASTDecl.copyReturnType() {
+    if (grammar().java5) {
+      if(name().equals("Opt")
+          || name().equals("List")
+          || name().equals("ASTNode")) {
+        return name() + "<T>";
+      } else {
+        return name();
+      }
+    } else {
+      return "ASTNode";
+    }
+  }
+
   public void ASTDecl.emitCloneNode(PrintWriter stream) {
 
-    String returnType;
-    if(grammar().java5) {
-      returnType = name();
-      if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
-        returnType += "<T>";
-    } else {
-      returnType = "Object";
-    }
-    
     StringBuffer cloneBody = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
@@ -63,13 +68,20 @@ aspect ASTCloneNode {
     }
     
     TemplateContext tt = templateContext();
-    tt.bind("ReturnType", returnType);
     tt.bind("CloneBody", cloneBody.toString());
-
-    tt.expand("ast.clone", stream);
+    tt.expand("ASTDecl.emitCloneNode", stream);
   }
 
   public void ASTDecl.emitCopyNode(PrintWriter stream) {
+
+    if (hasAbstract())
+      // Don't generate copy methods for abstract node types
+      return;
+
+    templateContext().expand("ASTDecl.emitCopyNode", stream);
+  }
+
+  public void ASTDecl.emitFullCopy(PrintWriter stream) {
 
     if (hasAbstract())
       // Don't generate copy methods for abstract node types
@@ -132,18 +144,9 @@ aspect ASTCloneNode {
       skipNTAs += "}\n";
     }
 
-    String returnName = name();
-    if(name().equals("Opt") || name().equals("List") || name().equals("ASTNode"))
-      returnName = returnName + "<T>";
-
-    String returnType = grammar().java5 ? returnName : "ASTNode";
-
     TemplateContext tt = templateContext();
-    tt.bind("ReturnType", returnType);
     tt.bind("SkipNTAs", skipNTAs);
-
-    tt.expand("ast.copy", stream);
-    tt.expand("ast.fullCopy", stream);
+    tt.expand("ASTDecl.emitFullCopy", stream);
   }
 
 }
