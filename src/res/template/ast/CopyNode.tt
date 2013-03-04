@@ -68,10 +68,10 @@ ASTDecl.emitCloneNode = [[
    */
   #annotations
   public #copyReturnType clone() throws CloneNotSupportedException {
-     $SynchBegin
-     #name node = (#name) super.clone();
-     $CloneBody
-     return node;
-     $SynchEnd
-   }
+    $SynchBegin
+    #name node = (#name) super.clone();
+    $CloneBody
+    return node;
+    $SynchEnd
+  }
 ]]
