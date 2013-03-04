@@ -63,7 +63,8 @@ aspect Flush {
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
       AttrDecl attr = equ.decl();
-      String u = attr.resetVisit() + attr.resetCache();
+      res.append(attr.resetVisit());
+      String u = attr.resetCache();
       u = u.replaceAll("#NAME#", attr.attributeSignature());
       res.append(u);
     }
@@ -77,7 +78,8 @@ aspect Flush {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
-      String u = attr.resetVisit() + attr.resetCache();
+      res.append(attr.resetVisit());
+      String u = attr.resetCache();
       u = u.replaceAll("#NAME#", attr.attributeSignature());
       res.append(u);
     }
@@ -166,7 +168,8 @@ aspect Flush {
     StringBuffer res = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
-      String s = attr.resetVisit() + attr.resetCache();
+      res.append(attr.resetVisit());
+      String s = attr.resetCache();
       if(!attr.separateEvaluation() && !attr.onePhase())
         s += ind(2) + "#NAME#_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n";
       s = s.replaceAll("#NAME#", attr.attributeSignature());

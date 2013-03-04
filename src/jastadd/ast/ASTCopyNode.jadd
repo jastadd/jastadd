@@ -48,13 +48,15 @@ aspect ASTCloneNode {
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
       AttrDecl attr = equ.decl();
-      String u = attr.resetVisit() + attr.resetCache();
+      cloneBody.append(attr.resetVisit("node."));
+      String u = attr.resetCache();
       u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
       cloneBody.append(u);
     }
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
-      String u = attr.resetVisit() + attr.resetCache();
+      cloneBody.append(attr.resetVisit("node."));
+      String u = attr.resetCache();
       u = u.replaceAll("#NAME#", "node." + attr.attributeSignature());
       cloneBody.append(u);
     }

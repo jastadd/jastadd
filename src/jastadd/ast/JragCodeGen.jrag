@@ -403,10 +403,13 @@ aspect JragCodeGen {
     return tt.expand("AttrDecl.visitedException");
   }
 
-  public String AttrDecl.resetVisit() {
+  syn String AttrDecl.resetVisit() = resetVisit("");
+
+  public String AttrDecl.resetVisit(String prefix) {
+    String signature = prefix + attributeSignature();
     if(isCircular()) {
       if(getNumParameter() == 0)
-        return ind(2) + "#NAME#_visited = -1;\n";
+        return ind(2) + signature + "_visited = -1;\n";
       else {
         // visited is handled in value object
         return "";
@@ -415,21 +418,21 @@ aspect JragCodeGen {
     if(!grammar().visitCheckEnabled) return "";
     else if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
-        return ind(2) + "#NAME#_visited = -1;\n";
+        return ind(2) + signature + "_visited = -1;\n";
       else {
         if(grammar().lazyMaps)
-          return ind(2) + "#NAME#_visited = null;\n";
+          return ind(2) + signature + "_visited = null;\n";
         else
-          return ind(2) + "#NAME#_visited = " + grammar().createDefaultMap + ";\n";
+          return ind(2) + signature + "_visited = " + grammar().createDefaultMap + ";\n";
       }
     }
     if(getNumParameter() == 0)
-      return ind(2) + "#NAME#_visited = false;\n";
+      return ind(2) + signature + "_visited = false;\n";
     else {
       if(grammar().lazyMaps)
-        return ind(2) + "#NAME#_visited = null;\n";
+        return ind(2) + signature + "_visited = null;\n";
       else
-        return ind(2) + "#NAME#_visited = " + grammar().createDefaultSet + ";\n";
+        return ind(2) + signature + "_visited = " + grammar().createDefaultSet + ";\n";
     }
   }
 
