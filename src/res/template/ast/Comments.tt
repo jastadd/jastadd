@@ -12,3 +12,13 @@ AttrEq.hostFileComment = [[
    * @aspect #getAspectName
    * @declaredat #declaredat
    */]]
+
+ASTDecl.javadocComment [[
+  /**
+   * $HostComment
+   * @ast method
+$if(HasAspect)
+   * @aspect $AspectName
+$endif
+   * @declaredat $DeclaredAt
+   */]]

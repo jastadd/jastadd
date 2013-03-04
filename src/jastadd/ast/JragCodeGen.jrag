@@ -195,43 +195,36 @@ aspect JragCodeGen {
 
   public void TypeDecl.emitMembers(PrintStream out) { }
 
+  /**
+   * Returns a string with the JavaDoc comment taken from the
+   * original Class body object.
+   */
   public String ASTDecl.javadocComment(ClassBodyObject obj) {
     String comment = obj.comments;
+    String hostComment;
     if (comment == null) {
-      return ind + augmentComment(obj,
-                            "/**\n" +
-                            ind + " */");
-    }
-    comment.trim();
-    if (comment.length() < 5) {
-      return ind + augmentComment(obj,
-                            "/**\n" +
-                            ind + " */");
-    }
-
-    int end = comment.lastIndexOf("*/");
-    int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
-
-    if (start != -1) {
-      return ind +
-        augmentComment(obj, comment.substring(start, end+2));
+      hostComment = "";
     } else {
-      return ind + augmentComment(obj,
-                       "/**\n" +
-                       ind + " */");
-    }
-  }
+      comment = comment.trim();
+      if (comment.length() < 5) {
+        hostComment = "";
+      } else {
+        int end = comment.lastIndexOf("*/");
+        int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
 
-  public String ASTDecl.augmentComment(ClassBodyObject obj, String comment) {
-    StringBuffer sb = new StringBuffer();
-    sb.append(comment.substring(0, comment.length()-2));
-    sb.append("* @ast method \n");
-    if (obj.aspectName() != null && obj.aspectName().length() > 0) {
-      sb.append(ind + " * @aspect " + obj.aspectName() + "\n");
+        if (start == -1) {
+          hostComment = "";
+        } else {
+          hostComment = comment.substring(start+3, end);
+        }
+      }
     }
-    sb.append(ind + " * " + ASTNode.declaredat(obj.getFileName(), obj.getStartLine()) + "\n");
-    sb.append(ind + " */\n");
-    return sb.toString();
+    TemplateContext tt = templateContext();
+    tt.bind("HasAspect", obj.aspectName() != null && obj.aspectName().length() > 0);
+    tt.bind("AspectName", obj.aspectName());
+    tt.bind("HostComment", hostComment);
+    tt.bind("DeclaredAt", ASTNode.declaredat(obj.getFileName(), obj.getStartLine()));
+    return tt.expand("ASTDecl.javadocComment");
   }
 
   public void ASTDecl.emitMembers(PrintStream out) {
