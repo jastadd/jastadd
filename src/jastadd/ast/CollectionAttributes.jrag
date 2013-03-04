@@ -150,7 +150,7 @@ aspect CollectionAttributes {
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# " + attributeName() + "_compute(#PARMDECL#) {\n" +
+      ind + "private " + getType() + " " + attributeName() + "_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
@@ -165,7 +165,7 @@ aspect CollectionAttributes {
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# " + attributeName() + "_compute(#PARMDECL#) {\n" +
+      ind + "private " + getType() + " " + attributeName() + "_compute(#PARMDECL#) {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
@@ -216,7 +216,7 @@ aspect CollectionAttributes {
       (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
       ind + "}\n" +
-      ind + "private #TYPE# combine_#NAME#_contributions(#TYPE# h) {\n" +
+      ind + "private " + getType() + " combine_#NAME#_contributions(" + getType() + " h) {\n" +
       (grammar().lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
       ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
       ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +

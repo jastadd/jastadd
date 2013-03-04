@@ -1108,7 +1108,7 @@ aspect JragCodeGen {
          // ES_2011-09-23: Code generation for incremental evaluation, 
          // separating return stmt to place a tracking statement in the middle 
          (grammar().incremental ? genIncrementalTrackingStackEnter2() : "") +
-         ind(4) + "#TYPE# new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
+         ind(4) + "" + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
          (grammar().incremental ? genIncrementalTrackingStackExit2() : "") +
          ind(4) + "return new_" + attributeSignature() + "_value;\n" +
          // OLD: ind(4) + "return " + circularComputeCall() + ";\n" +
@@ -1464,18 +1464,13 @@ aspect JragCodeGen {
       InhEq equ = (InhEq)iter.next();
       InhDecl decl = (InhDecl)equ.decl();
 
-      String s;
       out.println(ind + "/**");
       out.println(ind + " * " + equ.declaredat());
       out.println(ind + " * @apilevel internal");
       out.println(ind + " */");
-      s = ind + "public #TYPE# Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(#INTERFACEPARMDECL#) {";
-      s = s.replaceAll("#TYPE#", decl.type());
-      s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-      s = s.replaceAll("#NAME#", decl.attributeSignature());
-      s = s.replaceAll("#PARMDECL#", decl.parametersDecl());
-      s = s.replaceAll("#INTERFACEPARMDECL#", decl.interfaceParametersDecl());
-      out.println(s);
+      out.println(ind + "public " + decl.getType() + " Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersDecl() + ") {");
+
+      String s;
 
       // have we already generated a component equation?
       boolean hasComponentEq = false;
