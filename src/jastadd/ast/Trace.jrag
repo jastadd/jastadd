@@ -1,0 +1,101 @@
+/* Copyright (c) 2010-2013,
+ * Torbjörn Ekman 
+ * Emma Söderberg <emma.soderberg@cs.lth.se>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+aspect Trace {
+
+  syn String AttrDecl.tracePrintReturnPreviousValue(String varName) = "";
+  syn String AttrDecl.tracePrintReturnNewValue(String varName) = "";
+  syn String AttrDecl.tracePrintBeginComputingValue() = "";
+  syn String AttrDecl.tracePrintCycleBeginString() = "";
+  syn String AttrDecl.tracePrintCycleEndString() = "";
+  syn String AttrDecl.tracePrintStartingCycle() = "";
+  syn String AttrDecl.traceComputeContext() = "";
+
+  syn String AttrDecl.traceSignature() {
+    StringBuilder b = new StringBuilder();
+    b.append(getAspectName());
+    b.append(": ");
+    if(this instanceof SynDecl)
+      b.append("syn ");
+    if(this instanceof InhDecl)
+      b.append("inh ");
+    if (this instanceof CollDecl)
+      b.append("coll ");
+    if(getLazy())
+      b.append("lazy ");
+    if(isCircular())
+      b.append(" circular");
+
+    b.append(getType());
+    b.append(" ");
+    b.append(hostClass().name());
+    b.append(".");
+    b.append(name());
+    b.append("(");
+    for(int i = 0; i < getNumParameter(); i++) {
+      if(i != 0)
+        b.append(", ");
+      b.append(getParameter(i).getType());
+      b.append(" ");
+      b.append(getParameter(i).getName());
+    }
+    b.append(")");
+    b.append(", ");
+    b.append("this = \" + this.getClass().getName() + \"@\"+ Integer.toHexString(this.hashCode()) + \"");
+    for(int i = 0; i < getNumParameter(); i++) {
+      String name = getParameter(i).getName();
+      String type = getParameter(i).getType();
+      b.append(", ");
+      b.append(name);
+      b.append(" = ");
+      if(isPrimitive(type) || type.equals("String") || type.equals("java.lang.String"))
+        b.append("\" + " + name + " + \"");
+      else
+        b.append("\" + " + name + ".getClass().getName() + \"@\" + Integer.toHexString(" + name + ".hashCode()) + \"");
+    }
+    return b.toString();
+  }
+
+  protected String AttrDecl.trace(String s) {
+    if(!grammar().tracing)
+      return "";
+    StringBuilder b = new StringBuilder();
+    b.append("System.out.println(\"");
+    b.append(s);
+    b.append("\");\n");
+    return b.toString();
+  }
+
+  syn String AttrDecl.traceBeginAttr() =
+    trace("begin " + traceSignature());
+  syn String AttrDecl.traceEndAttr() =
+    trace("end " + traceSignature());
+  syn String AttrDecl.traceEndCachedAttr() =
+    trace("end cached " + traceSignature());
+}
