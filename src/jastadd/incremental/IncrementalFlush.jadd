@@ -165,9 +165,8 @@ aspect IncrementalFlush {
                                   attr.attributeSignature() + "_handler);");
                 stream.println(ind(2) + "}");
             }
-            String u = attr.resetVisit() + attr.resetCache();
-            u = u.replaceAll("#NAME#", attr.attributeSignature());
-            stream.print(u);              
+            stream.print(attr.resetVisit());
+            stream.print(attr.resetCache());
           }
 
         } else {
@@ -189,9 +188,8 @@ aspect IncrementalFlush {
             stream.println(ind(3) + "}");
           }
 
-          String u = attr.resetVisit() + attr.resetCache();
-          u = u.replaceAll("#NAME#", attr.attributeSignature());
-          stream.print(u);
+          stream.print(attr.resetVisit());
+          stream.print(attr.resetCache());
         }
         // notify
         if (grammar().incrementalLevelParam) {

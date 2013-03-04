@@ -115,9 +115,8 @@
           else {
             // store old value + flush value
             stream.println(ind(3) + attr.type() + " oldValue = " + attr.attributeSignature() + "_value;");
-            String u = attr.resetVisit() + attr.resetCache();
-            u = u.replaceAll("#NAME#", attr.attributeSignature());            
-            stream.print(u);         
+            stream.print(attr.resetVisit());
+            stream.print(attr.resetCache());
             // clear dependencies in handler  
             stream.println(ind(3) + attr.attributeSignature() + "_handler.clearDependencies();");
             // compute new value
@@ -227,18 +226,16 @@
             if (attr.getNumParameter() > 0) {
               stream.println(ind(2) + "if (" + attr.attributeSignature() + "_values != null && !" + 
                 attr.attributeSignature() + "_values.isEmpty()) {");
-              String u = attr.resetVisit() + attr.resetCache();
-              u = u.replaceAll("#NAME#", attr.attributeSignature());
-              stream.print(u);              
+              stream.print(attr.resetVisit());
+              stream.print(attr.resetCache());
               //if (grammar().incrementalTrack) {
               //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
               //}
               stream.println(ind(2) + "}");
             } else {
               //stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed) {");
-              String u = attr.resetVisit() + attr.resetCache();
-              u = u.replaceAll("#NAME#", attr.attributeSignature());
-              stream.print(u);              
+              stream.print(attr.resetVisit());
+              stream.print(attr.resetCache());
               //if (grammar().incrementalTrack) {
               //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
               //}
@@ -333,9 +330,8 @@
                 stream.println(ind(5) +       "state().exitConstruction();");
                 stream.println(ind(5) +       attr.attributeSignature() + "_list.inc_flush_subtree(node.handler());");
                 stream.println(ind(4) +     "node.handler().clearDependencies();");
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
+                stream.print(attr.resetVisit());
+                stream.print(attr.resetCache());
                 if (grammar().incrementalTrack) {
                   stream.println(ind(5) + "ASTNode$DepGraphNode.trackedFlush++;");
                 }
@@ -354,9 +350,8 @@
                   stream.println(ind(3) +   "state().exitConstruction();");
                   stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(node.handler());");
                   stream.println(ind(4) +     "node.handler().clearDependencies();");
-                  String u = attr.resetVisit() + attr.resetCache();
-                  u = u.replaceAll("#NAME#", attr.attributeSignature());
-                  stream.print(u);
+                  stream.print(attr.resetVisit());
+                  stream.print(attr.resetCache());
                   //if (grammar().incrementalTrack) {
                   //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
                   //}
@@ -512,9 +507,8 @@
               stream.println(ind(7) +           "break;");
               stream.println(ind(6) +         "}");
               stream.println(ind(5) +       "}");
-//              String u = attr.resetVisit() + attr.resetCache();
-//              u = u.replaceAll("#NAME#", attr.attributeSignature());
-//              stream.print(u);
+//              stream.print(attr.resetVisit());
+//              stream.print(attr.resetCache());
               //if (grammar().incrementalTrack) {
               //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
               //}
@@ -532,9 +526,8 @@
                 stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
                 stream.println(ind(3) +   "state().exitConstruction();");
                 stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
-                String u = attr.resetVisit() + attr.resetCache();
-                u = u.replaceAll("#NAME#", attr.attributeSignature());
-                stream.print(u);
+                stream.print(attr.resetVisit());
+                stream.print(attr.resetCache());
                 //if (grammar().incrementalTrack) {
                 //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
                 //}

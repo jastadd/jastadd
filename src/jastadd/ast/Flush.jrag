@@ -64,9 +64,7 @@ aspect Flush {
       AttrEq equ = getSynEq(k);
       AttrDecl attr = equ.decl();
       res.append(attr.resetVisit());
-      String u = attr.resetCache();
-      u = u.replaceAll("#NAME#", attr.attributeSignature());
-      res.append(u);
+      res.append(attr.resetCache());
     }
     return res.toString();
   }
@@ -79,49 +77,50 @@ aspect Flush {
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
       res.append(attr.resetVisit());
-      String u = attr.resetCache();
-      u = u.replaceAll("#NAME#", attr.attributeSignature());
-      res.append(u);
+      res.append(attr.resetCache());
     }
     return res.toString();
   }
   
-  public String AttrDecl.resetCache() {
+  syn String AttrDecl.resetCache() = resetCache("");
+
+  public String AttrDecl.resetCache(String prefix) {
     if(!getLazy() && !isCircular())
       return "";
+    String signature = prefix + attributeSignature();
     if(getNumParameter() == 0) {
       if(isCircular()) {
         if(isPrimitive())
-          return ind(2) + "#NAME#_computed = false;\n" +
-                 ind(2) + "#NAME#_initialized = false;\n";
+          return ind(2) + signature + "_computed = false;\n" +
+                 ind(2) + signature + "_initialized = false;\n";
         else
-          return ind(2) + "#NAME#_computed = false;\n" +
-                 ind(2) + "#NAME#_initialized = false;\n" +
-                 ind(2) + "#NAME#_value = null;\n";
+          return ind(2) + signature + "_computed = false;\n" +
+                 ind(2) + signature + "_initialized = false;\n" +
+                 ind(2) + signature + "_value = null;\n";
       }
       if(isPrimitive())
-        return ind(2) + "#NAME#_computed = false;\n";
+        return ind(2) + signature + "_computed = false;\n";
       else
-        return ind(2) + "#NAME#_computed = false;\n" +
-               ind(2) + "#NAME#_value = null;\n";
+        return ind(2) + signature + "_computed = false;\n" +
+               ind(2) + signature + "_value = null;\n";
     }
     else if(isCircular()) {
         if(grammar().lazyMaps)
-          return ind(2) + "#NAME#_values = null;\n";
+          return ind(2) + signature + "_values = null;\n";
         else
-          return ind(2) + "#NAME#_values = " + grammar().createDefaultMap + ";\n";
+          return ind(2) + signature + "_values = " + grammar().createDefaultMap + ";\n";
     }
     else {
       if (getNTA()) {
         if(grammar().lazyMaps)
-          return ind(2) + "#NAME#_values = null;\n" + ind(2) + "#NAME#_list = null;";
+          return ind(2) + signature + "_values = null;\n" + ind(2) + signature + "_list = null;";
         else
-          return ind(2) + "#NAME#_values = " + grammar().createDefaultMap + ";\n" + ind(2) + "#NAME#_list = null;\n";        
+          return ind(2) + signature + "_values = " + grammar().createDefaultMap + ";\n" + ind(2) + signature + "_list = null;\n";        
       } else {
         if(grammar().lazyMaps)
-          return ind(2) + "#NAME#_values = null;\n";
+          return ind(2) + signature + "_values = null;\n";
         else
-          return ind(2) + "#NAME#_values = " + grammar().createDefaultMap + ";\n";
+          return ind(2) + signature + "_values = " + grammar().createDefaultMap + ";\n";
       }        
     }
   }
@@ -169,11 +168,9 @@ aspect Flush {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       res.append(attr.resetVisit());
-      String s = attr.resetCache();
+      res.append(attr.resetCache());
       if(!attr.separateEvaluation() && !attr.onePhase())
-        s += ind(2) + "#NAME#_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n";
-      s = s.replaceAll("#NAME#", attr.attributeSignature());
-      res.append(s);
+        res.append(ind(2) + attr.attributeSignature() + "_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n");
     }
     res.append(collectionReset);
     return res.toString();
