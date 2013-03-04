@@ -821,12 +821,27 @@ aspect JragCodeGen {
 
   public String AttrDecl.genCircularEquationNoParams() {
     TemplateContext tt = templateContext();
+    tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
+    tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
+    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
+    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(attributeSignature() + "_value"));
+    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(attributeSignature() + "_value"));
+
     return tt.expand("ASTDecl.genCircularEquationNoParams");
   }
 
   public String AttrDecl.genCircularEquationWithParams(String paramDecl) {
     TemplateContext tt = templateContext();
+    tt.bind("BottomValue", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
+    tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
+    tt.bind("ToRefType2", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+    tt.bind("ToRefType3", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+    tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
+    tt.bind("FromRefType1", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+    tt.bind("FromRefType2", fromReferenceType("_value.value", getType()));
     tt.bind("ParamDecl", paramDecl);
+    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + attributeSignature() + "_value"));
+    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType())));
     return tt.expand("ASTDecl.genCircularEquationWithParams");
   }
 
@@ -839,170 +854,9 @@ aspect JragCodeGen {
       return attr.genEquation(paramDecl);
     } else {
       if(attr.getNumParameter() == 0) {
-        return
-           suppressWarnings() +
-           ind + "public " + attr.getType() + " " + attr.attributeName() + "() {\n" +
-           (grammar().block ? grammar().blockBegin : "") +
-           attr.traceComputeContext() +
-           attr.parameterStructure() +
-           attr.cacheCheck() +
-           ind(2) + "ASTNode$State state = state();\n" +
-           attr.addComponentCheck() +
-           ind(2) + "if (!" + attr.attributeSignature() + "_initialized) {\n" +
-           ind(3) + "" + attr.attributeSignature() + "_initialized = true;\n" +
-           ind(3) + "" + attr.attributeSignature() + "_value = " + Unparser.unparse(attr.getBottomValue()) + ";\n" +
-           ind(2) + "}\n" +
-           ind(2) + "if (!state.IN_CIRCLE) {\n" +
-           ind(3) + "state.IN_CIRCLE = true;\n" +
-           attr.tracePrintCycleBeginString() +
-           attr.addAddToComponent() +
-           attr.cacheInitRewrite() +
-           // TODO: fixme
-           // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-           ind(3) + "do {\n" +
-           ind(4) + "" + attr.attributeSignature() + "_visited = state.CIRCLE_INDEX;\n" +
-           ind(4) + "state.CHANGE = false;\n" +
-           attr.inhDebugString() +
-           attr.tracePrintBeginComputingValue() +
-           attr.genIncrementalTrackingStackEnter2() + 
-           ind(4) + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
-           attr.genIncrementalTrackingStackExit2() + 
-           ind(4) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", "" + attr.attributeSignature() + "_value") + ")\n" +
-           ind(5) + "state.CHANGE = true;\n" +
-           ind(4) + "" + attr.attributeSignature() + "_value = new_" + attr.attributeSignature() + "_value; \n" +
-           ind(4) + "state.CIRCLE_INDEX++;\n" +
-           attr.tracePrintStartingCycle() +
-           attr.cycleLimitCheck() +
-           ind(3) + "} while (state.CHANGE);\n" +
-           ind(3) + attr.cacheStoreRewrite() + " {\n" +
-           ind(3) + "" + attr.attributeSignature() + "_computed = true;\n" +
-           attr.cacheCycleInit() +
-           ind(3) + "}\n" +
-           ind(3) + "else {\n" +
-           attr.resetCycleInit() +
-           ind(4) + "" + attr.attributeSignature() + "_computed = false;\n" +
-           ind(4) + "" + attr.attributeSignature() + "_initialized = false;\n" +
-           ind(3) + "}\n" +
-           ind(3) + "state.IN_CIRCLE = false; \n" +
-           attr.tracePrintReturnNewValue("" + attr.attributeSignature() + "_value") +
-           attr.tracePrintCycleEndString() +
-           ind(3) + attr.returnStmt() +
-           ind(2) + "}\n" +
-           ind(2) + "if(" + attr.attributeSignature() + "_visited != state.CIRCLE_INDEX) {\n" +
-           ind(3) + "" + attr.attributeSignature() + "_visited = state.CIRCLE_INDEX;\n" +
-           attr.cacheCycleCheck() +
-           attr.resetCycleCheck() +
-           attr.addAddToComponent() +
-           attr.inhDebugString() +
-           attr.tracePrintBeginComputingValue() +
-           attr.genIncrementalTrackingStackEnter2() +
-           ind(3) + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
-           attr.genIncrementalTrackingStackExit2() + 
-           ind(3) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", "" + attr.attributeSignature() + "_value") + ")\n" +
-           ind(4) + "state.CHANGE = true;\n" +
-           ind(3) + "" + attr.attributeSignature() + "_value = new_" + attr.attributeSignature() + "_value; \n" +
-           attr.tracePrintReturnNewValue("" + attr.attributeSignature() + "_value") +
-           ind(3) + attr.returnStmt() +
-           ind(2) + "}\n" +
-           attr.tracePrintReturnPreviousValue("" + attr.attributeSignature() + "_value") +
-           ind(2) + attr.returnStmt() +
-           (grammar().block ? grammar().blockEnd : "") +
-           ind + "}\n";
-      }
-      else {
-        return
-           suppressWarnings() +
-           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
-           (grammar().block ? grammar().blockBegin : "") +
-           attr.traceComputeContext() +
-           attr.parameterStructure() +
-           attr.initLazyMaps() +
-           ind(2) + "ASTNode$State.CircularValue _value;\n" +
-           attr.cacheCheck() +
-           ind(2) + "else {\n" +
-           ind(3) + "_value = new ASTNode$State.CircularValue();\n" +
-           ind(3) + "" + attr.attributeSignature() + "_values.put(_parameters, _value);\n" +
-           ind(3) + "_value.value = " + toReferenceType(Unparser.unparse(attr.getBottomValue()), attr.getType()) + ";\n" +
-           ind(2) + "}\n" +
-           ind(2) + "ASTNode$State state = state();\n" +
-           attr.addComponentCheck() + 
-           ind(2) + "if (!state.IN_CIRCLE) {\n" +
-           ind(3) + "state.IN_CIRCLE = true;\n" +
-           attr.tracePrintCycleBeginString() +
-           attr.cacheInitRewrite() +
-           attr.addAddToComponent() +
-           // TODO: fixme
-           // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-           ind(3) + "" + attr.getType() + " new_" + attr.attributeSignature() + "_value;\n" +
-           ind(3) + "do {\n" + 
-           (grammar().java5 ? 
-             ind(4) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
-           :
-             ind(4) + "_value.visited = state.CIRCLE_INDEX;\n"
-           ) +
-           ind(4) + "state.CHANGE = false;\n" +
-           attr.inhDebugString() +
-           attr.tracePrintBeginComputingValue() +
-           attr.genIncrementalTrackingStackEnter2() + 
-           ind(4) + "new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
-           attr.genIncrementalTrackingStackExit2() + 
-           ind(4) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
-           ind(5) + "state.CHANGE = true;\n" +
-           ind(5) + "_value.value = " + toReferenceType("new_" + attr.attributeSignature() + "_value", attr.getType()) + ";\n" +
-           ind(4) + "}\n" +
-           ind(4) + "state.CIRCLE_INDEX++;\n" +
-           attr.tracePrintStartingCycle() +
-           attr.cycleLimitCheck() +
-           ind(3) + "} while (state.CHANGE);\n" +
-           ind(3) + attr.cacheStoreRewrite() + " {\n" +
-           (grammar().java5 ?
-             ind(4) + "" + attr.attributeSignature() + "_values.put(_parameters, new_" + attr.attributeSignature() + "_value);\n"
-           : 
-             ind(4) + "" + attr.attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attr.attributeSignature() + "_value", attr.getType()) + ");\n"
-           ) +
-           attr.cacheCycleInit() +
-           ind(3) + "}\n" +
-           ind(3) + "else {\n" +
-           ind(4) + "" + attr.attributeSignature() + "_values.remove(_parameters);\n" +
-           attr.resetCycleInit() +
-           ind(3) + "}\n" +
-           ind(3) + "state.IN_CIRCLE = false; \n" +
-           attr.tracePrintReturnNewValue("new_" + attr.attributeSignature() + "_value") +
-           attr.tracePrintCycleEndString() +
-           ind(3) + "return new_" + attr.attributeSignature() + "_value;\n" +
-           ind(2) + "}\n" +
-           (grammar().java5 ?
-             ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {\n"
-           :
-             ind(2) + "if(!new Integer(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {\n"
-           ) +
-           (grammar().java5 ?
-             ind(3) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
-           :
-             ind(3) + "_value.visited = state.CIRCLE_INDEX;\n" 
-            ) +
-           attr.inhDebugString() +
-           attr.tracePrintBeginComputingValue() +
-           attr.genIncrementalTrackingStackEnter2() + 
-           ind(3) + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
-           attr.genIncrementalTrackingStackExit2() + 
-           attr.cacheCycleCheck() + 
-           attr.resetCycleCheck() +
-           ind(3) + "else if (" + attr.differs("new_" + attr.attributeSignature() + "_value", fromReferenceType("_value.value", attr.getType())) + ") {\n" +
-           ind(4) + "state.CHANGE = true;\n" +
-           (grammar().java5 ?
-             ind(4) + "_value.value = new_" + attr.attributeSignature() + "_value;\n" 
-           :
-             ind(4) + "_value.value = " + toReferenceType("new_" + attr.attributeSignature() + "_value", attr.getType()) + ";\n" 
-           ) +
-           ind(3) + "}\n" +
-           attr.tracePrintReturnNewValue("new_" + attr.attributeSignature() + "_value") +
-           ind(3) + "return new_" + attr.attributeSignature() + "_value;\n" +
-           ind(2) + "}\n" +
-           attr.tracePrintReturnPreviousValue(fromReferenceType("" + attr.attributeSignature() + "_values.get(_parameters)" , attr.getType())) +
-           ind(2) + "return " + fromReferenceType("_value.value" , attr.getType()) + ";\n" +
-           (grammar().block ? grammar().blockEnd : "") +
-           ind + "}\n";
+        return attr.genCircularEquationNoParams();
+      } else {
+        return attr.genCircularEquationWithParams(paramDecl);
       }
     }
   }
@@ -1040,37 +894,37 @@ aspect JragCodeGen {
   public String AttrDecl.cacheCycleInit() {
      if (!grammar().cacheCycle) return "";
      return
-        ind(3) + "state.LAST_CYCLE = true;\n" +
+        "state.LAST_CYCLE = true;\n" +
         inhDebugString() +
-        ind(3) + circularComputeCall() + ";\n" +
-        ind(3) + "state.LAST_CYCLE = false;\n";
+        circularComputeCall() + ";\n" +
+        "state.LAST_CYCLE = false;\n";
   }
 
   public String AttrDecl.cacheCycleCheck() {
      if (!grammar().cacheCycle) return "";
      if(getNumParameter() == 0)
        return
-         ind(3) + "if (state.LAST_CYCLE) {\n" +
-         ind(4) + "" + attributeSignature() + "_computed = true;\n" +
+         "if (state.LAST_CYCLE) {\n" +
+         attributeSignature() + "_computed = true;\n" +
          inhDebugString() +
          genIncrementalTrackingStackEnter2() +
-         ind(4) + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
+         ind + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
          genIncrementalTrackingStackExit2() +
-         ind(4) + "return new_" + attributeSignature() + "_value;\n" +
-         ind(3) + "}\n";
+         ind + "return new_" + attributeSignature() + "_value;\n" +
+         "}\n";
      else {
        if (grammar().java5) 
          return
-           ind(3) + "if (state.LAST_CYCLE) {\n" +
+           "if (state.LAST_CYCLE) {\n" +
            inhDebugString() +
-           ind(4) + "" + attributeSignature() + "_values.put(_parameters, new_" + attributeSignature() + "_value);\n" +
-           ind(3) + "}\n";
+           ind + attributeSignature() + "_values.put(_parameters, new_" + attributeSignature() + "_value);\n" +
+           "}\n";
        else
          return
-           ind(3) + "if (state.LAST_CYCLE) {\n" +
+           "if (state.LAST_CYCLE) {\n" +
            inhDebugString() +
-           ind(4) + "" + attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attributeSignature() + "_value", getType()) + ");\n" +
-           ind(3) + "}\n";
+           ind + attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attributeSignature() + "_value", getType()) + ");\n" +
+           "}\n";
      }
   }
 

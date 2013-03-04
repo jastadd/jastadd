@@ -180,6 +180,162 @@ $endif
   }
 ]]
 
-ASTDecl.genCircularEquationNoParams [[]]
+ASTDecl.genCircularEquationNoParams [[
+  #suppressWarnings
+  public #getType #attributeName() {
+    $SynchBegin
+    #traceComputeContext
+    #parameterStructure
+    #cacheCheck
+    ASTNode$$State state = state();
+    #addComponentCheck
+    if (!#(attributeSignature)_initialized) {
+      #(attributeSignature)_initialized = true;
+    #(attributeSignature)_value = $BottomValue;
+    }
+    if (!state.IN_CIRCLE) {
+      state.IN_CIRCLE = true;
+      #tracePrintCycleBeginString
+      #addAddToComponent
+      #cacheInitRewrite
+      // TODO: fixme
+      // state().CIRCLE_INDEX = 1;
+      do {
+        #(attributeSignature)_visited = state.CIRCLE_INDEX;
+        state.CHANGE = false;
+        #inhDebugString
+        #tracePrintBeginComputingValue
+        #genIncrementalTrackingStackEnter2
+        #getType new_#(attributeSignature)_value = #circularComputeCall;
+        #genIncrementalTrackingStackExit2
+        if ($Cond1)
+          state.CHANGE = true;
+        #(attributeSignature)_value = new_#(attributeSignature)_value;
+        state.CIRCLE_INDEX++;
+        #tracePrintStartingCycle
+        #cycleLimitCheck
+      } while (state.CHANGE);
+      #cacheStoreRewrite {
+        #(attributeSignature)_computed = true;
+        #cacheCycleInit
+      } else {
+        #resetCycleInit
+        #(attributeSignature)_computed = false;
+        #(attributeSignature)_initialized = false;
+      }
+      state.IN_CIRCLE = false;
+      $TracePrintReturnNewValue
+      #tracePrintCycleEndString
+      #returnStmt
+    }
+    if(#(attributeSignature)_visited != state.CIRCLE_INDEX) {
+      #(attributeSignature)_visited = state.CIRCLE_INDEX;
+      #cacheCycleCheck
+      #resetCycleCheck
+      #addAddToComponent
+      #inhDebugString
+      #tracePrintBeginComputingValue
+      #genIncrementalTrackingStackEnter2
+      #getType new_#(attributeSignature)_value = #circularComputeCall;
+      #genIncrementalTrackingStackExit2
+      if ($Cond2)
+        state.CHANGE = true;
+      #(attributeSignature)_value = new_#(attributeSignature)_value;
+      $TracePrintReturnNewValue
+      #returnStmt
+    }
+    $TracePrintReturnPreviousValue
+    #returnStmt
+    $SynchEnd
+  }
+]]
 
-ASTDecl.genCircularEquationWithParams [[]]
+ASTDecl.genCircularEquationWithParams [[
+  #suppressWarnings
+  public #getType #attributeName($ParamDecl) {
+    $SynchBegin
+    #traceComputeContext
+    #parameterStructure
+    #initLazyMaps
+    ASTNode$$State.CircularValue _value;
+    #cacheCheck else {
+      _value = new ASTNode$$State.CircularValue();
+      #(attributeSignature)_values.put(_parameters, _value);
+      _value.value = $BottomValue;
+    }
+    ASTNode$$State state = state();
+    #addComponentCheck
+    if (!state.IN_CIRCLE) {
+      state.IN_CIRCLE = true;
+      #tracePrintCycleBeginString
+      #cacheInitRewrite
+      #addAddToComponent
+      // TODO: fixme
+      // state().CIRCLE_INDEX = 1;
+      #getType new_#(attributeSignature)_value;
+      do {
+$if (Java5)
+        _value.visited = new Integer(state.CIRCLE_INDEX);
+$else
+        _value.visited = state.CIRCLE_INDEX;
+$endif
+        state.CHANGE = false;
+        #inhDebugString
+        #tracePrintBeginComputingValue
+        #genIncrementalTrackingStackEnter2
+        new_#(attributeSignature)_value = #circularComputeCall;
+        #genIncrementalTrackingStackExit2
+        if ($Cond1) {
+          state.CHANGE = true;
+          _value.value = $ToRefType2;
+        }
+        state.CIRCLE_INDEX++;
+        #tracePrintStartingCycle
+        #cycleLimitCheck
+      } while (state.CHANGE);
+      #(cacheStoreRewrite) {
+$if (Java5)
+        #(attributeSignature)_values.put(_parameters, new_#(attributeSignature)_value);
+$else
+        #(attributeSignature)_values.put(_parameters, $ToRefType3);
+$endif
+        #cacheCycleInit
+      } else {
+        #(attributeSignature)_values.remove(_parameters);
+        #resetCycleInit
+      }
+      state.IN_CIRCLE = false;
+      $TracePrintReturnNewValue
+      #tracePrintCycleEndString
+      return new_#(attributeSignature)_value;
+    }
+$if (Java5)
+    if (!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {
+      _value.visited = new Integer(state.CIRCLE_INDEX);
+$else
+    if (!new Integer(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {
+      _value.visited = state.CIRCLE_INDEX;
+$endif
+      #inhDebugString
+      #tracePrintBeginComputingValue
+      #genIncrementalTrackingStackEnter2
+      #getType new_#(attributeSignature)_value = #circularComputeCall;
+      #genIncrementalTrackingStackExit2
+      #cacheCycleCheck
+      #resetCycleCheck
+      else if ($Cond2) {
+        state.CHANGE = true;
+$if (Java5)
+        _value.value = new_#(attributeSignature)_value;
+$else
+        _value.value = $FromRefType1;
+$endif
+      }
+      $TracePrintReturnNewValue
+      return new_#(attributeSignature)_value;
+    }
+    $TracePrintReturnPreviousValue
+    return $FromRefType2;
+    $SynchEnd
+  }
+]]
