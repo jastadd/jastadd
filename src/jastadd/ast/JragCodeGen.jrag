@@ -1569,28 +1569,20 @@ aspect JragCodeGen {
       } while(equ != null);
 
       if (!hasGetChildEq) {
-        StringBuilder buf = new StringBuilder();
-        buf.append(ind(2));
+        out.print(ind(2));
         if (hasComponentEq) {
-          buf.append("else {");
+          out.print("else {");
         }
         if(superClass() != null && superClass().hasInhEq(decl.name())) {
-          buf.append(ind(3) + "return super.Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(#INTERFACEPARM#);\n");
-          buf.append(ind(2) + "}\n");
+          out.println(ind(3) + "return super.Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParameters() + ");");
+          out.println(ind(2) + "}");
         }
         else {
           // TODO: INH
-          buf.append(decl.inhDebugString());
-          buf.append(ind(3) +   "return getParent().Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(" + decl.interfaceParametersContinue() + ");\n");
-          buf.append(ind(2) + "}\n");
+          out.print(decl.inhDebugString());
+          out.println(ind(3) +   "return getParent().Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersContinue() + ");");
+          out.println(ind(2) + "}");
         }
-        String s = buf.toString();
-        s = s.replaceAll("#NAME#", decl.attributeSignature());
-        s = s.replaceAll("#TYPE#", decl.type());
-        s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-        s = s.replaceAll("#PARM#", decl.parameters());
-        s = s.replaceAll("#INTERFACEPARM#", decl.interfaceParameters());
-        out.print(s);
       }
       out.println(ind + "}");
     }
