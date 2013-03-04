@@ -815,7 +815,19 @@ aspect JragCodeGen {
 
   public String AttrDecl.genEquation(String paramDecl) {
     TemplateContext tt = templateContext();
-    return tt.expand("ASTDecl.genEquation:circular");
+    tt.bind("ParamDecl", paramDecl);
+    return tt.expand("ASTDecl.genEquation");
+  }
+
+  public String AttrDecl.genCircularEquationNoParams() {
+    TemplateContext tt = templateContext();
+    return tt.expand("ASTDecl.genCircularEquationNoParams");
+  }
+
+  public String AttrDecl.genCircularEquationWithParams(String paramDecl) {
+    TemplateContext tt = templateContext();
+    tt.bind("ParamDecl", paramDecl);
+    return tt.expand("ASTDecl.genCircularEquationWithParams");
   }
 
   /**
@@ -824,37 +836,12 @@ aspect JragCodeGen {
    */
   public String ASTDecl.genEquation(AttrDecl attr, String paramDecl) {
     if (!attr.isCircular()) {
-      /*return attr.genEquation();*/
-      return
-           suppressWarnings() +
-           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
-           (grammar().block ? ind(2) + grammar().blockBegin : "") +
-           attr.parameterStructure() +
-           attr.traceBeginAttr() +
-           attr.initLazyMaps() +
-           attr.cacheCheck() +
-           attr.genIncrementalTrackingStackEnter() + 
-           (grammar().rewriteEnabled ? ind(3) + "ASTNode$State state = state();\n" : "") +
-           attr.addInterruptedCircleDeclaration() +
-           attr.visitedCheck() +
-           attr.setVisited() +
-           attr.addCheckInterruptedCircle() +
-           attr.cacheInit() +
-           attr.callCompute() +
-           attr.higherOrderAttributeCode() +
-           attr.cacheStore() +
-           attr.clearVisited() +
-           attr.addClearInterruptedCircle() +
-           attr.traceEndAttr() +
-           ind(2) + attr.returnStmt() +
-           (grammar().block ? ind(2) + grammar().blockEnd : "") +
-           ind + "}\n";
-    }
-    else {
+      return attr.genEquation(paramDecl);
+    } else {
       if(attr.getNumParameter() == 0) {
         return
            suppressWarnings() +
-           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "() {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +

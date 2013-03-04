@@ -153,7 +153,7 @@ if(#(attributeSignature)_value != null) {
 $endif
 ]]
 
-ASTDecl.genEquation:circular [[
+ASTDecl.genEquation [[
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #parameterStructure
@@ -162,7 +162,7 @@ ASTDecl.genEquation:circular [[
     #cacheCheck
     #genIncrementalTrackingStackEnter
 $if (RewriteEnabled)
-    ASTNode$State state = state();
+    ASTNode$$State state = state();
 $endif
     #addInterruptedCircleDeclaration
     #visitedCheck
@@ -179,3 +179,7 @@ $endif
     $SynchEnd
   }
 ]]
+
+ASTDecl.genCircularEquationNoParams [[]]
+
+ASTDecl.genCircularEquationWithParams [[]]
