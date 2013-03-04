@@ -1470,28 +1470,26 @@ aspect JragCodeGen {
       out.println(ind + " */");
       out.println(ind + "public " + decl.getType() + " Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersDecl() + ") {");
 
-      String s;
-
       // have we already generated a component equation?
       boolean hasComponentEq = false;
       boolean hasGetChildEq = false;
 
       do {
-        s = ind(2);
+        out.print(ind(2));
         if (hasComponentEq) {
-          s += "else ";
+          out.print("else ");
         }
         hasComponentEq = true;
 
         Components c = equ.getComponents();
         if(c instanceof ListComponents) {
-          s += "if(caller == get#NAME#ListNoTransform())";
+          out.print("if(caller == get" + equ.sonName() + "ListNoTransform())");
         }
         else if(c instanceof OptionalComponent) {
-          s += "if(caller == get#NAME#OptNoTransform())";
+          out.print("if(caller == get" + equ.sonName() + "OptNoTransform())");
         }
         else if(c != null) {
-          s += "if(caller == get#NAME#NoTransform())";
+          out.print("if(caller == get" + equ.sonName() + "NoTransform())");
         }
         else if(equ.getSonName().equals("getChild")) {
           hasGetChildEq = true;
@@ -1499,71 +1497,68 @@ aspect JragCodeGen {
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
           if(attrDecl.getNumParameter() == 0)
-            s += "if(caller == #NAME#_value)";
+            out.print("if(caller == " + equ.sonName() + "_value)");
           else
-            s += "if(caller == " + attrDecl.signature() + "_list)";
+            out.print("if(caller == " + attrDecl.signature() + "_list)");
         }
 
-        s = s.replaceAll("#NAME#", String.valueOf(equ.sonName()));
         if(c instanceof ListComponents) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s +=
-              ind +"{ \n" +
-              ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-              ind(2) + Unparser.unparse(equ.getRHS()) + "\n" +
-              ind + "}\n";
+            out.println(ind + "{");
+            out.println(ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);");
+            out.println(ind(2) + Unparser.unparse(equ.getRHS()));
+            out.println(ind + "}");
           }
           else { // Expr
-            s +=
-              ind + "{\n" +
-              ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-              ind(2) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-              ind + "}\n";
+            out.println(ind + "{");
+            out.println(ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);");
+            out.println(ind(2) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind + "}");
           }
 
         }
         else if(c != null) {
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += Unparser.unparse(equ.getRHS()) + "\n";
+            out.println(Unparser.unparse(equ.getRHS()));
           }
           else { // Expr
-            s += " {\n" +
-              ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-              ind(2) + "}\n";
+            out.println(" {");
+            out.println(ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind(2) + "}");
           }
         }
         else if(equ.getSonName().equals("getChild")) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += " { \n   int " + childIndex + " = this.getIndexOfChild(caller);\n" +
-              Unparser.unparse(equ.getRHS()) + "\n" +
-              ind(2) + "}\n";
+            out.println(" {");
+            out.println(ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);");
+            out.println(Unparser.unparse(equ.getRHS()));
+            out.println(ind(2) + "}");
           }
           else { // Expr
-            s += " {\n" +
-                  ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);\n" +
-                  ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-                  ind(2) + "}\n";
+            out.println(" {");
+            out.println(ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);");
+            out.println(ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind(2) + "}");
           }
         }
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
-          s += "{\n";
+          out.println("{");
           if(attrDecl.getNumParameter() != 0) {
             String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-            s += ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);\n";
+            out.println(ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);");
           }
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += Unparser.unparse(equ.getRHS()) + "\n";
-            s += ind(2) + "}\n";
+            out.println(Unparser.unparse(equ.getRHS()));
+            out.println(ind(2) + "}");
           }
           else { // Expr
-            s += ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-                    ind(2) + "}\n";
+            out.println(ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind(2) + "}");
           }
         }
-        out.print(s);
 
         if(iter.hasNext()) {
           equ = (InhEq)iter.next();
@@ -1574,20 +1569,22 @@ aspect JragCodeGen {
       } while(equ != null);
 
       if (!hasGetChildEq) {
-        s = ind(2);
+        StringBuilder buf = new StringBuilder();
+        buf.append(ind(2));
         if (hasComponentEq) {
-          s += "else {";
+          buf.append("else {");
         }
         if(superClass() != null && superClass().hasInhEq(decl.name())) {
-          s += ind(3) + "return super.Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(#INTERFACEPARM#);\n" +
-              ind(2) + "}\n";
+          buf.append(ind(3) + "return super.Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(#INTERFACEPARM#);\n");
+          buf.append(ind(2) + "}\n");
         }
         else {
           // TODO: INH
-          s += decl.inhDebugString() +
-            ind(3) +   "return getParent().Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(" + decl.interfaceParametersContinue() + ");\n" +
-            ind(2) + "}\n";
+          buf.append(decl.inhDebugString());
+          buf.append(ind(3) +   "return getParent().Define_#TYPEINSIGNATURE#_" + decl.attributeName() + "(" + decl.interfaceParametersContinue() + ");\n");
+          buf.append(ind(2) + "}\n");
         }
+        String s = buf.toString();
         s = s.replaceAll("#NAME#", decl.attributeSignature());
         s = s.replaceAll("#TYPE#", decl.type());
         s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
