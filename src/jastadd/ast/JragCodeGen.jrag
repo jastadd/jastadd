@@ -833,11 +833,11 @@ aspect JragCodeGen {
    * Generates the method to compute an attribute
    * @param attr The attribute we are adding a compute method for
    */
-  public String ASTDecl.genEquation(AttrDecl attr) {
+  public String ASTDecl.genEquation(AttrDecl attr, String paramDecl) {
     if (!attr.isCircular()) {
       return
            suppressWarnings() +
-           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
            (grammar().block ? ind(2) + grammar().blockBegin : "") +
            attr.parameterStructure() +
            attr.traceBeginAttr() +
@@ -866,7 +866,7 @@ aspect JragCodeGen {
       if(attr.getNumParameter() == 0) {
         return
            suppressWarnings() +
-           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
@@ -892,7 +892,7 @@ aspect JragCodeGen {
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(4) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
+           ind(4) + "" + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
@@ -927,7 +927,7 @@ aspect JragCodeGen {
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + "" + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-01-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
@@ -945,7 +945,7 @@ aspect JragCodeGen {
       else {
         return
            suppressWarnings() +
-           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
@@ -966,7 +966,7 @@ aspect JragCodeGen {
            attr.addAddToComponent() +
            // TODO: fixme
            // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value;\n" +
+           ind(3) + "" + attr.getType() + " new_" + attr.attributeSignature() + "_value;\n" +
            ind(3) + "do {\n" + 
            // EMMA_2011-09-08: Adding java1.4 code
            (grammar().java5 ? 
@@ -1027,7 +1027,7 @@ aspect JragCodeGen {
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackEnter2() : "") + 
            //
-           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + "" + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            // ES_2012-09-25: Code generation for incremental evaluation, tracking
            (grammar().incremental ? attr.genIncrementalTrackingStackExit2() : "") + 
            //
@@ -1257,10 +1257,9 @@ aspect JragCodeGen {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
+         out.print(equ.hostFileComment());
          String s = "";
-         s += equ.hostFileComment();
-         s += genEquation(attr);
-         equ.emitComputeMethod(out);
+         s += genEquation(attr, equ.parametersDecl());
          s = s.replaceAll("#TYPE#", attr.getType());
          s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
          s = s.replaceAll("#NAME#", attr.attributeSignature());
@@ -1268,6 +1267,8 @@ aspect JragCodeGen {
          s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
          s = s.replaceAll("#PARM#", attr.parameters());
          out.print(s);
+
+         equ.emitComputeMethod(out);
        } else {
          attr.emitInlineCompute(equ, out);
        }
@@ -1386,7 +1387,7 @@ aspect JragCodeGen {
        AttrDecl attr = getInhDecl(i);
        out.print(attr.hostFileComment());
        String s;
-       s = genEquation(attr);
+       s = genEquation(attr, attr.parametersDecl());
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        s = s.replaceAll("#NAME#", attr.attributeSignature());
