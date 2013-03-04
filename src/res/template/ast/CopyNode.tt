@@ -1,9 +1,10 @@
-ast.copy = [[
+# generates ASTNode.copy()
+ASTDecl.emitCopyNode = [[
   /**
    * @apilevel internal
    */
   #annotations
-  public $ReturnType copy() {
+  public #copyReturnType copy() {
     $SynchBegin
     try {
       #name node = (#name) clone();
@@ -28,7 +29,8 @@ $endif
   }
 ]]
 
-ast.fullCopy = [[
+# generates ASTNode.fullCopy()
+ASTDecl.emitFullCopy = [[
   /**
    * Create a deep copy of the AST subtree at this node.
    * The copy is dangling, i.e. has no parent.
@@ -36,7 +38,7 @@ ast.fullCopy = [[
    * @apilevel low-level
    */
   #annotations
-  public $ReturnType fullCopy() {
+  public #copyReturnType fullCopy() {
     $SynchBegin
     #name tree = (#name) copy();
     if (children != null) {
@@ -59,13 +61,13 @@ $endif
   }
 ]]
 
-# ASTNode.clone
-ast.clone = [[
+# ASTNode.clone()
+ASTDecl.emitCloneNode = [[
   /**
    * @apilevel internal
    */
   #annotations
-  public $ReturnType clone() throws CloneNotSupportedException {
+  public #copyReturnType clone() throws CloneNotSupportedException {
      $SynchBegin
      #name node = (#name) super.clone();
      $CloneBody

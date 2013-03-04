@@ -313,10 +313,6 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.hostFileComment(String ind) {
-    return javadocFileComment(ind);
-  }
-
-  public String AttrDecl.javadocFileComment(String ind) {
     TemplateContext tt = templateContext();
     String comment = getComment().trim();
     if (comment.length() >= 5 && comment.startsWith("/**")) {
@@ -324,7 +320,7 @@ aspect JragCodeGen {
     } else {
       tt.bind("SourceComment", "");
     }
-    return tt.expand("AttrDecl.javaDoc");
+    return tt.expand("AttrDecl.hostFileComment");
   }
 
   syn String AttrEq.attributeKind() = decl().attributeKind();
@@ -342,7 +338,7 @@ aspect JragCodeGen {
     } else {
       tt.bind("SourceComment", "");
     }
-    return tt.expand("AttrEq.javaDoc");
+    return tt.expand("AttrEq.hostFileComment");
   }
 
   public String AttrDecl.initLazyMaps() {
