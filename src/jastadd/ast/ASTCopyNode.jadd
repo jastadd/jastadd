@@ -58,11 +58,11 @@ aspect ASTCloneNode {
     }
 
     if(grammar().rewriteEnabled) {
-      cloneBody.append(ind(2) + "node.in$Circle(false);\n");
+      cloneBody.append("node.in$Circle(false);\n");
       if(grammar().stagedRewrites)
-        cloneBody.append(ind(2) + "node.is$Final(0);\n");
+        cloneBody.append("node.is$Final(0);\n");
       else
-        cloneBody.append(ind(2) + "node.is$Final(false);\n");
+        cloneBody.append("node.is$Final(false);\n");
     }
     
     TemplateContext tt = templateContext();
@@ -115,8 +115,7 @@ aspect ASTCloneNode {
       if (!ntaAggregateIndices.isEmpty()) {
         iter = ntaAggregateIndices.iterator();
         while (iter.hasNext()) {
-          Object index = iter.next();
-          skipNTAs += "case " + index.toString() + ":\n";
+          skipNTAs += "case " + (iter.next()) + ":\n";
         }
         skipNTAs += ind + "tree.children[i] = null;\n";
         skipNTAs += ind + "continue;\n";
@@ -124,8 +123,7 @@ aspect ASTCloneNode {
       if (!ntaOptIndices.isEmpty()) {
         iter = ntaOptIndices.iterator();
         while (iter.hasNext()) {
-          Object index = iter.next();
-          skipNTAs += "case " + index.toString() + ":\n";
+          skipNTAs += "case " + (iter.next()) + ":\n";
         }
         skipNTAs += ind + "tree.children[i] = new Opt();\n";
         skipNTAs += ind + "continue;\n";
@@ -133,8 +131,7 @@ aspect ASTCloneNode {
       if (!ntaListIndices.isEmpty()) {
         iter = ntaListIndices.iterator();
         while (iter.hasNext()) {
-          Object index = iter.next();
-          skipNTAs += "case " + index.toString() + ":\n";
+          skipNTAs += "case " + (iter.next()) + ":\n";
         }
         skipNTAs += ind + "tree.children[i] = new List();\n";
         skipNTAs += ind + "continue;\n";
