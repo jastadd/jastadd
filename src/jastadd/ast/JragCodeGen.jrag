@@ -254,7 +254,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      out.print(attr.hostFileComment(ind));
+      out.print(attr.hostFileComment());
       attr.emitSynDecl(out);
     }
   }
@@ -273,7 +273,7 @@ aspect JragCodeGen {
         }
       }
       if(!equ) {
-        out.print(attr.hostFileComment(ind));
+        out.print(attr.hostFileComment());
         out.print(suppressWarnings());
         out.println(ind + "public abstract " + attr.getType() + " " + attr.attributeName() + "(" + attr.parametersDecl() + ");");
       }
@@ -312,7 +312,7 @@ aspect JragCodeGen {
     return getName();
   }
 
-  public String AttrDecl.hostFileComment(String ind) {
+  public String AttrDecl.hostFileComment() {
     TemplateContext tt = templateContext();
     String comment = getComment().trim();
     if (comment.length() >= 5 && comment.startsWith("/**")) {
@@ -325,7 +325,7 @@ aspect JragCodeGen {
 
   syn String AttrEq.attributeKind() = decl().attributeKind();
 
-  public String AttrEq.hostFileComment(String ind) {
+  public String AttrEq.hostFileComment() {
     TemplateContext tt = templateContext();
     String comment = getComment().trim();
 
@@ -1256,23 +1256,21 @@ aspect JragCodeGen {
     for(int i = 0; i < getNumSynEq(); i++) {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
-       String s = "";
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
-         s += equ.hostFileComment(ind);
+         String s = "";
+         s += equ.hostFileComment();
          s += genEquation(attr);
          equ.emitComputeMethod(out);
+         s = s.replaceAll("#TYPE#", attr.getType());
+         s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
+         s = s.replaceAll("#NAME#", attr.attributeSignature());
+         s = s.replaceAll("#METHODNAME#", attr.attributeName());
+         s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
+         s = s.replaceAll("#PARM#", attr.parameters());
+         out.print(s);
        } else {
          attr.emitInlineCompute(equ, out);
-         if (!s.isEmpty())
-           s = attr.hostFileComment(ind) + s;
        }
-       s = s.replaceAll("#TYPE#", attr.getType());
-       s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       s = s.replaceAll("#NAME#", attr.attributeSignature());
-       s = s.replaceAll("#METHODNAME#", attr.attributeName());
-       s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
-       s = s.replaceAll("#PARM#", attr.parameters());
-       out.print(s);
 
        emitCacheDeclarations(out, attr);
     }
@@ -1374,7 +1372,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.print(attr.hostFileComment(ind));
+       out.print(attr.hostFileComment());
        attr.emitInhDecl(out);
     }
   }
@@ -1386,7 +1384,7 @@ aspect JragCodeGen {
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.print(attr.hostFileComment(ind));
+       out.print(attr.hostFileComment());
        String s;
        s = genEquation(attr);
        s = s.replaceAll("#TYPE#", attr.getType());

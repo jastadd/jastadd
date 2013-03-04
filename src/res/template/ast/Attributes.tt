@@ -5,6 +5,7 @@ AttrDecl.synDecl = AttrDecl.inhDecl = [[
 ]]
 
 AttrDecl.emitInlineCompute = [[
+  #hostFileComment
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #parameterStructure
