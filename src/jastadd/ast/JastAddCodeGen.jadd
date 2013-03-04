@@ -398,7 +398,7 @@ aspect JastAddCodeGen {
       stream.println(" {");
 
       java.io.PrintWriter writer = new java.io.PrintWriter(stream);
-      jjtGenFlushCache(writer);
+      emitFlushCache(writer);
       emitCloneNode(writer);
       emitCopyNode(writer);
       emitFullCopy(writer);
