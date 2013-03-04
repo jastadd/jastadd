@@ -702,9 +702,9 @@ aspect JragCodeGen {
 
   public String AttrDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0)
-      return ind(2) + attributeSignature() + "_value = " + attributeName() + "_compute(#PARM#);\n";
+      return ind(2) + attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
     else
-      return ind(2) + getType() + " " + attributeSignature() + "_value = " + attributeName() + "_compute(#PARM#);\n";
+      return ind(2) + getType() + " " + attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
   }
 
   // TODO: INH
@@ -1021,7 +1021,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.circularComputeCall() { return ""; }
-  public String SynDecl.circularComputeCall() { return "" + attributeName() + "_compute(#PARM#)"; }
+  public String SynDecl.circularComputeCall() { return "" + attributeName() + "_compute(" + parameters() + ")"; }
   public String InhDecl.circularComputeCall() {
     return "getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ")";
   }
