@@ -153,3 +153,29 @@ if(#(attributeSignature)_value != null) {
 $endif
 ]]
 
+ASTDecl.genEquation:circular [[
+  public #getType #attributeName($ParamDecl) {
+    $SynchBegin
+    #parameterStructure
+    #traceBeginAttr
+    #initLazyMaps
+    #cacheCheck
+    #genIncrementalTrackingStackEnter
+$if (RewriteEnabled)
+    ASTNode$State state = state();
+$endif
+    #addInterruptedCircleDeclaration
+    #visitedCheck
+    #setVisited
+    #addCheckInterruptedCircle
+    #cacheInit
+    #callCompute
+    #higherOrderAttributeCode
+    #cacheStore
+    #clearVisited
+    #addClearInterruptedCircle
+    #traceEndAttr
+    #returnStmt
+    $SynchEnd
+  }
+]]

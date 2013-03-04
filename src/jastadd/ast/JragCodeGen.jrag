@@ -644,7 +644,7 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.cacheInit(String ind) {
+  public String AttrDecl.cacheInit() {
     if(!getLazy())
       return "";
     return cacheInitRewrite();
@@ -661,19 +661,19 @@ aspect JragCodeGen {
 
   public String AttrDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0)
-      return ind(2) + "" + attributeSignature() + "_value = #METHODNAME#_compute(#PARM#);\n";
+      return ind(2) + attributeSignature() + "_value = " + attributeName() + "_compute(#PARM#);\n";
     else
-      return ind(2) + "#TYPE# " + attributeSignature() + "_value = #METHODNAME#_compute(#PARM#);\n";
+      return ind(2) + getType() + " " + attributeSignature() + "_value = " + attributeName() + "_compute(#PARM#);\n";
   }
 
   // TODO: INH
   public String InhDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0) {
       return inhDebugString() +
-        ind(2) + "" + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
+        ind(2) + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
     } else {
       return inhDebugString() +
-        ind(2) + "#TYPE# " + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ");\n";
+        ind(2) + getType() + " " + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
     }
   }
 
@@ -772,15 +772,21 @@ aspect JragCodeGen {
    // TODO: fixme cycleLimit > 0 ?
    //    "if(state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
 
+  public String AttrDecl.genEquation(String paramDecl) {
+    TemplateContext tt = templateContext();
+    return tt.expand("ASTDecl.genEquation:circular");
+  }
+
   /**
    * Generates the method to compute an attribute
    * @param attr The attribute we are adding a compute method for
    */
-  public String ASTDecl.genEquation(AttrDecl attr) {
+  public String ASTDecl.genEquation(AttrDecl attr, String paramDecl) {
     if (!attr.isCircular()) {
+      /*return attr.genEquation();*/
       return
            suppressWarnings() +
-           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
            (grammar().block ? ind(2) + grammar().blockBegin : "") +
            attr.parameterStructure() +
            attr.traceBeginAttr() +
@@ -792,7 +798,7 @@ aspect JragCodeGen {
            attr.visitedCheck() +
            attr.setVisited() +
            attr.addCheckInterruptedCircle() +
-           attr.cacheInit(ind) +
+           attr.cacheInit() +
            attr.callCompute() +
            attr.higherOrderAttributeCode() +
            attr.cacheStore() +
@@ -807,7 +813,7 @@ aspect JragCodeGen {
       if(attr.getNumParameter() == 0) {
         return
            suppressWarnings() +
-           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
@@ -831,7 +837,7 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            attr.genIncrementalTrackingStackEnter2() + 
-           ind(4) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
+           ind(4) + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            attr.genIncrementalTrackingStackExit2() + 
            ind(4) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", "" + attr.attributeSignature() + "_value") + ")\n" +
            ind(5) + "state.CHANGE = true;\n" +
@@ -862,7 +868,7 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            attr.genIncrementalTrackingStackEnter2() +
-           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            attr.genIncrementalTrackingStackExit2() + 
            ind(3) + "if (" + attr.differs("new_" + attr.attributeSignature() + "_value", "" + attr.attributeSignature() + "_value") + ")\n" +
            ind(4) + "state.CHANGE = true;\n" +
@@ -878,7 +884,7 @@ aspect JragCodeGen {
       else {
         return
            suppressWarnings() +
-           ind + "public #TYPE# #METHODNAME#(#PARMDECL#) {\n" +
+           ind + "public " + attr.getType() + " " + attr.attributeName() + "(" + paramDecl + ") {\n" +
            (grammar().block ? grammar().blockBegin : "") +
            attr.traceComputeContext() +
            attr.parameterStructure() +
@@ -899,7 +905,7 @@ aspect JragCodeGen {
            attr.addAddToComponent() +
            // TODO: fixme
            // ind(3) + "state().CIRCLE_INDEX = 1;\n" +
-           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value;\n" +
+           ind(3) + "" + attr.getType() + " new_" + attr.attributeSignature() + "_value;\n" +
            ind(3) + "do {\n" + 
            (grammar().java5 ? 
              ind(4) + "_value.visited = new Integer(state.CIRCLE_INDEX);\n"
@@ -950,7 +956,7 @@ aspect JragCodeGen {
            attr.inhDebugString() +
            attr.tracePrintBeginComputingValue() +
            attr.genIncrementalTrackingStackEnter2() + 
-           ind(3) + "#TYPE# new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
+           ind(3) + attr.getType() + " new_" + attr.attributeSignature() + "_value = " + attr.circularComputeCall() + ";\n" +
            attr.genIncrementalTrackingStackExit2() + 
            attr.cacheCycleCheck() + 
            attr.resetCycleCheck() +
@@ -974,9 +980,9 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.circularComputeCall() { return ""; }
-  public String SynDecl.circularComputeCall() { return "#METHODNAME#_compute(#PARM#)"; }
+  public String SynDecl.circularComputeCall() { return "" + attributeName() + "_compute(#PARM#)"; }
   public String InhDecl.circularComputeCall() {
-    return "getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + interfaceParametersStart() + ")";
+    return "getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ")";
   }
 
   public String AttrDecl.resetCycleInit() {
@@ -1020,7 +1026,7 @@ aspect JragCodeGen {
          ind(4) + "" + attributeSignature() + "_computed = true;\n" +
          inhDebugString() +
          genIncrementalTrackingStackEnter2() +
-         ind(4) + "#TYPE# new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
+         ind(4) + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
          genIncrementalTrackingStackExit2() +
          ind(4) + "return new_" + attributeSignature() + "_value;\n" +
          ind(3) + "}\n";
@@ -1171,17 +1177,17 @@ aspect JragCodeGen {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
+         out.print(equ.hostFileComment());
          String s = "";
-         s += equ.hostFileComment();
-         s += genEquation(attr);
-         equ.emitComputeMethod(out);
+         s += genEquation(attr, equ.parametersDecl());
          s = s.replaceAll("#TYPE#", attr.getType());
          s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
          s = s.replaceAll("#NAME#", attr.attributeSignature());
-         s = s.replaceAll("#METHODNAME#", attr.attributeName());
          s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
          s = s.replaceAll("#PARM#", attr.parameters());
          out.print(s);
+
+         equ.emitComputeMethod(out);
        } else {
          attr.emitInlineCompute(equ, out);
        }
@@ -1300,11 +1306,10 @@ aspect JragCodeGen {
        AttrDecl attr = getInhDecl(i);
        out.print(attr.hostFileComment());
        String s;
-       s = genEquation(attr);
+       s = genEquation(attr, attr.parametersDecl());
        s = s.replaceAll("#TYPE#", attr.getType());
        s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
        s = s.replaceAll("#NAME#", attr.attributeSignature());
-       s = s.replaceAll("#METHODNAME#", attr.attributeName());
        s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
        s = s.replaceAll("#PARM#", attr.parameters());
        s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
@@ -1373,40 +1378,32 @@ aspect JragCodeGen {
       InhEq equ = (InhEq)iter.next();
       InhDecl decl = (InhDecl)equ.decl();
 
-      String s;
       out.println(ind + "/**");
       out.println(ind + " * " + equ.declaredat());
       out.println(ind + " * @apilevel internal");
       out.println(ind + " */");
-      s = ind + "public #TYPE# Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARMDECL#) {";
-      s = s.replaceAll("#TYPE#", decl.type());
-      s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-      s = s.replaceAll("#NAME#", decl.attributeSignature());
-      s = s.replaceAll("#METHODNAME#", decl.attributeName());
-      s = s.replaceAll("#PARMDECL#", decl.parametersDecl());
-      s = s.replaceAll("#INTERFACEPARMDECL#", decl.interfaceParametersDecl());
-      out.println(s);
+      out.println(ind + "public " + decl.getType() + " Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersDecl() + ") {");
 
       // have we already generated a component equation?
       boolean hasComponentEq = false;
       boolean hasGetChildEq = false;
 
       do {
-        s = ind(2);
+        out.print(ind(2));
         if (hasComponentEq) {
-          s += "else ";
+          out.print("else ");
         }
         hasComponentEq = true;
 
         Components c = equ.getComponents();
         if(c instanceof ListComponents) {
-          s += "if(caller == get#NAME#ListNoTransform())";
+          out.print("if(caller == get" + equ.sonName() + "ListNoTransform())");
         }
         else if(c instanceof OptionalComponent) {
-          s += "if(caller == get#NAME#OptNoTransform())";
+          out.print("if(caller == get" + equ.sonName() + "OptNoTransform())");
         }
         else if(c != null) {
-          s += "if(caller == get#NAME#NoTransform())";
+          out.print("if(caller == get" + equ.sonName() + "NoTransform())");
         }
         else if(equ.getSonName().equals("getChild")) {
           hasGetChildEq = true;
@@ -1414,71 +1411,68 @@ aspect JragCodeGen {
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
           if(attrDecl.getNumParameter() == 0)
-            s += "if(caller == #NAME#_value)";
+            out.print("if(caller == " + equ.sonName() + "_value)");
           else
-            s += "if(caller == " + attrDecl.signature() + "_list)";
+            out.print("if(caller == " + attrDecl.signature() + "_list)");
         }
 
-        s = s.replaceAll("#NAME#", String.valueOf(equ.sonName()));
         if(c instanceof ListComponents) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s +=
-              ind +"{ \n" +
-              ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-              ind(2) + Unparser.unparse(equ.getRHS()) + "\n" +
-              ind + "}\n";
+            out.println(ind + "{");
+            out.println(ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);");
+            out.println(ind(2) + Unparser.unparse(equ.getRHS()));
+            out.println(ind + "}");
           }
           else { // Expr
-            s +=
-              ind + "{\n" +
-              ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);\n" +
-              ind(2) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-              ind + "}\n";
+            out.println(ind + "{");
+            out.println(ind(2) + "int " + childIndex + " = caller.getIndexOfChild(child);");
+            out.println(ind(2) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind + "}");
           }
 
         }
         else if(c != null) {
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += Unparser.unparse(equ.getRHS()) + "\n";
+            out.println(Unparser.unparse(equ.getRHS()));
           }
           else { // Expr
-            s += " {\n" +
-              ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-              ind(2) + "}\n";
+            out.println(" {");
+            out.println(ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind(2) + "}");
           }
         }
         else if(equ.getSonName().equals("getChild")) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += " { \n   int " + childIndex + " = this.getIndexOfChild(caller);\n" +
-              Unparser.unparse(equ.getRHS()) + "\n" +
-              ind(2) + "}\n";
+            out.println(" {");
+            out.println(ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);");
+            out.println(Unparser.unparse(equ.getRHS()));
+            out.println(ind(2) + "}");
           }
           else { // Expr
-            s += " {\n" +
-                  ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);\n" +
-                  ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-                  ind(2) + "}\n";
+            out.println(" {");
+            out.println(ind(3) + "int " + childIndex + " = this.getIndexOfChild(caller);");
+            out.println(ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind(2) + "}");
           }
         }
         else {
           AttrDecl attrDecl = equ.getSonAttrDecl();
-          s += "{\n";
+          out.println("{");
           if(attrDecl.getNumParameter() != 0) {
             String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-            s += ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);\n";
+            out.println(ind(3) + "int " + childIndex + " = caller.getIndexOfChild(child);");
           }
           if(equ.getRHS() instanceof ASTBlock) { // Block
-            s += Unparser.unparse(equ.getRHS()) + "\n";
-            s += ind(2) + "}\n";
+            out.println(Unparser.unparse(equ.getRHS()));
+            out.println(ind(2) + "}");
           }
           else { // Expr
-            s += ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";\n" +
-                    ind(2) + "}\n";
+            out.println(ind(3) + "return " + Unparser.unparse(equ.getRHS()) + ";");
+            out.println(ind(2) + "}");
           }
         }
-        out.print(s);
 
         if(iter.hasNext()) {
           equ = (InhEq)iter.next();
@@ -1489,27 +1483,20 @@ aspect JragCodeGen {
       } while(equ != null);
 
       if (!hasGetChildEq) {
-        s = ind(2);
+        out.print(ind(2));
         if (hasComponentEq) {
-          s += "else {";
+          out.print("else {");
         }
         if(superClass() != null && superClass().hasInhEq(decl.name())) {
-          s += ind(3) + "return super.Define_#TYPEINSIGNATURE#_#METHODNAME#(#INTERFACEPARM#);\n" +
-              ind(2) + "}\n";
+          out.println(ind(3) + "return super.Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParameters() + ");");
+          out.println(ind(2) + "}");
         }
         else {
           // TODO: INH
-          s += decl.inhDebugString() +
-            ind(3) +   "return getParent().Define_#TYPEINSIGNATURE#_#METHODNAME#(" + decl.interfaceParametersContinue() + ");\n" +
-            ind(2) + "}\n";
+          out.print(decl.inhDebugString());
+          out.println(ind(3) +   "return getParent().Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersContinue() + ");");
+          out.println(ind(2) + "}");
         }
-        s = s.replaceAll("#NAME#", decl.attributeSignature());
-        s = s.replaceAll("#METHODNAME#", decl.attributeName());
-        s = s.replaceAll("#TYPE#", decl.type());
-        s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTypeInSignature());
-        s = s.replaceAll("#PARM#", decl.parameters());
-        s = s.replaceAll("#INTERFACEPARM#", decl.interfaceParameters());
-        out.print(s);
       }
       out.println(ind + "}");
     }
