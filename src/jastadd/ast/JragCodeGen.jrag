@@ -736,7 +736,7 @@ aspect JragCodeGen {
     } else {
       return cacheStoreRewrite() + "{" +
         genIncrementalTrackingStackTransfer() +
-        " " + attributeSignature() + "_values.put(_parameters, " + toReferenceType("" + attributeSignature() + "_value", getType()) + "); }\n" +
+        " " + attributeSignature() + "_values.put(_parameters, " + toReferenceType(attributeSignature() + "_value", getType()) + "); }\n" +
         genIncrementalTrackingStackClear() + "\n";
     }
   }
@@ -862,7 +862,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.circularComputeCall() { return ""; }
-  public String SynDecl.circularComputeCall() { return "" + attributeName() + "_compute(" + parameters() + ")"; }
+  public String SynDecl.circularComputeCall() { return attributeName() + "_compute(" + parameters() + ")"; }
   public String InhDecl.circularComputeCall() {
     return "getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ")";
   }
@@ -878,17 +878,17 @@ aspect JragCodeGen {
   public String AttrDecl.resetCycleCheck() {
      if(getNumParameter() == 0)
        return
-         ind(3) + "if (state.RESET_CYCLE) {\n" +
-         ind(4) + "" + attributeSignature() + "_computed = false;\n" +
-         ind(4) + "" + attributeSignature() + "_initialized = false;\n" +
-         ind(4) + "" + attributeSignature() + "_visited = -1;\n" +
-         ind(4) + returnStmt() +
-         ind(3) + "}\n";
+         "if (state.RESET_CYCLE) {\n" +
+         ind + attributeSignature() + "_computed = false;\n" +
+         ind + attributeSignature() + "_initialized = false;\n" +
+         ind + attributeSignature() + "_visited = -1;\n" +
+         ind + returnStmt() +
+         "}\n";
      else
        return
-         ind(3) + "if (state.RESET_CYCLE) {\n" +
-         ind(4) + "" + attributeSignature() + "_values.remove(_parameters);\n" +
-         ind(3) + "}\n";
+         "if (state.RESET_CYCLE) {\n" +
+         ind + attributeSignature() + "_values.remove(_parameters);\n" +
+         "}\n";
   }
 
   public String AttrDecl.cacheCycleInit() {
@@ -934,38 +934,39 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       if(grammar().rewriteEnabled)
         return
-        ind(2) + "if(" + attributeSignature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
-        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
+        "if(" + attributeSignature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
+        ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        ind(2) + "if(" + attributeSignature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
-        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
+        "if(" + attributeSignature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
+        ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
       if(grammar().rewriteEnabled) {
         if (grammar().java5) 
           return
-          ind(2) + "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
-          ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
+          "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
+          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
         else 
           return
-          ind(2) + "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
-          ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";    
+          "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
+          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       } else
         return
-        ind(2) + "if(_value.visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
-        ind(3) + "throw new java.lang.RuntimeException(\"XXX\");\n";
+        "if(_value.visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
+        ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
 
   public String AttrDecl.addAddToComponent() {
     if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return
-        ind(2) + "state.addEvalEntry(this, \"" + attributeSignature() + "\", null);\n";
-    else
+        "state.addEvalEntry(this, \"" + attributeSignature() + "\", null);\n";
+    } else {
       return
-        ind(2) + "state.addEvalEntry(this, \"" + attributeSignature() + "\", _parameters);\n";
+        "state.addEvalEntry(this, \"" + attributeSignature() + "\", _parameters);\n";
+    }
   }
 
   public String AttrDecl.addInterruptedCircleDeclaration() {
@@ -1158,13 +1159,13 @@ aspect JragCodeGen {
               comp instanceof OptionalComponentNTA
               || comp instanceof TokenComponentNTA
               || comp instanceof AggregateComponentsNTA )) {
-          result.append(ind(3) + "set" + attrName + "(" + attributeSignature() + "_value);\n");
+          result.append(ind + "set" + attrName + "(" + attributeSignature() + "_value);\n");
         }
         if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-          result.append(ind(2) + "set" + attrName + "(" + attributeSignature() + "_value);\n");
+          result.append("set" + attrName + "(" + attributeSignature() + "_value);\n");
         }
         if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-          result.append(ind(2) + "set" + attrName + "(" + attributeSignature() + "_value);\n");
+          result.append("set" + attrName + "(" + attributeSignature() + "_value);\n");
         }
       }
       return result.toString();
