@@ -354,28 +354,22 @@ aspect CollectionAttributes {
     for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
       CollDecl decl = (CollDecl)iter.next();
       ArrayList list = (ArrayList)map.get(decl);
-      StringBuffer buf = new StringBuffer();
-      buf.append(ind + "protected void contributeTo_#TYPEINSIGNATURE#_#NAME#(" + decl.getType() + " collection) {\n");
-      buf.append(ind(2) + "super.contributeTo_#TYPEINSIGNATURE#_#NAME#(collection);\n");
+      out.println(ind + "protected void contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(" + decl.getType() + " collection) {");
+      out.println(ind(2) + "super.contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(collection);");
       for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
         CollEq attr = (CollEq)i2.next();
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(c.getCondition() != null && c.getCondition().trim().length()>0 /* && attr.getNumContribution() > 1*/) {
-            buf.append(ind(2) + "if(" + c.getCondition().trim() + ")\n");
-            buf.append(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+            out.println(ind(2) + "if(" + c.getCondition().trim() + ")");
+            out.println(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           }
           else {
-            buf.append(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+            out.println(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           }
         }
       }
-      buf.append(ind + "}\n\n");
-      String s = buf.toString();
-      s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
-      s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      s = s.replaceAll("#NAME#", decl.attributeSignature());
-      out.print(s);
+      out.println(ind + "}\n");
     }
   }
 
