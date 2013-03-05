@@ -567,23 +567,8 @@ aspect JaddCodeGen {
 
     genGetChild(stream);
 
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.println(ind + "private int ASTNode.childIndex;");
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public int ASTNode.getIndexOfChild(ASTNode node) {");
-    stream.println(ind(2) + "if(node != null && node.childIndex < numChildren && node == children[node.childIndex])");
-    stream.println(ind(3) + "return node.childIndex;");
-    stream.println(ind(2) + "for(int i = 0; children != null && i < children.length; i++)");
-    stream.println(ind(3) + "if(children[i] == node) {");
-    stream.println(ind(4) + "node.childIndex = i;");
-    stream.println(ind(4) + "return i;");
-    stream.println(ind(3) + "}");
-    stream.println(ind(2) + "return -1;");
-    stream.println(ind + "}\n");
+    tt.expand("ASTNode.childIndex", stream);
+
     if(grammar().java5) {
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel low-level");
