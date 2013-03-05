@@ -130,22 +130,13 @@ aspect CollectionAttributes {
   // only used by non-circular collection attributes
   public String CollDecl.computeMethod() {
     String rootType = root().name();
-    if(separateEvaluation()) // TODO: replace naive() with separateEvaluation()
+    if(separateEvaluation()) {// TODO: replace naive() with separateEvaluation()
+      TemplateContext tt = templateContext();
+      tt.bind("RootType", rootType);
+      tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
       return
-      ind + "/**\n" +
-      ind + " * @apilevel internal\n" +
-      ind + " */\n" +
-      ind + "private " + getType() + " " + attributeName() + "_compute(#PARMDECL#) {\n" +
-      ind(2) + "ASTNode node = this;\n" +
-      ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
-      ind(3) + "node = node.getParent();\n" +
-      collDebugString() +
-      ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
-      ind(2) + "#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
-      ind(2) + "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this);\n" +
-      ind(2) + "return #NAME#_value;\n" +
-      ind + "}\n\n";
-    else if(onePhase())
+        tt.expand("CollDecl.computeMethod:separateEvaluation");
+    } else if(onePhase()) {
       return
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
@@ -161,7 +152,7 @@ aspect CollectionAttributes {
       Unparser.unparse(getBottomValue()) + ";\n" +
       ind(2) + "return #NAME#_value;\n" +
       ind + "}\n\n";
-    else
+    } else {
       return
       ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
       ind + "/**\n" +
@@ -191,6 +182,7 @@ aspect CollectionAttributes {
       //(grammar().lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
       ind(2) + "return #NAME#_value;\n" +
       ind + "}\n\n";
+    }
   }
   // only used by circular collection attributes
   public String CollDecl.combineMethod() {

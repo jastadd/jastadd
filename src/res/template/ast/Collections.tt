@@ -1,0 +1,16 @@
+CollDecl.computeMethod:separateEvaluation = [[
+  /**
+   * @apilevel internal
+   */
+  private #getType #(attributeName)_compute(#parametersDecl) {
+    ASTNode node = this;
+    while(node.getParent() != null && !(node instanceof $RootType)) {
+      node = node.getParent();
+    }
+    #collDebugString
+    $RootType root = ($RootType) node;
+    #(attributeSignature)_value = $BottomValue;
+    root.#(name)_#(attributeSignature)_nextIteration(this);
+    return #(attributeSignature)_value;
+  }
+]]
