@@ -381,7 +381,8 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "}");
       stream.println(ind(2) + "if(!node.in$Circle()) {");
       jjtGenIncrementalTrackRewrite1(stream);
-      jjtGenFullFlush1(stream);
+      emitFlushRewritesInitialize(stream);
+      emitFlushRewritesCheckAndStoreInitValue(stream);
       stream.println(ind(3) + "int rewriteState;");
       stream.println(ind(3) + "int num = this.state().boundariesCrossed;");
       stream.println(ind(3) + "do {");
@@ -398,7 +399,7 @@ aspect JaddCodeGen {
       stream.println(ind(4) + "oldNode.in$Circle(false);");
       stream.println(ind(4) + "rewriteState = this.state().pop();");
       jjtGenIncrementalTrackRewrite3(stream);
-      jjtGenFullFlush2(stream);
+      emitFlushRewritesChildRewritten(stream);
       jjtGenIncrementalTrackRewrite6(stream);
       stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
       stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && this.is$Final()) {");
@@ -663,14 +664,14 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
     stream.println(ind(3) + "children = c;");
     jjtGenIncrementalASTChangeSetChild3(stream);
-    jjtGenFullFlushSetChild1(stream);
+    emitFlushRewritesSetChildCopyState(stream);
     stream.println(ind(2) + "}");
     jjtGenIncrementalASTChangeSetChild5(stream);
     stream.println(ind(2) + "children[i] = node;");
     stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
     stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
     jjtGenIncrementalASTChangeSetChild4(stream);
-    jjtGenFullFlushSetChild2(stream);
+    emitFlushRewritesSetChildInitState(stream);
     if(grammar().block) stream.print(grammar().blockEnd);
     stream.println(ind + "}");
 
@@ -700,7 +701,7 @@ aspect JaddCodeGen {
     stream.println(ind(3) + "}");
     stream.println(ind(3) + "children = c;");
     jjtGenIncrementalASTChangeInsertChild2(stream);
-    jjtGenFullFlushInsertChild1(stream);
+    emitFlushRewritesInsertChildUpdateState(stream);
     stream.println(ind(2) + "}");
     stream.println(ind(2) + "numChildren++;");
     stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
@@ -738,7 +739,7 @@ aspect JaddCodeGen {
     stream.println(ind(4) +   "children[i] = null;");
     stream.println(ind(3) + "}");
     jjtGenIncrementalASTChangeRemoveChild2(stream);
-    jjtGenFullFlushRemoveChild1(stream);
+    emitFlushRewritesRemoveChild(stream);
     stream.println(ind(2) + "}");
     if(grammar().block) stream.print(grammar().blockEnd);
     stream.println(ind + "}");
