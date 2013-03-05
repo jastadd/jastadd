@@ -50,6 +50,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/CircularCollection");
     loadTemplates(tt, "ast/InheritedAttributes");
     loadTemplates(tt, "ast/Circular");
+    loadTemplates(tt, "ast/CheckTreeStructure");
     return new SimpleContext(tt, this);
   }
 
@@ -94,4 +95,9 @@ aspect TemplateUtil {
   syn lazy TemplateContext RewriteList.templateContext() {
     return new SimpleContext(parentContext(), this);
   }
+
+  syn lazy TemplateContext Components.templateContext() {
+    return new SimpleContext(parentContext(), this);
+  }
+  
 }

@@ -836,7 +836,7 @@ aspect JaddCodeGen {
     }
   }
 
-  public void ASTDecl.jjtGenCheckTreeStructure(PrintWriter stream) {
+  public void ASTDecl.genCheckTreeStructure(PrintWriter stream) {
     stream.println(ind + "public void " + name() + ".jjtAddChild(Node n, int i) {");
     stream.println(ind(2) + "checkChild(n, i);");
     if(name().equals("ASTNode")) {
@@ -860,7 +860,7 @@ aspect JaddCodeGen {
       stream.println(ind + "public void " + name() + ".checkChild(Node n, int i) {");
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
-        c.jjtGenCheckTreeStructure(stream, j);
+        c.genCheckTreeStructure(stream, j);
         if(!(c instanceof TokenComponent)) {
           j++;
         }
@@ -869,42 +869,28 @@ aspect JaddCodeGen {
     }
   }
 
-  public void Components.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
+  public void Components.genCheckTreeStructure(PrintWriter stream, int j) {
   }
 
-  public void ListComponents.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
-    stream.println(ind(2) + "if(i == " + j + ") {");
-    stream.println(
-        ind(3) + "if(!(n instanceof List))\n" + 
-        ind(4) + "throw new Error(\"Child number " + j + " of " + hostClass().name() + 
-        " has the type \" + n.getClass().getName() + \" which is not an instance of List\");");
-    stream.println(ind(3) + "for(int k = 0; k < ((List)n).getNumChildNoTransform(); k++)");
-    stream.println(
-        ind(3) + "if(!(((List)n).getChildNoTransform(k) instanceof " + type() + "))\n" + 
-        ind(4) + "throw new Error(\"Child number \" + k + \" in " + name() + "List" + 
-        " has the type \" + ((List)n).getChildNoTransform(k).getClass().getName() + \" which is not an instance of " +
-        type() + "\");");
-    stream.println(ind(2) + "}");
+  public void ListComponents.genCheckTreeStructure(PrintWriter stream, int j) {
+    TemplateContext tt = templateContext();
+    tt.bind("ChildIndex", "" + j);
+    tt.bind("HostClassName", hostClass().name());
+    tt.expand("ListComponents.genCheckTreeStructure", stream);
   }
 
-  public void OptionalComponent.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
-    stream.println(ind(2) + "if(i == " + j + ") {");
-    stream.println(
-        ind(3) + "if(!(n instanceof Opt))\n" + 
-        ind(4) + "throw new Error(\"Child number " + j + " of " + hostClass().name() +
-        " has the type \" + n.getClass().getName() + \" which is not an instance of Opt\");");
-    stream.println(
-        ind(3) + "if(((Opt)n).getNumChildNoTransform() != 0 && !(((Opt)n).getChildNoTransform(0) instanceof " + type() + "))\n" +
-        ind(4) + "throw new Error(\"Optional " + name() + 
-        " has the type \" + ((Opt)n).getChildNoTransform(0).getClass().getName() + \" which is not an instance of " +
-        type() + "\");");
-    stream.println(ind(2) + "}");
+  public void OptionalComponent.genCheckTreeStructure(PrintWriter stream, int j) {
+    TemplateContext tt = templateContext();
+    tt.bind("ChildIndex", "" + j);
+    tt.bind("HostClassName", hostClass().name());
+    tt.expand("OptionalComponent.genCheckTreeStructure", stream);
   }
 
-  public void AggregateComponents.jjtGenCheckTreeStructure(PrintWriter stream, int j) {
-    stream.println(ind(2) + "if(i == " + j + " && !(n instanceof " + type() + ")) " + 
-        " throw new Error(\"Child number " + j + " of " + hostClass().name() +
-        " has the type \" + n.getClass().getName() + \" which is not an instance of " + type() + "\");");
+  public void AggregateComponents.genCheckTreeStructure(PrintWriter stream, int j) {
+    TemplateContext tt = templateContext();
+    tt.bind("ChildIndex", "" + j);
+    tt.bind("HostClassName", hostClass().name());
+    tt.expand("AggregateComponents.genCheckTreeStructure", stream);
   }
 
   public void ASTDecl.jjtGenDumpTree(PrintWriter stream) {
@@ -969,7 +955,7 @@ aspect JaddCodeGen {
       jjtGenDumpTree(stream);
       jjtGenVisitor(stream);
       try {
-        jjtGenCheckTreeStructure(stream);
+        genCheckTreeStructure(stream);
       } catch (Exception e) {
         e.printStackTrace();
       }

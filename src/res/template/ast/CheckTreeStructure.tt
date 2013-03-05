@@ -1,0 +1,32 @@
+ListComponents.genCheckTreeStructure = [[
+  if(i == $ChildIndex) {
+    if(!(n instanceof List)) {
+      throw new Error("Child number $ChildIndex of $HostClassName has the type " +
+        n.getClass().getName() + " which is not an instance of List");
+    }
+    for (int k = 0; k < ((List)n).getNumChildNoTransform(); k++) {
+      if (!(((List)n).getChildNoTransform(k) instanceof #type)) {
+        throw new Error("Child number " + k + " in #(name)List has the type " +
+          ((List)n).getChildNoTransform(k).getClass().getName() + " which is not an instance of #type");
+      }
+    }
+  }
+]]
+
+OptionalComponent.genCheckTreeStructure = [[
+if (i == $ChildIndex) {
+  if (!(n instanceof Opt)) {
+    throw new Error("Child number $ChildIndex of $HostClassName has the type " + n.getClass().getName() + " which is not an instance of Opt");
+  }
+  if (((Opt)n).getNumChildNoTransform() != 0 && !(((Opt)n).getChildNoTransform(0) instanceof #type)) {
+        throw new Error("Optional name() has the type " + ((Opt)n).getChildNoTransform(0).getClass().getName() + " which is not an instance of #type");
+  }
+}
+]]
+
+AggregateComponents.genCheckTreeStructure = [[
+if (i == $ChildIndex && !(n instanceof #type)) {
+ throw new Error("Child number $ChildIndex of $HostClassName has the type " +
+   n.getClass().getName() + " which is not an instance of #type");
+}
+]]
