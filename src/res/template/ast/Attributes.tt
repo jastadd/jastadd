@@ -15,15 +15,15 @@ AttrDecl.emitInlineCompute = [[
 $if(RewriteEnabled)
     ASTNode$$State state = state();
 $endif
-    #addInterruptedCircleDeclaration
+    $include(addInterruptedCircleDeclaration)
     #visitedCheck
     #setVisited
-    #addCheckInterruptedCircle
+    $include(addCheckInterruptedCircle)
     try $ComputeBody
     finally {
       #higherOrderAttributeCode
       #clearVisited
-      #addClearInterruptedCircle
+      $include(addClearInterruptedCircle)
       #traceEndAttr
     }
     $SynchEnd
@@ -164,16 +164,16 @@ ASTDecl.genEquation [[
 $if (RewriteEnabled)
     ASTNode$$State state = state();
 $endif
-    #addInterruptedCircleDeclaration
+    $include(addInterruptedCircleDeclaration)
     #visitedCheck
     #setVisited
-    #addCheckInterruptedCircle
+    $include(addCheckInterruptedCircle)
     #cacheInit
     #callCompute
     #higherOrderAttributeCode
     #cacheStore
     #clearVisited
-    #addClearInterruptedCircle
+    $include(addClearInterruptedCircle)
     #traceEndAttr
     #returnStmt
     $SynchEnd
@@ -219,7 +219,7 @@ ASTDecl.genCircularEquationNoParams [[
         #(attributeSignature)_computed = true;
         $include(cacheCycleInit)
       } else {
-        #resetCycleInit
+        $include(resetCycleInit)
         #(attributeSignature)_computed = false;
         #(attributeSignature)_initialized = false;
       }
@@ -302,7 +302,7 @@ $endif
         $include(cacheCycleInit)
       } else {
         #(attributeSignature)_values.remove(_parameters);
-        #resetCycleInit
+        $include(resetCycleInit)
       }
       state.IN_CIRCLE = false;
       $TracePrintReturnNewValue
@@ -347,3 +347,32 @@ state.LAST_CYCLE = true;
 #circularComputeCall;
 state.LAST_CYCLE = false;
 $endif]]
+
+addClearInterruptedCircle = [[
+$if(ComponentCheckEnabled)
+if(interruptedCircle) {
+  state.IN_CIRCLE = true;
+  state.popEvalStack();
+}
+$endif]]
+
+addCheckInterruptedCircle = [[
+$if(ComponentCheckEnabled)
+if(state.IN_CIRCLE) {
+  interruptedCircle = true;
+  state.IN_CIRCLE = false;
+  state.pushEvalStack();
+}
+$endif]]
+
+addInterruptedCircleDeclaration = [[
+$if(ComponentCheckEnabled)
+boolean interruptedCircle = false;
+$endif]]
+
+resetCycleInit = [[
+state.RESET_CYCLE = true;
+#inhDebugString
+#circularComputeCall;
+state.RESET_CYCLE = false;]]
+

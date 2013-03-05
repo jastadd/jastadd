@@ -622,6 +622,7 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
+    tt.bind("ComponentCheckEnabled", root.componentCheck);
     tt.bind("CacheCycleEnabled", root.cacheCycle);
     tt.bind("Java5", root.java5);
     tt.bind("VisitCheckEnabled", root.visitCheckEnabled);
