@@ -79,3 +79,10 @@ Rewrite.javaDoc:internal [[
    * @declaredat #declaredat
    * @apilevel internal
    */]]
+
+Grammar.genResetDuringCounters = [[
+if(during$Name != 0) {
+  System.out.println("Warning: resetting during$Name");
+  during$Name = 0;
+}
+]]
