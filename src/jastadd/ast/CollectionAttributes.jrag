@@ -37,7 +37,7 @@ aspect CollectionAttributes {
         s = attr.combineMethod();
       } else {
         out.print(attr.hostFileComment());
-        s += genEquation(attr, attr.parametersDecl());
+        emitEquation(attr, attr.parametersDecl(), out);
         s += attr.computeMethod();
         emitCacheDeclarations(out, attr);
       }
