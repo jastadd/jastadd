@@ -217,7 +217,7 @@ ASTDecl.genCircularEquationNoParams [[
       } while (state.CHANGE);
       #cacheStoreRewrite {
         #(attributeSignature)_computed = true;
-        #cacheCycleInit
+        $include(cacheCycleInit)
       } else {
         #resetCycleInit
         #(attributeSignature)_computed = false;
@@ -299,7 +299,7 @@ $if (Java5)
 $else
         #(attributeSignature)_values.put(_parameters, $ToRefType3);
 $endif
-        #cacheCycleInit
+        $include(cacheCycleInit)
       } else {
         #(attributeSignature)_values.remove(_parameters);
         #resetCycleInit
@@ -339,3 +339,11 @@ $endif
     $SynchEnd
   }
 ]]
+
+cacheCycleInit = [[
+$if(CacheCycleEnabled)
+state.LAST_CYCLE = true;
+#inhDebugString
+#circularComputeCall;
+state.LAST_CYCLE = false;
+$endif]]

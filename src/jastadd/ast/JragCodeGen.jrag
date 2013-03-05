@@ -847,15 +847,6 @@ aspect JragCodeGen {
          "}\n";
   }
 
-  public String AttrDecl.cacheCycleInit() {
-     if (!grammar().cacheCycle) return "";
-     return
-        "state.LAST_CYCLE = true;\n" +
-        inhDebugString() +
-        circularComputeCall() + ";\n" +
-        "state.LAST_CYCLE = false;\n";
-  }
-
   public String AttrDecl.cacheCycleCheck() {
      if (!grammar().cacheCycle) return "";
      if(getNumParameter() == 0)
