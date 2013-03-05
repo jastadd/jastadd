@@ -823,14 +823,6 @@ aspect JragCodeGen {
     return "getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ")";
   }
 
-  public String AttrDecl.resetCycleInit() {
-     return
-        ind(3) + "state.RESET_CYCLE = true;\n" +
-        inhDebugString() +
-        ind(3) + circularComputeCall() + ";\n" +
-        ind(3) + "state.RESET_CYCLE = false;\n";
-  }
-
   public String AttrDecl.resetCycleCheck() {
      if(getNumParameter() == 0)
        return
