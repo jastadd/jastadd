@@ -430,18 +430,8 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream) {
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.println(ind + "public static final boolean ASTNode.generatedWithCircularEnabled = " + grammar().circularEnabled + ";");
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.println(ind + "public static final boolean ASTNode.generatedWithCacheCycle = " + grammar().cacheCycle + ";");
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.println(ind + "public static final boolean ASTNode.generatedWithComponentCheck = " + grammar().componentCheck + ";");
+    TemplateContext tt = templateContext();
+    tt.expand("ASTNode.generatedWithDecls", stream);
     if(grammar().noStatic) {
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel internal");
