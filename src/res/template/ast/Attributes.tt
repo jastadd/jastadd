@@ -48,11 +48,7 @@ $endif
 AttrDecl.visitedCheck = [[
 $if (VisitCheckEnabled)
   $if (RewriteEnabled)
-    $if (NonParameterized)
-if (#(attributeSignature)_visited == state().boundariesCrossed) {
-  #visitedException
-}
-    $else
+    $if(#isParameterized)
       $if (Java5)
 if (Integer.valueOf(state().boundariesCrossed).equals(#(attributeSignature)_visited.get(_parameters))) {
   #visitedException
@@ -62,14 +58,18 @@ if (new Integer(state().boundariesCrossed).equals(#(attributeSignature)_visited.
   #visitedException
 }
       $endif
+    $else
+if (#(attributeSignature)_visited == state().boundariesCrossed) {
+  #visitedException
+}
     $endif
   $else
-    $if (NonParameterized)
-if (#(attributeSignature)_visited) {
+    $if(#isParameterized)
+if (#(attributeSignature)_visited.contains(_parameters)) {
   #visitedException
 }
     $else
-if (#(attributeSignature)_visited.contains(_parameters)) {
+if (#(attributeSignature)_visited) {
   #visitedException
 }
     $endif
@@ -79,28 +79,26 @@ $endif
 
 AttrDecl.setVisited = [[
 $if (RewriteEnabled)
-  $if (NonParameterized)
-#(attributeSignature)_visited = state().boundariesCrossed;
-  $else
+  $if(#isParameterized)
     $if (Java5)
 #(attributeSignature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
     $else
 #(attributeSignature)_visited.put(_parameters, new Integer(state().boundariesCrossed));
     $endif
+  $else
+#(attributeSignature)_visited = state().boundariesCrossed;
   $endif
 $else
-  $if (NonParameterized)
-#(attributeSignature)_visited = true;
-  $else
+  $if(#isParameterized)
 #(attributeSignature)_visited.add(_parameters);
+  $else
+#(attributeSignature)_visited = true;
   $endif
 $endif
 ]]
 
 SynDecl.higherOrderAttributeCode:norewrite = [[
-$if (NonParameterized)
-#(attributeSignature)_value.setParent(this);
-$else
+$if(#isParameterized)
 if(#(attributeSignature)_list == null) {
   #(attributeSignature)_list = new List();
 $if(IncrementalEnabled)
@@ -109,14 +107,13 @@ $endif
   #(attributeSignature)_list.setParent(this);
 }
 #(attributeSignature)_list.add(#(attributeSignature)_value);
+$else
+#(attributeSignature)_value.setParent(this);
 $endif
 ]]
 
 SynDecl.higherOrderAttributeCode:nostagedrewrites = [[
-$if (NonParameterized)
-#(attributeSignature)_value.setParent(this);
-#(attributeSignature)_value.is$$Final = true;
-$else
+$if(#isParameterized)
 if(#(attributeSignature)_list == null) {
   #(attributeSignature)_list = new List();
 $if(IncrementalEnabled)
@@ -130,14 +127,14 @@ if(#(attributeSignature)_value != null) {
   #(attributeSignature)_value = (#getType) #(attributeSignature)_list.getChild(#(attributeSignature)_list.numChildren-1);
   #(attributeSignature)_value.is$$Final = true;
 }
+$else
+#(attributeSignature)_value.setParent(this);
+#(attributeSignature)_value.is$$Final = true;
 $endif
 ]]
 
 SynDecl.higherOrderAttributeCode:stagedrewrites = [[
-$if (NonParameterized)
-#(attributeSignature)_value.setParent(this);
-#(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
-$else
+$if(#isParameterized)
 if(#(attributeSignature)_list == null) {
   #(attributeSignature)_list = new List();
 $if(IncrementalEnabled)
@@ -150,6 +147,9 @@ if(#(attributeSignature)_value != null) {
   #(attributeSignature)_list.add(#(attributeSignature)_value);
   #(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
 }
+$else
+#(attributeSignature)_value.setParent(this);
+#(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
 $endif
 ]]
 

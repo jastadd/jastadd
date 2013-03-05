@@ -437,19 +437,14 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.visitedCheck() {
-    TemplateContext tt = templateContext();
-    tt.bind("NonParameterized", getNumParameter() == 0);
-    return tt.expand("AttrDecl.visitedCheck");
+    return templateContext().expand("AttrDecl.visitedCheck");
   }
 
   public String AttrDecl.setVisited() {
     if(!grammar().visitCheckEnabled && !isCircular()) {
       return "";
     }
-
-    TemplateContext tt = templateContext();
-    tt.bind("NonParameterized", getNumParameter() == 0);
-    return tt.expand("AttrDecl.setVisited");
+    return templateContext().expand("AttrDecl.setVisited");
   }
 
   public String AttrDecl.clearVisited() {
@@ -823,6 +818,9 @@ aspect JragCodeGen {
     return "getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ")";
   }
 
+  syn boolean AttrDecl.isParameterized() =
+    getNumParameter() != 0;
+
   public String AttrDecl.resetCycleCheck() {
      if(getNumParameter() == 0)
        return
@@ -1044,17 +1042,14 @@ aspect JragCodeGen {
 
   public String SynDecl.higherOrderAttributeCode() {
     if(getNTA()) {
-      TemplateContext tt = templateContext();
-      tt.bind("NonParameterized", getNumParameter() == 0);
-
       if(grammar().rewriteEnabled) {
         if(grammar().stagedRewrites) {
-          return tt.expand("SynDecl.higherOrderAttributeCode:stagedrewrites");
+          return templateContext().expand("SynDecl.higherOrderAttributeCode:stagedrewrites");
         } else {
-          return tt.expand("SynDecl.higherOrderAttributeCode:nostagedrewrites");
+          return templateContext().expand("SynDecl.higherOrderAttributeCode:nostagedrewrites");
         }
       } else {
-        return tt.expand("SynDecl.higherOrderAttributeCode:norewrite");
+        return templateContext().expand("SynDecl.higherOrderAttributeCode:norewrite");
       }
     } else {
       // non-NTA
