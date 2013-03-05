@@ -894,29 +894,27 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.jjtGenDumpTree(PrintWriter stream) {
-    StringBuffer sb = new StringBuffer();
-    sb.append(ind + "public void " + name() + ".dumpTree(String indent, java.io.PrintStream pStream) {\n" + 
-        ind(2) + "pStream.println(indent + \"" + name() + "\"");
+    stream.println(ind + "public void " + name() + ".dumpTree(String indent, java.io.PrintStream pStream) {");
+    stream.print(ind(2) + "pStream.println(indent + \"" + name() + "\"");
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof TokenComponent) {
         TokenComponent t = (TokenComponent)c;
         String id = t.getTokenId().getID();
-        sb.append("+ \"\\\"\" + get" + id + "() + \"\\\"\"");
+        stream.print("+ \"\\\"\" + get" + id + "() + \"\\\"\"");
       }
     }
-    sb.append(");\n        String childIndent = indent + \"  \";\n" + 
-        ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" + 
-        ind(3) + "getChild(i).dumpTree(childIndent, pStream);\n" +
-        ind + "}\n");
-    stream.println(sb.toString());
+    stream.println(");");
+    stream.println(ind(2) + "String childIndent = indent + \"  \";");
+    stream.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
+    stream.println(ind(3) +   "getChild(i).dumpTree(childIndent, pStream);");
+    stream.println(ind    + "}");
   }
 
   public void ASTDecl.jjtGenVisitor(PrintWriter stream) {
-    stream.println(
-        ind + "public Object " + name() + ".jjtAccept(" + grammar().parserName + "Visitor visitor, Object data) {\n" +
-        ind(2) + "return visitor.visit(this, data);\n" + 
-        ind + "}\n");
+    stream.println(ind + "public Object " + name() + ".jjtAccept(" + grammar().parserName + "Visitor visitor, Object data) {");
+    stream.println(ind(2) + "return visitor.visit(this, data);");
+    stream.println(ind + "}");
   }
 
   public void ASTDecl.jjtGenConstructor(PrintWriter out) {
