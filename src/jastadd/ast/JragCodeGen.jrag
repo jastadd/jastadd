@@ -666,10 +666,10 @@ aspect JragCodeGen {
   public String InhDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0) {
       return inhDebugString() +
-        ind(2) + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
+        ind(2) + attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
     } else {
       return inhDebugString() +
-        ind(2) + getType() + " " + attributeSignature() + "_value = getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
+        ind(2) + getType() + " " + attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
     }
   }
 
@@ -768,24 +768,23 @@ aspect JragCodeGen {
    // TODO: fixme cycleLimit > 0 ?
    //    "if(state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
 
-  public String AttrDecl.genEquation(String paramDecl) {
+  public void AttrDecl.emitEquation(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
-    return tt.expand("ASTDecl.genEquation");
+    tt.expand("ASTDecl.genEquation", out);
   }
 
-  public String AttrDecl.genCircularEquationNoParams() {
+  public void AttrDecl.emitCircularEquationNoParams(PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
     tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(attributeSignature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(attributeSignature() + "_value"));
-
-    return tt.expand("ASTDecl.genCircularEquationNoParams");
+    tt.expand("ASTDecl.genCircularEquationNoParams", out);
   }
 
-  public String AttrDecl.genCircularEquationWithParams(String paramDecl) {
+  public void AttrDecl.emitCircularEquationWithParams(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
     tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
@@ -797,21 +796,23 @@ aspect JragCodeGen {
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + attributeSignature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType())));
-    return tt.expand("ASTDecl.genCircularEquationWithParams");
+    tt.expand("ASTDecl.genCircularEquationWithParams", out);
   }
 
   /**
    * Generates the method to compute an attribute
    * @param attr The attribute we are adding a compute method for
+   * @param paramDecl
+   * @param out
    */
-  public String ASTDecl.genEquation(AttrDecl attr, String paramDecl) {
+  public void ASTDecl.emitEquation(AttrDecl attr, String paramDecl, PrintStream out) {
     if (!attr.isCircular()) {
-      return attr.genEquation(paramDecl);
+      attr.emitEquation(paramDecl, out);
     } else {
       if(attr.getNumParameter() == 0) {
-        return attr.genCircularEquationNoParams();
+        attr.emitCircularEquationNoParams(out);
       } else {
-        return attr.genCircularEquationWithParams(paramDecl);
+        attr.emitCircularEquationWithParams(paramDecl, out);
       }
     }
   }
@@ -819,7 +820,7 @@ aspect JragCodeGen {
   public String AttrDecl.circularComputeCall() { return ""; }
   public String SynDecl.circularComputeCall() { return attributeName() + "_compute(" + parameters() + ")"; }
   public String InhDecl.circularComputeCall() {
-    return "getParent().Define_#TYPEINSIGNATURE#_" + attributeName() + "(" + interfaceParametersStart() + ")";
+    return "getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ")";
   }
 
   public String AttrDecl.resetCycleInit() {
@@ -1016,15 +1017,7 @@ aspect JragCodeGen {
        AttrDecl attr = equ.decl();
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
          out.print(equ.hostFileComment());
-         String s = "";
-         s += genEquation(attr, equ.parametersDecl());
-         s = s.replaceAll("#TYPE#", attr.getType());
-         s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-         s = s.replaceAll("#NAME#", attr.attributeSignature());
-         s = s.replaceAll("#PARMDECL#", equ.parametersDecl());
-         s = s.replaceAll("#PARM#", attr.parameters());
-         out.print(s);
-
+         emitEquation(attr, equ.parametersDecl(), out);
          equ.emitComputeMethod(out);
        } else {
          attr.emitInlineCompute(equ, out);
@@ -1143,16 +1136,7 @@ aspect JragCodeGen {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
        out.print(attr.hostFileComment());
-       String s;
-       s = genEquation(attr, attr.parametersDecl());
-       s = s.replaceAll("#TYPE#", attr.getType());
-       s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTypeInSignature());
-       s = s.replaceAll("#NAME#", attr.attributeSignature());
-       s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-       s = s.replaceAll("#PARM#", attr.parameters());
-       s = s.replaceAll("#INTERFACEPARM#", attr.interfaceParameters());
-       out.print(s);
-
+       emitEquation(attr, attr.parametersDecl(), out);
        emitCacheDeclarations(out, attr);
     }
   }
