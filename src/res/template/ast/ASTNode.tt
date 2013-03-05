@@ -15,6 +15,27 @@ ASTNode.generatedWithDecls = [[
   public static final boolean ASTNode.generatedWithComponentCheck = $ComponentCheckEnabled;
 ]]
 
+ASTNode.rewriteDecls = [[
+  /**
+   * @apilevel internal
+   */
+  public boolean ASTNode.in$$Circle = false;
+
+  /**
+   * @apilevel internal
+   */
+  public boolean ASTNode.in$$Circle() {
+    return in$$Circle;
+  }
+
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode.in$$Circle(boolean b) {
+    in$$Circle = b;
+  }
+]]
+
 ASTNode.childIndex = [[
   /**
    * @apilevel internal

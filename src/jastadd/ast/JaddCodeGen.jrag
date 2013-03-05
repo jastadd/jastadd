@@ -515,18 +515,7 @@ aspect JaddCodeGen {
         stream.println(ind(2) + "state().debugRewrite.remove(key);");
         stream.println(ind + "}\n");
       }
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public boolean ASTNode.in$Circle = false;");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public boolean ASTNode.in$Circle() { return in$Circle; }");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public void ASTNode.in$Circle(boolean b) { in$Circle = b; }");
+      tt.expand("ASTNode.rewriteDecls", stream);
       if(grammar().stagedRewrites) {
         stream.println(ind + "/**");
         stream.println(ind + " * @apilevel internal");
