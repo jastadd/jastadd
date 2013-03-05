@@ -40,6 +40,7 @@ aspect TemplateUtil {
     TinyTemplate tt = new TinyTemplate();
     tt.setIndentation(ASTNode.ind);
     tt.throwExceptions(true);
+    loadTemplates(tt, "ast/ASTNode");
     loadTemplates(tt, "ast/CopyNode");
     loadTemplates(tt, "ast/NodeConstructor");
     loadTemplates(tt, "ast/State");

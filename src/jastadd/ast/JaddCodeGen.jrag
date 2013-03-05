@@ -967,28 +967,7 @@ aspect JaddCodeGen {
       env().genRewriteOrderChecks(stream);
       env().genReset(stream);
       if(grammar().java5) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "public java.util.Iterator<T> ASTNode.iterator() {");
-        if(grammar().block) stream.append(grammar().blockBegin);
-        stream.println(ind(2) + "return new java.util.Iterator<T>() {");
-        stream.println(ind(3) + "private int counter = 0;");
-        stream.println(ind(3) + "public boolean hasNext() {");
-        stream.println(ind(4) + "return counter < getNumChild();");
-        stream.println(ind(3) + "}");
-        stream.println(ind(3) + "@SuppressWarnings(\"unchecked\") public T next() {");
-        stream.println(ind(4) + "if(hasNext())");
-        stream.println(ind(5) + "return (T)getChild(counter++);");
-        stream.println(ind(4) + "else");
-        stream.println(ind(5) + "return null;");
-        stream.println(ind(3) + "}");
-        stream.println(ind(3) + "public void remove() {");
-        stream.println(ind(4) + "throw new UnsupportedOperationException();");
-        stream.println(ind(3) + "}");
-        stream.println(ind(2) + "};");
-        if(grammar().block) stream.append(grammar().blockEnd);
-        stream.println(ind + "}");
+        templateContext().expand("ASTNode.iterator", stream);
       }
     }
     else if(name().equals("List")) {
