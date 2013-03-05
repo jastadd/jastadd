@@ -164,6 +164,9 @@ aspect CollectionAttributes {
     else
       return
       ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + "/**\n" +
+      ind + " * @apilevel internal\n" +
+      ind + " */\n" +
       ind + "public " + grammar().typeDefaultSet + " #NAME#_contributors() {\n" +
       (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
@@ -197,6 +200,9 @@ aspect CollectionAttributes {
     String rootType = root().name();
     String s =
       ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + "/**\n" +
+      ind + " * @apilevel internal\n" +
+      ind + " */\n" +
       ind + "public " + grammar().typeDefaultSet + " #NAME#_contributors() {\n" +
       (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
       ind(2) + "return #NAME#_contributors;\n" +
