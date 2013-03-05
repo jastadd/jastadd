@@ -287,7 +287,7 @@ $endif
         #genIncrementalTrackingStackExit2
         if ($Cond1) {
           state.CHANGE = true;
-          _value.value = $ToRefType2;
+          _value.value = $ToRefType;
         }
         state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
@@ -297,7 +297,7 @@ $endif
 $if (Java5)
         #(attributeSignature)_values.put(_parameters, new_#(attributeSignature)_value);
 $else
-        #(attributeSignature)_values.put(_parameters, $ToRefType3);
+        #(attributeSignature)_values.put(_parameters, $ToRefType);
 $endif
         $include(cacheCycleInit)
       } else {
@@ -323,19 +323,19 @@ $endif
       #genIncrementalTrackingStackExit2
       #cacheCycleCheck
       #resetCycleCheck
-      else if ($Cond2) {
+      else if ($Cond1) {
         state.CHANGE = true;
 $if (Java5)
         _value.value = new_#(attributeSignature)_value;
 $else
-        _value.value = $FromRefType1;
+        _value.value = $ToRefType;
 $endif
       }
       $TracePrintReturnNewValue
       return new_#(attributeSignature)_value;
     }
     $TracePrintReturnPreviousValue
-    return $FromRefType2;
+    return $FromRefType;
     $SynchEnd
   }
 ]]

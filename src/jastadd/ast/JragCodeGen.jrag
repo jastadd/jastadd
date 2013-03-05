@@ -783,11 +783,8 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
     tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
-    tt.bind("ToRefType2", toReferenceType("new_" + attributeSignature() + "_value", getType()));
-    tt.bind("ToRefType3", toReferenceType("new_" + attributeSignature() + "_value", getType()));
-    tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
-    tt.bind("FromRefType1", toReferenceType("new_" + attributeSignature() + "_value", getType()));
-    tt.bind("FromRefType2", fromReferenceType("_value.value", getType()));
+    tt.bind("ToRefType", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+    tt.bind("FromRefType", fromReferenceType("_value.value", getType()));
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + attributeSignature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType())));
