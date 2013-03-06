@@ -630,6 +630,16 @@ public class JastAdd {
     tt.bind("TraceVisitCheck", root.traceVisitCheck);
     tt.bind("RewriteEnabled", root.rewriteEnabled);
     tt.bind("IncrementalEnabled", root.incremental);
+    tt.bind("IncrementalLevelParam", root.incrementalLevelParam);
+    tt.bind("IncrementalLevelAttr", root.incrementalLevelAttr);
+    tt.bind("IncrementalLevelNode", root.incrementalLevelNode);
+    tt.bind("IncrementalLevelRegion", root.incrementalLevelRegion);
+    tt.bind("IncrementalChangeFlush", root.incrementalChangeFlush);
+    tt.bind("IncrementalChangeMark", root.incrementalChangeMark);
+    tt.bind("IncrementalPropFull", root.incrementalPropFull);
+    tt.bind("IncrementalPropLimit", root.incrementalPropLimit);
+    tt.bind("IncrementalDebug", root.incrementalDebug);
+    tt.bind("IncrementalTrack", root.incrementalTrack);
     tt.bind("CreateDefaultMap", root.createDefaultMap);
     tt.bind("DefaultMapType", root.typeDefaultMap);
     tt.bind("CreateDefaultSet", root.createDefaultSet);
