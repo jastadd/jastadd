@@ -83,35 +83,3 @@ ASTNode.iterator = [[
     $SynchEnd
   }
 ]]
-
-ASTNode$State.reset = [[
-  /**
-   * @apilevel internal
-   */
-  public void ASTNode$$State.reset() {
-    $SynchBegin
-$if(CircularEnabled)
-    IN_CIRCLE = false;
-    CIRCLE_INDEX = 1;
-    CHANGE = false;
-  $if(CacheCycleEnabled)
-    LAST_CYCLE = false;
-  $endif
-  $if(ComponentCheckEnabled)
-    circularEvalSet = $CreateDefaultSet;
-    circularEvalStack = new java.util.Stack();
-  $endif
-$endif
-$if(RewriteEnabled)
-    boundariesCrossed = 0;
-    #genResetDuringCounters
-  $if(HasRewriteLimit)
-    debugRewrite = $CreateDefaultMap;
-  $endif
-  $if(StagedRewrites)
-    rewritePhase = 1;
-  $endif
-$endif
-    $SynchEnd
-  }
-]]

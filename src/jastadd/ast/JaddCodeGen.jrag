@@ -268,46 +268,8 @@ aspect JaddCodeGen {
     templateContext().expand("ASTNode$State.reset", out);
   }
 
-  public void Grammar.jjtGenASTNode$State(PrintWriter stream) {
-
-    stream.println("/**");
-    stream.println(" * @apilevel internal");
-    stream.println(" */");
-    stream.println("static public class ASTNode$State {");
-
-    TemplateContext tt = templateContext();
-
-    if (circularEnabled) {
-      if (cacheCycle) {
-        tt.expand("ast.state:circular+cachecycle", stream);
-      }
-      tt.expand("ast.state:circular", stream);
-      if (componentCheck) {
-        tt.expand("ast.state:circular+componentcheck", stream);
-      }
-    }
-
-    if (rewriteEnabled) {
-      if(rewriteLimit > 0) {
-        tt.expand("ast.state:rewrite+rewritelimit>0", stream);
-      }
-
-      tt.expand("ast.state:rewrite", stream);
-
-      if (stagedRewrites) {
-        tt.expand("ast.state:rewrite+stagedrewrites", stream);
-      }
-    }
-
-    if (deterministic) {
-      tt.expand("ast.state:deterministic", stream);
-    } else {
-      tt.expand("ast.state:nodeterministic", stream);
-    }
-
-    jjtGenIncrementalEvaluationStack(stream);
-
-    stream.println("}"); // End ASTNode$State
+  public void Grammar.jjtGenASTNode$State(PrintWriter out) {
+    templateContext().expand("ASTNode$State", out);
   }
 
   /**

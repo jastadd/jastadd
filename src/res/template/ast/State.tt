@@ -1,21 +1,15 @@
-ast.state = [[
+ASTNode$State = [[
 /**
  * @apilevel internal
  */
 static public class ASTNode$$State {
-$StateBody
-$IncrementalEvaluationStack
-}]]
-
-# The following templates are expanded into the ASTNode$State class body
-ast.state:circular+cachecycle = [[
+$if(CircularEnabled)
+  $if(CacheCycleEnabled)
   /**
    * @apilevel internal
    */
   public boolean LAST_CYCLE = false;
-]]
-
-ast.state:circular = [[
+  $endif
   /**
    * @apilevel internal
    */
@@ -42,9 +36,8 @@ ast.state:circular = [[
   static public class CircularValue {
     Object value;
     int visited = -1;
-  }]]
-
-ast.state:circular+componentcheck = [[
+  }
+  $if(ComponentCheckEnabled)
   public $DefaultSetType circularEvalSet = $CreateDefaultSet;
 
   public java.util.Stack circularEvalStack = new java.util.Stack();
@@ -109,18 +102,16 @@ ast.state:circular+componentcheck = [[
     CircularStackEntry c = (CircularStackEntry) circularEvalStack.pop();
     circularEvalSet = c.circularEvalSet;
     CHANGE = c.changeValue;
-  }]]
-
-ast.state:rewrite+rewritelimit>0 = [[
+  }
+  $endif
+$endif
+$if(RewriteEnabled)
+  $if(HasRewriteLimit)
   /**
    * @apilevel internal
    */
-  public $DefaultMapType debugRewrite = $CreateDefaultMap;]]
-
-ast.state.rewrite+stagedrewrites = [[
-  public int rewritePhase = 1;]]
-
-ast.state:rewrite = [[
+  public $DefaultMapType debugRewrite = $CreateDefaultMap;
+  $endif
   /**
    * @apilevel internal
    */
@@ -167,9 +158,12 @@ ast.state:rewrite = [[
 
   public int peek() {
     return stack[pos-1];
-  }]]
-
-ast.state:deterministic = [[
+  }
+  $if(StagedRewrites)
+  public int rewritePhase = 1;
+  $endif
+$endif
+$if(Deterministic)
   /**
    * @apilevel internal
    */
@@ -225,9 +219,8 @@ ast.state:deterministic = [[
         return System.identityHashCode(o);
       }
     }
-  }]]
-
-ast.state:nodeterministic = [[
+  }
+$else
   /**
    * @apilevel internal
    */
@@ -268,4 +261,40 @@ ast.state:nodeterministic = [[
     public void clear() {
       map.clear();
     }
-  }]]
+  }
+$endif
+  #incrementalEvaluationStack
+}
+]]
+
+ASTNode$State.reset = [[
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode$$State.reset() {
+    $SynchBegin
+$if(CircularEnabled)
+    IN_CIRCLE = false;
+    CIRCLE_INDEX = 1;
+    CHANGE = false;
+  $if(CacheCycleEnabled)
+    LAST_CYCLE = false;
+  $endif
+  $if(ComponentCheckEnabled)
+    circularEvalSet = $CreateDefaultSet;
+    circularEvalStack = new java.util.Stack();
+  $endif
+$endif
+$if(RewriteEnabled)
+    boundariesCrossed = 0;
+    #genResetDuringCounters
+  $if(HasRewriteLimit)
+    debugRewrite = $CreateDefaultMap;
+  $endif
+  $if(StagedRewrites)
+    rewritePhase = 1;
+  $endif
+$endif
+    $SynchEnd
+  }
+]]
