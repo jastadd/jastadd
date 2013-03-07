@@ -14,3 +14,62 @@ CollDecl.computeMethod:separateEvaluation = [[
     return #(attributeSignature)_value;
   }
 ]]
+
+CollDecl.computeMethod:onePhase = [[
+  /**
+   * @apilevel internal
+   */
+  private #getType #(attributeName)_compute(#parametersDecl) {
+    ASTNode node = this;
+    while(node.getParent() != null && !(node instanceof $RootType)) {`
+      node = node.getParent();
+    }
+    #collDebugString
+    $RootType root = ($RootType) node;
+    root.collect_contributors_#collectingSignature();
+    if(#(attributeSignature)_value == null) {
+      #(attributeSignature)_value = $BottomValue;
+    }
+    return #(attributeSignature)_value;
+  }
+]]
+
+CollDecl.computeMethod = [[
+  $DefaultSetType #(attributeSignature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
+
+  /**
+   * @apilevel internal
+   * @return the contributor set for #name
+   */
+  public $DefaultSetType #(attributeSignature)_contributors() {
+$if(LazyMaps)
+    if(#(attributeSignature)_contributors == null)
+      #(attributeSignature)_contributors  = $CreateContributorSet;
+$endif
+    return #(attributeSignature)_contributors;
+  }
+
+  /**
+   * @apilevel internal
+   */
+  private #getType #(attributeName)_compute(#parametersDecl) {
+    ASTNode node = this;
+    while(node.getParent() != null && !(node instanceof $RootType)) {
+      node = node.getParent();
+    }
+    #collDebugString
+    $RootType root = ($RootType) node;
+    root.collect_contributors_#collectingSignature();
+    #(attributeSignature)_value = $BottomValue;
+$if(LazyMaps)
+    if(#(attributeSignature)_contributors != null)
+$endif
+    for (java.util.Iterator iter = #(attributeSignature)_contributors.iterator(); iter.hasNext(); ) {
+      ASTNode contributor = (ASTNode)iter.next();
+      contributor.contributeTo_#(getTarget)_#(attributeSignature)(#(attributeSignature)_value);
+    }
+    // TODO: disabled temporarily since collections may not be cached
+    //$if(LazyMaps)#(attributeSignature)_contributors = null;$endif
+    return #(attributeSignature)_value;
+  }
+]]

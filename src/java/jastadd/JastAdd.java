@@ -622,6 +622,7 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
+    tt.bind("LazyMaps", root.lazyMaps);
     tt.bind("CircularEnabled", root.circularEnabled);
     tt.bind("ComponentCheckEnabled", root.componentCheck);
     tt.bind("CacheCycleEnabled", root.cacheCycle);
