@@ -1,0 +1,434 @@
+# Code for DDG node
+
+Grammar.emitDDGNode = [[
+/**
+* @apilevel internal
+*/
+public static class $DDGNodeName {
+
+$if (IncrementalLevelParam) 
+  // Level: param
+
+  public ASTNode fNode;  
+  public String fAttrID;
+  protected Object fParams;
+  
+  public $DDGNodeName(ASTNode node, String attrID, Object params) {
+    fNode = node;
+    fAttrID = attrID;
+    fParams = params;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }
+   
+  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+    fNode = node;
+    fAttrID = handler.fAttrID;
+    fParams = handler.fParams;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }
+  
+  public void setParams(Object params) {
+    fParams = params;
+  }
+  
+$if (IncrementalPropLimit)  
+  // Limit change propagation with the use of cache independence
+  
+  public boolean cacheInDependent = false;
+  
+  public $DDGNodeName(ASTNode node, String attrID, Object params, boolean cacheInDependent) {
+    this(node, attrID, params);
+    this.cacheInDependent = cacheInDependent;
+  }
+  
+  public boolean isCacheInDependent() {
+    return cacheInDependent;
+  }
+  
+  public void setCacheInDependent(boolean b) {
+    cacheInDependent = b;
+  }
+
+  public boolean noCacheRead = true;  
+$endif
+
+$endif
+
+$if (IncrementalLevelAttr)
+  // Level: attr
+  
+  public ASTNode fNode;
+  public String fAttrID;
+  
+  public $DDGNodeName(ASTNode node, String attrID) {
+    fNode = node;
+    fAttrID = attrID;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }
+  
+  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+    fNode = node;
+    fAttrID = handler.fAttrID;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }
+  
+  public void flushRegion() {
+    // Remove dependencies
+    java.util.HashSet<$DDGNodeName> k = fDependencySet;
+    fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
+    for ($DDGNodeName node : k) {
+      node.removeDependant(this);
+    }
+    fNode.reactToDependencyChange(fAttrID);
+  }  
+$endif
+
+$if (IncrementalLevelNode)
+  // Level: node 
+
+  public ASTNode fNode;
+  
+  public $DDGNodeName(ASTNode node) {
+    fNode = node;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }    
+  
+  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+    fNode = node;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  } 
+  
+  public void flushRegion() {
+    // Remove dependencies
+    java.util.HashSet<$DDGNodeName> k = fDependencySet;
+    fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
+    for ($DDGNodeName node : k) {
+      node.removeDependant(this);
+    }
+    fNode.reactToDependencyChange();
+  } 
+$endif
+
+$if (IncrementalLevelRegion)
+  // Level: region
+  
+  public ASTNode fNode;
+  
+  public $DDGNodeName(ASTNode node) {
+    fNode = node;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }    
+  
+  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+    fNode = node;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }
+  
+  public void flushRegion() {
+    // Remove dependencies
+    java.util.HashSet<$DDGNodeName> k = fDependencySet;
+    fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
+    for ($DDGNodeName node : k) {
+      node.removeDependant(this);
+    }
+    fNode.reactToDependencyChange();
+  }          
+$endif
+ 
+  // Dependency management
+    
+  public java.util.HashSet<$DDGNodeName> fListenerSet = new java.util.HashSet<$DDGNodeName>(4);    
+  public java.util.HashSet<$DDGNodeName> fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
+  
+  public boolean hasDependants() {
+    return !fListenerSet.isEmpty();
+  }
+  
+  public void addDependant($DDGNodeName node) {
+    fListenerSet.add(node);
+    node.addDependency(this);
+  }
+  
+  public void removeDependant($DDGNodeName node) {
+    fListenerSet.remove(node);
+  }
+
+  public void clearDependants() {
+    for ($DDGNodeName node : fListenerSet) {
+      node.removeDependency(this);
+    }
+    fListenerSet.clear();
+  }
+  
+  public void clearDependencies() {
+    for ($DDGNodeName node : fDependencySet) {
+      node.removeDependant(this);
+    }
+    fDependencySet.clear();
+  }
+  
+  public void addDependency($DDGNodeName node) {
+    fDependencySet.add(node);
+  }
+  
+  public void removeDependency($DDGNodeName node) {
+    fDependencySet.remove(node);
+  }
+  
+  /* 
+   * Transfers listeners from another handler, used in rewrites.
+   */
+  public void transferSetsFrom($DDGNodeName node) {
+    if (node == null || this == node)
+      return;
+    for ($DDGNodeName l : node.fListenerSet) {
+      if (!l.isGarbage()) {
+        this.addDependant(l);
+      }
+    }
+    node.clearDependencies();
+    node.clearDependants();
+    node.throwAway();
+  }
+
+  /* 
+   * Transfers dependencies from another handler, used in rewrites.
+   */  
+  public void transferDependenciesFrom($DDGNodeName node) {
+    if (node == null || this == node)
+      return;
+    for ($DDGNodeName l : node.fDependencySet) {
+      l.addDependant(this);
+    }
+$if (IncrementalPropLimit) 
+    setCacheInDependent(node.cacheInDependent);
+$endif    
+    node.clearDependencies();
+  }
+ 
+  // Notification
+   
+  private boolean visited = false;
+  
+  public void notifyDependencies() {
+    // Notify and remove listeners
+    if (!visited) {
+      visited = true;
+      java.util.HashSet<$DDGNodeName> k = fListenerSet;
+      fListenerSet = new java.util.HashSet<$DDGNodeName>(4);
+      for ($DDGNodeName node : k) {
+        if (!node.isGarbage()) {
+          node.dependencyChanged();
+        }
+        node.removeDependency(this);
+      }
+      visited = false;
+    }
+  } 
+ 
+  // React to change
+  
+  private boolean visitedChange = false;
+  
+  public void dependencyChanged() {
+    if (!visitedChange) {
+      visitedChange = true;
+$if (IncrementalTrack)
+      trackedFlushes++;
+      System.out.println(\"not(\" + this + \")\");
+$endif
+$if (IncrementalLevelParam)     
+$if (IncrementalPropLimit)
+      if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {
+      } else {
+$endif
+        if (!fDependencySet.isEmpty()) {
+          // Remove dependencies
+          java.util.HashSet<$DDGNodeName> k = fDependencySet;
+          fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
+          for ($DDGNodeName node : k) {
+            node.removeDependant(this);
+          }
+          fNode.reactToDependencyChange(fAttrID, fParams);
+        }   
+$if (IncrementalPropLimit)
+      }
+$endif
+$else
+      if (!fDependencySet.isEmpty()) {
+        // Remove dependencies
+        java.util.HashSet<$DDGNodeName> k = fDependencySet;
+        fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
+        for ($DDGNodeName node : k) {
+          node.removeDependant(this);
+        }     
+$if (IncrementalLevelAttr) 
+        fNode.reactToDependencyChange(fAttrID);
+$endif
+$if (IncrementalLevelNode)
+        fNode.reactToDependencyChange();
+$endif
+$if (IncrementalLevelRegion)
+        fNode.reactToDependencyChange();
+$endif           
+	  }
+$endif      
+      visitedChange = false;
+    }
+  }
+  
+  // State
+  
+  protected int fState = ASTNode.inc_CREATED;
+  
+  public void changeState(int newState) {
+    fState = newState;
+  }
+  
+  public void throwAway() {
+    fState = ASTNode.inc_GARBAGE;
+  }
+  
+  public void keepAlive() {
+    fState = ASTNode.inc_LIVE;
+  }
+  
+  public boolean isGarbage() {
+    return fState == ASTNode.inc_GARBAGE;
+  }
+  
+  public boolean isCreated() {
+    return fState == ASTNode.inc_CREATED;
+  }
+  
+  public boolean isCloned() {
+    return fState == ASTNode.inc_CLONED;
+  }
+  
+  public boolean isLive() {
+    return fState == ASTNode.inc_LIVE;
+  }
+
+$if (IncrementalDebug)  
+  // Debugging
+  
+  private int dumpDependents_visited = 0;
+  
+  public void dumpDependents(boolean changed, int visited) {
+    if (visited != dumpDependents_visited) {
+      dumpDependents_visited = visited;
+      if (changed) {
+        System.out.println("change(" + this + ")");
+      } else {
+        System.out.println("dep-change(" + this + ")");
+      }
+      class Entry implements Comparable<Entry> {
+        public String id;
+        public $DDGNodeName node;
+        public Entry(String id, $DDGNodeName node) {
+          this.id = id; this.node = node;
+        }
+        public int compareTo(Entry e) {
+          return id.compareTo(e.id);
+        }
+      }
+      java.util.TreeSet<Entry> sorted = new java.util.TreeSet<Entry>();
+      for ($DDGNodeName node : fListenerSet) {
+        sorted.add(new Entry(node.toString(), node));
+      }
+      for (Entry e : sorted) {
+        e.node.dumpDependents(false, visited);
+      }
+    }
+  }
+  
+  public void dumpDeps() {
+    java.util.TreeSet<String> sorted = new java.util.TreeSet<String>();
+    for ($DDGNodeName node : fListenerSet) {
+      sorted.add(node.toString());
+    }
+    for (String s : sorted) {
+      System.out.println("dep(" + s + " -> " + this + ")");
+    }
+  }
+  
+  public String toString() {  
+$if (IncrementalLevelParam)
+    return fNode.relativeNodeID() + ":" + fAttrID + (fParams != null ? 
+            ("[" + (fParams instanceof ASTNode ? ((ASTNode)fParams).relativeNodeID() : fParams) + "]") 
+            : "");
+$endif
+$if (IncrementalLevelAttr)
+    return fNode.relativeNodeID() + ":" + fAttrID;
+$endif
+$if (IncrementalLevelNode)
+    return fNode.relativeNodeID();
+$endif
+$if (IncrementalLevelRegion)
+    return fNode.relativeNodeID();
+$endif  
+  }    
+$endif
+
+  // Clean up
+  
+  public boolean visitedDuringCleanup = false;
+  public static int nbr_cleanup = 0;
+  
+  public void cleanUpGarbage() {
+    visitedDuringCleanup = true;
+    nbr_cleanup++;
+    // Clean up garbage
+    java.util.Iterator<$DDGNodeName> itr = fListenerSet.iterator();
+    while (itr.hasNext()) {
+      $DDGNodeName cur = itr.next();
+      if (cur.isGarbage()) {
+        itr.remove();
+      }
+    }
+  }
+  
+  /*
+  public static LinkedList<$DDGNodeName> createdHandlers = new LinkedList<$DDGNodeName>();
+  public static void doCleanUp() {
+    Iterator itr = createdHandlers.iterator();
+    while (itr.hasNext()) {
+      $DDGNodeName node = ($DDGNodeName)itr.next();
+      if (node.isGarbage() || node.isCreated())
+        itr.remove();
+      else node.cleanUpGarbage();
+    }
+  }
+  */
+  
+$if(IncrementalTrack)
+  // Tracking
+  
+  public static int trackedReads = 0;
+  public static int trackedComputes = 0;
+  public static int trackedFlushes = 0;
+  
+  public void trackChange() {
+    System.out.println("change(" + this + ")");
+  }
+  
+  public static void resetTrackingCounters() {
+    trackedReads = 0;
+    trackedComputes = 0;
+    trackedFlushes = 0;
+  }
+  
+  public static String getTrackingResult() {
+    return "#reads = " + trackedReads + ", #computes = " + trackedComputes + ", #flushes = " + trackedFlushes;
+  }
+$endif  
+} 
+]]

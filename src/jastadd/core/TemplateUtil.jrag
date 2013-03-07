@@ -53,6 +53,9 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/InheritedAttributes");
     loadTemplates(tt, "ast/Circular");
     loadTemplates(tt, "ast/CheckTreeStructure");
+    if (grammar().incremental) {
+      loadTemplates(tt, "incremental/DDGNode");
+    }
     return new SimpleContext(tt, this);
   }
 
