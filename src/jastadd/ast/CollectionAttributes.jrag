@@ -362,7 +362,8 @@ aspect CollectionAttributes {
       }
       buf.append(ind + "}\n");
       String s = buf.toString();
-      if(decl != null && !decl.isCircular()) { // TODO:replace decl.naive() with !decl.isCircular()
+      if(decl != null && !decl.isCircular()) {
+        // TODO:replace decl.naive() with !decl.isCircular()
         s = s.replaceAll("n.new_", "n.");
       }
       s = s.replaceAll("#TYPE#", decl.getType());
@@ -426,76 +427,71 @@ aspect CollectionAttributes {
       TypeDecl rootDecl = attr.root();
       if(astDecl != null && rootDecl != null) {
         boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());
-        String s = "";
         if(!astDecl.hasCollEq(attr) && process) {
-          if(separateEvaluation)
+          String s = "";
+          if(separateEvaluation) {
             s =
-            ind + "protected void #TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n" +
-            ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
-            ind(3) + "getChild(i).#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n" +
-            ind + "}\n\n";
-          if(process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) // TODO: replace !attr.naive() with !(!attr.isCircular() && separateEvaluation)
-            s = s +
-            ind + "protected void collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
-            ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
-            ind(3) + "getChild(i).collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-            ind + "}\n\n";
+              ind + "protected void " + attr.getTarget() + "_" + attr.attributeSignature() + "_nextIteration(" + attr.getTarget() + " n) {\n" +
+              ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
+              ind(3) + "getChild(i)." + attr.getTarget() + "_" + attr.attributeSignature() + "_nextIteration(n);\n" +
+              ind + "}\n\n";
+          }
 
-          if(!separateEvaluation && (attr.isCircular() || !attr.onePhase())) // TODO: add && !attr.separateEvaluation()
-          s = s +
-            ind + "protected void contributeTo_#TYPEINSIGNATURE#_#NAME#(" + attr.getType() + " collection) {\n" +
-            ind + "}\n";
-          s = s.replaceAll("#TYPE#", attr.getType());
-          s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
-          s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          s = s.replaceAll("#NAME#", attr.attributeSignature());
-          s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-          s = s.replaceAll("#PARM#", attr.parameters());
+          if(process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) {
+            // TODO: replace !attr.naive() with !(!attr.isCircular() && separateEvaluation)
+            s = s +
+              ind + "protected void collect_contributors_" + attr.collectingSignature() + "() {\n" +
+              ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
+              ind(3) + "getChild(i).collect_contributors_" + attr.collectingSignature() + "();\n" +
+              ind + "}\n\n";
+          }
+
+          if(!separateEvaluation && (attr.isCircular() || !attr.onePhase())) {
+            // TODO: add && !attr.separateEvaluation()
+            s = s +
+              ind + "protected void contributeTo_" + attr.getTarget() + "_" + attr.attributeSignature() + "(" + attr.getType() + " collection) {\n" +
+              ind + "}\n";
+          }
 
           astDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
         }
         if(process) {
-          s = "";
+          String s = "";
           String flush = "";
-          if(attr.circularCollection() && !separateEvaluation) { // TODO: remove && !attr.naive()
+          if(attr.circularCollection() && !separateEvaluation) {
+            // TODO: remove && !attr.naive()
             s =
-              ind + "private boolean collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "public boolean collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "protected void collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
-              ind(2) + "if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
-              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = true;\n" +
-              ind(2) + "super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
+              ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n" +
+              ind + "public boolean collecting_contributors_" + attr.collectingSignature() + " = false;\n" +
+              ind + "protected void collect_contributors_" + attr.collectingSignature() + "() {\n" +
+              ind(2) + "if(collect_contributors_" + attr.collectingSignature() + ") return;\n" +
+              ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = true;\n" +
+              ind(2) + "super.collect_contributors_" + attr.collectingSignature() + "();\n" +
+              ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = false;\n" +
+              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = true;\n" +
               ind + "}\n\n";
             flush =
-              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind(2) + "collecting_contributors_#COLLECTINGSIGNATURE# = false;\n";
-          } else if(!attr.circularCollection() && !attr.separateEvaluation()) { // TODO: replace !attr.naive() with !attr.separateEvaluation()
+              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = false;\n" +
+              ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = false;\n";
+          } else if(!attr.circularCollection() && !attr.separateEvaluation()) {
+            // TODO: replace !attr.naive() with !attr.separateEvaluation()
             if(!rootDecl.hasCollEq(attr)) {
               s =
-              ind + "private boolean collect_contributors_#COLLECTINGSIGNATURE# = false;\n" +
-              ind + "protected void collect_contributors_#COLLECTINGSIGNATURE#() {\n" +
-              ind(2) + "if(collect_contributors_#COLLECTINGSIGNATURE#) return;\n" +
-              ind(2) + "super.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = true;\n" +
+              ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n" +
+              ind + "protected void collect_contributors_" + attr.collectingSignature() + "() {\n" +
+              ind(2) + "if(collect_contributors_" + attr.collectingSignature() + ") return;\n" +
+              ind(2) + "super.collect_contributors_" + attr.collectingSignature() + "();\n" +
+              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = true;\n" +
               ind + "}\n\n";
             }
             else {
               s =
-              ind + "private boolean collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n";
             }
             flush =
-              ind(2) + "collect_contributors_#COLLECTINGSIGNATURE# = false;\n";
+              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = false;\n";
           }
-          s = s.replaceAll("#TYPE#", attr.getType());
-          s = s.replaceAll("#TYPEINSIGNATURE#", attr.getTarget());
-          s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-          s = s.replaceAll("#NAME#", attr.attributeSignature());
-          s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-          s = s.replaceAll("#PARM#", attr.parameters());
           rootDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
-          flush = flush.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
           rootDecl.collectionReset += flush;
         }
       }
