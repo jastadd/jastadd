@@ -31,7 +31,14 @@ import ast.AST.*;
 
 import java.util.*;
 
+/**
+ * Aspect error checking.
+ */
 aspect ASTErrorCollector {
+  /**
+   * @return an empty string if there were no errors, otherwise a string
+   * containing the error message(s).
+   */
   syn String Grammar.astErrors() {
     return collectAstErrors();
   }
