@@ -30,24 +30,16 @@ aspect CollectionAttributes {
   public void ASTDecl.emitCollDecls(PrintStream out) {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
-      String s = "";
       if(attr.circularCollection()) {
         attr.emitVisitedDeclarations(out);
         attr.emitCircular(out);
-        s = attr.combineMethod();
+        attr.emitCombineMethod(out);
       } else {
         out.print(attr.hostFileComment());
         emitEquation(attr, attr.parametersDecl(), out);
-        s += attr.computeMethod();
+        attr.emitComputeMethod(out);
         emitCacheDeclarations(out, attr);
       }
-      s = s.replaceAll("#TYPE#", attr.getType());
-      s = s.replaceAll("#TYPEINSIGNATURE#", name());
-      s = s.replaceAll("#COLLECTINGSIGNATURE#", attr.collectingSignature());
-      s = s.replaceAll("#NAME#", attr.attributeSignature());
-      s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-      s = s.replaceAll("#PARM#", attr.parameters());
-      out.print(s);
     }
   }
 
@@ -128,45 +120,24 @@ aspect CollectionAttributes {
   }
 
   // only used by non-circular collection attributes
-  public String CollDecl.computeMethod() {
+  public void CollDecl.emitComputeMethod(PrintStream out) {
     String rootType = root().name();
     TemplateContext tt = templateContext();
     tt.bind("RootType", rootType);
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     if(separateEvaluation()) {// TODO: replace naive() with separateEvaluation()
-      return tt.expand("CollDecl.computeMethod:separateEvaluation");
+      tt.expand("CollDecl.computeMethod:separateEvaluation", out);
     } else if(onePhase()) {
-      return tt.expand("CollDecl.computeMethod:onePhase");
+      tt.expand("CollDecl.computeMethod:onePhase", out);
     } else {
-      return tt.expand("CollDecl.computeMethod");
+      tt.expand("CollDecl.computeMethod", out);
     }
   }
   // only used by circular collection attributes
-  public String CollDecl.combineMethod() {
-    if(separateEvaluation())
-      return "";
-
-    String rootType = root().name();
-    String s =
-      ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
-      ind + "/**\n" +
-      ind + " * @apilevel internal\n" +
-      ind + " */\n" +
-      ind + "public " + grammar().typeDefaultSet + " #NAME#_contributors() {\n" +
-      (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
-      ind(2) + "return #NAME#_contributors;\n" +
-      ind + "}\n" +
-      ind + "private " + getType() + " combine_#NAME#_contributions(" + getType() + " h) {\n" +
-      (grammar().lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
-      ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
-      ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
-      ind(3) + "contributor.contributeTo_" + getTarget() + "_#NAME#(h);\n" +
-      ind(2) + "}\n" +
-      // TODO: disabled temporarily since collections may not be cached
-      //(grammar().lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
-      ind(2) + "return h;\n" +
-      ind + "}\n\n";
-      return s;
+  public void CollDecl.emitCombineMethod(PrintStream out) {
+    if (!separateEvaluation()) {
+      templateContext().expand("CollDecl.combineMethod", out);
+    }
   }
 
   syn boolean ASTDecl.isASTNode() = name().equals("ASTNode");

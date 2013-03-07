@@ -73,3 +73,32 @@ $endif
     return #(attributeSignature)_value;
   }
 ]]
+
+CollDecl.combineMethod = [[
+  $DefaultSetType #(attributeSignature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
+
+  /**
+   * @apilevel internal
+   * @return the contributor set for #name
+   */
+  public $DefaultSetType #(attributeSignature)_contributors() {
+$if(LazyMaps)
+    if(#(attributeSignature)_contributors == null)
+      #(attributeSignature)_contributors  = $CreateContributorSet;
+$endif
+    return #(attributeSignature)_contributors;
+  }
+
+  private #getType combine_#(attributeSignature)_contributions(#getType h) {
+$if(LazyMaps)
+    if(#(attributeSignature)_contributors != null)
+$endif
+    for(java.util.Iterator iter = #(attributeSignature)_contributors.iterator(); iter.hasNext(); ) {
+      ASTNode contributor = (ASTNode)iter.next();
+      contributor.contributeTo_#(getTarget)_#(attributeSignature)(h);
+    }
+    // TODO: disabled temporarily since collections may not be cached
+    //$if(LazyMaps)#(attributeSignature)_contributors = null;$endif
+    return h;
+  }
+]]
