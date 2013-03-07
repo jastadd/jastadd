@@ -357,9 +357,9 @@ aspect CollectionAttributes {
       if(isASTNode()) {
         buf.append(ind(2) + "for(int i = 0; i < getNumChild(); i++)\n");
         buf.append(ind(3) + "getChild(i).#TYPEINSIGNATURE#_#NAME#_next_Iteration(n);\n"); // once per group
-      }
-      else
+      } else {
         buf.append(ind(3) + "r.#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n");
+      }
       buf.append(ind + "}\n");
       String s = buf.toString();
       if(decl != null && !decl.isCircular()) { // TODO:replace decl.naive() with !decl.isCircular()
