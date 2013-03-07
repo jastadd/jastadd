@@ -121,36 +121,34 @@ Directory Structure
 
 * `src/java` Java source files
     - `src/java/jastadd/`
-        - JastAdd.java  The main class. Reads command line args and options.
-        Compiles the .ast and .jrag files to Java files.
-        - JastAdd.jrag  Extends the top AST node (Grammar) with methods for
+        - `JastAdd.java` The main class. Compiles the .ast and .jrag files to
+        Java files.
+        - `JastAdd.jrag` Extends the top AST node (Grammar) with methods for
         adding .ast and .jrag info.
-        - CommandLineArguments.java
-        A general class for reading in args and options
-        from the cmd line.
-        - JastAddTask.java
-        Implements an ANT task for running jastadd, including
-        support for various args and options.
-
+        - `CommandLineArguments.java` A general class for reading in args and
+        options from the command line.
+        - `JastAddTask.java` Implements an ANT task for running jastadd,
+        including support for various args and options.
 * `src/jastadd/` JastAdd aspect and AST specifications
 * `src/javacc/` JavaCC files
-* `src/res/` Resource files
-    - `src/res/template/` Template files
+* `src/res/` Templates, property files and other resources that are included
+    in the JastAdd jar file.
+    - `src/res/template/` Template root
 * `src/gen/` Generated source files
 * `doc` Documentation html files.
-    - `reference-manual.html`   The reference manual
-    - `release-notes.html`      The release nodes
-    - `index.html`              For download from the web
-    - `*.php`                   Helper files for browsing uploaded files on the web
-* `tools`      Tools used to build JastAdd
-* `README.md`  This file.
-* `LICENSE`    Text file with the jastadd LICENSE.
+    - `reference-manual.html` The reference manual
+    - `release-notes.html` The release nodes
+    - `index.html` For download from the web
+    - `*.php` Helper files for browsing uploaded files on the web
+* `tools` 3rd party jar files used to build build JastAdd
+* `README.md` This file.
+* `LICENSE` Text file with the jastadd LICENSE.
 * `release.sh` A script printing the commands for doing a release.
-* `ChangeLog`  A textfile recording changes done to JastAdd, intended for
-               users of JastAdd (focusing on external behavior).
+* `ChangeLog` A textfile recording changes done to JastAdd, intended for
+    users of JastAdd (focusing on external behavior).
 * `ChangeLogUntil2010.txt`
-               A textfile containing cvs log messages until 2010 when the
-               system was moved to svn.
+    A textfile containing cvs log messages until 2010 when the
+    system was moved to svn.
 
 Understanding the Implementation
 --------------------------------
