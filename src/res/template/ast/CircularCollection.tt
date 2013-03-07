@@ -61,7 +61,7 @@ $else
         #getType new_#(attributeSignature)_value = $BottomValue;
         combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
 $endif
-        if ($Cond1) {
+        if ($Cond) {
           state().CHANGE = true;
         }
         #(attributeSignature)_value = new_#(attributeSignature)_value;
@@ -92,7 +92,7 @@ $else
       #(getType) new_#(attributeSignature)_value = $BottomValue;
       combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
 $endif
-      if ($Cond2) {
+      if ($Cond) {
         state().CHANGE = true;
       }
       #(attributeSignature)_value = new_#(attributeSignature)_value;
@@ -141,7 +141,7 @@ AttrDecl.emitCircular:parameterized = [[
         state().CHANGE = false;
         new_#(attributeSignature)_value = $BottomValue;
         combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
-        if ($Cond3) {
+        if ($Cond) {
           state().CHANGE = true;
         }
         #(attributeSignature)_values.put(_parameters, $RefType2);
@@ -166,10 +166,10 @@ AttrDecl.emitCircular:parameterized = [[
       #resetCycleCheck
       #getType new_#(attributeSignature)_value = $BottomValue;
       combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
-      if ($Cond4) {
+      if ($Cond) {
         state().CHANGE = true;
       }
-      #(attributeSignature)_values.put(_parameters, $RefType3);
+      #(attributeSignature)_values.put(_parameters, $RefType2);
       return new_#(attributeSignature)_value;
     }
     return $FromRefType;
