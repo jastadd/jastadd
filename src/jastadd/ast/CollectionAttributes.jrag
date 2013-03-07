@@ -94,8 +94,8 @@ aspect CollectionAttributes {
          setVisited() +
          circularComputeCall() + ";\n" +
          clearVisited() +
-         ind(4) + "#NAME#_computed = true;\n" +
-         ind(4) + "return #NAME#_value;\n" +
+         ind(4) + attributeSignature() + "_computed = true;\n" +
+         ind(4) + "return " + attributeSignature() + "_value;\n" +
          ind(3) + "}\n";
      else
        return
@@ -103,17 +103,17 @@ aspect CollectionAttributes {
          setVisited() +
          circularComputeCall() + ";\n" +
          clearVisited() +
-         ind(4) + "#NAME#_computed.add(_parameters);\n" +
-         ind(4) + "return " + fromReferenceType("#NAME#_values.get(_parameters)" , getType()) + ";\n" +
+         ind(4) + attributeSignature() + "_computed.add(_parameters);\n" +
+         ind(4) + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType()) + ";\n" +
          ind(3) + "}\n";
   }
 
   // only used by circular collection attributes
   public String CollDecl.circularComputeCall() {
     if(separateEvaluation())
-      return "new_#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
-             "root.#TYPEINSIGNATURE#_#NAME#_nextIteration(this)";
-    return "#NAME#_value = combine_#NAME#_contributions(" + Unparser.unparse(getBottomValue()) + ")";
+      return "new_" + attributeSignature() + "_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
+             "root." + name() + "_" + attributeSignature() + "_nextIteration(this)";
+    return "" + attributeSignature() + "_value = combine_" + attributeSignature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
   }
 
   // only used by non-circular collection attributes
