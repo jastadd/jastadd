@@ -141,46 +141,46 @@ aspect CollectionAttributes {
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private " + getType() + " " + attributeName() + "_compute(#PARMDECL#) {\n" +
+      ind + "private " + getType() + " " + attributeName() + "_compute(" + parametersDecl() + ") {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
       collDebugString() +
       ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
-      ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-      ind(2) + "if(#NAME#_value == null) #NAME#_value = " +
+      ind(2) + "root.collect_contributors_" + collectingSignature() + "();\n" +
+      ind(2) + "if(" + attributeSignature() + "_value == null) " + attributeSignature() + "_value = " +
       Unparser.unparse(getBottomValue()) + ";\n" +
-      ind(2) + "return #NAME#_value;\n" +
+      ind(2) + "return " + attributeSignature() + "_value;\n" +
       ind + "}\n\n";
     } else {
       return
-      ind + grammar().typeDefaultSet + " #NAME#_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
+      ind + grammar().typeDefaultSet + " " + attributeSignature() + "_contributors" + (grammar().lazyMaps ? "" : (" = " + grammar().createContributorSet)) + ";\n" +
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "public " + grammar().typeDefaultSet + " #NAME#_contributors() {\n" +
-      (grammar().lazyMaps ? (ind(2) + "if(#NAME#_contributors == null) #NAME#_contributors  = " + grammar().createContributorSet + ";\n") : "") +
-      ind(2) + "return #NAME#_contributors;\n" +
+      ind + "public " + grammar().typeDefaultSet + " " + attributeSignature() + "_contributors() {\n" +
+      (grammar().lazyMaps ? (ind(2) + "if(" + attributeSignature() + "_contributors == null) " + attributeSignature() + "_contributors  = " + grammar().createContributorSet + ";\n") : "") +
+      ind(2) + "return " + attributeSignature() + "_contributors;\n" +
       ind + "}\n" +
       ind + "/**\n" +
       ind + " * @apilevel internal\n" +
       ind + " */\n" +
-      ind + "private #TYPE# " + attributeName() + "_compute(#PARMDECL#) {\n" +
+      ind + "private " + getType() + " " + attributeName() + "_compute(" + parametersDecl() + ") {\n" +
       ind(2) + "ASTNode node = this;\n" +
       ind(2) + "while(node.getParent() != null && !(node instanceof " + rootType + "))\n" +
       ind(3) + "node = node.getParent();\n" +
       collDebugString() +
       ind(2) + "" + rootType + " root = (" + rootType + ")node;\n" +
-      ind(2) + "root.collect_contributors_#COLLECTINGSIGNATURE#();\n" +
-      ind(2) + "#NAME#_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
-      (grammar().lazyMaps ? ind(2) + "if(#NAME#_contributors != null)\n" : "") +
-      ind(2) + "for(java.util.Iterator iter = #NAME#_contributors.iterator(); iter.hasNext(); ) {\n" +
+      ind(2) + "root.collect_contributors_" + collectingSignature() + "();\n" +
+      ind(2) + "" + attributeSignature() + "_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
+      (grammar().lazyMaps ? ind(2) + "if(" + attributeSignature() + "_contributors != null)\n" : "") +
+      ind(2) + "for(java.util.Iterator iter = " + attributeSignature() + "_contributors.iterator(); iter.hasNext(); ) {\n" +
       ind(3) + "ASTNode contributor = (ASTNode)iter.next();\n" +
-      ind(3) + "contributor.contributeTo_" + getTarget() + "_#NAME#(#NAME#_value);\n" +
+      ind(3) + "contributor.contributeTo_" + getTarget() + "_" + attributeSignature() + "(" + attributeSignature() + "_value);\n" +
       ind(2) + "}\n" +
       // TODO: disabled temporarily since collections may not be cached
-      //(grammar().lazyMaps ? ind(2) + "#NAME#_contributors = null;\n" : "") +
-      ind(2) + "return #NAME#_value;\n" +
+      //(grammar().lazyMaps ? ind(2) + attributeSignature() + "_contributors = null;\n" : "") +
+      ind(2) + "return " + attributeSignature() + "_value;\n" +
       ind + "}\n\n";
     }
   }
