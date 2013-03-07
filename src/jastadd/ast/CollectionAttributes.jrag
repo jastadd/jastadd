@@ -88,32 +88,35 @@ aspect CollectionAttributes {
     if(!separateEvaluation())
       return super.cacheCycleCheck();
     if (!grammar().cacheCycle) return "";
-    if(getNumParameter() == 0)
+    if(getNumParameter() == 0) {
       return
-         ind(3) + "if (state().LAST_CYCLE) {\n" +
-         setVisited() +
-         circularComputeCall() + ";\n" +
-         clearVisited() +
-         ind(4) + attributeSignature() + "_computed = true;\n" +
-         ind(4) + "return " + attributeSignature() + "_value;\n" +
-         ind(3) + "}\n";
-     else
-       return
-         ind(3) + "if (state().LAST_CYCLE) {\n" +
-         setVisited() +
-         circularComputeCall() + ";\n" +
-         clearVisited() +
-         ind(4) + attributeSignature() + "_computed.add(_parameters);\n" +
-         ind(4) + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType()) + ";\n" +
-         ind(3) + "}\n";
+        "if (state().LAST_CYCLE) {\n" +
+        setVisited() +
+        circularComputeCall() + ";\n" +
+        clearVisited() +
+        ind + attributeSignature() + "_computed = true;\n" +
+        ind + "return " + attributeSignature() + "_value;\n" +
+        "}\n";
+    } else {
+      return
+        "if (state().LAST_CYCLE) {\n" +
+        setVisited() +
+        circularComputeCall() + ";\n" +
+        clearVisited() +
+        ind + attributeSignature() + "_computed.add(_parameters);\n" +
+        ind + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType()) + ";\n" +
+        "}\n";
+    }
   }
 
   // only used by circular collection attributes
   public String CollDecl.circularComputeCall() {
-    if(separateEvaluation())
+    if(separateEvaluation()) {
       return "new_" + attributeSignature() + "_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
              "root." + name() + "_" + attributeSignature() + "_nextIteration(this)";
-    return "" + attributeSignature() + "_value = combine_" + attributeSignature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
+    } else {
+      return attributeSignature() + "_value = combine_" + attributeSignature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
+    }
   }
 
   // only used by non-circular collection attributes
