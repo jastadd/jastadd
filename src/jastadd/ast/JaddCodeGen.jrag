@@ -264,33 +264,8 @@ aspect JaddCodeGen {
     out.println(ind + "}");
   }
 
-  public void Grammar.genReset(PrintWriter stream) {
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.println(ind + "public void ASTNode$State.reset() {");
-    if(block) stream.print(blockBegin);
-    if(circularEnabled) {
-      stream.println(ind(2) + "IN_CIRCLE = false;");
-      stream.println(ind(2) + "CIRCLE_INDEX = 1;"); // TOBBE
-      stream.println(ind(2) + "CHANGE = false;");
-      if(cacheCycle)
-          stream.println(ind(2) + "LAST_CYCLE = false;");
-      if(componentCheck) {
-          stream.println(ind(2) + "circularEvalSet = " + createDefaultSet + ";");
-          stream.println(ind(2) + "circularEvalStack = new java.util.Stack();");
-      }
-    }
-    if(rewriteEnabled) {
-      stream.println(ind(2) + "boundariesCrossed = 0;");
-      genResetDuringCounters(stream);
-      if(rewriteLimit > 0)
-        stream.println(ind(2) + "debugRewrite = " + createDefaultMap + ";\n");
-      if(stagedRewrites)
-        stream.println(ind(2) + "rewritePhase = 1;\n");
-    }
-    if(block) stream.print(blockEnd);
-    stream.println(ind + "}");
+  public void Grammar.genReset(PrintWriter out) {
+    templateContext().expand("ASTNode$State.reset", out);
   }
 
   public void Grammar.jjtGenASTNode$State(PrintWriter stream) {

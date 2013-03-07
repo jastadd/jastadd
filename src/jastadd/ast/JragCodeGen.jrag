@@ -1292,14 +1292,15 @@ aspect JragCodeGen {
   syn lazy String Rewrite.aspectName() =
     getAspectName();
 
-  public void Grammar.genResetDuringCounters(PrintWriter out) {
+  public String Grammar.genResetDuringCounters() {
+    StringBuffer out = new StringBuffer();
     TemplateContext tt = templateContext();
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
       String name = (String)iter.next();
       tt.bind("Name", name);
       tt.expand("Grammar.genResetDuringCounters", out);
     }
-
+    return out.toString();
   }
 
   syn String AttrEq.inhDebugString() = decl().inhDebugString();

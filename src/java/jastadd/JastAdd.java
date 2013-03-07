@@ -629,6 +629,8 @@ public class JastAdd {
     tt.bind("Java5", root.java5);
     tt.bind("VisitCheckEnabled", root.visitCheckEnabled);
     tt.bind("TraceVisitCheck", root.traceVisitCheck);
+    tt.bind("HasRewriteLimit", root.rewriteLimit > 0);
+    tt.bind("StagedRewrites", root.stagedRewrites);
     tt.bind("RewriteEnabled", root.rewriteEnabled);
     tt.bind("IncrementalEnabled", root.incremental);
     tt.bind("IncrementalLevelParam", root.incrementalLevelParam);
