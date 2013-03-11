@@ -47,11 +47,11 @@ aspect Flush {
       } else {
         emitFlushCacheForRewrites(stream);
       }
-      stream.print(flushSynAttrCacheString());
-      stream.print(flushInhAttrCacheString());
       stream.print(flushNTACacheString());
-      stream.print(flushCollectionCacheString());
     }
+    stream.print(flushSynAttrCacheString());
+    stream.print(flushInhAttrCacheString());
+    stream.print(flushCollectionCacheString());
     if(grammar().block) stream.print(grammar().blockEnd);
     stream.print(ind + "}\n");
   }
