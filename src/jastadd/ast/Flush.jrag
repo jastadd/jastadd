@@ -145,12 +145,12 @@ aspect Flush {
     if (!isStringToken && !isPrimitive()) {
       String id = getTokenId().getID();
       String typeSign = ASTNode.convTypeNameToSignature(type);
-  	  return 
-  	    ind(2) + "if (((Object)token" + typeSign + "_" + id + ") instanceof ASTNode) {\n" +
-  	    ind(3) +   "token" + typeSign + "_" + id + " = null;\n" +
-  	    ind(2) + "}\n";
+      return
+        ind(2) + "if (((Object)token" + typeSign + "_" + id + ") instanceof ASTNode) {\n" +
+        ind(3) +   "token" + typeSign + "_" + id + " = null;\n" +
+        ind(2) + "}\n";
     }
-    return "";    
+    return "";
   }
   
   public void ASTDecl.emitFlushCollectionCacheMethod(PrintWriter stream) {
