@@ -41,10 +41,11 @@ aspect Flush {
     stream.println(ind + " */");
     stream.print(ind + "public void flushCache() {\n");
     if(grammar().block) stream.print(grammar().blockBegin);
+    if(!name().equals("ASTNode")) {
+      stream.print(ind(2) + "super.flushCache();\n");
+    } 
     if (grammar().fullFlush) {
-      if(!name().equals("ASTNode")) {
-        stream.print(ind(2) + "super.flushCache();\n");
-      } else {
+      if (name().equals("ASTNode")) {
         emitFlushCacheForRewrites(stream);
       }
       stream.print(flushNTACacheString());

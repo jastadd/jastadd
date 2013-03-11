@@ -969,6 +969,7 @@ aspect JragCodeGen {
     for(int i = 0; i < getNumSynEq(); i++) {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
+       emitCacheDeclarations(out, attr);
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
          out.print(equ.hostFileComment());
          emitEquation(attr, equ.parametersDecl(), out);
@@ -976,8 +977,6 @@ aspect JragCodeGen {
        } else {
          attr.emitInlineCompute(equ, out);
        }
-
-       emitCacheDeclarations(out, attr);
     }
   }
 
