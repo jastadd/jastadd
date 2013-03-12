@@ -41,16 +41,7 @@ Builds are done by using the Apache Ant script build.xml:
 
         > ant jar
 
-* Create a new source zip file (jastadd2-src.zip)
-
-        > ant source-zip
-
-* Create a zip file containing the main jar plus release notes and reference
-  manual (jastadd2-bin.zip)
-
-        > ant bin-zip
-
-* Make a new release (builds the source zip and binary zip):
+* Make a new release (builds jar file, source- and binary zip files):
 
         > ant release
 
