@@ -1031,7 +1031,7 @@ aspect JaddCodeGen {
     return set;
   }
 
-  public abstract void Components.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl);
+  public abstract void Components.jaddGen(int index, boolean publicModifier, ASTDecl decl);
 
   String ListComponents.setNameListComment() {
     return ind + "/**\n" +
@@ -1079,7 +1079,7 @@ aspect JaddCodeGen {
   }
 
 
-  public void ListComponents.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
+  public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     String s;
     String name = decl.name();
     // Generate getNum- and get-method for the list component
@@ -1259,7 +1259,7 @@ aspect JaddCodeGen {
       ind + " */\n";
   }
 
-  public void OptionalComponent.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
+  public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     String name = decl.name();
     String s;
     // Generate has- and get-method for the optional component
@@ -1368,7 +1368,7 @@ aspect JaddCodeGen {
       ind + " */\n";
   }
   private boolean TokenComponent.called = false;
-  public void TokenComponent.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
+  public void TokenComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     String name = decl.name();
     StringBuffer buf = new StringBuffer();
     // Generate attribute, get- and set-method for the token string
@@ -1460,7 +1460,7 @@ aspect JaddCodeGen {
       ind + " */\n";
   }
 
-  public void AggregateComponents.jaddGen(PrintWriter stream, int index, boolean publicModifier, ASTDecl decl) {
+  public void AggregateComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     String name = decl.name();
     String s;
     // Generate get-method for component
