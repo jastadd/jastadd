@@ -174,6 +174,12 @@ public class JastAddTask extends Task {
   private boolean fullFlush = false;
   public void setFullFlush(boolean b) { fullFlush = b; }
 
+  private String indent = "";
+  public void setIndent(String s) { indent = s; }
+
+  private String minListSize = "";
+  public void setMinListSize(String s) { minListSize = s; }
+
   public void execute() throws BuildException {
     if(jjtree && grammar == null)
       throw new BuildException("JJTree option requires grammar to be set");
@@ -263,6 +269,10 @@ public class JastAddTask extends Task {
 
     // ES_2011-10-10: Adding full flush attribute as JastAdd argument
     if (fullFlush) args.add("--fullFlush");
+
+    if (!indent.isEmpty()) args.add("--indent=" + indent);
+
+    if (!minListSize.isEmpty()) args.add("--minListSize=" + minListSize);
 
     args.addAll(files);
 
