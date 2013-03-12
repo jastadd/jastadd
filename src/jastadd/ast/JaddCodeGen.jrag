@@ -272,6 +272,11 @@ aspect JaddCodeGen {
     templateContext().expand("ASTNode$State", out);
   }
 
+  /**
+   * String for calculating the initial child array size.
+   * List nodes use the minimum list size as the initial child
+   * array size.
+   */
   syn String ASTDecl.initialChildArraySize() {
     return "(i+1>" + grammar().minListSize + " || !(this instanceof List))?i+1:" + grammar().minListSize;
   }
