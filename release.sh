@@ -21,7 +21,7 @@ echo "ssh login.cs.lth.se \"mkdir /cs/jastadd/releases/jastadd2/${VERSION}\""
 echo
 echo "# 4.1 Upload the zip files and appropriate documentation to jastadd.org"
 echo "scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php\\"
-echo "    doc/*.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
+echo "    doc/*.md README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
 echo
 echo "# 4.2 Make sure the new files have group write permission"
 echo "ssh login.cs.lth.se \"chmod -R g+w /cs/jastadd/releases/jastadd2/${VERSION}\""

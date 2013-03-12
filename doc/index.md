@@ -1,23 +1,29 @@
 JastAdd2 Release R20130312
 ==========================
 
-Binary distribution
--------------------
+Please view the [ReadMe page][1] for usage and building instructions.
 
-* The tool: [jastadd2.jar](jastadd2.jar)<br>
-Do `$ java -jar jastadd2.jar --help` for information on how to run the tool from the command line.
-* [Reference manual](reference-manual.php)
-* [Release notes](release-notes.php)
-* All three files zipped together: [jastadd2-bin.zip](jastadd2-bin.zip)<br>
-Unpack using the command `$ unzip jastadd2-bin.zip`
+Downloads
+---------
 
-Source distribution
--------------------
+* [jastadd2.jar][2]
+* [Full binary distribution][3]
+* [Source distribution][4]
 
-* The source: [jastadd2-src.zip](jastadd2-src.zip)
-    * Unpack using the command `$ unzip jastadd2-src.zip`
-    * Go to `jastadd2-src` and build `jastadd2.jar`:
+Release notes
+-------------
 
-            cd jastadd2-src
-            make jar
+[Click here to view release notes.][5]
 
+Reference manual
+----------------
+
+[Click here to view the reference manual.][6]
+
+
+[1]: readme.php
+[2]: jastadd2.jar
+[3]: jastadd2-bin.zip
+[4]: jastadd2-src.zip
+[5]: release-notes.php
+[6]: reference-manual.php

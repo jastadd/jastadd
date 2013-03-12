@@ -1,9 +1,9 @@
 JastAdd2
 ========
 
-JastAdd2 was developed at Lund University by Torbjörn Ekman, Görel Hedin,
-and Eva Magnusson. JastAdd2 has recieved additional contributions from
-Emma Söderberg, Jesper Öqvist and Niklas Fors.
+JastAdd2 was developed at Lund University by Torbj&ouml;rn Ekman, G&ouml;rel
+Hedin, and Eva Magnusson. JastAdd2 has recieved additional contributions from
+Emma S&ouml;derberg, Jesper &Ouml;qvist and Niklas Fors.
 
 For additional contributors, see the change logs.
 
