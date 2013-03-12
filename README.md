@@ -18,7 +18,7 @@ see the LICENSE file.
 Obtaining JastAdd2
 ------------------
 
-The latest version of JastAdd2 can be found at http://jastadd2.org
+The latest version of JastAdd2 can be found at [jastadd.org](http://jastadd.org).
 
 Dependencies
 ------------
