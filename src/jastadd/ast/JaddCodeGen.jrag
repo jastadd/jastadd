@@ -273,6 +273,15 @@ aspect JaddCodeGen {
   }
 
   /**
+   * String for calculating the initial child array size.
+   * List nodes use the minimum list size as the initial child
+   * array size.
+   */
+  syn String ASTDecl.initialChildArraySize() {
+    return "(i+1>" + grammar().minListSize + " || !(this instanceof List))?i+1:" + grammar().minListSize;
+  }
+
+  /**
    * Print the getChild method to the output stream.
    */
   public void ASTDecl.genGetChild(PrintWriter stream) {
@@ -589,7 +598,7 @@ aspect JaddCodeGen {
     }
     jjtGenIncrementalASTChangeSetChild1(stream);
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i+1>" + grammar().minListSize + "?i+1:" + grammar().minListSize + "];");
+    stream.println(ind(3) + "children = new ASTNode[" + initialChildArraySize() + "];");
     jjtGenIncrementalASTChangeSetChild2(stream);
     stream.println(ind(2) + "} else if (i >= children.length) {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
@@ -617,7 +626,7 @@ aspect JaddCodeGen {
     }
     jjtGenIncrementalASTChangeInsertChild3(stream);
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i+1>" + grammar().minListSize + "?i+1:" + grammar().minListSize + "];");
+    stream.println(ind(3) + "children = new ASTNode[" + initialChildArraySize() + "];");
     stream.println(ind(3) + "children[i] = node;");
     jjtGenIncrementalASTChangeInsertChild1(stream);
     stream.println(ind(2) + "} else {");
