@@ -8,6 +8,64 @@
 <body>
 <h1>JastAdd2 Release Notes
 </h1>
+<h2>R20130312</h2>
+<blockquote>
+  <h3>Incremental evaluation:</h3>
+  <ul>
+    <li>Merged Emma S&ouml;derberg's incremental evaluation features into JastAdd2</li>
+    <li>The new option <code>fullFlush</code> was added to enable more thorough flush behaviour (makes <code>flushCache</code> flush rewrites and NTAs)</li>
+  </ul>
+  <h3>Removed obsolete features:</h3>
+  <ul>
+    <li>Dropped doxygen support</li>
+    <li>Dropped J2ME code generation support</li>
+    <li>Dropped parent interface support (for inherited equation searching)</li>
+  </ul>
+  <h3>Internals:</h3>
+  <ul>
+    <li>Much of the JastAdd2 internals have been rewritten to improve readability</li>
+  </ul>
+</blockquote>
+<h2>R20130212</h2>
+<blockquote>
+  <h3>Bug fixes:</h3>
+  <ul>
+     <li>Fixed bug concerning weaving interface refinements</li>
+     <li>Fixed various bugs</li>
+     <li>Fixed a code generation error in jjtree mode</li>
+  </ul>
+  <h3>Error handling:</h3>
+  <ul>
+    <li>Multiple equivalent declarations of an inherited attribute now only raise a warning, rather than an error</li>
+    <li>The warning for a duplicate inherited declaration includes the previous declaration location</li>
+    <li>Improved error messages for method/equation refinement errors</li>
+    <li>The path to the output directory is included in the error message for a missing output directory</li>
+  </ul>
+  <h3>API changes</h3>
+  <ul>
+    <li><code>ASTNode.copy()</code> now sets the parent pointer of the copy to <code>null</code></li>
+    <li>Removed the redundant static method <code>ASTNode.getChild(ASTNode,int)</code></li>
+  </ul>
+  <h3>Performance:</h3>
+  <ul>
+    <li>Removed redundant NTA child initialization</li>
+    <li>Increased minimum (non-empty) child array size from 1 to 4</li>
+    <li>The child array for non-List, non-Opt nodes is now initialized to fit all children in the node constructor (removes redundant child-array growing)</li>
+  </ul>
+  <h3>Other changes:</h3>
+  <ul>
+    <li>JastAdd2 no longer depends on AspectJ</li>
+    <li>The <code>--doxygen</code> option is now deprecated</li>
+    <li>Added the <code>--indent</code> command-line option which allows changing the indentation in generated code. Can be set to tabs or 2-, 4-, and 8 space indentation.</li>
+  </ul>
+</blockquote>
+<h2>R20121112</h2>
+<blockquote>
+  <h3>Bugfix Release</h3>
+  <ul>
+     <li>Fixed error in fullCopy causing some non-NTA children to not be copied correctly. This bug sometimes caused NullPointerExceptions or faulty behaviour in generated code.
+  </ul>
+</blockquote>
 <h2>R20121112</h2>
 <blockquote>
   <h3>Bugfix Release</h3>
