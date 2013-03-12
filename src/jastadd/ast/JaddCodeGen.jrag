@@ -1363,9 +1363,12 @@ aspect JaddCodeGen {
     //jp.enclosingAspect = "Ast";
 
     try {
-      while(true)
+      while(true) {
         jp.AspectBodyDeclaration();
+      }
     } catch (Exception e) {
+      System.err.println("Aspect parsing error: " + e.getMessage());
+      e.printStackTrace(System.err);
     }
   }
 }
