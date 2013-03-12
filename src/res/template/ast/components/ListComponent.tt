@@ -1,3 +1,5 @@
+# List component boilerplate code for accessing children etc.
+
 ListComponent.setList = [[
   /**
    * Replaces the $Name list.
@@ -108,7 +110,7 @@ $if(!#isNTA)
   #annotations
   public $ListType $Host.get$(Name)List() {
     $SynchBegin
-    $ListType list = ($ListType)getChild(#INDEX#);
+    $ListType list = ($ListType) getChild($Index);
     list.getNumChild();
     return list;
     $SynchEnd
@@ -127,7 +129,19 @@ $if(!#isNTA)
   #annotations
   public $ListType $Host.get$(Name)ListNoTransform() {
     $SynchBegin
-    return ($ListType)getChildNoTransform(#INDEX#);
+    return ($ListType) getChildNoTransform($Index);
+    $SynchEnd
+  }
+$else
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  public $ListType $Host.get$(Name)ListNoTransform() {
+    $SynchBegin
+    return ($ListType) getChildNoTransform($Index);
     $SynchEnd
   }
 $endif
@@ -160,6 +174,19 @@ $if(Java5)
     $SynchBegin
     return get$(Name)ListNoTransform();
     $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getListChildPosition = [[
+$if(#isNTA)
+  /**
+   * Retrieves the child position of the $Name list.
+   * @return The the child position of the $Name list.
+   * @apilevel low-level
+   */
+  protected int $Host.get$(Name)ListChildPosition() {
+    return $Index;
   }
 $endif
 ]]
