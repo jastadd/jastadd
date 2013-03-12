@@ -97,3 +97,69 @@ ListComponent.setChild = [[
     $SynchEnd
   }
 ]]
+
+ListComponent.getList1 = [[
+$if(!#isNTA)
+  /**
+   * Retrieves the $Name list.
+   * @return The node representing the $Name list.
+   * @apilevel high-level
+   */
+  #annotations
+  public $ListType $Host.get$(Name)List() {
+    $SynchBegin
+    $ListType list = ($ListType)getChild(#INDEX#);
+    list.getNumChild();
+    return list;
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getList1NoTransform = [[
+$if(!#isNTA)
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  #annotations
+  public $ListType $Host.get$(Name)ListNoTransform() {
+    $SynchBegin
+    return ($ListType)getChildNoTransform(#INDEX#);
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getList2 = [[
+$if(Java5)
+  /**
+   * Retrieves the $Name list.
+   * @return The node representing the $Name list.
+   * @apilevel high-level
+   */
+  public $ListType $Host.get$(Name)s() {
+    $SynchBegin
+    return get$(Name)List();
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getList2NoTransform = [[
+$if(Java5)
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  public $ListType $Host.get$(Name)sNoTransform() {
+    $SynchBegin
+    return get$(Name)ListNoTransform();
+    $SynchEnd
+  }
+$endif
+]]
