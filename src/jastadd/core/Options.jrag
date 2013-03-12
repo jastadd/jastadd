@@ -120,4 +120,9 @@ aspect JastAddOptions {
 
   public String Grammar.createContributorSet = "new ASTNode$State.IdentityHashSet(4)";
 
+  /**
+   * The minimum list size (above zero)
+   */
+  public int Grammar.minListLimit = 4;
+
 }

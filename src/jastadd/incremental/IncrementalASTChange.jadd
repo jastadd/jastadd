@@ -227,7 +227,7 @@ aspect IncrementalASTChange {
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild2(PrintWriter stream) {
     if (!grammar().incremental) return; 
     if (grammar().incrementalLevelParam) 
-      stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
+      stream.println(ind(3) + "getChild_handler = new ASTNode$DepGraphNode[i+1>" + grammar().minListLimit + "?i+1:" + grammar().minListLimit + "];");
   }
 
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild3(PrintWriter stream) {

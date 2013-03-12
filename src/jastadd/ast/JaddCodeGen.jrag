@@ -273,11 +273,6 @@ aspect JaddCodeGen {
   }
 
   /**
-   * The minimum list size (above zero)
-   */
-  private static final int ASTDecl.MIN_LIST_LIMIT = 4;
-
-  /**
    * Print the getChild method to the output stream.
    */
   public void ASTDecl.genGetChild(PrintWriter stream) {
@@ -594,7 +589,7 @@ aspect JaddCodeGen {
     }
     jjtGenIncrementalASTChangeSetChild1(stream);
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
+    stream.println(ind(3) + "children = new ASTNode[i+1>" + grammar().minListLimit + "?i+1:" + grammar().minListLimit + "];");
     jjtGenIncrementalASTChangeSetChild2(stream);
     stream.println(ind(2) + "} else if (i >= children.length) {");
     stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
@@ -622,7 +617,7 @@ aspect JaddCodeGen {
     }
     jjtGenIncrementalASTChangeInsertChild3(stream);
     stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[i+1>" + MIN_LIST_LIMIT + "?i+1:" + MIN_LIST_LIMIT + "];");
+    stream.println(ind(3) + "children = new ASTNode[i+1>" + grammar().minListLimit + "?i+1:" + grammar().minListLimit + "];");
     stream.println(ind(3) + "children[i] = node;");
     jjtGenIncrementalASTChangeInsertChild1(stream);
     stream.println(ind(2) + "} else {");
