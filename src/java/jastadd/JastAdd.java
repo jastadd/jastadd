@@ -173,7 +173,7 @@ public class JastAdd {
       // ES_2011-09-06: Incremental evaluation
       if (root.incremental) {
         java.io.StringWriter writer = new java.io.StringWriter();
-        root.jjtGenASTNode$DepGraphNode(new PrintWriter(writer));
+        root.genASTNode$DepGraphNode(new PrintWriter(writer));
         jrag.AST.JragParser jp = new jrag.AST.JragParser(
             new java.io.StringReader(writer.toString()));
         jp.root = root;
@@ -248,9 +248,9 @@ public class JastAdd {
           for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
             Components c = (Components) iter.next();
             if (c instanceof TokenComponent) {
-              c.jaddGen(null, j, publicModifier, decl);
+              c.jaddGen(j, publicModifier, decl);
             } else {
-              c.jaddGen(null, j, publicModifier, decl);
+              c.jaddGen(j, publicModifier, decl);
               j++;
             }
           }

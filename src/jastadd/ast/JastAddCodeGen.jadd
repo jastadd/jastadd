@@ -410,7 +410,7 @@ aspect JastAddCodeGen {
       int j = 0;
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
-        c.jaddGen(stream, j, publicModifier, name());
+        c.jaddGen(j, publicModifier, name());
         if(!(c instanceof TokenComponent)) {
           j++;
         }

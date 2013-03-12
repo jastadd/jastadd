@@ -27,7 +27,7 @@
  */
 aspect IncrementalDDG {
 
-  public void Grammar.jjtGenASTNode$DepGraphNode(PrintWriter out) {
+  public void Grammar.genASTNode$DepGraphNode(PrintWriter out) {
     if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
     tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
