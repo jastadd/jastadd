@@ -1,5 +1,4 @@
 # Code for DDG node
-
 Grammar.emitDDGNode = [[
 /**
 * @apilevel internal
@@ -431,4 +430,18 @@ $if(IncrementalTrack)
   }
 $endif  
 } 
+]]
+
+# Create DDG nodes
+TokenComponent.createDDGNode = [[
+$if (IncrementalLevelParam)
+$if (IncrementalPropLimit)
+  protected $DDGNodeName $Host.get$Id_handler = new $DDGNodeName(this, \"get$Id\", null, true);
+$else
+  protected $DDGNodeName $Host.get$Id_handler = new $DDGNodeName(this, \"get$Id\", null);
+$endif
+$endif
+$if (IncrementalLevelAttr)
+  protected $DDGNodeName $Host.get$Id_handler = new $DDGNodeName(this, \"get$Id\");
+$endif
 ]]
