@@ -5,10 +5,10 @@ VERSION=R`date +%Y%m%d`
 
 echo "# Follow these steps to release a new jastadd2 version ${VERSION}:"
 echo
-echo "# 1. Patch the html files to use the correct version number"
+echo "# 1. Patch the documentation files to use the correct version number"
 echo "sed -e 's/\\(JastAdd2 Release \\)R[0-9]*/"'\\1'"${VERSION}/' \\"
-echo "    doc/index.html > doc/index.html.new"
-echo "mv doc/index.html.new doc/index.html"
+echo "    doc/index.md > doc/index.md.new"
+echo "mv doc/index.md.new doc/index.md"
 echo "sed -e 's/\\(manual for JastAdd2 \\)R[0-9]*/"'\\1'"${VERSION}/' \\"
 echo "    doc/reference-manual.html >doc/reference-manual.html.new"
 echo "mv doc/reference-manual.html.new doc/reference-manual.html"
@@ -21,7 +21,7 @@ echo "ssh login.cs.lth.se \"mkdir /cs/jastadd/releases/jastadd2/${VERSION}\""
 echo
 echo "# 4.1 Upload the zip files and appropriate documentation to jastadd.org"
 echo "scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php\\"
-echo "    login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
+echo "    doc/*.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
 echo
 echo "# 4.2 Make sure the new files have group write permission"
 echo "ssh login.cs.lth.se \"chmod -R g+w /cs/jastadd/releases/jastadd2/${VERSION}\""
