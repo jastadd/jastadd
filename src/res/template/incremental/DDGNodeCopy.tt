@@ -1,0 +1,81 @@
+
+# Generate method for copying of DDG nodes
+ASTDecl.incrementalCopyHandlerMethod = [[
+  protected void #name.inc_copyHandlers(#name copy) {
+$if (IsASTNode)
+$if (IncrementalLevelParam)
+    // ast handlers
+    if (getChild_handler != null) {
+      copy.getChild_handler = ($DDGNodeName[])getChild_handler.clone();
+    }
+    copy.numChildren_handler = new $DDGNodeName(numChildren_handler, copy);
+    copy.getParent_handler = new $DDGNodeName(getParent_handler, copy);
+    for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {
+      if (getChild_handler[i] != null) {
+        copy.getChild_handler[i] = new $DDGNodeName(getChild_handler[i], copy);
+      }
+    }
+$endif
+$if (IncrementalLevelAttr)
+    // ast handlers
+    copy.getChild_handler = new $DDGNodeName(getChild_handler, copy);
+    copy.numChildren_handler = new $DDGNodeName(numChildren_handler, copy);
+    copy.getParent_handler = new $DDGNodeName(getParent_handler, copy);
+$endif
+$if (IncrementalLevelNode)
+    copy.handler = new $DDGNodeName(handler, copy);
+$endif
+$if (IncrementalLevelRegion)
+$if (IsRegionRoot)
+    copy.handler = new $DDGNodeName(handler, copy);
+$endif
+$endif
+$else
+$if (IncrementalLevelParam)
+    super.inc_copyHandlers(copy);
+$endif
+$if (IncrementalLevelAttr)
+    super.inc_copyHandlers(copy);
+$endif
+$if (IncrementalLevelNode)
+    copy.handler = new $DDGNodeName(handler, copy);
+$endif
+$if (IncrementalLevelRegion)
+$if (IsRegionRoot)
+    copy.handler = new $DDGNodeName(handler, copy);
+$else
+    super.inc_copyHandlers(copy);
+$endif
+$endif
+$endif
+    $CopyTokenHandlers
+    $CopyAttributeHandlers
+  }
+]]
+
+# Copy token DDG node
+TokenComponent.copyTokenHandler = [[
+    if (get$(Id)_handler != null) {
+      copy.get$(Id)_handler = new $DDGNodeName(get$(Id)_handler, copy);
+    }
+]]
+
+# Copy attribute DDG node
+ASTDecl.copyAttributeHandler = [[
+$if (IncrementalLevelParam)
+$if (IsParamAttr)
+    if ($(AttributeName)_handler != null) {
+      copy.$(AttributeName)_handler = new java.util.HashMap(4);
+    }
+$else
+    if ($(AttributeName)_handler != null) {
+      copy.$(AttributeName)_handler = new $DDGNodeName($(AttributeName)_handler, copy);
+    }
+$endif
+$endif
+$if (IncrementalLevelAttr)
+    if ($(AttributeName)_handler != null) {
+      copy.$(AttributeName)_handler = new $DDGNodeName($(AttributeName)_handler, copy);
+    }
+$endif
+]]
