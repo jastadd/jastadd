@@ -1383,7 +1383,7 @@ aspect JaddCodeGen {
     // Generate attribute, get- and set-method for the token string
     buf.append(setIDComment());
     buf.append(
-        jaddGenIncrementalTokenHandler() +
+        jaddGenIncrementalTokenHandler(decl) +
         ind + "public void #HOST#.set#ID#(#TYPE# value) {\n" +
         (grammar().block ? grammar().blockBegin : "") +
         ind(2) + "token#TYPEINSIGNATURE#_#ID# = value;\n" +

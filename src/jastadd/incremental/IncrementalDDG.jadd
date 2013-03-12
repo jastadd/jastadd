@@ -33,32 +33,81 @@ aspect IncrementalDDG {
     tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
     tt.expand("Grammar.emitDDGNode", out);
   }
+  
+  public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
+    if (!grammar().incremental) return; 
+    
+    TemplateContext tt = templateContext();
+    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
+    
+    // if a change has been made to a list then the list should again be touched by the "touch rewrite"
+    // but this does not happen if the list is final.
+    //if (name().equals("List") && !grammar().fullFlush) {
+    //  stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
+    //}
+    //
+    // level region: one handler per region, non-region root nodes need a method to find the handler of their region
+    if (grammar().incrementalLevelRegion) {
+      if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
+        tt.expand("ASTDecl.createNodeHandler", stream);
+      }
+    }
+    // level node: one handler per node
+    if (grammar().incrementalLevelNode) {
+      if (name().equals("ASTNode")) {
+        tt.expand("ASTDecl.createNodeHandler", stream);
+      }
+    } 
+    // level param, attr: at least one handler per attribute
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      // handlers specific for ASTNode
+      if (name().equals("ASTNode")) {      
+        tt.expand("ASTDecl.createASTHandlers", stream);
+      }
+      // collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynDecl(); k++) {
+        AttrDecl attr = getSynDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr.getLazy() || attr.isCircular()) 
+          list.add(attr);
+      }
+      for (int k = 0; k < getNumCollDecl(); k++) {
+        CollDecl attr = getCollDecl(k);
+        list.add(attr);      
+      }
+      // attribute code 
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        tt.bind("AttributeName", attr.attributeSignature());
+        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+        tt.expand("ASTDecl.createAttributeHandler", stream);        
+      }
+    }
+  }
 
-
+  String TokenComponent.jaddGenIncrementalTokenHandler(ASTDecl decl) {
+    if (!grammar().incremental) return ""; 
+    if (!isNTA()) {
+      TemplateContext tt = templateContext();
+      tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
+      tt.bind("Host", decl.name());
+      tt.bind("Id", getTokenId().getID());
+      return tt.expand("TokenComponent.createTokenHandler");                 
+    }
+    return ""; // grammar().incrementalLevelNode
+  }
+  
   public String ASTDecl.genIncrementalChildInitMethod() {
     if (!grammar().incremental) return "";
     if (grammar().incrementalLevelParam) {
       return "\ngetChild_handler = new ASTNode$DepGraphNode[" + childCount() + "];";
     }
     return "";  
-  }
-
-  String TokenComponent.jaddGenIncrementalTokenHandler() {
-    if (!grammar().incremental) return ""; 
-    if (!isNTA()) {
-    if (grammar().incrementalLevelParam)
-      if (grammar().incrementalPropLimit) {
-        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null, true);\n";
-      } else {
-        return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                   "new ASTNode$DepGraphNode(this, \"get#ID#\", null);\n";
-      }
-    if (grammar().incrementalLevelAttr)
-      return "    protected ASTNode$DepGraphNode #HOST#.get#ID#_handler = " +
-                 "new ASTNode$DepGraphNode(this, \"get#ID#\");\n";
-    }
-    return ""; // grammar().incrementalLevelNode
   }
 
   public void ASTDecl.jjtGenIncrementalRegions(PrintWriter stream) {
@@ -273,95 +322,7 @@ aspect IncrementalDDG {
     // end method: insertChild(ASTNode,int) -- overloaded for region tracking
 */
 
-  } // end: jjtGenIncrementalRegions
-  
-
-  public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    // if a change has been made to a list then the list should again be touched by the "touch rewrite"
-    // but this does not happen if the list is final.
-    //if (name().equals("List") && !grammar().fullFlush) {
-    //  stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
-    //}
-    //
-    // level region: one handler per region, non-region root nodes need a method to find the handler of their region
-    if (grammar().incrementalLevelRegion) {
-      if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
-        stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
-          ".handler = new ASTNode$DepGraphNode(this);");                    
-      }
-    }
-    // level node: one handler per node
-    if (grammar().incrementalLevelNode) {
-      if (name().equals("ASTNode")) {
-        stream.println(ind + "protected ASTNode$DepGraphNode " + 
-          "ASTNode.handler = new ASTNode$DepGraphNode(this);");                    
-      }
-    } 
-    // level param, attr: at least one handler per attribute
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      // handlers specific for ASTNode
-      if (name().equals("ASTNode")) {
-        if (grammar().incrementalLevelParam) {
-          if (grammar().incrementalPropLimit) {
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-                "new ASTNode$DepGraphNode(this, \"getParent\", null, true);");
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-                "new ASTNode$DepGraphNode(this, \"numChildren\", null, true);");
-          } else {
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-                "new ASTNode$DepGraphNode(this, \"getParent\", null);");
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-                "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
-          }
-          stream.println(ind + "protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
-        } 
-        if (grammar().incrementalLevelAttr) {
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-              "new ASTNode$DepGraphNode(this, \"getParent\");");
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-              "new ASTNode$DepGraphNode(this, \"numChildren\");");
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
-              "new ASTNode$DepGraphNode(this, \"getChild\");");
-        }
-      }
-      // collect attributes
-      ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynDecl(); k++) {
-        AttrDecl attr = getSynDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      for(int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
-          list.add(attr);
-      }
-      for (int k = 0; k < getNumCollDecl(); k++) {
-        CollDecl attr = getCollDecl(k);
-        list.add(attr);      
-      }
-      // attribute code 
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-        if (grammar().incrementalLevelParam) {
-          // level param: check if this is a parameterized attribute
-          if (attr.getNumParameter() > 0) {
-            stream.println(ind + "protected java.util.Map " + name() + "." + attr.attributeSignature() + 
-                  "_handler = new java.util.HashMap(4);");
-          } else {
-            stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
-                  attr.attributeSignature() + "_handler;");
-          }
-        }
-        // level attr: Add one handler per attribute
-        if (grammar().incrementalLevelAttr) {
-          stream.println(ind + "protected ASTNode$DepGraphNode " + name() + "." + 
-                  attr.attributeSignature() + "_handler;");            
-        }
-      }
-    }
-  }
+  } // end: jjtGenIncrementalRegions  
 
   public void ASTDecl.jjtGenIncrementalCopyHandlers(PrintWriter stream) {
     if (!grammar().incremental) return; 

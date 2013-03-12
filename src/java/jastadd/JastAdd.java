@@ -643,6 +643,13 @@ public class JastAdd {
     tt.bind("HasRewriteLimit", root.rewriteLimit > 0);
     tt.bind("StagedRewrites", root.stagedRewrites);
     tt.bind("RewriteEnabled", root.rewriteEnabled);
+    tt.bind("CreateDefaultMap", root.createDefaultMap);
+    tt.bind("DefaultMapType", root.typeDefaultMap);
+    tt.bind("CreateDefaultSet", root.createDefaultSet);
+    tt.bind("DefaultSetType", root.typeDefaultSet);
+    tt.bind("CreateContributorSet", root.createContributorSet);
+    
+    // Incremental
     tt.bind("IncrementalEnabled", root.incremental);
     tt.bind("IncrementalLevelParam", root.incrementalLevelParam);
     tt.bind("IncrementalLevelAttr", root.incrementalLevelAttr);
@@ -654,11 +661,7 @@ public class JastAdd {
     tt.bind("IncrementalPropLimit", root.incrementalPropLimit);
     tt.bind("IncrementalDebug", root.incrementalDebug);
     tt.bind("IncrementalTrack", root.incrementalTrack);
-    tt.bind("CreateDefaultMap", root.createDefaultMap);
-    tt.bind("DefaultMapType", root.typeDefaultMap);
-    tt.bind("CreateDefaultSet", root.createDefaultSet);
-    tt.bind("DefaultSetType", root.typeDefaultSet);
-    tt.bind("CreateContributorSet", root.createContributorSet);
+    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
     
     return false;
   }
