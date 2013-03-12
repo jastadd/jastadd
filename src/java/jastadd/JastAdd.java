@@ -480,7 +480,7 @@ public class JastAdd {
     }
 
     try {
-      root.minListLimit = Integer.parseInt(minListSize.value());
+      root.minListSize = Integer.parseInt(minListSize.value());
     } catch (NumberFormatException e) {
       System.err.println("Failed to parse minimum list size option!");
       return true;
@@ -631,7 +631,7 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
-    tt.bind("MinListSize", "" + root.minListLimit);
+    tt.bind("MinListSize", "" + root.minListSize);
     tt.bind("Deterministic", root.deterministic);
     tt.bind("LazyMaps", root.lazyMaps);
     tt.bind("CircularEnabled", root.circularEnabled);
