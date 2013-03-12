@@ -1063,60 +1063,12 @@ aspect JaddCodeGen {
       tt.expand("ListComponent.getChildAt") +
       tt.expand("ListComponent.addChild") +
       tt.expand("ListComponent.addChildNoTransform") +
-      tt.expand("ListComponent.setChild");
-    if(grammar().java5) {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel high-level\n" +
-        ind + " */\n" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#s() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return get#NAME#List();\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" +
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#sNoTransform() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return get#NAME#ListNoTransform();\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n";
-    }
-    if(!isNTA()) {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel high-level\n" +
-        ind + " */\n" +
-        "#ANNOTATIONS#" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#List() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "#LISTTYPE# list = (#LISTTYPE#)getChild(#INDEX#);\n" +
-        ind(2) + "list.getNumChild();\n" +
-        ind(2) + "return list;\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" + 
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        "#ANNOTATIONS#" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n";
-    }
-    else {
+      tt.expand("ListComponent.setChild") +
+      tt.expand("ListComponent.getList1") +
+      tt.expand("ListComponent.getList1NoTransform") +
+      tt.expand("ListComponent.getList2") +
+      tt.expand("ListComponent.getList2NoTransform");
+    if(isNTA()) {
       s +=
         ind + "/**\n" +
         ind + " * Retrieves the #NAME# list.\n" +
