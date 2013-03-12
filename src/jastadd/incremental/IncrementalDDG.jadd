@@ -91,7 +91,7 @@ aspect IncrementalDDG {
    * Generate a handler for token components. 
    * Tokens only get DDG nodes for certain incremental configurations: param, attr. 
    */
-  String TokenComponent.jaddGenIncrementalTokenHandler(ASTDecl decl) {
+  String TokenComponent.genIncrementalTokenHandler(ASTDecl decl) {
     if (!grammar().incremental) return ""; 
     if (!isNTA()) {
       TemplateContext tt = templateContext();
@@ -99,17 +99,80 @@ aspect IncrementalDDG {
       tt.bind("Id", getTokenId().getID());
       return tt.expand("TokenComponent.createTokenHandler");                 
     }
-    return ""; // grammar().incrementalLevelNode
+    return "";
   }
   
-  public String ASTDecl.genIncrementalChildInitMethod() {
+  /**
+   * Initialize child handlers.
+   * This only applies for the incremental param configuration. 
+   */
+  public String ASTDecl.genIncrementalInitChildHandlers() {
     if (!grammar().incremental) return "";
-    if (grammar().incrementalLevelParam) {
-      return "\ngetChild_handler = new ASTNode$DepGraphNode[" + childCount() + "];";
-    }
-    return "";  
+    TemplateContext tt = templateContext();
+    return tt.expand("ASTDecl.incrementalInitChildHandlers");
   }
-
+  
+  /**
+   * Generate code for copying of DDG nodes.
+   */
+  public void ASTDecl.genIncrementalCopyHandlers(PrintWriter out) {
+    if (!grammar().incremental) return; 
+    TemplateContext tt = templateContext();
+    tt.bind("IsASTNode", name().equals("ASTNode"));
+    tt.bind("IsRegionRoot", isRegionRoot());
+    tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
+    tt.bind("CopyAttributeHandlers", emitCopyAttributeHandlersString());
+    tt.expand("ASTDecl.incrementalCopyHandlerMethod", out);
+  }
+  
+  /**
+   * Emit string for copying of token DDG nodes in a node.
+   */ 
+  public String ASTDecl.emitCopyTokenHandlersString() {
+    StringBuffer res = new StringBuffer();
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      TemplateContext tt = templateContext();
+      for (int c = 0; c < getNumComponents(); c++) {
+        Components comp = getComponents(c);
+        if (comp instanceof TokenComponent) {
+          tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
+          res.append(tt.expand("TokenComponent.copyTokenHandler"));
+        }
+      }
+    }
+    return res.toString();
+  }
+  
+  /**
+   * Emit string for copying of attribute DDG nodes in a node.
+   */ 
+  public String ASTDecl.emitCopyAttributeHandlersString() {
+    StringBuffer res = new StringBuffer();
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      // Collect attributes
+      ArrayList list = new ArrayList();
+      for(int k = 0; k < getNumSynDecl(); k++) {
+        AttrDecl attr = getSynDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      for(int k = 0; k < getNumInhDecl(); k++) {
+        AttrDecl attr = getInhDecl(k);
+        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+          list.add(attr);
+      }
+      // Attribute code
+      TemplateContext tt = templateContext();
+      for(Iterator itr = list.iterator(); itr.hasNext();) {
+        AttrDecl attr = (AttrDecl)itr.next();
+        tt.bind("AttributeName", attr.attributeSignature());
+        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+        res.append(tt.expand("ASTDecl.copyAttributeHandler"));        
+      }    
+    }
+    return res.toString();
+  }
+  
   public void ASTDecl.jjtGenIncrementalRegions(PrintWriter stream) {
     if (!grammar().incremental) return; 
     // method: isRegionRoot()
@@ -323,96 +386,4 @@ aspect IncrementalDDG {
 */
 
   } // end: jjtGenIncrementalRegions  
-
-  public void ASTDecl.jjtGenIncrementalCopyHandlers(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    stream.println(ind + "protected void " + name() + ".inc_copyHandlers(" + name() + " copy) {");
-    // ast handlers
-    if (name().equals("ASTNode")) {
-      if (grammar().incrementalLevelParam) {
-        stream.println(ind(2) + "if (getChild_handler != null)");
-        stream.println(ind(3) +   "copy.getChild_handler = (ASTNode$DepGraphNode[])getChild_handler.clone();");
-        stream.println(ind(2) + "copy.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, copy);");
-        stream.println(ind(2) + "copy.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, copy);");
-        stream.println(ind(2) + "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {");
-        stream.println(ind(3) +   "if (getChild_handler[i] != null) {");
-        stream.println(ind(4) +     "copy.getChild_handler[i] = new ASTNode$DepGraphNode(getChild_handler[i], copy);");
-        stream.println(ind(3) +   "}");
-        stream.println(ind(2) + "}");
-      }
-      if (grammar().incrementalLevelAttr) {
-        stream.println(ind(2) + "copy.getChild_handler = new ASTNode$DepGraphNode(getChild_handler, copy);");
-        stream.println(ind(2) + "copy.numChildren_handler = new ASTNode$DepGraphNode(numChildren_handler, copy);");
-        stream.println(ind(2) + "copy.getParent_handler = new ASTNode$DepGraphNode(getParent_handler, copy);");
-      }
-      if (grammar().incrementalLevelNode) {
-        stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
-      }
-      if (grammar().incrementalLevelRegion) {
-        if (isRegionRoot())
-          stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);");
-      }
-    } else {
-      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode) {
-        if (isRegionRoot()) {
-          stream.println(ind(2) + "copy.handler = new ASTNode$DepGraphNode(handler, copy);"); 
-        } else {
-          stream.println(ind(2) + "super.inc_copyHandlers(copy);");
-        }
-      }
-      if (grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
-        stream.println(ind(2) + "super.inc_copyHandlers(copy);");
-      }
-    }
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      // tokens
-      for (int c = 0; c < getNumComponents(); c++) {
-        Components comp = getComponents(c);
-        if (comp instanceof TokenComponent) {
-          stream.println(ind(2) + "if (get" + ((TokenComponent)comp).getTokenId().getID() + "_handler != null) {");
-          stream.println(ind(3) +   "copy.get" + ((TokenComponent)comp).getTokenId().getID() + 
-                                    "_handler = new ASTNode$DepGraphNode(get" + 
-                               ((TokenComponent)comp).getTokenId().getID() + "_handler, copy);\n");
-          stream.println(ind(2) + "}");
-
-         }
-       }
-      // Collect attributes: syn then inh
-      ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynDecl(); k++) {
-        AttrDecl attr = getSynDecl(k);
-        if (attr != null && (attr.getLazy() || attr.isCircular())) 
-          list.add(attr);
-      }
-      for(int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
-        if (attr != null && (attr.getLazy() || attr.isCircular())) 
-          list.add(attr);
-      }
-      // Attribute code: propagate change of all cached values being removed
-      for(Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
-        if (attr.getNumParameter() > 0) {
-          if (grammar().incrementalLevelParam) {
-            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-            stream.println(ind(3) +   "copy." + attr.attributeSignature() + "_handler = new java.util.HashMap(4);");
-            stream.println(ind(2) + "}");
-          } else {
-            stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-            stream.println(ind(3) + "copy." + attr.attributeSignature() + "_handler = new ASTNode$DepGraphNode(" + 
-                                    attr.attributeSignature() + "_handler, copy);");
-            stream.println(ind(2) + "}");
-          }
-        } else {
-          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-          stream.println(ind(3) + "copy." + attr.attributeSignature() + "_handler = new ASTNode$DepGraphNode(" + 
-                                  attr.attributeSignature() + "_handler, copy);");
-          stream.println(ind(2) + "}");
-        }
-      }    
-    }
-    // end of method
-    stream.println(ind + "}");
-  }
-
 }

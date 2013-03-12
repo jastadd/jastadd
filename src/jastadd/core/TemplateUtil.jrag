@@ -56,6 +56,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/components/ListComponent");
     if (grammar().incremental) {
       loadTemplates(tt, "incremental/DDGNode");
+      loadTemplates(tt, "incremental/DDGNodeCopy");
       loadTemplates(tt, "incremental/State");
     }
     return new SimpleContext(tt, this);

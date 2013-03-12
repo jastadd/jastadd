@@ -483,3 +483,10 @@ $if (IncrementalLevelAttr)
   protected $DDGNodeName #name.$(AttributeName)_handler;            
 $endif
 ]]
+
+# Initialize DDG node for children
+ASTDecl.incrementalInitChildHandlers = [[
+$if (IncrementalLevelParam)
+  getChild_handler = new $DDGNodeName[#childCount];
+$endif
+]]
