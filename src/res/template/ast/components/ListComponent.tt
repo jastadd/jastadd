@@ -1,0 +1,193 @@
+# List component boilerplate code for accessing children etc.
+
+ListComponent.setList = [[
+  /**
+   * Replaces the $Name list.
+   * @param list The new list node to be used as the $Name list.
+   * @apilevel high-level
+   */
+  $Modifier void $Host.set$(Name)List($ListType list) {
+    $SynchBegin
+    #genIncrementalConstructorStartConstruction
+    setChild(list, $Index);
+    #genIncrementalConstructorEndConstruction
+    $SynchEnd
+  }
+]]
+
+ListComponent.getNumChild = [[
+  /**
+   * Retrieves the number of children in the $Name list.
+   * @return Number of children in the $Name list.
+   * @apilevel high-level
+   */
+  public int $Host.getNum$Name() {
+    $SynchBegin
+    return get$(Name)List().getNumChild();
+    $SynchEnd
+  }
+]]
+
+ListComponent.getNumChildNoTransform = [[
+  /**
+   * Retrieves the number of children in the $Name list.
+   * Calling this method will not trigger rewrites.
+   * @return Number of children in the $Name list.
+   * @apilevel low-level
+   */
+  public int $Host.getNum$(Name)NoTransform() {
+    $SynchBegin
+    return get$(Name)ListNoTransform().getNumChildNoTransform();
+    $SynchEnd
+  }
+]]
+
+ListComponent.getChildAt = [[
+  /**
+   * Retrieves the element at index {@code i} in the $Name list.
+   * @param i Index of the element to return.
+   * @return The element at position {@code i} in the $Name list.
+   * @apilevel high-level
+   */
+  #annotations
+  public $Type $Host.get$Name(int i) {
+    $SynchBegin
+    return ($Type) get$(Name)List().getChild(i);
+    $SynchEnd
+  }
+]]
+
+ListComponent.addChild = [[
+  /**
+   * Append an element to the $Name list.
+   * @param node The element to append to the $Name list.
+   * @apilevel high-level
+   */
+  public void $Host.add$Name($Type node) {
+    $SynchBegin
+    $ListType list = (parent == null || state == null) ? get$(Name)ListNoTransform() : get$(Name)List();
+    list.addChild(node);
+    $SynchEnd
+  }
+]]
+
+ListComponent.addChildNoTransform = [[
+  /**
+   * @apilevel low-level
+   */
+  public void $Host.add$(Name)NoTransform($Type node) {
+    $SynchBegin
+    $ListType list = get$(Name)ListNoTransform();
+    list.addChild(node);
+    $SynchEnd
+  }
+]]
+
+ListComponent.setChild = [[
+  /**
+   * Replaces the $Name list element at index {@code i} with the new node {@code node}.
+   * @param node The new node to replace the old list element.
+   * @param i The list index of the node to be replaced.
+   * @apilevel high-level
+   */
+  public void $Host.set$Name($Type node, int i) {
+    $SynchBegin
+    $ListType list = get$(Name)List();
+    #genIncrementalConstructorStartConstruction
+    list.setChild(node, i);
+    #genIncrementalConstructorEndConstruction
+    $SynchEnd
+  }
+]]
+
+ListComponent.getList1 = [[
+$if(!#isNTA)
+  /**
+   * Retrieves the $Name list.
+   * @return The node representing the $Name list.
+   * @apilevel high-level
+   */
+  #annotations
+  public $ListType $Host.get$(Name)List() {
+    $SynchBegin
+    $ListType list = ($ListType) getChild($Index);
+    list.getNumChild();
+    return list;
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getList1NoTransform = [[
+$if(!#isNTA)
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  #annotations
+  public $ListType $Host.get$(Name)ListNoTransform() {
+    $SynchBegin
+    return ($ListType) getChildNoTransform($Index);
+    $SynchEnd
+  }
+$else
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  public $ListType $Host.get$(Name)ListNoTransform() {
+    $SynchBegin
+    return ($ListType) getChildNoTransform($Index);
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getList2 = [[
+$if(Java5)
+  /**
+   * Retrieves the $Name list.
+   * @return The node representing the $Name list.
+   * @apilevel high-level
+   */
+  public $ListType $Host.get$(Name)s() {
+    $SynchBegin
+    return get$(Name)List();
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getList2NoTransform = [[
+$if(Java5)
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  public $ListType $Host.get$(Name)sNoTransform() {
+    $SynchBegin
+    return get$(Name)ListNoTransform();
+    $SynchEnd
+  }
+$endif
+]]
+
+ListComponent.getListChildPosition = [[
+$if(#isNTA)
+  /**
+   * Retrieves the child position of the $Name list.
+   * @return The the child position of the $Name list.
+   * @apilevel low-level
+   */
+  protected int $Host.get$(Name)ListChildPosition() {
+    return $Index;
+  }
+$endif
+]]
+

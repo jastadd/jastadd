@@ -1042,237 +1042,46 @@ aspect JaddCodeGen {
 
   public abstract void Components.jaddGen(int index, boolean publicModifier, ASTDecl decl);
 
-  String ListComponents.setNameListComment() {
-    return ind + "/**\n" +
-      ind + " * Replaces the #NAME# list.\n" +
-      ind + " * @param list The new list node to be used as the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String ListComponents.getNumNameComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the number of children in the #NAME# list.\n" +
-      ind + " * @return Number of children in the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String ListComponents.getNameComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the element at index {@code i} in the #NAME# list..\n" +
-      ind + " * @param i Index of the element to return.\n" +
-      ind + " * @return The element at position {@code i} in the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String ListComponents.addNameComment() {
-    return ind + "/**\n" +
-      ind + " * Append an element to the #NAME# list.\n" +
-      ind + " * @param node The element to append to the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String ListComponents.setNameComment() {
-    return ind + "/**\n" +
-      ind + " * Replaces the #NAME# list element at index {@code i} with the new node {@code node}.\n" +
-      ind + " * @param node The new node to replace the old list element.\n" +
-      ind + " * @param i The list index of the node to be replaced.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String ListComponents.getNameListComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the #NAME# list.\n" +
-      ind + " * @return The node representing the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-
+  syn String ListComponents.annotations() = suppressWarnings();
 
   public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
+    TemplateContext tt = templateContext();
+    tt.bind("ListType", grammar().java5 ? "List<" + getId().type() + ">" : "List");
+    tt.bind("Type", getId().type());
+    tt.bind("Name", getId().name());
+    tt.bind("Index", String.valueOf(index));
+    tt.bind("Host", decl.name());
+    tt.bind("Modifier", publicModifier ? "public" : "private");
+
     String s;
     String name = decl.name();
     // Generate getNum- and get-method for the list component
-    s = setNameListComment() +
-      ind + "public void #HOST#.set#NAME#List(#LISTTYPE# list) {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +  
-      ind(2) + genIncrementalConstructorStartConstruction() +
-      ind(2) + "setChild(list, #INDEX#);\n" +
-      ind(2) + genIncrementalConstructorEndConstruction() +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" +
-      //ind + "private int #HOST#.getNum#NAME# = 0;\n" +
-      getNumNameComment() +
-      ind + "public int #HOST#.getNum#NAME#() {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "return get#NAME#List().getNumChild();\n" +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" +
-      ind + "/**\n" +
-      ind + " * Retrieves the number of children in the #NAME# list.\n" +
-      ind + " * Calling this method will not trigger rewrites..\n" +
-      ind + " * @return Number of children in the #NAME# list.\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n" +
-      ind + "public int #HOST#.getNum#NAME#NoTransform() {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "return get#NAME#ListNoTransform().getNumChildNoTransform();\n" +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" +
-      getNameComment() +
-      "#ANNOTATIONS#" +
-      ind + "public #TYPE# #HOST#.get#NAME#(int i) {\n" +
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "return (#TYPE#)get#NAME#List().getChild(i);\n" +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" + 
-      addNameComment() +
-      ind + "public void #HOST#.add#NAME#(#TYPE# node) {\n" +
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = (parent == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
-      ind(2) + "list.addChild(node);\n" + 
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" + 
-      ind + "/**\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n" +
-      ind + "public void #HOST#.add#NAME#NoTransform(#TYPE# node) {\n" +
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = get#NAME#ListNoTransform();\n" +
-      ind(2) + "list.addChild(node);\n" + 
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" + 
-      setNameComment() +
-      ind + "public void #HOST#.set#NAME#(#TYPE# node, int i) {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = get#NAME#List();\n" +
-      ind(2) + genIncrementalConstructorStartConstruction() +
-      ind(2) + "list.setChild(node, i);\n" +
-      ind(2) + genIncrementalConstructorEndConstruction() +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n";
-    if(grammar().java5) {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel high-level\n" +
-        ind + " */\n" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#s() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return get#NAME#List();\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" +
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#sNoTransform() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return get#NAME#ListNoTransform();\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n";
-    }
-    if(!isNTA()) {
-      s +=
-        getNameListComment() +
-        "#ANNOTATIONS#" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#List() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "#LISTTYPE# list = (#LISTTYPE#)getChild(#INDEX#);\n" +
-        ind(2) + "list.getNumChild();\n" +
-        ind(2) + "return list;\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" + 
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        "#ANNOTATIONS#" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n";
-    }
-    else {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" +
-        ind + "/**\n" +
-        ind + " * Retrieves the child position of the #NAME# list.\n" +
-        ind + " * @return The the child position of the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "protected int #HOST#.get#NAME#ListChildPosition() {\n" +
-        ind(2) + "return #INDEX#;\n" +
-        ind + "}\n";
-    }
-    s = s.replaceAll("#LISTTYPE#", grammar().java5 ? "List<" + getId().type() + ">" : "List");
-    s = s.replaceAll("#ANNOTATIONS#", grammar().suppressWarnings());
-    s = s.replaceAll("#TYPE#", getId().type());
-    s = s.replaceAll("#NAME#", getId().name());
-    s = s.replaceAll("#INDEX#", String.valueOf(index));
-    s = s.replaceAll("#HOST#", name);
-    if(!publicModifier)
-      s = s.replaceAll(ind + "public ", ind + "private ");
-    //stream.println(s);
+    s =
+      tt.expand("ListComponent.setList") +
+      tt.expand("ListComponent.getNumChild") +
+      tt.expand("ListComponent.getNumChildNoTransform") +
+      tt.expand("ListComponent.getChildAt") +
+      tt.expand("ListComponent.addChild") +
+      tt.expand("ListComponent.addChildNoTransform") +
+      tt.expand("ListComponent.setChild") +
+      tt.expand("ListComponent.getList1") +
+      tt.expand("ListComponent.getList1NoTransform") +
+      tt.expand("ListComponent.getList2") +
+      tt.expand("ListComponent.getList2NoTransform") +
+      tt.expand("ListComponent.getListChildPosition");
     parse(s);
-  }
-
-  String OptionalComponent.setNameOptComment() {
-    return ind + "/**\n" +
-      ind + " * Replaces the optional node for the #NAME# child. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
-      ind + " * @param opt The new node to be used as the optional node for the #NAME# child.\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n";
-  }
-  String OptionalComponent.hasNameComment() {
-    return ind + "/**\n" +
-      ind + " * Check whether the optional #NAME# child exists.\n" +
-      ind + " * @return {@code true} if the optional #NAME# child exists, {@code false} if it does not.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String OptionalComponent.getNameComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the (optional) #NAME# child.\n" +
-      ind + " * @return The #NAME# child, if it exists. Returns {@code null} otherwise.\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n";
-  }
-  String OptionalComponent.setNameComment() {
-    return ind + "/**\n" +
-      ind + " * Replaces the (optional) #NAME# child.\n" +
-      ind + " * @param node The new node to be used as the #NAME# child.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String OptionalComponent.getNameOptComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the optional node for the #NAME# child. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
-      ind + " * @return The optional node for child the #NAME# child.\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n";
   }
 
   public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     String name = decl.name();
     String s;
     // Generate has- and get-method for the optional component
-    s = setNameOptComment() +
+    s =
+      ind + "/**\n" +
+      ind + " * Replaces the optional node for the #NAME# child. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
+      ind + " * @param opt The new node to be used as the optional node for the #NAME# child.\n" +
+      ind + " * @apilevel low-level\n" +
+      ind + " */\n" +
       ind + "public void #HOST#.set#NAME#Opt(#OPTTYPE# opt) {\n" +
       (grammar().block ? grammar().blockBegin : "") +  
       ind(2) + genIncrementalConstructorStartConstruction() +
@@ -1280,20 +1089,32 @@ aspect JaddCodeGen {
       ind(2) + genIncrementalConstructorEndConstruction() +
       (grammar().block ? grammar().blockEnd : "") +
       ind + "}\n" + 
-      hasNameComment() +
+      ind + "/**\n" +
+      ind + " * Check whether the optional #NAME# child exists.\n" +
+      ind + " * @return {@code true} if the optional #NAME# child exists, {@code false} if it does not.\n" +
+      ind + " * @apilevel high-level\n" +
+      ind + " */\n" +
       ind + "public boolean #HOST#.has#NAME#() {\n" + 
       (grammar().block ? grammar().blockBegin : "") +
       ind(2) + "return get#NAME#Opt().getNumChild() != 0;\n" +
       (grammar().block ? grammar().blockEnd : "") +
       ind + "}\n" +
-      getNameComment() +
+      ind + "/**\n" +
+      ind + " * Retrieves the (optional) #NAME# child.\n" +
+      ind + " * @return The #NAME# child, if it exists. Returns {@code null} otherwise.\n" +
+      ind + " * @apilevel low-level\n" +
+      ind + " */\n" +
       "#ANNOTATIONS#" +
       ind + "public #TYPE# #HOST#.get#NAME#() {\n" +
       (grammar().block ? grammar().blockBegin : "") +
       ind(2) + "return (#TYPE#)get#NAME#Opt().getChild(0);\n" +
       (grammar().block ? grammar().blockEnd : "") +
       ind + "}\n" + 
-      setNameComment() +
+      ind + "/**\n" +
+      ind + " * Replaces the (optional) #NAME# child.\n" +
+      ind + " * @param node The new node to be used as the #NAME# child.\n" +
+      ind + " * @apilevel high-level\n" +
+      ind + " */\n" +
       ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
       (grammar().block ? grammar().blockBegin : "") +
       ind(2) + genIncrementalConstructorStartConstruction() +
@@ -1303,8 +1124,9 @@ aspect JaddCodeGen {
       ind + "}\n";
     if(!isNTA()) {
       s +=
-        getNameOptComment() +
         ind + "/**\n" +
+        ind + " * Retrieves the optional node for the #NAME# child. This is the {@code Opt} node containing the child #NAME#, not the actual child!\n" +
+        ind + " * @return The optional node for child the #NAME# child.\n" +
         ind + " * @apilevel low-level\n" +
         ind + " */\n" +
         "#ANNOTATIONS#" +
@@ -1454,26 +1276,16 @@ aspect JaddCodeGen {
 
   }
 
-  String AggregateComponents.setNameComment() {
-    return ind + "/**\n" +
-      ind + " * Replaces the #NAME# child.\n" +
-      ind + " * @param node The new node to replace the #NAME# child.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String AggregateComponents.getNameComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the #NAME# child.\n" +
-      ind + " * @return The current node used as the #NAME# child.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-
   public void AggregateComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     String name = decl.name();
     String s;
     // Generate get-method for component
-    s = setNameComment() +
+    s =
+      ind + "/**\n" +
+      ind + " * Replaces the #NAME# child.\n" +
+      ind + " * @param node The new node to replace the #NAME# child.\n" +
+      ind + " * @apilevel high-level\n" +
+      ind + " */\n" +
       ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
       (grammar().block ? grammar().blockBegin : "") +
       ind(2) + genIncrementalConstructorStartConstruction() +
@@ -1483,7 +1295,11 @@ aspect JaddCodeGen {
       ind + "}\n";
     if(!isNTA()) {
       s +=
-        getNameComment() +
+        ind + "/**\n" +
+        ind + " * Retrieves the #NAME# child.\n" +
+        ind + " * @return The current node used as the #NAME# child.\n" +
+        ind + " * @apilevel high-level\n" +
+        ind + " */\n" +
         ind + "public #TYPE# #HOST#.get#NAME#() {\n" +
         (grammar().block ? grammar().blockBegin : "") +
         ind(2) + "return (#TYPE#)getChild(#INDEX#);\n" + 
@@ -1547,9 +1363,13 @@ aspect JaddCodeGen {
     //jp.enclosingAspect = "Ast";
 
     try {
-      while(true)
+      while(true) {
         jp.AspectBodyDeclaration();
+      }
     } catch (Exception e) {
+      // TODO: handle aspect parsing exception
+      //System.err.println("Aspect parsing error: " + e.getMessage());
+      //e.printStackTrace(System.err);
     }
   }
 }
