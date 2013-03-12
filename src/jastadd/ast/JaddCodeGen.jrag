@@ -1067,38 +1067,8 @@ aspect JaddCodeGen {
       tt.expand("ListComponent.getList1") +
       tt.expand("ListComponent.getList1NoTransform") +
       tt.expand("ListComponent.getList2") +
-      tt.expand("ListComponent.getList2NoTransform");
-    if(isNTA()) {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# list.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The node representing the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "public #LISTTYPE# #HOST#.get#NAME#ListNoTransform() {\n" + 
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#LISTTYPE#)getChildNoTransform(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" +
-        ind + "/**\n" +
-        ind + " * Retrieves the child position of the #NAME# list.\n" +
-        ind + " * @return The the child position of the #NAME# list.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "protected int #HOST#.get#NAME#ListChildPosition() {\n" +
-        ind(2) + "return #INDEX#;\n" +
-        ind + "}\n";
-    }
-    s = s.replaceAll("#LISTTYPE#", grammar().java5 ? "List<" + getId().type() + ">" : "List");
-    s = s.replaceAll("#ANNOTATIONS#", grammar().suppressWarnings());
-    s = s.replaceAll("#TYPE#", getId().type());
-    s = s.replaceAll("#NAME#", getId().name());
-    s = s.replaceAll("#INDEX#", String.valueOf(index));
-    s = s.replaceAll("#HOST#", name);
-    if(!publicModifier)
-      s = s.replaceAll(ind + "public ", ind + "private ");
-    //stream.println(s);
+      tt.expand("ListComponent.getList2NoTransform") +
+      tt.expand("ListComponent.getListChildPosition");
     parse(s);
   }
 
