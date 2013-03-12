@@ -272,8 +272,9 @@ aspect JaddCodeGen {
     templateContext().expand("ASTNode$State", out);
   }
 
-  syn String ASTDecl.initialChildArraySize() =
-    "i+1>" + grammar().minListSize + "?i+1:" + grammar().minListSize;
+  syn String ASTDecl.initialChildArraySize() {
+    return "(i+1>" + grammar().minListSize + " || !(this instanceof List))?i+1:" + grammar().minListSize;
+  }
 
   /**
    * Print the getChild method to the output stream.
