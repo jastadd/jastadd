@@ -62,7 +62,7 @@ aspect IncrementalEval {
     jjtGenIncrementalReactToChange(stream);
     jjtGenIncrementalReactToASTChange(stream);
     jjtGenIncrementalState(stream);
-    jjtGenIncrementalRegions(stream);
+    genIncrementalRegions(stream);
     if (grammar().incrementalDebug) jjtGenIncrementalDebug(stream);
   }
 
