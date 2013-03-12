@@ -432,16 +432,54 @@ $endif
 } 
 ]]
 
-# Create DDG nodes
-TokenComponent.createDDGNode = [[
+# Create DDG node for token
+TokenComponent.createTokenHandler = [[
 $if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
-  protected $DDGNodeName $Host.get$Id_handler = new $DDGNodeName(this, \"get$Id\", null, true);
+  protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id", null, true);
 $else
-  protected $DDGNodeName $Host.get$Id_handler = new $DDGNodeName(this, \"get$Id\", null);
+  protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id", null);
 $endif
 $endif
 $if (IncrementalLevelAttr)
-  protected $DDGNodeName $Host.get$Id_handler = new $DDGNodeName(this, \"get$Id\");
+  protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id");
+$endif
+]]
+
+# Create DDG nodes for AST
+ASTDecl.createASTHandlers = [[
+$if (IncrementalLevelParam) 
+$if (IncrementalPropLimit)
+  protected $DDGNodeName ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null, true);
+  protected $DDGNodeName ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null, true);
+$else
+  protected $DDGNodeName ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null);
+  protected $DDGNodeName ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null);
+$endif
+  protected $DDGNodeName[] ASTNode.getChild_handler;
+$endif
+$if (IncrementalLevelAttr)
+  protected $DDGNodeName ASTNode.getParent_handler = new $DDGNodeName(this, "getParent");
+  protected $DDGNodeName ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren");
+  protected $DDGNodeName ASTNode.getChild_handler = new $DDGNodeName(this, "getChild");
+$endif
+]]
+
+# Create DDG node for AST node
+ASTDecl.createNodeHandler = [[
+  protected $DDGNodeName #name.handler = new $DDGNodeName(this);                    
+]]
+
+# Create DDG node for attribute
+ASTDecl.createAttributeHandler = [[        
+$if (IncrementalLevelParam)
+$if (IsParamAttr)
+  protected java.util.Map #name.$(AttributeName)_handler = new java.util.HashMap(4);
+$else
+  protected $DDGNodeName #name.$(AttributeName)_handler;
+$endif
+$endif
+$if (IncrementalLevelAttr)
+  protected $DDGNodeName #name.$(AttributeName)_handler;            
 $endif
 ]]

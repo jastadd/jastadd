@@ -36,6 +36,10 @@ aspect IncrementalDDG {
   
   public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
     if (!grammar().incremental) return; 
+    
+    TemplateContext tt = templateContext();
+    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
+    
     // if a change has been made to a list then the list should again be touched by the "touch rewrite"
     // but this does not happen if the list is final.
     //if (name().equals("List") && !grammar().fullFlush) {
@@ -45,43 +49,20 @@ aspect IncrementalDDG {
     // level region: one handler per region, non-region root nodes need a method to find the handler of their region
     if (grammar().incrementalLevelRegion) {
       if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
-        stream.println(ind + "protected ASTNode$DepGraphNode " + name() + 
-          ".handler = new ASTNode$DepGraphNode(this);");                    
+        tt.expand("ASTDecl.createNodeHandler", stream);
       }
     }
     // level node: one handler per node
     if (grammar().incrementalLevelNode) {
       if (name().equals("ASTNode")) {
-        stream.println(ind + "protected ASTNode$DepGraphNode " + 
-          "ASTNode.handler = new ASTNode$DepGraphNode(this);");                    
+        tt.expand("ASTDecl.createNodeHandler", stream);
       }
     } 
     // level param, attr: at least one handler per attribute
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       // handlers specific for ASTNode
-      if (name().equals("ASTNode")) {
-        if (grammar().incrementalLevelParam) {
-          if (grammar().incrementalPropLimit) {
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-                "new ASTNode$DepGraphNode(this, \"getParent\", null, true);");
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-                "new ASTNode$DepGraphNode(this, \"numChildren\", null, true);");
-          } else {
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-                "new ASTNode$DepGraphNode(this, \"getParent\", null);");
-            stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-                "new ASTNode$DepGraphNode(this, \"numChildren\", null);");
-          }
-          stream.println(ind + "protected ASTNode$DepGraphNode[] ASTNode.getChild_handler;");
-        } 
-        if (grammar().incrementalLevelAttr) {
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getParent_handler = " + 
-              "new ASTNode$DepGraphNode(this, \"getParent\");");
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.numChildren_handler = " +
-              "new ASTNode$DepGraphNode(this, \"numChildren\");");
-          stream.println(ind + "protected ASTNode$DepGraphNode ASTNode.getChild_handler = " +
-              "new ASTNode$DepGraphNode(this, \"getChild\");");
-        }
+      if (name().equals("ASTNode")) {      
+        tt.expand("ASTDecl.createASTHandlers", stream);
       }
       // collect attributes
       ArrayList list = new ArrayList();
@@ -102,21 +83,9 @@ aspect IncrementalDDG {
       // attribute code 
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        if (grammar().incrementalLevelParam) {
-          // level param: check if this is a parameterized attribute
-          if (attr.getNumParameter() > 0) {
-            stream.println(ind + "protected java.util.Map " + name() + "." + attr.attributeSignature() + 
-                  "_handler = new java.util.HashMap(4);");
-          } else {
-            stream.println("  protected ASTNode$DepGraphNode " + name() + "." + 
-                  attr.attributeSignature() + "_handler;");
-          }
-        }
-        // level attr: Add one handler per attribute
-        if (grammar().incrementalLevelAttr) {
-          stream.println(ind + "protected ASTNode$DepGraphNode " + name() + "." + 
-                  attr.attributeSignature() + "_handler;");            
-        }
+        tt.bind("AttributeName", attr.attributeSignature());
+        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+        tt.expand("ASTDecl.createAttributeHandler", stream);        
       }
     }
   }
@@ -128,7 +97,7 @@ aspect IncrementalDDG {
       tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
       tt.bind("Host", decl.name());
       tt.bind("Id", getTokenId().getID());
-      return tt.expand("TokenComponent.createDDGNode");                 
+      return tt.expand("TokenComponent.createTokenHandler");                 
     }
     return ""; // grammar().incrementalLevelNode
   }
