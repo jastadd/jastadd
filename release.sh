@@ -34,7 +34,11 @@ echo Browse to the website and check that everything works.
 echo Then ant clean and commit.
 echo ------------------------------------------------------
 echo
-echo "# 6. Tag in SVN"
-echo "svn copy http://svn.cs.lth.se/svn/jastadd/trunk/JastAdd2 \\"
-echo "    http://svn.cs.lth.se/svn/jastadd/tags/JastAdd2/${VERSION} \\"
-echo "    -m \"Release ${VERSION} of JastAdd2\""
+echo "# 6. Tag in Git"
+echo "git tag -a ${VERSION} -m \"Release ${VERSION} of JastAdd2\""
+echo "git push origin ${VERSION}"
+#echo "# 6. Tag in SVN"
+#echo "svn copy http://svn.cs.lth.se/svn/jastadd/trunk/JastAdd2 \\"
+#echo "    http://svn.cs.lth.se/svn/jastadd/tags/JastAdd2/${VERSION} \\"
+#echo "    -m \"Release ${VERSION} of JastAdd2\""
+
