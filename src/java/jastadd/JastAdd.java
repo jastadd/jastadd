@@ -359,6 +359,7 @@ public class JastAdd {
     Option help = new Option("help", "prints a short help output and halts");
     Option printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
     Option indent = new Option("indent", "Type of indentation {2space|4space|8space|tab}", true);
+    Option minListSize = new Option("minListSize", "Minimum (non-empty) list size", true);
 
     // Incremental flags
     Option incremental = new Option("incremental", "turns on incremental evaluation with the given configuration\n" +
@@ -402,6 +403,7 @@ public class JastAdd {
     outputDirOption.setValue(System.getProperty("user.dir"));
     packageOption.setDefaultValue("");
     indent.setDefaultValue("2space");
+    minListSize.setDefaultValue("4");
 
     options.addOption(jjtree);
     options.addOption(grammarOption);
@@ -475,6 +477,13 @@ public class JastAdd {
     } else if (indent.value().equals("tab")) {
       // Use tabs for indentation
       ASTNode.ind = "\t";
+    }
+
+    try {
+      root.minListLimit = Integer.parseInt(minListSize.value());
+    } catch (NumberFormatException e) {
+      System.err.println("Failed to parse minimum list size option!");
+      return true;
     }
 
     root.lazyMaps = !noLazyMaps.matched();
@@ -622,6 +631,7 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
+    tt.bind("MinListSize", "" + root.minListLimit);
     tt.bind("Deterministic", root.deterministic);
     tt.bind("LazyMaps", root.lazyMaps);
     tt.bind("CircularEnabled", root.circularEnabled);
