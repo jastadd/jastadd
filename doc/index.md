@@ -16,8 +16,8 @@ Source distribution
 
 * The source: [jastadd2-src.zip](jastadd2-src.zip)
     * Unpack using the command `$ unzip jastadd2-src.zip`
-    * Go to jastadd-src and build `jastadd2.jar`:
+    * Go to `jastadd2-src` and build `jastadd2.jar`:
 
-            cd jastadd-src
+            cd jastadd2-src
             make jar
 
