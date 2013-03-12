@@ -53,6 +53,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/InheritedAttributes");
     loadTemplates(tt, "ast/Circular");
     loadTemplates(tt, "ast/CheckTreeStructure");
+    loadTemplates(tt, "ast/components/ListComponent");
     if (grammar().incremental) {
       loadTemplates(tt, "incremental/DDGNode");
       loadTemplates(tt, "incremental/State");

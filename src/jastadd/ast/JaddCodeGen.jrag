@@ -1042,91 +1042,28 @@ aspect JaddCodeGen {
 
   public abstract void Components.jaddGen(int index, boolean publicModifier, ASTDecl decl);
 
+  syn String ListComponents.annotations() = suppressWarnings();
+
   public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
+    TemplateContext tt = templateContext();
+    tt.bind("ListType", grammar().java5 ? "List<" + getId().type() + ">" : "List");
+    tt.bind("Type", getId().type());
+    tt.bind("Name", getId().name());
+    tt.bind("Index", String.valueOf(index));
+    tt.bind("Host", decl.name());
+    tt.bind("Modifier", publicModifier ? "public" : "private");
+
     String s;
     String name = decl.name();
     // Generate getNum- and get-method for the list component
     s =
-      ind + "/**\n" +
-      ind + " * Replaces the #NAME# list.\n" +
-      ind + " * @param list The new list node to be used as the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n" +
-      ind + "public void #HOST#.set#NAME#List(#LISTTYPE# list) {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +  
-      ind(2) + genIncrementalConstructorStartConstruction() +
-      ind(2) + "setChild(list, #INDEX#);\n" +
-      ind(2) + genIncrementalConstructorEndConstruction() +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" +
-      //ind + "private int #HOST#.getNum#NAME# = 0;\n" +
-      ind + "/**\n" +
-      ind + " * Retrieves the number of children in the #NAME# list.\n" +
-      ind + " * @return Number of children in the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n" +
-      ind + "public int #HOST#.getNum#NAME#() {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "return get#NAME#List().getNumChild();\n" +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" +
-      ind + "/**\n" +
-      ind + " * Retrieves the number of children in the #NAME# list.\n" +
-      ind + " * Calling this method will not trigger rewrites..\n" +
-      ind + " * @return Number of children in the #NAME# list.\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n" +
-      ind + "public int #HOST#.getNum#NAME#NoTransform() {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "return get#NAME#ListNoTransform().getNumChildNoTransform();\n" +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" +
-      ind + "/**\n" +
-      ind + " * Retrieves the element at index {@code i} in the #NAME# list..\n" +
-      ind + " * @param i Index of the element to return.\n" +
-      ind + " * @return The element at position {@code i} in the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n" +
-      "#ANNOTATIONS#" +
-      ind + "public #TYPE# #HOST#.get#NAME#(int i) {\n" +
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "return (#TYPE#)get#NAME#List().getChild(i);\n" +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" + 
-      ind + "/**\n" +
-      ind + " * Append an element to the #NAME# list.\n" +
-      ind + " * @param node The element to append to the #NAME# list.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n" +
-      ind + "public void #HOST#.add#NAME#(#TYPE# node) {\n" +
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = (parent == null || state == null) ? get#NAME#ListNoTransform() : get#NAME#List();\n" +
-      ind(2) + "list.addChild(node);\n" + 
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" + 
-      ind + "/**\n" +
-      ind + " * @apilevel low-level\n" +
-      ind + " */\n" +
-      ind + "public void #HOST#.add#NAME#NoTransform(#TYPE# node) {\n" +
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = get#NAME#ListNoTransform();\n" +
-      ind(2) + "list.addChild(node);\n" + 
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n" + 
-      ind + "/**\n" +
-      ind + " * Replaces the #NAME# list element at index {@code i} with the new node {@code node}.\n" +
-      ind + " * @param node The new node to replace the old list element.\n" +
-      ind + " * @param i The list index of the node to be replaced.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n" +
-      ind + "public void #HOST#.set#NAME#(#TYPE# node, int i) {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + "#LISTTYPE# list = get#NAME#List();\n" +
-      ind(2) + genIncrementalConstructorStartConstruction() +
-      ind(2) + "list.setChild(node, i);\n" +
-      ind(2) + genIncrementalConstructorEndConstruction() +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n";
+      tt.expand("ListComponent.setList") +
+      tt.expand("ListComponent.getNumChild") +
+      tt.expand("ListComponent.getNumChildNoTransform") +
+      tt.expand("ListComponent.getChildAt") +
+      tt.expand("ListComponent.addChild") +
+      tt.expand("ListComponent.addChildNoTransform") +
+      tt.expand("ListComponent.setChild");
     if(grammar().java5) {
       s +=
         ind + "/**\n" +
