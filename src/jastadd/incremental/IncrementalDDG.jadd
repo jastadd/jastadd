@@ -27,42 +27,39 @@
  */
 aspect IncrementalDDG {
 
-  public void Grammar.genASTNode$DepGraphNode(PrintWriter out) {
+  /**
+   * Generates the class representing dynamic dependency graph (DDG) nodes.
+   */
+  public void Grammar.genIncrementalDDGNode(PrintWriter out) {
     if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
-    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
     tt.expand("Grammar.emitDDGNode", out);
   }
   
-  public void ASTDecl.jjtGenIncrementalHandlers(PrintWriter stream) {
+  /** 
+   * Generate DDG nodes for storage that needs dependency tracking in an AST node.
+   * The number of DDG nodes needed depend on the incremental configuration:
+   *  - param: children by index, parent, attributes with parameters
+   *  - attr:  children, parent, attributes
+   *  - node:  one per node
+   *  - region: on node if region root (non region roots use a method to find the root)
+   */ 
+  public void ASTDecl.genIncrementalHandlers(PrintWriter out) {
     if (!grammar().incremental) return; 
-    
     TemplateContext tt = templateContext();
-    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
-    
-    // if a change has been made to a list then the list should again be touched by the "touch rewrite"
-    // but this does not happen if the list is final.
-    //if (name().equals("List") && !grammar().fullFlush) {
-    //  stream.println(ind + "public boolean List.is$Final() { return super.is$Final() && !list$touched; }");
-    //}
-    //
-    // level region: one handler per region, non-region root nodes need a method to find the handler of their region
-    if (grammar().incrementalLevelRegion) {
-      if (isRegionRoot() && !hasRegionRootAsSuperClass()) {
-        tt.expand("ASTDecl.createNodeHandler", stream);
-      }
+    if (grammar().incrementalLevelRegion && 
+    	isRegionRoot() && !hasRegionRootAsSuperClass()) {
+      tt.expand("ASTDecl.createNodeHandler", out);
     }
-    // level node: one handler per node
-    if (grammar().incrementalLevelNode) {
-      if (name().equals("ASTNode")) {
-        tt.expand("ASTDecl.createNodeHandler", stream);
-      }
+    if (grammar().incrementalLevelNode &&
+      		name().equals("ASTNode")) {
+      tt.expand("ASTDecl.createNodeHandler", out);
     } 
-    // level param, attr: at least one handler per attribute
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      // handlers specific for ASTNode
+    if (grammar().incrementalLevelParam || 
+    	grammar().incrementalLevelAttr) {
+      
       if (name().equals("ASTNode")) {      
-        tt.expand("ASTDecl.createASTHandlers", stream);
+        tt.expand("ASTDecl.createASTHandlers", out);
       }
       // collect attributes
       ArrayList list = new ArrayList();
@@ -85,16 +82,19 @@ aspect IncrementalDDG {
         AttrDecl attr = (AttrDecl)itr.next();
         tt.bind("AttributeName", attr.attributeSignature());
         tt.bind("IsParamAttr", attr.getNumParameter() > 0);
-        tt.expand("ASTDecl.createAttributeHandler", stream);        
+        tt.expand("ASTDecl.createAttributeHandler", out);        
       }
     }
   }
 
+  /**
+   * Generate a handler for token components. 
+   * Tokens only get DDG nodes for certain incremental configurations: param, attr. 
+   */
   String TokenComponent.jaddGenIncrementalTokenHandler(ASTDecl decl) {
     if (!grammar().incremental) return ""; 
     if (!isNTA()) {
       TemplateContext tt = templateContext();
-      tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
       tt.bind("Host", decl.name());
       tt.bind("Id", getTokenId().getID());
       return tt.expand("TokenComponent.createTokenHandler");                 

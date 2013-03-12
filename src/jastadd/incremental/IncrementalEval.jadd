@@ -54,7 +54,7 @@ aspect IncrementalEval {
       stream.println(ind(2) + "return buf.toString();");
       stream.println(ind + "}");
     }    
-    jjtGenIncrementalHandlers(stream);
+    genIncrementalHandlers(stream);
     jjtGenIncrementalCopyHandlers(stream);
     jjtGenIncrementalTreeModification(stream);
     jjtGenIncrementalNTAChildCheck(stream);
