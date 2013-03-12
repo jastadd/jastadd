@@ -173,7 +173,7 @@ public class JastAdd {
       // ES_2011-09-06: Incremental evaluation
       if (root.incremental) {
         java.io.StringWriter writer = new java.io.StringWriter();
-        root.genASTNode$DepGraphNode(new PrintWriter(writer));
+        root.genIncrementalDDGNode(new PrintWriter(writer));
         jrag.AST.JragParser jp = new jrag.AST.JragParser(
             new java.io.StringReader(writer.toString()));
         jp.root = root;
