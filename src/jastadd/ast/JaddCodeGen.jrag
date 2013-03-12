@@ -1053,23 +1053,18 @@ aspect JaddCodeGen {
     tt.bind("Host", decl.name());
     tt.bind("Modifier", publicModifier ? "public" : "private");
 
-    String s;
-    String name = decl.name();
-    // Generate getNum- and get-method for the list component
-    s =
-      tt.expand("ListComponent.setList") +
-      tt.expand("ListComponent.getNumChild") +
-      tt.expand("ListComponent.getNumChildNoTransform") +
-      tt.expand("ListComponent.getChildAt") +
-      tt.expand("ListComponent.addChild") +
-      tt.expand("ListComponent.addChildNoTransform") +
-      tt.expand("ListComponent.setChild") +
-      tt.expand("ListComponent.getList1") +
-      tt.expand("ListComponent.getList1NoTransform") +
-      tt.expand("ListComponent.getList2") +
-      tt.expand("ListComponent.getList2NoTransform") +
-      tt.expand("ListComponent.getListChildPosition");
-    parse(s);
+    parse(tt.expand("ListComponent.setList"));
+    parse(tt.expand("ListComponent.getNumChild"));
+    parse(tt.expand("ListComponent.getNumChildNoTransform"));
+    parse(tt.expand("ListComponent.getChildAt"));
+    parse(tt.expand("ListComponent.addChild"));
+    parse(tt.expand("ListComponent.addChildNoTransform"));
+    parse(tt.expand("ListComponent.setChild"));
+    parse(tt.expand("ListComponent.getList1"));
+    parse(tt.expand("ListComponent.getList1NoTransform"));
+    parse(tt.expand("ListComponent.getList2"));
+    parse(tt.expand("ListComponent.getList2NoTransform"));
+    parse(tt.expand("ListComponent.getListChildPosition"));
   }
 
   public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
