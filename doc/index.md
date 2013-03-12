@@ -1,4 +1,4 @@
-JastAdd2 Release R20130212
+JastAdd2 Release R20130312
 ==========================
 
 Binary distribution
