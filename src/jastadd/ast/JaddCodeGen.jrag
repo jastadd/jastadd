@@ -569,6 +569,8 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.emitSetGetParent(PrintWriter stream) {
+    TemplateContext tt = templateContext();
+    
     // getParent
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel low-level");
@@ -584,17 +586,8 @@ aspect JaddCodeGen {
     stream.println(ind(2) + "return (ASTNode)parent;");
     if(grammar().block) stream.print(grammar().blockEnd);
     stream.println(ind + "}");
-
-    // setParent
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public void ASTNode.setParent(ASTNode node) {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    jjtGenIncrementalSetParent(stream);
-    stream.println(ind(2) + "parent = node;");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
+    
+    tt.expand("ASTNode.setParent", stream);
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream) {

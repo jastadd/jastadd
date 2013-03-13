@@ -1,0 +1,46 @@
+
+ASTDecl.incHookSetParentBegin = [[
+$if (IncrementalEnabled)
+$if (IncrementalLevelParam)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  getParent_handler.notifyDependencies();
+}
+$endif
+$if (IncrementalLevelAttr)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  getParent_handler.notifyDependencies();
+}
+$endif
+$if (IncrementalLevelNode)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (parent != null) {
+    parent.handler.flushRegion();
+  }
+}
+$endif
+$if (IncrementalLevelRegion)
+if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
+  if (parent != null) {
+    parent.handler().flushRegion();
+  }
+}
+$endif
+if (parent != null) {
+  int index = -1;
+  for (int i = 0; parent.children != null && i < parent.children.length; i++) {
+    if (parent.children[i] == this) {
+      index = i;
+      break;
+    }
+  }
+  if (index >= 0) {
+    parent.removeChild(index);
+  }
+}
+if (node != null) {
+  inc_changeState(node.inc_state);
+} else {
+  inc_changeState(inc_GARBAGE);
+}
+$endif
+]]
