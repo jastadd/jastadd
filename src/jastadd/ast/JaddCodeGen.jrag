@@ -414,11 +414,7 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
 
-    tt.expand("ASTNode.rewriteDecls", stream);
-
     genGetChild(stream);
-
-    tt.expand("ASTNode.childIndex", stream);
 
     if(grammar().java5) {
       stream.println(ind + "/**");
