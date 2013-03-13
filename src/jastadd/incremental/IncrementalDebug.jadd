@@ -33,7 +33,7 @@ aspect IncrementalDebug {
    * dumping cached values and dummping of DDG dependencies.
    */ 
   public void ASTDecl.genIncrementalDebug(PrintWriter out) {
-    if (!grammar().incremental) return; 
+    if (!(grammar().incremental || grammar().incrementalDebug)) return; 
     TemplateContext tt = templateContext();
     if (name().equals("ASTNode")) {
       tt.expand("ASTDecl.relativeNodeIDMethod", out);

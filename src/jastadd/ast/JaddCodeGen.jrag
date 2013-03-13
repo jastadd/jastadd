@@ -1008,7 +1008,7 @@ aspect JaddCodeGen {
       stream.println(ind + "}");
     }
 
-    jjtGenIncremental(stream);
+    genIncremental(stream);
   }
 
   syn boolean ASTDecl.rewriteWithNoPhaseCondition() {

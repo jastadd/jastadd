@@ -1,5 +1,5 @@
 
-# Generate code for a method creating a relative node id
+# Generate code for a method creating a relative node id.
 ASTDecl.relativeNodeIDMethod = [[
 public String #name.relativeNodeID() {
   String path = "";
@@ -21,6 +21,30 @@ public String #name.relativeNodeID() {
     node = parent;
   }
   return path;
+}
+]]
+
+# Generate code for a method creating a relative node id.
+# Annotate children with possible rewrites.
+ASTDecl.relativeNodeIDMethodWithRewrite = [[
+public String #name.relativeNodeID() {
+  StringBuffer res = new StringBuffer();
+  ASTNode parent = this.parent;
+  int index = -1;
+  if (parent != null) {
+    res.append(parent.relativeNodeID() + "/");
+    for (int i = 0; parent.children != null && i < parent.children.length; i++) {
+      if (parent.children[i] != null && parent.children[i] == this && !parent.childIsNTA(i)) {
+        index = i;
+        break;
+      }
+    }
+  }
+  res.append(getClass().getSimpleName());
+  if (index > -1) {
+    res.append("[" + index + (mayHaveRewrite() ? ",r" : "") + "]");
+  }
+  return res.toString();
 }
 ]]
 
