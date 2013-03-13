@@ -1,0 +1,117 @@
+OptionalComponent.setOpt1 = [[
+  /**
+   * Replaces the optional node for the $Name child. This is the {@code Opt}
+   * node containing the child $Name, not the actual child!
+   * @param opt The new node to be used as the optional node for the $Name child.
+   * @apilevel low-level
+   */
+  $Modifier void $Host.set$(Name)Opt($OptType opt) {
+    $SynchBegin
+    #genIncrementalConstructorStartConstruction
+    setChild(opt, $Index);
+    #genIncrementalConstructorEndConstruction
+    $SynchEnd
+  }
+]]
+
+OptionalComponent.setOpt2 = [[
+  /**
+   * Replaces the (optional) $Name child.
+   * @param node The new node to be used as the $Name child.
+   * @apilevel high-level
+   */
+  $Modifier void $Host.set$Name($Type node) {
+    $SynchBegin
+    #genIncrementalConstructorStartConstruction
+    get$(Name)Opt().setChild(node, 0);
+    #genIncrementalConstructorEndConstruction
+    $SynchEnd
+  }
+]]
+
+OptionalComponent.hasOpt = [[
+  /**
+   * Check whether the optional $Name child exists.
+   * @return {@code true} if the optional $Name child exists, {@code false} if it does not.
+   * @apilevel high-level
+   */
+  $Modifier boolean $Host.has$Name() {
+    $SynchBegin
+    return get$(Name)Opt().getNumChild() != 0;
+    $SynchEnd
+  }
+]]
+
+OptionalComponent.getOpt1 = [[
+$if(!#isNTA)
+  /**
+   * Retrieves the optional node for the $Name child. This is the {@code Opt} node containing the child $Name, not the actual child!
+   * @return The optional node for child the $Name child.
+   * @apilevel low-level
+   */
+  #annotations
+  $Modifier $OptType $Host.get$(Name)Opt() {
+    $SynchBegin
+    return ($OptType) getChild($Index);
+    $SynchEnd
+  }
+$endif
+]]
+
+OptionalComponent.getOpt2 = [[
+  /**
+   * Retrieves the (optional) $Name child.
+   * @return The $Name child, if it exists. Returns {@code null} otherwise.
+   * @apilevel low-level
+   */
+  #annotations
+  $Modifier $Type $Host.get$Name() {
+    $SynchBegin
+    return ($Type) get$(Name)Opt().getChild(0);
+    $SynchEnd
+  }
+]]
+
+OptionalComponent.getOptNoTransform = [[
+$if(#isNTA)
+  /**
+   * Retrieves the optional node for child $Name. This is the {@code Opt} node containing the child $Name, not the actual child!
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The optional node for child $Name.
+   * @apilevel low-level
+   */
+  #annotations
+  $Modifier $OptType $Host.get$(Name)OptNoTransform() {
+    $SynchBegin
+    return ($OptType) getChildNoTransform($Index);
+    $SynchEnd
+  }
+$else
+  /**
+   * Retrieves the optional node for child $Name. This is the {@code Opt} node containing the child $Name, not the actual child!
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The optional node for child $Name.
+   * @apilevel low-level
+   */
+  #annotations
+  $Modifier $OptType $Host.get$(Name)OptNoTransform() {
+    $SynchBegin
+    return ($OptType) getChildNoTransform($Index);
+    $SynchEnd
+  }
+$endif
+]]
+
+OptionalComponent.getOptChildPosition = [[
+$if(#isNTA)
+  /**
+   * Retrieves the child position of the optional child $Name.
+   * @return The the child position of the optional child $Name.
+   * @apilevel low-level
+   */
+  protected int $Host.get$(Name)OptChildPosition() {
+    return $Index;
+  }
+$endif
+]]
+
