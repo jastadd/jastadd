@@ -423,78 +423,7 @@ aspect JaddCodeGen {
       stream.println(ind + "public final ASTNode$State ASTNode.state() { return state; }");
     }
 
-    if(grammar().rewriteEnabled) {
-      if(grammar().rewriteLimit > 0) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public void ASTNode.debugRewrite(String info) {");
-        stream.println(ind(2) + "if(!parent.is$Final()) return;");
-        stream.println(ind(2) + "java.util.ArrayList key = new java.util.ArrayList(2);");
-        stream.println(ind(2) + "key.add(getParent());");
-        stream.println(ind(2) + "key.add(new Integer(getParent().getIndexOfChild(this)));");
-        stream.println(ind(2) + "java.util.ArrayList list;");
-        stream.println(ind(2) + "if(state().debugRewrite.containsKey(key))");
-        stream.println(ind(3) + "list = (java.util.ArrayList)state().debugRewrite.get(key);");
-        stream.println(ind(2) + "else {");
-        stream.println(ind(3) + "list = new java.util.ArrayList();");
-        stream.println(ind(3) + "state().debugRewrite.put(key, list);");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "list.add(info);");
-        stream.println(ind(2) + "if(list.size() > " + grammar().rewriteLimit + ") {");
-        stream.println(ind(3) + "StringBuffer buf = new StringBuffer(\"Iteration count exceeded for rewrite:\");");
-        stream.println(ind(3) + "for(java.util.Iterator iter = list.iterator(); iter.hasNext(); ) buf.append(\"\\n\" + iter.next());");
-        stream.println(ind(3) + "throw new RuntimeException(buf.toString());");
-        stream.println(ind(2) + "}");
-        stream.println(ind + "}");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public void ASTNode.debugRewriteRemove() {");
-        stream.println(ind(2) + "java.util.ArrayList key = new java.util.ArrayList(2);");
-        stream.println(ind(2) + "key.add(getParent());");
-        stream.println(ind(2) + "key.add(new Integer(getParent().getIndexOfChild(this)));");
-        stream.println(ind(2) + "state().debugRewrite.remove(key);");
-        stream.println(ind + "}\n");
-      }
-      tt.expand("ASTNode.rewriteDecls", stream);
-      if(grammar().stagedRewrites) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public int ASTNode.is$Final = 0;");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public boolean ASTNode.is$Final() { return is$Final >= state().rewritePhase; }");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public void ASTNode.is$Final(int phase) { is$Final = phase; }");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public void ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public boolean ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }");
-      }
-      else {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public boolean ASTNode.is$Final = false;");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public boolean ASTNode.is$Final() { return is$Final; }");
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "public void ASTNode.is$Final(boolean b) { is$Final = b; }");
-      }
-    }
+    tt.expand("ASTNode.rewriteDecls", stream);
 
     genGetChild(stream);
 

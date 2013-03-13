@@ -16,6 +16,7 @@ ASTNode.generatedWithDecls = [[
 ]]
 
 ASTNode.rewriteDecls = [[
+$if(RewriteEnabled)
   /**
    * @apilevel internal
    */
@@ -34,6 +35,78 @@ ASTNode.rewriteDecls = [[
   public void ASTNode.in$$Circle(boolean b) {
     in$$Circle = b;
   }
+
+$if(HasRewriteLimit)
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode.debugRewrite(String info) {
+    if(!parent.is$$Final()) return;
+      java.util.ArrayList key = new java.util.ArrayList(2);
+      key.add(getParent());
+      key.add(new Integer(getParent().getIndexOfChild(this)));
+      java.util.ArrayList list;
+      if(state().debugRewrite.containsKey(key))
+        list = (java.util.ArrayList)state().debugRewrite.get(key);
+    else {
+      list = new java.util.ArrayList();
+      state().debugRewrite.put(key, list);
+    }
+    list.add(info);
+    if(list.size() > $RewriteLimit) {
+      StringBuffer buf = new StringBuffer("Iteration count exceeded for rewrite:");
+      for(java.util.Iterator iter = list.iterator(); iter.hasNext(); )
+        buf.append("\n" + iter.next());
+      throw new RuntimeException(buf.toString());
+    }
+  }
+
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode.debugRewriteRemove() {
+    java.util.ArrayList key = new java.util.ArrayList(2);
+    key.add(getParent());
+    key.add(new Integer(getParent().getIndexOfChild(this)));
+    state().debugRewrite.remove(key);
+  }
+$endif
+$if(StagedRewrites)
+  /**
+   * @apilevel internal
+   */
+  public int ASTNode.is$$Final = 0;
+  /**
+   * @apilevel internal
+   */
+  public boolean ASTNode.is$$Final() { return is$$Final >= state().rewritePhase; }
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode.is$$Final(int phase) { is$$Final = phase; }
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }
+  /**
+   * @apilevel internal
+   */
+  public boolean ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }
+$else
+  /**
+   * @apilevel internal
+   */
+  public boolean ASTNode.is$$Final = false;
+  /**
+   * @apilevel internal
+   */
+  public boolean ASTNode.is$$Final() { return is$$Final; }
+  /**
+   * @apilevel internal
+   */
+  public void ASTNode.is$$Final(boolean b) { is$$Final = b; }
+$endif
+$endif
 ]]
 
 ASTNode.childIndex = [[
