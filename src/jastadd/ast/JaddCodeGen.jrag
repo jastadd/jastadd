@@ -373,7 +373,8 @@ aspect JaddCodeGen {
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream) {
     TemplateContext tt = templateContext();
-    tt.expand("ASTNode.generatedWithDecls", stream);
+    tt.expand("ASTNode.declarations", stream);
+
     if(grammar().noStatic) {
       stream.println(ind + "/**");
       stream.println(ind + " * @apilevel internal");
@@ -638,16 +639,6 @@ aspect JaddCodeGen {
     if(grammar().block) stream.print(grammar().blockEnd);
     stream.println(ind + "}");
 
-    if(!grammar().jjtree) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "protected ASTNode ASTNode.parent;");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "protected ASTNode[] ASTNode.children;");
-    }
     tt.expand("ASTNode.debugDecls", stream);
   }
 

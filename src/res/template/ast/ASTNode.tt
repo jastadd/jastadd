@@ -1,6 +1,6 @@
 # Boilerplate code for ASTNode
 
-ASTNode.generatedWithDecls = [[
+ASTNode.declarations = [[
   /**
    * @apilevel internal
    */
@@ -13,6 +13,20 @@ ASTNode.generatedWithDecls = [[
    * @apilevel internal
    */
   public static final boolean ASTNode.generatedWithComponentCheck = $ComponentCheckEnabled;
+
+$if(!JJTree)
+  /**
+   * Parent pointer
+   * @apilevel low-level
+   */
+  protected ASTNode ASTNode.parent;
+
+  /**
+   * Child array
+   * @apilevel low-level
+   */
+  protected ASTNode[] ASTNode.children;
+$endif
 ]]
 
 ASTNode.rewriteDecls = [[
