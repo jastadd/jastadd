@@ -31,41 +31,23 @@
  */
 aspect IncrementalEval {
 
-  public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    if (!grammar().incrementalDebug && name().equals("ASTNode")) {
-      stream.println(ind + "public String ASTNode.relativeNodeID() {");
-      stream.println(ind(2) + "ASTNode parent = this.parent;");
-      stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
-      stream.println(ind(2) + "int index = -1;");
-      stream.println(ind(2) + "if (parent != null) {");
-      stream.println(ind(3) +   "buf.append(parent.relativeNodeID() + \"/\");");
-      stream.println(ind(3) +   "for (int i = 0; parent.children != null && i < parent.children.length; i++) {");
-      stream.println(ind(4) +    "if (parent.children[i] != null && parent.children[i] == this && !parent.childIsNTA(i)) {");
-      stream.println(ind(5) +       "index = i;");
-      stream.println(ind(5) +       "break;");
-      stream.println(ind(4) +     "}");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "buf.append(getClass().getSimpleName());");
-      stream.println(ind(2) + "if (index > -1) {");
-      stream.println(ind(3) +   "buf.append(\"[\" + index + (mayHaveRewrite()?\",r\":\"\") + \"]\");");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "return buf.toString();");
-      stream.println(ind + "}");
-    }    
-    genIncrementalHandlers(stream);
-    genIncrementalCopyHandlers(stream);
-    jjtGenIncrementalTreeModification(stream);
-    jjtGenIncrementalNTAChildCheck(stream);
-    jjtGenIncrementalAffectedValue(stream);
-    jjtGenIncrementalReactToChange(stream);
-    jjtGenIncrementalReactToASTChange(stream);
-    jjtGenIncrementalState(stream);
-    genIncrementalRegions(stream);
-    if (grammar().incrementalDebug) {
-      genIncrementalDebug(stream);
+  public void ASTDecl.genIncremental(PrintWriter out) {
+    if (!grammar().incremental) return;
+    TemplateContext tt = templateContext(); 
+    if (!grammar().incrementalDebug) {
+      tt.bind("IsAstNode", name().equals("ASTNode"));
+      tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
     }
+    genIncrementalHandlers(out);
+    genIncrementalCopyHandlers(out);
+    jjtGenIncrementalTreeModification(out);
+    jjtGenIncrementalNTAChildCheck(out);
+    jjtGenIncrementalAffectedValue(out);
+    jjtGenIncrementalReactToChange(out);
+    jjtGenIncrementalReactToASTChange(out);
+    jjtGenIncrementalState(out);
+    genIncrementalRegions(out);
+    genIncrementalDebug(out);
   }
 
   /**

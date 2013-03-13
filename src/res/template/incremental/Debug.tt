@@ -1,7 +1,8 @@
 
-# Generate code for a method creating a relative node id
+# Generate code for a method creating a relative node id.
 ASTDecl.relativeNodeIDMethod = [[
-public String #name.relativeNodeID() {
+$if (IsAstNode)
+public String ASTNode.relativeNodeID() {
   String path = "";
   ASTNode node = this;
   while (node != null) {
@@ -22,11 +23,39 @@ public String #name.relativeNodeID() {
   }
   return path;
 }
+$endif
+]]
+
+# Generate code for a method creating a relative node id.
+# Annotate children with possible rewrites.
+ASTDecl.relativeNodeIDMethodWithRewrite = [[
+$if (IsAstNode)
+public String ASTNode.relativeNodeID() {
+  StringBuffer res = new StringBuffer();
+  ASTNode parent = this.parent;
+  int index = -1;
+  if (parent != null) {
+    res.append(parent.relativeNodeID() + "/");
+    for (int i = 0; parent.children != null && i < parent.children.length; i++) {
+      if (parent.children[i] != null && parent.children[i] == this && !parent.childIsNTA(i)) {
+        index = i;
+        break;
+      }
+    }
+  }
+  res.append(getClass().getSimpleName());
+  if (index > -1) {
+    res.append("[" + index + (mayHaveRewrite() ? ",r" : "") + "]");
+  }
+  return res.toString();
+}
+$endif
 ]]
 
 # Generate code for a method returning a string with attribute parameter values
 ASTDecl.printParamListMethod = [[
-protected String #name.printParamList(java.util.List paramList) {
+$if (IsAstNode)
+protected String ASTNode.printParamList(java.util.List paramList) {
   StringBuffer buf = new StringBuffer();
   for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {
     Object o = itr.next();
@@ -38,12 +67,14 @@ protected String #name.printParamList(java.util.List paramList) {
     buf.append(",");
   }
   return buf.toString();
-}    
+}
+$endif
 ]]
 
 # Generate code for method printing a value
 ASTDecl.printValueMethod = [[
-protected String #name.printValue(Object value) {
+$if (IsAstNode)
+protected String ASTNode.printValue(Object value) {
   if (value == null) {
     return "null";
   }
@@ -52,6 +83,7 @@ protected String #name.printValue(Object value) {
   }
   return value.toString();
 }
+$endif
 ]]
 
 # Generate code for method dumping cached values
@@ -72,6 +104,32 @@ $if (!IsAstNode)
   super.dumpCachedValues();
 $endif
 }
+]]
+
+# Generate code for dumping a cached attribute value
+ASTDecl.dumpCachedAttributeValue = [[
+$if (IsParamAttr)
+if ($(AttrSign)_values != null) {
+  for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator();itr.hasNext();) {
+    Object key = (Object)itr.next(); 
+    Object value = $(AttrSign)_values.get(key);
+    System.out.println("value(" + relativeNodeID() + ":$(AttrSign)[" +
+      (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : 
+        (key instanceof java.util.List ? printParamList((java.util.List)key) : key) ) + "], " + 
+      (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : printValue(value)) + ")");
+  }
+}
+$else
+if ($(AttrSign)_computed) {
+$if (PrintAsObject)
+  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
+$else
+  Object obj = $(AttrSign)_value;
+  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + 
+    (obj instanceof ASTNode ? ((ASTNode)obj).relativeNodeID() : obj) + ")");
+$endif
+}
+$endif
 ]]
 
 # Generate code for method dumping dependencies
