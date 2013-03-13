@@ -60,8 +60,8 @@ aspect TemplateUtil {
       loadTemplates(tt, "incremental/State");
       loadTemplates(tt, "incremental/Regions");
       loadTemplates(tt, "incremental/Debug");
-      loadTemplates(tt, "incremental/ASTChange");
     }
+    loadTemplates(tt, "incremental/ASTChange");
     return new SimpleContext(tt, this);
   }
 

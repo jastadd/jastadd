@@ -569,6 +569,8 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.emitSetGetParent(PrintWriter stream) {
+    TemplateContext tt = templateContext();
+    
     // getParent
     stream.println(ind + "/**");
     stream.println(ind + " * @apilevel low-level");
