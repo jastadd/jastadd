@@ -71,16 +71,12 @@ aspect CollectionAttributes {
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("RootType", root().name());
     tt.bind("SeparateEvaluation", "" + separateEvaluation());
-    if(getNumParameter() == 0) {
-      tt.bind("Cond", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
-      tt.expand("AttrDecl.emitCircular:non-parameterized", out);
-    } else {
-      tt.bind("Cond", differs("new_" + attributeSignature() + "_value", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType())));
-      tt.bind("RefType1", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
-      tt.bind("RefType2", toReferenceType("new_" + attributeSignature() + "_value", getType()));
-      tt.bind("FromRefType", fromReferenceType("" + attributeSignature() + "_values.get(_parameters)" , getType()));
-      tt.expand("AttrDecl.emitCircular:parameterized", out);
-    }
+    tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
+    tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType())));
+    tt.bind("RefType1", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
+    tt.bind("RefType2", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+    tt.bind("FromRefType", fromReferenceType("" + attributeSignature() + "_values.get(_parameters)" , getType()));
+    tt.expand("AttrDecl.circularCollectionEval", out);
   }
 
   public String CollDecl.cacheCycleCheck() {

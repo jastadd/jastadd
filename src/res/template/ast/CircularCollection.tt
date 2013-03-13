@@ -1,5 +1,79 @@
-# non-parameterized circular
-AttrDecl.emitCircular:non-parameterized = [[
+# circular collection evaluation
+AttrDecl.circularCollectionEval = [[
+$if(#isParameterized)
+  /**
+   * @apilevel internal
+   */
+  protected $TypeDefaultSet #(attributeSignature)_computed = $CreateDefaultSet;
+
+  /**
+   * @apilevel internal
+   */
+  protected $TypeDefaultSet #(attributeSignature)_initialized = $CreateDefaultSet;
+
+  /**
+   * @apilevel internal
+   */
+  protected $TypeDefaultMap #(attributeSignature)_values = $CreateDefaultMap;
+
+  #hostFileComment
+  #suppressWarnings
+  public #getType #attributeName(#parametersDecl) {
+    $BlockBegin
+    #parameterStructure
+    #initLazyMaps
+    #cacheCheck
+    #addComponentCheck
+    if (!#(attributeSignature)_initialized.contains(_parameters)) {
+      #(attributeSignature)_initialized.add(_parameters);
+      #(attributeSignature)_values.put(_parameters, $RefType1);
+    }
+    if (!state().IN_CIRCLE) {
+      state().IN_CIRCLE = true;
+      #cacheInitRewrite
+      #addAddToComponent
+      state().CIRCLE_INDEX = 1;
+      #getType new_#(attributeSignature)_value;
+      do {
+        #(attributeSignature)_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));
+        state().CHANGE = false;
+        new_#(attributeSignature)_value = $BottomValue;
+        combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
+        if ($Cond2) {
+          state().CHANGE = true;
+        }
+        #(attributeSignature)_values.put(_parameters, $RefType2);
+        state().CIRCLE_INDEX++;
+        #cycleLimitCheck
+      } while (state().CHANGE);
+
+      #cacheStoreRewrite {
+        #(attributeSignature)_computed.add(_parameters);
+        #cacheCycleInit
+      } else {
+        #resetCycleInit
+        #(attributeSignature)_computed.remove(_parameters);
+        #(attributeSignature)_initialized.remove(_parameters);
+      }
+      state().IN_CIRCLE = false;
+      return new_#(attributeSignature)_value;
+    }
+    if(!new Interger(state().CIRCLE_INDEX).equals(#(attributeSignature)_visited.get(_parameters))) {
+      #(attributeSignature)_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));
+      #cacheCycleCheck
+      #resetCycleCheck
+      #getType new_#(attributeSignature)_value = $BottomValue;
+      combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
+      if ($Cond2) {
+        state().CHANGE = true;
+      }
+      #(attributeSignature)_values.put(_parameters, $RefType2);
+      return new_#(attributeSignature)_value;
+    }
+    return $FromRefType;
+    $BlockEnd
+  }
+$else
   /**
    * @apilevel internal
    */
@@ -61,7 +135,7 @@ $else
         #getType new_#(attributeSignature)_value = $BottomValue;
         combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
 $endif
-        if ($Cond) {
+        if ($Cond1) {
           state().CHANGE = true;
         }
         #(attributeSignature)_value = new_#(attributeSignature)_value;
@@ -92,7 +166,7 @@ $else
       #(getType) new_#(attributeSignature)_value = $BottomValue;
       combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
 $endif
-      if ($Cond) {
+      if ($Cond1) {
         state().CHANGE = true;
       }
       #(attributeSignature)_value = new_#(attributeSignature)_value;
@@ -101,79 +175,5 @@ $endif
     #returnStmt
     $BlockEnd
   }
-]]
-
-# parameterized circular
-AttrDecl.emitCircular:parameterized = [[
-  /**
-   * @apilevel internal
-   */
-  protected $TypeDefaultSet #(attributeSignature)_computed = $CreateDefaultSet;
-  /**
-   * @apilevel internal
-   */
-  protected $TypeDefaultSet #(attributeSignature)_initialized = $CreateDefaultSet;
-  /**
-   * @apilevel internal
-   */
-  protected $TypeDefaultMap #(attributeSignature)_values = $CreateDefaultMap;
-
-  #hostFileComment
-  #suppressWarnings
-  public #getType #attributeName(#parametersDecl) {
-    $BlockBegin
-    #parameterStructure
-    #initLazyMaps
-    #cacheCheck
-    #addComponentCheck
-    if (!#(attributeSignature)_initialized.contains(_parameters)) {
-      #(attributeSignature)_initialized.add(_parameters);
-      #(attributeSignature)_values.put(_parameters, $RefType1);
-    }
-    if (!state().IN_CIRCLE) {
-      state().IN_CIRCLE = true;
-      #cacheInitRewrite
-      #addAddToComponent
-      state().CIRCLE_INDEX = 1;
-      #getType new_#(attributeSignature)_value;
-      do {
-        #(attributeSignature)_visited.put(_parameters, new Integer(state().CIRCLE_INDEX));
-        state().CHANGE = false;
-        new_#(attributeSignature)_value = $BottomValue;
-        combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
-        if ($Cond) {
-          state().CHANGE = true;
-        }
-        #(attributeSignature)_values.put(_parameters, $RefType2);
-        state().CIRCLE_INDEX++;
-        #cycleLimitCheck
-      } while (state().CHANGE);
-
-      #cacheStoreRewrite {
-        #(attributeSignature)_computed.add(_parameters);
-        #cacheCycleInit
-      } else {
-        #resetCycleInit
-        #(attributeSignature)_computed.remove(_parameters);
-        #(attributeSignature)_initialized.remove(_parameters);
-      }
-      state().IN_CIRCLE = false;
-      return new_#(attributeSignature)_value;
-    }
-    if(!new Interger(state().CIRCLE_INDEX).equals(#(attributeSignature)_visited.get(_parameters))) {
-      #(attributeSignature)_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));
-      #cacheCycleCheck
-      #resetCycleCheck
-      #getType new_#(attributeSignature)_value = $BottomValue;
-      combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
-      if ($Cond) {
-        state().CHANGE = true;
-      }
-      #(attributeSignature)_values.put(_parameters, $RefType2);
-      return new_#(attributeSignature)_value;
-    }
-    return $FromRefType;
-    $BlockEnd
-  }
-
+$endif
 ]]
