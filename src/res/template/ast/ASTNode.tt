@@ -109,6 +109,42 @@ $endif
 $endif
 ]]
 
+ASTNode.debugDecls = [[
+$if(DebugMode)
+  /**
+   * @apilevel internal
+   */
+  protected boolean ASTNode.debugNodeAttachmentIsRoot() {
+    return false;
+  }
+
+  /**
+   * @apilevel internal
+   */
+  private static void ASTNode.debugNodeAttachment(ASTNode node) {
+    if(node == null) {
+      throw new RuntimeException("Trying to assign null to a tree child node");
+    }
+
+    while(node != null && !node.debugNodeAttachmentIsRoot()) {
+$if(RewriteEnabled)
+      if(node.in$$Circle())
+        return;
+$endif
+      ASTNode parent = (ASTNode)node.parent;
+      if(parent != null && parent.getIndexOfChild(node) == -1) {
+        return;
+      }
+      node = parent;
+    }
+
+    if(node != null) {
+      throw new RuntimeException("Trying to insert the same tree at multiple tree locations");
+    }
+  }
+$endif
+]]
+
 ASTNode.childIndex = [[
   /**
    * @apilevel internal
