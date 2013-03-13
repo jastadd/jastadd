@@ -35,7 +35,7 @@ aspect CollectionAttributes {
         attr.emitCircular(out);
         attr.emitCombineMethod(out);
       } else {
-        out.print(attr.hostFileComment());
+        out.println(attr.hostFileComment());
         emitEquation(attr, attr.parametersDecl(), out);
         attr.emitComputeMethod(out);
         emitCacheDeclarations(out, attr);
@@ -68,7 +68,6 @@ aspect CollectionAttributes {
   // only used by circular collection attributes
   public void AttrDecl.emitCircular(PrintStream out) {
     TemplateContext tt = templateContext();
-    tt.bind("Comment", hostFileComment());
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("RootType", root().name());
     tt.bind("SeparateEvaluation", "" + separateEvaluation());
@@ -195,7 +194,7 @@ aspect CollectionAttributes {
         CollEq attr = (CollEq)i2.next();
         CollDecl decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        out.print(ind + attr.hostFileComment());
+        out.println(attr.hostFileComment());
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(decl.onePhase() || decl.separateEvaluation()) { // TODO: add || decl.separateEvaluation()
@@ -316,7 +315,7 @@ aspect CollectionAttributes {
         attr = (CollEq)i2.next();
         decl = (CollDecl)attr.decl();
         String NAME = attr.attributeSignature();
-        buf.append(ind + attr.hostFileComment());
+        buf.append(attr.hostFileComment() + "\n");
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(c.getCondition() != null && c.getCondition().trim().length()>0) {

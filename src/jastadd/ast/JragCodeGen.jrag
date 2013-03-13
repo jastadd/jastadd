@@ -247,7 +247,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      out.print(attr.hostFileComment());
+      out.println(attr.hostFileComment());
       attr.emitSynDecl(out);
     }
   }
@@ -266,7 +266,7 @@ aspect JragCodeGen {
         }
       }
       if(!equ) {
-        out.print(attr.hostFileComment());
+        out.println(attr.hostFileComment());
         out.print(suppressWarnings());
         out.println(ind + "public abstract " + attr.getType() + " " + attr.attributeName() + "(" + attr.parametersDecl() + ");");
       }
@@ -971,7 +971,7 @@ aspect JragCodeGen {
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
-         out.print(equ.hostFileComment());
+         out.println(equ.hostFileComment());
          emitEquation(attr, equ.parametersDecl(), out);
          equ.emitComputeMethod(out);
        } else {
@@ -1073,7 +1073,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.print(attr.hostFileComment());
+       out.println(attr.hostFileComment());
        attr.emitInhDecl(out);
     }
   }
@@ -1085,7 +1085,7 @@ aspect JragCodeGen {
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.print(attr.hostFileComment());
+       out.println(attr.hostFileComment());
        emitEquation(attr, attr.parametersDecl(), out);
        emitCacheDeclarations(out, attr);
     }

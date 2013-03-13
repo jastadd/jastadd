@@ -19,7 +19,7 @@ $if(SeparateEvaluation)
   protected #getType new_#(attributeSignature)_value;
 $endif
 
-  $Comment
+  #hostFileComment
   #suppressWarnings
   public #getType #attributeName(#parametersDecl) {
     $BlockBegin
@@ -118,7 +118,7 @@ AttrDecl.emitCircular:parameterized = [[
    */
   protected $TypeDefaultMap #(attributeSignature)_values = $CreateDefaultMap;
 
-  $Comment
+  #hostFileComment
   #suppressWarnings
   public #getType #attributeName(#parametersDecl) {
     $BlockBegin
