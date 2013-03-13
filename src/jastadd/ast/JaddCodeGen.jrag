@@ -413,16 +413,6 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return state;");
       stream.println(ind + "}");
     }
-    else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "protected static ASTNode$State ASTNode.state = new ASTNode$State();");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public final ASTNode$State ASTNode.state() { return state; }");
-    }
 
     tt.expand("ASTNode.rewriteDecls", stream);
 

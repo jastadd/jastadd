@@ -27,6 +27,19 @@ $if(!JJTree)
    */
   protected ASTNode[] ASTNode.children;
 $endif
+$if(!NoStatic)
+  /**
+   * @apilevel internal
+   */
+  protected static ASTNode$$State ASTNode.state = new ASTNode$$State();
+
+  /**
+   * @apilevel internal
+   */
+  public final ASTNode$$State ASTNode.state() {
+    return state;
+  }
+$endif
 ]]
 
 ASTNode.rewriteDecls = [[

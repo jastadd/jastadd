@@ -631,6 +631,7 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
+    tt.bind("NoStatic", root.noStatic);
     tt.bind("DebugMode", root.debugMode);
     tt.bind("MinListSize", "" + root.minListSize);
     tt.bind("Deterministic", root.deterministic);
