@@ -232,7 +232,7 @@ aspect JragCodeGen {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       jrag.AST.SimpleNode node = obj.node;
       out.print(obj.modifiers);
-      out.print(javadocComment(obj));
+      out.println(javadocComment(obj));
       out.print(ind);
       StringBuffer buf = new StringBuffer();
       node.jjtAccept(new ClassBodyDeclUnparser(), buf);
