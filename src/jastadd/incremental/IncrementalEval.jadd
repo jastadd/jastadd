@@ -34,7 +34,8 @@ aspect IncrementalEval {
   public void ASTDecl.genIncremental(PrintWriter out) {
     if (!grammar().incremental) return;
     TemplateContext tt = templateContext(); 
-    if (!grammar().incrementalDebug && name().equals("ASTNode")) {
+    if (!grammar().incrementalDebug) {
+      tt.bind("IsAstNode", name().equals("ASTNode"));
       tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
     }
     genIncrementalHandlers(out);
