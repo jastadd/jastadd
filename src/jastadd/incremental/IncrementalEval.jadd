@@ -33,7 +33,7 @@ aspect IncrementalEval {
 
   public void ASTDecl.jjtGenIncremental(PrintWriter stream) {
     if (!grammar().incremental) return; 
-    if (grammar().incremental && !grammar().incrementalDebug && name().equals("ASTNode")) {
+    if (!grammar().incrementalDebug && name().equals("ASTNode")) {
       stream.println(ind + "public String ASTNode.relativeNodeID() {");
       stream.println(ind(2) + "ASTNode parent = this.parent;");
       stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
@@ -63,9 +63,28 @@ aspect IncrementalEval {
     jjtGenIncrementalReactToASTChange(stream);
     jjtGenIncrementalState(stream);
     genIncrementalRegions(stream);
-    if (grammar().incrementalDebug) jjtGenIncrementalDebug(stream);
+    if (grammar().incrementalDebug) {
+      genIncrementalDebug(stream);
+    }
   }
 
+  /**
+   * Returns a list of all cached attributes (syn, inh).
+   */ 
+  public ArrayList ASTDecl.listOfCachedAttributes() {
+    ArrayList list = new ArrayList();
+    for(int k = 0; k < getNumSynEq(); k++) {
+       AttrDecl attr = getSynEq(k).decl();
+       if (attr.getLazy() || attr.isCircular()) 
+        list.add(attr);
+    }
+    for(int k = 0; k < getNumInhDecl(); k++) {
+      InhDecl attr = getInhDecl(k);
+       if (attr.getLazy() || attr.isCircular()) 
+        list.add(attr);
+    }
+    return list;
+  }
 
   public void ASTDecl.jjtGenIncrementalNTAChildCheck(PrintWriter stream) {
     if (!grammar().incremental) return; 

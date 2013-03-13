@@ -1,0 +1,195 @@
+
+# Generate code for a method creating a relative node id
+ASTDecl.relativeNodeIDMethod = [[
+public String #name.relativeNodeID() {
+  String path = "";
+  ASTNode node = this;
+  while (node != null) {
+    ASTNode parent = node.parent;
+    int index = -1;
+    if (parent != null) {
+      for (int i = 0; parent.children != null && i < parent.children.length; i++) {
+        if (parent.children[i] != null && parent.children[i] == node && !parent.childIsNTA(i)) {
+          index = i;
+          break;
+        }
+      }
+    }
+    String pathEntry = node.getClass().getSimpleName();
+    if (index > -1) pathEntry += "[" + index + "]";
+    path = path.length() == 0 ? pathEntry : pathEntry + "/" + path;
+    node = parent;
+  }
+  return path;
+}
+]]
+
+# Generate code for a method returning a string with attribute parameter values
+ASTDecl.printParamListMethod = [[
+protected String #name.printParamList(java.util.List paramList) {
+  StringBuffer buf = new StringBuffer();
+  for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {
+    Object o = itr.next();
+    if (o instanceof ASTNode) {
+      buf.append(((ASTNode)o).relativeNodeID());
+    } else {
+      buf.append(o.toString());
+    }
+    buf.append(",");
+  }
+  return buf.toString();
+}    
+]]
+
+# Generate code for method printing a value
+ASTDecl.printValueMethod = [[
+protected String #name.printValue(Object value) {
+  if (value == null) {
+    return "null";
+  }
+  if (value instanceof ASTNode && ((ASTNode)value).inc_state == inc_GARBAGE) {
+    throw new Error("Cached value is garbage");
+  }
+  return value.toString();
+}
+]]
+
+# Generate code for method dumping cached values
+ASTDecl.dumpCachedValuesMethod = [[
+public void #name.dumpCachedValues() {
+$if (IsAstNode)
+  // Rewritten children
+  for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {
+    if (rewritten_children[k]) {
+      System.out.println(children[k].relativeNodeID() + " rewritten, initial=" + 
+        (init_children[k] != null ? init_children[k].relativeNodeID() : null));
+    }
+  }
+$endif
+  $DumpAttributeValues
+  // TODO: dump collection values
+$if (!IsAstNode)
+  super.dumpCachedValues();
+$endif
+}
+]]
+
+# Generate code for method dumping dependencies
+ASTDecl.dumpDependenciesMethod = [[
+public void #name.dumpDependencies() {
+$if (IsAstNode)
+$if (IncrementalLevelParam)
+  getParent_handler.dumpDeps();
+  numChildren_handler.dumpDeps();
+  for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {
+    if (getChild_handler[k] != null) {
+      getChild_handler[k].dumpDeps();
+    }
+  }
+$endif
+$if (IncrementalLevelAttr)
+  getParent_handler.dumpDeps();
+  numChildren_handler.dumpDeps();
+  getChild_handler.dumpDeps();
+$endif
+$if (IncrementalLevelNode)
+  handler.dumpDeps();
+$endif
+$endif 
+$if (IncrementalLevelRegion)
+$if (IsRegionRoot)
+  handler.dumpDeps();
+$endif
+$endif
+  $DumpTokenDeps
+  $DumpAttributeDeps
+  // TODO: dump collection attribute dependencies
+$if (!IsAstNode)
+$if (IncrementalLevelRegion)
+$if (!IsRegionRoot) 
+  super.dumpDependencies();
+$endif
+$else
+  super.dumpDependencies();
+$endif
+$endif
+}
+]]
+
+# Generate code for checking a token handler and dumping its dependencies 
+ASTDecl.checkAndDumpTokenDeps = [[
+if (get$(Id)_handler != null) {
+  get$(Id)_handler.dumpDeps();
+}
+]]
+
+# Generate code for checking an attribute handler and dumping its dependencies
+ASTDecl.checkAndDumpAttributeDeps = [[
+$if (IncrementalLevelParam)
+$if (IsParamAttr)
+for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+  $DDGNodeName handler = ($DDGNodeName)itr.next();
+  handler.dumpDeps();
+}    
+$else
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.dumpDeps();
+}
+$endif
+$if (IsNTA)
+$if (IsParamAttr)
+if ($(AttrSign)_list != null) {
+  $(AttrSign)_list.dumpDependencies();
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+  $(AttrSign)_value.dumpDependencies();
+}
+$endif
+$endif        
+$endif
+$if (IncrementalLevelAttr)
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.dumpDeps();
+}
+$if (IsNTA)
+$if (IsParamAttr)
+if ($(AttrSign)_list != null) {
+  $(AttrSign)_list.dumpDependencies();
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+  $(AttrSign)_value.dumpDependencies();
+}
+$endif
+$endif         
+$endif
+]]
+
+# Generate code for method dumping dependencies in tree
+ASTDecl.dumpDepsInTreeMethod = [[
+public void #name.dumpDepsInTree() {
+  dumpDependencies();
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child == null) {
+      continue;
+    }
+    child.dumpDepsInTree();
+  }
+  $DumpDepsInNTAs
+}
+]]
+
+# Generate string with code for dumping dependencies in NTAs
+ASTDecl.checkAndDumpNTADeps = [[
+$if (IsParamAttr)
+if ($(AttrSign)_list != null) {
+  $(AttrSign)_list.dumpDepsInTree();
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+  $(AttrSign)_value.dumpDepsInTree();
+}
+$endif
+]]

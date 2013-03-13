@@ -27,246 +27,94 @@
  */
 aspect IncrementalDebug {
 
-  public void ASTDecl.jjtGenIncrementalDebug(PrintWriter stream) {
+  /**
+   * Generate debugging code for incremental evaluation-
+   * This includes code for identifying nodes with relative node IDs,
+   * dumping cached values and dummping of DDG dependencies.
+   */ 
+  public void ASTDecl.genIncrementalDebug(PrintWriter out) {
     if (!grammar().incremental) return; 
-    // method: relativeNodeID()          
+    TemplateContext tt = templateContext();
     if (name().equals("ASTNode")) {
-      stream.println(ind + "public String ASTNode.relativeNodeID() {");
-      stream.println(ind(2) + "String path = \"\";");
-      stream.println(ind(2) + "ASTNode node = this;");
-      stream.println(ind(2) + "while (node != null) {");
-      stream.println(ind(3) +   "ASTNode parent = node.parent;");
-      stream.println(ind(3) +   "int index = -1;");
-      stream.println(ind(3) +   "if (parent != null) {");
-      stream.println(ind(4) +     "for (int i = 0; parent.children != null && i < parent.children.length; i++) {");
-      stream.println(ind(5) +       "if (parent.children[i] != null && parent.children[i] == node && !parent.childIsNTA(i)) {");
-      stream.println(ind(6) +         "index = i;");
-      stream.println(ind(6) +         "break;");
-      stream.println(ind(5) +       "}");
-      stream.println(ind(4) +     "}");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(3) +   "String pathEntry = node.getClass().getSimpleName();");
-      stream.println(ind(3) +   "if (index > -1) pathEntry += \"[\" + index + \"]\";");
-      stream.println(ind(3) +   "path = path.length() == 0 ? pathEntry : pathEntry + \"/\" + path;");
-      stream.println(ind(3) +   "node = parent;");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "return path;");
-/*
-      stream.println(ind(2) + "ASTNode parent = this.parent;");
-      stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
-      stream.println(ind(2) + "int index = -1;");
-      stream.println(ind(2) + "if (parent != null) {");
-      stream.println(ind(3) +   "buf.append(parent.relativeNodeID() + \"/\");");
-      stream.println(ind(3) +   "for (int i = 0; parent.children != null && i < parent.children.length; i++) {");
-      stream.println(ind(4) +     "if (parent.children[i] != null && " + 
-                                        "parent.children[i] == this && " + 
-                                        "!parent.childIsNTA(i)) {");
-      stream.println(ind(5) +       "index = i;");
-      stream.println(ind(5) +       "break;");
-      stream.println(ind(4) +     "}");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "buf.append(getClass().getSimpleName());");
-      stream.println(ind(2) + "if (index > -1) {");
-      stream.println(ind(3) +   "buf.append(\"[\" + index + \"]\");");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "return buf.toString();");
-*/
-      stream.println(ind + "}");
+      tt.expand("ASTDecl.relativeNodeIDMethod", out);
+      tt.expand("ASTDecl.printParamListMethod", out);
+      tt.expand("ASTDecl.printValueMethod", out);
     }
-    // end method: relativeNodeID()          
-    
-    // method: printParamList(List)
-    if (name().equals("ASTNode")) {
-      stream.println(ind + "protected String ASTNode.printParamList(java.util.List paramList) {");
-      stream.println(ind(2) + "StringBuffer buf = new StringBuffer();");
-      stream.println(ind(2) + "for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {");
-      stream.println(ind(3) +   "Object o = itr.next();");
-      stream.println(ind(3) +   "if (o instanceof ASTNode) {");
-      stream.println(ind(4) +     "buf.append(((ASTNode)o).relativeNodeID());");
-      stream.println(ind(3) +   "} else {");
-      stream.println(ind(4) +     "buf.append(o.toString());");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(3) +   "buf.append(\",\");");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "return buf.toString();");
-      stream.println(ind + "}");    
-    } // end method: printParamList(List)
-        
-    // method: printValue(Object value) 
-    if (name().equals("ASTNode")) {
-      stream.println(ind + "protected String ASTNode.printValue(Object value) {");
-      stream.println(ind(2) + "if (value == null)");
-      stream.println(ind(3) +   "return \"null\";");
-      stream.println(ind(3) + "if (value instanceof ASTNode && ((ASTNode)value).inc_state == inc_GARBAGE)");
-      stream.println(ind(4) +   "throw new Error(\"Cached value is garbage\");");
-      stream.println(ind(2) + "return value.toString();");
-      stream.println(ind + "}");    
-    } // end method: printValue(Object)
-
-    // method: dumpCachedValues()
-    stream.println(ind + "public void " + name() + ".dumpCachedValues() {");
-    if (name().equals("ASTNode")) {
-      // rewrite code
-      stream.println(ind(2) + "for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {");
-      stream.println(ind(3) +   "if (rewritten_children[k]) {");
-      stream.println(ind(4) +     "System.out.println(children[k].relativeNodeID() + " + 
-                                      "\" rewritten, initial=\" + " +
-                                  "(init_children[k] != null ? init_children[k].relativeNodeID():null));");
-      stream.println(ind(3) +   "}");
-      stream.println(ind(2) + "}");
-     //
-    }
-    for(int k = 0; k < getNumSynEq(); k++) {
-      AttrEq attrEq = getSynEq(k);
-      AttrDecl attr = attrEq.decl();
-      String u = attr.dumpCache();
-      u = u.replaceAll("#NAME#", attr.attributeSignature());
-      stream.println(u);
-    }
-    for(int k = 0; k < getNumInhDecl(); k++) {
-      InhDecl attr = getInhDecl(k);
-      String u = attr.dumpCache();
-      u = u.replaceAll("#NAME#", attr.attributeSignature());
-      stream.println(u);
-    }
-    stream.println(ind(2) + "// TODO: dump collection values");
-    if (!name().equals("ASTNode")) {
-      stream.println(ind(2) + "super.dumpCachedValues();");
-    }
-    stream.println(ind + "}");     
-    // end method: dumpCachedValues()     
-
-    // method: dumpDependencies()
-    stream.println(ind + "public void " + name() + ".dumpDependencies() {");
-    if (name().equals("ASTNode")) {
-      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-        stream.println(ind(2) + "getParent_handler.dumpDeps();");
-        stream.println(ind(2) + "numChildren_handler.dumpDeps();");
-        if (grammar().incrementalLevelParam) {
-          stream.println(ind(2) + "for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {");
-          stream.println(ind(3) +   "if (getChild_handler[k] != null) {");
-          stream.println(ind(4) +     "getChild_handler[k].dumpDeps();");
-          stream.println(ind(3) +   "}");
-          stream.println(ind(2) + "}");
-        }
-        if (grammar().incrementalLevelAttr) {
-          stream.println(ind(2) + "getChild_handler.dumpDeps();");
-        }
+    tt.bind("IsAstNode", name().equals("ASTNode"));
+    tt.bind("DumpAttributeValues", genDumpAttributeValuesString());
+    tt.expand("ASTDecl.dumpCachedValuesMethod", out);
+    tt.bind("DumpTokenDeps", genDumpTokenDepsString());
+    tt.bind("DumpAttributeDeps", genDumpAttributeDepsString());
+    tt.expand("ASTDecl.dumpDependenciesMethod", out);
+    tt.bind("DumpDepsInNTAs", genDumpDepsInNTAsString());
+	tt.expand("ASTDecl.dumpDepsInTreeMethod", out);	
+  }
+  
+  /**
+   * Generate string with code for dumping dependencies in NTAs
+   */
+  public String ASTDecl.genDumpDepsInNTAsString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+         !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+        tt.bind("IsParamAttr", attr.getNumParameter() > 0); 
+        tt.bind("AttrSign", attr.attributeSignature());
+        res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
-      if (grammar().incrementalLevelNode) {
-        stream.println(ind(2) + "handler.dumpDeps();");
-      }
-    } 
-    if (grammar().incrementalLevelRegion && isRegionRoot()) {
-      stream.println(ind(2) + "handler.dumpDeps();");
     }
-    // collect attributes
-    ArrayList list = new ArrayList();
-    for(int k = 0; k < getNumSynEq(); k++) {
-       AttrDecl attr = getSynEq(k).decl();
-       if (attr.getLazy() || attr.isCircular()) 
-        list.add(attr);
+    return res.toString();
+  }
+  
+  /**
+   * Generate string with code for dumping attribute dependencies.
+   */
+  public String ASTDecl.genDumpAttributeDepsString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    // Add dump string for each attribute
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+            !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("AttrSign",  attr.attributeSignature());
+      res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
     }
-    for(int k = 0; k < getNumInhDecl(); k++) {
-      InhDecl attr = getInhDecl(k);
-       if (attr.getLazy() || attr.isCircular()) 
-        list.add(attr);
-    }
-    // tokens
+  	return res.toString();
+  }
+  
+  /**
+   * Generate string with code for dumping token dependencies.
+   */
+  public String ASTDecl.genDumpTokenDepsString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
-         if (c instanceof TokenComponent && !c.isNTA()) {
-          stream.println(ind(2) + "if (get" + ((TokenComponent)c).getTokenId().getID() + "_handler != null) {");
-          stream.println(ind(3) +   "get" + ((TokenComponent)c).getTokenId().getID() + "_handler.dumpDeps();");
-          stream.println(ind(2) + "}");
-         }
-       }
-    }
-    // attributes
-    for(Iterator itr = list.iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
-      // handlers
-      if (grammar().incrementalLevelParam) {
-        if (attr.getNumParameter() > 0) {
-          stream.println(ind(2) + "for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                "_handler.values().iterator(); itr.hasNext();) {");
-          stream.println(ind(3) +   "ASTNode$DepGraphNode handler = (ASTNode$DepGraphNode)itr.next();");
-          stream.println(ind(3) +   "handler.dumpDeps();");
-          stream.println(ind(2) + "}");
-        } else {
-          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-          stream.println(ind(3) +   attr.attributeSignature() + "_handler.dumpDeps();");
-          stream.println(ind(2) + "}");
-        }
-      }
-      if (grammar().incrementalLevelAttr) {
-        stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-         stream.println(ind(3) +   attr.attributeSignature() + "_handler.dumpDeps();");
-         stream.println(ind(2) + "}");
-      }
-      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-        // values for NTAs
-        if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
-            !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-          if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
-            if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDependencies();");
-              stream.println(ind(2) + "}");
-            } else {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                      attr.attributeSignature() + "_value instanceof ASTNode)) {");
-              stream.println(ind(3) + attr.attributeSignature() + "_value.dumpDependencies();");
-              stream.println(ind(2) + "}");
-            }
-          }
+        if (c instanceof TokenComponent && !c.isNTA()) {
+          tt.bind("Id",  ((TokenComponent)c).getTokenId().getID());
+          res.append(tt.expand("ASTDecl.checkAndDumpTokenDeps"));
         }
       }
     }
-    stream.println(ind(2) + "// TODO: dump collection values");
-    // super call
-    if (!name().equals("ASTNode")) {
-      if (grammar().incrementalLevelRegion) {
-        if (!isRegionRoot()) 
-          stream.println(ind(2) + "super.dumpDependencies();");
-      } else {
-          stream.println(ind(2) + "super.dumpDependencies();");
-      }
-    }
-    stream.println(ind + "}");  
-    // end method: dumpDependencies()
-
-    // start method: dumpDepsInTree() 
-    stream.println(ind + "public void " + name() + ".dumpDepsInTree() {");
-    stream.println(ind(2) + "dumpDependencies();");
-    stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
-    stream.println(ind(3) +   "ASTNode child = children[i];");
-    stream.println(ind(3) +   "if (child == null)");
-    stream.println(ind(4) +     "continue;");
-    stream.println(ind(3) +   "child.dumpDepsInTree();");
-    stream.println(ind(2) + "}");
-    // attributes
-    for(Iterator itr = list.iterator(); itr.hasNext();) {
+    return res.toString();
+  }
+  
+  /**
+   * Generate string with code for dumping attribute values.
+   */
+  public String ASTDecl.genDumpAttributeValuesString() {
+    StringBuffer res = new StringBuffer();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      // values for NTAs
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
-         !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-        if (attr.getNumParameter() > 0) {
-          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-          stream.println(ind(3) +   attr.attributeSignature() + "_list.dumpDepsInTree();");
-          stream.println(ind(2) + "}");
-        } else {
-          stream.println(ind(2) + "if (" + attr.attributeSignature() + "_computed && (" +
-                                   attr.attributeSignature() + "_value instanceof ASTNode)) {");
-          stream.println(ind(3) + attr.attributeSignature() + "_value.dumpDepsInTree();");
-          stream.println(ind(2) + "}");
-        }                  
-      }
+      String u = attr.dumpCache();
+      u = u.replaceAll("#NAME#", attr.attributeSignature());
+      res.append(u);
     }
-    stream.println(ind + "}");
-    // end method: dumpDepsInTree()
-
+    return res.toString();
   }
 }
