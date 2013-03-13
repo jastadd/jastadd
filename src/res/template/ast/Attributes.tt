@@ -341,7 +341,7 @@ $endif
 ]]
 
 cacheCycleInit = [[
-$if(CacheCycleEnabled)
+$if(CacheCycle)
 state.LAST_CYCLE = true;
 #inhDebugString
 #circularComputeCall;
@@ -349,7 +349,7 @@ state.LAST_CYCLE = false;
 $endif]]
 
 addClearInterruptedCircle = [[
-$if(ComponentCheckEnabled)
+$if(ComponentCheck)
 if(interruptedCircle) {
   state.IN_CIRCLE = true;
   state.popEvalStack();
@@ -357,7 +357,7 @@ if(interruptedCircle) {
 $endif]]
 
 addCheckInterruptedCircle = [[
-$if(ComponentCheckEnabled)
+$if(ComponentCheck)
 if(state.IN_CIRCLE) {
   interruptedCircle = true;
   state.IN_CIRCLE = false;
@@ -366,7 +366,7 @@ if(state.IN_CIRCLE) {
 $endif]]
 
 addInterruptedCircleDeclaration = [[
-$if(ComponentCheckEnabled)
+$if(ComponentCheck)
 boolean interruptedCircle = false;
 $endif]]
 

@@ -4,7 +4,7 @@ ASTNode$State = [[
  */
 static public class ASTNode$$State {
 $if(CircularEnabled)
-  $if(CacheCycleEnabled)
+  $if(CacheCycle)
   /**
    * @apilevel internal
    */
@@ -37,7 +37,7 @@ $if(CircularEnabled)
     Object value;
     int visited = -1;
   }
-  $if(ComponentCheckEnabled)
+  $if(ComponentCheck)
   public $DefaultSetType circularEvalSet = $CreateDefaultSet;
 
   public java.util.Stack circularEvalStack = new java.util.Stack();
@@ -277,10 +277,10 @@ $if(CircularEnabled)
     IN_CIRCLE = false;
     CIRCLE_INDEX = 1;
     CHANGE = false;
-  $if(CacheCycleEnabled)
+  $if(CacheCycle)
     LAST_CYCLE = false;
   $endif
-  $if(ComponentCheckEnabled)
+  $if(ComponentCheck)
     circularEvalSet = $CreateDefaultSet;
     circularEvalStack = new java.util.Stack();
   $endif

@@ -636,9 +636,7 @@ public class JastAdd {
     tt.bind("Deterministic", root.deterministic);
     tt.bind("LazyMaps", root.lazyMaps);
     tt.bind("CircularEnabled", root.circularEnabled);
-    tt.bind("ComponentCheckEnabled", root.componentCheck);
     tt.bind("ComponentCheck", root.componentCheck);
-    tt.bind("CacheCycleEnabled", root.cacheCycle);
     tt.bind("CacheCycle", root.cacheCycle);
     tt.bind("Java5", root.java5);
     tt.bind("JJTree", root.jjtree);
