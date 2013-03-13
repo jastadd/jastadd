@@ -21,7 +21,7 @@ ListComponent.getNumChild = [[
    * @return Number of children in the $Name list.
    * @apilevel high-level
    */
-  public int $Host.getNum$Name() {
+  $Modifier int $Host.getNum$Name() {
     $SynchBegin
     return get$(Name)List().getNumChild();
     $SynchEnd
@@ -35,7 +35,7 @@ ListComponent.getNumChildNoTransform = [[
    * @return Number of children in the $Name list.
    * @apilevel low-level
    */
-  public int $Host.getNum$(Name)NoTransform() {
+  $Modifier int $Host.getNum$(Name)NoTransform() {
     $SynchBegin
     return get$(Name)ListNoTransform().getNumChildNoTransform();
     $SynchEnd
@@ -50,7 +50,7 @@ ListComponent.getChildAt = [[
    * @apilevel high-level
    */
   #annotations
-  public $Type $Host.get$Name(int i) {
+  $Modifier $Type $Host.get$Name(int i) {
     $SynchBegin
     return ($Type) get$(Name)List().getChild(i);
     $SynchEnd
@@ -63,7 +63,7 @@ ListComponent.addChild = [[
    * @param node The element to append to the $Name list.
    * @apilevel high-level
    */
-  public void $Host.add$Name($Type node) {
+  $Modifier void $Host.add$Name($Type node) {
     $SynchBegin
     $ListType list = (parent == null || state == null) ? get$(Name)ListNoTransform() : get$(Name)List();
     list.addChild(node);
@@ -75,7 +75,7 @@ ListComponent.addChildNoTransform = [[
   /**
    * @apilevel low-level
    */
-  public void $Host.add$(Name)NoTransform($Type node) {
+  $Modifier void $Host.add$(Name)NoTransform($Type node) {
     $SynchBegin
     $ListType list = get$(Name)ListNoTransform();
     list.addChild(node);
@@ -90,7 +90,7 @@ ListComponent.setChild = [[
    * @param i The list index of the node to be replaced.
    * @apilevel high-level
    */
-  public void $Host.set$Name($Type node, int i) {
+  $Modifier void $Host.set$Name($Type node, int i) {
     $SynchBegin
     $ListType list = get$(Name)List();
     #genIncrementalConstructorStartConstruction
@@ -108,7 +108,7 @@ $if(!#isNTA)
    * @apilevel high-level
    */
   #annotations
-  public $ListType $Host.get$(Name)List() {
+  $Modifier $ListType $Host.get$(Name)List() {
     $SynchBegin
     $ListType list = ($ListType) getChild($Index);
     list.getNumChild();
@@ -127,7 +127,7 @@ $if(!#isNTA)
    * @apilevel low-level
    */
   #annotations
-  public $ListType $Host.get$(Name)ListNoTransform() {
+  $Modifier $ListType $Host.get$(Name)ListNoTransform() {
     $SynchBegin
     return ($ListType) getChildNoTransform($Index);
     $SynchEnd
@@ -139,7 +139,7 @@ $else
    * @return The node representing the $Name list.
    * @apilevel low-level
    */
-  public $ListType $Host.get$(Name)ListNoTransform() {
+  $Modifier $ListType $Host.get$(Name)ListNoTransform() {
     $SynchBegin
     return ($ListType) getChildNoTransform($Index);
     $SynchEnd
@@ -154,7 +154,7 @@ $if(Java5)
    * @return The node representing the $Name list.
    * @apilevel high-level
    */
-  public $ListType $Host.get$(Name)s() {
+  $Modifier $ListType $Host.get$(Name)s() {
     $SynchBegin
     return get$(Name)List();
     $SynchEnd
@@ -170,7 +170,7 @@ $if(Java5)
    * @return The node representing the $Name list.
    * @apilevel low-level
    */
-  public $ListType $Host.get$(Name)sNoTransform() {
+  $Modifier $ListType $Host.get$(Name)sNoTransform() {
     $SynchBegin
     return get$(Name)ListNoTransform();
     $SynchEnd
