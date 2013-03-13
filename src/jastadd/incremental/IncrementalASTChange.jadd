@@ -27,45 +27,6 @@
  */
 aspect IncrementalASTChange {
 
-  public void ASTDecl.jjtGenIncrementalSetParent(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
-//    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_REWRITE_EVAL && !state().IN_ATTR_STORE_EVAL) {");
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {");
-    }
-    if (grammar().incrementalLevelRegion) {
-    stream.println(ind(2) + "if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {");
-    }
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      stream.println(ind(3) + "getParent_handler.notifyDependencies();");
-    }
-    if (grammar().incrementalLevelNode) {
-      stream.println(ind(2) + "if (parent != null) {");
-      stream.println(ind(3) +   "parent.handler.flushRegion();");
-      stream.println(ind(2) + "}");
-    }
-    if (grammar().incrementalLevelRegion) {
-      stream.println(ind(2) + "if (parent != null) {");
-      stream.println(ind(3) +   "parent.handler().flushRegion();");
-      stream.println(ind(2) + "}");
-    }
-    stream.println(ind(2) + "}");
-    stream.println(ind(2) + "if (parent != null) {");
-    stream.println(ind(3) +   "int index = -1;");
-    stream.println(ind(3) +   "for (int i = 0; parent.children != null && i < parent.children.length; i++) {");
-    stream.println(ind(4) +     "if (parent.children[i] == this) {");
-    stream.println(ind(5) +       "index = i;");
-    stream.println(ind(5) +       "break;");
-    stream.println(ind(4) +     "}");
-    stream.println(ind(3) +   "}");
-    stream.println(ind(3) +   "if (index >= 0)");
-    stream.println(ind(4) +     "parent.removeChild(index);");
-    stream.println(ind(2) + "}");
-    stream.println(ind(2) + "if (node != null) {");
-    stream.println(ind(3) +   "inc_changeState(node.inc_state);");
-    stream.println(ind(2) + "} else inc_changeState(inc_GARBAGE);");
-  }
-
   String TokenComponent.jaddGenIncrementalTokenChange(String varName) {
     if (!grammar().incremental) return ""; 
     StringBuffer buf = new StringBuffer();

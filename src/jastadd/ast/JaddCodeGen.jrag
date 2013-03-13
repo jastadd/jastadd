@@ -568,26 +568,11 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
   }
 
-  public void ASTDecl.emitSetGetParent(PrintWriter stream) {
-    TemplateContext tt = templateContext();
-    
-    // getParent
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public ASTNode ASTNode.getParent() {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    if(grammar().rewriteEnabled) {
-      stream.println(ind(2) + "if(parent != null && ((ASTNode)parent).is$Final() != is$Final()) {");
-      stream.println(ind(3) + "state().boundariesCrossed++;");
-      stream.println(ind(2) + "}");
-    }
-    jjtGenIncrementalTrackGetParent(stream);
-    stream.println(ind(2) + "return (ASTNode)parent;");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
-    
-    tt.expand("ASTNode.setParent", stream);
+  public void ASTDecl.emitSetGetParent(PrintWriter out) {
+    TemplateContext tt = templateContext();  
+    tt.bind("IsRegionRoot", isRegionRoot());  
+    tt.expand("ASTNode.getParent", out);
+    tt.expand("ASTNode.setParent", out);
   }
 
   public void ASTDecl.jjtGenASTNode(PrintWriter stream) {

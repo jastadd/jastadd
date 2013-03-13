@@ -503,23 +503,6 @@ aspect IncrementalTracking {
     }
   }
 
-  public void ASTDecl.jjtGenIncrementalTrackGetParent(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      stream.println(ind(2) + "state().addHandlerDepTo(getParent_handler);");
-    }
-    if (grammar().incrementalLevelNode) {
-      stream.println(ind(2) + "if (parent != null)");
-      stream.println(ind(3) +   "state().addHandlerDepTo(((ASTNode)parent).handler);");
-    }
-    if (grammar().incrementalLevelRegion) {
-      if (isRegionRoot()) {
-        stream.println(ind(2) + "if (state().IN_COMPUTATION > 0 && parent != null)");
-        stream.println(ind(3) +   "parent.handler().addDependant(handler);");
-      }
-    }
-  }
-
   public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {
     if (!grammar().incremental) return; 
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {

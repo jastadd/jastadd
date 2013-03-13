@@ -221,8 +221,25 @@ ASTNode.setParent = [[
    */
   public void ASTNode.setParent(ASTNode node) {
     $SynchBegin
-    $include(ASTDecl.incHookSetParentBegin)
+    $include(ASTDecl.incHookSetParent)
     parent = node;
+    $SynchEnd
+  }
+]]
+
+ASTNode.getParent = [[
+  /**
+   * @apilevel low-level
+   */
+  public ASTNode ASTNode.getParent() {
+    $SynchBegin
+$if(RewriteEnabled)
+    if(parent != null && ((ASTNode)parent).is$$Final() != is$$Final()) {
+      state().boundariesCrossed++;
+    }
+$endif
+    $include(ASTDecl.incHookGetParent);
+    return (ASTNode)parent;
     $SynchEnd
   }
 ]]

@@ -63,6 +63,7 @@ aspect TemplateUtil {
       loadTemplates(tt, "incremental/Debug");
     }
     loadTemplates(tt, "incremental/ASTChange");
+    loadTemplates(tt, "incremental/Tracking");
     return new SimpleContext(tt, this);
   }
 
