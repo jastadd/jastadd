@@ -372,20 +372,8 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.emitAddChild(PrintWriter out) {
-    if(grammar().java5) {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      out.println(ind + "public void ASTNode.addChild(T node) {");
-    } else {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      out.println(ind + "public void ASTNode.addChild(ASTNode node) {");
-    }
-    out.println(ind(2) + "setChild(node, getNumChildNoTransform());");
-    jjtGenIncrementalASTChangeAddChild1(out); 
-    out.println(ind + "}");
+    TemplateContext tt = templateContext();
+    tt.expand("ASTNode.addChild", out);
   }
 
   public void ASTDecl.emitGetChildNoTransform(PrintWriter out) {

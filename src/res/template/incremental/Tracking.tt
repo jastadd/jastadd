@@ -1,8 +1,11 @@
-ASTDecl.incHookGetParent = [[
+
+ASTNode.incHookGetParent = [[
 $if (IncrementalEnabled)
+
 $if (IncrementalLevelParam)
 state().addHandlerDepTo(getParent_handler);
 $endif
+
 $if (IncrementalLevelAttr)
 state().addHandlerDepTo(getParent_handler);
 $endif
@@ -11,6 +14,7 @@ if (parent != null) {
   state().addHandlerDepTo(((ASTNode)parent).handler);
 }
 $endif
+
 $if (IncrementalLevelRegion)
 $if (IsRegionRoot)
 if (state().IN_COMPUTATION > 0 && parent != null) {
@@ -18,5 +22,52 @@ if (state().IN_COMPUTATION > 0 && parent != null) {
 }
 $endif
 $endif
+
+$endif
+]]
+
+ASTNode.incHookAddChild = [[
+$if(IncrementalEnabled) 
+
+$if(IncrementalLevelParam)
+int i = getNumChildNoTransform() - 1;
+if (getChild_handler[i] == null) {
+$if(IncrementalPropLimit)
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !node.mayHaveRewrite());
+$else
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+$endif
+}
+state().addHandlerDepTo(getChild_handler[i]);    
+if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
+  node.is$$Final(is$$Final());
+}
+$endif
+
+$if(IncrementalLevelAttr)
+state().addHandlerDepTo(getChild_handler);
+if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
+  node.is$$Final(is$$Final());
+}
+$endif
+
+$if(IncrementalLevelNode)
+if (node != null) {
+  state().addHandlerDepTo(node.handler);
+  if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
+    node.is$$Final(is$$Final());
+  }
+}
+$endif
+
+$if(IncrementalLevelRegion)
+if (node != null && node.isRegionRoot()) {
+  state().addHandlerDepTo(node.handler());
+  if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
+    node.is$$Final(is$$Final());
+  }
+}
+$endif
+
 $endif
 ]]

@@ -221,7 +221,7 @@ ASTNode.setParent = [[
    */
   public void ASTNode.setParent(ASTNode node) {
     $SynchBegin
-    $include(ASTDecl.incHookSetParent)
+    $include(ASTNode.incHookSetParent)
     parent = node;
     $SynchEnd
   }
@@ -238,8 +238,22 @@ $if(RewriteEnabled)
       state().boundariesCrossed++;
     }
 $endif
-    $include(ASTDecl.incHookGetParent);
+    $include(ASTNode.incHookGetParent);
     return (ASTNode)parent;
     $SynchEnd
+  }
+]]
+
+ASTNode.addChild = [[
+  /**
+    * @apilevel low-level
+    */
+$if(Java5)
+  public void ASTNode.addChild(T node) {
+$else
+  public void ASTNode.addChild(ASTNode node) {
+$endif
+    setChild(node, getNumChildNoTransform());
+    $include(ASTNode.incHookAddChild) 
   }
 ]]

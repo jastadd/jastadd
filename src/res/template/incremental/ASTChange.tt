@@ -1,5 +1,5 @@
 
-ASTDecl.incHookSetParent = [[
+ASTNode.incHookSetParent = [[
 $if (IncrementalEnabled)
 $if (IncrementalLevelParam)
 if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {

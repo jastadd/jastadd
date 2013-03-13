@@ -76,7 +76,7 @@ ASTDecl.trackGetChildForRegionMethod = [[
  * @apilevel low-level
  */
  // Overloading getChild for region leaf
-$if (java5)
+$if (Java5)
 @SuppressWarnings("cast") 
 public T #name.getChild(int i) {
   ASTNode child = super.getChild(i);
@@ -102,7 +102,7 @@ ASTDecl.trackGetChildNoTranForRegionMethod = [[
  * @apilevel low-level
  */
  // Overloading getChildNoTransform for region leaf
-$if (java5)
+$if (Java5)
 @SuppressWarnings("cast")
 public T #name.getChildNoTransform(int i) {
   ASTNode child = super.getChildNoTransform(i);
