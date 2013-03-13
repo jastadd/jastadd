@@ -284,7 +284,7 @@ aspect JaddCodeGen {
   /**
    * Print the getChild method to the output stream.
    */
-  public void ASTDecl.genGetChild(PrintWriter stream) {
+  public void ASTDecl.emitGetChild(PrintWriter stream) {
     String returnTypeCast;
     if(grammar().java5) {
       stream.println(ind + "/**");
@@ -371,6 +371,223 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
   }
 
+  public void ASTDecl.emitAddChild(PrintWriter out) {
+    if(grammar().java5) {
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      out.println(ind + "public void ASTNode.addChild(T node) {");
+    } else {
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      out.println(ind + "public void ASTNode.addChild(ASTNode node) {");
+    }
+    out.println(ind(2) + "setChild(node, getNumChildNoTransform());");
+    jjtGenIncrementalASTChangeAddChild1(out); 
+    out.println(ind + "}");
+  }
+
+  public void ASTDecl.emitGetChildNoTransform(PrintWriter out) {
+    if(grammar().java5) {
+      out.println(ind + "/**");
+      out.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      out.println(ind + "@SuppressWarnings(\"cast\")");
+      
+      // Must be able to override get child methods for incremental evaluation
+      if (grammar().incremental) { 
+        jjtGenIncrementalTrackGetChildNoTransformNameGeneric(out);
+      } else { 
+        out.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
+      }
+      
+      if(grammar().block) out.print(grammar().blockBegin);
+      out.println(ind(2) + "if (children == null) return null;");
+      out.println(ind(2) + "T child = (T)children[i];");
+      jjtGenIncrementalTrackGetChildNoTransform(out);
+      out.println(ind(2) + "return child;");        
+      if(grammar().block) out.print(grammar().blockEnd);
+      out.println(ind + "}");
+    } else {
+      out.println(ind + "/**");
+      out.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      
+      // Must be able to override get child methods for incremental evaluation
+      if (grammar().incremental) {
+        jjtGenIncrementalTrackGetChildNoTransformName(out);
+      } else { 
+        out.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
+      }
+      
+      if(grammar().block) out.print(grammar().blockBegin);
+      out.println(ind(2) + "if (children == null) return null;");
+      out.println(ind(2) + "ASTNode child = (ASTNode)children[i];");
+      jjtGenIncrementalTrackGetChildNoTransform(out);
+      out.println(ind(2) + "return child;");        
+      if(grammar().block) out.print(grammar().blockEnd);
+      out.println(ind + "}");
+    }
+  }
+
+  public void ASTDecl.emitNumChildren(PrintWriter stream) {
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "protected int ASTNode.numChildren;"); // added
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "protected int ASTNode.numChildren() {");
+    jjtGenIncrementalTrackNumChild(stream);
+    stream.println(ind(2) + "return numChildren;");
+    stream.println(ind + "}");
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public int ASTNode.getNumChild() {");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    jjtGenIncrementalTrackNumChild(stream);
+    stream.println(ind(2) + "return numChildren();");
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.println(ind + "}");
+    stream.println(ind + "/**");
+    stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public final int ASTNode.getNumChildNoTransform() {");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    stream.println(ind(2) + "return numChildren();");
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.println(ind + "}");
+  }
+
+  public void ASTDecl.emitSetChild(PrintWriter stream) {
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.setChild(ASTNode node, int i) {");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    if(grammar().debugMode) {
+      stream.println(ind(2) + "debugNodeAttachment(node);");
+    }
+    jjtGenIncrementalASTChangeSetChild1(stream);
+    stream.println(ind(2) + "if(children == null) {");
+    stream.println(ind(3) + "children = new ASTNode[" + initialChildArraySize() + "];");
+    jjtGenIncrementalASTChangeSetChild2(stream);
+    stream.println(ind(2) + "} else if (i >= children.length) {");
+    stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
+    stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
+    stream.println(ind(3) + "children = c;");
+    jjtGenIncrementalASTChangeSetChild3(stream);
+    emitFlushRewritesSetChildCopyState(stream);
+    stream.println(ind(2) + "}");
+    jjtGenIncrementalASTChangeSetChild5(stream);
+    stream.println(ind(2) + "children[i] = node;");
+    stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
+    stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    jjtGenIncrementalASTChangeSetChild4(stream);
+    emitFlushRewritesSetChildInitState(stream);
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.println(ind + "}");
+  }
+
+  public void ASTDecl.emitInsertChild(PrintWriter stream) {
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.insertChild(ASTNode node, int i) {");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    if(grammar().debugMode) {
+      stream.println(ind(2) + "debugNodeAttachment(node);");
+    }
+    jjtGenIncrementalASTChangeInsertChild3(stream);
+    stream.println(ind(2) + "if(children == null) {");
+    stream.println(ind(3) + "children = new ASTNode[" + initialChildArraySize() + "];");
+    stream.println(ind(3) + "children[i] = node;");
+    jjtGenIncrementalASTChangeInsertChild1(stream);
+    stream.println(ind(2) + "} else {");
+    stream.println(ind(3) + "ASTNode c[] = new ASTNode[children.length + 1];");
+    stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, i);");
+    stream.println(ind(3) + "c[i] = node;");
+    stream.println(ind(3) + "if(i < children.length) {");
+    stream.println(ind(4) + "System.arraycopy(children, i, c, i+1, children.length-i);");
+    stream.println(ind(4) + "for(int j = i+1; j < c.length; ++j) {");
+    stream.println(ind(5) +   "if(c[j] != null)");
+    stream.println(ind(6) +     "c[j].childIndex = j;");
+    stream.println(ind(4) +   "}");
+    stream.println(ind(3) + "}");
+    stream.println(ind(3) + "children = c;");
+    jjtGenIncrementalASTChangeInsertChild2(stream);
+    emitFlushRewritesInsertChildUpdateState(stream);
+    stream.println(ind(2) + "}");
+    stream.println(ind(2) + "numChildren++;");
+    stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.println(ind + "}");
+  }
+
+  public void ASTDecl.emitRemoveChild(PrintWriter stream) {
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public void ASTNode.removeChild(int i) {");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    stream.println(ind(2) + "if(children != null) {");
+    jjtGenIncrementalASTChangeRemoveChild1(stream);
+    stream.println(ind(3) + "ASTNode child = (ASTNode)children[i];");
+    stream.println(ind(3) + "if(child != null) {");
+    jjtGenIncrementalASTChangeRemoveChild3(stream); 
+    stream.println(ind(4) + "child.parent = null;");
+    stream.println(ind(4) + "child.childIndex = -1;");
+    stream.println(ind(3) + "}");
+    // ES_2012-03-01: Adding a check of this instance to make sure its a List, a move of children doesn't make
+    // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
+    // and siblings are moved one step to the right, with null at the end.
+    stream.println(ind(3) + "if (this instanceof List || this instanceof Opt) {");
+    stream.println(ind(4) +   "System.arraycopy(children, i+1, children, i, children.length-i-1);");
+    stream.println(ind(4) +   "children[children.length-1] = null;");
+    stream.println(ind(4) +   "numChildren--;");
+    // fix child indices
+    stream.println(ind(4) +   "for(int j = i; j < numChildren; ++j) {");
+    stream.println(ind(5) +     "if(children[j] != null) {");
+    stream.println(ind(6) +       "child = (ASTNode) children[j];");
+    stream.println(ind(6) +       "child.childIndex = j;");
+    stream.println(ind(5) +     "}");
+    stream.println(ind(4) +   "}");
+    stream.println(ind(3) + "} else {");
+    stream.println(ind(4) +   "children[i] = null;");
+    stream.println(ind(3) + "}");
+    jjtGenIncrementalASTChangeRemoveChild2(stream);
+    emitFlushRewritesRemoveChild(stream);
+    stream.println(ind(2) + "}");
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.println(ind + "}");
+  }
+
+  public void ASTDecl.emitSetGetParent(PrintWriter stream) {
+    // getParent
+    stream.println(ind + "/**");
+    stream.println(ind + " * @apilevel low-level");
+    stream.println(ind + " */");
+    stream.println(ind + "public ASTNode ASTNode.getParent() {");
+    if(grammar().block) stream.print(grammar().blockBegin);
+    if(grammar().rewriteEnabled) {
+      stream.println(ind(2) + "if(parent != null && ((ASTNode)parent).is$Final() != is$Final()) {");
+      stream.println(ind(3) + "state().boundariesCrossed++;");
+      stream.println(ind(2) + "}");
+    }
+    jjtGenIncrementalTrackGetParent(stream);
+    stream.println(ind(2) + "return (ASTNode)parent;");
+    if(grammar().block) stream.print(grammar().blockEnd);
+    stream.println(ind + "}");
+    
+    tt.expand("ASTNode.setParent", stream);
+  }
+
   public void ASTDecl.jjtGenASTNode(PrintWriter stream) {
     TemplateContext tt = templateContext();
     tt.expand("ASTNode.declarations", stream);
@@ -413,224 +630,22 @@ aspect JaddCodeGen {
       stream.println(ind(2) + "return state;");
       stream.println(ind + "}");
     }
-    else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "protected static ASTNode$State ASTNode.state = new ASTNode$State();");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public final ASTNode$State ASTNode.state() { return state; }");
-    }
 
-    tt.expand("ASTNode.rewriteDecls", stream);
+    emitGetChild(stream);
 
-    genGetChild(stream);
+    emitAddChild(stream);
 
-    tt.expand("ASTNode.childIndex", stream);
+    emitGetChildNoTransform(stream);
 
-    if(grammar().java5) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "public void ASTNode.addChild(T node) {");
-    } else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "public void ASTNode.addChild(ASTNode node) {");
-    }
-    stream.println(ind(2) + "setChild(node, getNumChildNoTransform());");
-    jjtGenIncrementalASTChangeAddChild1(stream); 
-    stream.println(ind + "}");
+    emitNumChildren(stream);
 
-    if(grammar().java5) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "@SuppressWarnings(\"cast\")");
-      
-      // Must be able to override get child methods for incremental evaluation
-      if (grammar().incremental) { 
-        jjtGenIncrementalTrackGetChildNoTransformNameGeneric(stream);
-      } else { 
-        stream.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
-      }
-      
-      if(grammar().block) stream.print(grammar().blockBegin);
-      stream.println(ind(2) + "if (children == null) return null;");
-      stream.println(ind(2) + "T child = (T)children[i];");
-      jjtGenIncrementalTrackGetChildNoTransform(stream);
-      stream.println(ind(2) + "return child;");        
-      if(grammar().block) stream.print(grammar().blockEnd);
-      stream.println(ind + "}");
-    }
-    else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      
-      // Must be able to override get child methods for incremental evaluation
-      if (grammar().incremental) {
-        jjtGenIncrementalTrackGetChildNoTransformName(stream);
-      } else { 
-        stream.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
-      }
-      
-      if(grammar().block) stream.print(grammar().blockBegin);
-      stream.println(ind(2) + "if (children == null) return null;");
-      stream.println(ind(2) + "ASTNode child = (ASTNode)children[i];");
-      jjtGenIncrementalTrackGetChildNoTransform(stream);
-      stream.println(ind(2) + "return child;");        
-      if(grammar().block) stream.print(grammar().blockEnd);
-      stream.println(ind + "}");
-    }
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "protected int ASTNode.numChildren;"); // added
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "protected int ASTNode.numChildren() {");
-    jjtGenIncrementalTrackNumChild(stream);
-    stream.println(ind(2) + "return numChildren;");
-    stream.println(ind + "}");
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public int ASTNode.getNumChild() {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    jjtGenIncrementalTrackNumChild(stream);
-    stream.println(ind(2) + "return numChildren();");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
-    stream.println(ind + "/**");
-    stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public final int ASTNode.getNumChildNoTransform() {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    stream.println(ind(2) + "return numChildren();");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
+    emitSetChild(stream);
 
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public void ASTNode.setChild(ASTNode node, int i) {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    if(grammar().debugMode) {
-      stream.println(ind(2) + "debugNodeAttachment(node);");
-    }
-    jjtGenIncrementalASTChangeSetChild1(stream);
-    stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[" + initialChildArraySize() + "];");
-    jjtGenIncrementalASTChangeSetChild2(stream);
-    stream.println(ind(2) + "} else if (i >= children.length) {");
-    stream.println(ind(3) + "ASTNode c[] = new ASTNode[i << 1];");
-    stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, children.length);");
-    stream.println(ind(3) + "children = c;");
-    jjtGenIncrementalASTChangeSetChild3(stream);
-    emitFlushRewritesSetChildCopyState(stream);
-    stream.println(ind(2) + "}");
-    jjtGenIncrementalASTChangeSetChild5(stream);
-    stream.println(ind(2) + "children[i] = node;");
-    stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
-    stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
-    jjtGenIncrementalASTChangeSetChild4(stream);
-    emitFlushRewritesSetChildInitState(stream);
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
+    emitInsertChild(stream);
 
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public void ASTNode.insertChild(ASTNode node, int i) {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    if(grammar().debugMode) {
-      stream.println(ind(2) + "debugNodeAttachment(node);");
-    }
-    jjtGenIncrementalASTChangeInsertChild3(stream);
-    stream.println(ind(2) + "if(children == null) {");
-    stream.println(ind(3) + "children = new ASTNode[" + initialChildArraySize() + "];");
-    stream.println(ind(3) + "children[i] = node;");
-    jjtGenIncrementalASTChangeInsertChild1(stream);
-    stream.println(ind(2) + "} else {");
-    stream.println(ind(3) + "ASTNode c[] = new ASTNode[children.length + 1];");
-    stream.println(ind(3) + "System.arraycopy(children, 0, c, 0, i);");
-    stream.println(ind(3) + "c[i] = node;");
-    stream.println(ind(3) + "if(i < children.length) {");
-    stream.println(ind(4) + "System.arraycopy(children, i, c, i+1, children.length-i);");
-    stream.println(ind(4) + "for(int j = i+1; j < c.length; ++j) {");
-    stream.println(ind(5) +   "if(c[j] != null)");
-    stream.println(ind(6) +     "c[j].childIndex = j;");
-    stream.println(ind(4) +   "}");
-    stream.println(ind(3) + "}");
-    stream.println(ind(3) + "children = c;");
-    jjtGenIncrementalASTChangeInsertChild2(stream);
-    emitFlushRewritesInsertChildUpdateState(stream);
-    stream.println(ind(2) + "}");
-    stream.println(ind(2) + "numChildren++;");
-    stream.println(ind(2) + "if(node != null) { node.setParent(this); node.childIndex = i; }");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
+    emitRemoveChild(stream);
 
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public void ASTNode.removeChild(int i) {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    stream.println(ind(2) + "if(children != null) {");
-    jjtGenIncrementalASTChangeRemoveChild1(stream);
-    stream.println(ind(3) + "ASTNode child = (ASTNode)children[i];");
-    stream.println(ind(3) + "if(child != null) {");
-    jjtGenIncrementalASTChangeRemoveChild3(stream); 
-    stream.println(ind(4) + "child.parent = null;");
-    stream.println(ind(4) + "child.childIndex = -1;");
-    stream.println(ind(3) + "}");
-    // ES_2012-03-01: Adding a check of this instance to make sure its a List, a move of children doesn't make
-    // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
-    // and siblings are moved one step to the right, with null at the end.
-    stream.println(ind(3) + "if (this instanceof List || this instanceof Opt) {");
-    stream.println(ind(4) +   "System.arraycopy(children, i+1, children, i, children.length-i-1);");
-    stream.println(ind(4) +   "children[children.length-1] = null;");
-    stream.println(ind(4) +   "numChildren--;");
-    // fix child indices
-    stream.println(ind(4) +   "for(int j = i; j < numChildren; ++j) {");
-    stream.println(ind(5) +     "if(children[j] != null) {");
-    stream.println(ind(6) +       "child = (ASTNode) children[j];");
-    stream.println(ind(6) +       "child.childIndex = j;");
-    stream.println(ind(5) +     "}");
-    stream.println(ind(4) +   "}");
-    stream.println(ind(3) + "} else {");
-    stream.println(ind(4) +   "children[i] = null;");
-    stream.println(ind(3) + "}");
-    jjtGenIncrementalASTChangeRemoveChild2(stream);
-    emitFlushRewritesRemoveChild(stream);
-    stream.println(ind(2) + "}");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
-
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public ASTNode ASTNode.getParent() {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    if(grammar().rewriteEnabled) {
-      stream.println(ind(2) + "if(parent != null && ((ASTNode)parent).is$Final() != is$Final()) {");
-      stream.println(ind(3) + "state().boundariesCrossed++;");
-      stream.println(ind(2) + "}");
-    }
-    jjtGenIncrementalTrackGetParent(stream);
-    stream.println(ind(2) + "return (ASTNode)parent;");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
-    
-    tt.expand("ASTNode.setParent", stream);
+    emitSetGetParent(stream);
 
     tt.expand("ASTNode.debugDecls", stream);
   }

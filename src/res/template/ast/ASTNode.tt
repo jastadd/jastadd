@@ -4,6 +4,27 @@ ASTNode.declarations = [[
   /**
    * @apilevel internal
    */
+  private int ASTNode.childIndex;
+
+  /**
+   * @apilevel low-level
+   */
+  public int ASTNode.getIndexOfChild(ASTNode node) {
+    if (node != null && node.childIndex < numChildren
+        && node == children[node.childIndex])
+      return node.childIndex;
+    for(int i = 0; children != null && i < children.length; i++) {
+      if(children[i] == node) {
+        node.childIndex = i;
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * @apilevel internal
+   */
   public static final boolean ASTNode.generatedWithCircularEnabled = $CircularEnabled;
   /**
    * @apilevel internal
@@ -27,9 +48,19 @@ $if(!JJTree)
    */
   protected ASTNode[] ASTNode.children;
 $endif
-]]
+$if(!NoStatic)
+  /**
+   * @apilevel internal
+   */
+  protected static ASTNode$$State ASTNode.state = new ASTNode$$State();
 
-ASTNode.rewriteDecls = [[
+  /**
+   * @apilevel internal
+   */
+  public final ASTNode$$State ASTNode.state() {
+    return state;
+  }
+$endif
 $if(RewriteEnabled)
   /**
    * @apilevel internal
@@ -157,29 +188,6 @@ $endif
     }
   }
 $endif
-]]
-
-ASTNode.childIndex = [[
-  /**
-   * @apilevel internal
-   */
-  private int ASTNode.childIndex;
-
-  /**
-   * @apilevel low-level
-   */
-  public int ASTNode.getIndexOfChild(ASTNode node) {
-    if (node != null && node.childIndex < numChildren
-        && node == children[node.childIndex])
-      return node.childIndex;
-    for(int i = 0; children != null && i < children.length; i++) {
-      if(children[i] == node) {
-        node.childIndex = i;
-        return i;
-      }
-    }
-    return -1;
-  }
 ]]
 
 ASTNode.iterator = [[
