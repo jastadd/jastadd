@@ -27,7 +27,7 @@
  */
 aspect IncrementalASTChange {
 
-  String TokenComponent.jaddGenIncrementalTokenChange(String varName) {
+  String TokenComponent.jaddGenIncrementalTokenChange(String host, String varName) {
     if (!grammar().incremental) return ""; 
     StringBuffer buf = new StringBuffer();
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {
@@ -82,13 +82,18 @@ aspect IncrementalASTChange {
       buf.append("       ASTNode initial = inc_locateInitialCopy();\n");
       buf.append("       if (initial != null) {\n");
       buf.append("         state().enterConstruction();\n");
-      buf.append("         ((#HOST#)initial).set#ID#(" + varName + ");\n");
+      buf.append("         ((#HOST#)initial).set#ID#(#VARNAME#);\n");
       buf.append("         state().exitConstruction();\n");
       buf.append("         return;\n");
       buf.append("       }\n");
     }
     buf.append("    }\n");
-    return buf.toString();
+    String s = buf.toString();
+    s = s.replaceAll("#ID#", getTokenId().getID());
+    s = s.replaceAll("#TYPEINSIGNATURE#", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
+    s = s.replaceAll("#HOST#", host);
+    s = s.replaceAll("#VARNAME#", varName);
+    return s;
   }
 
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {

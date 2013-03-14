@@ -948,170 +948,40 @@ aspect JaddCodeGen {
     parse(s);
   }
 
+  syn String TokenComponent.annotations() = suppressWarnings();
 
-  String TokenComponent.setIDComment() {
-    return ind + "/**\n" +
-      ind + " * Replaces the lexeme #ID#.\n" +
-      ind + " * @param value The new value for the lexeme #ID#.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
-  String TokenComponent.getIDComment() {
-    return ind + "/**\n" +
-      ind + " * Retrieves the value for the lexeme #ID#.\n" +
-      ind + " * @return The value for the lexeme #ID#.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n";
-  }
   private boolean TokenComponent.called = false;
-  public void TokenComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
-    String name = decl.name();
-    StringBuffer buf = new StringBuffer();
-    // Generate attribute, get- and set-method for the token string
-    buf.append(setIDComment());
-    buf.append(
-        genIncrementalTokenHandler(decl) +
-        ind + "public void #HOST#.set#ID#(#TYPE# value) {\n" +
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "token#TYPEINSIGNATURE#_#ID# = value;\n" +
-        jaddGenIncrementalTokenChange("value") +
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n"
-        );
-    if(decl.redefinesTokenComponent(this)) {
-      buf.append(ind + "/**\n");
-      buf.append(ind + " * @apilevel internal\n");
-      buf.append(ind + " */\n");
-      buf.append(ind + "protected #TYPE# #HOST#.token#TYPEINSIGNATURE#_#ID#;\n");
-    }
-    if(!isNTA()) {
-      boolean isStringToken = getTokenId().getTYPE().equals("String") || getTokenId().getTYPE().equals("java.lang.String");
-      if(isStringToken && grammar().beaver) {
-        if(decl.redefinesTokenComponent(this)) {
-          buf.append(
-              ind + "public int #HOST#.#ID#start;\n" +
-              ind + "public int #HOST#.#ID#end;\n"
-              );
-        }
-        buf.append(
-            ind + "/**\n" +
-            ind + " * JastAdd-internal setter for lexeme #ID# using the Beaver parser.\n" +
-            ind + " * @apilevel internal\n" +
-            ind + " */\n" +
-            ind + "public void #HOST#.set#ID#(beaver.Symbol symbol) {\n" +
-            (grammar().block ? grammar().blockBegin : "") +
-            ind(2) + "if(symbol.value != null && !(symbol.value instanceof String))\n" +
-            ind(3) + "throw new UnsupportedOperationException(\"set#ID# is only valid for String lexemes\");\n" +
-            ind(2) + "token#TYPEINSIGNATURE#_#ID# = (String)symbol.value;\n" +
-            ind(2) + "#ID#start = symbol.getStart();\n" +
-            ind(2) + "#ID#end = symbol.getEnd();\n" +
-            jaddGenIncrementalTokenChange("symbol") + 
-            (grammar().block ? grammar().blockEnd : "") +
-            ind + "}\n"
-            );
-      }
-      if(isStringToken)
-        buf.append(
-            getIDComment() +
-            ind + "public #TYPE# #HOST#.get#ID#() {\n" +
-            (grammar().block ? grammar().blockBegin : "") +
-            jaddGenIncrementalTokenTrack() +
-            ind(2) + "return token#TYPEINSIGNATURE#_#ID# != null ? token#TYPEINSIGNATURE#_#ID# : \"\";\n" +
-            (grammar().block ? grammar().blockEnd : "") +
-            ind + "}\n");
-      else
-        buf.append(
-            getIDComment() +
-            ind + "public #TYPE# #HOST#.get#ID#() {\n" +
-            (grammar().block ? grammar().blockBegin : "") +
-            jaddGenIncrementalTokenTrack() +
-            ind(2) + "return token#TYPEINSIGNATURE#_#ID#;\n" +
-            (grammar().block ? grammar().blockEnd : "") +
-            ind + "}\n");
-    }
-    String s = buf.toString();
-    s = s.replaceAll("#ID#", getTokenId().getID());
-    s = s.replaceAll("#TYPE#", getTokenId().getTYPE());
-    s = s.replaceAll("#TYPEINSIGNATURE#", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
-    s = s.replaceAll("#HOST#", name);
-    if(!publicModifier)
-      s = s.replaceAll(ind + "public ", ind + "private ");
-    //stream.println(s);
-    parse(s);
 
+  public void TokenComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
+    TemplateContext tt = templateContext();
+    tt.bind("Id", getTokenId().getID());
+    tt.bind("Type", getTokenId().getTYPE());
+    tt.bind("TypeInSignature", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
+    tt.bind("Host", decl.name());
+    tt.bind("Modifier", publicModifier ? "public" : "private");
+
+    boolean isStringToken = getTokenId().getTYPE().equals("String") || getTokenId().getTYPE().equals("java.lang.String");
+    boolean isRedefined = decl.redefinesTokenComponent(this);
+    tt.bind("IsStringToken", isStringToken);
+    tt.bind("IsRedefined", isRedefined);
+    
+    tt.bind("IncrementalTokenTrack", jaddGenIncrementalTokenTrack());
+    tt.bind("IncrementalTokenHandler", genIncrementalTokenHandler(decl));
+    tt.bind("IncrementalTokenChangeValue", jaddGenIncrementalTokenChange(decl.name(), "value"));
+    tt.bind("IncrementalTokenChangeSymbol", jaddGenIncrementalTokenChange(decl.name(), "symbol"));
+
+    parse(tt.expand("TokenComponent"));
   }
 
   public void AggregateComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
-    String name = decl.name();
-    String s;
-    // Generate get-method for component
-    s =
-      ind + "/**\n" +
-      ind + " * Replaces the #NAME# child.\n" +
-      ind + " * @param node The new node to replace the #NAME# child.\n" +
-      ind + " * @apilevel high-level\n" +
-      ind + " */\n" +
-      ind + "public void #HOST#.set#NAME#(#TYPE# node) {\n" + 
-      (grammar().block ? grammar().blockBegin : "") +
-      ind(2) + genIncrementalConstructorStartConstruction() +
-      ind(2) + "setChild(node, #INDEX#);\n" + 
-      ind(2) + genIncrementalConstructorEndConstruction() +
-      (grammar().block ? grammar().blockEnd : "") +
-      ind + "}\n";
-    if(!isNTA()) {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# child.\n" +
-        ind + " * @return The current node used as the #NAME# child.\n" +
-        ind + " * @apilevel high-level\n" +
-        ind + " */\n" +
-        ind + "public #TYPE# #HOST#.get#NAME#() {\n" +
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#TYPE#)getChild(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" + 
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# child.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The current node used as the #NAME# child.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#TYPE#)getChildNoTransform(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n";
-    }
-    else {
-      s +=
-        ind + "/**\n" +
-        ind + " * Retrieves the #NAME# child.\n" +
-        ind + " * <p><em>This method does not invoke AST transformations.</em></p>\n" +
-        ind + " * @return The current node used as the #NAME# child.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "public #TYPE# #HOST#.get#NAME#NoTransform() {\n" +
-        (grammar().block ? grammar().blockBegin : "") +
-        ind(2) + "return (#TYPE#)getChildNoTransform(#INDEX#);\n" + 
-        (grammar().block ? grammar().blockEnd : "") +
-        ind + "}\n" +
-        ind + "/**\n" +
-        ind + " * Retrieves the child position of the optional child #NAME#.\n" +
-        ind + " * @return The the child position of the optional child #NAME#.\n" +
-        ind + " * @apilevel low-level\n" +
-        ind + " */\n" +
-        ind + "protected int #HOST#.get#NAME#ChildPosition() {\n" +
-        ind(2) + "return #INDEX#;\n" +
-        ind + "}\n";
-    }
-    s = s.replaceAll("#TYPE#", getId().type());
-    s = s.replaceAll("#NAME#", getId().name());
-    s = s.replaceAll("#INDEX#", String.valueOf(index));
-    s = s.replaceAll("#HOST#", name);
-    if(!publicModifier)
-      s = s.replaceAll(ind + "public ", ind + "private ");
-    //stream.println(s);
-    parse(s);
+    TemplateContext tt = templateContext();
+    tt.bind("Type", getId().type());
+    tt.bind("Name", getId().name());
+    tt.bind("Index", String.valueOf(index));
+    tt.bind("Host", decl.name());
+    tt.bind("Modifier", publicModifier ? "public" : "private");
+
+    parse(tt.expand("AggregateComponent"));
   }
 
   protected void Components.parse(String s) {

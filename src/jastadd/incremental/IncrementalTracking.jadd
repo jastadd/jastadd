@@ -503,20 +503,26 @@ aspect IncrementalTracking {
     }
   }
   
-  String TokenComponent.jaddGenIncrementalTokenTrack() {
+  public String TokenComponent.jaddGenIncrementalTokenTrack() {
     if (!grammar().incremental) return ""; 
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr)
-      return "        state().addHandlerDepTo(get#ID#_handler);\n";
+    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+      String s =
+        "        state().addHandlerDepTo(get#ID#_handler);\n";
+      s = s.replaceAll("#ID#", getTokenId().getID());
+      return s;
+    }
     if (grammar().incrementalLevelNode) {
       String type = getTokenId().getTYPE();
       boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
       boolean isPrimitiveToken = isPrimitive();
       if (!isStringToken && !isPrimitiveToken) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n");
-        buf.append("          state().addHandlerDepTo(((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler);\n");
-        buf.append("        }\n");
-        return buf.toString();
+        String s =
+          "        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode) {\n" +
+          "          state().addHandlerDepTo(((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler);\n" +
+          "        }\n";
+        s = s.replaceAll("#ID#", getTokenId().getID());
+        s = s.replaceAll("#TYPEINSIGNATURE#", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
+        return s;
       }
     }
     if (grammar().incrementalLevelRegion) {
@@ -524,11 +530,13 @@ aspect IncrementalTracking {
       boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
       boolean isPrimitiveToken = isPrimitive();
       if (!isStringToken && !isPrimitiveToken) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n");
-        buf.append("          ((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler().addDependant(handler());\n");
-        buf.append("        }\n");
-        return buf.toString();
+        String s =
+          "        if (token#TYPEINSIGNATURE#_#ID# instanceof ASTNode && token#TYPEINSIGNATURE#_#ID#.isRegionRoot()) {\n" +
+          "          ((ASTNode)token#TYPEINSIGNATURE#_#ID#).handler().addDependant(handler());\n" +
+          "        }\n";
+        s = s.replaceAll("#ID#", getTokenId().getID());
+        s = s.replaceAll("#TYPEINSIGNATURE#", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
+        return s;
       }
     }
     return "";

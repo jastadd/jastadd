@@ -621,8 +621,8 @@ public class JastAdd {
       System.exit(0);
     }
     
-    // Bind template variables the first time we access templateContext the
-    // Grammar.ind option needs to have been set already!
+    // Bind template variables. The first time we access templateContext the
+    // Grammar.ind option must be set already!
     TemplateContext tt = root.templateContext();
     if (synch.matched()) {
       tt.bindExpansion("SynchBegin", "synchronized-block.begin");
@@ -641,6 +641,7 @@ public class JastAdd {
     tt.bind("CacheCycle", root.cacheCycle);
     tt.bind("Java5", root.java5);
     tt.bind("JJTree", root.jjtree);
+    tt.bind("Beaver", root.beaver);
     tt.bind("VisitCheckEnabled", root.visitCheckEnabled);
     tt.bind("TraceVisitCheck", root.traceVisitCheck);
     tt.bind("RewriteLimit", "" + root.rewriteLimit);

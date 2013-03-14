@@ -33,10 +33,14 @@ aspect TemplateUtil {
 
   eq Grammar.getChild().parentContext() = templateContext();
 
+  syn lazy TemplateContext ASTNode.templateContext() {
+    return new SimpleContext(parentContext(), this);
+  }
+
   /**
    * Root template context for the grammar
    */
-  syn lazy TemplateContext Grammar.templateContext() {
+  eq Grammar.templateContext() {
     TinyTemplate tt = new TinyTemplate();
     tt.setIndentation(ASTNode.ind);
     tt.throwExceptions(true);
@@ -55,6 +59,8 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/CheckTreeStructure");
     loadTemplates(tt, "ast/components/ListComponent");
     loadTemplates(tt, "ast/components/OptionalComponent");
+    loadTemplates(tt, "ast/components/TokenComponent");
+    loadTemplates(tt, "ast/components/AggregateComponent");
     if (grammar().incremental) {
       loadTemplates(tt, "incremental/DDGNode");
       loadTemplates(tt, "incremental/DDGNodeCopy");
@@ -88,29 +94,4 @@ aspect TemplateUtil {
       System.err.println(e.getMessage());
     }
   }
-
-  syn lazy TemplateContext ASTDecl.templateContext() {
-    return new SimpleContext(parentContext(), this);
-  }
-  
-  syn lazy TemplateContext AttrDecl.templateContext() {
-    return new SimpleContext(parentContext(), this);
-  }
-
-  syn lazy TemplateContext AttrEq.templateContext() {
-    return new SimpleContext(parentContext(), this);
-  }
-
-  syn lazy TemplateContext Rewrite.templateContext() {
-    return new SimpleContext(parentContext(), this);
-  }
-
-  syn lazy TemplateContext RewriteList.templateContext() {
-    return new SimpleContext(parentContext(), this);
-  }
-
-  syn lazy TemplateContext Components.templateContext() {
-    return new SimpleContext(parentContext(), this);
-  }
-  
 }

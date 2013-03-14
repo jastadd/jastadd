@@ -1,0 +1,69 @@
+TokenComponent = [[
+  /**
+   * Replaces the lexeme $Id.
+   * @param value The new value for the lexeme $Id.
+   * @apilevel high-level
+   */
+  $IncrementalTokenHandler
+  $Modifier void $Host.set$Id($Type value) {
+    $SynchBegin
+    token$(TypeInSignature)_$Id = value;
+    $IncrementalTokenChangeValue
+    $SynchEnd
+  }
+
+$if(IsRedefined)
+  /**
+   * @apilevel internal
+   */
+  protected $Type $Host.token$(TypeInSignature)_$Id;
+$endif
+
+$if(!#isNTA)
+  $if(IsStringToken)
+    $if(Beaver)
+      $if(IsRedefined)
+  $Modifier int $Host.$(Id)start;
+  $Modifier int $Host.$(Id)end;
+      $endif
+  /**
+   * JastAdd-internal setter for lexeme $Id using the Beaver parser.
+   * @apilevel internal
+   */
+  $Modifier void $Host.set$Id(beaver.Symbol symbol) {
+    $SynchBegin
+    if(symbol.value != null && !(symbol.value instanceof String))
+    throw new UnsupportedOperationException("set$Id is only valid for String lexemes");
+    token$(TypeInSignature)_$Id = (String)symbol.value;
+    $(Id)start = symbol.getStart();
+    $(Id)end = symbol.getEnd();
+    $IncrementalTokenChangeSymbol
+    $SynchEnd
+  }
+    $endif
+  /**
+   * Retrieves the value for the lexeme $Id.
+   * @return The value for the lexeme $Id.
+   * @apilevel high-level
+   */
+  $Modifier $Type $Host.get$Id() {
+    $SynchBegin
+    #jaddGenIncrementalTokenTrack
+    return token$(TypeInSignature)_$Id != null ? token$(TypeInSignature)_$Id : "";
+    $SynchEnd
+  }
+  $else
+  /**
+   * Retrieves the value for the lexeme $Id.
+   * @return The value for the lexeme $Id.
+   * @apilevel high-level
+   */
+  $Modifier $Type $Host.get$Id() {
+    $SynchBegin
+    #jaddGenIncrementalTokenTrack
+    return token$(TypeInSignature)_$Id;
+    $SynchEnd
+  }
+  $endif
+$endif
+]]
