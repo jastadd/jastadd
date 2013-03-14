@@ -966,11 +966,11 @@ aspect JaddCodeGen {
     tt.bind("IsRedefined", isRedefined);
     
     tt.bind("IncrementalTokenTrack", jaddGenIncrementalTokenTrack());
-    tt.bind("IncrementalTokenHandler", genIncrementalTokenHandler(decl));
     tt.bind("IncrementalTokenChangeValue", jaddGenIncrementalTokenChange(decl.name(), "value"));
     tt.bind("IncrementalTokenChangeSymbol", jaddGenIncrementalTokenChange(decl.name(), "symbol"));
 
-    parse(tt.expand("TokenComponent"));
+    parse(genIncrementalTokenHandler(decl) +
+        tt.expand("TokenComponent"));
   }
 
   public void AggregateComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {

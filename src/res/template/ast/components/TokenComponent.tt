@@ -4,7 +4,6 @@ TokenComponent = [[
    * @param value The new value for the lexeme $Id.
    * @apilevel high-level
    */
-  $IncrementalTokenHandler
   $Modifier void $Host.set$Id($Type value) {
     $SynchBegin
     token$(TypeInSignature)_$Id = value;
@@ -28,6 +27,7 @@ $if(!#isNTA)
       $endif
   /**
    * JastAdd-internal setter for lexeme $Id using the Beaver parser.
+   * @param symbol Symbol containing the new value for the lexeme $Id
    * @apilevel internal
    */
   $Modifier void $Host.set$Id(beaver.Symbol symbol) {
