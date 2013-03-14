@@ -654,6 +654,9 @@ public class JastAdd {
     tt.bind("DefaultSetType", root.typeDefaultSet);
     tt.bind("CreateContributorSet", root.createContributorSet);
     
+    // Flush
+    tt.bind("FullFlush", root.fullFlush);
+    
     // Incremental
     tt.bind("IncrementalEnabled", root.incremental);
     tt.bind("IncrementalLevelParam", root.incrementalLevelParam);

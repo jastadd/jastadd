@@ -1,0 +1,27 @@
+
+ASTNode.flushHookSetChildCopyState = [[
+$if(FullFlush)
+
+if (init_children != null) {
+  ASTNode d[] = new ASTNode[i << 1];
+  System.arraycopy(init_children, 0, d, 0, init_children.length);
+  init_children = d;
+}
+if (rewritten_children != null) {
+  boolean[] b = new boolean[i << 1];
+  System.arraycopy(rewritten_children, 0, b, 0, rewritten_children.length);
+  rewritten_children = b;
+}
+
+$endif
+]]
+
+ASTNode.flushHookSetChildInitState = [[
+$if(FullFlush)
+
+if (rewritten_children != null) {
+  rewritten_children[i] = false; 
+}
+       
+$endif
+]]

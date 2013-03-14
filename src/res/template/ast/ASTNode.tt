@@ -291,3 +291,38 @@ ASTNode.numChildren = [[
     $SynchEnd
   }
 ]]
+
+ASTNode.setChild = [[
+  /**
+    * @apilevel low-level
+    */
+  public void ASTNode.setChild(ASTNode node, int i) {
+    $SynchBegin
+$if(DebugMode)
+    debugNodeAttachment(node);
+$endif
+    $include(ASTNode.incHookSetChild1)
+    if(children == null) {
+      children = new ASTNode[#initialChildArraySize];
+      $include(ASTNode.incHookSetChild2)
+    } else if (i >= children.length) {
+      ASTNode c[] = new ASTNode[i << 1];
+      System.arraycopy(children, 0, c, 0, children.length);
+      children = c;
+      $include(ASTNode.incHookSetChild3)
+      $include(ASTNode.flushHookSetChildCopyState)
+    }
+    $include(ASTNode.incHookSetChild4)
+    children[i] = node;
+    if(i >= numChildren) {
+      numChildren = i+1;
+    }
+    if(node != null) { 
+      node.setParent(this); 
+      node.childIndex = i; 
+    }
+    $include(ASTNode.incHookSetChild5)
+    $include(ASTNode.flushHookSetChildInitState)
+    $SynchEnd
+  }
+]]
