@@ -326,3 +326,42 @@ $endif
     $SynchEnd
   }
 ]]
+
+ASTNode.insertChild = [[
+  /**
+    * @apilevel low-level
+    */
+  public void ASTNode.insertChild(ASTNode node, int i) {
+    $SynchBegin
+$if(DebugMode)
+    debugNodeAttachment(node);
+$endif
+    $include(ASTNode.incHookInsertChild1)
+    if(children == null) {
+      children = new ASTNode[#initialChildArraySize];
+      children[i] = node;
+      $include(ASTNode.incHookInsertChild2)
+    } else {
+      ASTNode c[] = new ASTNode[children.length + 1];
+      System.arraycopy(children, 0, c, 0, i);
+      c[i] = node;
+      if(i < children.length) {
+        System.arraycopy(children, i, c, i+1, children.length-i);
+        for(int j = i+1; j < c.length; ++j) {
+          if(c[j] != null) {
+            c[j].childIndex = j;
+          }
+        }
+      }
+      children = c;
+      $include(ASTNode.incHookInsertChild3)
+      $include(ASTNode.flushHookInsertChildUpdateState)
+    }
+    numChildren++;
+    if(node != null) { 
+      node.setParent(this); 
+      node.childIndex = i; 
+    }
+    $SynchEnd
+  }
+]]

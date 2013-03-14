@@ -253,26 +253,6 @@ aspect Flush {
     stream.println(ind(4) + "}");
   }
 
-  public void ASTDecl.emitFlushRewritesInsertChildUpdateState(PrintWriter stream) {
-    if (!grammar().fullFlush) return;
-    stream.println(ind(2) + "if (init_children != null) {");
-    stream.println(ind(3) +   "ASTNode d[] = new ASTNode[init_children.length + 1];");
-    stream.println(ind(3) +   "System.arraycopy(init_children, 0, d, 0, init_children.length);");
-    stream.println(ind(3) +   "if (i < init_children.length) {");
-    stream.println(ind(4) +     "System.arraycopy(init_children, i, d, i+1, init_children.length - i);");
-    stream.println(ind(3) +   "}");
-    stream.println(ind(3) +   "init_children = d;");
-    stream.println(ind(2) + "}");
-    stream.println(ind(2) + "if (rewritten_children != null) {");
-    stream.println(ind(3) +   "boolean b[] = new boolean[rewritten_children.length + 1];");
-    stream.println(ind(3) +   "System.arraycopy(rewritten_children, 0, b, 0, rewritten_children.length);");
-    stream.println(ind(3) +   "if (i < rewritten_children.length) {");
-    stream.println(ind(4) +     "System.arraycopy(rewritten_children, i, b, i+1, rewritten_children.length - i);");
-    stream.println(ind(3) +   "}");
-    stream.println(ind(3) +   "rewritten_children = b;");
-    stream.println(ind(2) + "}");
-  }
-
   public void ASTDecl.emitFlushRewritesRemoveChild(PrintWriter stream) {
     if (!grammar().fullFlush) return;
     stream.println(ind(3) + "if (init_children != null) {");

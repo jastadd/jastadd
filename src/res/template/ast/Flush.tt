@@ -25,3 +25,26 @@ if (rewritten_children != null) {
        
 $endif
 ]]
+
+ASTNode.flushHookInsertChildUpdateState = [[
+$if(FullFlush)
+
+if (init_children != null) {
+  ASTNode d[] = new ASTNode[init_children.length + 1];
+  System.arraycopy(init_children, 0, d, 0, init_children.length);
+  if (i < init_children.length) {
+    System.arraycopy(init_children, i, d, i+1, init_children.length - i);
+  }
+  init_children = d;
+}
+if (rewritten_children != null) {
+  boolean b[] = new boolean[rewritten_children.length + 1];
+  System.arraycopy(rewritten_children, 0, b, 0, rewritten_children.length);
+  if (i < rewritten_children.length) {
+    System.arraycopy(rewritten_children, i, b, i+1, rewritten_children.length - i);
+  }
+  rewritten_children = b;
+}
+
+$endif
+]]
