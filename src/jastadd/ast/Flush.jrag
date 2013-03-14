@@ -252,14 +252,4 @@ aspect Flush {
     stream.println(ind(5) +   "this.rewritten_children[i] = true;");
     stream.println(ind(4) + "}");
   }
-
-  public void ASTDecl.emitFlushRewritesRemoveChild(PrintWriter stream) {
-    if (!grammar().fullFlush) return;
-    stream.println(ind(3) + "if (init_children != null) {");
-    stream.println(ind(4) +   "System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);");
-    stream.println(ind(3) + "}");      
-    stream.println(ind(3) + "if (rewritten_children != null) {");
-    stream.println(ind(4) +   "System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);");
-    stream.println(ind(3) + "}");
-  }
 }

@@ -48,3 +48,16 @@ if (rewritten_children != null) {
 
 $endif
 ]]
+
+ASTNode.flushHookRemoveChild = [[
+$if(FullFlush)
+
+if (init_children != null) {
+  System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);
+}      
+if (rewritten_children != null) {
+  System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);
+}
+    
+$endif
+]]

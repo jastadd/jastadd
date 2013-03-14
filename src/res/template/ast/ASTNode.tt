@@ -365,3 +365,41 @@ $endif
     $SynchEnd
   }
 ]]
+
+ASTNode.removeChild = [[
+  /**
+    * @apilevel low-level
+    */
+  public void ASTNode.removeChild(int i) {
+    $SynchBegin
+    if(children != null) {
+      $include(ASTNode.incHookRemoveChild1)
+      ASTNode child = (ASTNode)children[i];
+      if(child != null) {
+        $include(ASTNode.incHookRemoveChild2) 
+        child.parent = null;
+        child.childIndex = -1;
+      }
+      // Adding a check of this instance to make sure its a List, a move of children doesn't make
+      // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
+      // and siblings are moved one step to the right, with null at the end.
+      if (this instanceof List || this instanceof Opt) {
+        System.arraycopy(children, i+1, children, i, children.length-i-1);
+        children[children.length-1] = null;
+        numChildren--;
+        // fix child indices
+        for(int j = i; j < numChildren; ++j) {
+          if(children[j] != null) {
+            child = (ASTNode) children[j];
+            child.childIndex = j;
+          }
+        }
+      } else {
+        children[i] = null;
+      }
+      $include(ASTNode.incHookRemoveChild3)
+      $include(ASTNode.flushHookRemoveChild)
+    }
+    $SynchEnd
+  }
+]]
