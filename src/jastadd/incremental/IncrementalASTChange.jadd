@@ -91,37 +91,6 @@ aspect IncrementalASTChange {
     return buf.toString();
   }
 
-  public void ASTDecl.jjtGenIncrementalASTChangeAddChild1(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    if (grammar().incrementalLevelParam) {
-      stream.println(ind(2) + "int i = getNumChildNoTransform() - 1;");
-      stream.println(ind(2) + "if (getChild_handler[i] == null)");
-      if (grammar().incrementalPropLimit) {
-      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i), !node.mayHaveRewrite());");
-      } else {
-      stream.println(ind(3) +   "getChild_handler[i] = new ASTNode$DepGraphNode(this, \"getChild\", new Integer(i));");
-      }
-      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler[i]);");    
-      stream.println(ind(2) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
-    }
-    if (grammar().incrementalLevelAttr) {
-      stream.println(ind(2) + "state().addHandlerDepTo(getChild_handler);");
-      stream.println(ind(2) + "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
-    }
-    if (grammar().incrementalLevelNode) {
-      stream.println(ind(2) + "if (node != null) {");
-      stream.println(ind(3) +   "state().addHandlerDepTo(node.handler);");
-      stream.println(ind(3) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
-      stream.println(ind(2) + "}");
-    }
-    if (grammar().incrementalLevelRegion) {
-      stream.println(ind(2) + "if (node != null && node.isRegionRoot()) {");
-      stream.println(ind(3) +   "state().addHandlerDepTo(node.handler());");
-      stream.println(ind(3) +   "if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) node.is$Final(is$Final());");
-      stream.println(ind(2) + "}");
-    }
-  }
-
   public void ASTDecl.jjtGenIncrementalASTChangeSetChild1(PrintWriter stream) {
     if (!grammar().incremental) return; 
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr || grammar().incrementalLevelNode) {

@@ -71,3 +71,14 @@ $endif
 
 $endif
 ]]
+
+ASTNode.incHookNumChildren = [[
+$if (IncrementalEnabled)
+$if (IncrementalLevelParam)
+state().addHandlerDepTo(numChildren_handler);
+$endif
+$if (IncrementalLevelAttr)
+state().addHandlerDepTo(numChildren_handler);
+$endif
+$endif
+]]

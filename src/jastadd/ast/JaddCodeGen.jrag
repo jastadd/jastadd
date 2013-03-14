@@ -421,36 +421,9 @@ aspect JaddCodeGen {
     }
   }
 
-  public void ASTDecl.emitNumChildren(PrintWriter stream) {
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "protected int ASTNode.numChildren;"); // added
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "protected int ASTNode.numChildren() {");
-    jjtGenIncrementalTrackNumChild(stream);
-    stream.println(ind(2) + "return numChildren;");
-    stream.println(ind + "}");
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public int ASTNode.getNumChild() {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    jjtGenIncrementalTrackNumChild(stream);
-    stream.println(ind(2) + "return numChildren();");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
-    stream.println(ind + "/**");
-    stream.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.println(ind + "public final int ASTNode.getNumChildNoTransform() {");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    stream.println(ind(2) + "return numChildren();");
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.println(ind + "}");
+  public void ASTDecl.emitNumChildren(PrintWriter out) {
+    TemplateContext tt = templateContext();
+    tt.expand("ASTNode.numChildren", out);
   }
 
   public void ASTDecl.emitSetChild(PrintWriter stream) {
@@ -837,13 +810,13 @@ aspect JaddCodeGen {
       // do not override getNumChild with implementation below
     }
     else {
-
+      TemplateContext tt = templateContext();
       if(grammar().jjtree) {
         stream.println(ind + "/**");
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "public int " + name() + ".getNumChild() {");
-        jjtGenIncrementalTrackNumChild(stream); 
+        stream.println(tt.expand("ASTNode.incHookNumChildren"));
         stream.println(ind(2) + "return " + numRegularChildren() + ";");
         stream.println(ind + "}");
       }
@@ -852,7 +825,7 @@ aspect JaddCodeGen {
         stream.println(ind + " * @apilevel low-level");
         stream.println(ind + " */");
         stream.println(ind + "protected int " +name() + ".numChildren() {");
-        jjtGenIncrementalTrackNumChild(stream);
+        stream.println(tt.expand("ASTNode.incHookNumChildren"));
         stream.println(ind(2) + "return " + numRegularChildren() + ";");
         stream.println(ind + "}");
       }

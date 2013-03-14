@@ -502,15 +502,8 @@ aspect IncrementalTracking {
       }
     }
   }
-
-  public void ASTDecl.jjtGenIncrementalTrackNumChild(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      stream.println(ind(2) + "state().addHandlerDepTo(numChildren_handler);");
-    }
-  }
   
-    String TokenComponent.jaddGenIncrementalTokenTrack() {
+  String TokenComponent.jaddGenIncrementalTokenTrack() {
     if (!grammar().incremental) return ""; 
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr)
       return "        state().addHandlerDepTo(get#ID#_handler);\n";

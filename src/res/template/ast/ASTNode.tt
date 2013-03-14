@@ -257,3 +257,37 @@ $endif
     $include(ASTNode.incHookAddChild) 
   }
 ]]
+
+ASTNode.numChildren = [[
+  /**
+   * @apilevel low-level
+   */
+   protected int ASTNode.numChildren;
+   
+  /**
+   * @apilevel low-level
+   */
+  protected int ASTNode.numChildren() {
+    $include(ASTNode.incHookNumChildren)
+    return numChildren;
+  }
+  
+  /**
+    * @apilevel low-level
+    */
+  public int ASTNode.getNumChild() {
+    $SynchBegin
+    return numChildren();
+    $SynchEnd
+  }
+  
+  /**
+    * <p><em>This method does not invoke AST transformations.</em></p>
+    * @apilevel low-level
+    */
+  public final int ASTNode.getNumChildNoTransform() {
+    $SynchBegin
+    return numChildren();
+    $SynchEnd
+  }
+]]
