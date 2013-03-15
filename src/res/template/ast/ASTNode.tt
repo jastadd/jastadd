@@ -403,3 +403,129 @@ ASTNode.removeChild = [[
     $SynchEnd
   }
 ]]
+
+ASTNode.getChild = [[
+  /**
+    * @apilevel low-level
+    */
+$if(Java5)
+  @SuppressWarnings("cast") 
+  public T ASTNode.getChild(int i) {
+$else
+  public ASTNode ASTNode.getChild(int i) {
+$endif
+
+$if(RewriteEnabled)
+    $SynchBegin
+    ASTNode node = this.getChildNoTransform(i);
+    if(node == null) {
+      return null;
+    }
+    if(node.is$$Final()) {
+      $include(ASTNode.incHookGetChild4)
+      $include(ASTNode.incHookGetChild12)
+      return $(ReturnTypeCast)node;
+    }
+    if(!node.mayHaveRewrite()) {
+  $if(StagedRewrites)
+      node.is$$Final(this.is$$Final);
+  $else
+      node.is$$Final(this.is$$Final());
+  $endif
+      $include(ASTNode.incHookGetChild4)
+      $include(ASTNode.incHookGetChild12)
+      return $(ReturnTypeCast)node;
+    }
+    if(!node.in$$Circle()) {
+      $include(ASTNode.incHookGetChild1)
+      $include(ASTNode.flushHookGetChildInit)
+      $include(ASTNode.flushHookGetChildCheckStoreInit)
+      int rewriteState;
+      int num = this.state().boundariesCrossed;
+      do {
+        this.state().push(ASTNode$$State.REWRITE_CHANGE);
+        ASTNode oldNode = node;
+        oldNode.in$$Circle(true);
+        $include(ASTNode.incHookGetChild5)
+        node = node.rewriteTo();
+        if(node != oldNode) {
+          $include(ASTNode.incHookGetChild7)
+          this.setChild(node, i);
+          $include(ASTNode.incHookGetChild8)
+        }
+        oldNode.in$$Circle(false);
+        rewriteState = this.state().pop();
+        $include(ASTNode.incHookGetChild3)
+        $include(ASTNode.flushHookGetChildRewritten)
+        $include(ASTNode.incHookGetChild6)
+      } while(rewriteState == ASTNode$$State.REWRITE_CHANGE);
+      if(rewriteState == ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
+  $if(StagedRewrites)
+        node.is$$Final(this.state().rewritePhase);
+  $else
+        node.is$$Final(true);
+  $endif
+        this.state().boundariesCrossed = num;
+  $if(PositiveRewriteLimit)
+        node.debugRewriteRemove();
+  $endif
+      }
+      $include(ASTNode.incHookGetChild2)
+    } else if(this.is$$Final() != node.is$$Final()) {
+      this.state().boundariesCrossed++;
+    }
+    $include(ASTNode.incHookGetChild11)
+    $include(ASTNode.incHookGetChild12)
+    return $(ReturnTypeCast)node;
+    $SynchEnd
+
+$else
+    // No rewrites
+    ASTNode child = getChildNoTransform(i);
+    $include(ASTNode.incHookGetChildNT)
+    return $(ReturnTypeCast)child;
+$endif
+
+  }
+]]
+
+ASTNode.getChildNoTransform = [[
+  /**
+    * <p><em>This method does not invoke AST transformations.</em></p>
+    * @apilevel low-level
+    */
+$if(Java5)  
+  @SuppressWarnings("cast")
+  $if(IncrementalEnabled)
+  public T ASTNode.getChildNoTransform(int i) { 
+  // Must be able to override get child methods for incremental evaluation
+  $else
+  public final T ASTNode.getChildNoTransform(int i) {
+  $endif
+    $SynchBegin
+    if (children == null) {
+      return null;
+    }
+    T child = (T)children[i];
+    $include(ASTNode.incHookGetChildNT)
+    return child;        
+    $SynchEnd
+  }
+$else
+  $if(IncrementalEnabled)    
+  public final ASTNode ASTNode.getChildNoTransform(int i) {
+  // Must be able to override get child methods for incremental evaluation
+  $else
+  public final ASTNode ASTNode.getChildNoTransform(int i) {
+  $endif
+    $SynchBegin
+    if (children == null) {
+      return null;
+    }
+    ASTNode child = (ASTNode)children[i];
+    $include(ASTNode.incHookGetChildNT)
+    return child;        
+    $SynchEnd
+  }
+$endif
+]]

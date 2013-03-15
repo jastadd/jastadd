@@ -73,12 +73,241 @@ $endif
 ]]
 
 ASTNode.incHookNumChildren = [[
-$if (IncrementalEnabled)
-$if (IncrementalLevelParam)
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
 state().addHandlerDepTo(numChildren_handler);
 $endif
-$if (IncrementalLevelAttr)
+
+$if(IncrementalLevelAttr)
 state().addHandlerDepTo(numChildren_handler);
 $endif
+
+$endif
+]]
+
+ASTNode.incHookGetChild1 = [[
+$if(IncrementalEnabled)
+
+$if (!FullFlush)
+if(this.init_children == null) {
+  this.init_children = new ASTNode[this.children.length];
+  this.rewritten_children = new boolean[this.children.length];
+}
+if(!node.inc_hasEnclosingRewrittenNode()) {
+  this.init_children[i] = node.fullCopy();
+  this.rewritten_children[i] = true;
+}
+$endif
+
+$if(IncrementalLevelParam)
+this.state().enterRewriteEval(this.getChild_handler[i]);
+$endif
+    
+$if(IncrementalLevelAttr)
+this.state().enterRewriteEval(this.getChild_handler);
+$endif
+  
+$endif
+]]
+
+ASTNode.incHookGetChild2 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+this.state().exitRewriteEval(this.getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelAttr)
+this.state().exitRewriteEval(this.getChild_handler);
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChild3 = [[
+$if(IncrementalEnabled)
+
+$if(!FullFlush)
+if (rewriteState == ASTNode$$State.REWRITE_CHANGE) {
+  this.rewritten_children[i] = true;
+}
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChild4 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+if (this.getChild_handler[i] == null) {
+  $if(IncrementalPropLimit)
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !node.mayHaveRewrite());
+  $else
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  $endif
+}
+this.state().addHandlerDepTo(this.getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelAttr)
+this.state().addHandlerDepTo(this.getChild_handler);  
+$endif
+
+$if(IncrementalLevelNode)
+if (node != null) {
+  this.state().addHandlerDepTo(node.handler);
+}
+$endif
+ 
+$endif
+]]
+
+ASTNode.incHookGetChild5 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelNode)
+this.state().enterRewriteEval(node.handler);
+$endif
+
+$if(IncrementalLevelRegion)
+this.state().IN_COMPUTATION++;
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChild6 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelNode)
+this.state().exitRewriteEval(oldNode.handler);
+$endif
+  
+$if(IncrementalLevelRegion)
+this.state().IN_COMPUTATION--;
+$endif
+  
+$endif
+]]
+
+ASTNode.incHookGetChild7 = [[
+$if(IncrementalEnabled)
+
+ASTNode initial = this.init_children[i];
+
+$endif  
+]]
+
+ASTNode.incHookGetChild8 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+oldNode.inc_flush_subtree(this.getChild_handler[i]);
+this.init_children[i] = initial;
+$endif
+
+$if(IncrementalLevelAttr)
+oldNode.inc_flush_subtree(this.getChild_handler);
+this.init_children[i] = initial;
+$endif
+
+$if(IncrementalLevelNode)
+oldNode.inc_flush_subtree(node.handler());
+this.init_children[i] = initial;
+$endif
+
+$if(IncrementalLevelRegion)
+if (node.isRegionRoot()) {
+  oldNode.inc_flush_subtree(node.handler());
+}
+this.init_children[i] = initial;
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChild11 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+if (this.getChild_handler[i] == null) {
+  $if(IncrementalPropLimit)
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !node.mayHaveRewrite());
+  $else
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  $endif
+}
+this.state().addHandlerDepTo(this.getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelAttr)
+this.state().addHandlerDepTo(this.getChild_handler);  
+$endif
+
+$if(IncrementalLevelNode)
+if (node != null) {
+  this.state().addHandlerDepTo(node.handler);
+  this.handler.addDependant(node.handler);
+}
+$endif
+
+$if(IncrementalLevelRegion)
+  if (node != null && node.isRegionRoot()) {
+    this.handler().addDependant(node.handler());
+    node.handler().addDependant(this.handler());
+  }
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChild12 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelRegion)
+$if(IsRegionRoot)
+if (state().IN_COMPUTATION > 0) {
+  node.handler().addDependant(handler);
+}
+$endif
+$endif
+  
+$endif
+]]
+
+ASTNode.incHookGetChildNT = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+if (getChild_handler[i] == null) {
+  $if(IncrementalPropLimit)
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !child.mayHaveRewrite());
+  $else
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  $endif
+}
+state().addHandlerDepTo(getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelAttr)
+state().addHandlerDepTo(getChild_handler);  
+$endif
+
+$if(IncrementalLevelNode)
+if (child != null) {
+  state().addHandlerDepTo(child.handler);
+}
+$endif
+
+$if(IncrementalLevelRegion)
+$if(IsRegionRoot)
+if (state().IN_COMPUTATION > 0 && child != null) {
+  child.handler().addDependant(handler);
+}
+$endif
+$endif
+    
 $endif
 ]]
