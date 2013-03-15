@@ -465,16 +465,6 @@ aspect IncrementalTracking {
     }
   }
 
-  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformName(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    stream.println(ind + "public ASTNode ASTNode.getChildNoTransform(int i) {");
-  }
-
-  public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransformNameGeneric(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    stream.println(ind + "public T ASTNode.getChildNoTransform(int i) {");
-  }
-
   public void ASTDecl.jjtGenIncrementalTrackGetChildNoTransform(PrintWriter stream) {
     if (!grammar().incremental) return; 
     if (grammar().incrementalLevelParam) {

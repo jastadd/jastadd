@@ -61,3 +61,29 @@ if (rewritten_children != null) {
     
 $endif
 ]]
+
+ASTNode.flushHookGetChildInit = [[
+$if(FullFlush)
+if(this.init_children == null) {
+  this.init_children = new ASTNode[this.children.length];
+  this.rewritten_children = new boolean[this.children.length];
+}    
+$endif
+]]
+
+ASTNode.flushHookGetChildCheckStoreInit = [[
+$if(FullFlush)
+if(!node.inc_hasEnclosingRewrittenNode()) {
+  this.init_children[i] = node.fullCopy();
+  this.rewritten_children[i] = true;
+}
+$endif
+]]
+
+ASTNode.flushHookGetChildRewritten = [[
+$if(FullFlush)
+if (rewriteState == ASTNode$$State.REWRITE_CHANGE) {
+  this.rewritten_children[i] = true;
+}
+$endif
+]]
