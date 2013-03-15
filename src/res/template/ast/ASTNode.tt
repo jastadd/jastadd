@@ -291,3 +291,115 @@ ASTNode.numChildren = [[
     $SynchEnd
   }
 ]]
+
+ASTNode.setChild = [[
+  /**
+    * @apilevel low-level
+    */
+  public void ASTNode.setChild(ASTNode node, int i) {
+    $SynchBegin
+$if(DebugMode)
+    debugNodeAttachment(node);
+$endif
+    $include(ASTNode.incHookSetChild1)
+    if(children == null) {
+      children = new ASTNode[#initialChildArraySize];
+      $include(ASTNode.incHookSetChild2)
+    } else if (i >= children.length) {
+      ASTNode c[] = new ASTNode[i << 1];
+      System.arraycopy(children, 0, c, 0, children.length);
+      children = c;
+      $include(ASTNode.incHookSetChild3)
+      $include(ASTNode.flushHookSetChildCopyState)
+    }
+    $include(ASTNode.incHookSetChild4)
+    children[i] = node;
+    if(i >= numChildren) {
+      numChildren = i+1;
+    }
+    if(node != null) { 
+      node.setParent(this); 
+      node.childIndex = i; 
+    }
+    $include(ASTNode.incHookSetChild5)
+    $include(ASTNode.flushHookSetChildInitState)
+    $SynchEnd
+  }
+]]
+
+ASTNode.insertChild = [[
+  /**
+    * @apilevel low-level
+    */
+  public void ASTNode.insertChild(ASTNode node, int i) {
+    $SynchBegin
+$if(DebugMode)
+    debugNodeAttachment(node);
+$endif
+    $include(ASTNode.incHookInsertChild1)
+    if(children == null) {
+      children = new ASTNode[#initialChildArraySize];
+      children[i] = node;
+      $include(ASTNode.incHookInsertChild2)
+    } else {
+      ASTNode c[] = new ASTNode[children.length + 1];
+      System.arraycopy(children, 0, c, 0, i);
+      c[i] = node;
+      if(i < children.length) {
+        System.arraycopy(children, i, c, i+1, children.length-i);
+        for(int j = i+1; j < c.length; ++j) {
+          if(c[j] != null) {
+            c[j].childIndex = j;
+          }
+        }
+      }
+      children = c;
+      $include(ASTNode.incHookInsertChild3)
+      $include(ASTNode.flushHookInsertChildUpdateState)
+    }
+    numChildren++;
+    if(node != null) { 
+      node.setParent(this); 
+      node.childIndex = i; 
+    }
+    $SynchEnd
+  }
+]]
+
+ASTNode.removeChild = [[
+  /**
+    * @apilevel low-level
+    */
+  public void ASTNode.removeChild(int i) {
+    $SynchBegin
+    if(children != null) {
+      $include(ASTNode.incHookRemoveChild1)
+      ASTNode child = (ASTNode)children[i];
+      if(child != null) {
+        $include(ASTNode.incHookRemoveChild2) 
+        child.parent = null;
+        child.childIndex = -1;
+      }
+      // Adding a check of this instance to make sure its a List, a move of children doesn't make
+      // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
+      // and siblings are moved one step to the right, with null at the end.
+      if (this instanceof List || this instanceof Opt) {
+        System.arraycopy(children, i+1, children, i, children.length-i-1);
+        children[children.length-1] = null;
+        numChildren--;
+        // fix child indices
+        for(int j = i; j < numChildren; ++j) {
+          if(children[j] != null) {
+            child = (ASTNode) children[j];
+            child.childIndex = j;
+          }
+        }
+      } else {
+        children[i] = null;
+      }
+      $include(ASTNode.incHookRemoveChild3)
+      $include(ASTNode.flushHookRemoveChild)
+    }
+    $SynchEnd
+  }
+]]

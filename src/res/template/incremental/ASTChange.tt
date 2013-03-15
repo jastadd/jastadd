@@ -44,3 +44,320 @@ if (node != null) {
 }
 $endif
 ]]
+
+ASTNode.incHookSetChild1 = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children != null && i < children.length && children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  if (children == null) {
+    numChildren_handler.notifyDependencies();
+  } else if (i >= numChildren) {
+    numChildren_handler.notifyDependencies();
+    if (i > 0 && getChild_handler[i-1] != null) {
+      getChild_handler[i-1].notifyDependencies();
+    }
+  } else {
+    if (getChild_handler[i] != null) {
+      getChild_handler[i].notifyDependencies();
+    } else {
+      getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+    }
+  } 
+$endif
+
+$if(IncrementalLevelAttr)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children != null && i < children.length && children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  getChild_handler.flushRegion();
+$endif
+
+$if(IncrementalLevelNode)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children != null && i < children.length && children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  if (children != null && i < children.length && children[i] != null) {
+    children[i].handler.notifyDependencies();
+  }
+  if (i == numChildren) {
+    handler.notifyDependencies();
+  } 
+$endif
+
+$if(IncrementalLevelRegion)
+if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
+  if (children != null && i < children.length && children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  $DDGNodeName h = (children != null && i < children.length && children[i] != null) ? 
+      children[i].handler() : handler();
+  if (h != null) {
+    h.notifyDependencies();
+  }
+  if (i == numChildren) {
+    handler.notifyDependencies();
+  } 
+$endif
+ 
+  ASTNode initial  = inc_locateInitialCopy();
+  if (initial != null) {
+    state().enterConstruction();
+    if (i >= initial.numChildren) {
+      initial.addChild(node);
+    } else {
+      initial.setChild(node, i);
+    }
+    state().exitConstruction();
+    return;
+  }
+
+}   
+$endif
+]]
+
+ASTNode.incHookSetChild2 = [[
+$if(IncrementalEnabled) 
+
+$if(IncrementalLevelParam) 
+getChild_handler = new $DDGNodeName[#initialChildArraySize];
+$endif
+      
+$endif
+]]
+
+ASTNode.incHookSetChild3 = [[
+$if(IncrementalEnabled) 
+
+$if(!FullFlush)
+$include(ASTNode.flushHookSetChildCopyState)
+$endif
+    
+$if(IncrementalLevelParam)
+if (getChild_handler != null) {
+  $DDGNodeName h[] = new $DDGNodeName[i << 1];
+  System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);
+  getChild_handler = h;
+}
+$endif
+
+$endif
+]]
+
+ASTNode.incHookSetChild4 = [[
+$if(IncrementalEnabled) 
+
+if (children[i] != null) {
+  children[i].inc_throwAway();
+  children[i].parent = null;
+}
+
+$endif
+]]
+
+ASTNode.incHookSetChild5 = [[
+$if(IncrementalEnabled) 
+    
+$if(!FullFlush)
+if (rewritten_children != null) {
+  rewritten_children[i] = false; 
+}   
+$endif
+
+$endif
+]]
+
+ASTNode.incHookInsertChild1 = [[
+$if(IncrementalEnabled) 
+
+$if(IncrementalLevelParam)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children == null || i > numChildren) {
+    numChildren_handler.notifyDependencies();
+  } else {
+    numChildren_handler.notifyDependencies();
+    for (int k = i; k < children.length; k++) {
+      if (getChild_handler[k] != null) {
+        getChild_handler[k].notifyDependencies();
+      }
+    }
+  }
+$endif
+
+$if(IncrementalLevelAttr)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children == null || i > numChildren) {
+    numChildren_handler.notifyDependencies();
+  } else {
+    numChildren_handler.notifyDependencies();
+    getChild_handler.flushRegion();
+  }
+$endif
+
+$if(IncrementalLevelNode)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  for (int k = i; k < children.length; k++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.handler.flushRegion();
+    }
+  }
+$endif
+
+$if(IncrementalLevelRegion)
+if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
+  for (int k = i; k < children.length; k++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.handler().flushRegion();
+    }
+  }
+$endif
+
+  ASTNode initial = inc_locateInitialCopy();
+  if (initial != null) {
+    state().enterConstruction();
+    initial.insertChild(node, i);
+    state().exitConstruction();
+    return;
+  }
+    
+}
+
+$endif
+]]
+
+ASTNode.incHookInsertChild2 = [[
+$if(IncrementalEnabled) 
+
+$if(IncrementalLevelParam)
+getChild_handler = new $DDGNodeName[i + 1];
+getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+$endif
+
+$endif
+]]
+
+ASTNode.incHookInsertChild3 = [[
+$if(IncrementalEnabled)
+
+$if(!FullFlush)
+$include(ASTNode.flushHookInsertChildUpdateState)
+$endif
+
+$if(IncrementalLevelParam)
+if (getChild_handler != null) {
+  $DDGNodeName h[] = new $DDGNodeName[getChild_handler.length + 1];
+  System.arraycopy(getChild_handler, 0, h, 0, getChild_handler.length);
+  getChild_handler = h;
+}
+$endif
+
+$endif
+]]
+
+
+ASTNode.incHookRemoveChild1 = [[
+$if(IncrementalEnabled) 
+
+$if(IncrementalLevelParam)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  numChildren_handler.notifyDependencies();
+  for (int k = i; k < children.length; k++) {
+    if (getChild_handler[k] != null) {
+      getChild_handler[k].notifyDependencies();
+    }
+  }    
+$endif
+
+$if(IncrementalLevelAttr)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  getChild_handler.flushRegion();
+$endif
+
+$if(IncrementalLevelNode)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  if (children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  handler.flushRegion();
+  for (int k = i; k < children.length; k++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.handler.flushRegion();
+    }
+  }
+$endif
+
+$if(IncrementalLevelRegion)
+if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
+  if (children[i] != null) {
+    children[i].inc_notifyForRemove();
+  }
+  handler().flushRegion();
+  for (int k = i; k < children.length; k++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.handler().flushRegion();
+    }
+  }    
+$endif
+
+  ASTNode initial = inc_locateInitialCopy();
+  if (initial != null) {
+    state().enterConstruction();
+    initial.removeChild(i);
+    state().exitConstruction();
+    return;
+  }
+
+}
+
+$endif
+]]
+
+ASTNode.incHookRemoveChild2 = [[
+$if(IncrementalEnabled) 
+
+// prevent recursive call during state handling where setParent calls removeChild
+child.inc_throwAway();      
+
+$endif
+]]
+
+ASTNode.incHookRemoveChild3 = [[
+$if(IncrementalEnabled) 
+
+$if (!FullFlush)
+if (init_children != null) {
+  if (i < init_children.length && init_children[i] != null) {
+    init_children[i].inc_throwAway();
+  }
+  System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);
+  init_children[init_children.length-1] = null;
+}      
+if (rewritten_children != null) {
+  System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);
+  rewritten_children[rewritten_children.length-1] = false;
+}
+$endif
+
+$if(IncrementalLevelParam)
+if (getChild_handler != null && this instanceof List) {
+  getChild_handler[numChildren] = null;
+}
+$endif
+
+$endif
+]]
