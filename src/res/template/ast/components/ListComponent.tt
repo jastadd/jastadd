@@ -1,6 +1,6 @@
 # List component boilerplate code for accessing children etc.
 
-ListComponent.setList = [[
+ListComponent = [[
   /**
    * Replaces the $Name list.
    * @param list The new list node to be used as the $Name list.
@@ -13,9 +13,7 @@ ListComponent.setList = [[
     #genIncrementalConstructorEndConstruction
     $SynchEnd
   }
-]]
 
-ListComponent.getNumChild = [[
   /**
    * Retrieves the number of children in the $Name list.
    * @return Number of children in the $Name list.
@@ -26,9 +24,7 @@ ListComponent.getNumChild = [[
     return get$(Name)List().getNumChild();
     $SynchEnd
   }
-]]
 
-ListComponent.getNumChildNoTransform = [[
   /**
    * Retrieves the number of children in the $Name list.
    * Calling this method will not trigger rewrites.
@@ -40,9 +36,7 @@ ListComponent.getNumChildNoTransform = [[
     return get$(Name)ListNoTransform().getNumChildNoTransform();
     $SynchEnd
   }
-]]
 
-ListComponent.getChildAt = [[
   /**
    * Retrieves the element at index {@code i} in the $Name list.
    * @param i Index of the element to return.
@@ -55,9 +49,7 @@ ListComponent.getChildAt = [[
     return ($Type) get$(Name)List().getChild(i);
     $SynchEnd
   }
-]]
 
-ListComponent.addChild = [[
   /**
    * Append an element to the $Name list.
    * @param node The element to append to the $Name list.
@@ -69,9 +61,7 @@ ListComponent.addChild = [[
     list.addChild(node);
     $SynchEnd
   }
-]]
 
-ListComponent.addChildNoTransform = [[
   /**
    * @apilevel low-level
    */
@@ -81,9 +71,7 @@ ListComponent.addChildNoTransform = [[
     list.addChild(node);
     $SynchEnd
   }
-]]
 
-ListComponent.setChild = [[
   /**
    * Replaces the $Name list element at index {@code i} with the new node {@code node}.
    * @param node The new node to replace the old list element.
@@ -98,10 +86,28 @@ ListComponent.setChild = [[
     #genIncrementalConstructorEndConstruction
     $SynchEnd
   }
-]]
 
-ListComponent.getList1 = [[
-$if(!#isNTA)
+$if(#isNTA)
+  /**
+   * Retrieves the child position of the $Name list.
+   * @return The the child position of the $Name list.
+   * @apilevel low-level
+   */
+  protected int $Host.get$(Name)ListChildPosition() {
+    return $Index;
+  }
+  /**
+   * Retrieves the $Name list.
+   * <p><em>This method does not invoke AST transformations.</em></p>
+   * @return The node representing the $Name list.
+   * @apilevel low-level
+   */
+  $Modifier $ListType $Host.get$(Name)ListNoTransform() {
+    $SynchBegin
+    return ($ListType) getChildNoTransform($Index);
+    $SynchEnd
+  }
+$else
   /**
    * Retrieves the $Name list.
    * @return The node representing the $Name list.
@@ -115,11 +121,7 @@ $if(!#isNTA)
     return list;
     $SynchEnd
   }
-$endif
-]]
 
-ListComponent.getList1NoTransform = [[
-$if(!#isNTA)
   /**
    * Retrieves the $Name list.
    * <p><em>This method does not invoke AST transformations.</em></p>
@@ -132,22 +134,7 @@ $if(!#isNTA)
     return ($ListType) getChildNoTransform($Index);
     $SynchEnd
   }
-$else
-  /**
-   * Retrieves the $Name list.
-   * <p><em>This method does not invoke AST transformations.</em></p>
-   * @return The node representing the $Name list.
-   * @apilevel low-level
-   */
-  $Modifier $ListType $Host.get$(Name)ListNoTransform() {
-    $SynchBegin
-    return ($ListType) getChildNoTransform($Index);
-    $SynchEnd
-  }
 $endif
-]]
-
-ListComponent.getList2 = [[
 $if(Java5)
   /**
    * Retrieves the $Name list.
@@ -159,11 +146,7 @@ $if(Java5)
     return get$(Name)List();
     $SynchEnd
   }
-$endif
-]]
 
-ListComponent.getList2NoTransform = [[
-$if(Java5)
   /**
    * Retrieves the $Name list.
    * <p><em>This method does not invoke AST transformations.</em></p>
@@ -174,19 +157,6 @@ $if(Java5)
     $SynchBegin
     return get$(Name)ListNoTransform();
     $SynchEnd
-  }
-$endif
-]]
-
-ListComponent.getListChildPosition = [[
-$if(#isNTA)
-  /**
-   * Retrieves the child position of the $Name list.
-   * @return The the child position of the $Name list.
-   * @apilevel low-level
-   */
-  protected int $Host.get$(Name)ListChildPosition() {
-    return $Index;
   }
 $endif
 ]]

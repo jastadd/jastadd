@@ -909,21 +909,7 @@ aspect JaddCodeGen {
     tt.bind("Host", decl.name());
     tt.bind("Modifier", publicModifier ? "public" : "private");
 
-    String name = decl.name();
-    String s =
-      tt.expand("ListComponent.setList") +
-      tt.expand("ListComponent.getNumChild") +
-      tt.expand("ListComponent.getNumChildNoTransform") +
-      tt.expand("ListComponent.getChildAt") +
-      tt.expand("ListComponent.addChild") +
-      tt.expand("ListComponent.addChildNoTransform") +
-      tt.expand("ListComponent.setChild") +
-      tt.expand("ListComponent.getList1") +
-      tt.expand("ListComponent.getList1NoTransform") +
-      tt.expand("ListComponent.getList2") +
-      tt.expand("ListComponent.getList2NoTransform") +
-      tt.expand("ListComponent.getListChildPosition");
-    parse(s);
+    parse(tt.expand("ListComponent"));
   }
 
   syn String OptionalComponent.annotations() = suppressWarnings();
@@ -937,15 +923,7 @@ aspect JaddCodeGen {
     tt.bind("Host", decl.name());
     tt.bind("Modifier", publicModifier ? "public" : "private");
 
-    String s =
-      tt.expand("OptionalComponent.setOpt1") +
-      tt.expand("OptionalComponent.setOpt2") +
-      tt.expand("OptionalComponent.hasOpt") +
-      tt.expand("OptionalComponent.getOpt1") +
-      tt.expand("OptionalComponent.getOpt2") +
-      tt.expand("OptionalComponent.getOptNoTransform") +
-      tt.expand("OptionalComponent.getOptChildPosition");
-    parse(s);
+    parse(tt.expand("OptionalComponent"));
   }
 
   syn String TokenComponent.annotations() = suppressWarnings();
