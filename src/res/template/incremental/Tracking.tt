@@ -552,3 +552,50 @@ $endif
 $endif
 ]]
 
+AttrDecl.incHookAttrCompBeforeStore = [[
+$if(IncrementalEnabled)
+$if(#hasCache)
+
+$if(IncrementalLevelParam)
+$if(!#isParamAttr)
+#(attributeSignature)_handler.transferDependenciesFrom(tmpHandler);
+$else
+(($DDGNodeName)#(attributeSignature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
+$endif
+$endif
+
+$if (IncrementalLevelAttr)
+#(attributeSignature)_handler.transferDependenciesFrom(tmpHandler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(!#getNTA)
+handler.transferDependenciesFrom(tmpHandler);
+$endif
+$endif
+
+$endif
+$endif
+]]
+
+AttrDecl.incHookAttrCompAfterStore = [[
+$if(IncrementalEnabled)
+$if(#hasCache)
+
+$if(IncrementalLevelParam)
+else tmpHandler.clearDependencies();
+$endif
+
+$if(IncrementalLevelAttr)
+else tmpHandler.clearDependencies();
+$endif
+
+$if(IncrementalLevelNode)
+$if(!#getNTA)
+else tmpHandler.clearDependencies();
+$endif
+$endif
+
+$endif
+$endif
+]]

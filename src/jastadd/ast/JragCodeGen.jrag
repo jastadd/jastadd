@@ -632,16 +632,17 @@ aspect JragCodeGen {
   public String AttrDecl.cacheStore() {
     if(!getLazy())
       return "";
+    TemplateContext tt = templateContext();
     if(getNumParameter() == 0) {
       return cacheStoreRewrite() + "{" +
-        genIncrementalTrackingStackTransfer() +
+        tt.expand("AttrDecl.incHookAttrCompBeforeStore") +
         " " + attributeSignature() + "_computed = true; }\n" +
-        genIncrementalTrackingStackClear();
+        tt.expand("AttrDecl.incHookAttrCompAfterStore");
     } else {
       return cacheStoreRewrite() + "{" +
-        genIncrementalTrackingStackTransfer() +
+      tt.expand("AttrDecl.incHookAttrCompBeforeStore") +
         " " + attributeSignature() + "_values.put(_parameters, " + toReferenceType(attributeSignature() + "_value", getType()) + "); }\n" +
-        genIncrementalTrackingStackClear() + "\n";
+        tt.expand("AttrDecl.incHookAttrCompAfterStore") + "\n";
     }
   }
 

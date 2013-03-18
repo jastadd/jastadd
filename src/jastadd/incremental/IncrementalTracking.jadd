@@ -38,52 +38,6 @@ aspect IncrementalTracking {
       return templateContext().expand("ASTNode$State.incrementalEvaluationStack");
   }
 
-  public String AttrDecl.genIncrementalTrackingStackTransfer() {
-    if (!grammar().incremental) return "";
-    StringBuffer buf = new StringBuffer();
-    if (getLazy() || isCircular()) {
-      if (grammar().incrementalLevelParam) {
-        if (getNumParameter() == 0) {
-          buf.append(attributeSignature() + "_handler.transferDependenciesFrom(tmpHandler);");
-        } else {
-          buf.append("((ASTNode$DepGraphNode)" + attributeSignature() + "_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);");
-        }
-      }
-      if (grammar().incrementalLevelAttr) {
-        buf.append(attributeSignature() + "_handler.transferDependenciesFrom(tmpHandler);");
-      }
-      if (grammar().incrementalLevelNode) {
-        if (!getNTA()) {
-          buf.append("handler.transferDependenciesFrom(tmpHandler);");
-        }
-      }
-      if (grammar().incrementalLevelRegion) {
-      }
-    }
-    return buf.toString();
-  }
-
-  public String AttrDecl.genIncrementalTrackingStackClear() {
-    if (!grammar().incremental) return "";
-    StringBuffer buf = new StringBuffer();
-    if (getLazy() || isCircular()) {
-      if (grammar().incrementalLevelParam) {
-        buf.append("else tmpHandler.clearDependencies();");
-      }
-      if (grammar().incrementalLevelAttr) {
-        buf.append("else tmpHandler.clearDependencies();");
-      }
-      if (grammar().incrementalLevelNode) {
-        if (!getNTA()) {
-          buf.append("else tmpHandler.clearDependencies();");
-        }
-      }
-      if (grammar().incrementalLevelRegion) {
-      }
-    }
-    return buf.toString();
-  }
-
   public String AttrDecl.genIncrementalInternalNTAList() {
     if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
