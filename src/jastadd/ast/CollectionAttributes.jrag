@@ -193,7 +193,7 @@ aspect CollectionAttributes {
         out.println(attr.hostFileComment());
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
-          if(decl.onePhase() || decl.separateEvaluation()) { // TODO: add || decl.separateEvaluation()
+          if(decl.onePhase() || decl.separateEvaluation()) {
             if(c.getCondition() != null && c.getCondition().trim().length()>0)
               out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
             if(attr.getRefSet()) {
@@ -289,88 +289,84 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.nextIteration(PrintStream out) {
-    HashMap map = new LinkedHashMap();
+    HashMap<String,ArrayList<CollEq>> map = new LinkedHashMap<String,ArrayList<CollEq>>();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if(attr.separateEvaluation()) {
-        if(!map.containsKey(attr.contributionSignature()))
-          map.put(attr.contributionSignature(), new ArrayList());
-        ArrayList list = (ArrayList)map.get(attr.contributionSignature());
-        list.add(attr);
+        String signature = attr.contributionSignature();
+        if(!map.containsKey(signature)) {
+          map.put(signature, new ArrayList<CollEq>());
+        }
+        map.get(signature).add(attr);
       }
     }
 
-    for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
-      String key = (String)iter.next();
-      ArrayList list = (ArrayList)map.get(key);
-      StringBuffer buf = new StringBuffer();
-      buf.append(ind + "protected void #TYPEINSIGNATURE#_#NAME#_nextIteration(#TYPEINSIGNATURE# n) {\n");
-      CollDecl decl = null;
-      CollEq attr = null;
-      for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
-        attr = (CollEq)i2.next();
-        decl = (CollDecl)attr.decl();
+    for(Map.Entry<String,ArrayList<CollEq>> entry : map.entrySet()) {
+      String signature = entry.getKey();
+      ArrayList<CollEq> equations = entry.getValue();
+
+      CollEq firstEq = equations.get(0);
+      CollDecl decl = (CollDecl) firstEq.decl();
+
+      String valueAccess;
+      if(decl != null && !decl.isCircular()) {
+        valueAccess = "n.";
+      } else {
+        valueAccess = "n.new_";
+      }
+
+      out.println(ind + "protected void " + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(" + decl.getTarget() + " n) {");
+      for(CollEq attr: equations) {
+        firstEq = attr;
         String NAME = attr.attributeSignature();
-        buf.append(attr.hostFileComment() + "\n");
+        out.println(attr.hostFileComment());
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(c.getCondition() != null && c.getCondition().trim().length()>0) {
             if(attr.lazyCondition()) {
               if(attr.getRefSet()) {
-                buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-                buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-                buf.append(ind(4) + "if(ref == n && (" + c.getCondition().trim() + ")) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append(ind(3) + "}\n");
+                out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
+                out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
+                out.println(ind(4) + "if(ref == n && (" + c.getCondition().trim() + ")) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(3) + "}");
               }
               else {
-                buf.append(ind(3) + "if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                out.println(ind(3) + "if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
               }
             }
             else {
-              buf.append(ind(2) + "if(" + c.getCondition().trim() + ") {\n");
+              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
               if(attr.getRefSet()) {
-                buf.append(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-                buf.append(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-                buf.append(ind(4) + "if(ref == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-                buf.append(ind(3) + "}\n");
+                out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
+                out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
+                out.println(ind(4) + "if(ref == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(3) + "}");
               }
               else {
-                buf.append(ind(3) + "if(" + attr.getReference() + " == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+                out.println(ind(3) + "if(" + attr.getReference() + " == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
               }
-              buf.append(ind(2) + "}\n");
+              out.println(ind(2) + "}");
             }
           }
           else {
             if(attr.getRefSet()) {
-              buf.append(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {\n");
-              buf.append(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();\n");
-              buf.append(ind(3) + "if(ref == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
-              buf.append(ind(2) + "}\n");
+              out.println(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
+              out.println(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
+              out.println(ind(3) + "if(ref == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+              out.println(ind(2) + "}");
             }
             else
-              buf.append(ind(2) + "if(" + attr.getReference() + " == n) n.new_" + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");\n");
+              out.println(ind(2) + "if(" + attr.getReference() + " == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           }
         }
       }
       if(isASTNode()) {
-        buf.append(ind(2) + "for(int i = 0; i < getNumChild(); i++)\n");
-        buf.append(ind(3) + "getChild(i).#TYPEINSIGNATURE#_#NAME#_next_Iteration(n);\n"); // once per group
+        out.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
+        out.println(ind(3) + "getChild(i)." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_next_Iteration(n);"); // once per group
       } else {
-        buf.append(ind(3) + "r.#TYPEINSIGNATURE#_#NAME#_nextIteration(n);\n");
+        out.println(ind(3) + "r." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(n);");
       }
-      buf.append(ind + "}\n");
-      String s = buf.toString();
-      if(decl != null && !decl.isCircular()) {
-        // TODO:replace decl.naive() with !decl.isCircular()
-        s = s.replaceAll("n.new_", "n.");
-      }
-      s = s.replaceAll("#TYPE#", decl.getType());
-      s = s.replaceAll("#TYPEINSIGNATURE#", decl.getTarget());
-      s = s.replaceAll("#COLLECTINGSIGNATURE#", decl.collectingSignature());
-      s = s.replaceAll("#NAME#", attr.attributeSignature());
-      s = s.replaceAll("#PARMDECL#", attr.parametersDecl());
-      s = s.replaceAll("#PARM#", attr.parameters());
-      out.print(s);
+      out.println(ind + "}");
     }
   }
 
