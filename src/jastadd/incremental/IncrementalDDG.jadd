@@ -86,21 +86,6 @@ aspect IncrementalDDG {
       }
     }
   }
-
-  /**
-   * Generate a handler for token components. 
-   * Tokens only get DDG nodes for certain incremental configurations: param, attr. 
-   */
-  String TokenComponent.genIncrementalTokenHandler(ASTDecl decl) {
-    if (!grammar().incremental) return ""; 
-    if (!isNTA()) {
-      TemplateContext tt = templateContext();
-      tt.bind("Host", decl.name());
-      tt.bind("Id", getTokenId().getID());
-      return tt.expand("TokenComponent.createTokenHandler");                 
-    }
-    return "";
-  }
   
   /**
    * Initialize child handlers.

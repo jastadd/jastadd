@@ -311,3 +311,37 @@ $endif
     
 $endif
 ]]
+
+TokenComponent.incHookGetToken = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+state().addHandlerDepTo(get$(Id)_handler);
+$endif
+
+$if(IncrementalLevelAttr)
+state().addHandlerDepTo(get$(Id)_handler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(!IsStringToken)
+$if(!#isPrimitive)
+if (token$(TypeInSignature)_$(Id) instanceof ASTNode) {
+  state().addHandlerDepTo(((ASTNode)token$(TypeInSignature)_$(Id)).handler);
+}
+$endif
+$endif
+$endif
+
+$if(IncrementalLevelRegion)
+$if(!IsStringToken)
+$if(!#isPrimitive)
+if (token$(TypeInSignature)_$(Id) instanceof ASTNode && token$(TypeInSignature)_$(Id).isRegionRoot()) {
+  ((ASTNode)token$(TypeInSignature)_$(Id)).handler().addDependant(handler());
+}
+$endif
+$endif
+$endif
+    
+$endif
+]]

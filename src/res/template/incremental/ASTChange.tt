@@ -361,3 +361,89 @@ $endif
 
 $endif
 ]]
+
+TokenComponent.incHookSetToken = [[
+$if(IncrementalEnabled) 
+
+$if(IncrementalLevelParam)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  $if(#isNTA)
+  if (get$(Id)_computed) {
+    get$(Id)_computed = false;
+    get$(Id)_handler.notifyDependencies();
+  }
+  $else
+  $if(IncrementalTrack)
+  get$(Id)_handler.trackChange();    
+  $endif
+  get$(Id)_handler.notifyDependencies();
+  $endif
+$endif
+
+$if(IncrementalLevelAttr)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  $if(#isNTA)
+  if (get$(Id)_computed) {
+    get$(Id)_computed = false;
+    get$(Id)_handler.notifyDependencies();
+  }
+  $else
+  $if(IncrementalTrack)
+  get$(Id)_handler.trackChange();    
+  $endif
+  get$(Id)_handler.notifyDependencies();
+  $endif
+$endif
+
+$if(IncrementalLevelNode)
+if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
+  $if(#isNTA)
+  if (get$(Id)_computed) {
+    get$(Id)_computed = false;
+    handler.flushRegion();
+  }
+  $else
+  handler.flushRegion();
+  $if (!IsStringToken)
+  $if (!#isPrimitive)
+  if (token$(TypeInSignature)_$Id instanceof ASTNode) {
+    token$(TypeInSignature)_$(Id).handler.flushRegion();
+  }
+  $endif
+  $endif      
+  $endif
+$endif
+
+$if(IncrementalLevelRegion)
+if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
+  $if(#isNTA)
+  if (get$(Id)_computed) {
+    get$(Id)_computed = false;
+    handler().flushRegion();
+  }
+  $else
+  handler().flushRegion();
+  $if (!IsStringToken)
+  $if (!#isPrimitive)
+  if (token$(TypeInSignature)_$Id instanceof ASTNode && token$(TypeInSignature)_$(Id).isRegionRoot()) {
+    token$(TypeInSignature)_$(Id).handler.flushRegion();
+  }
+  $endif
+  $endif      
+  $endif
+$endif     
+    
+  $if(!#isNTA)
+  ASTNode initial = inc_locateInitialCopy();
+  if (initial != null) {
+    state().enterConstruction();
+    (($Host)initial).set$(Id)(token$(TypeInSignature)_$Id);
+    state().exitConstruction();
+    return;
+  }
+  $endif
+
+}
+    
+$endif
+]]

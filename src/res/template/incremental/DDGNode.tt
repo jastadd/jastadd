@@ -433,7 +433,9 @@ $endif
 ]]
 
 # Create DDG node for token
-TokenComponent.createTokenHandler = [[
+TokenComponent.incHookTokenHandler = [[
+$if(IncrementalEnabled)
+$if (!#isNTA)
 $if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
   protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id", null, true);
@@ -443,6 +445,8 @@ $endif
 $endif
 $if (IncrementalLevelAttr)
   protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id");
+$endif
+$endif
 $endif
 ]]
 
