@@ -135,7 +135,7 @@ $endif
 
 ASTDecl.collectContributors:alt2 = [[
 $if(HasCondition)
-    if ($Condition)
+    if ($Condition) {
 $endif
 $if(#getRefSet)
       for(java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
@@ -157,7 +157,8 @@ $if(HasCondition)
 $endif
 ]]
 
-ASTDecl.nextIteration:alt1 = [[
+ASTDecl.nextIteration = [[
+$if(HasCondition)
 $if(#lazyCondition)
 $if(#getRefSet)
     for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
@@ -187,9 +188,7 @@ $else
 $endif
     }
 $endif
-]]
-
-ASTDecl.nextIteration:alt2 = [[
+$else
 $if(#getRefSet)
     for(java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
       #getTargetName ref = (#getTargetName) iter.next();
@@ -201,6 +200,7 @@ $else
     if (#getReference == n) {
       $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
     }
+$endif
 $endif
 ]]
 
