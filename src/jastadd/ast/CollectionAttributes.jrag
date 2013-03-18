@@ -120,7 +120,7 @@ aspect CollectionAttributes {
     TemplateContext tt = templateContext();
     tt.bind("RootType", rootType);
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
-    if(separateEvaluation()) {// TODO: replace naive() with separateEvaluation()
+    if(separateEvaluation()) {
       tt.expand("CollDecl.computeMethod:separateEvaluation", out);
     } else if(onePhase()) {
       tt.expand("CollDecl.computeMethod:onePhase", out);
@@ -166,30 +166,33 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.collectContributors(PrintStream out) {
-    HashMap map = new LinkedHashMap();
+    HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if(!attr.separateEvaluation()) {
-        String signature = attr.collectingSignature();
-        if(!map.containsKey(signature))
-          map.put(signature, new ArrayList());
-        ArrayList list = (ArrayList)map.get(signature);
-        list.add(attr);
+        CollDecl decl = (CollDecl) attr.decl();
+        ArrayList<CollEq> equations = map.get(decl);
+        if (equations == null) {
+          equations = new ArrayList<CollEq>();
+          map.put(decl, equations);
+        }
+        equations.add(attr);
       }
     }
 
-    for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
-      String key = (String)iter.next();
-      ArrayList list = (ArrayList)map.get(key);
-      out.println(ind + "protected void collect_contributors_" + key + "() {"); // once per group
+    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry: map.entrySet()) {
+      CollDecl decl = entry.getKey();
+      ArrayList<CollEq> equations = entry.getValue();
 
-      if(isRootNode()) {
-        out.println(ind(2) + "if(collect_contributors_" + key + ") return;");
+      CollEq firstEq = equations.get(0);
+
+      out.println(ind + "protected void collect_contributors_" + decl.collectingSignature() + "() {"); // once per group
+
+      if (isRootNode()) {
+        out.println(ind(2) + "if(collect_contributors_" + decl.collectingSignature() + ") return;");
       }
-      for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
-        CollEq attr = (CollEq)i2.next();
-        CollDecl decl = (CollDecl)attr.decl();
-        String NAME = attr.attributeSignature();
+
+      for (CollEq attr: equations) {
         out.println(attr.hostFileComment());
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
@@ -200,8 +203,8 @@ aspect CollectionAttributes {
                 out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
                 out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
                 out.println(ind(4) + "if(ref != null) {");
-                out.println(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
-                out.println(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(5) + "if(ref." + attr.attributeSignature() + "_value == null) ref." + attr.attributeSignature() + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
+                out.println(ind(5) + "ref." + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
                 out.println(ind(4) + "}");
                 out.println(ind(3) + "}");
             }
@@ -209,8 +212,8 @@ aspect CollectionAttributes {
                 out.println(ind(3) + "{");
                 out.println(ind(4) + attr.getTargetName() + " ref = " + attr.getReference() + ";");
                 out.println(ind(4) + "if(ref != null) {");
-                out.println(ind(5) + "if(ref." + NAME + "_value == null) ref." + NAME + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
-                out.println(ind(5) + "ref." + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(5) + "if(ref." + attr.attributeSignature() + "_value == null) ref." + attr.attributeSignature() + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
+                out.println(ind(5) + "ref." + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
                 out.println(ind(4) + "}");
                 out.println(ind(3) + "}");
             }
@@ -225,14 +228,14 @@ aspect CollectionAttributes {
               out.println(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
               out.println(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
               out.println(ind(3) + "if(ref != null)");
-              out.println(ind(3) + "ref." + NAME + "_contributors().add(this);"); // one name per collection attribute
+              out.println(ind(3) + "ref." + attr.attributeSignature() + "_contributors().add(this);"); // one name per collection attribute
               out.println(ind(2) + "}");
             }
             else {
               out.println(ind(2) + "{");
               out.println(ind(3) + "" + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")(" + attr.getReference().trim() + ");");
               out.println(ind(3) + "if(ref != null)");
-              out.println(ind(4) + "ref." + NAME + "_contributors().add(this);"); // one name per collection attribute
+              out.println(ind(4) + "ref." + attr.attributeSignature() + "_contributors().add(this);"); // one name per collection attribute
               out.println(ind(3) + "}");
             }
 
@@ -243,12 +246,12 @@ aspect CollectionAttributes {
       }
       if(isASTNode()) {
         out.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
-        out.println(ind(3) + "getChild(i).collect_contributors_" + key + "();"); // once per group
+        out.println(ind(3) + "getChild(i).collect_contributors_" + decl.collectingSignature() + "();"); // once per group
       }
       else {
-        out.println(ind(2) + "super.collect_contributors_" + key + "();");
+        out.println(ind(2) + "super.collect_contributors_" + decl.collectingSignature() + "();");
         if(isRootNode()) {
-          out.println(ind(2) + "collect_contributors_" + key + " = true;");
+          out.println(ind(2) + "collect_contributors_" + decl.collectingSignature() + " = true;");
         }
       }
       out.println(ind + "}");
@@ -256,23 +259,27 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.contributeTo(PrintStream out) {
-    HashMap map = new LinkedHashMap();
+    HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if(!attr.separateEvaluation() && !attr.onePhase()) {
-        if(!map.containsKey(attr.decl()))
-          map.put(attr.decl(), new ArrayList());
-        ArrayList list = (ArrayList)map.get(attr.decl());
-        list.add(attr);
+        CollDecl decl = (CollDecl) attr.decl();
+        ArrayList<CollEq> equations = map.get(decl);
+        if (equations == null) {
+          equations = new ArrayList<CollEq>();
+          map.put(decl, equations);
+        }
+        equations.add(attr);
       }
     }
-    for(Iterator iter = map.keySet().iterator(); iter.hasNext(); ) {
-      CollDecl decl = (CollDecl)iter.next();
-      ArrayList list = (ArrayList)map.get(decl);
+
+    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry: map.entrySet()) {
+      CollDecl decl = entry.getKey();
+      ArrayList<CollEq> equations = entry.getValue();
+
       out.println(ind + "protected void contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(" + decl.getType() + " collection) {");
       out.println(ind(2) + "super.contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(collection);");
-      for(Iterator i2 = list.iterator(); i2.hasNext(); ) {
-        CollEq attr = (CollEq)i2.next();
+      for (CollEq attr: equations) {
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if(c.getCondition() != null && c.getCondition().trim().length()>0 /* && attr.getNumContribution() > 1*/) {
@@ -289,24 +296,25 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.nextIteration(PrintStream out) {
-    HashMap<String,ArrayList<CollEq>> map = new LinkedHashMap<String,ArrayList<CollEq>>();
+    HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
     for(int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if(attr.separateEvaluation()) {
-        String signature = attr.contributionSignature();
-        if(!map.containsKey(signature)) {
-          map.put(signature, new ArrayList<CollEq>());
+        CollDecl decl = (CollDecl) attr.decl();
+        ArrayList<CollEq> equations = map.get(decl);
+        if (equations == null) {
+          equations = new ArrayList<CollEq>();
+          map.put(decl, equations);
         }
-        map.get(signature).add(attr);
+        equations.add(attr);
       }
     }
 
-    for(Map.Entry<String,ArrayList<CollEq>> entry : map.entrySet()) {
-      String signature = entry.getKey();
+    for(Map.Entry<CollDecl,ArrayList<CollEq>> entry : map.entrySet()) {
+      CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
       CollEq firstEq = equations.get(0);
-      CollDecl decl = (CollDecl) firstEq.decl();
 
       String valueAccess;
       if(decl != null && !decl.isCircular()) {
@@ -317,8 +325,6 @@ aspect CollectionAttributes {
 
       out.println(ind + "protected void " + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(" + decl.getTarget() + " n) {");
       for(CollEq attr: equations) {
-        firstEq = attr;
-        String NAME = attr.attributeSignature();
         out.println(attr.hostFileComment());
         for(int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
@@ -327,11 +333,11 @@ aspect CollectionAttributes {
               if(attr.getRefSet()) {
                 out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
                 out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-                out.println(ind(4) + "if(ref == n && (" + c.getCondition().trim() + ")) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(4) + "if(ref == n && (" + c.getCondition().trim() + ")) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
                 out.println(ind(3) + "}");
               }
               else {
-                out.println(ind(3) + "if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(3) + "if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
               }
             }
             else {
@@ -339,11 +345,11 @@ aspect CollectionAttributes {
               if(attr.getRefSet()) {
                 out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
                 out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-                out.println(ind(4) + "if(ref == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(4) + "if(ref == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
                 out.println(ind(3) + "}");
               }
               else {
-                out.println(ind(3) + "if(" + attr.getReference() + " == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+                out.println(ind(3) + "if(" + attr.getReference() + " == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
               }
               out.println(ind(2) + "}");
             }
@@ -352,11 +358,11 @@ aspect CollectionAttributes {
             if(attr.getRefSet()) {
               out.println(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
               out.println(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-              out.println(ind(3) + "if(ref == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+              out.println(ind(3) + "if(ref == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
               out.println(ind(2) + "}");
             }
             else
-              out.println(ind(2) + "if(" + attr.getReference() + " == n) " + valueAccess + NAME + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+              out.println(ind(2) + "if(" + attr.getReference() + " == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           }
         }
       }
@@ -441,7 +447,6 @@ aspect CollectionAttributes {
           }
 
           if(!separateEvaluation && (attr.isCircular() || !attr.onePhase())) {
-            // TODO: add && !attr.separateEvaluation()
             s = s +
               ind + "protected void contributeTo_" + attr.getTarget() + "_" + attr.attributeSignature() + "(" + attr.getType() + " collection) {\n" +
               ind + "}\n";
@@ -453,7 +458,6 @@ aspect CollectionAttributes {
           String s = "";
           String flush = "";
           if(attr.circularCollection() && !separateEvaluation) {
-            // TODO: remove && !attr.naive()
             s =
               ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n" +
               ind + "public boolean collecting_contributors_" + attr.collectingSignature() + " = false;\n" +
@@ -468,7 +472,6 @@ aspect CollectionAttributes {
               ind(2) + "collect_contributors_" + attr.collectingSignature() + " = false;\n" +
               ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = false;\n";
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) {
-            // TODO: replace !attr.naive() with !attr.separateEvaluation()
             if(!rootDecl.hasCollEq(attr)) {
               s =
               ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n" +
