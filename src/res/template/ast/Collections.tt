@@ -104,6 +104,9 @@ $endif
 ]]
 
 ASTDecl.collectContributors:alt1 = [[
+$if(HasCondition)
+    if ($Condition) {
+$endif
 $if(#getRefSet)
       for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
         #getTargetName ref = (#getTargetName) iter.next();
@@ -125,9 +128,15 @@ $else
         }
       }
 $endif
+$if(HasCondition)
+    }
+$endif
 ]]
 
 ASTDecl.collectContributors:alt2 = [[
+$if(HasCondition)
+    if ($Condition)
+$endif
 $if(#getRefSet)
       for(java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
         #getTargetName ref = (#getTargetName) iter.next();
@@ -142,6 +151,9 @@ $else
           ref.#(attributeSignature)_contributors().add(this);
         }
       }
+$endif
+$if(HasCondition)
+    }
 $endif
 ]]
 

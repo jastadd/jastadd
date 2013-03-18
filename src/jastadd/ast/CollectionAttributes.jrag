@@ -208,27 +208,14 @@ aspect CollectionAttributes {
         out.println(attr.hostFileComment());
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
+          tt.bind("Condition", c.getCondition().trim());
           if (decl.onePhase() || decl.separateEvaluation()) {
-            if (c.hasCondition()) {
-              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
-            }
-
+            tt.bind("HasCondition", c.hasCondition());
             tt.bind("Value", c.getValue().trim());
             tt.expand("ASTDecl.collectContributors:alt1", out);
-
-            if (c.hasCondition()) {
-              out.println(ind(2) + "}");
-            }
           } else {
-            if (c.hasCondition() && !decl.lazyCondition()) {
-              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
-            }
-
+            tt.bind("HasCondition", c.hasCondition() && !decl.lazyCondition());
             tt.expand("ASTDecl.collectContributors:alt2", out);
-
-            if (c.hasCondition() && !decl.lazyCondition()) {
-              out.println(ind(2) + "}");
-            }
           }
         }
       }
@@ -319,12 +306,9 @@ aspect CollectionAttributes {
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           tt.bind("Value", c.getValue().trim());
-          if (c.hasCondition()) {
-            tt.bind("Condition", c.getCondition().trim());
-            tt.expand("ASTDecl.nextIteration:alt1", out);
-          } else {
-            tt.expand("ASTDecl.nextIteration:alt2", out);
-          }
+          tt.bind("HasCondition", c.hasCondition());
+          tt.bind("Condition", c.getCondition().trim());
+          tt.expand("ASTDecl.nextIteration", out);
         }
       }
       if(isASTNode()) {
