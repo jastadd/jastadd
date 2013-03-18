@@ -45,7 +45,7 @@ aspect IncrementalEval {
     jjtGenIncrementalAffectedValue(out);
     jjtGenIncrementalReactToChange(out);
     jjtGenIncrementalReactToASTChange(out);
-    jjtGenIncrementalState(out);
+    genIncrementalState(out);
     genIncrementalRegions(out);
     genIncrementalDebug(out);
   }

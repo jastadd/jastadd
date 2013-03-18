@@ -127,3 +127,236 @@ $if(IncrementalEnabled)
 state().exitConstruction();
 $endif
 ]]
+
+ASTDecl.incChangeStateMethod = [[
+/**
+ * @apilevel internal
+ */
+public void #name.inc_changeState(int newState) {
+$if(IsAstNode)
+  inc_state = newState;
+      
+  $if(IncrementalLevelParam)
+  getParent_handler.changeState(newState);
+  numChildren_handler.changeState(newState);
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (getChild_handler[i] != null) {
+      getChild_handler[i].changeState(newState);
+    }
+    if (child != null) {
+      child.inc_changeState(newState);
+    }
+  }
+  $endif
+      
+  $if(IncrementalLevelAttr)
+  getParent_handler.changeState(newState);
+  numChildren_handler.changeState(newState);
+  getChild_handler.changeState(newState);
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.inc_changeState(newState);
+    }
+  }
+  $endif
+
+  $if(IncrementalLevelNode)
+  handler.changeState(newState);
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.inc_changeState(newState);
+    }
+  }
+  $endif
+
+  $if(IncrementalLevelRegion)
+  if (isRegionRoot()) {
+    handler().changeState(newState);
+  }
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.inc_changeState(newState);
+    }
+  }
+  $endif
+
+$else
+  super.inc_changeState(newState);
+$endif
+  $ChangeStateTokens
+  $ChangeStateAttributes
+}
+]]
+
+ASTDecl.changeStateTokenHandler = [[
+$if(IncrementalLevelParam)
+if (get$(Id)_handler != null) {
+  get$(Id)_handler.changeState(newState);
+}
+$endif
+$if(IncrementalLevelAttr)
+if (get$(Id)_handler != null) {
+  get$(Id)_handler.changeState(newState);
+}
+$endif
+]]
+
+ASTDecl.changeStateAttributeHandler = [[
+$if(IncrementalLevelParam)
+$if(IsParamAttr)
+for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+  $DDGNodeName handler = ($DDGNodeName)itr.next();
+  handler.changeState(newState);
+}
+$else
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.changeState(newState);
+}
+$endif
+$endif  
+$if(IncrementalLevelAttr)
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.changeState(newState);
+}
+$endif
+$if(ChangeStateValue)
+$if(IsParamAttr)
+if ($(AttrSign)_list != null) {
+  $(AttrSign)_list.inc_changeState(newState);
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+  $(AttrSign)_value.inc_changeState(newState);
+}
+$endif
+$endif
+]]
+
+ASTDecl.incThrowAwayMethod = [[
+/**
+ * @apilevel internal
+ */
+public void #name.inc_throwAway() {
+  inc_state = inc_GARBAGE;
+$if(IsAstNode)
+  $if(IncrementalLevelParam)
+  getParent_handler.throwAway();
+  numChildren_handler.throwAway();
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (getChild_handler[i] != null) {
+      getChild_handler[i].throwAway();
+    }
+    if (child != null) {
+      child.inc_throwAway();
+    }
+    if (init_children != null && i < init_children.length && init_children[i] != null) {
+      init_children[i].inc_throwAway();
+    }
+  }
+  $endif
+  $if(IncrementalLevelAttr)
+  getParent_handler.throwAway();
+  numChildren_handler.throwAway();
+  getChild_handler.throwAway();
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.inc_throwAway();
+    }
+    if (init_children != null && i < init_children.length && init_children[i] != null) {
+      init_children[i].inc_throwAway();
+    }
+  }
+  $endif
+  $if(IncrementalLevelNode)
+  handler.throwAway();
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.inc_throwAway();
+    }
+    if (init_children != null && i < init_children.length && init_children[i] != null) {
+      init_children[i].inc_throwAway();
+    }
+  }
+  $endif
+  $if(IncrementalLevelRegion)
+  if (isRegionRoot()) {
+    handler().throwAway();
+  }
+  for (int i = 0; children != null && i < children.length; i++) {
+    ASTNode child = children[i];
+    if (child != null) {
+      child.inc_throwAway();
+    }
+    if (init_children != null && i < init_children.length && init_children[i] != null) {
+      init_children[i].inc_throwAway();
+    }
+  }
+  $endif
+$else
+  super.inc_throwAway();
+$endif
+  $ThrowAwayTokens
+  $ThrowAwayAttributes
+}    
+]]
+
+ASTDecl.throwAwayTokenHandler = [[
+$if(IncrementalLevelParam)
+if (get$(Id)_handler != null) {
+  get$(Id)_handler.throwAway();
+}
+$endif
+$if(IncrementalLevelAttr)
+if (get$(Id)_handler != null) {
+  get$(Id)_handler.throwAway();
+}
+$endif
+]]
+
+ASTDecl.throwAwayAttributeHandler = [[
+$if(IncrementalLevelParam)
+$if(IsParamAttr)
+for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+  $DDGNodeName handler = ($DDGNodeName)itr.next();
+  handler.throwAway();
+}
+$else
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.throwAway();
+}
+$endif
+$endif  
+$if(IncrementalLevelAttr)
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.throwAway();
+}
+$endif
+$if(ThrowAwayValue)
+$if(IsParamAttr)
+if ($(AttrSign)_list != null) {
+  $(AttrSign)_list.inc_throwAway();
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+  $(AttrSign)_value.inc_throwAway();
+}
+$endif
+$endif
+]]
+
+ASTDecl.incStateFields = [[
+$if(IsAstNode)
+public static final int ASTNode.inc_CREATED = 0;  
+public static final int ASTNode.inc_CLONED = 1;  
+public static final int ASTNode.inc_LIVE = 2;  
+public static final int ASTNode.inc_GARBAGE = 3;  
+public int ASTNode.inc_state = inc_CREATED;  
+$endif
+]]
