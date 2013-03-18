@@ -400,3 +400,155 @@ $endif
 
 $endif
 ]]
+
+AttrDecl.incHookAttrCompStart = [[
+$if(IncrementalEnabled)
+$if(#hasCache)
+
+$if(IncrementalLevelParam)
+$DDGNodeName tmpHandler = new $DDGNodeName(this, "", null);
+state().enterAttrStoreEval(tmpHandler);
+$endif
+
+$if(IncrementalLevelAttr)
+$DDGNodeName tmpHandler = new $DDGNodeName(this, "");
+state().enterAttrStoreEval(tmpHandler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(#getNTA)
+// Creating a dummy handler to collect dependencies
+$DDGNodeName newHandler = new $DDGNodeName(this);
+// Adding dependency to this region because it may be read during the computation
+handler.addDependant(newHandler);
+state().enterAttrStoreEval(newHandler);
+$else
+$DDGNodeName tmpHandler = new $DDGNodeName(this);
+state().enterAttrStoreEval(tmpHandler);
+$endif
+$endif
+
+$if(IncrementalLevelRegion)
+state().IN_COMPUTATION++;
+$endif
+
+$endif
+$endif
+]]
+
+AttrDecl.incHookAttrCompStartCircular = [[
+$if(IncrementalEnabled)
+$if(#hasCache)
+
+$if(IncrementalLevelParam)
+$if(!#isParamAttr)
+state().enterAttrStoreEval(#(attributeSignature)_handler);
+$else
+state().enterAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
+$endif
+$endif
+      
+$if(IncrementalLevelAttr)
+state().enterAttrStoreEval(#(attributeSignature)_handler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(#getNTA)
+// Creating a dummy handler to collect dependencies
+$DDGNodeName newHandler = new $DDGNodeName(this);
+// Adding dep. to this region because it may be read during the computation
+handler.addDependant(newHandler);
+state().enterAttrStoreEval(newHandler);
+$else
+state().enterAttrStoreEval(handler);
+$endif
+$endif
+      
+$if(IncrementalLevelRegion)
+state().IN_COMPUTATION++;
+$endif
+      
+$endif
+$endif
+]]
+
+AttrDecl.incHookAttrCompEnd = [[
+$if(IncrementalEnabled)
+$if(#hasCache)
+
+$if(IncrementalLevelParam)
+state().exitAttrStoreEval(tmpHandler);
+$endif
+
+$if(IncrementalLevelAttr)
+state().exitAttrStoreEval(tmpHandler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(#getNTA)
+#(attributeSignature)_value.handler = newHandler;
+#(attributeSignature)_value.handler.fNode = #(attributeSignature)_value;
+state().exitAttrStoreEval(#(attributeSignature)_value.handler);
+state().addHandlerDepTo(#(attributeSignature)_value.handler);
+$else
+state().exitAttrStoreEval(tmpHandler);
+$endif
+$endif
+
+$if(IncrementalLevelRegion)
+state().IN_COMPUTATION--;
+$if(#getNTA)
+if (#(attributeSignature)_value.isRegionRoot()) {
+  $DDGNodeName nodeHandler = handler();
+  nodeHandler.addDependant(#(attributeSignature)_value.handler());
+  #(attributeSignature)_value.handler().addDependant(nodeHandler);
+}
+$endif
+$endif
+      
+$endif
+$endif
+]]
+
+AttrDecl.incHookAttrCompEndCircular = [[
+$if(IncrementalEnabled)
+$if(#hasCache)
+
+$if(IncrementalLevelParam)
+$if(!#isParamAttr)
+state().exitAttrStoreEval(#(attributeSignature)_handler);
+$else
+state().exitAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
+$endif
+$endif
+      
+$if(IncrementalLevelAttr)
+state().exitAttrStoreEval(#(attributeSignature)_handler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(#getNTA)
+#(attributeSignature)_value.handler = newHandler;
+#(attributeSignature)_value.handler.fNode = #(attributeSignature)_value;
+state().exitAttrStoreEval(#(attributeSignature)_value.handler);
+state().addHandlerDepTo(#(attributeSignature)_value.handler);
+$else
+state().exitAttrStoreEval(handler);
+$endif
+$endif
+
+$if(IncrementalLevelRegion)
+state().IN_COMPUTATION--;
+$if(#getNTA)
+if (#(attributeSignature)_value.isRegionRoot()) {
+  $DDGNodeName nodeHandler = handler();
+  nodeHandler.addDependant(#(attributeSignature)_value.handler());
+  #(attributeSignature)_value.handler().addDependant(nodeHandler);
+}
+$endif
+$endif
+      
+$endif
+$endif
+]]
+

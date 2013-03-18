@@ -646,10 +646,11 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.returnStmt() {
+    TemplateContext tt = templateContext();
     if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
       int index = indexNTAchild();
       return getType() + " node = (" + getType() + ") this.getChild(" + attributeSignature() + "ChildPosition());\n" +
-          genIncrementalTrackingStackExit() +
+          tt.expand("AttrDecl.incHookAttrCompEnd") + 
           ind(2) + "return node;\n";
     }
 
@@ -657,7 +658,7 @@ aspect JragCodeGen {
       return ind(2) + "return " + attributeSignature() + "_value;\n";
     }
 
-    return genIncrementalTrackingStackExit() +
+    return tt.expand("AttrDecl.incHookAttrCompEnd") +
         ind(2) + "return " + attributeSignature() + "_value;\n";
   }
 
@@ -794,14 +795,15 @@ aspect JragCodeGen {
 
   public String AttrDecl.cacheCycleCheck() {
      if (!grammar().cacheCycle) return "";
+     TemplateContext tt = templateContext();
      if(getNumParameter() == 0)
        return
          "if (state.LAST_CYCLE) {\n" +
          attributeSignature() + "_computed = true;\n" +
          inhDebugString() +
-         genIncrementalTrackingStackEnter2() +
+         tt.expand("AttrDecl.incHookAttrCompStartCircular") + 
          ind + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
-         genIncrementalTrackingStackExit2() +
+         tt.expand("AttrDecl.incHookAttrCompEndCircular") + 
          ind + "return new_" + attributeSignature() + "_value;\n" +
          "}\n";
      else {
