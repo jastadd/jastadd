@@ -1,4 +1,7 @@
 TokenComponent = [[
+
+  $include(TokenComponent.incHookTokenHandler)
+
   /**
    * Replaces the lexeme $Id.
    * @param value The new value for the lexeme $Id.
@@ -7,7 +10,7 @@ TokenComponent = [[
   $Modifier void $Host.set$Id($Type value) {
     $SynchBegin
     token$(TypeInSignature)_$Id = value;
-    $IncrementalTokenChangeValue
+    $include(TokenComponent.incHookSetToken)
     $SynchEnd
   }
 
@@ -37,7 +40,7 @@ $if(!#isNTA)
     token$(TypeInSignature)_$Id = (String)symbol.value;
     $(Id)start = symbol.getStart();
     $(Id)end = symbol.getEnd();
-    $IncrementalTokenChangeSymbol
+    $include(TokenComponent.incHookSetToken)
     $SynchEnd
   }
     $endif
@@ -48,7 +51,7 @@ $if(!#isNTA)
    */
   $Modifier $Type $Host.get$Id() {
     $SynchBegin
-    #jaddGenIncrementalTokenTrack
+    $include(TokenComponent.incHookGetToken)
     return token$(TypeInSignature)_$Id != null ? token$(TypeInSignature)_$Id : "";
     $SynchEnd
   }
@@ -60,7 +63,7 @@ $if(!#isNTA)
    */
   $Modifier $Type $Host.get$Id() {
     $SynchBegin
-    #jaddGenIncrementalTokenTrack
+    $include(TokenComponent.incHookGetToken)
     return token$(TypeInSignature)_$Id;
     $SynchEnd
   }

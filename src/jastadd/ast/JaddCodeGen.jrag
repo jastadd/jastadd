@@ -284,91 +284,12 @@ aspect JaddCodeGen {
   /**
    * Print the getChild method to the output stream.
    */
-  public void ASTDecl.emitGetChild(PrintWriter stream) {
-    String returnTypeCast;
-    if(grammar().java5) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "@SuppressWarnings(\"cast\") public T ASTNode.getChild(int i) {");
-      returnTypeCast = "(T) ";
-    }
-    else {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "public ASTNode ASTNode.getChild(int i) {");
-      returnTypeCast = "";
-    }
-
-    if(grammar().rewriteEnabled) {
-      if(grammar().block) stream.print(grammar().blockBegin);
-      stream.println(ind(2) + "ASTNode node = this.getChildNoTransform(i);");
-      stream.println(ind(2) + "if(node == null) return null;");
-      stream.println(ind(2) + "if(node.is$Final()) {");
-      jjtGenIncrementalTrackRewrite4(stream);
-      genIncrementalTrackRewrite12(stream);
-      stream.println(ind(3) +   "return " + returnTypeCast + "node;");
-      stream.println(ind(3) + "}");
-      stream.println(ind(2) + "if(!node.mayHaveRewrite()) {");
-      if(grammar().stagedRewrites) {
-        stream.println(ind(3) + "node.is$Final(this.is$Final);");
-      } else {
-        stream.println(ind(3) + "node.is$Final(this.is$Final());");
-      }
-      jjtGenIncrementalTrackRewrite4(stream);
-      genIncrementalTrackRewrite12(stream);
-      stream.println(ind(3) + "return " + returnTypeCast + "node;");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "if(!node.in$Circle()) {");
-      jjtGenIncrementalTrackRewrite1(stream);
-      emitFlushRewritesInitialize(stream);
-      emitFlushRewritesCheckAndStoreInitValue(stream);
-      stream.println(ind(3) + "int rewriteState;");
-      stream.println(ind(3) + "int num = this.state().boundariesCrossed;");
-      stream.println(ind(3) + "do {");
-      stream.println(ind(4) + "this.state().push(ASTNode$State.REWRITE_CHANGE);");
-      stream.println(ind(4) + "ASTNode oldNode = node;");
-      stream.println(ind(4) + "oldNode.in$Circle(true);");
-      jjtGenIncrementalTrackRewrite5(stream);
-      stream.println(ind(4) + "node = node.rewriteTo();");
-      stream.println(ind(4) + "if(node != oldNode) {");
-      jjtGenIncrementalTrackRewrite7(stream);
-      stream.println(ind(5) + "this.setChild(node, i);");
-      jjtGenIncrementalTrackRewrite8(stream);
-      stream.println(ind(4) + "}");
-      stream.println(ind(4) + "oldNode.in$Circle(false);");
-      stream.println(ind(4) + "rewriteState = this.state().pop();");
-      jjtGenIncrementalTrackRewrite3(stream);
-      emitFlushRewritesChildRewritten(stream);
-      jjtGenIncrementalTrackRewrite6(stream);
-      stream.println(ind(3) + "} while(rewriteState == ASTNode$State.REWRITE_CHANGE);");
-      stream.println(ind(3) + "if(rewriteState == ASTNode$State.REWRITE_NOCHANGE && this.is$Final()) {");
-      if(grammar().stagedRewrites) {
-        stream.println(ind(4) + "node.is$Final(this.state().rewritePhase);");
-      } else {
-        stream.println(ind(4) + "node.is$Final(true);");
-      }
-      stream.println(ind(4) + "this.state().boundariesCrossed = num;");
-      if(grammar().rewriteLimit > 0) {
-        stream.println(ind(4) + "node.debugRewriteRemove();");
-      }
-      stream.println(ind(3) + "}");
-      jjtGenIncrementalTrackRewrite2(stream);
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "else if(this.is$Final() != node.is$Final()) this.state().boundariesCrossed++;");
-      jjtGenIncrementalTrackRewrite11(stream);
-      genIncrementalTrackRewrite12(stream);
-      stream.println(ind(2) + "return " + returnTypeCast + "node;");
-      if(grammar().block) stream.print(grammar().blockEnd);
-    } else {
-      // No rewrites
-      stream.println(ind(2) + "ASTNode child = getChildNoTransform(i);");
-      jjtGenIncrementalTrackGetChildNoTransform(stream);
-      stream.println(ind(2) + "return " + returnTypeCast + "child;");
-    }
-
-    stream.println(ind + "}");
+  public void ASTDecl.emitGetChild(PrintWriter out) {
+    TemplateContext tt = templateContext();
+    tt.bind("ReturnTypeCast", grammar().java5 ? "(T) " : "");
+    tt.bind("PositiveRewriteLimit", grammar().rewriteLimit > 0);
+    tt.bind("IsRegionRoot", isRegionRoot());
+    tt.expand("ASTNode.getChild", out);
   }
 
   public void ASTDecl.emitAddChild(PrintWriter out) {
@@ -377,48 +298,9 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.emitGetChildNoTransform(PrintWriter out) {
-    if(grammar().java5) {
-      out.println(ind + "/**");
-      out.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      out.println(ind + "@SuppressWarnings(\"cast\")");
-      
-      // Must be able to override get child methods for incremental evaluation
-      if (grammar().incremental) { 
-        jjtGenIncrementalTrackGetChildNoTransformNameGeneric(out);
-      } else { 
-        out.println(ind + "public final T ASTNode.getChildNoTransform(int i) {");
-      }
-      
-      if(grammar().block) out.print(grammar().blockBegin);
-      out.println(ind(2) + "if (children == null) return null;");
-      out.println(ind(2) + "T child = (T)children[i];");
-      jjtGenIncrementalTrackGetChildNoTransform(out);
-      out.println(ind(2) + "return child;");        
-      if(grammar().block) out.print(grammar().blockEnd);
-      out.println(ind + "}");
-    } else {
-      out.println(ind + "/**");
-      out.println(ind + " * <p><em>This method does not invoke AST transformations.</em></p>");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      
-      // Must be able to override get child methods for incremental evaluation
-      if (grammar().incremental) {
-        jjtGenIncrementalTrackGetChildNoTransformName(out);
-      } else { 
-        out.println(ind + "public final ASTNode ASTNode.getChildNoTransform(int i) {");
-      }
-      
-      if(grammar().block) out.print(grammar().blockBegin);
-      out.println(ind(2) + "if (children == null) return null;");
-      out.println(ind(2) + "ASTNode child = (ASTNode)children[i];");
-      jjtGenIncrementalTrackGetChildNoTransform(out);
-      out.println(ind(2) + "return child;");        
-      if(grammar().block) out.print(grammar().blockEnd);
-      out.println(ind + "}");
-    }
+    TemplateContext tt = templateContext();
+    tt.bind("IsRegionRoot", isRegionRoot());
+    tt.expand("ASTNode.getChildNoTransform", out);
   }
 
   public void ASTDecl.emitNumChildren(PrintWriter out) {
@@ -855,12 +737,7 @@ aspect JaddCodeGen {
     tt.bind("IsStringToken", isStringToken);
     tt.bind("IsRedefined", isRedefined);
     
-    tt.bind("IncrementalTokenTrack", jaddGenIncrementalTokenTrack());
-    tt.bind("IncrementalTokenChangeValue", jaddGenIncrementalTokenChange(decl.name(), "value"));
-    tt.bind("IncrementalTokenChangeSymbol", jaddGenIncrementalTokenChange(decl.name(), "symbol"));
-
-    parse(genIncrementalTokenHandler(decl) +
-        tt.expand("TokenComponent"));
+    parse(tt.expand("TokenComponent"));
   }
 
   public void AggregateComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {

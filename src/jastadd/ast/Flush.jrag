@@ -229,27 +229,4 @@ aspect Flush {
     stream.println(ind + "public ASTNode[] init_children;");
     stream.println(ind + "public boolean[] rewritten_children;");
   }
-  
-  public void ASTDecl.emitFlushRewritesInitialize(PrintWriter stream) {
-    if (!grammar().fullFlush) return;
-    stream.println(ind(2) + "if(this.init_children == null) {");
-    stream.println(ind(3) +   "this.init_children = new ASTNode[this.children.length];");
-    stream.println(ind(3) +   "this.rewritten_children = new boolean[this.children.length];");
-    stream.println(ind(2) + "}");    
-  }
-  
-  public void ASTDecl.emitFlushRewritesCheckAndStoreInitValue(PrintWriter stream) {
-    if (!grammar().fullFlush) return;
-    stream.println(ind(2) + "if(!node.inc_hasEnclosingRewrittenNode()) {");
-    stream.println(ind(3) +   "this.init_children[i] = node.fullCopy();");
-    stream.println(ind(3) +   "this.rewritten_children[i] = true;");
-    stream.println(ind(2) + "}");    
-  }
-
-  public void ASTDecl.emitFlushRewritesChildRewritten(PrintWriter stream) {
-    if (!grammar().fullFlush) return;
-    stream.println(ind(4) + "if (rewriteState == ASTNode$State.REWRITE_CHANGE) {");
-    stream.println(ind(5) +   "this.rewritten_children[i] = true;");
-    stream.println(ind(4) + "}");
-  }
 }
