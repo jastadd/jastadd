@@ -165,6 +165,10 @@ aspect CollectionAttributes {
     nextIteration(out);
   }
 
+  syn boolean Contribution.hasCondition() =
+    getCondition() != null && !getCondition().trim().isEmpty();
+
+
   private void ASTDecl.collectContributors(PrintStream out) {
     HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
     for(int i = 0; i < getNumCollEq(); i++) {
@@ -192,65 +196,46 @@ aspect CollectionAttributes {
         out.println(ind(2) + "if(collect_contributors_" + decl.collectingSignature() + ") return;");
       }
 
+      String bottomValue = Unparser.unparse(decl.getBottomValue());
+
       for (CollEq attr: equations) {
+        TemplateContext tt = attr.templateContext();
+        tt.bind("BottomValue", bottomValue);
+        tt.bind("CombOp", decl.getCombOp());
+
         out.println(attr.hostFileComment());
-        for(int j = 0; j < attr.getNumContribution(); j++) {
+        for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
-          if(decl.onePhase() || decl.separateEvaluation()) {
-            if(c.getCondition() != null && c.getCondition().trim().length()>0)
+          if (decl.onePhase() || decl.separateEvaluation()) {
+            if (c.hasCondition()) {
               out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
-            if(attr.getRefSet()) {
-                out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
-                out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-                out.println(ind(4) + "if(ref != null) {");
-                out.println(ind(5) + "if(ref." + attr.attributeSignature() + "_value == null) ref." + attr.attributeSignature() + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
-                out.println(ind(5) + "ref." + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-                out.println(ind(4) + "}");
-                out.println(ind(3) + "}");
-            }
-            else {
-                out.println(ind(3) + "{");
-                out.println(ind(4) + attr.getTargetName() + " ref = " + attr.getReference() + ";");
-                out.println(ind(4) + "if(ref != null) {");
-                out.println(ind(5) + "if(ref." + attr.attributeSignature() + "_value == null) ref." + attr.attributeSignature() + "_value = " + Unparser.unparse(decl.getBottomValue()) + ";");
-                out.println(ind(5) + "ref." + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-                out.println(ind(4) + "}");
-                out.println(ind(3) + "}");
-            }
-            if(c.getCondition() != null && c.getCondition().trim().length()>0)
-              out.println(ind(2) + "}");
-          }
-          else {
-            if(c.getCondition() != null && c.getCondition().trim().length()>0 && !decl.lazyCondition())
-              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
-
-            if(attr.getRefSet()) {
-              out.println(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
-              out.println(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-              out.println(ind(3) + "if(ref != null)");
-              out.println(ind(3) + "ref." + attr.attributeSignature() + "_contributors().add(this);"); // one name per collection attribute
-              out.println(ind(2) + "}");
-            }
-            else {
-              out.println(ind(2) + "{");
-              out.println(ind(3) + "" + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")(" + attr.getReference().trim() + ");");
-              out.println(ind(3) + "if(ref != null)");
-              out.println(ind(4) + "ref." + attr.attributeSignature() + "_contributors().add(this);"); // one name per collection attribute
-              out.println(ind(3) + "}");
             }
 
-            if(c.getCondition() != null  && c.getCondition().trim().length()>0 && !decl.lazyCondition())
+            tt.bind("Value", c.getValue().trim());
+            tt.expand("ASTDecl.collectContributors:alt1", out);
+
+            if (c.hasCondition()) {
               out.println(ind(2) + "}");
+            }
+          } else {
+            if (c.hasCondition() && !decl.lazyCondition()) {
+              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
+            }
+
+            tt.expand("ASTDecl.collectContributors:alt2", out);
+
+            if (c.hasCondition() && !decl.lazyCondition()) {
+              out.println(ind(2) + "}");
+            }
           }
         }
       }
-      if(isASTNode()) {
+      if (isASTNode()) {
         out.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
         out.println(ind(3) + "getChild(i).collect_contributors_" + decl.collectingSignature() + "();"); // once per group
-      }
-      else {
+      } else {
         out.println(ind(2) + "super.collect_contributors_" + decl.collectingSignature() + "();");
-        if(isRootNode()) {
+        if (isRootNode()) {
           out.println(ind(2) + "collect_contributors_" + decl.collectingSignature() + " = true;");
         }
       }
@@ -280,13 +265,12 @@ aspect CollectionAttributes {
       out.println(ind + "protected void contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(" + decl.getType() + " collection) {");
       out.println(ind(2) + "super.contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(collection);");
       for (CollEq attr: equations) {
-        for(int j = 0; j < attr.getNumContribution(); j++) {
+        for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
-          if(c.getCondition() != null && c.getCondition().trim().length()>0 /* && attr.getNumContribution() > 1*/) {
+          if (c.hasCondition() /* && attr.getNumContribution() > 1*/) {
             out.println(ind(2) + "if(" + c.getCondition().trim() + ")");
             out.println(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-          }
-          else {
+          } else {
             out.println(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           }
         }
@@ -324,45 +308,20 @@ aspect CollectionAttributes {
       }
 
       out.println(ind + "protected void " + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(" + decl.getTarget() + " n) {");
-      for(CollEq attr: equations) {
+      for (CollEq attr: equations) {
+        TemplateContext tt = attr.templateContext();
+        tt.bind("CombOp", decl.getCombOp());
+        tt.bind("ValueAccess", valueAccess);
+
         out.println(attr.hostFileComment());
-        for(int j = 0; j < attr.getNumContribution(); j++) {
+        for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
-          if(c.getCondition() != null && c.getCondition().trim().length()>0) {
-            if(attr.lazyCondition()) {
-              if(attr.getRefSet()) {
-                out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
-                out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-                out.println(ind(4) + "if(ref == n && (" + c.getCondition().trim() + ")) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-                out.println(ind(3) + "}");
-              }
-              else {
-                out.println(ind(3) + "if(" + attr.getReference() + " == n && (" + c.getCondition().trim() + ")) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-              }
-            }
-            else {
-              out.println(ind(2) + "if(" + c.getCondition().trim() + ") {");
-              if(attr.getRefSet()) {
-                out.println(ind(3) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
-                out.println(ind(4) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-                out.println(ind(4) + "if(ref == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-                out.println(ind(3) + "}");
-              }
-              else {
-                out.println(ind(3) + "if(" + attr.getReference() + " == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-              }
-              out.println(ind(2) + "}");
-            }
-          }
-          else {
-            if(attr.getRefSet()) {
-              out.println(ind(2) + "for(java.util.Iterator iter = (" + attr.getReference() + ").iterator(); iter.hasNext(); ) {");
-              out.println(ind(3) + attr.getTargetName() + " ref = (" + attr.getTargetName() + ")iter.next();");
-              out.println(ind(3) + "if(ref == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
-              out.println(ind(2) + "}");
-            }
-            else
-              out.println(ind(2) + "if(" + attr.getReference() + " == n) " + valueAccess + attr.attributeSignature() + "_value." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+          tt.bind("Value", c.getValue().trim());
+          if (c.hasCondition()) {
+            tt.bind("Condition", c.getCondition().trim());
+            tt.expand("ASTDecl.nextIteration:alt1", out);
+          } else {
+            tt.expand("ASTDecl.nextIteration:alt2", out);
           }
         }
       }
