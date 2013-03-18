@@ -22,7 +22,7 @@ $if(#isParameterized)
     $BlockBegin
     #parameterStructure
     #initLazyMaps
-    #cacheCheck
+    $include(AttrDecl.cacheCheck)
     #addComponentCheck
     if (!#(attributeSignature)_initialized.contains(_parameters)) {
       #(attributeSignature)_initialized.add(_parameters);
@@ -98,7 +98,7 @@ $endif
   public #getType #attributeName(#parametersDecl) {
     $BlockBegin
     #parameterStructure
-    #cacheCheck
+    $include(AttrDecl.cacheCheck)
     ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType))
       node = node.getParent();

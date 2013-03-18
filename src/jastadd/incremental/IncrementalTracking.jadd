@@ -38,6 +38,7 @@ aspect IncrementalTracking {
       return templateContext().expand("ASTNode$State.incrementalEvaluationStack");
   }
 
+/*
   public String AttrDecl.genIncrementalTracking() {
     if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();
@@ -86,6 +87,7 @@ aspect IncrementalTracking {
 
     return buf.toString();
   }
+*/
 
   public String AttrDecl.genIncrementalTrackingStackEnter() {
     if (!grammar().incremental) return "";

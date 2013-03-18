@@ -345,3 +345,58 @@ $endif
     
 $endif
 ]]
+
+AttrDecl.incHookAttrRead = [[
+$if(IncrementalEnabled)
+      
+$if(IncrementalLevelParam)
+$if(!#isParamAttr)
+if (#(attributeSignature)_handler == null) {
+  #(attributeSignature)_handler = new $DDGNodeName(this, "#(attributeSignature)", null);
+}
+state().addHandlerDepTo(#(attributeSignature)_handler);
+$else
+if (!#(attributeSignature)_handler.containsKey(_parameters)) {
+  #(attributeSignature)_handler.put(_parameters, new $DDGNodeName(this, "#(attributeSignature)", _parameters));
+}
+state().addHandlerDepTo(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
+$endif
+$endif
+
+$if(IncrementalLevelAttr)
+if (#(attributeSignature)_handler == null) {
+  #(attributeSignature)_handler = new $DDGNodeName(this, "#(attributeSignature)");
+}
+state().addHandlerDepTo(#(attributeSignature)_handler);
+$endif
+
+$if(IncrementalLevelNode)
+$if(#getNTA)
+$if(!#isParamAttr)
+if (#(attributeSignature)_computed) {
+  state().addHandlerDepTo(#(attributeSignature)_value.handler());
+}
+$else
+if (#(attributeSignature)_values.containsKey(_parameters)) {
+  state().addHandlerDepTo(((ASTNode)#(attributeSignature)_values.get(_parameters)).handler());
+}
+$endif
+$endif
+$endif
+    
+$if(IncrementalLevelRegion)
+$if(#getNTA)
+$if(!#isParamAttr)
+if (#(attributeSignature)_computed && #(attributeSignature)_value.isRegionRoot()) {
+  state().addHandlerDepTo(#(attributeSignature)_value.handler());
+}
+$else
+if (#(attributeSignature)_values.containsKey(_parameters) && ((ASTNode)#(attributeSignature)_values.get(_parameters)).isRegionRoot()) {
+  state().addHandlerDepTo(((ASTNode)#(attributeSignature)_values.get(_parameters)).handler());
+}
+$endif
+$endif
+$endif
+
+$endif
+]]
