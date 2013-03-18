@@ -76,6 +76,8 @@ aspect CollectionAttributes {
     tt.bind("RefType1", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
     tt.bind("RefType2", toReferenceType("new_" + attributeSignature() + "_value", getType()));
     tt.bind("FromRefType", fromReferenceType("" + attributeSignature() + "_values.get(_parameters)" , getType()));
+    tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.circularCollectionEval", out);
   }
 

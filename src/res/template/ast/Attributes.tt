@@ -11,7 +11,7 @@ AttrDecl.emitInlineCompute = [[
     #parameterStructure
     #traceBeginAttr
     #initLazyMaps
-    #cacheCheck
+    $include(AttrDecl.cacheCheck)
 $if(RewriteEnabled)
     ASTNode$$State state = state();
 $endif
@@ -159,7 +159,7 @@ ASTDecl.genEquation [[
     #parameterStructure
     #traceBeginAttr
     #initLazyMaps
-    #cacheCheck
+    $include(AttrDecl.cacheCheck)
     #genIncrementalTrackingStackEnter
 $if (RewriteEnabled)
     ASTNode$$State state = state();
@@ -186,7 +186,7 @@ ASTDecl.genCircularEquationNoParams [[
     $SynchBegin
     #traceComputeContext
     #parameterStructure
-    #cacheCheck
+    $include(AttrDecl.cacheCheck)
     ASTNode$$State state = state();
     #addComponentCheck
     if (!#(attributeSignature)_initialized) {
@@ -258,7 +258,7 @@ ASTDecl.genCircularEquationWithParams [[
     #parameterStructure
     #initLazyMaps
     ASTNode$$State.CircularValue _value;
-    #cacheCheck else {
+    $include(AttrDecl.cacheCheck) else {
       _value = new ASTNode$$State.CircularValue();
       #(attributeSignature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
@@ -376,3 +376,47 @@ state.RESET_CYCLE = true;
 #circularComputeCall;
 state.RESET_CYCLE = false;]]
 
+AttrDecl.cacheCheck = [[
+$if(#hasCache)
+
+$include(AttrDecl.incHookAttrRead)
+
+$if(#isAttrNTA)
+$if(!#isParamAttr)
+if(#(attributeSignature)_computed) {
+  #traceEndCachedAttr
+  return (#getType) getChild(#(attributeSignature)ChildPosition());
+}
+$else
+if(#(attributeSignature)_values.containsKey(_parameters)) {
+  #traceEndCachedAttr
+  return (#getType) getChild(#(attributeSignature)ChildPosition()));
+}
+$endif
+$endif
+    
+$if(!#isParamAttr)
+if(#(attributeSignature)_computed) {
+  #traceEndCachedAttr
+  return #(attributeSignature)_value;
+}
+$else
+$if(#isCircular)
+if(#(attributeSignature)_values.containsKey(_parameters)) {
+  Object _o = #(attributeSignature)_values.get(_parameters);
+  if(!(_o instanceof ASTNode$$State.CircularValue)) {
+    #traceEndCachedAttr
+    return $FromRefTypeParamCircular;
+  } else { 
+    _value = (ASTNode$$State.CircularValue)_o;
+  }
+}
+$else
+if(#(attributeSignature)_values.containsKey(_parameters)) {
+  #traceEndCachedAttr
+  return $FromRefTypeParam; 
+}
+$endif
+$endif
+$endif
+]]

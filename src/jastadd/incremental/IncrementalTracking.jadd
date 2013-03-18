@@ -38,55 +38,6 @@ aspect IncrementalTracking {
       return templateContext().expand("ASTNode$State.incrementalEvaluationStack");
   }
 
-  public String AttrDecl.genIncrementalTracking() {
-    if (!grammar().incremental) return "";
-    StringBuffer buf = new StringBuffer();
-    if (grammar().incrementalLevelParam) {
-      if (getNumParameter() == 0) {
-        buf.append(ind(2) + "if (" + attributeSignature() + "_handler == null) {\n");
-        buf.append(ind(3) +   attributeSignature() + "_handler = new ASTNode$DepGraphNode(this, \"" + attributeSignature() + "\", null);\n");
-        buf.append(ind(2) + "}\n");
-        buf.append(ind(2) + "state().addHandlerDepTo(" + attributeSignature() + "_handler);\n");
-      } else {
-        buf.append(ind(2) + "if (!" + attributeSignature() + "_handler.containsKey(_parameters)) {\n");
-        buf.append(ind(3) +   attributeSignature() + "_handler.put(_parameters, new ASTNode$DepGraphNode(this," +
-              " \"" + attributeSignature() + "\", _parameters));\n");
-        buf.append(ind(2) + "}\n");
-        buf.append(ind(2) + "state().addHandlerDepTo((ASTNode$DepGraphNode)" + attributeSignature() + "_handler.get(_parameters));\n");
-      }
-    }
-    if (grammar().incrementalLevelAttr) {
-      buf.append(ind(2) + "if (" + attributeSignature() + "_handler == null) {\n");
-      buf.append(ind(3) +   attributeSignature() + "_handler = new ASTNode$DepGraphNode(this, \"" + attributeSignature() + "\");\n");
-      buf.append(ind(2) + "}\n");
-      buf.append(ind(2) + "state().addHandlerDepTo(" + attributeSignature() + "_handler);\n");
-    }
-    if (grammar().incrementalLevelNode) {
-      if (getNTA()) {
-        if (getNumParameter() == 0) {
-          buf.append(ind(2) + "if (" + attributeSignature() + "_computed)\n");
-          buf.append(ind(3) +   "state().addHandlerDepTo(" + attributeSignature() + "_value.handler());\n");
-        } else {
-          buf.append(ind(2) + "if (" + attributeSignature() + "_values.containsKey(_parameters))\n");
-          buf.append(ind(3) +   "state().addHandlerDepTo(((ASTNode)" + attributeSignature() + "_values.get(_parameters)).handler());\n");
-        }
-      }
-    }
-    if (grammar().incrementalLevelRegion) {
-      if (getNTA()) {
-        if (getNumParameter() == 0) {
-          buf.append(ind(2) + "if (" + attributeSignature() + "_computed && " + attributeSignature() + "_value.isRegionRoot())\n");
-          buf.append(ind(3) +   "state().addHandlerDepTo(" + attributeSignature() + "_value.handler());\n");
-        } else {
-          buf.append(ind(2) + "if (" + attributeSignature() + "_values.containsKey(_parameters) && ((ASTNode)" + attributeSignature() + "_values.get(_parameters)).isRegionRoot())\n");
-          buf.append(ind(3) +   "state().addHandlerDepTo(((ASTNode)" + attributeSignature() + "_values.get(_parameters)).handler());\n");
-        }
-      }
-    }
-
-    return buf.toString();
-  }
-
   public String AttrDecl.genIncrementalTrackingStackEnter() {
     if (!grammar().incremental) return "";
     StringBuffer buf = new StringBuffer();

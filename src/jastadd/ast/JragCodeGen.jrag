@@ -574,52 +574,6 @@ aspect JragCodeGen {
       type.equals("char") || type.equals("byte");
   }
 
-
-  public String AttrDecl.cacheCheck() {
-    if(!getLazy() && !isCircular())
-      return "";
-    if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
-      int index = indexNTAchild();
-      if(getNumParameter() == 0)
-        return genIncrementalTracking() +
-               "if(" + attributeSignature() + "_computed) {\n" +
-               traceEndCachedAttr() +
-               ind + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition());\n" +
-               "}\n";
-      else
-        return genIncrementalTracking() +
-               "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
-               traceEndCachedAttr() +
-               ind + "return (" + getType() + ") getChild(" + attributeSignature() + "ChildPosition()));\n" +
-               "}\n";
-    }
-    if(getNumParameter() == 0)
-      return genIncrementalTracking() +
-             "if(" + attributeSignature() + "_computed) {\n" +
-             traceEndCachedAttr() +
-             ind + "return " + attributeSignature() + "_value;\n" +
-             "}\n";
-    else {
-      if(isCircular())
-        return genIncrementalTracking() +
-               "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
-               ind + "Object _o = " + attributeSignature() + "_values.get(_parameters);\n" +
-               ind + "if(!(_o instanceof ASTNode$State.CircularValue)) {\n" +
-               traceEndCachedAttr() +
-               ind(2) + "return " + fromReferenceType("_o", getType()) + ";\n" +
-               ind + "}\n" +
-               ind + "else\n" +
-               ind(2) + "_value = (ASTNode$State.CircularValue)_o;\n" +
-               "}\n";
-      else
-        return genIncrementalTracking() +
-               "if(" + attributeSignature() + "_values.containsKey(_parameters)) {\n" +
-               traceEndCachedAttr() +
-               ind + "return " + fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()) + ";\n" +
-               "}\n";
-    }
-  }
-
   public String AttrDecl.parameterStructure() {
     if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !grammar().visitCheckEnabled)) {
       return "";
@@ -717,6 +671,7 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", equ.parametersDecl());
     tt.bind("ComputeBody", equ.computeMethodBody());
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.emitInlineCompute", out);
   }
 
@@ -766,6 +721,7 @@ aspect JragCodeGen {
   public void AttrDecl.emitEquation(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.expand("ASTDecl.genEquation", out);
   }
 
@@ -785,6 +741,8 @@ aspect JragCodeGen {
     tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
     tt.bind("ToRefType", toReferenceType("new_" + attributeSignature() + "_value", getType()));
     tt.bind("FromRefType", fromReferenceType("_value.value", getType()));
+    tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + attributeSignature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType())));
@@ -1321,4 +1279,9 @@ aspect JragCodeGen {
       }
     }
   }
+  
+  syn boolean AttrDecl.hasCache() = getLazy() || isCircular();
+  syn boolean AttrDecl.isParamAttr() = getNumParameter() > 0;
+  syn boolean AttrDecl.isAttrNTA() = isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
+  
 }
