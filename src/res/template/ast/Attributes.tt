@@ -160,7 +160,7 @@ ASTDecl.genEquation [[
     #traceBeginAttr
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
-    #genIncrementalTrackingStackEnter
+    $include(AttrDecl.incHookAttrCompStart)
 $if (RewriteEnabled)
     ASTNode$$State state = state();
 $endif
@@ -205,9 +205,9 @@ ASTDecl.genCircularEquationNoParams [[
         state.CHANGE = false;
         #inhDebugString
         #tracePrintBeginComputingValue
-        #genIncrementalTrackingStackEnter2
+        $include(AttrDecl.incHookAttrCompStartCircular)
         #getType new_#(attributeSignature)_value = #circularComputeCall;
-        #genIncrementalTrackingStackExit2
+        $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1)
           state.CHANGE = true;
         #(attributeSignature)_value = new_#(attributeSignature)_value;
@@ -235,9 +235,9 @@ ASTDecl.genCircularEquationNoParams [[
       #addAddToComponent
       #inhDebugString
       #tracePrintBeginComputingValue
-      #genIncrementalTrackingStackEnter2
+      $include(AttrDecl.incHookAttrCompStartCircular)
       #getType new_#(attributeSignature)_value = #circularComputeCall;
-      #genIncrementalTrackingStackExit2
+      $include(AttrDecl.incHookAttrCompEndCircular)
       if ($Cond2)
         state.CHANGE = true;
       #(attributeSignature)_value = new_#(attributeSignature)_value;
@@ -282,9 +282,9 @@ $endif
         state.CHANGE = false;
         #inhDebugString
         #tracePrintBeginComputingValue
-        #genIncrementalTrackingStackEnter2
+        $include(AttrDecl.incHookAttrCompStartCircular)
         new_#(attributeSignature)_value = #circularComputeCall;
-        #genIncrementalTrackingStackExit2
+        $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
           state.CHANGE = true;
           _value.value = $ToRefType;
@@ -318,9 +318,9 @@ $else
 $endif
       #inhDebugString
       #tracePrintBeginComputingValue
-      #genIncrementalTrackingStackEnter2
+      $include(AttrDecl.incHookAttrCompStartCircular)
       #getType new_#(attributeSignature)_value = #circularComputeCall;
-      #genIncrementalTrackingStackExit2
+      $include(AttrDecl.incHookAttrCompEndCircular)
       #cacheCycleCheck
       #resetCycleCheck
       else if ($Cond1) {
