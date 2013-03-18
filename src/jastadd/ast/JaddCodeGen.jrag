@@ -287,7 +287,6 @@ aspect JaddCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ReturnTypeCast", grammar().java5 ? "(T) " : "");
     tt.bind("PositiveRewriteLimit", grammar().rewriteLimit > 0);
-    tt.bind("IsRegionRoot", isRegionRoot());
     tt.expand("ASTNode.getChild", out);
   }
 

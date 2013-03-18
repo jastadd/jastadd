@@ -16,7 +16,7 @@ if (parent != null) {
 $endif
 
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
 if (state().IN_COMPUTATION > 0 && parent != null) {
   parent.handler().addDependant(handler);
 }
@@ -267,7 +267,7 @@ ASTNode.incHookGetChild12 = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelRegion)
-$if(IsRegionRoot)
+$if(#isRegionRoot)
 if (state().IN_COMPUTATION > 0) {
   node.handler().addDependant(handler);
 }
@@ -302,7 +302,7 @@ if (child != null) {
 $endif
 
 $if(IncrementalLevelRegion)
-$if(IsRegionRoot)
+$if(#isRegionRoot)
 if (state().IN_COMPUTATION > 0 && child != null) {
   child.handler().addDependant(handler);
 }
