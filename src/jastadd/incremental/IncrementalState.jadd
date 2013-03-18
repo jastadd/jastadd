@@ -27,47 +27,6 @@
  */
 aspect IncrementalState {
 
-  public String ASTDecl.genIncrementalConstructorStartConstruction() {
-    if (!grammar().incremental) return "";    
-    return ind(2) + "state().enterConstruction();\n";
-  }
-
-  public String ListComponents.genIncrementalConstructorStartConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().enterConstruction();\n";
-  }
-
-  public String OptionalComponent.genIncrementalConstructorStartConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().enterConstruction();\n";
-  }
-
-  public String AggregateComponents.genIncrementalConstructorStartConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().enterConstruction();\n";
-  }
-  
-
-  public String ASTDecl.genIncrementalConstructorEndConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().exitConstruction();\n";
-  }
-  
-  public String ListComponents.genIncrementalConstructorEndConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().exitConstruction();\n";
-  }
-
-  public String OptionalComponent.genIncrementalConstructorEndConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().exitConstruction();\n";
-  }
-
-  public String AggregateComponents.genIncrementalConstructorEndConstruction() {
-    if (!grammar().incremental) return "";
-    return ind(2) + "state().exitConstruction();\n";
-  }
-
   // ES_2011-11-28: Code generation for incremental evaluation, state handling
   public void ASTDecl.jjtGenIncrementalState(PrintWriter stream) {
 

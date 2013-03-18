@@ -8,9 +8,9 @@ ListComponent = [[
    */
   $Modifier void $Host.set$(Name)List($ListType list) {
     $SynchBegin
-    #genIncrementalConstructorStartConstruction
+    $include(State.incHookConstructionStart)
     setChild(list, $Index);
-    #genIncrementalConstructorEndConstruction
+    $include(State.incHookConstructionEnd)
     $SynchEnd
   }
 
@@ -81,9 +81,9 @@ ListComponent = [[
   $Modifier void $Host.set$Name($Type node, int i) {
     $SynchBegin
     $ListType list = get$(Name)List();
-    #genIncrementalConstructorStartConstruction
+    $include(State.incHookConstructionStart)
     list.setChild(node, i);
-    #genIncrementalConstructorEndConstruction
+    $include(State.incHookConstructionEnd)
     $SynchEnd
   }
 

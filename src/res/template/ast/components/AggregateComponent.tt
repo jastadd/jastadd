@@ -6,9 +6,9 @@ AggregateComponent = [[
    */
   public void $Host.set$Name($Type node) {
     $SynchBegin
-    #genIncrementalConstructorStartConstruction
+    $include(State.incHookConstructionStart)
     setChild(node, $Index);
-    #genIncrementalConstructorEndConstruction
+    $include(State.incHookConstructionEnd)
     $SynchEnd
   }
 $if(#isNTA)

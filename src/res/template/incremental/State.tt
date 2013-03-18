@@ -115,3 +115,15 @@ $endif
   
 $endif
 ]]
+
+State.incHookConstructionStart = [[
+$if(IncrementalEnabled)
+state().enterConstruction();
+$endif
+]]
+
+State.incHookConstructionEnd = [[
+$if(IncrementalEnabled)
+state().exitConstruction();
+$endif
+]]

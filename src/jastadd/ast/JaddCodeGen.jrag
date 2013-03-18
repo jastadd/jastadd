@@ -147,7 +147,7 @@ aspect JaddCodeGen {
     tt.bind("InitChildArray", initChildArray);
 
     StringBuffer childInit = new StringBuffer();
-    childInit.append(genIncrementalConstructorStartConstruction());
+    childInit.append(tt.expand("State.incHookConstructionStart"));
     int i = 0;
     for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
@@ -161,7 +161,7 @@ aspect JaddCodeGen {
         i++;
       }
     }
-    childInit.append(genIncrementalConstructorEndConstruction());
+    childInit.append(tt.expand("State.incHookConstructionEnd"));
 
     tt.bind("ChildInit", childInit.toString());
     tt.expand("initChildren", out);
@@ -172,8 +172,9 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
     if(grammar().block) out.print(grammar().blockBegin);
-      
-    out.print(genIncrementalConstructorStartConstruction());
+    
+    TemplateContext tt = templateContext();
+    out.print(tt.expand("State.incHookConstructionStart"));
     
     int param = 0;
     int childIndex = 0;
@@ -205,7 +206,7 @@ aspect JaddCodeGen {
         out.println(ind(2) + "is$Final(true);");
     }
 
-    out.print(genIncrementalConstructorEndConstruction());
+    out.print(tt.expand("State.incHookConstructionEnd"));
 
     if(grammar().block) out.print(grammar().blockEnd);
   }
@@ -487,10 +488,11 @@ aspect JaddCodeGen {
       if(grammar().java5)
         out.println(ind + "public Opt.Opt(T opt) {");
       else
-        out.println(ind + "public Opt.Opt(ASTNode opt) {");  
-      out.println(ind(2) + genIncrementalConstructorStartConstruction());
+        out.println(ind + "public Opt.Opt(ASTNode opt) {");
+      TemplateContext tt = templateContext();  
+      out.println(ind(2) + tt.expand("State.incHookConstructionStart"));
       out.println(ind(2) + "setChild(opt, 0);");
-      out.println(ind(2) + genIncrementalConstructorEndConstruction());
+      out.println(ind(2) + tt.expand("State.incHookConstructionEnd"));
       out.println(ind + "}\n");
     }
   }

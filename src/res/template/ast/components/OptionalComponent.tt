@@ -7,9 +7,9 @@ OptionalComponent = [[
    */
   $Modifier void $Host.set$(Name)Opt($OptType opt) {
     $SynchBegin
-    #genIncrementalConstructorStartConstruction
+    $include(State.incHookConstructionStart)
     setChild(opt, $Index);
-    #genIncrementalConstructorEndConstruction
+    $include(State.incHookConstructionEnd)
     $SynchEnd
   }
 
@@ -20,9 +20,9 @@ OptionalComponent = [[
    */
   $Modifier void $Host.set$Name($Type node) {
     $SynchBegin
-    #genIncrementalConstructorStartConstruction
+    $include(State.incHookConstructionStart)
     get$(Name)Opt().setChild(node, 0);
-    #genIncrementalConstructorEndConstruction
+    $include(State.incHookConstructionEnd)
     $SynchEnd
   }
 
