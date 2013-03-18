@@ -574,7 +574,7 @@ aspect JragCodeGen {
       type.equals("char") || type.equals("byte");
   }
 
-
+/*
   public String AttrDecl.cacheCheck() {
     if(!getLazy() && !isCircular())
       return "";
@@ -619,6 +619,7 @@ aspect JragCodeGen {
                "}\n";
     }
   }
+*/
 
   public String AttrDecl.parameterStructure() {
     if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !grammar().visitCheckEnabled)) {
@@ -717,6 +718,7 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", equ.parametersDecl());
     tt.bind("ComputeBody", equ.computeMethodBody());
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.emitInlineCompute", out);
   }
 
@@ -766,6 +768,7 @@ aspect JragCodeGen {
   public void AttrDecl.emitEquation(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.expand("ASTDecl.genEquation", out);
   }
 
@@ -785,6 +788,8 @@ aspect JragCodeGen {
     tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
     tt.bind("ToRefType", toReferenceType("new_" + attributeSignature() + "_value", getType()));
     tt.bind("FromRefType", fromReferenceType("_value.value", getType()));
+    tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
+    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + attributeSignature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType())));
@@ -1321,4 +1326,9 @@ aspect JragCodeGen {
       }
     }
   }
+  
+  syn boolean AttrDecl.hasCache() = getLazy() || isCircular();
+  syn boolean AttrDecl.isParamAttr() = getNumParameter() > 0;
+  syn boolean AttrDecl.isAttrNTA() = isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
+  
 }
