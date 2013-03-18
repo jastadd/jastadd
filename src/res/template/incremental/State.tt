@@ -1,8 +1,10 @@
-ASTNode$State.incrementalEvaluationStack = [[
+State.incHook = [[
+$if(IncrementalEnabled)
+
 $if(IncrementalLevelRegion)
   public int IN_COMPUTATION = 0;
-
 $endif
+
   protected java.util.Stack handlerAttrStack = new java.util.Stack();
 
 //protected java.util.Stack handlerRewriteStack = new java.util.Stack();
@@ -110,4 +112,6 @@ $endif
 //    throw new Error("Top of handler stack does not match at pop! [" + handler.fAttrID + "]");
     return h;
   }
+  
+$endif
 ]]

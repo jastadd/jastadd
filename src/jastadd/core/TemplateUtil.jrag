@@ -64,13 +64,14 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/components/AggregateComponent");
     if (grammar().incremental) {
       loadTemplates(tt, "incremental/DDGNodeCopy");
-      loadTemplates(tt, "incremental/State");
       loadTemplates(tt, "incremental/Regions");
       loadTemplates(tt, "incremental/Debug");
     }
+    loadTemplates(tt, "incremental/State");
     loadTemplates(tt, "incremental/DDGNode");
     loadTemplates(tt, "incremental/ASTChange");
     loadTemplates(tt, "incremental/Tracking");
+    loadTemplates(tt, "incremental/InternalList");
     return new SimpleContext(tt, this);
   }
 

@@ -105,12 +105,7 @@ aspect IncrementalEval {
     stream.println(ind + "}");
 
     if (name().equals("List")) {
-      stream.println(ind + "public boolean List.inc_internalNTAList = false;");
-      stream.println(ind + "public java.util.Map List.inc_internalNTAList_map;");
-      stream.println(ind + "public void List.inc_internalNTAList(java.util.Map m) {");
-      stream.println(ind(2) + "inc_internalNTAList = true;");
-      stream.println(ind(2) + "inc_internalNTAList_map = m;");
-      stream.println(ind + "}");
+      stream.println(templateContext().expand("List.internalNTAList"));
     }
   }
 }

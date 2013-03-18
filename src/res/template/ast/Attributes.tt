@@ -101,9 +101,7 @@ SynDecl.higherOrderAttributeCode:norewrite = [[
 $if(#isParameterized)
 if(#(attributeSignature)_list == null) {
   #(attributeSignature)_list = new List();
-$if(IncrementalEnabled)
-  #genIncrementalInternalNTAList
-$endif
+  $include(AttrDecl.incHookCreateNtaList)
   #(attributeSignature)_list.setParent(this);
 }
 #(attributeSignature)_list.add(#(attributeSignature)_value);
@@ -116,9 +114,7 @@ SynDecl.higherOrderAttributeCode:nostagedrewrites = [[
 $if(#isParameterized)
 if(#(attributeSignature)_list == null) {
   #(attributeSignature)_list = new List();
-$if(IncrementalEnabled)
-  #genIncrementalInternalNTAList
-$endif
+  $include(AttrDecl.incHookCreateNtaList)
   #(attributeSignature)_list.is$$Final = true;
   #(attributeSignature)_list.setParent(this);
 }
@@ -137,9 +133,7 @@ SynDecl.higherOrderAttributeCode:stagedrewrites = [[
 $if(#isParameterized)
 if(#(attributeSignature)_list == null) {
   #(attributeSignature)_list = new List();
-$if(IncrementalEnabled)
-  #genIncrementalInternalNTAList
-$endif
+  $include(AttrDecl.incHookCreateNtaList)
   #(attributeSignature)_list.is$$Final = java.lang.Integer.MAX_VALUE;
   #(attributeSignature)_list.setParent(this);
 }
