@@ -204,3 +204,10 @@ $endif
 $endif
 ]]
 
+ASTDecl.weaveCollectionAttributes:a1 = [[
+  protected void #(getTarget)_#(attributeSignature)_nextIteration(#getTarget n) {
+    for(int i = 0; i < getNumChild(); i++) {
+      getChild(i).#(getTarget)_#(attributeSignature)_nextIteration(n);
+    }
+  }
+]]

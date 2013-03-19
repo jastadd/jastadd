@@ -367,6 +367,8 @@ aspect CollectionAttributes {
   public void ASTDecl.weaveCollectionAttributes() {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
+      TemplateContext tt = attr.templateContext();
+
       boolean separateEvaluation = attr.separateEvaluation();
       TypeDecl astDecl = env().lookup("ASTNode");
       TypeDecl rootDecl = attr.root();
@@ -375,11 +377,7 @@ aspect CollectionAttributes {
         if(!astDecl.hasCollEq(attr) && process) {
           String s = "";
           if(separateEvaluation) {
-            s =
-              ind + "protected void " + attr.getTarget() + "_" + attr.attributeSignature() + "_nextIteration(" + attr.getTarget() + " n) {\n" +
-              ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
-              ind(3) + "getChild(i)." + attr.getTarget() + "_" + attr.attributeSignature() + "_nextIteration(n);\n" +
-              ind + "}\n\n";
+            s = tt.expand("ASTDecl.weaveCollectionAttributes:a1");
           }
 
           if(process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) {
