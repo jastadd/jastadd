@@ -33,15 +33,22 @@ aspect IncrementalEval {
 
   public void ASTDecl.genIncremental(PrintWriter out) {
     if (!grammar().incremental) return;
-    TemplateContext tt = templateContext(); 
-    if (!grammar().incrementalDebug) {
-      tt.bind("IsAstNode", name().equals("ASTNode"));
-      tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
-    }
+    
+    TemplateContext tt = templateContext();
+    
+    tt.bind("IsAstNode", name().equals("ASTNode"));
+    tt.bind("IsListNode", name().equals("List"));
+    
+    tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
+    
+    tt.expand("List.internalNTAList", out);
+    
+    tt.bind("NtaIndexCheck", emitNtaIndexCheckString());
+    tt.expand("ASTDecl.childIsNtaMethod", out);
+    
     genIncrementalHandlers(out);
     genIncrementalCopyHandlers(out);
     jjtGenIncrementalTreeModification(out);
-    jjtGenIncrementalNTAChildCheck(out);
     jjtGenIncrementalAffectedValue(out);
     jjtGenIncrementalReactToChange(out);
     jjtGenIncrementalReactToASTChange(out);
@@ -67,10 +74,11 @@ aspect IncrementalEval {
     }
     return list;
   }
-
-  public void ASTDecl.jjtGenIncrementalNTAChildCheck(PrintWriter stream) {
-    if (!grammar().incremental) return; 
-    // collect attributes
+  
+  /**
+   * Returns a list of NTAs declared as attributes (syn, inh).
+   */
+  public ArrayList ASTDecl.listOfNtaAttributes() {
     ArrayList list = new ArrayList();
     for(int k = 0; k < getNumSynDecl(); k++) {
       AttrDecl attr = getSynDecl(k);
@@ -82,30 +90,30 @@ aspect IncrementalEval {
       if (attr.isNTA()) 
         list.add(attr);
     }
-    // method signature
-    stream.println(ind + "protected boolean " + name() + ".childIsNTA(int index) {");
-    // attribute code
-    boolean first = true;
-    for (Iterator itr = list.iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
-      if (first) {
-        stream.print(ind(2) + "if (");
-        first = false;
-      } else stream.print(" || ");
-      stream.print("index == " +  attr.indexNTAchild());
-    }
-    if (!first) {
-      stream.println(")");
-      stream.println(ind(3) + "return true;");
-    }
-    // method end
-    if (name().equals("ASTNode"))
-      stream.println(ind(2) + "return false;");
-    else stream.println(ind(2) + "return super.childIsNTA(index);");
-    stream.println(ind + "}");
+    return list;
+  }
 
-    if (name().equals("List")) {
-      stream.println(templateContext().expand("List.internalNTAList"));
+  /**
+   * Creates string with code checking whether a given index
+   * corresponds to the index of an NTA child defined as an
+   * attribute (syn, inh).
+   */
+  public String ASTDecl.emitNtaIndexCheckString() {
+    StringBuffer res = new StringBuffer();
+    boolean firstAttr = true;
+    for (Iterator itr = listOfNtaAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      if (firstAttr) {
+        res.append("if (");
+        firstAttr = false;
+      } else {
+        res.append(" || ");
+      }
+      res.append("index == " + attr.indexNTAchild());
     }
+    if (!firstAttr) {
+      res.append(") return true;");
+    }
+    return res.toString();
   }
 }

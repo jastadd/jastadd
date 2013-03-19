@@ -329,7 +329,6 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.addChild", out);
 
     /* emit getChildNoTransform */
-    tt.bind("IsRegionRoot", isRegionRoot());
     tt.expand("ASTNode.getChildNoTransform", out);
 
     /* emit numChildren */
@@ -345,7 +344,6 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.removeChild", out);
 
     /* emit setParent & getParent */
-    tt.bind("IsRegionRoot", isRegionRoot());  
     tt.expand("ASTNode.getParent", out);
     tt.expand("ASTNode.setParent", out);
 
