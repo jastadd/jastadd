@@ -29,6 +29,7 @@ $endif
 # Generate code for a method creating a relative node id.
 # Annotate children with possible rewrites.
 ASTDecl.relativeNodeIDMethodWithRewrite = [[
+$if(IncrementalDebug)
 $if (IsAstNode)
 public String ASTNode.relativeNodeID() {
   StringBuffer res = new StringBuffer();
@@ -49,6 +50,7 @@ public String ASTNode.relativeNodeID() {
   }
   return res.toString();
 }
+$endif
 $endif
 ]]
 

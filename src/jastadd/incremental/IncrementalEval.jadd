@@ -35,12 +35,14 @@ aspect IncrementalEval {
     if (!grammar().incremental) return;
     
     TemplateContext tt = templateContext();
+    
     tt.bind("IsAstNode", name().equals("ASTNode"));
     tt.bind("IsListNode", name().equals("List"));
-    if (!grammar().incrementalDebug) {  
-      tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
-    }
+    
+    tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
+    
     tt.expand("List.internalNTAList", out);
+    
     tt.bind("NtaIndexCheck", emitNtaIndexCheckString());
     tt.expand("ASTDecl.childIsNtaMethod", out);
     
