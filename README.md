@@ -23,7 +23,8 @@ The latest version of JastAdd2 can be found at [jastadd.org](http://jastadd.org)
 Dependencies
 ------------
 
-JastAdd2 requires a Java runtime environment to run, and a JDK to build.
+JastAdd2 requires a Java Runtime Environment (JRE) to run, and a JDK to build.
+The minimum required Java version for JastAdd2 is Java SE 6.
 JastAdd2 uses JavaCC, JJTree, and Apache Ant. JavaCC and JJTree are included in
 the source tree of JastAdd2, so the only external tools needed are Java
 and Ant.
