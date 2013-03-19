@@ -1,0 +1,31 @@
+# This template file contains implicit template declarations for regular
+# (non-ASTNode, non-List, non-Opt) AST node types
+
+RegularNodeType.getNumChild = [[
+$if(JJTree)
+  /**
+   * @apilevel low-level
+   */
+  public int #name.getNumChild() {
+    $include(ASTNode.incHookNumChildren)
+    return #numRegularChildren;
+  }
+$else
+  /**
+   * @apilevel low-level
+   */
+  protected int #name.numChildren() {
+    $include(ASTNode.incHookNumChildren)
+    return #numRegularChildren;
+  }
+$endif
+]]
+
+RegularNodeType.debugNodeAttachmentIsRoot = [[
+  /**
+   * @apilevel internal
+   */
+  protected boolean #name.debugNodeAttachmentIsRoot() {
+    return true;
+  }
+]]

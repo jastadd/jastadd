@@ -381,29 +381,9 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.emitImplicitRegularNodeDecls(PrintWriter out) {
     TemplateContext tt = templateContext();
-    if(grammar().jjtree) {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      out.println(ind + "public int " + name() + ".getNumChild() {");
-      out.println(tt.expand("ASTNode.incHookNumChildren"));
-      out.println(ind(2) + "return " + numRegularChildren() + ";");
-      out.println(ind + "}");
-    }
-    else {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      out.println(ind + "protected int " +name() + ".numChildren() {");
-      out.println(tt.expand("ASTNode.incHookNumChildren"));
-      out.println(ind(2) + "return " + numRegularChildren() + ";");
-      out.println(ind + "}");
-    }
-    if(grammar().debugMode && isRootNode()) {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel internal");
-      out.println(ind + " */");
-      out.println(ind + "protected boolean " + name() + ".debugNodeAttachmentIsRoot() { return true; }");
+    tt.expand("RegularNodeType.getNumChild", out);
+    if (grammar().debugMode && isRootNode()) {
+      tt.expand("RegularNodeType.debugNodeAttachmentIsRoot", out);
     }
   }
 
