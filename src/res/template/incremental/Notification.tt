@@ -93,3 +93,226 @@ $endif
 }
 $endif
 ]]
+
+ASTDecl.incReactToDepChangeMethod = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+  /**
+   * @api internal
+   */
+  public void #name.reactToDependencyChange(String attrID, Object _parameters) {
+    $if(IncrementalChangeFlush)
+    $include(ASTDecl.incChangeFlush)
+    $endif
+    $if(!IsAstNode)
+    super.reactToDependencyChange(attrID, _parameters);      
+    $endif
+  }
+$endif
+
+$if(IncrementalLevelAttr)
+  /**
+   * @api internal
+   */ 
+  public void #name.reactToDependencyChange(String attrID) {
+    $if(IncrementalChangeFlush)
+    $include(ASTDecl.incChangeFlush)
+    $endif
+    $if(!IsAstNode)
+    super.reactToDependencyChange(attrID);   
+    $endif
+  }
+$endif
+
+$if(IncrementalLevelNode) 
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public void #name.reactToDependencyChange() {
+    $if(IncrementalChangeFlush)
+    $include(ASTDecl.incChangeFlush)
+    $endif
+  }
+$endif
+$endif
+      
+$if(IncrementalLevelRegion)
+$if(#isRegionRoot)
+  /**
+   * @api internal
+   */
+  public void #name.reactToDependencyChange() {
+    $if(IncrementalChangeFlush)
+    $include(ASTDecl.incChangeFlush)
+    $endif
+  }
+$else
+  $if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public void #name.reactToDependencyChange() {
+  }
+  $endif
+$endif    
+$endif
+
+$endif
+]]
+
+ASTDecl.incChangeFlush = [[
+$if(IncrementalChangeFlush)
+
+// flush children
+$if(IncrementalLevelParam)
+$if(IsAstNode)
+if (attrID.equals("getChild")) {
+  int i = (Integer)_parameters;
+  if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
+    // Make sure this condition is false before calling notify. 
+    // There may be a circular dependency resulting in a double flush otherwise. 
+    // A double flush will cause null to be moved in as the initial child.
+    rewritten_children[i] = false;
+    children[i].inc_resetRewrites();
+    // outer rewrites
+    if (init_children[i] != null) {
+      // set up change
+      ASTNode oldChild = children[i];
+      ASTNode newChild = init_children[i];
+      // make change
+      oldChild.inc_flush_subtree(getChild_handler[i]);
+      children[i] = newChild;
+      init_children[i] = null;
+      // set parent and notify
+      newChild.setParent(this);
+      getChild_handler[i].notifyDependencies();    
+    } else {
+      // inner rewrites
+      inc_restoreEnclosingRewrite();
+    }
+  }
+}
+$endif
+$endif
+
+$if(IncrementalLevelAttr)
+$if(IsAstNode)
+if (attrID.equals("getChild")) {
+  if (inc_checkRegionForInnerRewrite()) {
+    ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
+    enclosingNode.getChild_handler.flushRegion();
+    return;
+  } else {
+    inc_flushRegion_rewrites();
+    getChild_handler.notifyDependencies();
+    return;
+  }
+}
+$endif
+$endif
+    
+$if(IncrementalLevelNode)
+inc_flushRegionRoot();
+handler.notifyDependencies();
+$endif
+
+$if(IncrementalLevelRegion)
+$if(#isRegionRoot)
+if (inc_flushRegionRoot()) {
+  handler.clearDependencies();
+  handler.notifyDependencies();      
+}
+$endif
+$endif
+
+$AttrFlushChecks    
+
+$endif
+]]
+
+ASTDecl.attrFlushCheck = [[
+$if(IncrementalLevelParam)
+$if(IsParamAttr)
+if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
+  $if(IsNTA)
+  $AttrType value = ($AttrType)$(AttrSign)_values.remove(_parameters);                 
+  for (int i = 0; i < $(AttrSign)_list.children.length; i++) {
+    ASTNode child = $(AttrSign)_list.children[i];
+    if (child != null && value == child) {
+      // using dummy node to flush dependencies from NTA 
+      value.inc_flush_subtree(($DDGNodeName)$(AttrSign)_handler.get(_parameters));
+      $(AttrSign)_list.removeChild(i);
+      break;
+    }
+  }
+  $else
+  $(AttrSign)_values.remove(_parameters); 
+  $endif
+  $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.remove(_parameters);
+  handler.throwAway();
+  handler.notifyDependencies();
+  $if(!IsAstNode)
+  super.reactToDependencyChange(attrID, _parameters);
+  $endif
+  return;
+}                  
+$else
+if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+  $if(IsNTA)
+  if ($(AttrSign)_value instanceof ASTNode) {
+    $(AttrSign)_value.setParent(null);
+    // using dummy node to flush dependencies from NTA 
+    $(AttrSign)_value.inc_flush_subtree($(AttrSign)_handler);
+  }
+  $endif
+  $AttrResetVisit
+  $AttrResetCache
+  $(AttrSign)_handler.notifyDependencies();
+  $if(!IsAstNode)
+  super.reactToDependencyChange(attrID, _parameters);
+  $endif
+  return;
+}
+$endif      
+$endif
+
+$if(IncrementalLevelAttr)
+$if(IsParamAttr)
+if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
+  $if(IsNTA)
+  if ($(AttrSign)_list != null) {
+    $(AttrSign)_list.setParent(null);
+    // using dummy node to flush dependencies from NTA 
+    $(AttrSign)_list.inc_flush_subtree($(AttrSign)_handler);
+  }
+  $endif
+  $AttrResetVisit
+  $AttrResetCache
+  $(AttrSign)_handler.notifyDependencies();
+  $if(!IsAstNode)
+  super.reactToDependencyChange(attrID);
+  $endif
+  return;
+}
+$else
+if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+  $if(IsNTA)
+  if ($(AttrSign)_value instanceof ASTNode) {
+    $(AttrSign)_value.setParent(null);
+    // using dummy node to flush dependencies from NTA 
+    $(AttrSign)_value.inc_flush_subtree(new $DDGNodeName(new Opt(), ""));
+  }
+  $endif
+  $AttrResetVisit
+  $AttrResetCache
+  $(AttrSign)_handler.notifyDependencies();
+  $if(!IsAstNode)
+  super.reactToDependencyChange(attrID);
+  $endif
+  return;
+}
+$endif
+$endif
+]]
