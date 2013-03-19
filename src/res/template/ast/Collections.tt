@@ -204,10 +204,60 @@ $endif
 $endif
 ]]
 
-ASTDecl.weaveCollectionAttributes:a1 = [[
+ASTDecl.weaveCollectionAttributes.nextIteration = [[
   protected void #(getTarget)_#(attributeSignature)_nextIteration(#getTarget n) {
     for(int i = 0; i < getNumChild(); i++) {
       getChild(i).#(getTarget)_#(attributeSignature)_nextIteration(n);
     }
   }
+]]
+
+ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
+  protected void collect_contributors_#(collectingSignature)() {
+    for(int i = 0; i < getNumChild(); i++) {
+      getChild(i).collect_contributors_#(collectingSignature)();
+    }
+  }
+]]
+
+ASTDecl.weaveCollectionAttributes.contributeTo = [[
+  protected void contributeTo_#(getTarget)_#(attributeSignature)(#getType collection) {
+  }
+]]
+
+ASTDecl.weaveCollectionAttributes.collectContributors2 = [[
+  private boolean collect_contributors_#(collectingSignature) = false;
+
+  public boolean collecting_contributors_#(collectingSignature) = false;
+
+  protected void collect_contributors_#(collectingSignature)() {
+    if (!collect_contributors_#(collectingSignature)) {
+      collecting_contributors_#(collectingSignature) = true;
+      super.collect_contributors_#(collectingSignature)();
+      collecting_contributors_#(collectingSignature) = false;
+      collect_contributors_#(collectingSignature) = true;
+    }
+  }
+]]
+
+ASTDecl.weaveCollectionAttributes.collectContributors3 = [[
+  private boolean collect_contributors_#(collectingSignature) = false;
+  protected void collect_contributors_#(collectingSignature)() {
+    if(collect_contributors_#(collectingSignature)) return;
+    super.collect_contributors_#(collectingSignature)();
+    collect_contributors_#(collectingSignature) = true;
+  }
+]]
+
+ASTDecl.weaveCollectionAttributes.collectContributors4 = [[
+  private boolean collect_contributors_#(collectingSignature) = false;
+]]
+
+ASTDecl.weaveCollectionAttributes.flush1 = [[
+    collect_contributors_#(collectingSignature) = false;
+    collecting_contributors_#(collectingSignature) = false;
+]]
+
+ASTDecl.weaveCollectionAttributes.flush2 = [[
+    collect_contributors_#(collectingSignature) = false;
 ]]

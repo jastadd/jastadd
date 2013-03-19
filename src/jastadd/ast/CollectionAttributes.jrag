@@ -377,22 +377,15 @@ aspect CollectionAttributes {
         if(!astDecl.hasCollEq(attr) && process) {
           String s = "";
           if(separateEvaluation) {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes:a1");
+            s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
           }
 
           if(process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) {
-            // TODO: replace !attr.naive() with !(!attr.isCircular() && separateEvaluation)
-            s = s +
-              ind + "protected void collect_contributors_" + attr.collectingSignature() + "() {\n" +
-              ind(2) + "for(int i = 0; i < getNumChild(); i++)\n" +
-              ind(3) + "getChild(i).collect_contributors_" + attr.collectingSignature() + "();\n" +
-              ind + "}\n\n";
+            s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
           }
 
           if(!separateEvaluation && (attr.isCircular() || !attr.onePhase())) {
-            s = s +
-              ind + "protected void contributeTo_" + attr.getTarget() + "_" + attr.attributeSignature() + "(" + attr.getType() + " collection) {\n" +
-              ind + "}\n";
+            s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
           }
 
           astDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
@@ -401,35 +394,15 @@ aspect CollectionAttributes {
           String s = "";
           String flush = "";
           if(attr.circularCollection() && !separateEvaluation) {
-            s =
-              ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n" +
-              ind + "public boolean collecting_contributors_" + attr.collectingSignature() + " = false;\n" +
-              ind + "protected void collect_contributors_" + attr.collectingSignature() + "() {\n" +
-              ind(2) + "if(collect_contributors_" + attr.collectingSignature() + ") return;\n" +
-              ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = true;\n" +
-              ind(2) + "super.collect_contributors_" + attr.collectingSignature() + "();\n" +
-              ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = false;\n" +
-              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = true;\n" +
-              ind + "}\n\n";
-            flush =
-              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = false;\n" +
-              ind(2) + "collecting_contributors_" + attr.collectingSignature() + " = false;\n";
+            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
+            flush = tt.expand("ASTDecl.weaveCollectionAttributes.flush1");
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) {
             if(!rootDecl.hasCollEq(attr)) {
-              s =
-              ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n" +
-              ind + "protected void collect_contributors_" + attr.collectingSignature() + "() {\n" +
-              ind(2) + "if(collect_contributors_" + attr.collectingSignature() + ") return;\n" +
-              ind(2) + "super.collect_contributors_" + attr.collectingSignature() + "();\n" +
-              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = true;\n" +
-              ind + "}\n\n";
+              s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
+            } else {
+              s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
             }
-            else {
-              s =
-              ind + "private boolean collect_contributors_" + attr.collectingSignature() + " = false;\n";
-            }
-            flush =
-              ind(2) + "collect_contributors_" + attr.collectingSignature() + " = false;\n";
+            flush = tt.expand("ASTDecl.weaveCollectionAttributes.flush2");
           }
           rootDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
           rootDecl.collectionReset += flush;
@@ -523,7 +496,7 @@ aspect CollectionAttributes {
 
   public void Grammar.addCollEq(String targetName, String targetAttributeName, String attributeType, String reference, ast.AST.List contributionList, String fileName, int startLine, int endLine, boolean refSet, jrag.AST.SimpleNode node, String aspectName) {
     TypeDecl c = lookup(attributeType);
-    if(c != null && c instanceof ASTDecl) {
+    if (c != null && c instanceof ASTDecl) {
       CollEq collEq = new CollEq(
           new List(),
           targetName,
@@ -538,9 +511,9 @@ aspect CollectionAttributes {
           refSet,
           reference);
       ((ASTDecl)c).addCollEq(collEq);
-    }
-    else
+    } else {
       error("Can not add collection contribution to unknown class " + attributeType + " in " + fileName + " at line " + startLine);
+    }
   }
 
   private ASTExpression CollDecl.startValue;
@@ -594,17 +567,17 @@ aspect CollectionAttributes {
   }
 
   syn boolean CollDecl.knownAnnotation(String s) {
-    if(s.equals("@OnePhase"))
+    if(s.equals("@OnePhase"))// TODO: document this annotation
       return true;
-    if(s.equals("@SeparateEvaluation"))
+    if(s.equals("@SeparateEvaluation"))// TODO: document this annotation
       return true;
-    if(s.equals("@LazyCondition"))
+    if(s.equals("@LazyCondition"))// TODO: document this annotation
       return true;
-    if(s.equals("@Circular"))
+    if(s.equals("@Circular"))// TODO: document this annotation
       return true;
-    if(s.equals("@CollectionGroup") || s.startsWith("@CollectionGroup("))
+    if(s.equals("@CollectionGroup") || s.startsWith("@CollectionGroup("))// TODO: document this annotation
       return true;
-    if(s.equals("@Naive"))
+    if(s.equals("@Naive"))// TODO: document this annotation
       return true;
     return false;
   }
