@@ -621,8 +621,8 @@ public class JastAdd {
       System.exit(0);
     }
     
-    // Bind template variables. The first time we access templateContext the
-    // Grammar.ind option must be set already!
+    // The first time we access templateContext the Grammar.ind option must
+    // be set already!
     TemplateContext tt = root.templateContext();
     if (synch.matched()) {
       tt.bindExpansion("SynchBegin", "synchronized-block.begin");
@@ -631,6 +631,8 @@ public class JastAdd {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
     }
+
+    // Bind global template variables:
     tt.bind("NoStatic", root.noStatic);
     tt.bind("DebugMode", root.debugMode);
     tt.bind("MinListSize", "" + root.minListSize);
