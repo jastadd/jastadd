@@ -28,7 +28,10 @@
  */
 package org.jastadd;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A class for retrieving the command line arguments such as operands

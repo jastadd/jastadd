@@ -27,58 +27,99 @@
  */
 package org.jastadd;
 
-import ast.AST.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
-import jrag.AST.*;
-
-import java.util.*;
-import java.io.*;
+import jrag.AST.ASTCompilationUnit;
+import jrag.AST.JragParser;
 
 import org.jastadd.tinytemplate.TemplateContext;
 
+import ast.AST.ASTDecl;
+import ast.AST.ASTNode;
+import ast.AST.Ast;
+import ast.AST.Components;
+import ast.AST.Grammar;
+import ast.AST.TokenComponent;
+
 /**
- * JastAdd main class
+ * JastAdd main class.
+ * 
+ * Parses command-line arguments and builds ASTs.
  */
-@SuppressWarnings("javadoc")
 public class JastAdd {
 
   private static ResourceBundle resources = null;
-  private static String resourcename = "JastAdd";
+  private static String RESOURCE_NAME = "JastAdd";
   private static String getString(String key) {
     if (resources == null) {
       try {
-        resources = ResourceBundle.getBundle(resourcename);
+        resources = ResourceBundle.getBundle(RESOURCE_NAME);
       } catch (MissingResourceException e) {
-        throw new Error("Could not open the resource " +
-            resourcename);
+        throw new Error("Could not open the resource " + RESOURCE_NAME);
       }
     }
     return resources.getString(key);
   }
+
+  /**
+   * @return Short version string
+   */
   public static String getVersionString() {
     return "JastAdd2 " + getString("jastadd.version");
   }
+
+  /**
+   * @return Version string including link to JastAdd homepage
+   */
   public static String getLongVersionString() {
     return "JastAdd2 (http://jastadd.org) version " +
       getString("jastadd.version");
   }
 
-  protected java.util.List<String> files;
-  protected java.util.List<String> cacheFiles;
+  protected Collection<String> files;
+  protected Collection<String> cacheFiles;
 
   /**
    * Root of the AST for the parsed ast-grammar file
    */
   protected final Grammar root = new Grammar();
+
+  /**
+   * Package for generated AST node types.
+   */
   protected String pack;
+
+  /**
+   * Output directory to write generated AST node types in.
+   */
   protected File outputDir;
+
   protected boolean publicModifier;
 
+  /**
+   * Entry point
+   * @param args
+   */
   public static void main(String[] args) {
     new JastAdd().compile(args);
     Runtime.getRuntime().gc();
   }
 
+  /**
+   * Non-static entry point
+   * @param args
+   */
   public void compile(String[] args) {
     try {
       files = new ArrayList<String>();
@@ -316,9 +357,10 @@ public class JastAdd {
   }
 
   /**
-   * Read and process command line arguments
+   * Parse command-line arguments and initialize root template context.
    *
    * @param args Command line arguments
+   * @return <code>true</code> if there were any command-line argument problems
    */
   public boolean readArgs(String[] args) {
     CommandLineArguments options = new CommandLineArguments();
