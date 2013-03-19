@@ -454,6 +454,12 @@ aspect JaddCodeGen {
     }
   }
 
+  /**
+   * Generate aspect code for implicit methods etc. in the default node types
+   * ASTNode, List, Opt.
+   *
+   * @param stream Aspect output stream
+   */
   public void ASTDecl.jjtGen(PrintWriter stream) {
     String s;
 
