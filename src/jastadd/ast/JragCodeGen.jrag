@@ -463,49 +463,8 @@ aspect JragCodeGen {
   }
 
   public void AttrDecl.emitCacheDeclarations(PrintStream out) {
-    if(!getLazy())
-      return;
-    if(getNumParameter() == 0) {
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel internal");
-      out.println(ind + " */");
-      out.println(ind + "protected boolean " + attributeSignature() + "_computed = false;");
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel internal");
-      out.println(ind + " */");
-      out.println(ind + "protected " + getType() + " " + attributeSignature() + "_value;");
-      return;
-    } else if(declaredNTA()) {
-      if(grammar().lazyMaps) {
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values;");
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected List " + attributeSignature() + "_list;");
-        return;
-      } else {
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";");
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "protected List " + attributeSignature() + "_list;");
-        return;
-      }
-    }
-    else {
-      if (grammar().lazyMaps) {
-        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values;");
-        return;
-      } else {
-        out.println(ind + "protected " + grammar().typeDefaultMap + " " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";");
-        return;
-      }
+    if (getLazy()) {
+      templateContext().expand("AttrDecl.cacheDeclarations", out);
     }
   }
 

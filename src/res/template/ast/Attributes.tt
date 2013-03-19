@@ -1,3 +1,44 @@
+AttrDecl.cacheDeclarations = [[
+$if(!#isParameterized)
+  /**
+   * @apilevel internal
+   */
+  protected boolean #(attributeSignature)_computed = false;
+  /**
+   * @apilevel internal
+   */
+  protected #getType #(attributeSignature)_value;
+$else
+$if(#declaredNTA)
+$if(LazyMaps)
+  /**
+   * @apilevel internal
+   */
+  protected $DefaultMapType #(attributeSignature)_values;
+  /**
+   * @apilevel internal
+   */
+  protected List #(attributeSignature)_list;
+$else
+  /**
+   * @apilevel internal
+   */
+  protected $DefaultMapType #(attributeSignature)_values = $CreateDefaultMap;
+  /**
+   * @apilevel internal
+   */
+  protected List #(attributeSignature)_list;
+$endif
+$else
+$if(LazyMaps)
+  protected $DefaultMapType #(attributeSignature)_values;
+$else
+  protected $DefaultMapType #(attributeSignature)_values = $CreateDefaultMap;
+$endif
+$endif
+$endif
+]]
+
 # attribute declarations
 AttrDecl.synDecl = AttrDecl.inhDecl = [[
   #annotations
