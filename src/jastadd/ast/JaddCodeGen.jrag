@@ -544,16 +544,9 @@ aspect JaddCodeGen {
         emitSymbolConstructor(out);
     }
 
-    if(name().equals("Opt")) {
-      if(grammar().java5)
-        out.println(ind + "public Opt.Opt(T opt) {");
-      else
-        out.println(ind + "public Opt.Opt(ASTNode opt) {");
-      TemplateContext tt = templateContext();  
-      out.println(ind(2) + tt.expand("State.incHookConstructionStart"));
-      out.println(ind(2) + "setChild(opt, 0);");
-      out.println(ind(2) + tt.expand("State.incHookConstructionEnd"));
-      out.println(ind + "}\n");
+    if(isOptDecl()) {
+      TemplateContext tt = templateContext();
+      tt.expand("OptDecl.constructor", out);
     }
   }
 

@@ -35,3 +35,16 @@ initChildren = [[
     $ChildInit
   }
 ]]
+
+OptDecl.constructor = [[
+$if(Java5)
+  public Opt.Opt(T opt) {
+$else
+  public Opt.Opt(ASTNode opt) {
+$endif
+    $include(State.incHookConstructionStart)
+    setChild(opt, 0);
+    $include(State.incHookConstructionEnd)
+  }
+]]
+
