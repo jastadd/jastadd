@@ -358,7 +358,7 @@ aspect JastAddCodeGen {
 
       // Insert comment notifying that this is a generated file
       stream.println("/* This file was generated with " +
-          JastAdd.getLongVersionString() + " */");
+          org.jastadd.JastAdd.getLongVersionString() + " */");
         
       if(grammar().license != null && grammar().license.length() > 0)
         stream.println(grammar().license);
