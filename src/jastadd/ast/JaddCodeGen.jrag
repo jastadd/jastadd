@@ -357,85 +357,20 @@ aspect JaddCodeGen {
   }
 
   /**
+   * @return <code>true</code> if the list$touched field is needed for this
+   * ASTDecl.
+   */
+  syn boolean ASTDecl.needsListTouched() =
+    !(grammar().incremental || grammar().fullFlush);
+
+  /**
    * Generate implicit aspect declarations for the List type.
    * 
    * @param out Aspect output stream
    */
   public void ASTDecl.emitImplicitListDecls(PrintWriter out) {
-      if(grammar().java5)
-        out.println(ind + "public List<T> List.add(T node) {");
-      else
-        out.println(ind + "public List List.add(ASTNode node) {");
-      if(grammar().block) out.append(grammar().blockBegin);
-      if(grammar().debugMode) {
-        out.println(ind(2) + "if(node instanceof List)");
-        out.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type List\");");
-        out.println(ind(2) + "if(node instanceof Opt)");
-        out.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type Opt\");");
-      }
-      out.println(ind(2) + "addChild(node);");
-      out.println(ind(2) + "return this;");
-      if(grammar().block) out.append(grammar().blockEnd);
-      out.println(ind + "}\n");
-      out.println(ind + "public void List.insertChild(ASTNode node, int i) {");
-      if(grammar().block) out.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        out.println(ind(2) + "list$touched = true;");
-      }
-      
-      out.println(ind(2) + "super.insertChild(node, i);");
-      if(grammar().block) out.append(grammar().blockEnd);
-      out.println(ind + "}");
-      if(grammar().java5)
-        out.println(ind + "public void List.addChild(T node) {");
-      else
-        out.println(ind + "public void List.addChild(ASTNode node) {");
-      if(grammar().block) out.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        out.println(ind(2) + "list$touched = true;");
-      }
-      
-      out.println(ind(2) + "super.addChild(node);");
-      if(grammar().block) out.append(grammar().blockEnd);
-      out.println(ind + "}");
-      out.println(ind + "/**");
-      out.println(ind + " * @apilevel low-level");
-      out.println(ind + " */");
-      out.println(ind + "public void List.removeChild(int i) {");
-      if(grammar().block) out.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        out.println(ind(2) + "list$touched = true;");
-      }
-      
-      out.println(ind(2) + "super.removeChild(i);");
-      if(grammar().block) out.append(grammar().blockEnd);
-      out.println(ind + "}");
-      out.println(ind + "public int List.getNumChild() {");
-      if(grammar().block) out.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) {
-        out.println(ind(2) + "if(list$touched) {");
-        out.println(ind(3) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
-        out.println(ind(4) + "getChild(i);");
-        out.println(ind(4) + "list$touched = false;");
-        out.println(ind(3) + "}");
-      } 
-      
-      out.println(ind(3) + "return getNumChildNoTransform();");
-      if(grammar().block) out.append(grammar().blockEnd);
-      out.println(ind + "}");
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        out.println(ind + "private boolean List.list$touched = true;");
-      }
+    TemplateContext tt = templateContext();
+    tt.expand("List.implicitAspectDecls", out);
   }
 
   /**
