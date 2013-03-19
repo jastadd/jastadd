@@ -1,4 +1,35 @@
-ListComponents.genCheckTreeStructure = [[
+JJTree.jjtAddChild = [[
+  public void #name.jjtAddChild(Node n, int i) {
+    checkChild(n, i);
+$if(#isASTNodeDecl)
+    if (i >= numChildren) {
+      numChildren = i+1;
+    }
+$endif
+    super.jjtAddChild(n, i);
+  }
+]]
+
+JJTree.checkChild = [[
+  public void #name.checkChild(Node n, int i) {
+$if(#isOptDecl)
+    if (i > 0) {
+      throw new Error("Optional nodes can only have one child");
+    }
+    if (!(n instanceof ASTNode)) {
+      throw new Error("Node type must be an instance of ASTNode");
+    }
+$else$if(#isListDecl)
+    if (!(n instanceof ASTNode)) {
+      throw new Error("The node type of child " + i + " must be an instance of ASTNode");
+    }
+$else
+    #checkRegularNodeStructure
+$endif$endif
+  }
+]]
+
+ListComponents.checkComponentStructure = [[
   if(i == $ChildIndex) {
     if(!(n instanceof List)) {
       throw new Error("Child number $ChildIndex of $HostClassName has the type " +
@@ -13,7 +44,7 @@ ListComponents.genCheckTreeStructure = [[
   }
 ]]
 
-OptionalComponent.genCheckTreeStructure = [[
+OptionalComponent.checkComponentStructure = [[
 if (i == $ChildIndex) {
   if (!(n instanceof Opt)) {
     throw new Error("Child number $ChildIndex of $HostClassName has the type " + n.getClass().getName() + " which is not an instance of Opt");
@@ -24,7 +55,7 @@ if (i == $ChildIndex) {
 }
 ]]
 
-AggregateComponents.genCheckTreeStructure = [[
+AggregateComponents.checkComponentStructure = [[
 if (i == $ChildIndex && !(n instanceof #type)) {
  throw new Error("Child number $ChildIndex of $HostClassName has the type " +
    n.getClass().getName() + " which is not an instance of #type");

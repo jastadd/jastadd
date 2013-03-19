@@ -353,61 +353,51 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.debugDecls", out);
   }
 
-  public void ASTDecl.genCheckTreeStructure(PrintWriter stream) {
-    stream.println(ind + "public void " + name() + ".jjtAddChild(Node n, int i) {");
-    stream.println(ind(2) + "checkChild(n, i);");
-    if(name().equals("ASTNode")) {
-      stream.println(ind(2) + "if(i >= numChildren) numChildren = i+1;");
-    }
-    stream.println(ind(2) + "super.jjtAddChild(n, i);");
-    stream.println("}\n");
-    if(name().equals("Opt")) {
-      stream.println(ind + "public void Opt.checkChild(Node n, int i) {");
-      stream.println(ind(2) + "if(i > 0) throw new Error(\"Optional nodes can only have one child\");");
-      stream.println(ind(2) + "if(!(n instanceof ASTNode)) throw new Error(\"Node type must be an instance of ASTNode\");");
-      stream.println(ind + "}\n");
-    }
-    else if(name().equals("List")) {
-      stream.println(ind + "public void List.checkChild(Node n, int i) {");
-      stream.println(ind(2) + "if(!(n instanceof ASTNode)) throw new Error(\"The node type of child \" + i + \" must be an instance of ASTNode\");");
-      stream.println(ind + "}\n");
-    }
-    else {
-      int j = 0;
-      stream.println(ind + "public void " + name() + ".checkChild(Node n, int i) {");
-      for(Iterator iter = getComponents(); iter.hasNext(); ) {
-        Components c = (Components)iter.next();
-        c.genCheckTreeStructure(stream, j);
-        if(!(c instanceof TokenComponent)) {
-          j++;
-        }
+  syn boolean ASTDecl.isASTNodeDecl() = name().equals("ASTNode");
+  syn boolean ASTDecl.isOptDecl() = name().equals("Opt");
+  syn boolean ASTDecl.isListDecl() = name().equals("List");
+
+  /**
+   * Check the node structure of a regular (non-Opt, non-List)
+   * JJTree node.
+   */
+  syn String ASTDecl.checkRegularNodeStructure() {
+    StringBuilder buf = new StringBuilder();
+    int j = 0;
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      buf.append(c.checkComponentStructure(j));
+      if (!(c instanceof TokenComponent)) {
+        j++;
       }
-      stream.println(ind + "}\n");
     }
+    return buf.toString();
   }
 
-  public void Components.genCheckTreeStructure(PrintWriter stream, int j) {
-  }
+  /**
+   * Check the structure of a single JJTree component.
+   */
+  syn String Components.checkComponentStructure(int childIndex) = "";
 
-  public void ListComponents.genCheckTreeStructure(PrintWriter stream, int j) {
+  eq ListComponents.checkComponentStructure(int childIndex) {
     TemplateContext tt = templateContext();
-    tt.bind("ChildIndex", "" + j);
+    tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    tt.expand("ListComponents.genCheckTreeStructure", stream);
+    return tt.expand("ListComponents.checkComponentStructure");
   }
 
-  public void OptionalComponent.genCheckTreeStructure(PrintWriter stream, int j) {
+  eq OptionalComponent.checkComponentStructure(int childIndex) {
     TemplateContext tt = templateContext();
-    tt.bind("ChildIndex", "" + j);
+    tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    tt.expand("OptionalComponent.genCheckTreeStructure", stream);
+    return tt.expand("OptionalComponent.checkComponentStructure");
   }
 
-  public void AggregateComponents.genCheckTreeStructure(PrintWriter stream, int j) {
+  eq AggregateComponents.checkComponentStructure(int childIndex) {
     TemplateContext tt = templateContext();
-    tt.bind("ChildIndex", "" + j);
+    tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    tt.expand("AggregateComponents.genCheckTreeStructure", stream);
+    return tt.expand("AggregateComponents.checkComponentStructure");
   }
 
   /**
@@ -476,11 +466,14 @@ aspect JaddCodeGen {
     if(grammar().jjtree) {
       jjtGenDumpTree(stream);
       jjtGenVisitor(stream);
-      try {
-        genCheckTreeStructure(stream);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+
+      TemplateContext tt = templateContext();
+
+      // emit the jjtAddChild method
+      tt.expand("JJTree.jjtAddChild", stream);
+
+      // emit method to check the structure of a JJTree node
+      tt.expand("JJTree.checkChild", stream);
     }
 
     // Generate code common for all nodes by adding them to ASTNode
