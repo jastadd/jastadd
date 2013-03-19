@@ -406,7 +406,7 @@ aspect JastAddCodeGen {
 
       /*
        // Now done before refinements
-      jjtGen(new java.io.PrintWriter(stream));
+      emitImplicitDeclarations(new java.io.PrintWriter(stream));
       int j = 0;
       for(Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();

@@ -153,7 +153,7 @@ public class JastAdd {
       {
         //System.out.println("generating ASTNode");
         java.io.StringWriter writer = new java.io.StringWriter();
-        root.jjtGenASTNode$State(new PrintWriter(writer));
+        root.emitASTNode$State(new PrintWriter(writer));
 
         jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
         jp.root = root;
@@ -228,7 +228,7 @@ public class JastAdd {
         if(root.getTypeDecl(i) instanceof ASTDecl) {
           ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
           java.io.StringWriter writer = new java.io.StringWriter();
-          decl.jjtGen(new PrintWriter(writer));
+          decl.emitImplicitDeclarations(new PrintWriter(writer));
 
           jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
           jp.root = root;

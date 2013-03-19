@@ -268,7 +268,7 @@ aspect JaddCodeGen {
     templateContext().expand("ASTNode$State.reset", out);
   }
 
-  public void Grammar.jjtGenASTNode$State(PrintWriter out) {
+  public void Grammar.emitASTNode$State(PrintWriter out) {
     templateContext().expand("ASTNode$State", out);
   }
 
@@ -309,7 +309,12 @@ aspect JaddCodeGen {
     }
   }
 
-  public void ASTDecl.jjtGenASTNode(PrintWriter out) {
+  /**
+   * Generate implicit aspect declarations for the ASTNode type.
+   *
+   * @param out Aspect output stream
+   */
+  public void ASTDecl.emitASTNode(PrintWriter out) {
     TemplateContext tt = templateContext();
 
     /* emit general declarations */
@@ -405,6 +410,9 @@ aspect JaddCodeGen {
     tt.expand("AggregateComponents.genCheckTreeStructure", stream);
   }
 
+  /**
+   * Generate the dumpTree method for JJTree AST.
+   */
   public void ASTDecl.jjtGenDumpTree(PrintWriter stream) {
     stream.println(ind + "public void " + name() + ".dumpTree(String indent, java.io.PrintStream pStream) {");
     stream.print(ind(2) + "pStream.println(indent + \"" + name() + "\"");
@@ -429,7 +437,7 @@ aspect JaddCodeGen {
     stream.println(ind + "}");
   }
 
-  public void ASTDecl.jjtGenConstructor(PrintWriter out) {
+  public void ASTDecl.emitConstructor(PrintWriter out) {
 
     emitDefaultConstructor(out);
 
@@ -455,19 +463,16 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Generate aspect code for implicit methods etc. in the default node types
-   * ASTNode, List, Opt.
+   * Generate aspect code for implicit methods and fields in the default node
+   * types ASTNode, List, Opt.
    *
    * @param stream Aspect output stream
    */
-  public void ASTDecl.jjtGen(PrintWriter stream) {
+  public void ASTDecl.emitImplicitDeclarations(PrintWriter stream) {
     String s;
 
-    jjtGenConstructor(stream);
-    //emitCloneNode(stream);
-    //emitCopyNode(stream);
-    //emitFullCopy(stream);
-    //emitFlushCache(stream);
+    emitConstructor(stream);
+
     if(grammar().jjtree) {
       jjtGenDumpTree(stream);
       jjtGenVisitor(stream);
@@ -480,7 +485,7 @@ aspect JaddCodeGen {
 
     // Generate code common for all nodes by adding them to ASTNode
     if(name().equals("ASTNode")) {
-      jjtGenASTNode(stream);
+      emitASTNode(stream);
       env().genRewriteOrderChecks(stream);
       env().genReset(stream);
       if(grammar().java5) {
