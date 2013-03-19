@@ -282,54 +282,6 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Print the getChild method to the output stream.
-   */
-  public void ASTDecl.emitGetChild(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.bind("ReturnTypeCast", grammar().java5 ? "(T) " : "");
-    tt.bind("PositiveRewriteLimit", grammar().rewriteLimit > 0);
-    tt.expand("ASTNode.getChild", out);
-  }
-
-  public void ASTDecl.emitAddChild(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.expand("ASTNode.addChild", out);
-  }
-
-  public void ASTDecl.emitGetChildNoTransform(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.bind("IsRegionRoot", isRegionRoot());
-    tt.expand("ASTNode.getChildNoTransform", out);
-  }
-
-  public void ASTDecl.emitNumChildren(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.expand("ASTNode.numChildren", out);
-  }
-
-  public void ASTDecl.emitSetChild(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.expand("ASTNode.setChild", out);
-  }
-
-  public void ASTDecl.emitInsertChild(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.expand("ASTNode.insertChild", out);
-  }
-
-  public void ASTDecl.emitRemoveChild(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    tt.expand("ASTNode.removeChild", out);
-  }
-
-  public void ASTDecl.emitSetGetParent(PrintWriter out) {
-    TemplateContext tt = templateContext();  
-    tt.bind("IsRegionRoot", isRegionRoot());  
-    tt.expand("ASTNode.getParent", out);
-    tt.expand("ASTNode.setParent", out);
-  }
-
-  /**
    * Checks that ASTNode.state can be evaluated.
    */
   syn String ASTDecl.debugASTNodeState() {
@@ -357,27 +309,43 @@ aspect JaddCodeGen {
     }
   }
 
-  public void ASTDecl.jjtGenASTNode(PrintWriter stream) {
+  public void ASTDecl.jjtGenASTNode(PrintWriter out) {
     TemplateContext tt = templateContext();
-    tt.expand("ASTNode.declarations", stream);
 
-    emitGetChild(stream);
+    /* emit general declarations */
+    tt.expand("ASTNode.declarations", out);
 
-    emitAddChild(stream);
+    /* emit getChild */
+    tt.bind("ReturnTypeCast", grammar().java5 ? "(T) " : "");
+    tt.bind("PositiveRewriteLimit", grammar().rewriteLimit > 0);
+    tt.expand("ASTNode.getChild", out);
 
-    emitGetChildNoTransform(stream);
+    /* emit addChild */
+    tt.expand("ASTNode.addChild", out);
 
-    emitNumChildren(stream);
+    /* emit getChildNoTransform */
+    tt.bind("IsRegionRoot", isRegionRoot());
+    tt.expand("ASTNode.getChildNoTransform", out);
 
-    emitSetChild(stream);
+    /* emit numChildren */
+    tt.expand("ASTNode.numChildren", out);
 
-    emitInsertChild(stream);
+    /* emit setChild */
+    tt.expand("ASTNode.setChild", out);
 
-    emitRemoveChild(stream);
+    /* emit insertChild */
+    tt.expand("ASTNode.insertChild", out);
 
-    emitSetGetParent(stream);
+    /* emit removeChild */
+    tt.expand("ASTNode.removeChild", out);
 
-    tt.expand("ASTNode.debugDecls", stream);
+    /* emit setParent & getParent */
+    tt.bind("IsRegionRoot", isRegionRoot());  
+    tt.expand("ASTNode.getParent", out);
+    tt.expand("ASTNode.setParent", out);
+
+    /* emit debug declarations */
+    tt.expand("ASTNode.debugDecls", out);
   }
 
   public void ASTDecl.genCheckTreeStructure(PrintWriter stream) {
