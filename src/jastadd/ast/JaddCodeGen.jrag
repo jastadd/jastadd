@@ -329,48 +329,37 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.setParent", out);
   }
 
+  /**
+   * Checks that ASTNode.state can be evaluated.
+   */
+  syn String ASTDecl.debugASTNodeState() {
+    if(grammar().debugMode) {
+      // Debug mode should (probably) not be used here to ensure safe use of the state field
+      //  Jesper 2013-01-10
+
+      // Check if a new state object is created for a node that is not a root node
+      StringBuilder buf = new StringBuilder();
+      buf.append("if(");
+      boolean first = true;
+      for (Iterator iter = env().roots().iterator(); iter.hasNext(); ) {
+        ASTDecl root = (ASTDecl)iter.next();
+        if (!first) {
+          buf.append(" && ");
+        }
+        first = false;
+        buf.append("!(this instanceof " + root.name() + ")");
+      }
+      buf.append(")\n");
+      buf.append(ind + "throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
+      return buf.toString();
+    } else {
+      return "";
+    }
+  }
+
   public void ASTDecl.jjtGenASTNode(PrintWriter stream) {
     TemplateContext tt = templateContext();
     tt.expand("ASTNode.declarations", stream);
-
-    if(grammar().noStatic) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "protected ASTNode$State ASTNode.state = null;");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public final ASTNode$State ASTNode.state() {");
-      stream.println(ind(2) + "if(state == null) {");
-      stream.println(ind(3) + "if(parent == null) {");
-      stream.println(ind(4) + "state = new ASTNode$State();");
-      if(grammar().debugMode) {
-        // Debug mode should (probably) not be used here to ensure safe use of the state field
-        //  Jesper 2013-01-10
-
-        // Check if a new state object is created for a node that is not a root node
-        StringBuffer s = new StringBuffer();
-        s.append("if(");
-        boolean first = true;
-        for(Iterator iter = env().roots().iterator(); iter.hasNext(); ) {
-          ASTDecl root = (ASTDecl)iter.next();
-          if(!first)
-            s.append(" && ");
-          first = false;
-          s.append("!(this instanceof " + root.name() + ")");
-        }
-        s.append(") throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
-        stream.println(s.toString());
-      }
-      stream.println(ind(3) + "}");
-      stream.println(ind(3) + "else {");
-      stream.println(ind(4) + "state = parent.state();");
-      stream.println(ind(3) + "}");
-      stream.println(ind(2) + "}");
-      stream.println(ind(2) + "return state;");
-      stream.println(ind + "}");
-    }
 
     emitGetChild(stream);
 

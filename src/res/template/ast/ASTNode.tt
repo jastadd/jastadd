@@ -48,7 +48,28 @@ $if(!JJTree)
    */
   protected ASTNode[] ASTNode.children;
 $endif
-$if(!NoStatic)
+
+$if(NoStatic)
+  /**
+   * @apilevel internal
+   */
+  protected ASTNode$$State ASTNode.state = null;
+
+  /**
+   * @apilevel internal
+   */
+  public final ASTNode$$State ASTNode.state() {
+    if(state == null) {
+      if(parent == null) {
+        state = new ASTNode$$State();
+        #debugASTNodeState
+      } else {
+        state = parent.state();
+      }
+    }
+    return state;
+  }
+$else
   /**
    * @apilevel internal
    */
@@ -61,6 +82,7 @@ $if(!NoStatic)
     return state;
   }
 $endif
+
 $if(RewriteEnabled)
   /**
    * @apilevel internal
