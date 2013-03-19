@@ -314,7 +314,7 @@ aspect JaddCodeGen {
    *
    * @param out Aspect output stream
    */
-  public void ASTDecl.emitASTNode(PrintWriter out) {
+  public void ASTDecl.emitImplicitASTNodeDecls(PrintWriter out) {
     TemplateContext tt = templateContext();
 
     /* emit general declarations */
@@ -351,6 +351,122 @@ aspect JaddCodeGen {
 
     /* emit debug declarations */
     tt.expand("ASTNode.debugDecls", out);
+  }
+
+  /**
+   * Generate implicit aspect declarations for the List type.
+   * 
+   * @param out Aspect output stream
+   */
+  public void ASTDecl.emitImplicitListDecls(PrintWriter out) {
+      if(grammar().java5)
+        out.println(ind + "public List<T> List.add(T node) {");
+      else
+        out.println(ind + "public List List.add(ASTNode node) {");
+      if(grammar().block) out.append(grammar().blockBegin);
+      if(grammar().debugMode) {
+        out.println(ind(2) + "if(node instanceof List)");
+        out.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type List\");");
+        out.println(ind(2) + "if(node instanceof Opt)");
+        out.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type Opt\");");
+      }
+      out.println(ind(2) + "addChild(node);");
+      out.println(ind(2) + "return this;");
+      if(grammar().block) out.append(grammar().blockEnd);
+      out.println(ind + "}\n");
+      out.println(ind + "public void List.insertChild(ASTNode node, int i) {");
+      if(grammar().block) out.append(grammar().blockBegin);
+      
+      // Avoiding list touch rewrite
+      if (!(grammar().incremental || grammar().fullFlush)) { 
+        out.println(ind(2) + "list$touched = true;");
+      }
+      
+      out.println(ind(2) + "super.insertChild(node, i);");
+      if(grammar().block) out.append(grammar().blockEnd);
+      out.println(ind + "}");
+      if(grammar().java5)
+        out.println(ind + "public void List.addChild(T node) {");
+      else
+        out.println(ind + "public void List.addChild(ASTNode node) {");
+      if(grammar().block) out.append(grammar().blockBegin);
+      
+      // Avoiding list touch rewrite
+      if (!(grammar().incremental || grammar().fullFlush)) { 
+        out.println(ind(2) + "list$touched = true;");
+      }
+      
+      out.println(ind(2) + "super.addChild(node);");
+      if(grammar().block) out.append(grammar().blockEnd);
+      out.println(ind + "}");
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      out.println(ind + "public void List.removeChild(int i) {");
+      if(grammar().block) out.append(grammar().blockBegin);
+      
+      // Avoiding list touch rewrite
+      if (!(grammar().incremental || grammar().fullFlush)) { 
+        out.println(ind(2) + "list$touched = true;");
+      }
+      
+      out.println(ind(2) + "super.removeChild(i);");
+      if(grammar().block) out.append(grammar().blockEnd);
+      out.println(ind + "}");
+      out.println(ind + "public int List.getNumChild() {");
+      if(grammar().block) out.append(grammar().blockBegin);
+      
+      // Avoiding list touch rewrite
+      if (!(grammar().incremental || grammar().fullFlush)) {
+        out.println(ind(2) + "if(list$touched) {");
+        out.println(ind(3) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
+        out.println(ind(4) + "getChild(i);");
+        out.println(ind(4) + "list$touched = false;");
+        out.println(ind(3) + "}");
+      } 
+      
+      out.println(ind(3) + "return getNumChildNoTransform();");
+      if(grammar().block) out.append(grammar().blockEnd);
+      out.println(ind + "}");
+      
+      // Avoiding list touch rewrite
+      if (!(grammar().incremental || grammar().fullFlush)) { 
+        out.println(ind + "private boolean List.list$touched = true;");
+      }
+  }
+
+  /**
+   * Generate implicit aspect declarations for regular
+   * (non-ASTNode, non-List, non-Opt) node types.
+   * 
+   * @param out Aspect output stream
+   */
+  public void ASTDecl.emitImplicitRegularNodeDecls(PrintWriter out) {
+    TemplateContext tt = templateContext();
+    if(grammar().jjtree) {
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      out.println(ind + "public int " + name() + ".getNumChild() {");
+      out.println(tt.expand("ASTNode.incHookNumChildren"));
+      out.println(ind(2) + "return " + numRegularChildren() + ";");
+      out.println(ind + "}");
+    }
+    else {
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel low-level");
+      out.println(ind + " */");
+      out.println(ind + "protected int " +name() + ".numChildren() {");
+      out.println(tt.expand("ASTNode.incHookNumChildren"));
+      out.println(ind(2) + "return " + numRegularChildren() + ";");
+      out.println(ind + "}");
+    }
+    if(grammar().debugMode && isRootNode()) {
+      out.println(ind + "/**");
+      out.println(ind + " * @apilevel internal");
+      out.println(ind + " */");
+      out.println(ind + "protected boolean " + name() + ".debugNodeAttachmentIsRoot() { return true; }");
+    }
   }
 
   syn boolean ASTDecl.isASTNodeDecl() = name().equals("ASTNode");
@@ -439,176 +555,86 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Generate aspect code for implicit methods and fields in the default node
-   * types ASTNode, List, Opt.
+   * Emit aspect declaration for the mayHaveRewrite method
    *
-   * @param stream Aspect output stream
+   * @param out Aspect output stream
    */
-  public void ASTDecl.emitImplicitDeclarations(PrintWriter stream) {
-    String s;
-
-    emitConstructor(stream);
-
-    if(grammar().jjtree) {
-      TemplateContext tt = templateContext();
-
-      // emit the dumpTree method
-      tt.expand("JJTree.dumpTree", stream);
-
-      // emit the jjtAccept method
-      tt.expand("JJTree.jjtAccept", stream);
-
-      // emit the jjtAddChild method
-      tt.expand("JJTree.jjtAddChild", stream);
-
-      // emit method to check the structure of a JJTree node
-      tt.expand("JJTree.checkChild", stream);
-    }
-
-    // Generate code common for all nodes by adding them to ASTNode
-    if(name().equals("ASTNode")) {
-      emitASTNode(stream);
-      env().genRewriteOrderChecks(stream);
-      env().genReset(stream);
-      if(grammar().java5) {
-        templateContext().expand("ASTNode.iterator", stream);
-      }
-    }
-    else if(name().equals("List")) {
-      if(grammar().java5)
-        stream.println(ind + "public List<T> List.add(T node) {");
-      else
-        stream.println(ind + "public List List.add(ASTNode node) {");
-      if(grammar().block) stream.append(grammar().blockBegin);
-      if(grammar().debugMode) {
-        stream.println(ind(2) + "if(node instanceof List)");
-        stream.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type List\");");
-        stream.println(ind(2) + "if(node instanceof Opt)");
-        stream.println(ind(3) + "throw new RuntimeException(\"Lists can not have children of type Opt\");");
-      }
-      stream.println(ind(2) + "addChild(node);");
-      stream.println(ind(2) + "return this;");
-      if(grammar().block) stream.append(grammar().blockEnd);
-      stream.println(ind + "}\n");
-      stream.println(ind + "public void List.insertChild(ASTNode node, int i) {");
-      if(grammar().block) stream.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        stream.println(ind(2) + "list$touched = true;");
-      }
-      
-      stream.println(ind(2) + "super.insertChild(node, i);");
-      if(grammar().block) stream.append(grammar().blockEnd);
-      stream.println(ind + "}");
-      if(grammar().java5)
-        stream.println(ind + "public void List.addChild(T node) {");
-      else
-        stream.println(ind + "public void List.addChild(ASTNode node) {");
-      if(grammar().block) stream.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        stream.println(ind(2) + "list$touched = true;");
-      }
-      
-      stream.println(ind(2) + "super.addChild(node);");
-      if(grammar().block) stream.append(grammar().blockEnd);
-      stream.println(ind + "}");
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel low-level");
-      stream.println(ind + " */");
-      stream.println(ind + "public void List.removeChild(int i) {");
-      if(grammar().block) stream.append(grammar().blockBegin);
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        stream.println(ind(2) + "list$touched = true;");
-      }
-      
-      stream.println(ind(2) + "super.removeChild(i);");
-      if(grammar().block) stream.append(grammar().blockEnd);
-      stream.println(ind + "}");
-      stream.println(ind + "public int List.getNumChild() {");
-      if(grammar().block) stream.append(grammar().blockBegin);
+  public void ASTDecl.emitMayHaveRewrite(PrintWriter out) {
+    out.println(ind + "/**");
+    out.println(ind + " * @apilevel internal");
+    out.println(ind + " */");
+    out.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
+    if(name().equals("List")) {
       
       // Avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
-        stream.println(ind(2) + "if(list$touched) {");
-        stream.println(ind(3) + "for(int i = 0; i < getNumChildNoTransform(); i++)");
-        stream.println(ind(4) + "getChild(i);");
-        stream.println(ind(4) + "list$touched = false;");
-        stream.println(ind(3) + "}");
-      } 
-      
-      stream.println(ind(3) + "return getNumChildNoTransform();");
-      if(grammar().block) stream.append(grammar().blockEnd);
-      stream.println(ind + "}");
-      
-      // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) { 
-        stream.println(ind + "private boolean List.list$touched = true;");
+        out.println(ind(2) + "return true;");  // old code
+      } else {
+        out.println(ind(2) + "return false;");
       }
-    }
-    else if(name().equals("Opt")) {
-      // do not override getNumChild with implementation below
-    }
+      
+    } else if(!hasRewrites())
+      out.println(ind(2) + "return false;");
+    else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition())
+      out.println(ind(2) + "return true;");
     else {
-      TemplateContext tt = templateContext();
-      if(grammar().jjtree) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "public int " + name() + ".getNumChild() {");
-        stream.println(tt.expand("ASTNode.incHookNumChildren"));
-        stream.println(ind(2) + "return " + numRegularChildren() + ";");
-        stream.println(ind + "}");
+      for(Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
+        String condition = (String)iter.next();
+        out.println(ind(2) + "if(" + condition + ") return true;");
       }
-      else {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel low-level");
-        stream.println(ind + " */");
-        stream.println(ind + "protected int " +name() + ".numChildren() {");
-        stream.println(tt.expand("ASTNode.incHookNumChildren"));
-        stream.println(ind(2) + "return " + numRegularChildren() + ";");
-        stream.println(ind + "}");
-      }
-      if(grammar().debugMode && isRootNode()) {
-        stream.println(ind + "/**");
-        stream.println(ind + " * @apilevel internal");
-        stream.println(ind + " */");
-        stream.println(ind + "protected boolean " + name() + ".debugNodeAttachmentIsRoot() { return true; }");
-      }
+      out.println(ind(2) + "return false;");
     }
-    if(grammar().rewriteEnabled) {
-      stream.println(ind + "/**");
-      stream.println(ind + " * @apilevel internal");
-      stream.println(ind + " */");
-      stream.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-      if(name().equals("List")) {
-        
-        // Avoiding list touch rewrite
-        if (!(grammar().incremental || grammar().fullFlush)) {
-          stream.println(ind(2) + "return true;");  // old code
-        } else {
-          stream.println(ind(2) + "return false;");
-        }
-        
-      } else if(!hasRewrites())
-        stream.println(ind(2) + "return false;");
-      else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition())
-        stream.println(ind(2) + "return true;");
-      else {
-        for(Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
-          String condition = (String)iter.next();
-          stream.println(ind(2) + "if(" + condition + ") return true;");
-        }
-        stream.println(ind(2) + "return false;");
-      }
-      stream.println(ind + "}");
+    out.println(ind + "}");
+  }
+
+  /**
+   * Generate aspect code for implicit methods and fields in the default node
+   * types ASTNode, List, Opt.
+   *
+   * @param out Aspect output stream
+   */
+  public void ASTDecl.emitImplicitDeclarations(PrintWriter out) {
+    String s;
+
+    emitConstructor(out);
+
+    if (grammar().jjtree) {
+      TemplateContext tt = templateContext();
+
+      // emit the dumpTree method
+      tt.expand("JJTree.dumpTree", out);
+
+      // emit the jjtAccept method
+      tt.expand("JJTree.jjtAccept", out);
+
+      // emit the jjtAddChild method
+      tt.expand("JJTree.jjtAddChild", out);
+
+      // emit method to check the structure of a JJTree node
+      tt.expand("JJTree.checkChild", out);
     }
 
-    genIncremental(stream);
+    // Generate code common for all nodes by adding them to ASTNode
+    if (name().equals("ASTNode")) {
+      emitImplicitASTNodeDecls(out);
+      env().genRewriteOrderChecks(out);
+      env().genReset(out);
+      if (grammar().java5) {
+        templateContext().expand("ASTNode.iterator", out);
+      }
+    } else if (name().equals("List")) {
+      emitImplicitListDecls(out);
+    } else if (name().equals("Opt")) {
+      // do not override getNumChild with regular node implementation
+    } else {
+      emitImplicitRegularNodeDecls(out);
+    }
+
+    if (grammar().rewriteEnabled) {
+      emitMayHaveRewrite(out);
+    }
+
+    genIncremental(out);
   }
 
   syn boolean ASTDecl.rewriteWithNoPhaseCondition() {
