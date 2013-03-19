@@ -49,7 +49,7 @@ aspect IncrementalEval {
     genIncrementalHandlers(out);
     genIncrementalCopyHandlers(out);
     jjtGenIncrementalTreeModification(out);
-    jjtGenIncrementalAffectedValue(out);
+    genIncrementalAffectedValue(out);
     jjtGenIncrementalReactToChange(out);
     jjtGenIncrementalReactToASTChange(out);
     genIncrementalState(out);

@@ -1,0 +1,95 @@
+
+ASTDecl.incValueAffectedMethod = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+$if(IncrementalPropLimit)
+  /**
+   * @apilevel internal
+   */
+  public boolean #name.inc_valueAffected(String attrID, Object _parameters) {
+    $AttrAffectedChecks
+    $if(IsAstNode)
+    return true;      
+    $else
+    return super.inc_valueAffected(attrID, _parameters);
+    $endif      
+  }
+$endif
+$endif
+    
+$endif
+]]
+
+# TODO: Add support for more than one parameter
+ASTDecl.checkAttrValueAffected = [[
+$if(IsNTA)
+// NTAs are always considered affected
+$if(IsParamAttr)
+if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
+$else
+if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+$endif
+  return true;  
+}                    
+$else
+// non-NTAs
+$if(IsParamAttr)
+if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
+  $if(IsPrimitiveAttr)
+  // store old value
+  $AttrType oldValue = $AttrObjectType.valueOf(($AttrObjectType)$(AttrSign)_values.get(_parameters));
+  // flush value
+  $(AttrSign)_values.remove(_parameters); 
+  // clear dependencies in handler
+  $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.get(_parameters);
+  handler.clearDependencies();
+  // compute new value
+  $if(IsAttrWithOneParam)
+  $(AttrType) newValue = $AttrName(($ParamTypeSignature)_parameters);
+  $else
+  throw new Error("No support for more than one parameter in affected value check");
+  $endif
+  $else
+  // store old value
+  $AttrType oldValue = ($AttrType)$(AttrSign)_values.get(_parameters);
+  // flush value
+  $(AttrSign)_values.remove(_parameters); 
+  // clear dependencies in handler
+  $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.get(_parameters);
+  handler.clearDependencies();
+  // compute new value
+  $if(IsAttrWithOneParam)
+  $AttrType newValue = $(AttrName)(($ParamTypeSignature)_parameters);
+  $else
+  throw new Error("No support for more than one parameter in affected value check");
+  $endif
+  $endif
+  
+$else
+if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+  // store old value + flush value
+  $AttrType oldValue = $(AttrSign)_value;
+  $AttrResetVisit
+  $AttrResetCache
+  // clear dependencies in handler  
+  $(AttrSign)_handler.clearDependencies();
+  // compute new value
+  $AttrType newValue = $AttrName();
+$endif
+  
+  // compare old and new value
+  $if(IsPrimitiveAttr)
+  if (oldValue == newValue) {
+  $else
+  Object obj = (Object)oldValue;
+  if ((obj instanceof ASTNode && (oldValue == newValue)) || 
+      (oldValue == null && newValue == null) || 
+      (oldValue != null && oldValue.equals(newValue))) {
+  $endif
+    return false;
+  }
+  return true;
+}
+$endif
+]]
