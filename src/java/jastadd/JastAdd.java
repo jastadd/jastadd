@@ -31,8 +31,12 @@ package jastadd;
  * Old JastAdd main class left here as an entry point to provide
  * backwards-compatibility.
  */
-@SuppressWarnings("javadoc")
+@Deprecated
 public class JastAdd {
+  /**
+   * Calls <code>org.jastadd.JastAdd.main(String[] args)</code>.
+   * @param args
+   */
   public static void main(String[] args) {
     org.jastadd.JastAdd.main(args);
   }
