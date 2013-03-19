@@ -642,7 +642,6 @@ public class JastAdd {
     tt.bind("ComponentCheck", root.componentCheck);
     tt.bind("CacheCycle", root.cacheCycle);
     tt.bind("Java5", root.java5);
-    tt.bind("JJTree", root.jjtree);
     tt.bind("Beaver", root.beaver);
     tt.bind("VisitCheckEnabled", root.visitCheckEnabled);
     tt.bind("TraceVisitCheck", root.traceVisitCheck);
@@ -655,6 +654,10 @@ public class JastAdd {
     tt.bind("CreateDefaultSet", root.createDefaultSet);
     tt.bind("DefaultSetType", root.typeDefaultSet);
     tt.bind("CreateContributorSet", root.createContributorSet);
+
+    // JJTree
+    tt.bind("JJTree", root.jjtree);
+    tt.bind("ParserName", root.parserName);
     
     // Flush
     tt.bind("FullFlush", root.fullFlush);

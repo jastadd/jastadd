@@ -10,6 +10,23 @@ $endif
   }
 ]]
 
+JJTree.dumpTree = [[
+  public void #name.dumpTree(String indent, java.io.PrintStream out) {
+    out.print(indent + "#name");
+    #jjtGenPrintChildren
+    String childIndent = indent + "  ";
+    for (int i = 0; i < getNumChild(); i++) {
+      getChild(i).dumpTree(childIndent, out);
+    }
+  }
+]]
+
+JJTree.jjtAccept = [[
+  public Object #name.jjtAccept($(ParserName)Visitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
+]]
+
 JJTree.checkChild = [[
   public void #name.checkChild(Node n, int i) {
 $if(#isOptDecl)
