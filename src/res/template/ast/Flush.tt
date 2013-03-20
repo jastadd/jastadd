@@ -122,11 +122,11 @@ $if(IsAstNode)
   /**
    * @apilevel internal
    */
-  public ASTNode[] init_children;
+  public ASTNode[] ASTNode.init_children;
   /**
    * @apilevel internal
    */
-  public boolean[] rewritten_children;
+  public boolean[] ASTNode.rewritten_children;
 $endif
 $endif
 ]]
@@ -139,7 +139,7 @@ $if(IsAstNode)
   /**
     * @apilevel internal
     */
-  protected boolean inc_hasEnclosingRewrittenNode() {
+  protected boolean ASTNode.inc_hasEnclosingRewrittenNode() {
     ASTNode child = this;
     ASTNode parent = this.parent;
     while (parent != null) {
@@ -159,7 +159,7 @@ ASTDecl.flushCacheMethod = [[
   /**
     * @apilevel low-level
     */
-  public void flushCache() {
+  public void #name.flushCache() {
     $SynchBegin
     $if(!IsAstNode)
     super.flushCache();
@@ -191,7 +191,7 @@ ASTDecl.flushCollectionCacheMethod = [[
   /**
     * @apilevel internal
     */
-  public void flushCollectionCache() {
+  public void #name.flushCollectionCache() {
     $if(!IsAstNode)
     super.flushCollectionCache();
     $endif

@@ -550,6 +550,8 @@ aspect JaddCodeGen {
       emitMayHaveRewrite(out);
     }
 
+    emitFlushCache(out);
+
     genIncremental(out);
   }
 
