@@ -32,7 +32,12 @@ import java.util.*;
 import java.util.regex.*;
 
 aspect JaddCodeGen {
-  public void Grammar.abstractAncestors() {
+
+  /**
+   * Build the default AST node types (ASTNode, List, Opt)
+   * and insert them into the grammar.
+   */
+  public void Grammar.genDefaultNodeTypes() {
     ASTDecl cl;
     IdDecl name;
     

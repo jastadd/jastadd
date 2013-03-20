@@ -130,45 +130,10 @@ public class JastAdd {
 
       long time = System.currentTimeMillis();
 
-      root.abstractAncestors();
+      root.genDefaultNodeTypes();
 
-      // Parse ast-grammar
-      //System.out.println("parsing grammars");
       Collection<String> errors = new ArrayList<String>();
-      for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
-        String fileName = iter.next();
-        if(fileName.endsWith(".ast")) {
-          try {
-            Ast parser = new Ast(new FileInputStream(fileName));
-            parser.fileName = fileName;
-            Grammar g = parser.Grammar();
-            for(int i = 0; i < g.getNumTypeDecl(); i++) {
-              root.addTypeDecl(g.getTypeDecl(i));
-            }
-
-            // EMMA_2011-12-12: Adding region declarations for incremental evaluation
-            for (int i = 0; i < g.getNumRegionDecl(); i++) {
-              root.addRegionDecl(g.getRegionDecl(i));
-            }
-            //
-
-            for (Iterator<?> errorIter = parser.getErrors(); errorIter.hasNext();) {
-              String[] s = ((String) errorIter.next()).split(";");
-              errors.add("Syntax error in " + fileName + " at line " + s[0] +
-                  ", column " + s[1]);
-            }
-
-          } catch (ast.AST.TokenMgrError e) {
-            System.err.println("Lexical error in " + fileName + ": " + e.getMessage());
-            System.exit(1);
-          } catch (ast.AST.ParseException e) {
-            // Exceptions actually caught by error recovery in parser
-          } catch (FileNotFoundException e) {
-            System.err.println("File error: Abstract syntax grammar file " + fileName + " not found");
-            System.exit(1);
-          }
-        }
-      }
+      parseAstGrammars(errors);
 
       if(!errors.isEmpty()) {
         for (Iterator<String> iter = errors.iterator(); iter.hasNext();) {
@@ -191,139 +156,23 @@ public class JastAdd {
 
       ASTNode.resetGlobalErrors();
 
-      {
-        //System.out.println("generating ASTNode");
-        java.io.StringWriter writer = new java.io.StringWriter();
-        root.emitASTNode$State(new PrintWriter(writer));
+      genASTNode$State();
 
-        jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
-        jp.root = root;
-        jp.setFileName("ASTNode");
-        jp.className = "ASTNode";
-        jp.pushTopLevelOrAspect(true);
-        try {
-          while(true)
-            jp.AspectBodyDeclaration();
-        } catch (Exception e) {
-          // TODO: handle error?
-          // String s = e.getMessage();
-        }
-        jp.popTopLevelOrAspect();
-      }
+      genIncrementalDDGNode();
 
-      // ES_2011-09-06: Incremental evaluation
-      if (root.incremental) {
-        java.io.StringWriter writer = new java.io.StringWriter();
-        root.genIncrementalDDGNode(new PrintWriter(writer));
-        jrag.AST.JragParser jp = new jrag.AST.JragParser(
-            new java.io.StringReader(writer.toString()));
-        jp.root = root;
-        jp.setFileName("ASTNode");
-        jp.className = "ASTNode";
-        jp.pushTopLevelOrAspect(true);
-        try {
-          while(true)
-            jp.AspectBodyDeclaration();
-        } catch (Exception e) {
-          // TODO: handle error?
-          // String s = e.getMessage();
-        }
-        jp.popTopLevelOrAspect();
-      }
-
-      // Parse all jrag files and build tables
-      for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
-        String fileName = iter.next();
-        if(fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
-          try {
-            FileInputStream inputStream = new FileInputStream(fileName);
-            JragParser jp = new JragParser(inputStream);
-            jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
-            jp.root = root;
-            jp.setFileName(fileName);
-            ASTCompilationUnit au = jp.CompilationUnit();
-            root.addCompUnit(au);
-          } catch (jrag.AST.ParseException e) {
-            StringBuffer msg = new StringBuffer();
-            msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
-                e.currentToken.next.beginColumn);
-            System.err.println(msg.toString());
-            System.exit(1);
-          } catch (FileNotFoundException e) {
-            System.err.println("File error: Aspect file " + fileName + " not found");
-            System.exit(1);
-          } catch (Throwable e) {
-            System.err.println("Exception occurred while parsing " + fileName);
-            e.printStackTrace();
-          }
-        }
-      }
+      parseJragFiles();
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
       root.processInterfaceRefinements();
       root.weaveInterfaceIntroductions();
 
-      //System.out.println("weaving aspect and attribute definitions");
-      for(int i = 0; i < root.getNumTypeDecl(); i++) {
-        if(root.getTypeDecl(i) instanceof ASTDecl) {
-          ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
-          java.io.StringWriter writer = new java.io.StringWriter();
-          decl.emitImplicitDeclarations(new PrintWriter(writer));
+      weaveAspects();
 
-          jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
-          jp.root = root;
-          jp.setFileName("");
-          jp.className = "ASTNode";
-          jp.pushTopLevelOrAspect(true);
-          try {
-            while(true)
-              jp.AspectBodyDeclaration();
-          } catch (Exception e) {
-            // TODO: handle error?
-            // String s = e.getMessage();
-          }
-          jp.popTopLevelOrAspect();
-
-          int j = 0;
-          for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
-            Components c = (Components) iter.next();
-            if (c instanceof TokenComponent) {
-              c.jaddGen(j, publicModifier, decl);
-            } else {
-              c.jaddGen(j, publicModifier, decl);
-              j++;
-            }
-          }
-        }
-      }
-
-      //System.out.println("processing refinements");
       root.processRefinements();
 
-      for (Iterator<String> iter = cacheFiles.iterator(); iter.hasNext();) {
-        String fileName = iter.next();
-        //System.out.println("Processing cache file: " + fileName);
-        try {
-          FileInputStream inputStream = new FileInputStream(fileName);
-          JragParser jp = new JragParser(inputStream);
-          jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
-          jp.root = root;
-          jp.setFileName(fileName);
-          jp.CacheDeclarations();
-        } catch (jrag.AST.ParseException e) {
-          StringBuffer msg = new StringBuffer();
-          msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
-              e.currentToken.next.beginColumn);
-          System.err.println(msg.toString());
-          System.exit(1);
-        } catch (FileNotFoundException e) {
-          System.err.println("File error: Aspect file " + fileName + " not found");
-          System.exit(1);
-        }
-      }
+      readCacheFiles();
 
-      //System.out.println("weaving collection attributes");
       root.weaveCollectionAttributes();
 
       String err = root.errors();
@@ -335,24 +184,188 @@ public class JastAdd {
       long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
 
       root.jastAddGen(outputDir, root.parserName, pack, publicModifier);
-      
+
       @SuppressWarnings("unused")
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
 
       //System.out.println("AST parse time: " + astParseTime + ", AST error check: " + astErrorTime + ", JRAG parse time: " + 
       //    jragParseTime + ", JRAG error time: " + jragErrorTime + ", Code generation: " + codegenTime);
-    }
-    catch(NullPointerException e) {
+    } catch(NullPointerException e) {
       e.printStackTrace();
       throw e;
-    }
-    catch(ArrayIndexOutOfBoundsException e) {
+    } catch(ArrayIndexOutOfBoundsException e) {
       e.printStackTrace();
       throw e;
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       e.printStackTrace();
       System.exit(1);
+    }
+  }
+
+  private void readCacheFiles() {
+    for (Iterator<String> iter = cacheFiles.iterator(); iter.hasNext();) {
+      String fileName = iter.next();
+      //System.out.println("Processing cache file: " + fileName);
+      try {
+        FileInputStream inputStream = new FileInputStream(fileName);
+        JragParser jp = new JragParser(inputStream);
+        jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
+        jp.root = root;
+        jp.setFileName(fileName);
+        jp.CacheDeclarations();
+      } catch (jrag.AST.ParseException e) {
+        StringBuffer msg = new StringBuffer();
+        msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
+            e.currentToken.next.beginColumn);
+        System.err.println(msg.toString());
+        System.exit(1);
+      } catch (FileNotFoundException e) {
+        System.err.println("File error: Aspect file " + fileName + " not found");
+        System.exit(1);
+      }
+    }
+  }
+
+  private void weaveAspects() {
+    //System.out.println("weaving aspect and attribute definitions");
+    for(int i = 0; i < root.getNumTypeDecl(); i++) {
+      if(root.getTypeDecl(i) instanceof ASTDecl) {
+        ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
+        java.io.StringWriter writer = new java.io.StringWriter();
+        decl.emitImplicitDeclarations(new PrintWriter(writer));
+
+        jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
+        jp.root = root;
+        jp.setFileName("");
+        jp.className = "ASTNode";
+        jp.pushTopLevelOrAspect(true);
+        try {
+          while(true)
+            jp.AspectBodyDeclaration();
+        } catch (Exception e) {
+          // TODO: handle error?
+          // String s = e.getMessage();
+        }
+        jp.popTopLevelOrAspect();
+
+        int j = 0;
+        for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
+          Components c = (Components) iter.next();
+          if (c instanceof TokenComponent) {
+            c.jaddGen(j, publicModifier, decl);
+          } else {
+            c.jaddGen(j, publicModifier, decl);
+            j++;
+          }
+        }
+      }
+    }
+  }
+
+  private void parseJragFiles() {
+    for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
+      String fileName = iter.next();
+      if(fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
+        try {
+          FileInputStream inputStream = new FileInputStream(fileName);
+          JragParser jp = new JragParser(inputStream);
+          jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
+          jp.root = root;
+          jp.setFileName(fileName);
+          ASTCompilationUnit au = jp.CompilationUnit();
+          root.addCompUnit(au);
+        } catch (jrag.AST.ParseException e) {
+          StringBuffer msg = new StringBuffer();
+          msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
+              e.currentToken.next.beginColumn);
+          System.err.println(msg.toString());
+          System.exit(1);
+        } catch (FileNotFoundException e) {
+          System.err.println("File error: Aspect file " + fileName + " not found");
+          System.exit(1);
+        } catch (Throwable e) {
+          System.err.println("Exception occurred while parsing " + fileName);
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  private void genIncrementalDDGNode() {
+    if (root.incremental) {
+      java.io.StringWriter writer = new java.io.StringWriter();
+      root.genIncrementalDDGNode(new PrintWriter(writer));
+      jrag.AST.JragParser jp = new jrag.AST.JragParser(
+          new java.io.StringReader(writer.toString()));
+      jp.root = root;
+      jp.setFileName("ASTNode");
+      jp.className = "ASTNode";
+      jp.pushTopLevelOrAspect(true);
+      try {
+        while(true)
+          jp.AspectBodyDeclaration();
+      } catch (Exception e) {
+        // TODO: handle error?
+        // String s = e.getMessage();
+      }
+      jp.popTopLevelOrAspect();
+    }
+  }
+
+  private void genASTNode$State() {
+    java.io.StringWriter writer = new java.io.StringWriter();
+    root.emitASTNode$State(new PrintWriter(writer));
+
+    jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
+    jp.root = root;
+    jp.setFileName("ASTNode");
+    jp.className = "ASTNode";
+    jp.pushTopLevelOrAspect(true);
+    try {
+      while(true)
+        jp.AspectBodyDeclaration();
+    } catch (Exception e) {
+      // TODO: handle error?
+      // String s = e.getMessage();
+    }
+    jp.popTopLevelOrAspect();
+  }
+
+  private void parseAstGrammars(Collection<String> errors) {
+    //System.out.println("parsing grammars");
+    for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
+      String fileName = iter.next();
+      if(fileName.endsWith(".ast")) {
+        try {
+          Ast parser = new Ast(new FileInputStream(fileName));
+          parser.fileName = fileName;
+          Grammar g = parser.Grammar();
+          for(int i = 0; i < g.getNumTypeDecl(); i++) {
+            root.addTypeDecl(g.getTypeDecl(i));
+          }
+
+          // EMMA_2011-12-12: Adding region declarations for incremental evaluation
+          for (int i = 0; i < g.getNumRegionDecl(); i++) {
+            root.addRegionDecl(g.getRegionDecl(i));
+          }
+          //
+
+          for (Iterator<?> errorIter = parser.getErrors(); errorIter.hasNext();) {
+            String[] s = ((String) errorIter.next()).split(";");
+            errors.add("Syntax error in " + fileName + " at line " + s[0] +
+                ", column " + s[1]);
+          }
+
+        } catch (ast.AST.TokenMgrError e) {
+          System.err.println("Lexical error in " + fileName + ": " + e.getMessage());
+          System.exit(1);
+        } catch (ast.AST.ParseException e) {
+          // Exceptions actually caught by error recovery in parser
+        } catch (FileNotFoundException e) {
+          System.err.println("File error: Abstract syntax grammar file " + fileName + " not found");
+          System.exit(1);
+        }
+      }
     }
   }
 
