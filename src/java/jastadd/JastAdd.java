@@ -30,6 +30,7 @@ package jastadd;
 /**
  * Old JastAdd main class left here as an entry point to provide
  * backwards-compatibility.
+ * @deprecated Please use org.jastadd.JastAdd
  */
 @Deprecated
 public class JastAdd {

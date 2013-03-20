@@ -30,6 +30,7 @@ package jastadd;
 /**
  * This class is left here for backwards-compatibility purposes.
  * Please use org.jastadd.JastAddTask instead.
+ * @deprecated Please use org.jastadd.JastAddTask
  */
 @Deprecated
 public class JastAddTask extends org.jastadd.JastAddTask {
