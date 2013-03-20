@@ -113,3 +113,96 @@ if (rewriteState == ASTNode$$State.REWRITE_CHANGE) {
 }
 $endif
 ]]
+
+# State variables needed to handle flushing of rewrites
+# TODO: These should be protected, but are public now for debugging
+ASTNode.flushRewritesInitValue = [[
+$if(FullFlush)
+$if(IsAstNode)
+  /**
+   * @apilevel internal
+   */
+  public ASTNode[] init_children;
+  /**
+   * @apilevel internal
+   */
+  public boolean[] rewritten_children;
+$endif
+$endif
+]]
+
+# Method needed for to handler flushing of rewrites.
+# Checks whether there is an enclosing rewritten node.
+ASTNode.flushRewritesHasEnclosingRewriteMethod = [[
+$if(FullFlush)
+$if(IsAstNode)
+  /**
+    * @apilevel internal
+    */
+  protected boolean inc_hasEnclosingRewrittenNode() {
+    ASTNode child = this;
+    ASTNode parent = this.parent;
+    while (parent != null) {
+      if (parent.mayHaveRewrite()) {
+        return true;
+      }
+      child = parent;
+      parent = parent.parent;
+    }
+    return false;
+  } 
+$endif
+$endif
+]]
+
+ASTDecl.flushCacheMethod = [[
+  /**
+    * @apilevel low-level
+    */
+  public void flushCache() {
+    $SynchBegin
+    $if(!IsAstNode)
+    super.flushCache();
+    $endif 
+$if(FullFlush)
+  $if(IsAstNode)
+    for (int i = 0; i < getNumChildNoTransform(); i++) {
+      if (rewritten_children != null && rewritten_children[i]) {
+        if (init_children[i] != null) {
+          setChild(init_children[i], i);
+          init_children[i] = null;
+        }
+        rewritten_children[i] = false;
+      } else {
+        getChildNoTransform(i).flushCache();
+      }
+    }
+  $endif
+    $FlushNTACache
+$endif
+    $FlushSynAttrCache
+    $FlushInhAttrCache
+    $FlushCollectionCache
+    $SynchEnd
+  }
+]]
+
+ASTDecl.flushCollectionCacheMethod = [[   
+  /**
+    * @apilevel internal
+    */
+  public void flushCollectionCache() {
+    $if(!IsAstNode)
+    super.flushCollectionCache();
+    $endif
+    $FlushCollectionCache
+  }
+]]
+
+TokenComponent.flushNTACache = [[
+$if(FullFlush)
+if (((Object)token$(TypeSign)_$Id) instanceof ASTNode) {
+  token$(TypeSign)_$Id = null;
+}
+$endif
+]]

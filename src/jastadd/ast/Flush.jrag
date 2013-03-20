@@ -27,40 +27,23 @@
  */
 aspect Flush {
 
-  public void ASTDecl.emitFlushCache(PrintWriter stream) {
-    emitFlushCacheMethod(stream);
-    emitFlushCollectionCacheMethod(stream);
-    if (grammar().fullFlush) {
-      emitFlushRewrites(stream);
-    }
+  public void ASTDecl.emitFlushCache(PrintWriter out) {
+    TemplateContext tt = templateContext();
+    tt.bind("IsAstNode", name().equals("ASTNode"));
+    tt.bind("FlushNTACache", emitFlushNTACacheString());
+    tt.bind("FlushSynAttrCache", emitFlushSynAttrCacheString());
+    tt.bind("FlushInhAttrCache", emitFlushInhAttrCacheString());
+    tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
+    tt.expand("ASTDecl.flushCacheMethod", out);
+    tt.expand("ASTDecl.flushCollectionCacheMethod", out);
+    tt.expand("ASTNode.flushRewritesInitValue", out);
+    tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);    
   }
   
-  public void ASTDecl.emitFlushCacheMethod(PrintWriter stream) {
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel low-level");
-    stream.println(ind + " */");
-    stream.print(ind + "public void flushCache() {\n");
-    if(grammar().block) stream.print(grammar().blockBegin);
-    if(!name().equals("ASTNode")) {
-      stream.print(ind(2) + "super.flushCache();\n");
-    } 
-    if (grammar().fullFlush) {
-      if (name().equals("ASTNode")) {
-        emitFlushCacheForRewrites(stream);
-      }
-      stream.print(flushNTACacheString());
-    }
-    stream.print(flushSynAttrCacheString());
-    stream.print(flushInhAttrCacheString());
-    stream.print(flushCollectionCacheString());
-    if(grammar().block) stream.print(grammar().blockEnd);
-    stream.print(ind + "}\n");
-  }
-
   /**
-   * Flush synthesized attribute cache.
+   * Creates string with code flush synthesized attributes in a node.
    */  
-  public String ASTDecl.flushSynAttrCacheString() {
+  public String ASTDecl.emitFlushSynAttrCacheString() {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
@@ -72,9 +55,9 @@ aspect Flush {
   }
 
   /**
-   * Flush inherited attribute cache.
+   * Creates string with code flush inherited attributes in a node.
    */  
-  public String ASTDecl.flushInhAttrCacheString() {
+  public String ASTDecl.emitFlushInhAttrCacheString() {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
@@ -130,44 +113,30 @@ aspect Flush {
   }
   
   /**
-   * Flush NTA token cache.
-   */  
-  public String ASTDecl.flushNTACacheString() {
+   * Creates string with code flushing NTAs in a node.
+   */
+  public String ASTDecl.emitFlushNTACacheString() {
     StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
     for (int c = 0; c < getNumComponents(); c++) {
-      res.append(getComponents(c).flushNTACacheString());
+      Components comp = getComponents(c);
+      if (comp instanceof TokenComponent) {
+        TokenComponent tokenComp = (TokenComponent)comp;
+        String type = tokenComp.getTokenId().getTYPE();
+        tt.bind("IsStringToken", type.equals("String") || type.equals("java.lang.String"));
+        tt.bind("IsPrimitive", tokenComp.isPrimitive());
+        tt.bind("Id", tokenComp.getTokenId().getID());
+        tt.bind("TypeSign", ASTNode.convTypeNameToSignature(type));
+        res.append(tt.expand("TokenComponent.flushNTACache"));
+      }
     }
     return res.toString();
   }
-  
-  syn String Components.flushNTACacheString() = "";
-  eq TokenComponent.flushNTACacheString() {
-    String type = getTokenId().getTYPE();
-    boolean isStringToken = type.equals("String") || type.equals("java.lang.String");
-    if (!isStringToken && !isPrimitive()) {
-      String id = getTokenId().getID();
-      String typeSign = ASTNode.convTypeNameToSignature(type);
-      return
-        ind(2) + "if (((Object)token" + typeSign + "_" + id + ") instanceof ASTNode) {\n" +
-        ind(3) +   "token" + typeSign + "_" + id + " = null;\n" +
-        ind(2) + "}\n";
-    }
-    return "";
-  }
-  
-  public void ASTDecl.emitFlushCollectionCacheMethod(PrintWriter stream) {
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.print(ind + "public void flushCollectionCache() {\n");
-    if(!name().equals("ASTNode")) {
-      stream.print(ind(2) + "super.flushCollectionCache();\n");
-    }
-    stream.print(flushCollectionCacheString());
-    stream.print(ind + "}\n");
-  }
-  
-  public String ASTDecl.flushCollectionCacheString() {
+
+  /**
+   * Creates string with code flushing collection attributes in a node.
+   */  
+  public String ASTDecl.emitFlushCollectionCacheString() {
     StringBuffer res = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
@@ -178,55 +147,5 @@ aspect Flush {
     }
     res.append(collectionReset);
     return res.toString();
-  }
-  
-  /**
-   * Flush rewrites and traverse to children.
-   */
-  public void ASTDecl.emitFlushCacheForRewrites(PrintWriter stream) {
-    stream.println(ind(3) + "for (int i = 0; i < getNumChildNoTransform(); i++) {");
-    stream.println(ind(4) +   "if (rewritten_children != null && rewritten_children[i]) {");
-    stream.println(ind(5) +     "if (init_children[i] != null) {");
-    stream.println(ind(6) +       "setChild(init_children[i], i);");
-    stream.println(ind(6) +       "init_children[i] = null;");
-    stream.println(ind(5) +     "}");
-    stream.println(ind(5) +     "rewritten_children[i] = false;");
-    stream.println(ind(4) +   "} else {");
-    stream.println(ind(5) +     "getChildNoTransform(i).flushCache();");
-    stream.println(ind(4) +   "}");
-    stream.println(ind(3) + "}");
-  }
-  
-  public void ASTDecl.emitFlushRewrites(PrintWriter stream) {   
-    if (name().equals("ASTNode")) {
-      emitFlushRewriteInitValue(stream);
-      emitFlushRewriteHasEnclosingInitValueMethod(stream);
-    }
-  }
-  
-  public void ASTDecl.emitFlushRewriteHasEnclosingInitValueMethod(PrintWriter stream) {
-    stream.println(ind + "/**");
-    stream.println(ind + " * @apilevel internal");
-    stream.println(ind + " */");
-    stream.println(ind + "protected boolean inc_hasEnclosingRewrittenNode() {");
-    stream.println(ind(2) + "ASTNode child = this;");
-    stream.println(ind(2) + "ASTNode parent = this.parent;");
-    stream.println(ind(2) + "while (parent != null) {");
-    //stream.println(ind(3) +   "int index = parent.getIndexOfChild(child);");
-    stream.println(ind(3) +   "if (parent.mayHaveRewrite()) {");
-    //stream.println(ind(3) +   "if (parent.rewritten_children != null && parent.rewritten_children[index]) {");
-    stream.println(ind(4) +     "return true;");
-    stream.println(ind(3) +   "}");
-    stream.println(ind(3) +   "child = parent;");
-    stream.println(ind(3) +   "parent = parent.parent;");
-    stream.println(ind(2) + "}");
-    stream.println(ind(2) + "return false;");
-    stream.println(ind + "}\n");
-  }
-  
-  public void ASTDecl.emitFlushRewriteInitValue(PrintWriter stream) {
-    // ES_TODO: These should be protected but are public now for debugging reasons
-    stream.println(ind + "public ASTNode[] init_children;");
-    stream.println(ind + "public boolean[] rewritten_children;");
   }
 }
