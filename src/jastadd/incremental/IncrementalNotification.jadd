@@ -49,61 +49,12 @@
     tt.bind("AttrFlushChecks", emitAttrFlushChecksString());
     tt.expand("ASTDecl.incReactToDepChangeMethod", stream);
     
-    // method: inc_flush
+    tt.bind("FlushAttrs", emitFlushAttrsString());
+    tt.expand("ASTDecl.incFlushMethod", stream);
+
+    tt.expand("ASTNode.incFlushChildMethod", stream);    
+    
     if (grammar().incrementalChangeFlush) {
-
-      // start method: inc_flush
-      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
-        stream.println(ind + "public void " + name() + ".inc_flush() {");
-        // flush attributes
-        for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-          AttrDecl attr = (AttrDecl)itr.next();
-          // NTAs
-          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
-              && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-
-            if (grammar().incrementalLevelRegion) {
-              // TODO: Add a flush of non-region root NTA children
-            }
-          } 
-          // Non NTAs
-          else {
-            if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_values != null && !" + 
-                attr.attributeSignature() + "_values.isEmpty()) {");
-              stream.print(attr.resetVisit());
-              stream.print(attr.resetCache());
-              stream.println(ind(2) + "}");
-            } else {
-              stream.print(attr.resetVisit());
-              stream.print(attr.resetCache());
-            }
-          }
-        }
-        if (name().equals("ASTNode")) {
-        } else {
-          stream.println(ind(2) + "super.inc_flush();");
-        }
-        stream.println(ind + "}");        
-      }
-      // end method: inc_flush
-
-      // methods: inc_flush_child
-      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
-        if (name().equals("ASTNode")) {
-        stream.println(ind + "public boolean ASTNode.inc_flush_child(ASTNode node) {");
-        stream.println(ind(2) + "for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {");        
-//        stream.println(ind(3) +   "if (children[i] == node && rewritten_children != null && " +
-//                                      "i < rewritten_children.length && rewritten_children[i]) {");
-        stream.println(ind(3) +    "if (children[i] == node) {");
-        stream.println(ind(4) +     "return inc_restoreInitialForIndex(i, node.handler());");
-        stream.println(ind(3) +   "}");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "return true;");
-        stream.println(ind + "}"); 
-        }
-      }
-      // end methods: inc_flush_child
 
       // methods: inc_flush_NTA
       if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
@@ -513,6 +464,8 @@
         stream.println(ind + "}"); 
       }
       // end method: inc_flush_subtree
+    
+    
     }
     
     
@@ -592,4 +545,25 @@
     }
     return res.toString();
   }
+
+  /**
+   * Creates string with code flushing attributes.
+   */    
+  public String ASTDecl.emitFlushAttrsString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrResetVisit", attr.resetVisit());
+      tt.bind("AttrResetCache", attr.resetCache());
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && 
+      		!attr.isPrimitive() && !(attr.type().equals("String") || 
+      		attr.type().equals("java.lang.String")));
+      res.append(tt.expand("ASTDecl.attrFlush"));
+    }
+    return res.toString();
+  }
+  
 }

@@ -342,3 +342,88 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
 $endif
 $endif
 ]]
+
+ASTDecl.incFlushMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+$if(IncrementalLevelNode)
+  /**
+   * @api internal
+   */
+  public void #name.inc_flush() {
+    $FlushAttrs
+$if(!IsAstNode)
+    super.inc_flush();
+$endif
+  }        
+$endif
+$if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
+  public void #name.inc_flush() {
+    $FlushAttrs
+$if(!IsAstNode)
+    super.inc_flush();
+$endif
+  }        
+$endif
+$endif
+$endif
+]]
+
+ASTDecl.attrFlush = [[
+$if(IsNTA)
+$if(IncrementalLevelRegion)
+// TODO: Add a flush of non-region root NTA children
+$endif
+$else
+$if(IsParamAttr)
+if ($(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
+  $AttrResetVisit
+  $AttrResetCache
+}
+$else
+$AttrResetVisit
+$AttrResetCache
+$endif
+$endif
+]]
+
+ASTNode.incFlushChildMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+$if(IsAstNode)
+
+$if(IncrementalLevelNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_flush_child(ASTNode node) {
+    for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {        
+      if (children[i] == node) {
+        return inc_restoreInitialForIndex(i, node.handler());
+      }
+    }
+    return true;
+  }  
+$endif
+
+$if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_flush_child(ASTNode node) {
+    for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {        
+      if (children[i] == node) {
+        return inc_restoreInitialForIndex(i, node.handler());
+      }
+    }
+    return true;
+  }  
+$endif
+      
+$endif
+$endif
+$endif
+]]
