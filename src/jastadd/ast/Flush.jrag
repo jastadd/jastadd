@@ -36,8 +36,10 @@ aspect Flush {
     tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
     tt.expand("ASTDecl.flushCacheMethod", out);
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
-    tt.expand("ASTNode.flushRewritesInitValue", out);
-    tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);    
+    if (grammar().fullFlush) {
+      tt.expand("ASTNode.flushRewritesInitValue", out);
+      tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
+    }    
   }
   
   /**

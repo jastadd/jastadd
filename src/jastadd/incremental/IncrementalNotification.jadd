@@ -32,10 +32,20 @@
     
     TemplateContext tt = templateContext();
     
+    tt.bind("IsAstNode", name().equals("ASTNode"));
+    if (!grammar().fullFlush) {
+      tt.expand("ASTNode.flushRewritesInitValue", stream);
+      tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", stream);
+    }
+    tt.expand("ASTNode.incFlushRewritesLocateEnclosingRewriteMethod", stream);
+    tt.expand("ASTNode.incResetRewritesMethod", stream);
+    tt.expand("ASTNode.incRestoreEnclosingRewriteMethod", stream);
+    tt.expand("ASTNode.incRestoreInitialForIndexMethod", stream);
+    tt.expand("ASTNode.incLocateInitialCopyMethod", stream);
+    
     tt.bind("AttrAffectedChecks", emitAttrAffectedChecksString());
     tt.expand("ASTDecl.incValueAffectedMethod", stream);
     
-    tt.bind("IsAstNode", name().equals("ASTNode"));
     tt.bind("AttrFlushChecks", emitAttrFlushChecksString());
     tt.expand("ASTDecl.incReactToDepChangeMethod", stream);
     

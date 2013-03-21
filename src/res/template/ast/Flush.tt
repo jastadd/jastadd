@@ -117,7 +117,6 @@ $endif
 # State variables needed to handle flushing of rewrites
 # TODO: These should be protected, but are public now for debugging
 ASTNode.flushRewritesInitValue = [[
-$if(FullFlush)
 $if(IsAstNode)
   /**
    * @apilevel internal
@@ -128,13 +127,11 @@ $if(IsAstNode)
    */
   public boolean[] ASTNode.rewritten_children;
 $endif
-$endif
 ]]
 
 # Method needed for to handler flushing of rewrites.
 # Checks whether there is an enclosing rewritten node.
 ASTNode.flushRewritesHasEnclosingRewriteMethod = [[
-$if(FullFlush)
 $if(IsAstNode)
   /**
     * @apilevel internal
@@ -151,7 +148,6 @@ $if(IsAstNode)
     }
     return false;
   } 
-$endif
 $endif
 ]]
 
