@@ -98,7 +98,9 @@ public class JastAdd {
   public static void main(String[] args) {
     JastAdd jastadd = new JastAdd(new JastAddConfiguration(args));
     int exitVal = jastadd.compile();
-    System.exit(exitVal);
+    if (exitVal != 0) {
+      System.exit(exitVal);
+    }
   }
 
   /**
