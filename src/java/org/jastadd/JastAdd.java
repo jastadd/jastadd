@@ -108,9 +108,11 @@ public class JastAdd {
   public int compile() {
     if (config.shouldPrintVersion()) {
       System.out.println(getVersionString());
+      System.out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
+      System.out.println("This software is covered by the modified BSD license.");
       return 0;
     } else if (config.shouldPrintHelp()) {
-      System.out.println(getLongVersionString());
+      System.out.println(getVersionString());
       System.out.println();
       config.printHelp();
       return 0;
