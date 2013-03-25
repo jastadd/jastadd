@@ -362,7 +362,24 @@ aspect CollectionAttributes {
     processedCollectingSignatures.add(signature);
     return false;
   }
-  protected String TypeDecl.collectionReset = "";
+  
+  protected String TypeDecl.collectionReset() {
+    StringBuffer res = new StringBuffer();
+    TypeDecl astDecl = env().lookup("ASTNode");
+    for(int i = 0; i < getNumCollDecl(); i++) {
+      CollDecl attr = getCollDecl(i);
+      TemplateContext tt = attr.templateContext();
+      boolean separateEvaluation = attr.separateEvaluation();
+      if(astDecl != null && attr.root() != null && !separateEvaluation) {
+        if(attr.circularCollection()) {
+          res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush1"));
+        } else {
+          res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush2"));
+        }
+      }
+    }
+    return res.toString();
+  }
 
   public void ASTDecl.weaveCollectionAttributes() {
     for(int i = 0; i < getNumCollDecl(); i++) {
@@ -392,20 +409,16 @@ aspect CollectionAttributes {
         }
         if(process) {
           String s = "";
-          String flush = "";
           if(attr.circularCollection() && !separateEvaluation) {
             s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
-            flush = tt.expand("ASTDecl.weaveCollectionAttributes.flush1");
           } else if(!attr.circularCollection() && !attr.separateEvaluation()) {
             if(!rootDecl.hasCollEq(attr)) {
               s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
             } else {
               s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
             }
-            flush = tt.expand("ASTDecl.weaveCollectionAttributes.flush2");
           }
           rootDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
-          rootDecl.collectionReset += flush;
         }
       }
     }
