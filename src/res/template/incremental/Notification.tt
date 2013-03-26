@@ -899,3 +899,166 @@ $endif
 $endif
 $endif
 ]]
+
+ASTDecl.incFlushSubTreeMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
+  protected void #name.inc_flush_subtree($DDGNodeName h) {
+    inc_state = inc_GARBAGE;
+    $FlushNtaSubTrees
+  $if(IsAstNode)
+    // flush subtree of values, take sets from encountered handler and remove it from DDG
+    if (isRegionRoot()) {
+      h.transferSetsFrom(handler());
+    }
+    inc_flush();
+    for (int i = 0; children != null && i < children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null) {
+        child.inc_flush_subtree(h);
+      }
+    }
+  $else
+    super.inc_flush_subtree(h);
+  $endif
+  } 
+$endif
+
+$if(IncrementalLevelNode)
+  /**
+   * @api internal
+   */
+  protected void #name.inc_flush_subtree($DDGNodeName h) {
+    inc_state = inc_GARBAGE;
+    $FlushNtaSubTrees
+$if(IsAstNode)
+    // flush subtree of values, take sets from encountered handler and remove it from DDG
+    h.transferSetsFrom(handler());
+    inc_flush();
+    for (int i = 0; children != null && i < children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null) {
+        child.inc_flush_subtree(h);
+      }
+    }
+$else
+    super.inc_flush_subtree(h);
+$endif
+  } 
+$endif
+
+$if(IncrementalLevelAttr)
+  /**
+   * @api internal
+   */
+  protected void #name.inc_flush_subtree($DDGNodeName h) {
+    inc_state = inc_GARBAGE;
+    $FlushNtaSubTrees
+    $TransferSetsFromAttrTokenHandlers
+$if(IsAstNode)  
+    // flush subtree of values, take sets from encountered handler and remove it from DDG
+    h.transferSetsFrom(getParent_handler);
+    h.transferSetsFrom(getChild_handler);
+    h.transferSetsFrom(numChildren_handler);
+    for (int i = 0; children != null && i < children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null) {
+        child.inc_flush_subtree(h);
+      }
+    }
+$else
+    super.inc_flush_subtree(h);
+$endif
+  } 
+$endif
+
+$if(IncrementalLevelParam)
+  /**
+   * @api internal
+   */
+  protected void #name.inc_flush_subtree($DDGNodeName h) {
+    inc_state = inc_GARBAGE;
+    $FlushNtaSubTrees
+    $TransferSetsFromAttrTokenHandlers     
+$if(IsAstNode)    
+    // flush subtree of values, take sets from encountered handler and remove it from DDG
+    h.transferSetsFrom(getParent_handler);
+    h.transferSetsFrom(numChildren_handler);
+    for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {
+      h.transferSetsFrom(getChild_handler[i]);
+    }
+    for (int i = 0; children != null && i < children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null) {
+        child.inc_flush_subtree(h);
+      }
+    }
+$else
+    super.inc_flush_subtree(h);
+$endif
+  } 
+$endif
+
+
+$endif
+$endif
+]]
+
+ASTDecl.transferSetsFromAttributeHandler = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+$if(IncrementalLevelAttr)
+h.transferSetsFrom($(AttrSign)_handler);
+$endif
+$if(IncrementalLevelParam)
+$if(IsParamAttr)
+if ($(AttrSign)_handler != null) {
+  for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+    h.transferSetsFrom(($DDGNodeName)itr.next());
+  }
+}
+$else
+h.transferSetsFrom($(AttrSign)_handler);
+$endif
+$endif
+$endif
+$endif
+]]
+
+ASTDecl.transferSetsFromTokenHandler = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+$if(IncrementalLevelAttr)
+h.transferSetsFrom(get$(Id)_handler);
+$endif
+$if(IncrementalLevelParam)
+h.transferSetsFrom(get$(Id)_handler);
+$endif
+$endif
+$endif
+]]
+
+ASTDecl.flushNtaSubtree = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+$if(IsNTA)
+$if(IsParamAttr)
+if ($(AttrSign)_list != null) {
+  $(AttrSign)_list.inc_flush_subtree(h);
+}
+$else
+$if(IsNtaWithTree)
+if ($(AttrSign)_value != null) {
+  $(AttrSign)_value.inc_flush_subtree(h);
+}
+$endif
+$endif
+$endif
+$endif
+$endif
+]]

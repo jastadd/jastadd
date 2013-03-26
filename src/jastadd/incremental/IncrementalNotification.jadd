@@ -68,108 +68,10 @@
 
     tt.expand("ASTNode.incFlushRegionRewritesMethod", stream);
 
-    if (grammar().incrementalChangeFlush) {
-      // method: inc_flush_subtree
-      if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode || 
-          grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {
-        stream.println(ind + "protected void " + name() + ".inc_flush_subtree(ASTNode$DepGraphNode h) {");
-        stream.println(ind(2) + "inc_state = inc_GARBAGE;");
-        // NTAs
-        for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-          AttrDecl attr = (AttrDecl)itr.next(); 
-          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
-              && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-
-            if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   attr.attributeSignature() + "_list.inc_flush_subtree(h);");
-              stream.println(ind(2) + "}");
-            } else {
-              Components comp = attr.findCorrespondingNTA();
-              if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
-                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null) {");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(h);");
-                stream.println(ind(2) + "}");
-              }
-            }
-          }
-        }
-        // attributes and tokens
-        if (grammar().incrementalLevelAttr) {
-          for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-            AttrDecl attr = (AttrDecl)itr.next();
-            stream.println(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
-          }
-          for (int c = 0; c < getNumComponents(); c++) {
-             Components comp = getComponents(c);
-             if (comp instanceof TokenComponent) {
-              stream.println(ind(2) + "h.transferSetsFrom(get" + ((TokenComponent)comp).getTokenId().getID() + "_handler);");
-             }
-           }
-        }
-        if (grammar().incrementalLevelParam) {
-          for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-            AttrDecl attr = (AttrDecl)itr.next();
-            if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_handler != null) {");
-              stream.println(ind(3) +   "for (java.util.Iterator itr = " + attr.attributeSignature() + 
-                                              "_handler.values().iterator(); itr.hasNext();) {");
-              stream.println(ind(4) +     "h.transferSetsFrom((ASTNode$DepGraphNode)itr.next());");
-              stream.println(ind(3) +   "}");
-              stream.println(ind(2) + "}");
-            } else {
-              stream.println(ind(2) + "h.transferSetsFrom(" + attr.attributeSignature() + "_handler);");
-            }
-          }
-          for (int c = 0; c < getNumComponents(); c++) {
-             Components comp = getComponents(c);
-             if (comp instanceof TokenComponent) {
-              stream.println(ind(2) + "h.transferSetsFrom(get" + ((TokenComponent)comp).getTokenId().getID() + "_handler);");
-             }
-           }
-        }
-
-        if (name().equals("ASTNode")) {    
-          stream.println(ind(2) + "// flush subtree of values, take sets from encountered handler and remove it from DDG");
-          if (grammar().incrementalLevelRegion) {
-            stream.println(ind(2) + "if (isRegionRoot()) {");
-            stream.println(ind(3) +   "h.transferSetsFrom(handler());");
-            stream.println(ind(2) + "}");
-            stream.println(ind(2) + "inc_flush();");
-          }
-          if (grammar().incrementalLevelNode) {
-            stream.println(ind(2) + "h.transferSetsFrom(handler());");
-            stream.println(ind(2) + "inc_flush();");
-          }
-          if (grammar().incrementalLevelAttr) {
-            stream.println(ind(3) +   "h.transferSetsFrom(getParent_handler);");
-            stream.println(ind(3) +   "h.transferSetsFrom(getChild_handler);");
-            stream.println(ind(3) +   "h.transferSetsFrom(numChildren_handler);");
-          }
-          if (grammar().incrementalLevelParam) {
-            stream.println(ind(3) +   "h.transferSetsFrom(getParent_handler);");
-            stream.println(ind(3) +   "h.transferSetsFrom(numChildren_handler);");
-            stream.println(ind(3) +   "for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {");
-            stream.println(ind(4) +     "h.transferSetsFrom(getChild_handler[i]);");
-            stream.println(ind(3) +   "}");
-          }
-          stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
-          stream.println(ind(3) +   "ASTNode child = children[i];");
-          stream.println(ind(3) +   "if (child != null) {");
-          stream.println(ind(4) +     "child.inc_flush_subtree(h);");
-          stream.println(ind(3) +   "}");
-          stream.println(ind(2) + "}");
-        } else {
-          stream.println(ind(2) + "super.inc_flush_subtree(h);");
-        }
-        stream.println(ind + "}"); 
-      }
-      // end method: inc_flush_subtree
-    
-    
-    }
-    
-    
+    tt.bind("FlushNtaSubTrees", emitFlushNtaSubTreesString());
+    tt.bind("TransferSetsFromAttrTokenHandlers", emitTransferSetsFromAttrTokenHandlersString());
+    tt.expand("ASTDecl.incFlushSubTreeMethod", stream);     
+        
     // method: inc_notifyForRemove
     if (name().equals("ASTNode")) {  
       stream.println(ind + "public void ASTNode.inc_notifyForRemove() {");
@@ -186,6 +88,47 @@
     } 
     // end method: inc_notifyForRemove
     
+  }
+  
+  /**
+   * Creates string with code flushing NTA substrings.
+   */
+  public String ASTDecl.emitFlushNtaSubTreesString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+              && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("IsParamAttr", attr.isParamAttr());
+      Components comp = attr.findCorrespondingNTA();
+      tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA));
+      tt.bind("AttrSign", attr.attributeSignature());
+      res.append(tt.expand("ASTDecl.flushNtaSubtree"));    
+    }
+    return res.toString();
+  }
+  
+  /**
+   * Creates string with code transfering sets from attribute and token handlers.
+   */
+  public String ASTDecl.emitTransferSetsFromAttrTokenHandlersString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      tt.bind("IsParamAttr", attr.isParamAttr());
+      tt.bind("AttrSign", attr.attributeSignature());
+      res.append(tt.expand("ASTDecl.transferSetsFromAttributeHandler"));
+    }
+    for (int c = 0; c < getNumComponents(); c++) {
+      Components comp = getComponents(c);
+      if (comp instanceof TokenComponent) {
+        tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
+        res.append(tt.expand("ASTDecl.transferSetsFromTokenHandler"));
+      }
+    }
+    return res.toString();
   }
   
   /**
