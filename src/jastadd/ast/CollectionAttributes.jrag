@@ -365,17 +365,18 @@ aspect CollectionAttributes {
   
   protected String TypeDecl.collectionReset() {
     StringBuffer res = new StringBuffer();
-    TypeDecl astDecl = env().lookup("ASTNode");
-    for(int i = 0; i < getNumCollDecl(); i++) {
-      CollDecl attr = getCollDecl(i);
-      TemplateContext tt = attr.templateContext();
-      boolean separateEvaluation = attr.separateEvaluation();
-      if(astDecl != null && attr.root() != null && !separateEvaluation) {
-        if(attr.circularCollection()) {
-          res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush1"));
-        } else {
-          res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush2"));
-        }
+    for (int k = 0; k < grammar().getNumTypeDecl(); k++) {
+      TypeDecl typeDecl = grammar().getTypeDecl(k);
+      for(int i = 0; i < typeDecl.getNumCollDecl(); i++) {
+        CollDecl attr = typeDecl.getCollDecl(i);
+        TemplateContext tt = attr.templateContext();
+        if(attr.root() == this && !attr.separateEvaluation()) {
+          if(attr.circularCollection()) {
+            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush1"));
+          } else {
+            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush2"));
+          }
+        }      
       }
     }
     return res.toString();
