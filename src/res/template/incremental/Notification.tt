@@ -690,3 +690,81 @@ $endif
 $endif
 ]]
 
+ASTNode.incCheckRegionForInnerRewriteMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IncrementalLevelRegion)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_checkRegionForInnerRewrite() {
+    for (int i = 0; children != null && rewritten_children != null && i < children.length && i < rewritten_children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null && !child.isRegionRoot()) {
+        if (rewritten_children[i]) {
+          if (init_children != null && i < init_children.length && init_children[i] == null) {
+            return true;
+          }
+        } else {
+          if (child.inc_checkRegionForInnerRewrite()) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+$endif
+$endif
+
+$if(IncrementalLevelNode)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_checkRegionForInnerRewrite() {
+    for (int i = 0; children != null && rewritten_children != null && i < children.length && i < rewritten_children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null && !child.isRegionRoot()) {
+        if (rewritten_children[i]) {
+          if (init_children != null && i < init_children.length && init_children[i] == null) {
+            return true;
+          }
+        } else {
+          if (child.inc_checkRegionForInnerRewrite()) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+$endif
+$endif
+
+$if(IncrementalLevelAttr)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_checkRegionForInnerRewrite() {
+    for (int i = 0; children != null && rewritten_children != null && i < children.length && i < rewritten_children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null) {
+        if (rewritten_children[i]) {
+          if (init_children != null && i < init_children.length && init_children[i] == null) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+$endif
+$endif
+
+$endif
+$endif
+]]
