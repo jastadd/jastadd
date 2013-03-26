@@ -565,3 +565,128 @@ if ($(AttrSign)_value == node) {
   $AttrResetCache
 }
 ]]
+
+ASTDecl.incFlushRegionRootMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IncrementalLevelRegion)
+$if(#isRegionRoot)
+  /**
+   * @api internal
+   */
+  public boolean #name.inc_flushRegionRoot() {
+    // Check for rewrites
+    // check for inner rewrite in region root
+    boolean rewriteFlushed = true;
+    if (parent != null) {
+      rewriteFlushed = parent.inc_flush_child(this);
+      // region root had an outer rewrite which was flushed (parent == null) -> done
+      if (rewriteFlushed && parent == null) {
+        return true;
+      }
+    }
+    boolean innerRewrite = false;
+    if (rewriteFlushed) {
+      // the region may have inner rewrites
+      innerRewrite = inc_checkRegionForInnerRewrite();
+    } else {
+      // region root had an inner rewrite which wasn't flushed
+      innerRewrite = true;
+    }
+    // Inner rewrites in the region (including the root) means abort and notify the enclosing rewritten node
+    if (innerRewrite) {
+      ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
+      enclosingNode.handler().flushRegion();
+      return false;
+    }
+    // Check NTAs, this may remove the region
+    boolean regionRemoved = false;
+    if (parent != null) {
+      regionRemoved = parent.inc_flush_NTA(this);     // check NTA
+    }
+    // region is still here, flush remaining values and outer rewrites
+    if (!regionRemoved) {
+      inc_flushRegion_rewrites();
+      inc_flushRegion();
+    }
+    return true; 
+  } 
+$else
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean #name.inc_flushRegionRoot() {
+    // Check for rewrites
+    // check for inner rewrite in region root
+    boolean rewriteFlushed = true;
+    if (parent != null) {
+      rewriteFlushed = parent.inc_flush_child(this);
+      // region root had an outer rewrite which was flushed (parent == null) -> done
+      if (rewriteFlushed && parent == null) {
+        return true;
+      }
+    }
+    boolean innerRewrite = false;
+    if (rewriteFlushed) {
+      // the region may have inner rewrites
+      innerRewrite = inc_checkRegionForInnerRewrite();
+    } else {
+      // region root had an inner rewrite which wasn't flushed
+      innerRewrite = true;
+    }
+    // Inner rewrites in the region (including the root) means abort and notify the enclosing rewritten node
+    if (innerRewrite) {
+      ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
+      enclosingNode.handler().flushRegion();
+      return false;
+    }
+    // Check NTAs, this may remove the region
+    boolean regionRemoved = false;
+    if (parent != null) {
+      regionRemoved = parent.inc_flush_NTA(this);     // check NTA
+    }
+    // region is still here, flush remaining values and outer rewrites
+    if (!regionRemoved) {
+      inc_flushRegion_rewrites();
+      inc_flushRegion();
+    }
+    return true; 
+  } 
+$endif
+$endif
+$endif
+
+$if(IncrementalLevelNode)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_flushRegionRoot() {
+    inc_flush();
+    boolean rewriteFlushed = true;
+    if (parent != null) {
+      rewriteFlushed = parent.inc_flush_child(this);
+      // region root had an outer rewrite which was flushed (parent == null) -> done
+      if (rewriteFlushed && parent == null) {
+        return true;
+      }
+    }
+    if (!rewriteFlushed) {
+      ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
+      enclosingNode.handler().flushRegion();
+      return false;
+    }
+    if (parent != null) {
+      parent.inc_flush_NTA(this);     // check NTA
+    }
+    return true; 
+  } 
+$endif
+$endif
+      
+$endif
+$endif
+]]
+
