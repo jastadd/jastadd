@@ -768,3 +768,77 @@ $endif
 $endif
 $endif
 ]]
+
+ASTDecl.incFlushRegionMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
+  public void #name.inc_flushRegion() {
+  $if(IsAstNode)
+    inc_flush();
+    for (int i = 0; children != null && i < children.length; i++) {
+      ASTNode child = children[i];
+      if (child != null && !child.isRegionRoot()) {
+        child.inc_flushRegion();
+      }
+    }
+  $else
+    super.inc_flushRegion();
+  $endif
+    $FlushNTAsInRegion
+  }
+$endif
+
+$endif
+$endif
+]]
+
+ASTDecl.flushNTAsInRegion = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IsNTA)
+$if(IsParamAttr)
+if ($(AttrSign)_list != null) {
+  for (int index = 0; index < $(AttrSign)_list.numChildren; index++) {
+    ASTNode value = $(AttrSign)_list.children[index];              
+    if (!value.isRegionRoot()) {
+      state().enterConstruction();
+      $(AttrSign)_list.removeChild(index);
+      // removeChild will decrease the index of all remaining children and numChildren
+      // hence, to visit the remainder of the list index need to be decreased by one for each removeChild
+      index--; 
+      state().exitConstruction();
+      value.inc_flush_subtree(handler());
+      // remove the value in the NTA values map
+      for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator(); itr.hasNext();) {
+        Object key = itr.next();
+        if ($(AttrSign)_values.get(key) == value) {
+          $(AttrSign)_values.remove(key);
+          break;
+        }
+      }
+    }
+  }
+}
+$else
+$if(IsNtaWithTree)
+if ($(AttrSign)_value != null && !$(AttrSign)_value.isRegionRoot()) {
+  state().enterConstruction();
+  $(AttrSign)_value.setParent(null);
+  state().exitConstruction();
+  $(AttrSign)_value.inc_flush_subtree(handler());
+  $AttrResetVisit
+  $AttrResetCache
+}
+$endif
+$endif
+$endif
+
+$endif
+$endif
+]]

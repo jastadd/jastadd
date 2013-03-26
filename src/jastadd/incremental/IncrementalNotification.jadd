@@ -63,82 +63,10 @@
     
     tt.expand("ASTNode.incCheckRegionForInnerRewriteMethod", stream);
 
-    if (grammar().incrementalChangeFlush) {
-      // method: inc_flushRegion
-      if (grammar().incrementalLevelRegion) {
-        stream.println(ind + "public void " + name() + ".inc_flushRegion() {");
-        if (name().equals("ASTNode")) {
-          stream.println(ind(2) + "inc_flush();");
-          stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {");
-          stream.println(ind(3) +   "ASTNode child = children[i];");
-          stream.println(ind(3) +   "if (child != null && !child.isRegionRoot()) {");
-          stream.println(ind(4) +     "child.inc_flushRegion();");
-          stream.println(ind(3) +   "}");
-          stream.println(ind(2) + "}");
-        } else {
-          stream.println(ind(2) + "super.inc_flushRegion();");
-        }
-        // Flush NTAs if not region root
-        for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-          AttrDecl attr = (AttrDecl)itr.next();
-          // NTAs
-          if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
-                && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-            if (attr.getNumParameter() > 0) {
-              stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-              stream.println(ind(3) +   "for (int index = 0; index < " + attr.attributeSignature() + 
-                                              "_list.numChildren; index++) {");
-              stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + 
-                                              "_list.children[index];");              
-              stream.println(ind(4) +     "if (!value.isRegionRoot()) {");
-              stream.println(ind(5) +       "state().enterConstruction();");
-              stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
-              // removeChild will decrease the index of all remaining children and numChildren
-              // hence, to visit the remainder of the list index need to be decreased by one for each removeChild
-              stream.println(ind(5) +       "index--;"); 
-              stream.println(ind(5) +       "state().exitConstruction();");
-              stream.println(ind(5) +       "value.inc_flush_subtree(handler());");
-              // remove the value in the NTA values map
-              stream.println(ind(5) +       "for (java.util.Iterator itr = " + attr.attributeSignature() + "_values.keySet().iterator(); itr.hasNext();) {");
-              stream.println(ind(6) +         "Object key = itr.next();");
-              stream.println(ind(6) +         "if (" + attr.attributeSignature() + "_values.get(key) == value) {");
-              stream.println(ind(7) +           attr.attributeSignature() + "_values.remove(key);");
-              stream.println(ind(7) +           "break;");
-              stream.println(ind(6) +         "}");
-              stream.println(ind(5) +       "}");
-//              stream.print(attr.resetVisit());
-//              stream.print(attr.resetCache());
-              //if (grammar().incrementalTrack) {
-              //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
-              //}
-              //stream.println(ind(5) +       "return true;");
-              stream.println(ind(4) +     "}");
-              stream.println(ind(3) +   "}");
-              stream.println(ind(2) + "}");
-            } else {
-              Components comp = attr.findCorrespondingNTA();
-//              if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
-              if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA) {
-                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value != null && !" + 
-                                                  attr.attributeSignature() + "_value.isRegionRoot()) {");
-                stream.println(ind(3) +   "state().enterConstruction();");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
-                stream.println(ind(3) +   "state().exitConstruction();");
-                stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(handler());");
-                stream.print(attr.resetVisit());
-                stream.print(attr.resetCache());
-                //if (grammar().incrementalTrack) {
-                //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
-                //}
-                stream.println(ind(2) + "}");
-              }
-            }
-          }
-        }
-        stream.println(ind + "}"); 
-      }
-      // end method: inc_flushRegion
+    tt.bind("FlushNTAsInRegion", emitFlushNTAsInRegionString());
+    tt.expand("ASTDecl.incFlushRegionMethod", stream);
 
+    if (grammar().incrementalChangeFlush) {
       // method: inc_flushRegion_rewrites
       if (grammar().incrementalLevelRegion || grammar().incrementalLevelAttr) {
         if (name().equals("ASTNode")) {
@@ -296,6 +224,27 @@
     } 
     // end method: inc_notifyForRemove
     
+  }
+  
+  /**
+   * Creates string with code flushing NTAs in region.
+   */
+  public String ASTDecl.emitFlushNTAsInRegionString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+            && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("AttrSign", attr.attributeSignature());
+      Components comp = attr.findCorrespondingNTA();
+      tt.bind("IsNtaWithTree", comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA);
+      tt.bind("AttrResetVisit", attr.resetVisit());
+      tt.bind("AttrResetCache", attr.resetCache());
+      res.append(tt.expand("ASTDecl.flushNTAsInRegion"));
+    }
+    return res.toString();
   }
   
   /**
