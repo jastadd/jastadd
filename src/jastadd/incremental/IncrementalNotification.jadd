@@ -54,106 +54,12 @@
 
     tt.expand("ASTNode.incFlushChildMethod", stream);    
     
+    tt.bind("IsListNode", name().equals("List"));
+    tt.bind("IsOptNode", name().equals("Opt"));
+    tt.bind("FlushNTAs", emitFlushNTAsString());
+    tt.expand("ASTDecl.incFlushNTAMethod", stream);
+
     if (grammar().incrementalChangeFlush) {
-
-      // methods: inc_flush_NTA
-      if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
-        stream.println(ind + "public boolean " + name() + ".inc_flush_NTA(ASTNode node) {");
-        if (name().equals("List") || name().equals("Opt")) {
-
-          if (name().equals("List")) {
-            stream.println(ind(2) + "if (inc_internalNTAList) {");
-            stream.println(ind(3) +   "state().enterConstruction();");
-            stream.println(ind(3) +   "int childIndex = getIndexOfChild(node);");
-            stream.println(ind(3) +   "removeChild(childIndex);");
-            stream.println(ind(3) +   "node.inc_flush_subtree(node.handler());");
-            stream.println(ind(3) +   "node.handler().clearDependencies();");
-            stream.println(ind(3) +   "state().exitConstruction();");
-            stream.println(ind(3) +   "if (inc_internalNTAList_map.containsValue(node)) {");
-            stream.println(ind(4) +     "for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {");
-            stream.println(ind(5) +       "Object key = itr.next();");
-            stream.println(ind(5) +       "if (inc_internalNTAList_map.get(key) == node) {");
-            stream.println(ind(6) +         "inc_internalNTAList_map.remove(key);");
-            stream.println(ind(6) +         "break;");
-            stream.println(ind(5) +       "}");
-            stream.println(ind(4) +     "}");
-            stream.println(ind(3) +   "}");
-            stream.println(ind(3) +   "return true;");
-            stream.println(ind(2) + "}");
-          }
-          stream.println(ind(2) + "if (parent != null) {");
-          stream.println(ind(3) +   "int index = parent.getIndexOfChild(this);");
-          stream.println(ind(3) +   "if (index >= 0 && parent.childIsNTA(index)) {");
-          stream.println(ind(4) +     "state().enterConstruction();");
-          if (name().equals("List")) {
-            stream.println(ind(4) +     "int childIndex = getIndexOfChild(node);");
-            stream.println(ind(4) +     "removeChild(childIndex);");
-          } else {
-            stream.println(ind(4) +     "node.setParent(null);");
-          }
-          stream.println(ind(4) +     "node.inc_flush_subtree(node.handler());");
-          stream.println(ind(4) +     "node.handler().clearDependencies();");
-          stream.println(ind(4) +     "state().exitConstruction();");
-          //if (grammar().incrementalTrack) {
-          //  stream.println(ind(4) +     "ASTNode$DepGraphNode.trackedFlushes++;");
-          //}
-          stream.println(ind(4) +     "return true;");
-          stream.println(ind(3) +   "}");
-          stream.println(ind(3) +   "return false;");
-          stream.println(ind(2) + "}");
-        } else {
-          for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-            AttrDecl attr = (AttrDecl)itr.next();
-            // NTAs
-            if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
-                  && !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-              if (attr.getNumParameter() > 0) {
-/* Parameterized NTAs are kept in a List and will consequently ask its parent list if it should be flushed, see code above
-                stream.println(ind(2) + "if (" + attr.attributeSignature() + "_list != null) {");
-                stream.println(ind(3) +   "for (int index = 0; i < " + attr.attributeSignature() + "_list.numChildren; i++;) {");
-                stream.println(ind(4) +     "ASTNode value = " + attr.attributeSignature() + "_list.children[index];");              
-                stream.println(ind(4) +     "if (value == node) {");
-                stream.println(ind(5) +       "state().enterConstruction();");
-                stream.println(ind(5) +       attr.attributeSignature() + "_list.removeChild(index);");
-                stream.println(ind(5) +       "state().exitConstruction();");
-                stream.println(ind(5) +       attr.attributeSignature() + "_list.inc_flush_subtree(node.handler());");
-                stream.println(ind(4) +     "node.handler().clearDependencies();");
-                stream.print(attr.resetVisit());
-                stream.print(attr.resetCache());
-                if (grammar().incrementalTrack) {
-                  stream.println(ind(5) + "ASTNode$DepGraphNode.trackedFlush++;");
-                }
-                stream.println(ind(5) +       "return true;");
-                stream.println(ind(4) +     "}");
-                stream.println(ind(3) +   "}");
-                stream.println(ind(2) + "}");
-*/
-              } else {
-                Components comp = attr.findCorrespondingNTA();
-//                if (comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA)) {
-                if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA) {
-                  stream.println(ind(2) + "if (" + attr.attributeSignature() + "_value == node) {");
-                  stream.println(ind(3) +   "state().enterConstruction();");
-                  stream.println(ind(3) +   attr.attributeSignature() + "_value.setParent(null);");
-                  stream.println(ind(3) +   "state().exitConstruction();");
-                  stream.println(ind(3) +   attr.attributeSignature() + "_value.inc_flush_subtree(node.handler());");
-                  stream.println(ind(4) +     "node.handler().clearDependencies();");
-                  stream.print(attr.resetVisit());
-                  stream.print(attr.resetCache());
-                  //if (grammar().incrementalTrack) {
-                  //  stream.println(ind(3) + "ASTNode$DepGraphNode.trackedFlushes++;");
-                  //}
-                  stream.println(ind(2) + "}");
-                }
-              }
-            }
-          }
-        }
-        stream.println(ind(2) + "return false;");
-        stream.println(ind + "}"); 
-      }
-      // end methods: inc_flush_NTA
-
       // method: inc_flushRegionRoot
       if ((grammar().incrementalLevelRegion && (isRegionRoot() || name().equals("ASTNode"))) || 
             (grammar().incrementalLevelNode && name().equals("ASTNode"))) {
@@ -485,6 +391,29 @@
     } 
     // end method: inc_notifyForRemove
     
+  }
+  
+  /**
+   * Creates string with code flushing NTAs.
+   */
+  public String ASTDecl.emitFlushNTAsString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+      		!(attr.type().equals("String") || attr.type().equals("java.lang.String")) &&
+      		attr.getNumParameter() == 0) {
+        Components comp = attr.findCorrespondingNTA();
+        if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA) {
+          tt.bind("AttrSign", attr.attributeSignature());
+          tt.bind("AttrResetVisit", attr.resetVisit());
+          tt.bind("AttrResetCache", attr.resetCache());
+          res.append(tt.expand("ASTDecl.ntaFlush"));        
+        }
+      }
+    }
+    return res.toString();
   }
   
   /**

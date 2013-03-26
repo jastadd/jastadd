@@ -427,3 +427,141 @@ $endif
 $endif
 $endif
 ]]
+
+ASTDecl.incFlushNTAMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IncrementalLevelNode)
+  /**
+   * @api internal
+   */
+  public boolean #name.inc_flush_NTA(ASTNode node) {
+  $if(IsListNode)
+    if (inc_internalNTAList) {
+      state().enterConstruction();
+      int childIndex = getIndexOfChild(node);
+      removeChild(childIndex);
+      node.inc_flush_subtree(node.handler());
+      node.handler().clearDependencies();
+      state().exitConstruction();
+      if (inc_internalNTAList_map.containsValue(node)) {
+        for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {
+          Object key = itr.next();
+          if (inc_internalNTAList_map.get(key) == node) {
+            inc_internalNTAList_map.remove(key);
+            break;
+          }
+        }
+      }
+      return true;
+    }
+    if (parent != null) {
+      int index = parent.getIndexOfChild(this);
+      if (index >= 0 && parent.childIsNTA(index)) {
+        state().enterConstruction();
+        int childIndex = getIndexOfChild(node);
+        removeChild(childIndex);
+        node.inc_flush_subtree(node.handler());
+        node.handler().clearDependencies();
+        state().exitConstruction();
+        return true;
+      }
+      return false;
+    }
+  $else
+    $if(IsOptNode)
+    if (parent != null) {
+      int index = parent.getIndexOfChild(this);
+      if (index >= 0 && parent.childIsNTA(index)) {
+        state().enterConstruction();
+        node.setParent(null);
+        node.inc_flush_subtree(node.handler());
+        node.handler().clearDependencies();
+        state().exitConstruction();
+        return true;
+      }
+      return false;
+    }
+    $else
+    $FlushNTAs  
+    $endif
+  $endif
+    return false;
+  }
+$endif
+
+$if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
+  public boolean #name.inc_flush_NTA(ASTNode node) {
+  $if(IsListNode)
+    if (inc_internalNTAList) {
+      state().enterConstruction();
+      int childIndex = getIndexOfChild(node);
+      removeChild(childIndex);
+      node.inc_flush_subtree(node.handler());
+      node.handler().clearDependencies();
+      state().exitConstruction();
+      if (inc_internalNTAList_map.containsValue(node)) {
+        for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {
+          Object key = itr.next();
+          if (inc_internalNTAList_map.get(key) == node) {
+            inc_internalNTAList_map.remove(key);
+            break;
+          }
+        }
+      }
+      return true;
+    }
+    if (parent != null) {
+      int index = parent.getIndexOfChild(this);
+      if (index >= 0 && parent.childIsNTA(index)) {
+        state().enterConstruction();
+        int childIndex = getIndexOfChild(node);
+        removeChild(childIndex);
+        node.inc_flush_subtree(node.handler());
+        node.handler().clearDependencies();
+        state().exitConstruction();
+        return true;
+      }
+      return false;
+    }
+  $else
+    $if(IsOptNode)
+    if (parent != null) {
+      int index = parent.getIndexOfChild(this);
+      if (index >= 0 && parent.childIsNTA(index)) {
+        state().enterConstruction();
+        node.setParent(null);
+        node.inc_flush_subtree(node.handler());
+        node.handler().clearDependencies();
+        state().exitConstruction();
+        return true;
+      }
+      return false;
+    }
+    $else
+    $FlushNTAs  
+    $endif
+  $endif
+    return false;
+  }
+$endif
+      
+$endif
+$endif
+]]
+
+ASTDecl.ntaFlush = [[
+if ($(AttrSign)_value == node) {
+  state().enterConstruction();
+  $(AttrSign)_value.setParent(null);
+  state().exitConstruction();
+  $(AttrSign)_value.inc_flush_subtree(node.handler());
+  node.handler().clearDependencies();
+  $AttrResetVisit
+  $AttrResetCache
+}
+]]
