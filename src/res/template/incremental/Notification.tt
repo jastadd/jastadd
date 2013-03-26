@@ -1062,3 +1062,53 @@ $endif
 $endif
 $endif
 ]]
+
+ASTNode.incNotifyForRemoveMethod = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelRegion)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */  
+  public void ASTNode.inc_notifyForRemove() {
+    handler().flushRegion();
+  }
+$endif
+$endif
+
+$if(IncrementalLevelNode)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */  
+  public void ASTNode.inc_notifyForRemove() {
+    handler.flushRegion();
+  } 
+$endif
+$endif
+
+$if(IncrementalLevelAttr)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */  
+  public void ASTNode.inc_notifyForRemove() {
+    getParent_handler.notifyDependencies();
+  }
+$endif
+$endif
+
+$if(IncrementalLevelParam)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */  
+  public void ASTNode.inc_notifyForRemove() {
+    getParent_handler.notifyDependencies();
+  }
+$endif
+$endif
+    
+$endif
+]]

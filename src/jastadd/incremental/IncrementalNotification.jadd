@@ -71,23 +71,8 @@
     tt.bind("FlushNtaSubTrees", emitFlushNtaSubTreesString());
     tt.bind("TransferSetsFromAttrTokenHandlers", emitTransferSetsFromAttrTokenHandlersString());
     tt.expand("ASTDecl.incFlushSubTreeMethod", stream);     
-        
-    // method: inc_notifyForRemove
-    if (name().equals("ASTNode")) {  
-      stream.println(ind + "public void ASTNode.inc_notifyForRemove() {");
-      if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-        stream.println(ind(2) + "getParent_handler.notifyDependencies();");
-      }
-      if (grammar().incrementalLevelNode) {
-        stream.println(ind(2) + "handler.flushRegion();");
-      }
-      if (grammar().incrementalLevelRegion) {
-        stream.println(ind(2) + "handler().flushRegion();");
-      }
-      stream.println(ind + "}"); 
-    } 
-    // end method: inc_notifyForRemove
     
+    tt.expand("ASTNode.incNotifyForRemoveMethod", stream);    
   }
   
   /**
