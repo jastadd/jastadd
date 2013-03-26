@@ -66,47 +66,9 @@
     tt.bind("FlushNTAsInRegion", emitFlushNTAsInRegionString());
     tt.expand("ASTDecl.incFlushRegionMethod", stream);
 
+    tt.expand("ASTNode.incFlushRegionRewritesMethod", stream);
+
     if (grammar().incrementalChangeFlush) {
-      // method: inc_flushRegion_rewrites
-      if (grammar().incrementalLevelRegion || grammar().incrementalLevelAttr) {
-        if (name().equals("ASTNode")) {
-          stream.println(ind + "public boolean ASTNode.inc_flushRegion_rewrites() {");
-          stream.println(ind(2) + "for (int i = 0; children != null && i < children.length; i++) {"); 
-          stream.println(ind(3) +   "ASTNode child = children[i];");
-          if (grammar().incrementalLevelRegion) {
-            stream.println(ind(3) +   "if (child == null || child.isRegionRoot()) continue;");
-            stream.println(ind(3) +   "// rewritten child");
-
-            stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length && " +
-                                         "rewritten_children[i]) {");
-            stream.println(ind(4) +     "if (!inc_restoreInitialForIndex(i, handler())) {");
-            stream.println(ind(5) +       "return false;");
-            stream.println(ind(4) +     "}");
-            stream.println(ind(3) +   "}");
-            stream.println(ind(3) +   "// not rewritten child");
-            stream.println(ind(3) +   "else {");
-            stream.println(ind(4) +     "if (!child.inc_flushRegion_rewrites()) {");
-            stream.println(ind(5) +       "return false;");
-            stream.println(ind(4) +     "}");
-            stream.println(ind(3) +   "}");
-          }
-          if (grammar().incrementalLevelAttr) {
-            stream.println(ind(3) +   "if (child == null) continue;");
-            stream.println(ind(3) +   "// rewritten child");
-            stream.println(ind(3) +   "if (rewritten_children != null && i < rewritten_children.length && " +
-                                         "rewritten_children[i]) {");
-            stream.println(ind(4) +     "if (!inc_restoreInitialForIndex(i, getChild_handler)) {");
-            stream.println(ind(5) +       "return false;");
-            stream.println(ind(4) +     "}");
-            stream.println(ind(3) +   "}");
-          }
-          stream.println(ind(2) + "}"); 
-          stream.println(ind(2) + "return true;");
-          stream.println(ind + "}"); 
-        }
-      }      
-      // end method: inc_flushRegion_rewrites
-
       // method: inc_flush_subtree
       if (grammar().incrementalLevelRegion || grammar().incrementalLevelNode || 
           grammar().incrementalLevelAttr || grammar().incrementalLevelParam) {

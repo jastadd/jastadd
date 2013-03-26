@@ -772,7 +772,6 @@ $endif
 ASTDecl.incFlushRegionMethod = [[
 $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
-
 $if(IncrementalLevelRegion)
   /**
    * @api internal
@@ -792,7 +791,6 @@ $if(IncrementalLevelRegion)
     $FlushNTAsInRegion
   }
 $endif
-
 $endif
 $endif
 ]]
@@ -836,6 +834,65 @@ if ($(AttrSign)_value != null && !$(AttrSign)_value.isRegionRoot()) {
   $AttrResetCache
 }
 $endif
+$endif
+$endif
+
+$endif
+$endif
+]]
+
+ASTNode.incFlushRegionRewritesMethod = [[
+$if(IncrementalEnabled)
+$if(IncrementalChangeFlush)
+
+$if(IncrementalLevelRegion)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_flushRegion_rewrites() {
+    for (int i = 0; children != null && i < children.length; i++) { 
+      ASTNode child = children[i];
+      if (child == null || child.isRegionRoot()) {
+        continue;
+      }
+      // rewritten child
+      if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
+        if (!inc_restoreInitialForIndex(i, handler())) {
+          return false;
+        }
+      } else {
+        // not rewritten child
+        if (!child.inc_flushRegion_rewrites()) {
+          return false;
+        }
+      }
+    } 
+    return true;
+  } 
+$endif
+$endif
+
+$if(IncrementalLevelAttr)
+$if(IsAstNode)
+  /**
+   * @api internal
+   */
+  public boolean ASTNode.inc_flushRegion_rewrites() {
+    for (int i = 0; children != null && i < children.length; i++) { 
+      ASTNode child = children[i];
+      if (child == null) {
+        continue;
+      }
+      // rewritten child
+      if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
+        if (!inc_restoreInitialForIndex(i, getChild_handler)) {
+          return false;
+        }
+      }
+    } 
+    return true;
+  }
 $endif
 $endif
 
