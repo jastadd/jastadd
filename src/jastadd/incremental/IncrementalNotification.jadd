@@ -27,52 +27,52 @@
  */
  aspect IncrementalNotification {
  
-  public void ASTDecl.genIncrementalNotification(PrintWriter stream) {
+  public void ASTDecl.genIncrementalNotification(PrintWriter out) {
     if (!grammar().incremental) return; 
     
     TemplateContext tt = templateContext();
     
     tt.bind("IsAstNode", name().equals("ASTNode"));
     if (!grammar().fullFlush) {
-      tt.expand("ASTNode.flushRewritesInitValue", stream);
-      tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", stream);
+      tt.expand("ASTNode.flushRewritesInitValue", out);
+      tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
     }
-    tt.expand("ASTNode.incFlushRewritesLocateEnclosingRewriteMethod", stream);
-    tt.expand("ASTNode.incResetRewritesMethod", stream);
-    tt.expand("ASTNode.incRestoreEnclosingRewriteMethod", stream);
-    tt.expand("ASTNode.incRestoreInitialForIndexMethod", stream);
-    tt.expand("ASTNode.incLocateInitialCopyMethod", stream);
+    tt.expand("ASTNode.incFlushRewritesLocateEnclosingRewriteMethod", out);
+    tt.expand("ASTNode.incResetRewritesMethod", out);
+    tt.expand("ASTNode.incRestoreEnclosingRewriteMethod", out);
+    tt.expand("ASTNode.incRestoreInitialForIndexMethod", out);
+    tt.expand("ASTNode.incLocateInitialCopyMethod", out);
     
     tt.bind("AttrAffectedChecks", emitAttrAffectedChecksString());
-    tt.expand("ASTDecl.incValueAffectedMethod", stream);
+    tt.expand("ASTDecl.incValueAffectedMethod", out);
     
     tt.bind("AttrFlushChecks", emitAttrFlushChecksString());
-    tt.expand("ASTDecl.incReactToDepChangeMethod", stream);
+    tt.expand("ASTDecl.incReactToDepChangeMethod", out);
     
     tt.bind("FlushAttrs", emitFlushAttrsString());
-    tt.expand("ASTDecl.incFlushMethod", stream);
+    tt.expand("ASTDecl.incFlushMethod", out);
 
-    tt.expand("ASTNode.incFlushChildMethod", stream);    
+    tt.expand("ASTNode.incFlushChildMethod", out);    
     
     tt.bind("IsListNode", name().equals("List"));
     tt.bind("IsOptNode", name().equals("Opt"));
     tt.bind("FlushNTAs", emitFlushNTAsString());
-    tt.expand("ASTDecl.incFlushNTAMethod", stream);
+    tt.expand("ASTDecl.incFlushNTAMethod", out);
     
-    tt.expand("ASTDecl.incFlushRegionRootMethod", stream);
+    tt.expand("ASTDecl.incFlushRegionRootMethod", out);
     
-    tt.expand("ASTNode.incCheckRegionForInnerRewriteMethod", stream);
+    tt.expand("ASTNode.incCheckRegionForInnerRewriteMethod", out);
 
     tt.bind("FlushNTAsInRegion", emitFlushNTAsInRegionString());
-    tt.expand("ASTDecl.incFlushRegionMethod", stream);
+    tt.expand("ASTDecl.incFlushRegionMethod", out);
 
-    tt.expand("ASTNode.incFlushRegionRewritesMethod", stream);
+    tt.expand("ASTNode.incFlushRegionRewritesMethod", out);
 
     tt.bind("FlushNtaSubTrees", emitFlushNtaSubTreesString());
     tt.bind("TransferSetsFromAttrTokenHandlers", emitTransferSetsFromAttrTokenHandlersString());
-    tt.expand("ASTDecl.incFlushSubTreeMethod", stream);     
+    tt.expand("ASTDecl.incFlushSubTreeMethod", out);
     
-    tt.expand("ASTNode.incNotifyForRemoveMethod", stream);    
+    tt.expand("ASTNode.incNotifyForRemoveMethod", out);    
   }
   
   /**
