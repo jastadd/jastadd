@@ -145,13 +145,17 @@ public class JastAdd {
 
       long astParseTime = System.currentTimeMillis() - time;
 
-      String astErrors = root.astErrors();
+      problems = root.problems();
 
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
 
-      if(!astErrors.equals("")) {
-        System.err.println("Semantic error:");
-        System.err.println(astErrors);
+      for (Problem problem: problems) {
+        problem.print(System.err);
+        if (problem.isError()) {
+          hasError = true;
+        }
+      }
+      if (hasError) {
         return 1;
       }
 

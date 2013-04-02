@@ -31,119 +31,73 @@ import ast.AST.*;
 
 import java.util.*;
 
+import org.jastadd.Problem;
+
 /**
  * Aspect error checking.
  */
-aspect ASTErrorCollector {
+aspect ASTErrors {
   /**
-   * @return an empty string if there were no errors, otherwise a string
-   * containing the error message(s).
+   * Collects problems in the AST.
+   * @return A collection of problems in the AST
    */
-  syn String Grammar.astErrors() {
-    return collectAstErrors();
-  }
-  
-  syn String Grammar.collectAstErrors() {
-    StringBuffer result = new StringBuffer();
-    for(int i = 0; i < getNumTypeDecl(); i++) {
-      result.append(getTypeDecl(i).collectAstErrors());
-    }
-    
-    ArrayList l = roots();
-    if(l.isEmpty())
-      result.append("No root node available\n");
-    /*
-    if(l.size() > 1) {
-      result.append("Multiple root nodes: ");
-      Iterator iter = l.iterator();
-      result.append(((ASTDecl)iter.next()).name());
-      while(iter.hasNext())
-        result.append(", " + ((ASTDecl)iter.next()).name());
-      result.append("\n");
-    }*/
+  coll Collection<Problem> Grammar.problems()
+    [new LinkedList<Problem>()]
+    with add;
 
-    return result.toString();
-  }
-  
-  syn ArrayList Grammar.roots() {
-    ArrayList l = new ArrayList();
-    for(int i = 0; i < getNumTypeDecl(); i++) {
-      if(getTypeDecl(i) instanceof ASTDecl) {
+  Grammar contributes new Problem.Error("No root node available")
+    when roots().isEmpty()
+    to Grammar.problems()
+    for this;
+
+  syn ArrayList<ASTDecl> Grammar.roots() {
+    ArrayList<ASTDecl> l = new ArrayList<ASTDecl>();
+    for (int i = 0; i < getNumTypeDecl(); i++) {
+      if (getTypeDecl(i) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)getTypeDecl(i);
-        if(decl.isRootNode())
+        if (decl.isRootNode()) {
           l.add(decl);
+        }
       }
     }
     return l;
   }
+
   syn boolean TypeDecl.isRootNode() = false;
-  eq ASTDecl.isRootNode() = !hasAbstract() && !name().equals("ASTNode") && !name().equals("Opt") && !name().equals("List") && fathers().isEmpty();
-  
-  syn String TypeDecl.collectAstErrors() = astError();
-  
-  syn String ASTDecl.collectAstErrors() {
-    StringBuffer result = new StringBuffer();
-    result.append(astError());
-    for(int i = 0; i < getNumComponents(); i++) {
-      result.append(getComponents(i).astError());
-    }
-    return result.toString();
-  }
-}
+  eq ASTDecl.isRootNode() = !hasAbstract() && !name().equals("ASTNode")
+    && !name().equals("Opt") && !name().equals("List") && fathers().isEmpty();
 
+  // TODO add filename, line, col
+  TypeDecl contributes new Problem.Error("multiple production rule for non-terminal " + name())
+    when env().lookup(name()) != this
+    to Grammar.problems()
+    for grammar();
 
-aspect Errorcheck {
-  syn String TypeDecl.astError() {
-    StringBuffer result = new StringBuffer();
-    
-    if(env().lookup(name()) != this) {
-      //result.append(getFileName() + ":" + getStartLine() + " "); TODO: FIXME
-      result.append("Multiple production rule for non-terminal " +
-          name() + "\n");
-    }
-    return result.toString();
-  }
-  
-  syn String ASTDecl.astError() {
-    StringBuffer result = new StringBuffer();
-    
-    if(env().lookup(name()) != this) {
-      result.append(getFileName() + ":" + getStartLine() + " ");
-      result.append("Multiple production rule for non-terminal " +
-          name() + "\n");
-    }
-    
-    if(isCircular()) {
-      result.append(getFileName() + ":" + getStartLine() + " ");
-      result.append(name() + " causes circular inheritance\n");
-    }
-    else if(hasSuperClass() && superClass() == null) {
-      result.append(getFileName() + ":" + getStartLine() + " ");
-      result.append(name() + " inherits from undeclared class " +
-          getSuperClass().name() + "\n");
-    }
+  ASTDecl contributes new Problem.Error("multiple production rule for non-terminal " + name(), getFileName(), getStartLine())
+    when env().lookup(name()) != this
+    to Grammar.problems()
+    for grammar();
 
-      
-    return result.toString();
-  }
+  ASTDecl contributes new Problem.Error(name() + " causes circular inheritance", getFileName(), getStartLine())
+    when isCircular()
+    to Grammar.problems()
+    for grammar();
 
-  syn String Components.astError() {
-    StringBuffer result = new StringBuffer();
+  ASTDecl contributes new Problem.Error(name() + " inherits from undeclared class " + getSuperClass().name(), getFileName(), getStartLine())
+    when hasSuperClass() && superClass() == null
+    to Grammar.problems()
+    for grammar();
 
-    if(hostClass().lookupComponents(name()) != this) {
-      result.append(hostClass().getFileName() + ":" + hostClass().getStartLine() + " ");
-      result.append("Component name " + name() + " is not unique in " +
-          "production rule for " + hostClass().name() + "\n");
-    }
+  Components contributes new Problem.Error("Component name " + name() + " is not unique in production rule for " + hostClass().name(), hostClass().getFileName(), hostClass().getStartLine())
+    when hostClass().lookupComponents(name()) != this
+    to Grammar.problems()
+    for grammar();
 
-    if(!declared()) {
-      result.append(hostClass().getFileName() + ":" + hostClass().getStartLine() + " ");
-      result.append("Type " + type() + " of component " + name() +
-          " in production " + hostClass().name() + " is not declared\n");
-    }
-    return result.toString();
-  }
-  
+  Components contributes new Problem.Error("Type " + type() + " of component " + name() + " in production " + hostClass().name() + " is not declared", hostClass().getFileName(), hostClass().getStartLine())
+    when !declared()
+    to Grammar.problems()
+    for grammar();
+
   public boolean Components.declared() {
     return env().lookup(type()) != null;
   }

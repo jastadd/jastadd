@@ -40,19 +40,23 @@ public abstract class Problem {
   public static class Error extends Problem {
 
     public Error(String message) {
-      super(message);
+      super(message, "", -1, -1);
     }
 
     public Error(String message, String fileName) {
-      super(message, fileName);
+      super(message, fileName, -1, -1);
+    }
+
+    public Error(String message, String fileName, int line) {
+      super(message, fileName, line, -1);
     }
 
     public Error(String message, int line) {
-      super(message, line);
+      super(message, "", line, -1);
     }
 
     public Error(String message, int line, int column) {
-      super(message, line, column);
+      super(message, "", line, column);
     }
 
     public Error(String message, String file, int line, int column) {
@@ -69,19 +73,23 @@ public abstract class Problem {
   public static class Warning extends Problem {
 
     public Warning(String message) {
-      super(message);
+      super(message, "", -1, -1);
     }
 
     public Warning(String message, String fileName) {
-      super(message, fileName);
+      super(message, fileName, -1, -1);
+    }
+
+    public Warning(String message, String fileName, int line) {
+      super(message, fileName, line, -1);
     }
 
     public Warning(String message, int line) {
-      super(message, line);
+      super(message, "", line, -1);
     }
 
     public Warning(String message, int line, int column) {
-      super(message, line, column);
+      super(message, "", line, column);
     }
 
     public Warning(String message, String file, int line, int column) {
@@ -98,38 +106,6 @@ public abstract class Problem {
   private final String file;
   private final int line;
   private final int column;
-
-  /**
-   * @param message
-   */
-  public Problem(String message) {
-    this(message, -1, -1);
-  }
-
-  /**
-   * @param message
-   * @param fileName
-   */
-  public Problem(String message, String fileName) {
-    this(message, fileName, -1, -1);
-  }
-
-  /**
-   * @param message
-   * @param line
-   */
-  public Problem(String message, int line) {
-    this(message, -1, -1);
-  }
-
-  /**
-   * @param message
-   * @param line
-   * @param column
-   */
-  public Problem(String message, int line, int column) {
-    this(message, "", line, column);
-  }
 
   /**
    * @param message
