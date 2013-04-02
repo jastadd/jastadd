@@ -43,6 +43,10 @@ public abstract class Problem {
       super(message);
     }
 
+    public Error(String message, String fileName) {
+      super(message, fileName);
+    }
+
     public Error(String message, int line) {
       super(message, line);
     }
@@ -66,6 +70,10 @@ public abstract class Problem {
 
     public Warning(String message) {
       super(message);
+    }
+
+    public Warning(String message, String fileName) {
+      super(message, fileName);
     }
 
     public Warning(String message, int line) {
@@ -96,6 +104,14 @@ public abstract class Problem {
    */
   public Problem(String message) {
     this(message, -1, -1);
+  }
+
+  /**
+   * @param message
+   * @param fileName
+   */
+  public Problem(String message, String fileName) {
+    this(message, fileName, -1, -1);
   }
 
   /**
@@ -145,6 +161,16 @@ public abstract class Problem {
   @Override
   public String toString() {
     String kind = isError() ? "Error" : "Warning";
-    return kind + " at " + file + ":" + line + ":" + column + ": " + message;
+    String loc = file.isEmpty() ? "" : file;
+    if (line != -1) {
+      loc = loc.isEmpty() ? "" + line : loc + ":" + line;
+      if (column != -1) {
+        loc += ":" + column;
+      }
+    }
+    if (!loc.isEmpty()) {
+      loc = " at " + loc;
+    }
+    return kind + loc + ": " + message;
   }
 }

@@ -30,9 +30,9 @@ package org.jastadd;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -131,16 +131,15 @@ public class JastAdd {
       Grammar root = config.buildRoot();
       root.genDefaultNodeTypes();
 
-      Collection<Problem> errors = new ArrayList<Problem>();
-      int retVal = parseAstGrammars(root, errors);
-      if (retVal != 0) {
-        return retVal;
-      }
-
-      if(!errors.isEmpty()) {
-        for (Iterator<Problem> iter = errors.iterator(); iter.hasNext();) {
-          System.err.println(iter.next());
+      Collection<Problem> problems = parseAstGrammars(root);
+      boolean hasError = false;
+      for (Problem problem: problems) {
+        problem.print(System.err);
+        if (problem.isError()) {
+          hasError = true;
         }
+      }
+      if (hasError) {
         return 1;
       }
 
@@ -162,7 +161,7 @@ public class JastAdd {
 
       genIncrementalDDGNode(root);
 
-      retVal = parseJragFiles(root);
+      int retVal = parseJragFiles(root);
       if (retVal != 0) {
         return retVal;
       }
@@ -343,7 +342,8 @@ public class JastAdd {
     jp.popTopLevelOrAspect();
   }
 
-  private int parseAstGrammars(Grammar root, Collection<Problem> errors) {
+  private Collection<Problem> parseAstGrammars(Grammar root) {
+    Collection<Problem> problems = new LinkedList<Problem>();
     //System.out.println("parsing grammars");
     for (Iterator<String> iter = config.getFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
@@ -362,20 +362,18 @@ public class JastAdd {
           }
           //
 
-          errors.addAll(parser.parseProblems());
+          problems.addAll(parser.parseProblems());
 
         } catch (ast.AST.TokenMgrError e) {
-          System.err.println("Lexical error in " + fileName + ": " + e.getMessage());
-          return 1;
+          problems.add(new Problem.Error(e.getMessage(), fileName));
         } catch (ast.AST.ParseException e) {
           // Exceptions actually caught by error recovery in parser
         } catch (FileNotFoundException e) {
-          System.err.println("File error: Abstract syntax grammar file " + fileName + " not found");
-          return 1;
+          problems.add(new Problem.Error("could not find the abstract syntax file '" + fileName + "'"));
         }
       }
     }
-    return 0;
+    return problems;
   }
 
   @SuppressWarnings("unused")
