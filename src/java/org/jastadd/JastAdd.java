@@ -131,14 +131,14 @@ public class JastAdd {
       Grammar root = config.buildRoot();
       root.genDefaultNodeTypes();
 
-      Collection<String> errors = new ArrayList<String>();
+      Collection<Problem> errors = new ArrayList<Problem>();
       int retVal = parseAstGrammars(root, errors);
       if (retVal != 0) {
         return retVal;
       }
 
       if(!errors.isEmpty()) {
-        for (Iterator<String> iter = errors.iterator(); iter.hasNext();) {
+        for (Iterator<Problem> iter = errors.iterator(); iter.hasNext();) {
           System.err.println(iter.next());
         }
         return 1;
@@ -343,7 +343,7 @@ public class JastAdd {
     jp.popTopLevelOrAspect();
   }
 
-  private int parseAstGrammars(Grammar root, Collection<String> errors) {
+  private int parseAstGrammars(Grammar root, Collection<Problem> errors) {
     //System.out.println("parsing grammars");
     for (Iterator<String> iter = config.getFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
@@ -362,11 +362,7 @@ public class JastAdd {
           }
           //
 
-          for (Iterator<?> errorIter = parser.getErrors(); errorIter.hasNext();) {
-            String[] s = ((String) errorIter.next()).split(";");
-            errors.add("Syntax error in " + fileName + " at line " + s[0] +
-                ", column " + s[1]);
-          }
+          errors.addAll(parser.parseProblems());
 
         } catch (ast.AST.TokenMgrError e) {
           System.err.println("Lexical error in " + fileName + ": " + e.getMessage());

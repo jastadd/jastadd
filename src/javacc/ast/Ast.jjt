@@ -12,18 +12,15 @@ PARSER_BEGIN(Ast)
 package ast.AST;
 
 import java.util.*;
+import org.jastadd.*;
 
 public class Ast {
 
-  private LinkedList errorList = new LinkedList();
+  private Collection<Problem> problems = new LinkedList<Problem>();
   public String fileName;
   
-  public Iterator getErrors() {
-    return errorList.iterator();
-  }
-
-  public Collection parseErrors() {
-    return errorList;
+  public Collection<Problem> parseProblems() {
+    return problems;
   }
   
   private void error_skipto(int kind) {
@@ -31,10 +28,9 @@ public class Ast {
 
     StringBuffer msg = new StringBuffer();
     
-    msg.append(Integer.toString(e.currentToken.next.beginLine));
-    msg.append(";");
-    msg.append(Integer.toString(e.currentToken.next.beginColumn));
-    msg.append(";");
+    int line = e.currentToken.next.beginLine;
+    int column = e.currentToken.next.beginColumn;
+    problems.add(new Problem.Error("syntax error", fileName, line, column));
 
     /*
 
@@ -71,14 +67,7 @@ public class Ast {
     msg.append(expected.toString());
     */
 
-    msg.append(Integer.toString(e.currentToken.next.endLine));
-    msg.append(";");
-    msg.append(Integer.toString(e.currentToken.next.endColumn));
-    msg.append(";");
-    msg.append("Syntax error");
-    errorList.add(msg.toString());
-    
-    //System.err.println(e.toString());
+    // ???
     Token t;
     do {
       t = getNextToken();
@@ -213,17 +202,17 @@ void ClassList() #List: {}
 void Class() #ASTDecl : { Token first = null, last; }
 {
   try {
-  ((Abstract() { first = token; } #Opt(1)) | ({} #Opt(0)))
+    ((Abstract() { first = token; } #Opt(1)) | ({} #Opt(0)))
 //  [Abstract() { first = token; }] #Opt
-  IdDecl() { if(first == null)  first = token; }
-  OptSuperClass() ComponentsList() Attributes()
-  <SEMICOLON> {
-    last = token;
-    jjtThis.setFileName(fileName);
-    jjtThis.setStartLine(first.beginLine);
-    jjtThis.setEndLine(last.endLine);
-    jjtThis.setComment(jjtThis.unparseComment());
-  }
+    IdDecl() { if(first == null)  first = token; }
+    OptSuperClass() ComponentsList() Attributes()
+    <SEMICOLON> {
+      last = token;
+      jjtThis.setFileName(fileName);
+      jjtThis.setStartLine(first.beginLine);
+      jjtThis.setEndLine(last.endLine);
+      jjtThis.setComment(jjtThis.unparseComment());
+    }
   } catch(ParseException e) {
     error_skipto(SEMICOLON);
     throw e;
