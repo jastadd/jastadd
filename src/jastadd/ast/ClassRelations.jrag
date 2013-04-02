@@ -71,30 +71,30 @@ aspect InstanceOf {
 }
 
 aspect Subclasses {
-  syn lazy HashMap Grammar.subclassMap() {
-    HashMap map = new HashMap();
-    for(int j = 0; j < getNumTypeDecl(); j++) {
-      if(getTypeDecl(j) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        map.put(decl, new ArrayList());
+  syn lazy Map<ASTDecl,Collection<ASTDecl>> Grammar.subclassMap() {
+    Map<ASTDecl,Collection<ASTDecl>> map = new HashMap<ASTDecl,Collection<ASTDecl>>();
+    for (int j = 0; j < getNumTypeDecl(); j++) {
+      if (getTypeDecl(j) instanceof ASTDecl) {
+        ASTDecl decl = (ASTDecl) getTypeDecl(j);
+        map.put(decl, new ArrayList<ASTDecl>());
       }
     }
-    for(int j = 0; j < getNumTypeDecl(); j++) {
-      if(getTypeDecl(j) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        if(decl.superClass() != null) {
-          ((ArrayList)map.get(decl.superClass())).add(decl);
+    for (int j = 0; j < getNumTypeDecl(); j++) {
+      if (getTypeDecl(j) instanceof ASTDecl) {
+        ASTDecl decl = (ASTDecl) getTypeDecl(j);
+        if (decl.superClass() != null) {
+          map.get(decl.superClass()).add(decl);
         }
       }
     }
     return map;
   }
   
-  inh lazy Collection TypeDecl.findSubclasses(ASTDecl target);
-  syn lazy Collection ASTDecl.subclasses() = findSubclasses(this);
+  inh lazy Collection<ASTDecl> TypeDecl.findSubclasses(ASTDecl target);
+  syn lazy Collection<ASTDecl> ASTDecl.subclasses() = findSubclasses(this);
 
   eq Grammar.getTypeDecl().findSubclasses(ASTDecl target) {
-    return (Collection)subclassMap().get(target);
+    return subclassMap().get(target);
     /*
     ArrayList list = new ArrayList();
     for(int j = 0; j < getNumTypeDecl(); j++) {

@@ -132,14 +132,7 @@ public class JastAdd {
       root.genDefaultNodeTypes();
 
       Collection<Problem> problems = parseAstGrammars(root);
-      boolean hasError = false;
-      for (Problem problem: problems) {
-        problem.print(System.err);
-        if (problem.isError()) {
-          hasError = true;
-        }
-      }
-      if (hasError) {
+      if (checkErrors(problems)) {
         return 1;
       }
 
@@ -149,13 +142,7 @@ public class JastAdd {
 
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
 
-      for (Problem problem: problems) {
-        problem.print(System.err);
-        if (problem.isError()) {
-          hasError = true;
-        }
-      }
-      if (hasError) {
+      if (checkErrors(problems)) {
         return 1;
       }
 
@@ -186,11 +173,13 @@ public class JastAdd {
 
       root.weaveCollectionAttributes();
 
-      String err = root.errors();
-      if(!err.equals("") || !ASTNode.globalErrors.equals("")) {
-        System.err.println("Semantic errors: \n" + err + ASTNode.globalErrors);
+      problems = root.attributeProblems();
+
+      if (checkErrors(problems)) {
         return 1;
       }
+
+      root.removeDuplicateInhDecls();
 
       long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
 
@@ -213,6 +202,20 @@ public class JastAdd {
       return 1;
     }
     return 0;
+  }
+
+  /**
+   * Print problems and check for errors
+   * @param problems
+   * @return <code>true</code> if any of the problems was an error
+   */
+  private boolean checkErrors(Collection<Problem> problems) {
+    boolean hasError = false;
+    for (Problem problem: problems) {
+      problem.print(System.err);
+      hasError |= problem.isError();
+    }
+    return hasError;
   }
 
   private int readCacheFiles(Grammar root) {

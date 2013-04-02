@@ -1,0 +1,387 @@
+/* Copyright (c) 2005-2013, The JastAdd Team
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+package jrag;
+
+import ast.AST.*;
+
+import java.util.*;
+
+import jrag.*;
+
+import org.jastadd.Problem;
+
+/**
+ * Collection attributes to retreive all attribute problems in the AST
+ */
+aspect AttributeProblems {
+
+  /**
+   * Collects semantic problems for attributes.
+   */
+  coll Collection<Problem> Grammar.attributeProblems()
+    [new LinkedList<Problem>()]
+    with add;
+
+  SynEq contributes new Problem.Error(
+      "synthesized attribute " + name() + " assigned in class " + hostClass().name() + " is not declared",
+      getFileName(), getStartLine())
+    when decl() == null
+    to Grammar.attributeProblems()
+    for grammar();
+
+  /**
+   * @return Previous equation for same synthesized attribute
+   */
+  syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
+
+  SynEq contributes new Problem.Error(
+      "multiple equations for synthesized attribute " + hostClass().name() + "." + name() +
+              ", previously defined in " + prevEq().getFileName() + ":" + prevEq().getStartLine(),
+      getFileName(), getStartLine())
+    when decl() != null && prevEq() != null && prevEq() != this
+    to Grammar.attributeProblems()
+    for grammar();
+
+  SynEq contributes new Problem.Error(
+      "equation must have the same parameter names as attribute declaration in " +
+              decl().getFileName() + ":" + decl().getStartLine(),
+      getFileName(), getStartLine())
+    when decl() != null && !decl().parametersDecl().equals(parametersDecl())
+    to Grammar.attributeProblems()
+    for grammar();
+
+  InhEq contributes new Problem.Error(
+      "equation must have the same parameter names as attribute declaration in " +
+              decl().getFileName() + ":" + decl().getStartLine(),
+      getFileName(), getStartLine())
+    when decl() != null && !decl().parametersDecl().equals(parametersDecl())
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn SynDecl SynDecl.prevDecl() = hostClass().lookupSynDecl(signature());
+
+  SynDecl contributes new Problem.Error(
+      "multiple declaration of attribute " + hostClass().name() + "." + name() +
+              ", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine(),
+      getFileName(), getStartLine())
+    when prevDecl() != null && prevDecl() != this
+    to Grammar.attributeProblems()
+    for grammar();
+
+  SynDecl contributes missingEqProblem()
+    when !missingEqs().isEmpty()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  SynDecl contributes new Problem.Error("return type for NTA must be an AST node",
+      getFileName(), getStartLine())
+    when getNTA() && !(hostClass().env().lookup(type().split("<")[0]) instanceof ASTDecl)
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn Problem SynDecl.missingEqProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("equation for synthesized attribute " + name() + " missing in the following classes:");
+    for (TypeDecl decl: missingEqs()) {
+      buf.append("\n    " + decl.name());
+    }
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  syn lazy Collection<? extends TypeDecl> SynDecl.missingEqs() =
+    hostClass().missingSynEqs(signature());
+
+  /**
+   * @param signature the signature of the attribute
+   * @return the subclasses of this AST class that are missing an
+   * equation for for the synthesized attribute
+   */
+  syn Collection<? extends TypeDecl> TypeDecl.missingSynEqs(String signature) {
+    if (lookupSynEq(signature) == null)
+      return Collections.singletonList(this);
+    else
+      return Collections.emptyList();
+  }
+
+  eq InterfaceDecl.missingSynEqs(String signature) = Collections.emptyList();
+
+  /**
+   * @param signature the signature of the attribute
+   * @return the subclasses of this AST class that are missing an
+   * equation for for the synthesized attribute
+   */
+  eq ASTDecl.missingSynEqs(String signature) {
+    if (lookupSynEq(signature) != null) {
+      // if there is an equation defined for this class we are done
+      return Collections.emptyList();
+    } else if (!hasAbstract()) {
+      // if the class is not abstract then it is missing an equation
+      return Collections.singletonList(this);
+    } else {
+      // the class was abstract so we must check that all subclasses define the equation
+      Collection<TypeDecl> missing = new LinkedList<TypeDecl>();
+      for (ASTDecl subclass: subclasses()) {
+        missing.addAll(subclass.missingSynEqs(signature));
+      }
+      return missing;
+    }
+  }
+
+  InhEq contributes unknownChildProblem()
+    when hasUnknownChildProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean InhEq.hasUnknownChildProblem() =
+    getComponents() == null &&
+    getSonName().startsWith("get") &&
+    !getSonName().equals("getChild");
+
+  syn Problem InhEq.unknownChildProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("inherited equation for unknown child " + sonName() + " in class " + hostClass().name());
+    for(Iterator iter = hostClass().getComponents(); iter.hasNext(); ) {
+      Components c = (Components)iter.next();
+      buf.append("\n    " + c.type() + " " + c.name());
+    }
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  InhEq contributes unknownNTAProblem()
+    when hasUnknownNTAProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean InhEq.hasUnknownNTAProblem() =
+    !hasUnknownChildProblem() &&
+    (getSonAttrDecl() == null || !getSonAttrDecl().getNTA()) &&
+    (getComponents() == null && !getSonName().equals("getChild"));
+
+  syn Problem InhEq.unknownNTAProblem() {
+    StringBuilder buf = new StringBuilder();
+    AttrDecl decl = getSonAttrDecl();
+    if (decl == null) {
+      buf.append("inherited equation for unknown NTA " + sonName()
+           + " in class " + hostClass().name());
+    } else if(!decl.getNTA()) {
+      buf.append("inherited equation for attribute " + sonName() + " which is not a NTA");
+    }
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  InhEq contributes multiDeclProblem()
+    when hasMultiDeclProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  /**
+   * @return Previous equation for this inherited attribute
+   */
+  syn InhEq InhEq.prevEq() = hostClass().lookupInhEq(signature(), sonName());
+
+  syn boolean InhEq.hasMultiDeclProblem() =
+    prevEq() != null && prevEq() != this;
+
+  syn Problem InhEq.multiDeclProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("multiple equation for inherited attribute " +
+        sonName() + "." + name() + " in class " + hostClass().name());
+    buf.append(" and " + prevEq().name() + " in class " + prevEq().hostClass().name() +
+        " in " + prevEq().getFileName() + ":" + prevEq().getStartLine());
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  InhEq contributes badIndexProblem()
+    when hasBadIndexProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean InhEq.hasBadIndexProblem() =
+    hasIndex() &&
+    getComponents() != null &&
+    !(getComponents() instanceof ListComponents) &&
+    !getSonName().equals("getChild");
+
+  syn Problem InhEq.badIndexProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("may not supply index for non list child " + sonName() + 
+      " in class " + hostClass().name());
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  InhDecl contributes multiDeclProblem()
+    when isDuplicateInhDecl()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn Problem InhDecl.multiDeclProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("multiple declaration of inherited attribute " + hostClass().name() + "." + name());
+    buf.append(", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine());
+    return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
+  }
+
+  InhDecl contributes missingEqProblem()
+    when hasMissingEqProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean InhDecl.hasMissingEqProblem() =
+    !grammar().noInhEqCheck && !missingEqs().isEmpty();
+
+  syn lazy Collection<ASTDecl> InhDecl.missingEqs() {
+    // check for missing inherited equations
+    Collection<ASTDecl> missing = new LinkedList<ASTDecl>();
+    Set<TypeDecl> visited = new HashSet<TypeDecl>();
+    if (hostClass() instanceof ASTDecl) {
+      for (Iterator iter = ((ASTDecl)hostClass()).fathers().iterator(); iter.hasNext(); ) {
+        ASTDecl father = (ASTDecl)iter.next();
+        if (!father.hasInhEqFor((ASTDecl)hostClass(), signature(), visited)) {
+          missing.add(father);
+        }
+      }
+    }
+    return missing;
+  }
+
+  syn Problem InhDecl.missingEqProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("missing inherited equation for attribute " + name() + 
+          " in class " + hostClass().name() + " when being child of ");
+    boolean first = true;
+    for (ASTDecl father: missingEqs()) {
+      if (!first) {
+        buf.append(", ");
+      }
+      first = false;
+      buf.append(father.name());
+    }
+    return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
+  }
+
+  syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
+
+  syn boolean AttrDecl.isDuplicateInhDecl() = false;
+
+  eq InhDecl.isDuplicateInhDecl() = prevDecl() != this;
+
+  CollDecl contributes unknownAnnotationProblem()
+    when hasUnknownAnnotationProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean CollDecl.hasUnknownAnnotationProblem() {
+    for (Iterator iter = annotations.iterator(); iter.hasNext(); ) {
+      String annotation = (String)iter.next();
+      if (!knownAnnotation(annotation)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  syn Problem CollDecl.unknownAnnotationProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("unknown annotations: ");
+    boolean first = true;
+    for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
+      String annotation = (String)iter.next();
+      if(!knownAnnotation(annotation)) {
+        if (!first) {
+          buf.append(", ");
+        }
+        first = false;
+        buf.append(annotation);
+      }
+    }
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  CollDecl contributes collectionGroupProblem()
+    when hasCollectionGroupProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean CollDecl.hasCollectionGroupProblem() {
+    if (hasAnnotation("@CollectionGroup")) {
+      String value = getAnnotationValue("@CollectionGroup");
+      return (value == null)
+            || (value.equals(""))
+            || (!isValidIdentifierPart(value));
+    }
+    return false;
+  }
+
+  syn Problem CollDecl.collectionGroupProblem() {
+    String msg = "";
+    if(hasAnnotation("@CollectionGroup")) {
+      String value = getAnnotationValue("@CollectionGroup");
+      if(value == null) {
+        msg = "missing CollectionGroup argument";
+      } else if(value.equals("")) {
+        msg = "CollectionGroup argument can not be empty";
+      } else if(!isValidIdentifierPart(value)) {
+        msg = "CollectionGroup argument must be a valid identifier part";
+      }
+    }
+    return new Problem.Error(msg, getFileName(), getStartLine());
+  }
+
+  CollDecl contributes multipleRootsProblem()
+    when hasMultipleRootsProblem()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  syn boolean CollDecl.hasMultipleRootsProblem() =
+    root == null && hostClass().env().roots().size() != 1;
+
+  syn Problem CollDecl.multipleRootsProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("multiple tree roots to search for contributions. Please explicitly select one of");
+    for (Iterator iter = hostClass().env().roots().iterator(); iter.hasNext(); ) {
+      ASTDecl decl = (ASTDecl)iter.next();
+      buf.append(" " + decl.name());
+    }
+    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+  }
+
+  CollDecl contributes new Problem.Error(
+      "no contributions for this collection attribute",
+      getFileName(), getStartLine())
+    when uses().isEmpty()
+    to Grammar.attributeProblems()
+    for grammar();
+
+  CollEq contributes new Problem.Error(
+      "undeclared collection attribute '" + name() + "'",
+      getFileName(), getStartLine())
+    when decl() == null
+    to Grammar.attributeProblems()
+    for grammar();
+
+}

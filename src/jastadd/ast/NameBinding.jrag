@@ -210,8 +210,10 @@ aspect BindSynEquations {
 }
 
 aspect FindInheritedEquations {
-  syn boolean TypeDecl.hasInhEqFor(ASTDecl child, String signature, Collection visited)  = false;
-  eq ASTDecl.hasInhEqFor(ASTDecl child, String signature, Collection visited) {
+  public boolean TypeDecl.hasInhEqFor(ASTDecl child, String signature, Set<TypeDecl> visited) {
+    return false;
+  }
+  public boolean ASTDecl.hasInhEqFor(ASTDecl child, String signature, Set<TypeDecl> visited) {
     //System.out.println("  Has " + signature() + " InhEqFor " + child.signature() + "." + signature + ", " + visited.size());
     visited.add(this);
     int numChild = 0;

@@ -471,9 +471,9 @@ aspect CollectionAttributes {
       decl.root = root;
       decl.setAspectName(aspectName);
       ((TypeDecl)c).addCollDecl(decl);
-    }
-    else
+    } else {
       error("Can not add collection attribute " + type + " " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    }
   }
 
   public String CollDecl.root = null;
@@ -541,38 +541,6 @@ aspect CollectionAttributes {
   public boolean CollDecl.circularCollection() { return circularCollection; }
   public boolean CollDecl.isCircular() { return circularCollection(); }
 
-
-  eq CollDecl.error() {
-    StringBuffer result = new StringBuffer();
-    for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
-      String annotation = (String)iter.next();
-      if(!knownAnnotation(annotation)) {
-        result.append(getFileName() + ":" + getStartLine() + " ");
-        result.append("Unknown annotation: " + annotation + "\n");
-      }
-    }
-    if(hasAnnotation("@CollectionGroup")) {
-      String value = getAnnotationValue("@CollectionGroup");
-      if(value == null)
-        result.append(getFileName() + ":" + getStartLine() + " Missing CollectionGroup argument\n");
-      else if(value.equals(""))
-        result.append(getFileName() + ":" + getStartLine() + " CollectionGroup argument can not be empty\n");
-      else if(!isValidIdentifierPart(value))
-        result.append(getFileName() + ":" + getStartLine() + " CollectionGroup argument must be a valid identifier part\n");
-    }
-    if(root == null && hostClass().env().roots().size() != 1) {
-      result.append(getFileName() + ":" + getStartLine() + " Multiple tree roots to search for contributions. Please explicitly select one of");
-      for(Iterator iter = hostClass().env().roots().iterator(); iter.hasNext(); ) {
-        ASTDecl decl = (ASTDecl)iter.next();
-        result.append(" " + decl.name());
-      }
-      result.append("\n");
-    }
-    if(uses().isEmpty())
-      result.append(getFileName() + ":" + getStartLine() + " No contributions for this collection attribute\n");
-    return result.toString();
-  }
-
   private static boolean CollDecl.isValidIdentifierPart(String s) {
     for(int i = 0; i < s.length(); i++)
       if(!Character.isJavaIdentifierPart(s.charAt(i)))
@@ -594,15 +562,6 @@ aspect CollectionAttributes {
     if(s.equals("@Naive"))// TODO: document this annotation
       return true;
     return false;
-  }
-
-  eq CollEq.error() {
-    StringBuffer result = new StringBuffer();
-  if(decl() == null) {
-      result.append(getFileName() + ":" + getStartLine() + " ");
-      result.append("Undeclared collection attribute " + "\n");
-  }
-    return result.toString();
   }
 
 }
