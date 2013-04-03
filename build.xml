@@ -66,7 +66,8 @@
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
 			outputdirectory="${gen.dir}/jrag/AST"
 			target="${gen.dir}/jrag/AST/Jrag.jj"/>
-		<javac destdir="${bin.dir}" includeantruntime="true">
+		<javac source="1.6" target="1.6"
+      destdir="${bin.dir}" includeantruntime="true">
 			<src path="${src.dir}/java"/>
 			<src path="${gen.dir}"/>
 			<src path="${tt.src.dir}"/>
