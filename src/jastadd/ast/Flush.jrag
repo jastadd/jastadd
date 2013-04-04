@@ -145,7 +145,7 @@ aspect Flush {
       res.append(attr.resetVisit());
       res.append(attr.resetCache());
       if(!attr.separateEvaluation() && !attr.onePhase())
-        res.append(ind(2) + attr.attributeSignature() + "_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n");
+        res.append(grammar().ind(2) + attr.attributeSignature() + "_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n");
     }
     res.append(collectionReset());
     return res.toString();

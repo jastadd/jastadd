@@ -40,7 +40,6 @@ import jrag.AST.ASTCompilationUnit;
 import jrag.AST.JragParser;
 
 import ast.AST.ASTDecl;
-import ast.AST.ASTNode;
 import ast.AST.Ast;
 import ast.AST.Components;
 import ast.AST.Grammar;

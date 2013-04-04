@@ -114,12 +114,14 @@ aspect Rewrites {
   }
 
   public void Rewrite.genRewritesExtra(PrintStream out, int index) {
+    String ind = grammar().ind;
+    String ind2 = grammar().ind(2);
     TemplateContext tt = templateContext();
     tt.expand("Rewrite.javaDoc:internal", out);
     if(getResult() instanceof jrag.AST.ASTBlock) {
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
-        out.println(ind(2) +
+        out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");");
@@ -129,21 +131,23 @@ aspect Rewrites {
     else {
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
-        out.println(ind(2) +
+        out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");");
-      out.println(ind(2) + "return " + Unparser.unparse(getResult()) + ";");
+      out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
       out.println(ind + "}");
     }
   }
   public void RewriteList.genRewritesExtra(PrintStream out, int index) {
+    String ind = grammar().ind;
+    String ind2 = grammar().ind(2);
     TemplateContext tt = templateContext();
     tt.expand("Rewrite.javaDoc:internal", out);
     if(getResult() instanceof jrag.AST.ASTBlock) {
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
-        out.println(ind(2) +
+        out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");");
@@ -153,11 +157,11 @@ aspect Rewrites {
     else {
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
-        out.println(ind(2) +
+        out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
           getStartLine() + "\");");
-      out.println(ind(2) + "return " + Unparser.unparse(getResult()) + ";");
+      out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
       out.println(ind + "}");
     }
   }

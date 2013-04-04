@@ -107,6 +107,7 @@ aspect ASTCloneNode {
     // the NTA children from the full copy, but for Opt and List NTAs
     // we still need to create a placeholder Opt/List node
     String skipNTAs = "";
+	String ind = grammar().ind;
     if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
       !ntaListIndices.isEmpty()) {
 

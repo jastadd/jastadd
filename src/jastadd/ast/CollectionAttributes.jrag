@@ -47,6 +47,7 @@ aspect CollectionAttributes {
     for(int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       if(!attr.separateEvaluation() && (attr.isCircular() || !attr.onePhase())) {
+        String ind = grammar().ind;
         out.println(ind + "/**");
         out.println(ind + " * @apilevel internal");
         out.println(ind + " */");
@@ -85,6 +86,7 @@ aspect CollectionAttributes {
     if(!separateEvaluation())
       return super.cacheCycleCheck();
     if (!grammar().cacheCycle) return "";
+    String ind = grammar().ind;
     if(getNumParameter() == 0) {
       return
         "if (state().LAST_CYCLE) {\n" +
@@ -192,10 +194,10 @@ aspect CollectionAttributes {
 
       CollEq firstEq = equations.get(0);
 
-      out.println(ind + "protected void collect_contributors_" + decl.collectingSignature() + "() {"); // once per group
+      out.println(grammar().ind + "protected void collect_contributors_" + decl.collectingSignature() + "() {"); // once per group
 
       if (isRootNode()) {
-        out.println(ind(2) + "if(collect_contributors_" + decl.collectingSignature() + ") return;");
+        out.println(grammar().ind(2) + "if(collect_contributors_" + decl.collectingSignature() + ") return;");
       }
 
       String bottomValue = Unparser.unparse(decl.getBottomValue());
@@ -220,15 +222,15 @@ aspect CollectionAttributes {
         }
       }
       if (isASTNode()) {
-        out.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
-        out.println(ind(3) + "getChild(i).collect_contributors_" + decl.collectingSignature() + "();"); // once per group
+        out.println(grammar().ind(2) + "for(int i = 0; i < getNumChild(); i++)");
+        out.println(grammar().ind(3) + "getChild(i).collect_contributors_" + decl.collectingSignature() + "();"); // once per group
       } else {
-        out.println(ind(2) + "super.collect_contributors_" + decl.collectingSignature() + "();");
+        out.println(grammar().ind(2) + "super.collect_contributors_" + decl.collectingSignature() + "();");
         if (isRootNode()) {
-          out.println(ind(2) + "collect_contributors_" + decl.collectingSignature() + " = true;");
+          out.println(grammar().ind(2) + "collect_contributors_" + decl.collectingSignature() + " = true;");
         }
       }
-      out.println(ind + "}");
+      out.println(grammar().ind + "}");
     }
   }
 
@@ -251,20 +253,20 @@ aspect CollectionAttributes {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
-      out.println(ind + "protected void contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(" + decl.getType() + " collection) {");
-      out.println(ind(2) + "super.contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(collection);");
+      out.println(grammar().ind + "protected void contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(" + decl.getType() + " collection) {");
+      out.println(grammar().ind(2) + "super.contributeTo_" + decl.getTarget() + "_" + decl.attributeSignature() + "(collection);");
       for (CollEq attr: equations) {
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           if (c.hasCondition() /* && attr.getNumContribution() > 1*/) {
-            out.println(ind(2) + "if(" + c.getCondition().trim() + ")");
-            out.println(ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+            out.println(grammar().ind(2) + "if(" + c.getCondition().trim() + ")");
+            out.println(grammar().ind(3) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           } else {
-            out.println(ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
+            out.println(grammar().ind(2) + "collection." + decl.getCombOp() + "(" + c.getValue().trim() + ");");
           }
         }
       }
-      out.println(ind + "}\n");
+      out.println(grammar().ind + "}\n");
     }
   }
 
@@ -296,7 +298,7 @@ aspect CollectionAttributes {
         valueAccess = "n.new_";
       }
 
-      out.println(ind + "protected void " + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(" + decl.getTarget() + " n) {");
+      out.println(grammar().ind + "protected void " + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(" + decl.getTarget() + " n) {");
       for (CollEq attr: equations) {
         TemplateContext tt = attr.templateContext();
         tt.bind("CombOp", decl.getCombOp());
@@ -312,12 +314,12 @@ aspect CollectionAttributes {
         }
       }
       if(isASTNode()) {
-        out.println(ind(2) + "for(int i = 0; i < getNumChild(); i++)");
-        out.println(ind(3) + "getChild(i)." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_next_Iteration(n);"); // once per group
+        out.println(grammar().ind(2) + "for(int i = 0; i < getNumChild(); i++)");
+        out.println(grammar().ind(3) + "getChild(i)." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_next_Iteration(n);"); // once per group
       } else {
-        out.println(ind(3) + "r." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(n);");
+        out.println(grammar().ind(3) + "r." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_nextIteration(n);");
       }
-      out.println(ind + "}");
+      out.println(grammar().ind + "}");
     }
   }
 

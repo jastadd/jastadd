@@ -189,10 +189,10 @@ aspect JaddCodeGen {
         if(c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
           String tokenId = t.getTokenId().getID();
-          out.println(ind(2) + "set" + tokenId + "(p" + param + ");");
+          out.println(grammar().ind(2) + "set" + tokenId + "(p" + param + ");");
         }
         else {
-          out.println(ind(2) + "setChild(p" + param + ", " + childIndex + ");");
+          out.println(grammar().ind(2) + "setChild(p" + param + ", " + childIndex + ");");
           childIndex++;
         }
         param += 1;
@@ -206,9 +206,9 @@ aspect JaddCodeGen {
     }
     if(grammar().rewriteEnabled && isRootNode()) {
       if(grammar().stagedRewrites)
-        out.println(ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
+        out.println(grammar().ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
       else
-        out.println(ind(2) + "is$Final(true);");
+        out.println(grammar().ind(2) + "is$Final(true);");
     }
 
     out.print(tt.expand("State.incHookConstructionEnd"));
@@ -223,7 +223,7 @@ aspect JaddCodeGen {
     // we only build constructors if there are components
     if(!getComponents().hasNext())
       return;
-    out.print(ind + "public " + name() + "." + name() + "(");
+    out.print(grammar().ind + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
@@ -235,7 +235,7 @@ aspect JaddCodeGen {
     }
     out.println(") {");
     emitBuildingConstructorBody(out);
-    out.println(ind + "}");
+    out.println(grammar().ind + "}");
   }
 
   public void ASTDecl.emitSymbolConstructor(PrintWriter out) {
@@ -251,7 +251,7 @@ aspect JaddCodeGen {
     }
     if(!stringArg) return;
 
-    out.print(ind + "public " + name() + "." + name() + "(");
+    out.print(grammar().ind + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
@@ -266,7 +266,7 @@ aspect JaddCodeGen {
     }
     out.println(") {");
     emitBuildingConstructorBody(out);
-    out.println(ind + "}");
+    out.println(grammar().ind + "}");
   }
 
   public void Grammar.genReset(PrintWriter out) {
@@ -312,7 +312,7 @@ aspect JaddCodeGen {
         buf.append("!(this instanceof " + root.name() + ")");
       }
       buf.append(")\n");
-      buf.append(ind + "throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
+      buf.append(grammar().ind + "throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
       return buf.toString();
     } else {
       return "";
@@ -476,6 +476,8 @@ aspect JaddCodeGen {
    * @param out Aspect output stream
    */
   public void ASTDecl.emitMayHaveRewrite(PrintWriter out) {
+    String ind = grammar().ind;
+    String ind2 = grammar().ind(2);
     out.println(ind + "/**");
     out.println(ind + " * @apilevel internal");
     out.println(ind + " */");
@@ -484,21 +486,21 @@ aspect JaddCodeGen {
       
       // Avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
-        out.println(ind(2) + "return true;");  // old code
+        out.println(ind2 + "return true;");  // old code
       } else {
-        out.println(ind(2) + "return false;");
+        out.println(ind2 + "return false;");
       }
       
     } else if(!hasRewrites())
-      out.println(ind(2) + "return false;");
+      out.println(ind2 + "return false;");
     else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition())
-      out.println(ind(2) + "return true;");
+      out.println(ind2 + "return true;");
     else {
       for(Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
         String condition = (String)iter.next();
-        out.println(ind(2) + "if(" + condition + ") return true;");
+        out.println(ind2 + "if(" + condition + ") return true;");
       }
-      out.println(ind(2) + "return false;");
+      out.println(ind2 + "return false;");
     }
     out.println(ind + "}");
   }

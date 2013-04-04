@@ -42,7 +42,7 @@ aspect TemplateUtil {
    */
   eq Grammar.templateContext() {
     TinyTemplate tt = new TinyTemplate();
-    tt.setIndentation(ASTNode.ind);
+    tt.setIndentation(ind);
     tt.throwExceptions(true);
     loadTemplates(tt, "ast/ASTNode");
     loadTemplates(tt, "ast/List");

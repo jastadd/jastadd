@@ -36,7 +36,6 @@ import java.util.StringTokenizer;
 
 import org.jastadd.tinytemplate.TemplateContext;
 
-import ast.AST.ASTNode;
 import ast.AST.Grammar;
 
 /**
@@ -252,16 +251,16 @@ public class JastAddConfiguration {
     // TODO make ASTNode.ind not-static
     if (indent.value().equals("2space")) {
       // Use 2 spaces for indentation
-      ASTNode.ind = "  ";
+      root.ind = "  ";
     } else if (indent.value().equals("4space")) {
       // Use 4 spaces for indentation
-      ASTNode.ind = "    ";
+      root.ind = "    ";
     } else if (indent.value().equals("8space")) {
       // Use 8 spaces for indentation
-      ASTNode.ind = "        ";
+      root.ind = "        ";
     } else if (indent.value().equals("tab")) {
       // Use tabs for indentation
-      ASTNode.ind = "\t";
+      root.ind = "\t";
     }
 
     try {
