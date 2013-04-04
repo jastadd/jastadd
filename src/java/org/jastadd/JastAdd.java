@@ -146,7 +146,9 @@ public class JastAdd {
         return 1;
       }
 
-      ASTNode.resetGlobalErrors();
+      // reset weaving errors
+      // TODO do we really need to do this?!
+      root.problems.clear();
 
       genASTNode$State(root);
 
@@ -174,6 +176,7 @@ public class JastAdd {
       root.weaveCollectionAttributes();
 
       problems = root.attributeProblems();
+      problems.addAll(root.weavingProblems());
 
       if (checkErrors(problems)) {
         return 1;

@@ -35,16 +35,28 @@ import jrag.AST.ASTExpression;
 
 import jrag.Unparser;
 
+import org.jastadd.Problem;
+
 public aspect Attributes {
-  public static void ASTNode.resetGlobalErrors() { globalErrors = ""; }
-  public static String ASTNode.globalErrors = "";
-  public static void ASTNode.error(String s) {
-    globalErrors += s + "\n";
+
+  public Collection<Problem> Grammar.problems = new LinkedList<Problem>();
+
+  public void Grammar.error(String msg, String file, int line) {
+    problems.add(new Problem.Error(msg, file, line));
   }
 
-  public static void ASTNode.refineError(String what, String file, int line) {
-    error("Can not find " + what + " to refine in " + file + " at line " + line + "\n" +
-        "Warning: implicitly generated methods and equations must be refined without an explicit aspect name");
+  public void Grammar.error(String msg) {
+    problems.add(new Problem.Error(msg));
+  }
+
+  public Collection<Problem> Grammar.weavingProblems() {
+    return problems;
+  }
+
+  public void ASTNode.refineError(String what, String file, int line) {
+    grammar().error("can not find " + what + " to refine\n" +
+        "Warning: implicitly generated methods and equations must be refined without an explicit aspect name",
+        file, line);
   }
 
   public HashMap Grammar.aspectMap = new HashMap();
@@ -65,6 +77,7 @@ public aspect Attributes {
       String parentName,
       String childName,
       String aspectName) {
+
     TypeDecl c = lookup(className);
     if(c != null && c instanceof ASTDecl) {
       RewriteList r = new RewriteList();
@@ -78,12 +91,10 @@ public aspect Attributes {
       r.setChildName(childName);
       r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
-    }
-    else if(c != null) {
-      error("Can not rewrite to non AST class " + className + " in " + fileName + " at line " + startLine);
-    }
-    else {
-      error("Can not rewrite to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else if(c != null) {
+      error("can not rewrite to non AST class '" + className + "'", fileName, startLine);
+    } else {
+      error("can not rewrite to unknown class '" + className + "'", fileName, startLine);
     }
   }
   
@@ -97,6 +108,7 @@ public aspect Attributes {
       int startLine,
       int endLine,
       String aspectName) {
+
     TypeDecl c = lookup(className);
     if(c != null && c instanceof ASTDecl) {
       Rewrite r = new Rewrite();
@@ -108,12 +120,10 @@ public aspect Attributes {
       r.setReturnType(type);
       r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
-    }
-    else if(c != null) {
-      error("Can not rewrite to non AST class " + className + " in " + fileName + " at line " + startLine);
-    }
-    else {
-      error("Can not rewrite to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else if(c != null) {
+      error("can not rewrite to non AST class '" + className + "'", fileName, startLine);
+    } else {
+      error("can not rewrite to unknown class '" + className + "'", fileName, startLine);
     }
   }
   
@@ -151,11 +161,11 @@ public aspect Attributes {
           }
         }
       }
-      error("Could not find attribute " + name + " in " + className + " defined in aspect " + aspectName);
+      error("could not find attribute '" + name + "' in " + className + " defined in aspect " + aspectName);
+    } else {
+      error("can not find synthesized attribute '" + name + "' in unknown class " + 
+          className, fileName, startLine);
     }
-    else
-      error("Can not find synthesized attribute " + name + " in unknown class " + 
-          className + " in " + fileName + " at line " + startLine);
   }
   public void Grammar.setInhDeclLazy(boolean shouldBeCached, String aspectName, String className, 
         String name, ast.AST.List parameterList, String fileName, int startLine) {
@@ -211,11 +221,11 @@ public aspect Attributes {
           }
         }
       }
-      error("Could not find attribute " + name + " in " + className + " defined in aspect " + aspectName);
+      error("could not find attribute " + name + " in " + className + " defined in aspect " + aspectName);
+    } else {
+      error("can not find inherited attribute " + name + " in unknown class " + 
+          className, fileName, startLine);
     }
-    else
-      error("Can not find inherited attribute " + name + " in unknown class " + 
-          className + " in " + fileName + " at line " + startLine);
   }
 
 
@@ -240,9 +250,9 @@ public aspect Attributes {
       );
       decl.setBottomValue(bottomValue);
       c.addSynDecl(decl);
-    }
-    else {
-      error("Can not add synthesized attribute " + type + " " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add synthesized attribute " + type + " " + name + " to unknown class " + className,
+          fileName, startLine);
     }
   }
 
@@ -259,9 +269,8 @@ public aspect Attributes {
       equ.setComment(Unparser.unparseComment(node));
       equ.setAspectName(aspectName);
       c.addSynEq(equ);
-    }
-    else {
-      error("Can not add equation for synthesized attribute " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add equation for synthesized attribute " + name + " to unknown class " + className, fileName, startLine);
     }
   }
   
@@ -284,9 +293,9 @@ public aspect Attributes {
       );
       decl.setBottomValue(bottomValue);
       c.addInhDecl(decl);
-    }
-    else {
-      error("Can not add inherited attribute " + type + " " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add inherited attribute " + type + " " + name + " to unknown class " + className,
+          fileName, startLine);
     }
   }
 
@@ -309,9 +318,9 @@ public aspect Attributes {
         equ.setAspectName(aspectName);
         if(p != null) equ.setIndex(p);
         c.addInhEq(equ); // Sortera i bokstavsordning därefter non NTA först
-    }
-    else {
-      error("Can not add equation for inherited attribute " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add equation for inherited attribute " + name + " to unknown class " + className,
+          fileName, startLine);
     }
   }
 
@@ -345,9 +354,9 @@ public aspect Attributes {
     TypeDecl c = lookup(className);
     if(c != null) {
       c.classBodyDecls.add(new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName));
-    }
-    else {
-      error("Can not add member to unknown class " + className + " in " + fileName + " at line " + n.firstToken.beginLine);
+    } else {
+      error("can not add member to unknown class " + className,
+          fileName, n.firstToken.beginLine);
     }
   }
 
@@ -358,9 +367,8 @@ public aspect Attributes {
       ClassBodyObject obj = new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName);
       obj.modifiers = modifiers;
       c.classBodyDecls.add(obj);
-    }
-    else {
-      error("Can not add member to unknown class " + className + " in " + fileName + " at line " + n.firstToken.beginLine);
+    } else {
+      error("can not add member to unknown class " + className, fileName, n.firstToken.beginLine);
     }
   }
 
@@ -372,9 +380,8 @@ public aspect Attributes {
           n.firstToken.beginLine, aspectName);
       obj.modifiers = modifiers;
       c.classBodyDecls.add(obj);
-    }
-    else {
-      error("Can not add member to unknown class " + className + " in " + fileName + " at line " + n.firstToken.beginLine);
+    } else {
+      error("can not add member to unknown class " + className, fileName, n.firstToken.beginLine);
     }
     //else {
       //TypeDecl t = findTypeDecl(className);
@@ -385,36 +392,31 @@ public aspect Attributes {
   public void Grammar.addInterface(jrag.AST.SimpleNode nameList, String className, String fileName) {
     if(nameList == null) {
       System.err.println("Panic");
-    }
-    else {
+    } else {
         
-    TypeDecl c = lookup(className);
-    if(c != null) {
-      c.implementsList.add(nameList);
-    }
-    else {
-      int line = nameList.firstToken.beginLine;
-      error("Can not add interface to unknown class " + className + " in " + fileName + " at line " + line);
-    }
+      TypeDecl c = lookup(className);
+      if(c != null) {
+        c.implementsList.add(nameList);
+      } else {
+        int line = nameList.firstToken.beginLine;
+        error("can not add interface to unknown class " + className, fileName, line);
+      }
     }
   }
 
   public void Grammar.extendInterface(jrag.AST.SimpleNode nameList, String className, String fileName) {
     if(nameList == null) {
       System.err.println("Panic");
-    }
-    else {
+    } else {
       TypeDecl c = lookup(className);
       if(c instanceof InterfaceDecl) {
         c.implementsList.add(nameList);
-      }
-      else if(c != null) {
+      } else if(c != null) {
         int line = nameList.firstToken.beginLine;
-        error(className + " is not an interface and can therefore not be extended  in " + fileName + " at line " + line);
-      }
-      else {
+        error(className + " is not an interface and can therefore not be extended", fileName, line);
+      } else {
         int line = nameList.firstToken.beginLine;
-        error("Can not add interface to unknown interface " + className + " in " + fileName + " at line " + line);
+        error("can not add interface to unknown interface " + className, fileName, line);
       }
     }
   }
@@ -483,9 +485,9 @@ public aspect Attributes {
       equ.setComment(Unparser.unparseComment(node));
       equ.setAspectName(declaredAspect);
       c.refinedSynEqs.add(equ);
-    }
-    else {
-      error("Can not add equation for synthesized attribute " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add equation for synthesized attribute " + name + " to unknown class " + className,
+          fileName, startLine);
     }
   }
 
@@ -504,9 +506,9 @@ public aspect Attributes {
       equ.setComment(Unparser.unparseComment(node));
       equ.setAspectName(declaredAspect);
       c.replacedSynEqs.add(equ);
-    }
-    else {
-      error("Can not add equation for synthesized attribute " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add equation for synthesized attribute " + name + " to unknown class " + className,
+          fileName, startLine);
     }
   }
   public String AttrEq.replacesAspect = null;
@@ -527,10 +529,10 @@ public aspect Attributes {
             change = true;
             if(refinedDecl == null) {
               refinedDecl = refinedCandidate;
-            }
-            else {
-              error("Multiply defined refinement at " + refinedDecl.getFileName() + " line " + refinedDecl.getStartLine() +
-              " and " + refinedCandidate.getFileName() + " line " + refinedCandidate.getStartLine());
+            } else {
+              grammar().error("refinement previously defined at " + 
+                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
+                  refinedDecl.getFileName(), refinedDecl.getStartLine());
             }
             outerIter.remove();
           }
@@ -570,10 +572,10 @@ public aspect Attributes {
             change = true;
             if(refinedEqu == null) {
               refinedEqu = refinedCandidate;
-            }
-            else {
-              error("Multiply defined refinement at " + refinedEqu.getFileName() + " line " + refinedEqu.getStartLine() +
-              " and " + refinedCandidate.getFileName() + " line " + refinedCandidate.getStartLine());
+            } else {
+              grammar().error("refinement previously defined at " + 
+                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
+                  refinedEqu.getFileName(), refinedEqu.getStartLine());
             }
             outerIter.remove();
           }
@@ -663,11 +665,12 @@ public aspect Attributes {
         equ.setAspectName(declaredAspect);
         if(p != null) equ.setIndex(p);
         c.refinedInhEqs.add(equ); // Sortera i bokstavsordning därefter non NTA först
-    }
-    else {
-      error("Can not add equation for inherited attribute " + name + " to unknown class " + className + " in " + fileName + " at line " + startLine);
+    } else {
+      error("can not add equation for inherited attribute " + name + " to unknown class " + className,
+          fileName, startLine);
     }
   }
+
   public void TypeDecl.processRefinedInhEqs() {
     boolean change = true;
     while(change && !refinedInhEqs.isEmpty()) {
@@ -684,10 +687,10 @@ public aspect Attributes {
             change = true;
             if(refinedEqu == null) {
               refinedEqu = refinedCandidate;
-            }
-            else {
-              error("Multiply defined refinement at " + refinedEqu.getFileName() + " line " + refinedEqu.getStartLine() +
-              " and " + refinedCandidate.getFileName() + " line " + refinedCandidate.getStartLine());
+            } else {
+              grammar().error("refinement previously defined at " + 
+                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
+                  refinedEqu.getFileName(), refinedEqu.getStartLine());
             }
             outerIter.remove();
           }
@@ -770,9 +773,8 @@ public aspect Attributes {
       ClassBodyObject o = new ClassBodyObject(n, fileName, n.firstToken.beginLine, declaredAspect);
       o.refinesAspect = aspectName;
       c.refinedClassBodyDecls.add(o);
-    }
-    else {
-      error("Can not add member to unknown class " + className + " in " + fileName);
+    } else {
+      error("can not add member to unknown class " + className + " in " + fileName);
     }
   }
   public void Grammar.addReplacedClassBodyDecl(jrag.AST.SimpleNode n, String className, String fileName, String aspectName,
@@ -783,9 +785,8 @@ public aspect Attributes {
       o.refinesAspect = aspectName;
       o.replaceAspect = replacedAspect;
       c.replacements.add(o);
-    }
-    else {
-      error("Can not add member to unknown class " + className + " in " + fileName);
+    } else {
+      error("can not add member to unknown class " + className + " in " + fileName);
     }
   }
   /*
@@ -819,10 +820,10 @@ public aspect Attributes {
             change = true;
             if(refinedDecl == null) {
               refinedDecl = refinedCandidate;
-            }
-            else {
-              error("Multiply defined refinement at " + refinedDecl.getFileName() + " line " + refinedDecl.getStartLine() +
-              " and " + refinedCandidate.getFileName() + " line " + refinedCandidate.getStartLine());
+            } else {
+              grammar().error("refinement previously defined at " + 
+                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
+                  refinedDecl.getFileName(), refinedDecl.getStartLine());
             }
             outerIter.remove();
           }
@@ -857,10 +858,10 @@ public aspect Attributes {
             change = true;
             if(refinedDecl == null) {
               refinedDecl = refinedCandidate;
-            }
-            else {
-              error("Multiply defined refinement at " + refinedDecl.getFileName() + " line " + refinedDecl.getStartLine() +
-              " and " + refinedCandidate.getFileName() + " line " + refinedCandidate.getStartLine());
+            } else {
+              grammar().error("refinement previously defined at " + 
+                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
+                  refinedDecl.getFileName(), refinedDecl.getStartLine());
             }
             outerIter.remove();
           }
