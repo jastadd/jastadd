@@ -80,40 +80,48 @@ aspect AttributeProblems {
     for hostClass();
 
   /**
+   * Create a new error object with relevant file name and line number.
+   */
+  syn Problem AttrEq.error(String message) =
+    new Problem.Error(message, getFileName(), getStartLine());
+
+  /**
+   * Create a new error object with relevant file name and line number.
+   */
+  syn Problem AttrDecl.error(String message) =
+    new Problem.Error(message, getFileName(), getStartLine());
+
+  /**
    * @return Previous equation for same synthesized attribute
    */
   syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
 
-  SynEq contributes new Problem.Error(
+  SynEq contributes error(
       "multiple equations for synthesized attribute " + hostClass().name() + "." + name() +
-              ", previously defined in " + prevEq().getFileName() + ":" + prevEq().getStartLine(),
-      getFileName(), getStartLine())
+              ", previously defined in " + prevEq().getFileName() + ":" + prevEq().getStartLine())
     when decl() != null && prevEq() != null && prevEq() != this
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  SynEq contributes new Problem.Error(
+  SynEq contributes error(
       "equation must have the same parameter names as attribute declaration in " +
-              decl().getFileName() + ":" + decl().getStartLine(),
-      getFileName(), getStartLine())
+              decl().getFileName() + ":" + decl().getStartLine())
     when decl() != null && !decl().parametersDecl().equals(parametersDecl())
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  InhEq contributes new Problem.Error(
+  InhEq contributes error(
       "equation must have the same parameter names as attribute declaration in " +
-              decl().getFileName() + ":" + decl().getStartLine(),
-      getFileName(), getStartLine())
+              decl().getFileName() + ":" + decl().getStartLine())
     when decl() != null && !decl().parametersDecl().equals(parametersDecl())
     to TypeDecl.attributeProblems()
     for hostClass();
 
   syn SynDecl SynDecl.prevDecl() = hostClass().lookupSynDecl(signature());
 
-  SynDecl contributes new Problem.Error(
+  SynDecl contributes error(
       "multiple declaration of attribute " + hostClass().name() + "." + name() +
-              ", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine(),
-      getFileName(), getStartLine())
+              ", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine())
     when prevDecl() != null && prevDecl() != this
     to TypeDecl.attributeProblems()
     for hostClass();
@@ -123,8 +131,7 @@ aspect AttributeProblems {
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  SynDecl contributes new Problem.Error("return type for NTA must be an AST node",
-      getFileName(), getStartLine())
+  SynDecl contributes error("return type for NTA must be an AST node")
     when getNTA() && !(hostClass().env().lookup(type().split("<")[0]) instanceof ASTDecl)
     to TypeDecl.attributeProblems()
     for hostClass();
@@ -135,7 +142,7 @@ aspect AttributeProblems {
     for (TypeDecl decl: missingEqs()) {
       buf.append("\n    " + decl.name());
     }
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
   syn lazy Collection<? extends TypeDecl> SynDecl.missingEqs() =
@@ -194,7 +201,7 @@ aspect AttributeProblems {
       Components c = (Components)iter.next();
       buf.append("\n    " + c.type() + " " + c.name());
     }
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
   InhEq contributes unknownNTAProblem()
@@ -216,7 +223,7 @@ aspect AttributeProblems {
     } else if(!decl.getNTA()) {
       buf.append("inherited equation for attribute " + sonName() + " which is not a NTA");
     }
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
   InhEq contributes multiDeclProblem()
@@ -238,7 +245,7 @@ aspect AttributeProblems {
         sonName() + "." + name() + " in class " + hostClass().name());
     buf.append(" and " + prevEq().name() + " in class " + prevEq().hostClass().name() +
         " in " + prevEq().getFileName() + ":" + prevEq().getStartLine());
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
   InhEq contributes badIndexProblem()
@@ -256,7 +263,7 @@ aspect AttributeProblems {
     StringBuilder buf = new StringBuilder();
     buf.append("may not supply index for non list child " + sonName() + 
       " in class " + hostClass().name());
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
   InhDecl contributes multiDeclProblem()
@@ -344,7 +351,7 @@ aspect AttributeProblems {
         buf.append(annotation);
       }
     }
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
   CollDecl contributes collectionGroupProblem()
@@ -374,7 +381,7 @@ aspect AttributeProblems {
         msg = "CollectionGroup argument must be a valid identifier part";
       }
     }
-    return new Problem.Error(msg, getFileName(), getStartLine());
+    return error(msg);
   }
 
   CollDecl contributes multipleRootsProblem()
@@ -392,19 +399,15 @@ aspect AttributeProblems {
       ASTDecl decl = (ASTDecl)iter.next();
       buf.append(" " + decl.name());
     }
-    return new Problem.Error(buf.toString(), getFileName(), getStartLine());
+    return error(buf.toString());
   }
 
-  CollDecl contributes new Problem.Error(
-      "no contributions for this collection attribute",
-      getFileName(), getStartLine())
+  CollDecl contributes error("no contributions for this collection attribute")
     when uses().isEmpty()
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  CollEq contributes new Problem.Error(
-      "undeclared collection attribute '" + name() + "'",
-      getFileName(), getStartLine())
+  CollEq contributes error("undeclared collection attribute '" + name() + "'")
     when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
