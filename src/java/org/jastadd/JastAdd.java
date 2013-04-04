@@ -153,9 +153,9 @@ public class JastAdd {
 
       genIncrementalDDGNode(root);
 
-      int retVal = parseJragFiles(root);
-      if (retVal != 0) {
-        return retVal;
+      problems = parseJragFiles(root);
+      if (checkErrors(problems)) {
+        return 1;
       }
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
@@ -167,9 +167,9 @@ public class JastAdd {
 
       root.processRefinements();
 
-      retVal = readCacheFiles(root);
-      if (retVal != 0) {
-        return retVal;
+      problems = readCacheFiles(root);
+      if (checkErrors(problems)) {
+        return 1;
       }
 
       root.weaveCollectionAttributes();
@@ -220,7 +220,8 @@ public class JastAdd {
     return hasError;
   }
 
-  private int readCacheFiles(Grammar root) {
+  private Collection<Problem> readCacheFiles(Grammar root) {
+    Collection<Problem> problems = new LinkedList<Problem>();
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
       //System.out.println("Processing cache file: " + fileName);
@@ -232,23 +233,19 @@ public class JastAdd {
         jp.setFileName(fileName);
         jp.CacheDeclarations();
       } catch (jrag.AST.ParseException e) {
-        StringBuffer msg = new StringBuffer();
-        msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
-            e.currentToken.next.beginColumn);
-        System.err.println(msg.toString());
-        return 1;
+        problems.add(new Problem.Error("syntax error", fileName,
+            e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
       } catch (FileNotFoundException e) {
-        System.err.println("File error: Aspect file " + fileName + " not found");
-        return 1;
+        problems.add(new Problem.Error("could not find cache file '" + fileName + "'"));
       }
     }
-    return 0;
+    return problems;
   }
 
   private void weaveAspects(Grammar root) {
     //System.out.println("weaving aspect and attribute definitions");
-    for(int i = 0; i < root.getNumTypeDecl(); i++) {
-      if(root.getTypeDecl(i) instanceof ASTDecl) {
+    for (int i = 0; i < root.getNumTypeDecl(); i++) {
+      if (root.getTypeDecl(i) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
@@ -281,10 +278,11 @@ public class JastAdd {
     }
   }
 
-  private int parseJragFiles(Grammar root) {
+  private Collection<Problem> parseJragFiles(Grammar root) {
+    Collection<Problem> problems = new LinkedList<Problem>();
     for (Iterator<String> iter = config.getFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
-      if(fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
+      if (fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
         try {
           FileInputStream inputStream = new FileInputStream(fileName);
           JragParser jp = new JragParser(inputStream);
@@ -294,21 +292,16 @@ public class JastAdd {
           ASTCompilationUnit au = jp.CompilationUnit();
           root.addCompUnit(au);
         } catch (jrag.AST.ParseException e) {
-          StringBuffer msg = new StringBuffer();
-          msg.append("Syntax error in " + fileName + " at line " + e.currentToken.next.beginLine + ", column " +
-              e.currentToken.next.beginColumn);
-          System.err.println(msg.toString());
-          return 1;
+          problems.add(new Problem.Error("syntax error", fileName,
+              e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
         } catch (FileNotFoundException e) {
-          System.err.println("File error: Aspect file " + fileName + " not found");
-          return 1;
+          problems.add(new Problem.Error("could not find aspect file '" + fileName + "'"));
         } catch (Throwable e) {
-          System.err.println("Exception occurred while parsing " + fileName);
-          e.printStackTrace();
+          problems.add(new Problem.Error("exception occurred while parsing", fileName));
         }
       }
     }
-    return 0;
+    return problems;
   }
 
   private void genIncrementalDDGNode(Grammar root) {
@@ -378,7 +371,7 @@ public class JastAdd {
         } catch (ast.AST.ParseException e) {
           // Exceptions actually caught by error recovery in parser
         } catch (FileNotFoundException e) {
-          problems.add(new Problem.Error("could not find the abstract syntax file '" + fileName + "'"));
+          problems.add(new Problem.Error("could not find abstract syntax file '" + fileName + "'"));
         }
       }
     }
