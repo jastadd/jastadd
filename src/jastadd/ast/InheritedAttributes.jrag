@@ -30,6 +30,8 @@
 aspect InheritedAttributes {
   /**
    * Ensure no duplicate inherited declarations.
+   * Warnings are reported for duplicate inherited declarations.
+   * See AttributeProblems.jrag
    */
   public void Grammar.removeDuplicateInhDecls() {
     for (int i = 0; i < getNumTypeDecl(); ++i) {
