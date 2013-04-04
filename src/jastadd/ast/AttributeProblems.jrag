@@ -56,12 +56,20 @@ aspect AttributeProblems {
     with add
     root TypeDecl;
 
+  /**
+   * Hack to make collection only on ASTdecls that are not
+   * ClassDecl or InterfaceDecl.
+   */
   syn Collection<Problem> ClassDecl.attributeProblems() =
-    // don't collect problems for attributes in TypeDecls
+    // don't collect problems for attributes in ClassDecls
     Collections.emptyList();
 
+  /**
+   * Hack to make collection only on ASTdecls that are not
+   * ClassDecl or InterfaceDecl.
+   */
   syn Collection<Problem> InterfaceDecl.attributeProblems() =
-    // don't collect problems for attributes in TypeDecls
+    // don't collect problems for attributes in InterfaceDecls
     Collections.emptyList();
 
   SynEq contributes new Problem.Error(
