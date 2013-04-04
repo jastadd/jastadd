@@ -131,7 +131,7 @@ aspect AttributeProblems {
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  SynDecl contributes error("return type for NTA must be an AST node")
+  SynDecl contributes error("return type of NTA must be an AST node")
     when getNTA() && !(hostClass().env().lookup(type().split("<")[0]) instanceof ASTDecl)
     to TypeDecl.attributeProblems()
     for hostClass();
