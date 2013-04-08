@@ -91,15 +91,24 @@ public class JastAdd {
   }
 
   /**
-   * Entry point
+   * Entry point. Does System.exit when finished.
    * @param args
    */
   public static void main(String[] args) {
-    JastAdd jastadd = new JastAdd(new JastAddConfiguration(args));
-    int exitVal = jastadd.compile();
+    int exitVal = compile(args);
     if (exitVal != 0) {
       System.exit(exitVal);
     }
+  }
+
+  /**
+   * Static entry point. Does not System.exit when finished.
+   * @param args command-line arguments
+   * @return exit value - 0 indicates no errors
+   */
+  public static int compile(String[] args) {
+    JastAdd jastadd = new JastAdd(new JastAddConfiguration(args));
+    return jastadd.compile();
   }
 
   /**
