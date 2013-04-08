@@ -575,19 +575,19 @@ aspect JragCodeGen {
 
   public String AttrDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0)
-      return grammar().ind(2) + attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
+      return attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
     else
-      return grammar().ind(2) + getType() + " " + attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
+      return getType() + " " + attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
   }
 
   // TODO: INH
   public String InhDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0) {
       return inhDebugString() +
-        grammar().ind(2) + attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
+        attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
     } else {
       return inhDebugString() +
-        grammar().ind(2) + getType() + " " + attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
+        getType() + " " + attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
     }
   }
 
