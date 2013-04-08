@@ -1,10 +1,10 @@
 /* Copyright (c) 2006, Görel Hedin <gorel.hedin@cs.lth.se>
  *               2012, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,6 +28,7 @@
  */
 package org.jastadd;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,8 +40,8 @@ import java.util.List;
  */
 public class CommandLineArguments {
 
-  private List<Option> options = new LinkedList<Option>();
-  private List<String> operands = new ArrayList<String>();
+  private final List<Option> options = new LinkedList<Option>();
+  private final List<String> operands = new ArrayList<String>();
 
   /**
    * Constructor
@@ -59,15 +60,16 @@ public class CommandLineArguments {
   /**
    * Match the options against the command line arguments.
    * @param args Command-line arguments
+   * @param err output stream to print warnings to
    */
-  public void match(String[] args) {
+  public void match(String[] args, PrintStream err) {
     int i = 0;
     Option lastMatch = null;
     while (i < args.length) {
       Iterator<Option> iter = options.iterator();
       while (iter.hasNext() && i < args.length) {
         Option option = iter.next();
-        int num = option.match(args, i);
+        int num = option.match(args, i, err);
         if (num > 0) {
 
           lastMatch = option;
@@ -77,7 +79,7 @@ public class CommandLineArguments {
         } else if (lastMatch == option) {
 
           if (args[i].startsWith(Option.OPTION_PREFIX)) {
-            System.err.println("Unknown option \"" + args[i]
+            err.println("Warning: Unknown option \"" + args[i]
                 + "\" will be ignored");
           } else {
             // none of the options match this argument
@@ -99,25 +101,27 @@ public class CommandLineArguments {
   /**
    * Print the description for each standard, non-deprecated,
    * command line option.
+   * @param out output stream to print help to
    */
-  public void printHelp() {
+  public void printHelp(PrintStream out) {
     Iterator<Option> iter = options.iterator();
     while (iter.hasNext()) {
       Option option = iter.next();
       if (!option.nonStandard && !option.deprecated)
-        option.printHelp();
+        option.printHelp(out);
     }
   }
 
   /**
    * Print the description for each non-standard command line option.
+   * @param out output stream to print help to
    */
-  public void printNonStandardOptions() {
+  public void printNonStandardOptions(PrintStream out) {
     Iterator<Option> iter = options.iterator();
     while (iter.hasNext()) {
       Option option = iter.next();
       if (option.nonStandard)
-        option.printHelp();
+        option.printHelp(out);
     }
   }
 
@@ -127,13 +131,13 @@ public class CommandLineArguments {
   public int getNumOperands() {
     return operands.size();
   };
-  
+
   /**
    * @param k Index of operand to return
    * @return the k'th operand at the end of the command line,
    * where the operands are numbered from 0 to getNumOperands()-1.
    */
   public String getOperand(int k) {
-    return (String) operands.get(k);
+    return operands.get(k);
   };
 };

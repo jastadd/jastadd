@@ -1,9 +1,9 @@
 /* Copyright (c) 2012, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,6 +26,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 package org.jastadd;
+
+import java.io.PrintStream;
 
 /**
  * Handles matching and parsing of command line options.
@@ -154,21 +156,22 @@ public class Option {
 
   /**
    * Print help line for this option.
+   * @param out output stream to print help to
    */
-  public void printHelp() {
+  public void printHelp(PrintStream out) {
     int col = 18;
-    System.err.print("  " + longName);
+    out.print("  " + longName);
     col -= longName.length();
     if (col < 1)
       col = 1;
-    for (int i = 0; i < col; ++i)
-      System.err.print(' ');
+    for (int i = 0; i < col; ++i) {
+      out.print(' ');
+    }
     if (hasDefaultValue) {
-      System.err.print(desc);
-      System.err.println(" (default = \""
-          + defaultValue + "\")");
+      out.print(desc);
+      out.println(" (default = \"" + defaultValue + "\")");
     } else {
-      System.err.println(desc);
+      out.println(desc);
     }
   }
 
@@ -180,10 +183,11 @@ public class Option {
    *
    * @param args The argument list array
    * @param index Offset in the argument list to check for a match
+   * @param err output stream to print warnings to
    * @return The number of arguments matched.
    * Returns zero if there is no match.
    */
-  public int match(String[] args, int index) {
+  public int match(String[] args, int index, PrintStream err) {
     int offset = 0;
     boolean currentMatch = false;
     if (args[index].toLowerCase().equals(longNameLower)) {
@@ -192,7 +196,7 @@ public class Option {
           value = args[index+1];
           offset = 2;
         } else {
-          System.err.println("Warning: Missing value for option " + name);
+          err.println("Warning: Missing value for option " + name);
           offset = 1;
         }
       }
@@ -206,12 +210,12 @@ public class Option {
 
     if (currentMatch && matched) {
 
-      System.err.println("Warning: option " + name
+      err.println("Warning: option " + name
           + " occurs more than once in the argument list!");
 
     } else if (currentMatch && deprecated) {
 
-      System.err.println("Warning: option " + name
+      err.println("Warning: option " + name
           + " has been deprecated! Use of this option is discouraged!");
 
     }

@@ -29,6 +29,7 @@ package org.jastadd;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
@@ -95,7 +96,7 @@ public class JastAdd {
    * @param args
    */
   public static void main(String[] args) {
-    int exitVal = compile(args);
+    int exitVal = compile(args, System.out, System.err);
     if (exitVal != 0) {
       System.exit(exitVal);
     }
@@ -104,30 +105,34 @@ public class JastAdd {
   /**
    * Static entry point. Does not System.exit when finished.
    * @param args command-line arguments
+   * @param out standard output stream
+   * @param err error message output stream
    * @return exit value - 0 indicates no errors
    */
-  public static int compile(String[] args) {
-    JastAdd jastadd = new JastAdd(new JastAddConfiguration(args));
-    return jastadd.compile();
+  public static int compile(String[] args, PrintStream out, PrintStream err) {
+    JastAdd jastadd = new JastAdd(new JastAddConfiguration(args, err));
+    return jastadd.compile(out, err);
   }
 
   /**
    * Non-static entry point
-   * @return Exit value - 0 indicates no errors
+   * @param out standard output stream
+   * @param err error message output stream
+   * @return exit value - 0 indicates no errors
    */
-  public int compile() {
+  public int compile(PrintStream out, PrintStream err) {
     if (config.shouldPrintVersion()) {
-      System.out.println(getVersionString());
-      System.out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
-      System.out.println("This software is covered by the modified BSD license.");
+      out.println(getVersionString());
+      out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
+      out.println("This software is covered by the modified BSD license.");
       return 0;
     } else if (config.shouldPrintHelp()) {
-      System.out.println(getVersionString());
-      System.out.println();
-      config.printHelp();
+      out.println(getVersionString());
+      out.println();
+      config.printHelp(out);
       return 0;
     } else if (config.shouldPrintNonStandardOptions()) {
-      config.printNonStandardOptions();
+      config.printNonStandardOptions(out);
       return 0;
     } else if (config.checkProblems()) {
       return 1;
@@ -140,7 +145,7 @@ public class JastAdd {
       root.genDefaultNodeTypes();
 
       Collection<Problem> problems = parseAstGrammars(root);
-      if (checkErrors(problems)) {
+      if (checkErrors(problems, err)) {
         return 1;
       }
 
@@ -150,7 +155,7 @@ public class JastAdd {
 
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
 
-      if (checkErrors(problems)) {
+      if (checkErrors(problems, err)) {
         return 1;
       }
 
@@ -163,7 +168,7 @@ public class JastAdd {
       genIncrementalDDGNode(root);
 
       problems = parseJragFiles(root);
-      if (checkErrors(problems)) {
+      if (checkErrors(problems, err)) {
         return 1;
       }
 
@@ -177,7 +182,7 @@ public class JastAdd {
       root.processRefinements();
 
       problems = readCacheFiles(root);
-      if (checkErrors(problems)) {
+      if (checkErrors(problems, err)) {
         return 1;
       }
 
@@ -186,7 +191,7 @@ public class JastAdd {
       problems = root.attributeProblems();
       problems.addAll(root.weavingProblems());
 
-      if (checkErrors(problems)) {
+      if (checkErrors(problems, err)) {
         return 1;
       }
 
@@ -200,7 +205,7 @@ public class JastAdd {
       @SuppressWarnings("unused")
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
 
-      //System.out.println("AST parse time: " + astParseTime + ", AST error check: " + astErrorTime + ", JRAG parse time: " +
+      //out.println("AST parse time: " + astParseTime + ", AST error check: " + astErrorTime + ", JRAG parse time: " +
       //    jragParseTime + ", JRAG error time: " + jragErrorTime + ", Code generation: " + codegenTime);
     } catch(NullPointerException e) {
       e.printStackTrace();
@@ -218,12 +223,13 @@ public class JastAdd {
   /**
    * Print problems and check for errors
    * @param problems
+   * @param err error output stream
    * @return <code>true</code> if any of the problems was an error
    */
-  private boolean checkErrors(Collection<Problem> problems) {
+  private boolean checkErrors(Collection<Problem> problems, PrintStream err) {
     boolean hasError = false;
     for (Problem problem: problems) {
-      problem.print(System.err);
+      problem.print(err);
       hasError |= problem.isError();
     }
     return hasError;
@@ -233,7 +239,7 @@ public class JastAdd {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
-      //System.out.println("Processing cache file: " + fileName);
+      //out.println("Processing cache file: " + fileName);
       try {
         FileInputStream inputStream = new FileInputStream(fileName);
         JragParser jp = new JragParser(inputStream);
@@ -252,7 +258,7 @@ public class JastAdd {
   }
 
   private void weaveAspects(Grammar root) {
-    //System.out.println("weaving aspect and attribute definitions");
+    //out.println("weaving aspect and attribute definitions");
     for (int i = 0; i < root.getNumTypeDecl(); i++) {
       if (root.getTypeDecl(i) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)root.getTypeDecl(i);
@@ -355,7 +361,7 @@ public class JastAdd {
 
   private Collection<Problem> parseAstGrammars(Grammar root) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    //System.out.println("parsing grammars");
+    //out.println("parsing grammars");
     for (Iterator<String> iter = config.getFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
       if(fileName.endsWith(".ast")) {
@@ -388,16 +394,16 @@ public class JastAdd {
   }
 
   @SuppressWarnings("unused")
-  private void checkMem() {
+  private void checkMem(PrintStream out) {
     Runtime runtime = Runtime.getRuntime();
     long total = runtime.totalMemory();
     long free = runtime.freeMemory();
     long use = total-free;
-    System.out.println("Before GC: Total " + total + ", use " + use);
+    out.println("Before GC: Total " + total + ", use " + use);
     runtime.gc();
     total = runtime.totalMemory();
     free = runtime.freeMemory();
     use = total-free;
-    System.out.println("After GC: Total " + total + ", use " + use);
+    out.println("After GC: Total " + total + ", use " + use);
   }
 }

@@ -28,6 +28,7 @@
 package org.jastadd;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -90,8 +91,9 @@ public class JastAddConfiguration {
   /**
    * Constructor - sets up available options.
    * @param args Command-line arguments to build configuration from
+   * @param err output stream to print configuration warnings to
    */
-  public JastAddConfiguration(String[] args) {
+  public JastAddConfiguration(String[] args, PrintStream err) {
     jjtree = new Option("jjtree", "use jjtree base node, this requires --grammar to be set");
     grammarOption = new Option("grammar", "the name of the grammar's parser, required when using --jjtree", true);
     defaultMap = new Option("defaultMap", "use this expression to construct maps for attribute caches", true);
@@ -217,7 +219,7 @@ public class JastAddConfiguration {
     options.addOption(fullFlush);
 
     // parse the argument list
-    options.match(args);
+    options.match(args, err);
   }
 
   /**
@@ -597,38 +599,40 @@ public class JastAddConfiguration {
 
   /**
    * Print help
+   * @param out output stream to print help to
    */
-  public void printHelp() {
-    System.out.println("This program reads a number of .jrag, .jadd, and .ast files");
-    System.out.println("and creates the nodes in the abstract syntax tree");
-    System.out.println();
-    System.out.println("The .jrag source files may contain declarations of synthesized ");
-    System.out.println("and inherited attributes and their corresponding equations.");
-    System.out.println("It may also contain ordinary Java methods and fields.");
-    System.out.println();
-    System.out.println("Source file syntax can be found at http://jastadd.org");
-    System.out.println();
-    System.out.println("Options:");
-    options.printHelp();
-    System.out.println();
-    System.out.println("Arguments:");
-    System.out.println("Names of .ast, .jrag, .jadd and .caching source files");
-    System.out.println();
-    System.out.println("Example: The following command reads and translates files NameAnalysis.jrag");
-    System.out.println("and TypeAnalysis.jrag, weaves PrettyPrint.jadd into the abstract syntax tree");
-    System.out.println("defined in the grammar Toy.ast.");
-    System.out.println("The result is the generated classes for the nodes in the AST that are placed");
-    System.out.println("in the package ast.");
-    System.out.println();
-    System.out.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
+  public void printHelp(PrintStream out) {
+    out.println("This program reads a number of .jrag, .jadd, and .ast files");
+    out.println("and creates the nodes in the abstract syntax tree");
+    out.println();
+    out.println("The .jrag source files may contain declarations of synthesized ");
+    out.println("and inherited attributes and their corresponding equations.");
+    out.println("It may also contain ordinary Java methods and fields.");
+    out.println();
+    out.println("Source file syntax can be found at http://jastadd.org");
+    out.println();
+    out.println("Options:");
+    options.printHelp(out);
+    out.println();
+    out.println("Arguments:");
+    out.println("Names of .ast, .jrag, .jadd and .caching source files");
+    out.println();
+    out.println("Example: The following command reads and translates files NameAnalysis.jrag");
+    out.println("and TypeAnalysis.jrag, weaves PrettyPrint.jadd into the abstract syntax tree");
+    out.println("defined in the grammar Toy.ast.");
+    out.println("The result is the generated classes for the nodes in the AST that are placed");
+    out.println("in the package ast.");
+    out.println();
+    out.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
   }
 
   /**
    * Print non-standard options
+   * @param out output stream to print help to
    */
-  public void printNonStandardOptions() {
-    System.out.println("Non-standard options:");
-    options.printNonStandardOptions();
+  public void printNonStandardOptions(PrintStream out) {
+    out.println("Non-standard options:");
+    options.printNonStandardOptions(out);
   }
 
   /**
