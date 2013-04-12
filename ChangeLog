@@ -1,6 +1,10 @@
+2013-04-12  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * New release: 20130412
+
 2013-04-08  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-    * Added entry points for JastAdd that take custom output/error streams
+    * Added entry points that allow custom output/error streams
 
 2013-04-04  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
@@ -9,12 +13,12 @@
 
 2013-04-03  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-    * Improved error handling for missing equations of synthesized attributes
-    * now only the minimum set of classes requiring an equation is reported
+    * Improved error handling for missing equations of synthesized attributes.
+    Now only the minimum set of classes requiring an equation is reported.
 
 2013-04-02  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-    * AST errors are now collected using a collection attribute
+    * Grammar errors are now gathered using a collection attribute
 
 2013-03-22  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
@@ -25,15 +29,16 @@
 
     * Moved JastAdd main class to the package org.jastadd. A class named
     JastAdd has been left in the package jastadd as a working entry point
-    for backwards-compatibility.
+    for backward compatibility.
     * Moved the JastAdd Apache Ant task to the package org.jastadd.
     Please use org.jastadd.JastAddTask for future build scripts.
 
 2013-03-12  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Minimum list size now only affects list nodes
-    * Added option for minimum list size (minListSize)
-    * Added ant options for indentation and minimum list size
+    * Added option for custom minimum list size (minListSize)
+    * Added options for indentation and minimum list size to the JastAdd
+    Ant Task
 
     * New release: 20130312
 

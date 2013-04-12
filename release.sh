@@ -16,7 +16,7 @@ echo
 echo "# 2. Create the release zip files jastadd2-src.zip and jastadd2-bin.zip"
 echo "ant release"
 echo
-echo "# 3. Create a new dir at jastadd.org"
+echo "# 3. Create a release directory at jastadd.org"
 echo "ssh login.cs.lth.se \"mkdir /cs/jastadd/releases/jastadd2/${VERSION}\""
 echo
 echo "# 4.1 Upload the zip files and appropriate documentation to jastadd.org"

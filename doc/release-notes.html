@@ -8,6 +8,32 @@
 <body>
 <h1>JastAdd2 Release Notes
 </h1>
+<h2>R20130412</h2>
+<blockquote>
+  <h3>General:</h3>
+  <ul>
+    <li>Added option for indentation type in the JastAdd Ant Task</li>
+    <li>Moved JastAdd main class to the package <code>org.jastadd</code>
+    (but left a deprecated class with the same name as a working entry point
+    for backward compatibility)</li>
+    <li>Removed global static variables to allow concurrent JastAdd instances
+    in the same JVM</li>
+    <li>Added JastAdd entry points that allow custom output/error streams</li>
+  </ul>
+  <h3>Error handling:</h3>
+  <ul>
+    <li>Help text is printed to the standard out stream rather than the standard
+    error stream</li>
+    <li>Improved error hanlding for missing equations of synthesized attributes:
+    now only the minimum set of classes requiring an equation is reported</li>
+  </ul>
+  <h3>Performance:</h3>
+  <ul>
+    <li>Minimum list size now only affects list nodes</li>
+    <li>It is now possible to specify a custom minimum list size with the
+    <code>minListSize</code> option</li>
+  </ul>
+</blockquote>
 <h2>R20130312</h2>
 <blockquote>
   <h3>Incremental evaluation:</h3>
