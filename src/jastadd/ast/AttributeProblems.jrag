@@ -286,36 +286,34 @@ aspect AttributeProblems {
   syn boolean InhDecl.hasMissingEqProblem() =
     !grammar().noInhEqCheck && !missingEqs().isEmpty();
 
-  syn lazy Collection<ASTDecl> InhDecl.missingEqs() {
-    // check for missing inherited equations
-    Collection<ASTDecl> missing = new LinkedList<ASTDecl>();
-    Set<TypeDecl> visited = new HashSet<TypeDecl>();
-    if (hostClass() instanceof ASTDecl) {
-      for (Iterator iter = ((ASTDecl)hostClass()).fathers().iterator(); iter.hasNext(); ) {
-        ASTDecl father = (ASTDecl)iter.next();
-        if (!father.hasInhEqFor((ASTDecl)hostClass(), signature(), visited)) {
-          missing.add(father);
-        }
-      }
-    }
-    return missing;
-  }
 
   syn Problem InhDecl.missingEqProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("missing inherited equation for attribute " + name() + 
-          " in class " + hostClass().name() + " when being child of ");
-    boolean first = true;
-    for (ASTDecl father: missingEqs()) {
-      if (!first) {
+    buf.append("missing inherited equation for attribute " + name() + " ");
+
+    boolean first1 = true;
+    for (Map.Entry<ASTDecl, LinkedList<ASTDecl>> e: missingEqs().entrySet()) {
+      if (!first1) {
         buf.append(", ");
       }
-      first = false;
-      buf.append(father.name());
+      first1 = false;
+      buf.append("in class " + e.getKey().name() + " when being child of ");
+
+      boolean first2 = true;
+      for (ASTDecl father: e.getValue()) {
+        if (!first2) {
+          buf.append(", ");
+        }
+        first2 = false;
+        buf.append(father.name());
+      }
     }
+
     return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
   }
-
+  
+  
+  
   syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
 
   syn boolean AttrDecl.isDuplicateInhDecl() = false;

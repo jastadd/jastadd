@@ -107,6 +107,15 @@ aspect Subclasses {
     }
     return list;*/
   }
+  
+  syn lazy Set<ASTDecl> ASTDecl.subclassesTransitive() {
+    Set<ASTDecl> set = new LinkedHashSet<ASTDecl>(subclasses());
+    for (Iterator it = subclasses().iterator(); it.hasNext(); ) {
+      ASTDecl decl = (ASTDecl) it.next();
+      set.addAll(decl.subclassesTransitive());
+    }
+    return set;
+  }
 }
 
 aspect Fathers {
@@ -137,14 +146,18 @@ aspect Fathers {
   }
   
   eq Grammar.getTypeDecl().findFathers(ASTDecl node) {
-    HashSet set = new LinkedHashSet();
-    set.addAll((HashSet)fatherMap().get(node));
+    Set<ASTDecl> set = new LinkedHashSet<ASTDecl>();
+    set.addAll((Collection)fatherMap().get(node));
     if(node.superClass() != null)
       set.addAll(node.superClass().fathers());
     return set;
   }
   
-  inh Collection TypeDecl.findFathers(ASTDecl node);
-  syn lazy Collection ASTDecl.fathers() = findFathers(this);
-
+  inh Collection<ASTDecl> TypeDecl.findFathers(ASTDecl node);
+  syn lazy Collection<ASTDecl> ASTDecl.fathers() = findFathers(this);
+  
+  // Do not include fathers to super classes (as fathers() does)
+  inh lazy Collection<ASTDecl> TypeDecl.fathersIntransitive();
+  eq Grammar.getTypeDecl(int i).fathersIntransitive()
+    = new LinkedHashSet<ASTDecl>((Collection) fatherMap().get(getTypeDecl(i)));
 }

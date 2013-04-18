@@ -210,152 +210,92 @@ aspect BindSynEquations {
 }
 
 aspect FindInheritedEquations {
-  public boolean TypeDecl.hasInhEqFor(ASTDecl child, String signature, Set<TypeDecl> visited) {
-    return false;
+  syn lazy Map<ASTDecl, LinkedList<ASTDecl>> InhDecl.missingEqs() {
+    Map<ASTDecl, LinkedList<ASTDecl>> missing = new LinkedHashMap<ASTDecl, LinkedList<ASTDecl>>();
+
+    if(hostClass() instanceof ASTDecl) {
+      ASTDecl host = (ASTDecl) hostClass();
+      LinkedList<ASTDecl> list;
+      Set<ASTPair> visited = new HashSet<ASTPair>();
+
+      list = host.findMissingInhEqs(signature(), host.fathers(), visited);
+      if (!list.isEmpty()) {
+        missing.put(host, list);
+      }
+
+      for (ASTDecl sub: host.subclassesTransitive()) {
+        list = sub.findMissingInhEqs(signature(), sub.fathersIntransitive(), visited);
+        if (!list.isEmpty()) {
+          missing.put(sub, list);
+        }
+      }
+    }
+
+    return missing;
   }
-  public boolean ASTDecl.hasInhEqFor(ASTDecl child, String signature, Set<TypeDecl> visited) {
-    //System.out.println("  Has " + signature() + " InhEqFor " + child.signature() + "." + signature + ", " + visited.size());
-    visited.add(this);
-    int numChild = 0;
-    int numSuccess = 0;
+
+  protected LinkedList<ASTDecl> ASTDecl.findMissingInhEqs(String signature,
+      Collection<ASTDecl> fatherSet, Set<ASTPair> visited) {
+    LinkedList<ASTDecl> missing = new LinkedList<ASTDecl>();
+    for (ASTDecl father: fatherSet) {
+      if (!father.hasInhEq(this, signature)) {
+        if (father.isRootNode() ||
+            !father.isInhDefined(signature, visited)) {
+          missing.add(father);
+        }
+      }
+    }
+    return missing;
+  }
+
+  class ASTPair extends Pair<ASTDecl, ASTDecl> {
+    public ASTPair(ASTDecl a, ASTDecl b) {
+      super(a, b);
+    }
+  }
+
+  protected boolean ASTDecl.isInhDefined(String signature, Set<ASTPair> visited) {
+    for (ASTDecl father: fathers()) {
+      ASTPair p = new ASTPair(father,  this);
+      if (visited.contains(p)) {
+        break;
+      }
+      visited.add(p);
+
+      if (!father.hasInhEq(this, signature)) {
+        if (father.isRootNode() ||
+            !father.isInhDefined(signature, visited)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  syn lazy TypeDecl Components.typeDecl() = env().lookup(type());
+
+  protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
     for(Iterator children = getComponents(); children.hasNext(); ) {
       Components c = (Components)children.next();
-      if(child.instanceOf(env().lookup(c.type()))) {
-        numChild++;
-        //System.out.println("    Candidate " + c.name());
-        InhEq inhEq = lookupInhEq(signature, c.name());
-        if(inhEq == null) {
-          int numFather = 0;
-          int numFatherSuccess = 0;
-          //System.out.println("Begin process fathers");
-          for(Iterator iter = fathers().iterator(); iter.hasNext(); ) {
-            numFather++;
-            ASTDecl father = (ASTDecl)iter.next();
-            /*
-               LinkedList list = (LinkedList)visited;
-               boolean add = true;
-               boolean vis = true;
-               for(int f = 0; f < list.size() && vis; ) {
-               ASTDecl element = (ASTDecl)list.get(f);
-               if(father == element || this == element) {
-               vis = false;
-               add = false;
-               }
-               else {
-               if(father.instanceOf(element)) {
-               add = false;
-               vis = false;
-               }
-               if(element.instanceOf(father))
-               list.remove(element);
-               else
-               f++;
-               }
-               }
-               if(add) {
-               list.add(father);
-               }
-
-               if(!vis) {
-             */
-            if(visited.contains(father)) {
-              numFatherSuccess++;
-            }
-            else {
-              if(father.hasInhEqFor(this, signature, visited)) {
-                numFatherSuccess++;
-              }
-              else {
-                System.out.print(father.name() + "->"/* + "[" + c.name() + "]"*/);
-                //for(Iterator i2 = father.fathers().iterator(); i2.hasNext(); )
-                //  System.out.println(father.name() + " son of " + ((ASTDecl)i2.next()).name());
-              }
-            }
-          }
-          //System.out.println("End process fathers");
-          if(numFather > 0 && numFather == numFatherSuccess) {
-            numSuccess++;
-          }
-          if(numFather == 0)
-            System.out.println();
-          }
-          else {
-            numSuccess++;
-          }
-        }
-      }
-      //if(numChild > 0 && numSuccess == numChild)
-      //  System.out.println(signature() + " hasInhEqFor " + child.name() + "." + signature);
-    return numChild > 0 && numSuccess == numChild;
-  }
-
-
-  syn lazy boolean TypeDecl.hasInhDeclFor(String signature) circular [false] =
-    lookupInhDecl(signature) != null;
-  eq ASTDecl.hasInhDeclFor(String signature) {
-    if(lookupInhDecl(signature) != null)
-      return true;
-    for(Iterator iter = subclassesLeafNodes().iterator(); iter.hasNext(); ) {
-      ASTDecl subclass = (ASTDecl)iter.next();
-      if(subclass.lookupInhDecl(signature) != null)
-        return true;
-    }
-    for(Iterator iter = allTreeChildren().iterator(); iter.hasNext(); ) {
-      ASTDecl decl = (ASTDecl)iter.next();
-      if(decl.hasInhDeclFor(signature))
-        return true;
-    }
-    return false;
-  }
-  
-  syn lazy HashSet ASTDecl.subclassesLeafNodes() {
-    HashSet set = new LinkedHashSet();
-    if(subclasses().isEmpty())
-      set.add(this);
-    for(Iterator iter = subclasses().iterator(); iter.hasNext(); ) {
-      ASTDecl subclass = (ASTDecl)iter.next();
-      set.addAll(subclass.subclassesLeafNodes());
-    }
-    return set;
-  }
-
-  syn lazy HashSet ASTDecl.allTreeChildren() {
-    HashSet set = new LinkedHashSet();
-    for(Iterator i1 = subclassesLeafNodes().iterator(); i1.hasNext(); ) {
-      ASTDecl decl = (ASTDecl)i1.next();
-      for(Iterator i2 = decl.getComponents(); i2.hasNext(); ) {
-        Components c = (Components)i2.next();
-        if(!(c instanceof TokenComponent)) {
-          ASTDecl child = (ASTDecl)env().lookup(c.type());
-          if(child != null)
-            set.add(child);
+      if(child.instanceOf(c.typeDecl())) {
+        if(lookupInhEq(signature, c.name()) == null) {
+          return false;
         }
       }
     }
-    return set;
+    return true;
   }
+}
+
+
+aspect LookupDecls {
+  syn lazy AttrDecl AttrEq.decl();
+  eq InhEq.decl() = hostClass().getInhDeclFor(signature(), new LinkedHashSet());
+  //eq InhEq.decl() = hostClass().getInhDeclFor(signature());
+  eq SynEq.decl() = hostClass().lookupSynDecl(signature());
   
-  /*
-  syn lazy InhDecl ASTDecl.getInhDeclFor(String signature) circular [null] {
-    InhDecl inhDecl = lookupInhDecl(signature);
-    if(inhDecl != null)
-      return inhDecl;
-    for(Iterator iter = subclassesLeafNodes().iterator(); iter.hasNext(); ) {
-      ASTDecl subclass = (ASTDecl)iter.next();
-      inhDecl = subclass.lookupInhDecl(signature);
-      if(inhDecl != null)
-        return inhDecl;
-    }
-    for(Iterator iter = allTreeChildren().iterator(); iter.hasNext(); ) {
-      ASTDecl decl = (ASTDecl)iter.next();
-      inhDecl = decl.getInhDeclFor(signature);
-      if(inhDecl != null)
-        return inhDecl;
-    }
-    return null;
-  }
-  */
-    
+
+
   syn InhDecl TypeDecl.getInhDeclFor(String signature, Collection visited) {
     visited.add(this);
     InhDecl inhDecl = lookupInhDecl(signature);
@@ -413,16 +353,6 @@ aspect FindInheritedEquations {
     }
     return null;
   }
-}
-
-
-aspect LookupDecls {
-
-  syn lazy AttrDecl AttrEq.decl();
-  eq InhEq.decl() = hostClass().getInhDeclFor(signature(), new LinkedHashSet());
-  //eq InhEq.decl() = hostClass().getInhDeclFor(signature());
-  eq SynEq.decl() = hostClass().lookupSynDecl(signature());
-  
 }
 
 aspect ASTDecl {

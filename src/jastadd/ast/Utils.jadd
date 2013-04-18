@@ -1,0 +1,23 @@
+aspect Utils {
+  public class Pair<A, B> {
+    public A a;
+    public B b;
+
+    public Pair(A a, B b) {
+      this.a = a;
+      this.b = b;
+    }
+    public int hashCode() {
+      return 31*a.hashCode() + b.hashCode();
+    }
+
+    public boolean equals(Object o){
+      if (o instanceof Pair) {
+        Pair other = (Pair) o;
+        return a == other.a && b == other.b;
+      } else {
+        return false;
+      }
+    }
+  }
+}
