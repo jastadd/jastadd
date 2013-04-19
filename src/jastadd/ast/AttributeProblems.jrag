@@ -260,10 +260,8 @@ aspect AttributeProblems {
     !getSonName().equals("getChild");
 
   syn Problem InhEq.badIndexProblem() {
-    StringBuilder buf = new StringBuilder();
-    buf.append("may not supply index for non list child " + sonName() + 
-      " in class " + hostClass().name());
-    return error(buf.toString());
+    return error("may not supply index for non list child " + sonName() + 
+        " in class " + hostClass().name());
   }
 
   InhDecl contributes multiDeclProblem()
