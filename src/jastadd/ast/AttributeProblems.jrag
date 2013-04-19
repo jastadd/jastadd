@@ -276,6 +276,12 @@ aspect AttributeProblems {
     return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
   }
 
+  InhDecl contributes 
+      error("inherited attribute " + name() + " defined on root node " + hostClass().name())
+    when hostClass().isRootNode()
+    to TypeDecl.attributeProblems()
+    for hostClass();
+
   InhDecl contributes missingEqProblem()
     when hasMissingEqProblem()
     to TypeDecl.attributeProblems()
