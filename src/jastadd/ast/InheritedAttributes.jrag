@@ -51,3 +51,80 @@ aspect InheritedAttributes {
     }
   }
 }
+
+aspect FindInheritedEquations {
+  syn lazy Map<ASTDecl, LinkedList<ASTDecl>> InhDecl.missingEqs() {
+    Map<ASTDecl, LinkedList<ASTDecl>> missing = new LinkedHashMap<ASTDecl, LinkedList<ASTDecl>>();
+
+    if(hostClass() instanceof ASTDecl) {
+      ASTDecl host = (ASTDecl) hostClass();
+      LinkedList<ASTDecl> list;
+      Set<ASTPair> visited = new HashSet<ASTPair>();
+
+      list = host.findMissingInhEqs(signature(), host.fathers(), visited);
+      if (!list.isEmpty()) {
+        missing.put(host, list);
+      }
+
+      for (ASTDecl sub: host.subclassesTransitive()) {
+        list = sub.findMissingInhEqs(signature(), sub.fathersIntransitive(), visited);
+        if (!list.isEmpty()) {
+          missing.put(sub, list);
+        }
+      }
+    }
+
+    return missing;
+  }
+
+  protected LinkedList<ASTDecl> ASTDecl.findMissingInhEqs(String signature,
+      Collection<ASTDecl> fatherSet, Set<ASTPair> visited) {
+    LinkedList<ASTDecl> missing = new LinkedList<ASTDecl>();
+    for (ASTDecl father: fatherSet) {
+      if (!father.hasInhEq(this, signature)) {
+        if (father.isRootNode() ||
+            !father.isInhDefined(signature, visited)) {
+          missing.add(father);
+        }
+      }
+    }
+    return missing;
+  }
+
+  class ASTPair extends Pair<ASTDecl, ASTDecl> {
+    public ASTPair(ASTDecl a, ASTDecl b) {
+      super(a, b);
+    }
+  }
+
+  protected boolean ASTDecl.isInhDefined(String signature, Set<ASTPair> visited) {
+    for (ASTDecl father: fathers()) {
+      ASTPair p = new ASTPair(father,  this);
+      if (visited.contains(p)) {
+        break;
+      }
+      visited.add(p);
+
+      if (!father.hasInhEq(this, signature)) {
+        if (father.isRootNode() ||
+            !father.isInhDefined(signature, visited)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  syn lazy TypeDecl Components.typeDecl() = env().lookup(type());
+
+  protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
+    for (Components c: getComponentsList()) {
+      if(child.instanceOf(c.typeDecl())) {
+        if(lookupInhEq(signature, c.name()) == null) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+}
