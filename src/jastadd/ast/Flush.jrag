@@ -48,10 +48,11 @@ aspect Flush {
   public String ASTDecl.emitFlushSynAttrCacheString() {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
-      AttrEq equ = getSynEq(k);
-      AttrDecl attr = equ.decl();
-      res.append(attr.resetVisit());
-      res.append(attr.resetCache());
+      AttrDecl attr = getSynEq(k).decl();
+      if (attr != null) {
+        res.append(attr.resetVisit());
+        res.append(attr.resetCache());
+      }
     }
     return res.toString();
   }
