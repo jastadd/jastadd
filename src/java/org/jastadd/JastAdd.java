@@ -121,7 +121,9 @@ public class JastAdd {
    * @return exit value - 0 indicates no errors
    */
   public int compile(PrintStream out, PrintStream err) {
-    if (config.shouldPrintVersion()) {
+    if (config.checkProblems()) {
+      return 1;
+    } else if (config.shouldPrintVersion()) {
       out.println(getVersionString());
       out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
       out.println("This software is covered by the modified BSD license.");
@@ -134,8 +136,6 @@ public class JastAdd {
     } else if (config.shouldPrintNonStandardOptions()) {
       config.printNonStandardOptions(out);
       return 0;
-    } else if (config.checkProblems()) {
-      return 1;
     }
 
     try {
