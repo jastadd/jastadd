@@ -646,7 +646,7 @@ public class JastAddConfiguration {
    * @return <code>true</code> if the help message should be printed
    */
   public boolean shouldPrintHelp() {
-    return help.matched();
+    return help.matched() || getFiles().isEmpty();
   }
 
   /**
