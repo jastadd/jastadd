@@ -518,6 +518,6 @@ $endif
 # Initialize DDG node for children
 ASTDecl.incrementalInitChildHandlers = [[
 $if (IncrementalLevelParam)
-  getChild_handler = new $DDGNodeName[#childCount];
+  getChild_handler = new $DDGNodeName[children.length];
 $endif
 ]]
