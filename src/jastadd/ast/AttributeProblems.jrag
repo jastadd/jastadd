@@ -298,7 +298,7 @@ aspect AttributeProblems {
     boolean first1 = true;
     for (Map.Entry<ASTDecl, LinkedList<ASTDecl>> e: missingEqs().entrySet()) {
       if (!first1) {
-        buf.append(", ");
+        buf.append(", and ");
       }
       first1 = false;
       buf.append("in class " + e.getKey().name() + " when being child of ");
