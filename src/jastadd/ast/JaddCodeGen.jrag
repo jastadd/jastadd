@@ -458,6 +458,11 @@ aspect JaddCodeGen {
       TemplateContext tt = templateContext();
       tt.expand("OptDecl.constructor", out);
     }
+
+    if(isListDecl()) {
+      TemplateContext tt = templateContext();
+      tt.expand("ListDecl.constructor", out);
+    }
   }
 
   /**

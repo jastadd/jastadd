@@ -79,3 +79,16 @@ $endif
   }
 ]]
 
+# A list constructor that builds a list with all arguments
+ListDecl.constructor = [[
+$if(Java5)
+  public List.List(T... initialChildren) {
+    children = new ASTNode[initialChildren.length];
+    #genIncrementalInitChildHandlers
+    for (int i = 0; i < children.length; ++i) {
+      addChild(initialChildren[i]);
+    }
+  }
+$endif
+]]
+
