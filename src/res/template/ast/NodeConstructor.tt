@@ -25,10 +25,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ast.constructor.default:jjtree = [[
+ASTDecl.emitDefaultConstructor = [[
+$if(JJTree)
   public #name.#name(int i) {
     super(i);
-    $InitChildren
+$if(#isASTNode)
+    init$$Children();
+$endif
     $FinalInit
   }
 
@@ -40,17 +43,18 @@ ast.constructor.default:jjtree = [[
   public #name.#name() {
     this(0);
   }
-]]
-
-ast.constructor.default = [[
+$else
   public #name.#name() {
     super();
-    $InitChildren
+$if(#isASTNode)
+    init$$Children();
+$endif
     $FinalInit
   }
+$endif
 ]]
 
-initChildren = [[
+ASTDecl.emitChildInitMethod = [[
   /**
    * Initializes the child array to the correct size.
    * Initializes List and Opt nta children.

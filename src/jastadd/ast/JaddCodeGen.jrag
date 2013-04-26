@@ -115,26 +115,16 @@ aspect JaddCodeGen {
 
     String finalInit = "";
     if(grammar().rewriteEnabled && isRootNode()) {
-      if(grammar().stagedRewrites)
+      if(grammar().stagedRewrites) {
         finalInit = "is$Final(state().rewritePhase);";
-      else
+      } else {
         finalInit = "is$Final(true);";
+      }
     }
 
     tt.bind("FinalInit", finalInit);
 
-    if (isASTNode()) {
-      tt.bind("InitChildren", "init$Children();");
-    } else {
-      tt.bind("InitChildren", "");
-    }
-
-    if (grammar().jjtree) {
-      tt.bind("ParserName", grammar().parserName);
-      tt.expand("ast.constructor.default:jjtree", out);
-    } else {
-      tt.expand("ast.constructor.default", out);
-    }
+    tt.expand("ASTDecl.emitDefaultConstructor", out);
   }
 
   /**
@@ -169,7 +159,7 @@ aspect JaddCodeGen {
     childInit.append(tt.expand("State.incHookConstructionEnd"));
 
     tt.bind("ChildInit", childInit.toString());
-    tt.expand("initChildren", out);
+    tt.expand("ASTDecl.emitChildInitMethod", out);
   }
 
   /**
@@ -491,11 +481,11 @@ aspect JaddCodeGen {
         out.println(ind2 + "return false;");
       }
       
-    } else if(!hasRewrites())
+    } else if(!hasRewrites()) {
       out.println(ind2 + "return false;");
-    else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition())
+    } else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition()) {
       out.println(ind2 + "return true;");
-    else {
+    } else {
       for(Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
         String condition = (String)iter.next();
         out.println(ind2 + "if(" + condition + ") return true;");
