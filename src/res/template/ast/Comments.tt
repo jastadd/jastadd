@@ -30,15 +30,17 @@ AttrDecl.hostFileComment = [[
   /**$SourceComment
    * @attribute #attributeKind
    * @aspect #getAspectName
-   * @declaredat #declaredat
-   */]]
+   * #declaredat
+   */
+]]
 
 AttrEq.hostFileComment = [[
   /**$SourceComment
    * @attribute #attributeKind
    * @aspect #getAspectName
-   * @declaredat #declaredat
-   */]]
+   * #declaredat
+   */
+]]
 
 ASTDecl.javadocComment [[
   /**
@@ -47,5 +49,6 @@ ASTDecl.javadocComment [[
 $if(HasAspect)
    * @aspect $AspectName
 $endif
-   * @declaredat $DeclaredAt
-   */]]
+   * $DeclaredAt
+   */
+]]
