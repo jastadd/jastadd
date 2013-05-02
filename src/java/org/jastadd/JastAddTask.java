@@ -286,7 +286,10 @@ public class JastAddTask extends Task {
       argsArray[i] = iter.next().trim();
     }
     System.err.println("generating node types and weaving aspects");
-    JastAdd.main(argsArray);
+    int exitVal = JastAdd.compile(argsArray, System.out, System.err);
+    if (exitVal != 0) {
+      throw new BuildException("Failed to generate AST");
+    }
     System.err.println("done");
   }
 }
