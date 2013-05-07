@@ -2,31 +2,18 @@
 
 	<property name="src.dir" location="src"/>
 	<property name="gen.dir" location="${src.dir}/gen"/>
+	<property name="res.dir" location="${src.dir}/res"/>
 	<property name="bin.dir" location="bin"/>
 	<property name="tools.dir" value="tools"/>
 	<property name="tt.src.dir" value="tinytemplate/src/java"/>
+	<property file="${res.dir}/JastAdd.properties" prefix="jastaddj"/>
 
 	<description>Build script for JastAdd2</description>
 
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
 		classpath="${tools.dir}/jastadd2.jar"/>
 
-	<target name="build-resources">
-		<mkdir dir="${gen.dir}"/>
-		<tstamp>
-			<format property="build.date" pattern="yyyyMMdd"/>
-		</tstamp>
-		<property name="version.name" value="R${build.date}"/>
-		<copy file="resources/JastAdd.txt" overwrite="true"
-			toFile="${gen.dir}/JastAdd.properties">
-			<filterset>
-				<filter token="VERSION" value="${version.name}"/>
-			</filterset>
-		</copy>
-	</target>
-
-	<target name="build" description="generate sources and build JastAdd2"
-		depends="build-resources">
+	<target name="build" description="Generate sources and build JastAdd2">
 		<mkdir dir="${gen.dir}/ast/AST"/>
 		<mkdir dir="${gen.dir}/jrag/AST"/>
 		<mkdir dir="${bin.dir}"/>
@@ -73,10 +60,7 @@
 			<src path="${tt.src.dir}"/>
 		</javac>
 		<copy todir="${bin.dir}">
-			<fileset dir="${gen.dir}">
-				<include name="**/*.properties"/>
-			</fileset>
-			<fileset dir="${src.dir}/res">
+			<fileset dir="${res.dir}">
 				<include name="**/*"/>
 			</fileset>
 		</copy>
@@ -122,7 +106,6 @@
 				<include name="src/jastadd/**/*"/>
 				<include name="src/javacc/**/*"/>
 				<include name="src/res/**/*"/>
-				<include name="resources/*.txt"/>
 				<include name="tools/**/*.jar"/>
 				<include name="tinytemplate/src/**/*"/>
 				<include name="tinytemplate/LICENSE.txt"/>
@@ -162,4 +145,16 @@
 		description="Prepare JastAdd2 bootstrapping (copy jastadd2.jar to tools directory)">
 		<copy file="jastadd2.jar" toDir="${tools.dir}"/>
 	</target>
+
+	<target name="update-version-string">
+		<echo message="Updating JastAdd version string..."/>
+		<exec executable="git" outputproperty="version">
+			<arg value="describe"/>
+		</exec>
+		<echo message="version=${version}"/>
+		<propertyfile file="${res.dir}/JastAdd.properties">
+			<entry key="version" value="${version}"/>
+		</propertyfile>
+	</target>
+
 </project>

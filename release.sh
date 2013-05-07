@@ -1,44 +1,61 @@
-#!/bin/sh
+#!/bin/bash
 
 # set version string
 VERSION=R`date +%Y%m%d`
 
-echo "# Follow these steps to release a new jastadd2 version ${VERSION}:"
+echo "This will script will tag, build and upload JastAdd2 $VERSION" \
+  "to jastadd.org/releases/jastadd2/$VERSION"
 echo
-echo "# 1. Patch the documentation files to use the correct version number"
-echo "sed -e 's/\\(JastAdd2 Release \\)R[0-9]*/"'\\1'"${VERSION}/' \\"
-echo "    doc/index.md > doc/index.md.new"
-echo "mv doc/index.md.new doc/index.md"
-echo "sed -e 's/\\(manual for JastAdd2 \\)R[0-9]*/"'\\1'"${VERSION}/' \\"
-echo "    doc/reference-manual.html >doc/reference-manual.html.new"
-echo "mv doc/reference-manual.html.new doc/reference-manual.html"
+echo "IMPORTANT: Please update doc/release-notes.html before proceeding!"
 echo
-echo "# 2. Create the release zip files jastadd2-src.zip and jastadd2-bin.zip"
-echo "ant release"
+
+while true; do
+  read -p "Proceed? " yn
+  case $yn in 
+    [Yy]* ) break;;
+    [Nn]* ) exit;;
+    * ) echo "Please answer yes or no.";;
+  esac
+done
+
+echo "Bumping version string..."
+echo "version=$VERSION" > src/res/JastAdd.properties
+
+echo "Patching documentation files to use the correct version number..."
+sed -e 's/\(JastAdd2 Release \)R[0-9]*/\1'${VERSION}'/' \
+    doc/index.md > doc/index.md.new
+mv doc/index.md.new doc/index.md
+sed -e 's/\(manual for JastAdd2 \)R[0-9]*/\1'${VERSION}'/' \
+    doc/reference-manual.html > doc/reference-manual.html.new
+mv doc/reference-manual.html.new doc/reference-manual.html
+
+echo "Committing changes..."
+git commit -m "Bumped version string" src/res/JastAdd.properties \
+  doc/index.md doc/reference-manual.html
+
+echo "Tagging the release..."
+git tag -a $VERSION -m "Version $VERSION"
+
+echo "Building release zip files..."
+ant release
+
+exit
+
+echo "Creating new directory at jastadd.org..."
+ssh login.cs.lth.se "mkdir /cs/jastadd/releases/jastadd2/$VERSION"
+
+echo "Uploading files to jastadd.org..."
+scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
+    doc/*.md README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
+
+echo "Setting group write permission for uploaded files..."
+ssh login.cs.lth.se "chmod -R g+w /cs/jastadd/releases/jastadd2/$VERSION"
+
 echo
-echo "# 3. Create a release directory at jastadd.org"
-echo "ssh login.cs.lth.se \"mkdir /cs/jastadd/releases/jastadd2/${VERSION}\""
-echo
-echo "# 4.1 Upload the zip files and appropriate documentation to jastadd.org"
-echo "scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php\\"
-echo "    doc/*.md README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}"
-echo
-echo "# 4.2 Make sure the new files have group write permission"
-echo "ssh login.cs.lth.se \"chmod -R g+w /cs/jastadd/releases/jastadd2/${VERSION}\""
-echo
-echo "# 5. Cleaning up"
-echo "rm -f jastadd2-bin.zip jastadd2-src.zip"
-echo # Check that it works
-echo ------------------------------------------------------
-echo Browse to the website and check that everything works.
-echo Then ant clean and commit.
-echo ------------------------------------------------------
-echo
-echo "# 6. Tag in Git"
-echo "git tag -a ${VERSION} -m \"Release ${VERSION} of JastAdd2\""
-echo "git push origin ${VERSION}"
-#echo "# 6. Tag in SVN"
-#echo "svn copy http://svn.cs.lth.se/svn/jastadd/trunk/JastAdd2 \\"
-#echo "    http://svn.cs.lth.se/svn/jastadd/tags/JastAdd2/${VERSION} \\"
-#echo "    -m \"Release ${VERSION} of JastAdd2\""
+echo "Check that it works!"
+echo "--------------------"
+echo "1. Browse to the website and check that everything looks okay."
+echo "2. Update the web pages to include links to the new release."
+echo "3. Push the changes to git."
+echo "    git push origin ${VERSION}"
 
