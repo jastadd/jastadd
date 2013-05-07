@@ -70,7 +70,7 @@ public class JastAdd {
    * @return Short version string
    */
   public static String getVersionString() {
-    return "JastAdd2 " + getString("jastadd.version");
+    return "JastAdd2 " + getString("version");
   }
 
   /**
@@ -78,7 +78,7 @@ public class JastAdd {
    */
   public static String getLongVersionString() {
     return "JastAdd2 (http://jastadd.org) version " +
-      getString("jastadd.version");
+      getString("version");
   }
 
   private final JastAddConfiguration config;
