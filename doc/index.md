@@ -1,4 +1,4 @@
-JastAdd2 Release R20130412
+JastAdd2 Release R20130507
 ==========================
 
 Please view the [ReadMe page][1] for usage and building instructions.
