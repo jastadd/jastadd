@@ -25,6 +25,7 @@ Dependencies
 
 JastAdd2 requires a Java Runtime Environment (JRE) to run, and a JDK to build.
 The minimum required Java version for JastAdd2 is Java SE 6.
+
 JastAdd2 uses JavaCC, JJTree, and Apache Ant. JavaCC and JJTree are included in
 the source tree of JastAdd2, so the only external tools needed are Java
 and Ant.
@@ -84,20 +85,6 @@ Release Process
      - Update documentation/reference_manual.php to link to latest reference manual
      - Commit the web pages
      - Do `./publish` (to check out the newest web on the real web site)
-
-Tools Used
-----------
-
-Special tools used (jars included in the tools-dir):
-
-* JastAdd2: The semantics are defined using JastAdd itself.
-* JJTree:   Builds the AST used by JavaCC
-* JavaCC:   For parsing aspect source files
-
-General tools used (assumed to be available on your platform):
-
-* JVM:      A Java Virtual Machine
-* Ant:      Building JastAdd2
 
 File Types
 ----------
