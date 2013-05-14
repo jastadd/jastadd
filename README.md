@@ -32,6 +32,10 @@ and Ant. See licenses/ for the full license text for JavaCC (and JJTree).
 
 The context-free grammar used in JastAdd is based on an example from JavaCC.
 
+The README file for the binary distribution (README-binary-dist.md) is written
+in the language Markdown. This file is then converted to HTML during the 
+release process with the tool Markdown.pl (see licenses/ for license text). 
+
 Building
 --------
 
