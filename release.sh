@@ -43,7 +43,7 @@ echo "Creating new directory at jastadd.org..."
 ssh login.cs.lth.se "mkdir /cs/jastadd/releases/jastadd2/$VERSION"
 
 echo "Uploading files to jastadd.org..."
-scp jastadd2.jar jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
+scp jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
     doc/*.md README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
 
 echo "Setting group write permission for uploaded files..."

@@ -116,6 +116,7 @@
 				<include name="README.md"/>
 				<include name="ChangeLog"/>
 				<include name="build.xml"/>
+				<include name="licenses/*" />
 				<exclude name="**/.git/**/*"/>
 				<exclude name="**/.gitignore"/>
 				<exclude name="**/.gitmodules"/>
@@ -127,11 +128,13 @@
 		<zip destfile="jastadd2-bin.zip">
 			<zipfileset dir="." prefix="jastadd2-bin">
 				<include name="LICENSE"/>
-				<include name="README.md"/>
+				<include name="ChangeLog"/>
 				<include name="jastadd2.jar"/>
 				<include name="doc/reference-manual.html"/>
 				<include name="doc/release-notes.html"/>
+				<include name="licenses/*" />
 			</zipfileset>
+			<zipfileset dir="." includes="README-binary-dist.md" fullpath="jastadd2-bin/README.md"/>
 		</zip>
 	</target>
 

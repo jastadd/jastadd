@@ -12,7 +12,7 @@ License
 
 Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.
 
-JastAdd2 is  is covered by the modified BSD License. For the full license text
+JastAdd2 is covered by the modified BSD License. For the full license text
 see the LICENSE file.
 
 Obtaining JastAdd2
@@ -28,7 +28,9 @@ The minimum required Java version for JastAdd2 is Java SE 6.
 
 JastAdd2 uses JavaCC, JJTree, and Apache Ant. JavaCC and JJTree are included in
 the source tree of JastAdd2, so the only external tools needed are Java
-and Ant.
+and Ant. See licenses/ for the full license text for JavaCC (and JJTree). 
+
+The context-free grammar used in JastAdd is based on an example from JavaCC.
 
 Building
 --------

@@ -6,24 +6,22 @@ Please view the [ReadMe page][1] for usage and building instructions.
 Downloads
 ---------
 
-* [jastadd2.jar][2]
-* [Full binary distribution][3]
-* [Source distribution][4]
+* [Binary distribution][2]
+* [Source distribution][3]
 
 Release notes
 -------------
 
-[Click here to view release notes.][5]
+[Click here to view release notes.][4]
 
 Reference manual
 ----------------
 
-[Click here to view the reference manual.][6]
+[Click here to view the reference manual.][5]
 
 
 [1]: readme.php
-[2]: jastadd2.jar
-[3]: jastadd2-bin.zip
-[4]: jastadd2-src.zip
-[5]: release-notes.php
-[6]: reference-manual.php
+[2]: jastadd2-bin.zip
+[3]: jastadd2-src.zip
+[4]: release-notes.php
+[5]: reference-manual.php
