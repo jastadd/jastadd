@@ -125,6 +125,10 @@
 	</target>
 
 	<target name="bin-zip" depends="jar">
+		<exec executable="perl" output="README-binary-dist.html">
+			<arg value="tools/Markdown.pl" />
+			<arg value="README-binary-dist.md" />
+		</exec>
 		<zip destfile="jastadd2-bin.zip">
 			<zipfileset dir="." prefix="jastadd2-bin">
 				<include name="LICENSE"/>
@@ -134,7 +138,7 @@
 				<include name="doc/release-notes.html"/>
 				<include name="licenses/*" />
 			</zipfileset>
-			<zipfileset dir="." includes="README-binary-dist.md" fullpath="jastadd2-bin/README.md"/>
+			<zipfileset dir="." includes="README-binary-dist.html" fullpath="jastadd2-bin/README.html"/>
 		</zip>
 	</target>
 
