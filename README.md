@@ -58,36 +58,6 @@ Builds are done by using the Apache Ant script build.xml:
 
         > ant bootstrap
 
-Release Process
----------------
-
-  1. Make sure the following files have appropriate content:
-     - ChangeLog (Check against commit log, add note about the release)
-     - doc/reference-manual.html
-     - doc/release-notes.html (Add suitable high-level content for this release)
-  2. Create a new jar file:
-      `> ant jar`
-  3. Run all test cases.
-  4. Run the release script which will show you commands for doing the release.
-     `> ./release.sh`
-     This will involve:
-     - Creating a new tagged version R20110506 (or other appropriate date)
-     - Patching html files with version R20110506
-     - Creating a zip file jastadd2-src.zip for the source distribution
-     - Creating a zip file jastadd2-bin.zip for the binary distribution.
-     - Upload the zip files and appropriate documentation to jastadd.org
-     - Cleaning up
-  5. Browse to jastadd.org/releases/jastadd2/R20110506 and check the content.
-  6. Ant clean and commit
-  7. Tag the current version according to ./release.sh instructions.
-  8. Update the web pages to reflect the new release on the download and news pages.
-     - Check out the web pages at http://svn.cs.lth.se/svn/jastadd-research/web
-     - Update index-file.html with news item about the new release
-     - Update download.html to link to the new release
-     - Update documentation/reference_manual.php to link to latest reference manual
-     - Commit the web pages
-     - Do `./publish` (to check out the newest web on the real web site)
-
 File Types
 ----------
 
@@ -142,13 +112,6 @@ Overall behavior when running JastAdd:
 * Now, the AST is complete, and attributes can be accessed.
 * Then, possible errors are printed.
 * Then, target AST classes are generated.
-
-Versions
---------
-
-To keep track of JastAdd versions, the version number (based on the current
-date) is patched into both the source file JastAdd.java, and the manifest file.
-The script doing this, newrelease, is called when building.
 
 Parsing
 -------
