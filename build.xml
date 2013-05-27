@@ -13,7 +13,8 @@
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
 		classpath="${tools.dir}/jastadd2.jar"/>
 
-	<target name="build" description="Generate sources and build JastAdd2">
+	<target name="build" depends="update-version-string"
+		description="Generate sources and build JastAdd2">
 		<mkdir dir="${gen.dir}/ast/AST"/>
 		<mkdir dir="${gen.dir}/jrag/AST"/>
 		<mkdir dir="${bin.dir}"/>
@@ -154,14 +155,27 @@
 	</target>
 
 	<target name="update-version-string">
+		<!-- get a new version string using git describe if possible -->
 		<echo message="Updating JastAdd version string..."/>
-		<exec executable="git" outputproperty="version">
+		<exec executable="git" outputproperty="version"
+			failifexecutionfails="false">
 			<arg value="describe"/>
 		</exec>
+		<antcall target="-store-version-string"/>
+	</target>
+
+	<target name="-store-version-string" if="version">
+		<!-- store the new  version string in the correct property file -->
 		<echo message="version=${version}"/>
 		<propertyfile file="${res.dir}/JastAdd.properties">
 			<entry key="version" value="${version}"/>
 		</propertyfile>
+		<exec executable="git" outputproperty="version"
+			failifexecutionfails="false">
+			<arg value="update-index"/>
+			<arg value="--assume-unchanged"/>
+			<arg value="${res.dir}/JastAdd.properties"/>
+		</exec>
 	</target>
 
 </project>
