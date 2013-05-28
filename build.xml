@@ -170,8 +170,7 @@
 		<propertyfile file="${res.dir}/JastAdd.properties">
 			<entry key="version" value="${version}"/>
 		</propertyfile>
-		<exec executable="git" outputproperty="version"
-			failifexecutionfails="false">
+		<exec executable="git">
 			<arg value="update-index"/>
 			<arg value="--assume-unchanged"/>
 			<arg value="${res.dir}/JastAdd.properties"/>
