@@ -8,10 +8,15 @@
 	<property name="tt.src.dir" value="tinytemplate/src/java"/>
 	<property file="${res.dir}/JastAdd.properties" prefix="jastadd"/>
 
+	<condition property="jastadd-jar" value="${jastadd.jar}"
+		else="${tools.dir}/jastadd2.jar">
+		<isset property="jastadd.jar"/>
+	</condition>
+
 	<description>Build script for JastAdd2</description>
 
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
-		classpath="${tools.dir}/jastadd2.jar"/>
+		classpath="${jastadd-jar}"/>
 
 	<target name="build" depends="update-version-string"
 		description="Generate sources and build JastAdd2">
