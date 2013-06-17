@@ -99,7 +99,7 @@ $endif
 
 ASTNode.flushHookGetChildCheckStoreInit = [[
 $if(FullFlush)
-if(!node.inc_hasEnclosingRewrittenNode()) {
+if(!node.inc_hasEnclosingRewrittenNode() && this.init_children[i] == null) {
   this.init_children[i] = node.fullCopy();
   this.rewritten_children[i] = true;
 }
