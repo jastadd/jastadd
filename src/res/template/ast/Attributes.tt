@@ -300,8 +300,9 @@ ASTDecl.genCircularEquationNoParams [[
         $include(AttrDecl.incHookAttrCompStartCircular)
         #getType new_#(attributeSignature)_value = #circularComputeCall;
         $include(AttrDecl.incHookAttrCompEndCircular)
-        if ($Cond1)
+        if ($Cond1) {
           state.CHANGE = true;
+        }
         #(attributeSignature)_value = new_#(attributeSignature)_value;
         state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
@@ -330,8 +331,9 @@ ASTDecl.genCircularEquationNoParams [[
       $include(AttrDecl.incHookAttrCompStartCircular)
       #getType new_#(attributeSignature)_value = #circularComputeCall;
       $include(AttrDecl.incHookAttrCompEndCircular)
-      if ($Cond2)
+      if ($Cond2) {
         state.CHANGE = true;
+      }
       #(attributeSignature)_value = new_#(attributeSignature)_value;
       $TracePrintReturnNewValue
       $include(AttrDecl.returnStmt)
