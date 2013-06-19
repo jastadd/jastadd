@@ -238,14 +238,14 @@ $if(#getLazy)
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(attributeSignature)_values.put(_parameters, #attributeValueReference);
-      $include(AttrDecl.incHookAttrCompAfterStore)
     }
+    $include(AttrDecl.incHookAttrCompAfterStore)
   $else
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(attributeSignature)_computed = true;
-      $include(AttrDecl.incHookAttrCompAfterStore)
     }
+    $include(AttrDecl.incHookAttrCompAfterStore)
   $endif
 $endif
 
