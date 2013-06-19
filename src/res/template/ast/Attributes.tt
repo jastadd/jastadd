@@ -27,15 +27,15 @@
 
 AttrDecl.returnStmt = [[
 $if(#isNTAToken)
-  #(getType) node = (#getType) this.getChild(#(attributeSignature)ChildPosition());
-  $include(AttrDecl.incHookAttrCompEnd)
-  return node;
+#(getType) node = (#getType) this.getChild(#(attributeSignature)ChildPosition());
+$include(AttrDecl.incHookAttrCompEnd)
+return node;
 $else
   $if(#isCircular)
-    return #(attributeSignature)_value;
+return #(attributeSignature)_value;
   $else
-    $include(AttrDecl.incHookAttrCompEnd)
-    return #(attributeSignature)_value;
+$include(AttrDecl.incHookAttrCompEnd)
+return #(attributeSignature)_value;
   $endif
 $endif
 ]]
