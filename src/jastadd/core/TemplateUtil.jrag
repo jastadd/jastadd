@@ -44,38 +44,43 @@ aspect TemplateUtil {
     TinyTemplate tt = new TinyTemplate();
     tt.setIndentation(ind);
     tt.throwExceptions(true);
+
     loadTemplates(tt, "ast/ASTNode");
-    loadTemplates(tt, "ast/List");
-    loadTemplates(tt, "ast/ImplicitDeclarations");
-    loadTemplates(tt, "ast/CopyNode");
-    loadTemplates(tt, "ast/NodeConstructor");
-    loadTemplates(tt, "ast/State");
     loadTemplates(tt, "ast/Attributes");
-    loadTemplates(tt, "core/Synchronization");
-    loadTemplates(tt, "ast/Comments");
-    loadTemplates(tt, "ast/Rewrites");
+    loadTemplates(tt, "ast/Cache");
+    loadTemplates(tt, "ast/Circular");
     loadTemplates(tt, "ast/CircularCollection");
     loadTemplates(tt, "ast/Collections");
-    loadTemplates(tt, "ast/InheritedAttributes");
-    loadTemplates(tt, "ast/Circular");
-    loadTemplates(tt, "ast/JJTree");
+    loadTemplates(tt, "ast/Comments");
+    loadTemplates(tt, "ast/CopyNode");
     loadTemplates(tt, "ast/Flush");
+    loadTemplates(tt, "ast/ImplicitDeclarations");
+    loadTemplates(tt, "ast/InheritedAttributes");
+    loadTemplates(tt, "ast/JJTree");
+    loadTemplates(tt, "ast/List");
+    loadTemplates(tt, "ast/NodeConstructor");
+    loadTemplates(tt, "ast/Rewrites");
+    loadTemplates(tt, "ast/State");
+
+    loadTemplates(tt, "ast/components/AggregateComponent");
     loadTemplates(tt, "ast/components/ListComponent");
     loadTemplates(tt, "ast/components/OptionalComponent");
     loadTemplates(tt, "ast/components/TokenComponent");
-    loadTemplates(tt, "ast/components/AggregateComponent");
+
+    loadTemplates(tt, "core/Synchronization");
+
     if (grammar().incremental) {
       loadTemplates(tt, "incremental/DDGNodeCopy");
-      loadTemplates(tt, "incremental/Regions");
       loadTemplates(tt, "incremental/Debug");
       loadTemplates(tt, "incremental/Notification");
+      loadTemplates(tt, "incremental/Regions");
       loadTemplates(tt, "incremental/Rewrites");
     }
-    loadTemplates(tt, "incremental/State");
-    loadTemplates(tt, "incremental/DDGNode");
     loadTemplates(tt, "incremental/ASTChange");
-    loadTemplates(tt, "incremental/Tracking");
+    loadTemplates(tt, "incremental/DDGNode");
     loadTemplates(tt, "incremental/NTAs");
+    loadTemplates(tt, "incremental/State");
+    loadTemplates(tt, "incremental/Tracking");
     return new SimpleContext(tt, this);
   }
 

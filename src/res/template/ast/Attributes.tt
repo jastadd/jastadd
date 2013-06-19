@@ -25,6 +25,21 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+AttrDecl.returnStmt = [[
+$if(#isNTAToken)
+  #(getType) node = (#getType) this.getChild(#(attributeSignature)ChildPosition());
+  $include(AttrDecl.incHookAttrCompEnd)
+  return node;
+$else
+  $if(#isCircular)
+    return #(attributeSignature)_value;
+  $else
+    $include(AttrDecl.incHookAttrCompEnd)
+    return #(attributeSignature)_value;
+  $endif
+$endif
+]]
+
 AttrDecl.cacheDeclarations = [[
 $if(!#isParameterized)
   /**
@@ -252,7 +267,7 @@ $endif
     #clearVisited
     $include(addClearInterruptedCircle)
     #traceEndAttr
-    #returnStmt
+    $include(AttrDecl.returnStmt)
     $SynchEnd
   }
 ]]
@@ -303,12 +318,12 @@ ASTDecl.genCircularEquationNoParams [[
       state.IN_CIRCLE = false;
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
-      #returnStmt
+      $include(AttrDecl.returnStmt)
     }
     if(#(attributeSignature)_visited != state.CIRCLE_INDEX) {
       #(attributeSignature)_visited = state.CIRCLE_INDEX;
       #cacheCycleCheck
-      #resetCycleCheck
+      $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
       #inhDebugString
       #tracePrintBeginComputingValue
@@ -319,10 +334,10 @@ ASTDecl.genCircularEquationNoParams [[
         state.CHANGE = true;
       #(attributeSignature)_value = new_#(attributeSignature)_value;
       $TracePrintReturnNewValue
-      #returnStmt
+      $include(AttrDecl.returnStmt)
     }
     $TracePrintReturnPreviousValue
-    #returnStmt
+    $include(AttrDecl.returnStmt)
     $SynchEnd
   }
 ]]
@@ -399,7 +414,7 @@ $endif
       #getType new_#(attributeSignature)_value = #circularComputeCall;
       $include(AttrDecl.incHookAttrCompEndCircular)
       #cacheCycleCheck
-      #resetCycleCheck
+      $include(AttrDecl.resetCycleCheck)
       else if ($Cond1) {
         state.CHANGE = true;
 $if (Java5)

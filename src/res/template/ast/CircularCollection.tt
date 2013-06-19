@@ -88,7 +88,7 @@ $if(#isParameterized)
     if(!new Interger(state().CIRCLE_INDEX).equals(#(attributeSignature)_visited.get(_parameters))) {
       #(attributeSignature)_visited.put(_paramters, new Integer(state().CIRCLE_INDEX));
       #cacheCycleCheck
-      #resetCycleCheck
+      $include(AttrDecl.resetCycleCheck)
       #getType new_#(attributeSignature)_value = $BottomValue;
       combine_#(attributeSignature)_contributions(new_#(attributeSignature)_value);
       if ($Cond2) {
@@ -179,12 +179,12 @@ $endif
         #(attributeSignature)_initialized = false;
       }
       state().IN_CIRCLE = false;
-      #returnStmt
+      $include(AttrDecl.returnStmt)
     }
     if(#(attributeSignature)_visited != state().CIRCLE_INDEX) {
       #(attributeSignature)_visited = state().CIRCLE_INDEX;
       #cacheCycleCheck
-      #resetCycleCheck
+      $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
 $if(SeparateEvaluation)
       new_#(attributeSignature)_value = $BottomValue;
@@ -197,9 +197,9 @@ $endif
         state().CHANGE = true;
       }
       #(attributeSignature)_value = new_#(attributeSignature)_value;
-      #returnStmt
+      $include(AttrDecl.returnStmt)
     }
-    #returnStmt
+    $include(AttrDecl.returnStmt)
     $BlockEnd
   }
 $endif

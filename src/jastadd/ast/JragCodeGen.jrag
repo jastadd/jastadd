@@ -601,22 +601,8 @@ aspect JragCodeGen {
   syn String AttrDecl.attributeValueReference() =
         toReferenceType(attributeSignature() + "_value", getType());
 
-  public String AttrDecl.returnStmt() {
-    TemplateContext tt = templateContext();
-    if(isNTA() && !(findCorrespondingNTA() instanceof TokenComponent)) {
-      int index = indexNTAchild();
-      return getType() + " node = (" + getType() + ") this.getChild(" + attributeSignature() + "ChildPosition());\n" +
-          tt.expand("AttrDecl.incHookAttrCompEnd") + 
-          grammar().ind(2) + "return node;\n";
-    }
-
-    if (isCircular()) {
-      return grammar().ind(2) + "return " + attributeSignature() + "_value;\n";
-    }
-
-    return tt.expand("AttrDecl.incHookAttrCompEnd") +
-        grammar().ind(2) + "return " + attributeSignature() + "_value;\n";
-  }
+  syn boolean AttrDecl.isNTAToken() =
+    isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
 
   syn boolean AttrEq.hasComputeBlock() = true;
   eq SynEq.hasComputeBlock() = getRHS() instanceof ASTBlock;
@@ -732,23 +718,6 @@ aspect JragCodeGen {
 
   syn boolean AttrDecl.isParameterized() =
     getNumParameter() != 0;
-
-  public String AttrDecl.resetCycleCheck() {
-     String ind = grammar().ind;
-     if(getNumParameter() == 0)
-       return
-         "if (state.RESET_CYCLE) {\n" +
-         ind + attributeSignature() + "_computed = false;\n" +
-         ind + attributeSignature() + "_initialized = false;\n" +
-         ind + attributeSignature() + "_visited = -1;\n" +
-         ind + returnStmt() +
-         "}\n";
-     else
-       return
-         "if (state.RESET_CYCLE) {\n" +
-         ind + attributeSignature() + "_values.remove(_parameters);\n" +
-         "}\n";
-  }
 
   public String AttrDecl.cacheCycleCheck() {
     if (!grammar().cacheCycle) return "";
