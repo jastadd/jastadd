@@ -233,7 +233,22 @@ $endif
     #cacheInit
     #callCompute
     #higherOrderAttributeCode
-    #cacheStore
+$if(#getLazy)
+  $if(#isParameterized)
+    #cacheStoreRewrite {
+      $include(AttrDecl.incHookAttrCompBeforeStore)
+      #(attributeSignature)_values.put(_parameters, #attributeValueReference);
+      $include(AttrDecl.incHookAttrCompAfterStore)
+    }
+  $else
+    #cacheStoreRewrite {
+      $include(AttrDecl.incHookAttrCompBeforeStore)
+      #(attributeSignature)_computed = true;
+      $include(AttrDecl.incHookAttrCompAfterStore)
+    }
+  $endif
+$endif
+
     #clearVisited
     $include(addClearInterruptedCircle)
     #traceEndAttr
@@ -253,7 +268,7 @@ ASTDecl.genCircularEquationNoParams [[
     #addComponentCheck
     if (!#(attributeSignature)_initialized) {
       #(attributeSignature)_initialized = true;
-    #(attributeSignature)_value = $BottomValue;
+      #(attributeSignature)_value = $BottomValue;
     }
     if (!state.IN_CIRCLE) {
       state.IN_CIRCLE = true;

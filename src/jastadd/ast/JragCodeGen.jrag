@@ -593,27 +593,13 @@ aspect JragCodeGen {
 
   public String AttrDecl.cacheStoreRewrite() {
     if(!grammar().rewriteEnabled || getFinal())
-      return grammar().ind + "if(true)";
+      return "if(true)";
     else
-      return grammar().ind + "if(isFinal && num == state().boundariesCrossed)";
+      return "if(isFinal && num == state().boundariesCrossed)";
   }
 
-  public String AttrDecl.cacheStore() {
-    if(!getLazy())
-      return "";
-    TemplateContext tt = templateContext();
-    if(getNumParameter() == 0) {
-      return cacheStoreRewrite() + "{" +
-        tt.expand("AttrDecl.incHookAttrCompBeforeStore") +
-        " " + attributeSignature() + "_computed = true; }\n" +
-        tt.expand("AttrDecl.incHookAttrCompAfterStore");
-    } else {
-      return cacheStoreRewrite() + "{" +
-      tt.expand("AttrDecl.incHookAttrCompBeforeStore") +
-        " " + attributeSignature() + "_values.put(_parameters, " + toReferenceType(attributeSignature() + "_value", getType()) + "); }\n" +
-        tt.expand("AttrDecl.incHookAttrCompAfterStore") + "\n";
-    }
-  }
+  syn String AttrDecl.attributeValueReference() =
+        toReferenceType(attributeSignature() + "_value", getType());
 
   public String AttrDecl.returnStmt() {
     TemplateContext tt = templateContext();
