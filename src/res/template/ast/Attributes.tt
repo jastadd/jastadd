@@ -472,9 +472,7 @@ state.RESET_CYCLE = false;]]
 
 AttrDecl.cacheCheck = [[
 $if(#hasCache)
-
 $include(AttrDecl.incHookAttrRead)
-
 $if(#isAttrNTA)
 $if(!#isParamAttr)
 if(#(attributeSignature)_computed) {
@@ -488,7 +486,6 @@ if(#(attributeSignature)_values.containsKey(_parameters)) {
 }
 $endif
 $endif
-    
 $if(!#isParamAttr)
 if(#(attributeSignature)_computed) {
   #traceEndCachedAttr
