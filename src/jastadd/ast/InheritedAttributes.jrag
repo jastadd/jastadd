@@ -250,7 +250,7 @@ aspect InheritedAttributeCodeGen {
       if (!hasGetChildEq) {
         out.print(ind2);
         if (hasComponentEq) {
-          out.print("else {");
+          out.println("else {");
         }
         if(superClass() != null && superClass().hasInhEq(decl.name())) {
           out.println(ind3 + "return super.Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParameters() + ");");
