@@ -794,7 +794,7 @@ aspect JragCodeGen {
 
   public String AttrDecl.differs(String s1, String s2) {
     if (isPrimitive())
-      return s1 + "!=" + s2;
+      return s1 + " != " + s2;
     else
       return "(" + s1 + "==null && " + s2 + "!=null) || (" + s1 + "!=null && !" + s1 + ".equals(" + s2 + "))";
   }
