@@ -11,6 +11,7 @@ echo "This script will tag, build and upload JastAdd2 $VERSION" \
   "to jastadd.org/releases/jastadd2/$VERSION"
 echo
 echo "IMPORTANT: Please update doc/release-notes.md before proceeding!"
+echo "NB: All **staged** changes will be added to the release commit!"
 echo
 
 while true; do

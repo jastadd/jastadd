@@ -157,6 +157,8 @@
 
 	<target name="release" if="version"
 		description="tag and commit new JastAdd2 release">
+    <!-- NB: update release-notes.md before release! -->
+    <!-- NB: all staged changes in this git repository will be committed! -->
 		<echo message="Bumping version string and tagging release ${version}"/>
 		<propertyfile file="${res.dir}/Version.properties">
 			<entry key="version" value="${version}"/>
@@ -167,12 +169,14 @@
 			<arg value="${res.dir}/Version.properties"/>
 		</exec>
 		<exec executable="git">
+			<arg value="add"/>
+			<arg value="${res.dir}/Version.properties"/>
+			<arg value="doc/release-notes.md"/>
+		</exec>
+		<exec executable="git">
 			<arg value="commit"/>
 			<arg value="-m"/>
 			<arg value="Release ${version}"/>
-			<arg value="${res.dir}/Version.properties"/>
-      <!-- NB: update release-notes.md before release! -->
-			<arg value="doc/release-notes.md"/>
 		</exec>
 		<exec executable="git">
 			<arg value="tag"/>

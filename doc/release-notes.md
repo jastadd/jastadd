@@ -1,32 +1,50 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.1
+-----
+
+### Bugfixes
+
+* Fixed error that could cause `fullCopy` to initialize NTA children with
+  incorrect child indices.
+* The JastAdd Ant Task now throws a BuildException if JastAdd failed to
+  generate an AST instead of silently terminating the Ant build.
+* Fixed potential null access in generated code.
+
+
+### Other
+
+* Added a new List constructor that takes a variable number of children and
+  inserts them into the list.
+* Improved analysis and error handling of inherited attributes.
+* JastAdd2 now uses a new version numbering system.
+
 R20130412
 ---------
 
 ### General
 
 * Added option for indentation type in the JastAdd Ant Task
-* Moved JastAdd main class to the package `org.jastadd`
-(but left a deprecated class with the same name as a working entry point
-for backward compatibility)
-* Removed global static variables to allow concurrent JastAdd instances
-in the same JVM
+* Moved JastAdd main class to the package `org.jastadd` (but left a deprecated
+  class with the same name as a working entry point for backward compatibility)
+* Removed global static variables to allow concurrent JastAdd instances in the
+  same JVM
 * Added JastAdd entry points that allow custom output/error streams
 
 ### Error handling
 
 * Help text is printed to the standard out stream rather than the standard
-error stream
-* Improved error handling for missing equations of synthesized attributes:
-now only the minimum set of classes requiring an equation is reported
+  error stream
+* Improved error handling for missing equations of synthesized attributes: now
+  only the minimum set of classes requiring an equation is reported
 
 ### Performance
 
-* Minimum list size now only affects `List` nodes (previously
-also affected `Opt` nodes)
+* Minimum list size now only affects `List` nodes (previously also affected
+  `Opt` nodes)
 * It is now possible to specify a custom minimum list size with the
-`minListSize` option
+  `minListSize` option
 
 R20130312
 ---------
@@ -34,7 +52,8 @@ R20130312
 ### Incremental evaluation
 
 * Merged Emma S&ouml;derberg's incremental evaluation features into JastAdd2
-* The new option `fullFlush` was added to enable more thorough flush behaviour (makes `flushCache` flush rewrites and NTAs)
+* The new option `fullFlush` was added to enable more thorough flush behaviour
+  (makes `flushCache` flush rewrites and NTAs)
 
 ### Removed obsolete features
 
@@ -57,10 +76,13 @@ R20130212
 
 ### Error handling
 
-* Multiple equivalent declarations of an inherited attribute now only raise a warning, rather than an error
-* The warning for a duplicate inherited declaration includes the previous declaration location
+* Multiple equivalent declarations of an inherited attribute now only raise a
+  warning, rather than an error
+* The warning for a duplicate inherited declaration includes the previous
+  declaration location
 * Improved error messages for method/equation refinement errors
-* The path to the output directory is included in the error message for a missing output directory
+* The path to the output directory is included in the error message for a
+  missing output directory
 
 ### API changes
 
@@ -77,21 +99,27 @@ R20130212
 
 * JastAdd2 no longer depends on AspectJ
 * The `--doxygen` option is now deprecated
-* Added the `--indent` command-line option which allows changing the indentation in generated code. Can be set to tabs or 2-, 4-, and 8 space indentation.
+* Added the `--indent` command-line option which allows changing the
+  indentation in generated code. Can be set to tabs or 2-, 4-, and 8 space
+indentation.
 
 R20121112
 ---------
 
 ### Bugfix Release
 
-* Fixed error in fullCopy causing some non-NTA children to not be copied correctly. This bug sometimes caused NullPointerExceptions or faulty behaviour in generated code.
+* Fixed error in fullCopy causing some non-NTA children to not be copied
+  correctly. This bug sometimes caused NullPointerExceptions or faulty
+behaviour in generated code.
 
 R20121112
 ---------
 
 ### Bugfix Release
 
-* Fixed error in fullCopy causing some non-NTA children to not be copied correctly. This bug sometimes caused NullPointerExceptions or faulty behaviour in generated code.
+* Fixed error in fullCopy causing some non-NTA children to not be copied
+  correctly. This bug sometimes caused NullPointerExceptions or faulty
+behaviour in generated code.
 
 R20121026
 ---------
@@ -100,10 +128,13 @@ R20121026
 
 * Fixed bug on Windows - backslashes in file paths now work correctly.
 * NTA children are no longer copied by fullCopy.
-* Removed the generated method for accessing value maps of parameterized attributes.
-* Fixed error related to two synthesized attributes with the same name but different parameters.
+* Removed the generated method for accessing value maps of parameterized
+  attributes.
+* Fixed error related to two synthesized attributes with the same name but
+  different parameters.
 * It is now possible to use static import statements in aspect files.
-* Added a method getNumXNoTransform to count the number of elements in a list child without triggering rewrites.
+* Added a method getNumXNoTransform to count the number of elements in a list
+  child without triggering rewrites.
 
 R20121011
 ---------
@@ -118,34 +149,40 @@ R20121011
 * insertChild and removeChild now update the childIndex field correctly
 * Fixed how debug code escapes file names, to work also for Windows OS.
 * Fixed bug in code generation for Contributes-clauses without when-part.
-* Circular attributes now generate Java 1.4 code when the java1.4 option is set.
+* Circular attributes now generate Java 1.4 code when the java1.4 option is
+  set.
 
 ### Improved output handling
 
-* Error messages, warnings, and help messages are now printed on stderr instead of on stdout.
-* JastAdd now returns exit code zero when just printing version or help information.
+* Error messages, warnings, and help messages are now printed on stderr instead
+  of on stdout.
+* JastAdd now returns exit code zero when just printing version or help
+  information.
 
 ### Improved option handling
 
-* The options --noComponentCheck, --lazyMaps, and --refineLegacy are now by default ON when running from the command line.
-* The default behavior is now the same when running from the command line as when running through ANT.
+* The options --noComponentCheck, --lazyMaps, and --refineLegacy are now by
+  default ON when running from the command line.
+* The default behavior is now the same when running from the command line as
+  when running through ANT.
 * Command line options are no longer case sensitive.
 * Some options are deprecated. A warning is printed if such an option is used.
-* Warnings are printed for some other cases, like giving an option twice, giving an option without an expected argument, etc.
+* Warnings are printed for some other cases, like giving an option twice,
+  giving an option without an expected argument, etc.
 
 R20110902
 ---------
 
 ### JavaDoc support
 
-JastAdd now generates Java files with JavaDoc comments for built-in APIs and
-APIs for attributes. See the upcoming RagDoll tool for more information.
+* JastAdd now generates Java files with JavaDoc comments for built-in APIs and
+  APIs for attributes. See the upcoming RagDoll tool for more information.
 
 ### JDK7 compliance  
 
-Code generated by older versions of JastAdd might give compile time errors when
-compiling using javac from JDK 7. This is because JastAdd previously generated
-code where private fields were accessed in an erroneous way according to the
-JLS. Previous javac versions accepted such code, but the bug has been fixed in
-JDK 7. This version of JastAdd generates code not giving this problem.
+* Code generated by older versions of JastAdd might give compile time errors
+  when compiling using javac from JDK 7. This is because JastAdd previously
+generated code where private fields were accessed in an erroneous way according
+to the JLS. Previous javac versions accepted such code, but the bug has been
+fixed in JDK 7. This version of JastAdd generates code not giving this problem.
 
