@@ -1,16 +1,20 @@
 #!/bin/bash
 
-# set version string
-VERSION=R`date +%Y%m%d`
+if [ $# -lt "1" ]; then
+    echo "Usage: $0 VERSION"
+    exit 1
+fi
 
-echo "This will script will tag, build and upload JastAdd2 $VERSION" \
+VERSION=$1
+
+echo "This script will tag, build and upload JastAdd2 $VERSION" \
   "to jastadd.org/releases/jastadd2/$VERSION"
 echo
-echo "IMPORTANT: Please update doc/release-notes.html before proceeding!"
+echo "IMPORTANT: Please update doc/release-notes.md before proceeding!"
 echo
 
 while true; do
-  read -p "Proceed? " yn
+  read -p "Proceed? (yes/no) " yn
   case $yn in 
     [Yy]* ) break;;
     [Nn]* ) exit;;
@@ -18,7 +22,7 @@ while true; do
   esac
 done
 
-echo "Building release..."
+echo "Building release $VERSION..."
 ant release -Dversion=$VERSION
 
 echo "Creating new directory at jastadd.org..."
@@ -26,7 +30,7 @@ ssh login.cs.lth.se "mkdir /cs/jastadd/releases/jastadd2/$VERSION"
 
 echo "Uploading files to jastadd.org..."
 scp jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
-    doc/*.md README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
+    README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
 
 echo "Setting group write permission for uploaded files..."
 ssh login.cs.lth.se "chmod -R g+w /cs/jastadd/releases/jastadd2/$VERSION"

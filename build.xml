@@ -59,7 +59,7 @@
 			outputdirectory="${gen.dir}/jrag/AST"
 			target="${gen.dir}/jrag/AST/Jrag.jj"/>
 		<javac source="1.6" target="1.6"
-      destdir="${bin.dir}" includeantruntime="true">
+			destdir="${bin.dir}" includeantruntime="true">
 			<src path="${src.dir}/java"/>
 			<src path="${gen.dir}"/>
 			<src path="${tt.src.dir}"/>
@@ -104,7 +104,7 @@
 		</jar>
 	</target>
 
-	<target name="source-zip" depends="jar">
+	<target name="source-zip" depends="jar,build-doc">
 		<zip destfile="jastadd2-src.zip">
 			<zipfileset dir="." prefix="jastadd2-src">
 				<include name="src/java/**/*.java"/>
@@ -115,6 +115,7 @@
 				<include name="tinytemplate/src/**/*"/>
 				<include name="tinytemplate/LICENSE.txt"/>
 				<include name="tinytemplate/README.md"/>
+				<include name="doc/index.html"/>
 				<include name="doc/reference-manual.html"/>
 				<include name="doc/release-notes.html"/>
 				<include name="LICENSE"/>
@@ -129,9 +130,9 @@
 		</zip>
 	</target>
 
-	<target name="bin-zip" depends="jar">
+	<target name="bin-zip" depends="jar,build-doc">
 		<exec executable="perl" output="README-binary-dist.html">
-			<arg value="tools/Markdown.pl" />
+			<arg value="${tools.dir}/Markdown.pl" />
 			<arg value="README-binary-dist.md" />
 		</exec>
 		<zip destfile="jastadd2-bin.zip">
@@ -139,6 +140,7 @@
 				<include name="LICENSE"/>
 				<include name="ChangeLog"/>
 				<include name="jastadd2.jar"/>
+				<include name="doc/index.html"/>
 				<include name="doc/reference-manual.html"/>
 				<include name="doc/release-notes.html"/>
 				<include name="licenses/*" />
@@ -175,10 +177,31 @@
 	</target>
 
 	<target name="build-dist"
-    description="build source and binary distribution files">
-		<antcall target="clean"/>
-		<antcall target="source-zip"/>
-		<antcall target="bin-zip"/>
+		depends="clean,source-zip,bin-zip"
+		description="build source and binary distribution files">
+	</target>
+
+	<target name="build-doc" depends="update-version-string"
+		description="process documentation Markdown files">
+		<echo message="Processing Markdown files"/>
+		<copy file="doc/index.md.in" toFile="doc/index.md" overwrite="true">
+			<filterset>
+				<filter token="VERSION" value="${version}"/>
+			</filterset>
+		</copy>
+		<chainedmapper id="mdmapper">
+			<flattenmapper/>
+			<globmapper from="*.md" to="doc${file.separator}*.html"/>
+		</chainedmapper>
+		<apply executable="perl" dest="doc">
+			<arg value="${tools.dir}/Markdown.pl"/>
+			<srcfile/>
+			<fileset dir="doc" includes="*.md"/>
+			<mapper refid="mdmapper"/>
+			<redirector>
+				<outputmapper refid="mdmapper"/>
+			</redirector>
+		</apply>
 	</target>
 
 	<target name="bootstrap" depends="jar"
@@ -186,7 +209,7 @@
 		<copy file="jastadd2.jar" toDir="${tools.dir}"/>
 	</target>
 
-  <!-- this target is only run if the 'version' property is undefined -->
+	<!-- this target is only run if the 'version' property is undefined -->
 	<target name="update-version-string" unless="version">
 		<!-- get a new version string using git describe if possible -->
 		<echo message="Updating JastAdd version string..."/>
