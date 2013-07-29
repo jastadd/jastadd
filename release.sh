@@ -25,15 +25,10 @@ done
 echo "Building release $VERSION..."
 ant release -Dversion=$VERSION
 
-echo "Creating new directory at jastadd.org..."
-ssh login.cs.lth.se "mkdir /cs/jastadd/releases/jastadd2/$VERSION"
-
 echo "Uploading files to jastadd.org..."
-scp jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
+# --chmod=g+w sets group write permission
+rsync -av --chmod=g+w jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
     README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
-
-echo "Setting group write permission for uploaded files..."
-ssh login.cs.lth.se "chmod -R g+w /cs/jastadd/releases/jastadd2/$VERSION"
 
 echo
 echo "Check that it works!"
