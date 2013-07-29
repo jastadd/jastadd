@@ -34,8 +34,13 @@ rsync -av --chmod=g+w jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
 echo
 echo "Check that it works!"
 echo "--------------------"
-echo "1. Browse to the website and check that everything looks okay."
-echo "2. Update the web pages to include links to the new release."
-echo "3. Push the changes to git."
+echo "1. Update the web pages to include links to the new release."
+echo "   * update index.md"
+echo "   * update download.md"
+echo "   * update documentation/reference-manual.php"
+echo "2. Browse to the website and check that everything looks okay."
+echo "3. Push the release commit"
+echo "    git push origin"
+echo "4. Push the release tag"
 echo "    git push origin ${VERSION}"
 
