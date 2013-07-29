@@ -512,7 +512,7 @@ $if(RewriteEnabled)
         $include(ASTNode.flushHookGetChildRewritten)
         $include(ASTNode.incHookGetChild6)
       } while(rewriteState == ASTNode$$State.REWRITE_CHANGE);
-      if(rewriteState == ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final() && num == this.state().boundariesCrossed) {
+      if(rewriteState == ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
   $if(StagedRewrites)
         node.is$$Final(this.state().rewritePhase);
   $else
