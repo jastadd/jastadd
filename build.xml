@@ -171,6 +171,8 @@
 			<arg value="-m"/>
 			<arg value="Release ${version}"/>
 			<arg value="${res.dir}/Version.properties"/>
+      <!-- NB: update release-notes.md before release! -->
+			<arg value="doc/release-notes.md"/>
 		</exec>
 		<exec executable="git">
 			<arg value="tag"/>
