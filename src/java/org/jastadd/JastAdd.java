@@ -53,32 +53,28 @@ import ast.AST.TokenComponent;
  */
 public class JastAdd {
 
-  private static ResourceBundle resources = null;
-  private static String RESOURCE_NAME = "JastAdd";
-  private static String getString(String key) {
-    if (resources == null) {
+  private static final String version;
+  static {
       try {
-        resources = ResourceBundle.getBundle(RESOURCE_NAME);
+          ResourceBundle resources = ResourceBundle.getBundle("Version");
+		  version = resources.getString("version");
       } catch (MissingResourceException e) {
-        throw new Error("Could not open the resource " + RESOURCE_NAME);
+          throw new Error("Could not open Version resource bundle");
       }
-    }
-    return resources.getString(key);
   }
 
   /**
    * @return Short version string
    */
   public static String getVersionString() {
-    return "JastAdd2 " + getString("version");
+    return "JastAdd2 " + version;
   }
 
   /**
    * @return Version string including link to JastAdd homepage
    */
   public static String getLongVersionString() {
-    return "JastAdd2 (http://jastadd.org) version " +
-      getString("version");
+    return "JastAdd2 (http://jastadd.org) version " + version;
   }
 
   private final JastAddConfiguration config;

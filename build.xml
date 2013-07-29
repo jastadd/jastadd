@@ -6,7 +6,6 @@
 	<property name="bin.dir" location="bin"/>
 	<property name="tools.dir" value="tools"/>
 	<property name="tt.src.dir" value="tinytemplate/src/java"/>
-	<property file="${res.dir}/JastAdd.properties" prefix="jastadd"/>
 
 	<condition property="jastadd-jar" value="${jastadd.jar}"
 		else="${tools.dir}/jastadd2.jar">
@@ -148,7 +147,35 @@
 		</zip>
 	</target>
 
-	<target name="release" description="build source-zip and bin-zip">
+	<target name="release" if="version"
+		description="tag and commit new JastAdd2 release">
+		<echo message="Bumping version string and tagging release ${version}"/>
+		<propertyfile file="${res.dir}/Version.properties">
+			<entry key="version" value="${version}"/>
+		</propertyfile>
+		<exec executable="git">
+			<arg value="update-index"/>
+			<arg value="--no-assume-unchanged"/>
+			<arg value="${res.dir}/Version.properties"/>
+		</exec>
+		<exec executable="git">
+			<arg value="commit"/>
+			<arg value="-m"/>
+			<arg value="Release ${version}"/>
+			<arg value="${res.dir}/Version.properties"/>
+		</exec>
+		<exec executable="git">
+			<arg value="tag"/>
+			<arg value="-a"/>
+			<arg value="${version}"/>
+			<arg value="-m"/>
+			<arg value="Version ${version}"/>
+		</exec>
+		<antcall target="build-dist"/>
+	</target>
+
+	<target name="build-dist"
+    description="build source and binary distribution files">
 		<antcall target="clean"/>
 		<antcall target="source-zip"/>
 		<antcall target="bin-zip"/>
@@ -159,7 +186,8 @@
 		<copy file="jastadd2.jar" toDir="${tools.dir}"/>
 	</target>
 
-	<target name="update-version-string">
+  <!-- this target is only run if the 'version' property is undefined -->
+	<target name="update-version-string" unless="version">
 		<!-- get a new version string using git describe if possible -->
 		<echo message="Updating JastAdd version string..."/>
 		<exec executable="git" outputproperty="version"
@@ -172,13 +200,13 @@
 	<target name="-store-version-string" if="version">
 		<!-- store the new  version string in the correct property file -->
 		<echo message="version=${version}"/>
-		<propertyfile file="${res.dir}/JastAdd.properties">
+		<propertyfile file="${res.dir}/Version.properties">
 			<entry key="version" value="${version}"/>
 		</propertyfile>
 		<exec executable="git">
 			<arg value="update-index"/>
 			<arg value="--assume-unchanged"/>
-			<arg value="${res.dir}/JastAdd.properties"/>
+			<arg value="${res.dir}/Version.properties"/>
 		</exec>
 	</target>
 
