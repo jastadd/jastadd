@@ -72,6 +72,7 @@
 	</target>
 
 	<target name="clean">
+		<mkdir dir="${gen.dir}"/>
 		<delete file="jastadd2-src.zip"/>
 		<delete file="jastadd2-bin.zip"/>
 		<delete includeEmptyDirs="true">
@@ -111,15 +112,20 @@
 				<include name="src/jastadd/**/*"/>
 				<include name="src/javacc/**/*"/>
 				<include name="src/res/**/*"/>
-				<include name="tools/**/*.jar"/>
+				<include name="tools/Markdown.pl"/>
+				<include name="tools/*.jar"/>
 				<include name="tinytemplate/src/**/*"/>
 				<include name="tinytemplate/LICENSE.txt"/>
 				<include name="tinytemplate/README.md"/>
+				<include name="doc/index.md.in"/>
 				<include name="doc/index.html"/>
+				<include name="doc/reference-manual.md"/>
 				<include name="doc/reference-manual.html"/>
+				<include name="doc/release-notes.md"/>
 				<include name="doc/release-notes.html"/>
 				<include name="LICENSE"/>
 				<include name="README.md"/>
+				<include name="README-binary-dist.md"/>
 				<include name="ChangeLog"/>
 				<include name="build.xml"/>
 				<include name="licenses/*" />
