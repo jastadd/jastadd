@@ -54,13 +54,15 @@ import ast.AST.TokenComponent;
 public class JastAdd {
 
   private static final String version;
+  private static final String timestamp;
   static {
-      try {
-          ResourceBundle resources = ResourceBundle.getBundle("Version");
-		  version = resources.getString("version");
-      } catch (MissingResourceException e) {
-          throw new Error("Could not open Version resource bundle");
-      }
+    try {
+      ResourceBundle resources = ResourceBundle.getBundle("Version");
+      version = resources.getString("version");
+      timestamp = resources.getString("timestamp");
+    } catch (MissingResourceException e) {
+      throw new Error("Could not open Version resource bundle");
+    }
   }
 
   /**
@@ -68,6 +70,13 @@ public class JastAdd {
    */
   public static String getVersionString() {
     return "JastAdd2 " + version;
+  }
+
+  /**
+   * @return The build timestamp
+   */
+  public static String getBuildTimestamp() {
+    return "built at " + timestamp;
   }
 
   /**
@@ -121,11 +130,13 @@ public class JastAdd {
       return 1;
     } else if (config.shouldPrintVersion()) {
       out.println(getVersionString());
+      out.println(getBuildTimestamp());
       out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
       out.println("This software is covered by the modified BSD license.");
       return 0;
     } else if (config.shouldPrintHelp()) {
       out.println(getVersionString());
+      out.println(getBuildTimestamp());
       out.println();
       config.printHelp(out);
       return 0;
