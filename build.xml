@@ -1,11 +1,12 @@
 <project name="JastAdd2" default="build">
 
-	<property name="src.dir" location="src"/>
+	<property name="build.dir" location="${basedir}/build"/>
+	<property name="src.dir" location="${basedir}/src"/>
 	<property name="gen.dir" location="${src.dir}/gen"/>
 	<property name="res.dir" location="${src.dir}/res"/>
-	<property name="bin.dir" location="bin"/>
-	<property name="tools.dir" value="tools"/>
-	<property name="tt.src.dir" value="tinytemplate/src/java"/>
+	<property name="bin.dir" location="${basedir}/bin"/>
+	<property name="tools.dir" value="${basedir}/tools"/>
+	<property name="tt.src.dir" value="${basedir}/tinytemplate/src/java"/>
 
 	<condition property="jastadd-jar" value="${jastadd.jar}"
 		else="${tools.dir}/jastadd2.jar">
@@ -71,8 +72,14 @@
 		</copy>
 	</target>
 
+	<target name="clean-dist" depends="clean"
+		description="remove distribution files">
+		<delete dir="${build.dir}"/>
+	</target>
+
 	<target name="clean">
 		<mkdir dir="${gen.dir}"/>
+		<delete file="jastadd2.jar"/>
 		<delete file="jastadd2-src.zip"/>
 		<delete file="jastadd2-bin.zip"/>
 		<delete includeEmptyDirs="true">
@@ -85,7 +92,8 @@
 
 	<target name="jar" depends="build"
 		description="package binary distribution">
-		<jar destfile="jastadd2.jar">
+		<mkdir dir="${build.dir}"/>
+		<jar destfile="${build.dir}/jastadd2-${version}.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.jastadd.JastAdd"/>
 				<attribute name="Implementation-Title" value="JastAdd II"/>
@@ -103,6 +111,10 @@
 				<include name="**/*"/>
 			</fileset>
 		</jar>
+		<!-- symlink to latest jar -->
+		<symlink overwrite="true"
+			link="${basedir}/jastadd2.jar"
+			resource="${build.dir}/jastadd2-${version}.jar"/>
 	</target>
 
 	<target name="source-zip" depends="jar,build-doc">
