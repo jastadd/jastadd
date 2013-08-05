@@ -160,7 +160,7 @@
 		<!-- NB: update release-notes.md before release! -->
 		<!-- NB: all staged changes in this git repository will be committed! -->
 		<echo message="Bumping version string and tagging release ${version}"/>
-		<antcall target="update-version-string"/>
+		<antcall target="-store-version-string"/>
 		<exec executable="git">
 			<arg value="update-index"/>
 			<arg value="--no-assume-unchanged"/>
