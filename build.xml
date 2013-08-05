@@ -230,6 +230,8 @@
 			<arg value="describe"/>
 		</exec>
 		<antcall target="-store-version-string"/>
+		<!-- ensure version is defined if git was not available -->
+		<property file="${res.dir}/Version.properties"/>
 	</target>
 
 	<target name="-store-version-string" if="version">

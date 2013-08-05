@@ -15,12 +15,12 @@
     * [Parameterized](#Parameterized), [broadcasting](#Broadcasting), [rewrites](#Rewrites), [circular](#Circular), [NTAs](#Nonterminal), [collections](#Collection)
 * [Command line syntax](#Command)
 
-# <a id="AbstractSyntax">Abstract syntax</a>
+# <a id="AbstractSyntax"></a>Abstract syntax
 
 Abstract grammars are specified in .ast files and correspond to a
 Java class hierarchy.
 
-### <a id="Predefined">Predefined Java classes in the hierarchy:</a>
+### <a id="Predefined"></a>Predefined Java classes in the hierarchy:
 
 <TABLE BORDER=1>
 <TR>
@@ -31,12 +31,12 @@ Java class hierarchy.
 <B>Description</B>
 </TD>
 <TD>
-**Java API for <a id="untyped">untyped traversal</a>**
+**Java API for <a id="untyped"></a>untyped traversal**
 </TD>
 </TR>
 <TR>
 <TD>
-<PRE><a id="ASTNode">ASTNode</a></PRE>
+<PRE><a id="ASTNode"></a>ASTNode</PRE>
 </TD>
 <TD>
 The topmost node in the hierarchy.
@@ -54,7 +54,7 @@ Children are numbered from 0 to getNumChild()-1.<br />
 </TR>
 <TR>
 <TD>
-<PRE><a id="List">List</a></PRE>
+<PRE><a id="List"></a>List</PRE>
 </TD>
 <TD>
 Used to implement lists.
@@ -65,7 +65,7 @@ Used to implement lists.
 </TR>
 <TR>
 <TD>
-<PRE><a id="Opt">Opt</a></PRE>
+<PRE><a id="Opt"></a>Opt</PRE>
 </TD>
 <TD>
 Used to implement optionals.
@@ -107,14 +107,14 @@ Example traversal of the complete AST:
 </TABLE>
 -->
 
-### <a id="constructs">Abstract syntax constructs in the .ast file</a>
+### <a id="constructs"></a>Abstract syntax constructs in the .ast file
 
 <!--- TODO: Show List and Opt interfaces individually, before the mixed example. And add getBOpt and getCList ops. -->
 
 <TABLE BORDER=1>
 <TR>
 <TD>
-**<a id="Basic">Basic constructs</a>**
+**<a id="Basic"></a>Basic constructs**
 </TD>
 <TD></TD>
 <TD>
@@ -127,7 +127,7 @@ traversal</a></B>
 <PRE>abstract A;</PRE>
 </TD>
 <TD>
-<a id="abstract">A is an abstract class.</a><BR>
+<a id="abstract"></a>A is an abstract class.<BR>
 A corresponds to a nonterminal
 </TD>
 <TD>
@@ -139,7 +139,7 @@ A corresponds to a nonterminal
 <PRE>B: A ::= ...;</PRE>
 </TD>
 <TD>
-<a id="subclass">B is a concrete subclass of A</a><BR>
+<a id="subclass"></a>B is a concrete subclass of A<BR>
 B corresponds to a production of A
 </TD>
 <TD>
@@ -546,7 +546,7 @@ example is available in [assignment
 in the Lund University compiler course. Download the example zip file and look
 at the file CalcTree/specification/Parser.jjt .
 
-### <a id="Aspects">Aspects</a>
+### <a id="Aspects"></a>Aspects
 
 JastAdd aspects support <I>intertype declarations</I> for AST classes. An
 intertype declaration is a declaration that appears in an aspect file, but that
@@ -586,7 +586,7 @@ They can be regarded simply as a way to name the purpose of the aspect, for
 readability. The aspect names are also used for controlling the order of refine
 declarations.
 
-### <a id="jadd">.jadd and .jrag files</a>
+### <a id="jadd"></a>.jadd and .jrag files
 
 An aspect file can have the suffix .jadd or .jrag. The JastAdd system does not
 differ between these two types of files, but we recommend the following use:
@@ -602,7 +602,7 @@ It is perfectly fine to not follow this convention, i.e., to mix both
 imperative and declarative features in the same aspect, but we try to follow
 the convention in our examples in order to enhance the readability of a system.
 
-### <a id="example"></a>Example <a id="imperative"></a> imperative aspect (.jadd)
+### <a id="example"></a></a>Example <a id="imperative"> imperative aspect (.jadd)
 
 Here is an example <em>imperative</em> aspect that adds pretty printing
 behavior to some AST classes. Typically, this file would be named
@@ -701,7 +701,7 @@ them inside an aspect is just for convenience.
 </TR>
 <TR>
 <TD>
-<a id="refine">refine</a> a method declared in another aspect
+<a id="refine"></a>refine a method declared in another aspect
 (This feature is available in JastAdd version R20051107 and later.)
 </TD>
 <TD>
@@ -754,7 +754,7 @@ original declaration.
 </TR>
 </TABLE>
 
-### <a id="AspectJ">Similarities and differences from AspectJ</a>
+### <a id="AspectJ"></a>Similarities and differences from AspectJ
 
 The aspect concept in JastAdd was developed in parallel to the AspectJ
 development, and we have gradually adopted the AspectJ syntax, for  features
@@ -832,7 +832,7 @@ implementation:
 </TR>
 </TABLE>
 
-<h2><a id="Attributes">Attributes</a></h2>
+<h2><a id="Attributes"></a>Attributes</h2>
 
 Attributes are specified in [JastAdd aspect files](#Aspects).
 
@@ -1503,7 +1503,7 @@ The equation is provided directly in the declaration and creates a <em>List</em>
 </tr>
 </TABLE>
 
-### <a id="Collection">Collection attributes</a>
+### <a id="Collection"></a>Collection attributes
 
 <TABLE BORDER="1">
 <tr>
