@@ -7,12 +7,29 @@ fi
 
 VERSION=$1
 
-echo "This script will tag, build and upload JastAdd2 $VERSION" \
-  "to jastadd.org/releases/jastadd2/$VERSION"
+echo "JastAdd2 Release $VERSION"
+echo "========================="
 echo
-echo "IMPORTANT: Please update doc/release-notes.md before proceeding!"
+echo "This script will tag, build and upload JastAdd2 $VERSION to"
+echo "http://jastadd.org/releases/jastadd2/$VERSION"
+echo
+
+while true; do
+  read -p "Do you wish to edit doc/release-notes.md now? (yes/no) " yn
+  case $yn in 
+    [Yy]* )
+      if [[ -z "$EDITOR" ]]; then
+        EDITOR=vim
+      fi
+      $EDITOR doc/release-notes.md
+      break
+      ;;
+    [Nn]* ) break;;
+    * ) echo "Please answer yes or no.";;
+  esac
+done
+
 echo "NB: All **staged** changes will be added to the release commit!"
-echo
 
 while true; do
   read -p "Proceed? (yes/no) " yn
