@@ -231,7 +231,7 @@
 		<copy file="jastadd2.jar" toDir="${tools.dir}"/>
 	</target>
 
-	<target name="timestamp">
+	<target name="-timestamp">
 		<tstamp>
 			<format property="timestamp" pattern="yyyy-MM-dd'T'HH:mm'Z'"/>
 			<format property="build.date" pattern="yyyy-MM-dd"/>
@@ -239,7 +239,7 @@
 	</target>
 
 	<!-- this target is only run if the 'version' property is undefined -->
-	<target name="update-version-string" depends="timestamp" unless="version">
+	<target name="update-version-string" depends="-timestamp" unless="version">
 		<!-- get a new version string using git describe if possible -->
 		<echo message="Updating JastAdd version string..."/>
 		<exec executable="git" outputproperty="version"
@@ -251,7 +251,7 @@
 		<property file="${res.dir}/Version.properties"/>
 	</target>
 
-	<target name="-store-version-string" depends="timestamp" if="version">
+	<target name="-store-version-string" depends="-timestamp" if="version">
 		<!-- store the new  version string in the correct property file -->
 		<echo message="version=${version}"/>
 		<propertyfile file="${res.dir}/Version.properties">
