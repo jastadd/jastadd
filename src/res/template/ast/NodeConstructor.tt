@@ -89,6 +89,12 @@ $if(Java5)
       addChild(initialChildren[i]);
     }
   }
+
+  public List.List(Iterable<? extends T> iterable) {
+    for (T node : iterable) {
+      addChild(node);
+    }
+  }
 $endif
 ]]
 
