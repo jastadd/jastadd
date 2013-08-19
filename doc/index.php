@@ -1,4 +1,4 @@
 <?php
 include("../../../web/include/functions.php");
-printHtmlFile("index.html");
+printMarkdownFile("index.md");
 ?>

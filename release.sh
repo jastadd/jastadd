@@ -45,8 +45,15 @@ ant release -Dversion=$VERSION
 
 echo "Uploading files to jastadd.org..."
 # --chmod=g+w sets group write permission
-rsync -av --chmod=g+w jastadd2-src.zip jastadd2-bin.zip doc/*.html doc/*.php \
-    README.md login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
+rsync -av --chmod=g+w \
+  jastadd2-src.zip \
+  jastadd2-bin.zip \
+  README.md \
+  doc/*.php \
+  doc/index.md \
+  doc/reference-manual.html \
+  doc/release-notes.html \
+  login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
 
 echo
 echo "Check that it works!"
