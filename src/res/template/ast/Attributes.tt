@@ -256,8 +256,8 @@ $if(#getLazy)
       $include(AttrDecl.traceHookAttrCached)
     } else {
       $include(AttrDecl.traceHookAttrCacheAbort)
+      $include(AttrDecl.incHookAttrCompAfterStore)
     }
-    $include(AttrDecl.incHookAttrCompAfterStore)
   $else
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
@@ -265,8 +265,8 @@ $if(#getLazy)
       $include(AttrDecl.traceHookAttrCached)
     } else {
       $include(AttrDecl.traceHookAttrCacheAbort)
+      $include(AttrDecl.incHookAttrCompAfterStore)
     }
-    $include(AttrDecl.incHookAttrCompAfterStore)
   $endif
 $endif
 
