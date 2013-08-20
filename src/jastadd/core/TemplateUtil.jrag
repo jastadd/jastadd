@@ -81,6 +81,10 @@ aspect TemplateUtil {
     loadTemplates(tt, "incremental/NTAs");
     loadTemplates(tt, "incremental/State");
     loadTemplates(tt, "incremental/Tracking");
+    
+    loadTemplates(tt, "trace/Tracer");
+    loadTemplates(tt, "trace/TraceHooks");
+    
     return new SimpleContext(tt, this);
   }
 

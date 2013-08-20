@@ -253,12 +253,18 @@ $if(#getLazy)
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(attributeSignature)_values.put(_parameters, #attributeValueReference);
+      $include(AttrDecl.traceHookAttrCached)
+    } else {
+      $include(AttrDecl.traceHookAttrCacheAbort)
     }
     $include(AttrDecl.incHookAttrCompAfterStore)
   $else
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(attributeSignature)_computed = true;
+      $include(AttrDecl.traceHookAttrCached)
+    } else {
+      $include(AttrDecl.traceHookAttrCacheAbort)
     }
     $include(AttrDecl.incHookAttrCompAfterStore)
   $endif
@@ -286,6 +292,7 @@ ASTDecl.genCircularEquationNoParams [[
       #(attributeSignature)_value = $BottomValue;
     }
     if (!state.IN_CIRCLE) {
+      $include(AttrDecl.traceHookCircularEnterCase1)
       state.IN_CIRCLE = true;
       #tracePrintCycleBeginString
       #addAddToComponent
@@ -302,6 +309,7 @@ ASTDecl.genCircularEquationNoParams [[
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
           state.CHANGE = true;
+          $include(AttrDecl.traceHookCircularCase1Change)
         }
         #(attributeSignature)_value = new_#(attributeSignature)_value;
         state.CIRCLE_INDEX++;
@@ -311,17 +319,21 @@ ASTDecl.genCircularEquationNoParams [[
       #cacheStoreRewrite {
         #(attributeSignature)_computed = true;
         $include(cacheCycleInit)
+        $include(AttrDecl.traceHookAttrCached)
       } else {
         $include(resetCycleInit)
         #(attributeSignature)_computed = false;
         #(attributeSignature)_initialized = false;
+        $include(AttrDecl.traceHookAttrCacheAbort)
       }
       state.IN_CIRCLE = false;
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
+      $include(AttrDecl.traceHookCircularExitCase1)
       $include(AttrDecl.returnStmt)
     }
     if(#(attributeSignature)_visited != state.CIRCLE_INDEX) {
+      $include(AttrDecl.traceHookCircularEnterCase2)
       #(attributeSignature)_visited = state.CIRCLE_INDEX;
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
@@ -333,12 +345,15 @@ ASTDecl.genCircularEquationNoParams [[
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($Cond2) {
         state.CHANGE = true;
+        $include(AttrDecl.traceHookCircularCase2Change)
       }
       #(attributeSignature)_value = new_#(attributeSignature)_value;
       $TracePrintReturnNewValue
+      $include(AttrDecl.traceHookCircularExitCase2)
       $include(AttrDecl.returnStmt)
     }
     $TracePrintReturnPreviousValue
+    $include(AttrDecl.traceHookCircularExitCase3)
     $include(AttrDecl.returnStmt)
     $SynchEnd
   }
@@ -360,6 +375,7 @@ ASTDecl.genCircularEquationWithParams [[
     ASTNode$$State state = state();
     #addComponentCheck
     if (!state.IN_CIRCLE) {
+      $include(AttrDecl.traceHookCircularEnterCase1)
       state.IN_CIRCLE = true;
       #tracePrintCycleBeginString
       #cacheInitRewrite
@@ -381,6 +397,7 @@ $endif
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
           state.CHANGE = true;
+          $include(AttrDecl.traceHookCircularCase1Change)
           _value.value = $ToRefType;
         }
         state.CIRCLE_INDEX++;
@@ -394,13 +411,16 @@ $else
         #(attributeSignature)_values.put(_parameters, $ToRefType);
 $endif
         $include(cacheCycleInit)
+        $include(AttrDecl.traceHookAttrCached)
       } else {
         #(attributeSignature)_values.remove(_parameters);
         $include(resetCycleInit)
+        $include(AttrDecl.traceHookAttrCacheAbort)
       }
       state.IN_CIRCLE = false;
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
+      $include(AttrDecl.traceHookCircularExitCase1)
       return new_#(attributeSignature)_value;
     }
 $if (Java5)
@@ -410,6 +430,7 @@ $else
     if (!new Integer(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {
       _value.visited = state.CIRCLE_INDEX;
 $endif
+      $include(AttrDecl.traceHookCircularEnterCase2)
       #inhDebugString
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
@@ -419,6 +440,7 @@ $endif
       $include(AttrDecl.resetCycleCheck)
       else if ($Cond1) {
         state.CHANGE = true;
+        $include(AttrDecl.traceHookCircularCase2Change)
 $if (Java5)
         _value.value = new_#(attributeSignature)_value;
 $else
@@ -426,9 +448,11 @@ $else
 $endif
       }
       $TracePrintReturnNewValue
+      $include(AttrDecl.traceHookCircularExitCase2)
       return new_#(attributeSignature)_value;
     }
     $TracePrintReturnPreviousValue
+    $include(AttrDecl.traceHookCircularExitCase3)
     return $FromRefType;
     $SynchEnd
   }

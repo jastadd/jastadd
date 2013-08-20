@@ -407,6 +407,9 @@ public class JastAddConfiguration {
     tt.bind("IncrementalDebug", root.incrementalDebug);
     tt.bind("IncrementalTrack", root.incrementalTrack);
     tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
+    
+    // Tracing
+    tt.bind("TracingEnabled", root.tracing);
 
     return root;
   }

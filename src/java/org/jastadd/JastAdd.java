@@ -171,6 +171,8 @@ public class JastAdd {
       root.problems.clear();
 
       genASTNode$State(root);
+      
+      genTracer(root);
 
       genIncrementalDDGNode(root);
 
@@ -326,6 +328,25 @@ public class JastAdd {
     return problems;
   }
 
+  private void genTracer(Grammar root) {
+    java.io.StringWriter writer = new java.io.StringWriter();
+    root.emitTracer(new PrintWriter(writer));
+    jrag.AST.JragParser jp = new jrag.AST.JragParser(
+        new java.io.StringReader(writer.toString()));
+    jp.root = root;
+    jp.setFileName("ASTNode");
+    jp.className = "ASTNode";
+    jp.pushTopLevelOrAspect(true);
+    try {
+      while(true)
+        jp.AspectBodyDeclaration();
+    } catch (Exception e) {
+      // TODO: handle error?
+      // String s = e.getMessage();
+    }
+    jp.popTopLevelOrAspect();
+  }
+  
   private void genIncrementalDDGNode(Grammar root) {
     if (root.incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
