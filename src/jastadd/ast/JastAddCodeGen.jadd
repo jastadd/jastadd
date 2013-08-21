@@ -27,17 +27,17 @@
  */
 package jastadd;
 
-import ast.AST.*;
+import org.jastadd.ast.AST.*;
 
 import java.io.*;
 
 import java.util.*;
 
-import jrag.AST.ASTAspectMethodDeclaration;
-import jrag.AST.ASTAspectRefineMethodDeclaration;
-import jrag.AST.ASTAspectFieldDeclaration;
-import jrag.AST.ASTBlock;
-import jrag.ClassBodyObject;
+import org.jastadd.jrag.AST.ASTAspectMethodDeclaration;
+import org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration;
+import org.jastadd.jrag.AST.ASTAspectFieldDeclaration;
+import org.jastadd.jrag.AST.ASTBlock;
+import org.jastadd.jrag.ClassBodyObject;
 
 aspect JastAddCodeGen {
   public void Grammar.weaveInterfaceIntroductions() {
@@ -319,7 +319,7 @@ aspect JastAddCodeGen {
       StringBuffer buf = new StringBuffer();
       for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
-        jrag.AST.SimpleNode n = o.node;
+        org.jastadd.jrag.AST.SimpleNode n = o.node;
         
         //buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
         //if(!o.comments.equals(""))
@@ -429,7 +429,7 @@ aspect JastAddCodeGen {
     buf.append(" implements Cloneable");
     
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
+      buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
     }
 
     if(name().equals("ASTNode") && grammar().java5) {
@@ -442,9 +442,9 @@ aspect JastAddCodeGen {
     StringBuffer buf = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if(iter.hasNext()) {
-      buf.append(Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
+      buf.append(Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
       while(iter.hasNext()) {
-        buf.append(", " + Unparser.unparse((jrag.AST.SimpleNode)iter.next()));
+        buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
       }
     }
     return buf.toString();

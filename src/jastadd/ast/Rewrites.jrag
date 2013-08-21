@@ -118,7 +118,7 @@ aspect Rewrites {
     String ind2 = grammar().ind(2);
     TemplateContext tt = templateContext();
     tt.expand("Rewrite.javaDoc:internal", out);
-    if(getResult() instanceof jrag.AST.ASTBlock) {
+    if(getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
         out.println(ind2 +
@@ -144,7 +144,7 @@ aspect Rewrites {
     String ind2 = grammar().ind(2);
     TemplateContext tt = templateContext();
     tt.expand("Rewrite.javaDoc:internal", out);
-    if(getResult() instanceof jrag.AST.ASTBlock) {
+    if(getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
         out.println(ind2 +

@@ -1,6 +1,6 @@
-package jrag;
+package org.jastadd.jrag;
 
-import jrag.AST.*;
+import org.jastadd.jrag.AST.*;
 
 /**
  * Create signature used to match refined method declarations.

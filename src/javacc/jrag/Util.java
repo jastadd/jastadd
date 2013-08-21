@@ -1,4 +1,4 @@
-package jrag;
+package org.jastadd.jrag;
 
 class Util {
     public static String addUnicodeEscapes(String str) {

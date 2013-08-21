@@ -22,17 +22,17 @@ options {
   VISITOR=true;
   NODE_USES_PARSER=true;
   NODE_SCOPE_HOOK= true;	//added!
-  NODE_PACKAGE="jrag.AST";
+  NODE_PACKAGE="org.jastadd.jrag.AST";
 
   
 }
 
 PARSER_BEGIN(JragParser)
-package jrag.AST;
+package org.jastadd.jrag.AST;
 import java.util.*;            //added
-import jrag.*;
+import org.jastadd.jrag.*;
 
-import ast.AST.Grammar;
+import org.jastadd.ast.AST.Grammar;
 
 public class JragParser {
 
@@ -580,7 +580,7 @@ void AspectClassDeclaration() :
   SimpleNode nameList = null;
   StringBuffer modifiers = new StringBuffer();
   SimpleNode node;
-  ast.AST.TypeDecl typeDecl = null;
+  org.jastadd.ast.AST.TypeDecl typeDecl = null;
   String typeParameters;
 }
 {
@@ -596,8 +596,8 @@ void AspectClassDeclaration() :
   [
   "extends"
   node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
-  { if(!name.toString().equals("") &&  typeDecl instanceof ast.AST.ClassDecl)
-      ((ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
+  { if(!name.toString().equals("") &&  typeDecl instanceof org.jastadd.ast.AST.ClassDecl)
+      ((org.jastadd.ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
   }
   ]
   [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
@@ -615,7 +615,7 @@ void AspectInterfaceDeclaration() :
 {Token t;
   String outerClassName;
   SimpleNode nameList = null;
-  ast.AST.TypeDecl typeDecl = null;
+  org.jastadd.ast.AST.TypeDecl typeDecl = null;
   String typeParameters;
 }
 {
@@ -657,7 +657,7 @@ void AspectInterfaceMemberDeclaration() :
 
 void AspectSonsDeclaration() :
 {
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   Token type;
   Token name;
   boolean isList = false;
@@ -668,10 +668,10 @@ void AspectSonsDeclaration() :
     ("[" name = <IDENTIFIER> ":" type = <IDENTIFIER> "]"
      {
        list.add(
-         new ast.AST.OptionalComponent(
-           new ast.AST.Id(
-             new ast.AST.Opt(new ast.AST.NameNode(name.image)),
-             new ast.AST.IdUse(type.image)
+         new org.jastadd.ast.AST.OptionalComponent(
+           new org.jastadd.ast.AST.Id(
+             new org.jastadd.ast.AST.Opt(new org.jastadd.ast.AST.NameNode(name.image)),
+             new org.jastadd.ast.AST.IdUse(type.image)
            )
          )
        );
@@ -681,20 +681,20 @@ void AspectSonsDeclaration() :
        {
          if(isList) {
            list.add(
-             new ast.AST.ListComponents(
-               new ast.AST.Id(
-                 new ast.AST.Opt(new ast.AST.NameNode(name.image)),
-                 new ast.AST.IdUse(type.image)
+             new org.jastadd.ast.AST.ListComponents(
+               new org.jastadd.ast.AST.Id(
+                 new org.jastadd.ast.AST.Opt(new org.jastadd.ast.AST.NameNode(name.image)),
+                 new org.jastadd.ast.AST.IdUse(type.image)
                )
              )
            );
          }
          else {
            list.add(
-             new ast.AST.AggregateComponents(
-               new ast.AST.Id(
-                 new ast.AST.Opt(new ast.AST.NameNode(name.image)),
-                 new ast.AST.IdUse(type.image)
+             new org.jastadd.ast.AST.AggregateComponents(
+               new org.jastadd.ast.AST.Id(
+                 new org.jastadd.ast.AST.Opt(new org.jastadd.ast.AST.NameNode(name.image)),
+                 new org.jastadd.ast.AST.IdUse(type.image)
                )
              )
            );
@@ -722,7 +722,7 @@ void AspectInterfaceSynAttributeDeclaration() :
   Token name;
   String targetName;
   
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
   SimpleNode eq = null;
 
@@ -736,8 +736,8 @@ void AspectInterfaceSynAttributeDeclaration() :
 
   "("
   [  
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
   ")"
   
@@ -764,7 +764,7 @@ void AspectInterfaceInhAttributeDeclaration() :
   String type;
   Token name;
   String targetName;
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   SimpleNode bottomValue = null;
   boolean isLazy = false; 
   boolean isFinal = false;
@@ -775,8 +775,8 @@ void AspectInterfaceInhAttributeDeclaration() :
  
   "("
   [ 
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
@@ -932,7 +932,7 @@ void AspectSynAttributeDeclaration() :
   Token name;
   String targetName;
   
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
   SimpleNode eq = null;
 
@@ -948,8 +948,8 @@ void AspectSynAttributeDeclaration() :
 
   "("
   [  
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
   ")"
   
@@ -965,7 +965,7 @@ void AspectSynAttributeDeclaration() :
     		fileName, first.beginLine, last.endLine, list, (ASTExpression) bottomValue,isFinal, isNTA, jjtThis, enclosingAspect);
     
     if (init) {
-      root.addSynEq(attrName.image, targetName, eq, fileName, first.beginLine, last.endLine, (ast.AST.List)list.fullCopy(), jjtThis, enclosingAspect);
+      root.addSynEq(attrName.image, targetName, eq, fileName, first.beginLine, last.endLine, (org.jastadd.ast.AST.List)list.fullCopy(), jjtThis, enclosingAspect);
     }
   }
 }
@@ -981,7 +981,7 @@ void AspectInhAttributeDeclaration() :
   String type;
   Token name;
   String targetName;
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   SimpleNode bottomValue = null;
   boolean isLazy = false; 
   boolean isFinal = false;
@@ -994,8 +994,8 @@ void AspectInhAttributeDeclaration() :
  
   "("
   [ 
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
@@ -1051,7 +1051,7 @@ void AspectSynEquation() :
   Token name;
   Token attrName;
   Token targetName;
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 }
 {
   "eq" { first = token; }
@@ -1061,8 +1061,8 @@ void AspectSynEquation() :
 
   "("
   [ 
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
@@ -1086,7 +1086,7 @@ void AspectRefineSynEquation() :
   Token targetName;
   Token aspectName;
   Token secondAspectName;
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 }
 {
   <REFINE> aspectName = <IDENTIFIER>
@@ -1097,8 +1097,8 @@ void AspectRefineSynEquation() :
 
   "("
   [ 
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
@@ -1115,8 +1115,8 @@ void AspectRefineSynEquation() :
     "eq" <IDENTIFIER> "." VariableDeclaratorId()
     "("
     [ 
-      type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-      ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+      type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+      ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
     ]
  
     ")"
@@ -1138,20 +1138,20 @@ void AspectInhEquation() :
   Token attrName;
   Token targetName;
   Token sonName;
-  ast.AST.List list = new ast.AST.List();
-  ast.AST.Parameter p = null;
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
+  org.jastadd.ast.AST.Parameter p = null;
 }
 {
   "eq" { first = token; }
 
   targetName = <IDENTIFIER> "."
-  sonName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new ast.AST.Parameter("int", name.image); } ] ")" "."
+  sonName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new org.jastadd.ast.AST.Parameter("int", name.image); } ] ")" "."
   attrName = VariableDeclaratorId()
 
   "("
   [ 
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
@@ -1173,21 +1173,21 @@ void AspectRefineInhEquation() :
   Token attrName;
   Token targetName;
   Token sonName;
-  ast.AST.List list = new ast.AST.List();
-  ast.AST.Parameter p = null;
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
+  org.jastadd.ast.AST.Parameter p = null;
   Token aspectName;
 }
 {
   <REFINE> aspectName = <IDENTIFIER> "eq" { first = token; }
 
   targetName = <IDENTIFIER> "."
-  sonName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new ast.AST.Parameter("int", name.image); } ] ")" "."
+  sonName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new org.jastadd.ast.AST.Parameter("int", name.image); } ] ")" "."
   attrName = VariableDeclaratorId()
 
   "("
   [ 
-    type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-    ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+    type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+    ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
@@ -1241,7 +1241,7 @@ void CollectionContribution():
   String targetAttributeName;
   String attributeType;
   SimpleNode reference;
-  ast.AST.List contributionList = new ast.AST.List();
+  org.jastadd.ast.AST.List contributionList = new org.jastadd.ast.AST.List();
   boolean refSet = false;
 }
 {
@@ -1251,14 +1251,14 @@ void CollectionContribution():
   contribution = Expression() { condition = null; }
   [ "when" condition = Expression() ]
   {
-      contributionList.add(new ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
+      contributionList.add(new org.jastadd.ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
   }
   (
     ","
     contribution = Expression() { condition = null; }
     [ "when" condition = Expression() ]
     {
-        contributionList.add(new ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
+        contributionList.add(new org.jastadd.ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
     }
   )*
   "to" t = <IDENTIFIER> "." { targetName = t.image; } t = <IDENTIFIER> { targetAttributeName = t.image; } "(" ")"
@@ -1325,7 +1325,7 @@ void ClassDeclaration(String modifiers) :
   SimpleNode node;
   String outerClassName;
   StringBuffer name = new StringBuffer();
-  ast.AST.TypeDecl typeDecl = null;
+  org.jastadd.ast.AST.TypeDecl typeDecl = null;
   SimpleNode nameList = null;
   String typeParameters;
 }
@@ -1341,8 +1341,8 @@ void ClassDeclaration(String modifiers) :
    [ "extends"
    node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
   //t = <IDENTIFIER>  { name.append(t.image); } ("." t = <IDENTIFIER> {name.append("." + t.image); })* 
-  { if(!name.toString().equals("") && typeDecl instanceof ast.AST.ClassDecl)
-      ((ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
+  { if(!name.toString().equals("") && typeDecl instanceof org.jastadd.ast.AST.ClassDecl)
+      ((org.jastadd.ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
   }
    //Name() 
    ] 
@@ -1480,7 +1480,7 @@ void UnmodifiedInterfaceDeclaration(String modifiers) :
   String outerClassName;
   SimpleNode nameList = null;
   String typeParameters;
-  ast.AST.TypeDecl typeDecl = null;
+  org.jastadd.ast.AST.TypeDecl typeDecl = null;
 }
 {
   "interface" t = <IDENTIFIER> {
@@ -2395,7 +2395,7 @@ void CacheDeclarations():
   
   boolean shouldBeCached;
   
-  ast.AST.List list = new ast.AST.List();
+  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
 }
 {
@@ -2414,10 +2414,10 @@ void CacheDeclarations():
   (
     "syn" t = <IDENTIFIER> "." { targetName = t.image; } 
     attrName = VariableDeclaratorId() 
-    "(" { list = new ast.AST.List(); }
+    "(" { list = new org.jastadd.ast.AST.List(); }
     [  
-      type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-      ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+      type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+      ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
     ]
     ")"
     ";"
@@ -2425,10 +2425,10 @@ void CacheDeclarations():
   |  
     "inh" t = <IDENTIFIER> "." { targetName = t.image; } 
     attrName = VariableDeclaratorId() 
-    "(" { list = new ast.AST.List(); }
+    "(" { list = new org.jastadd.ast.AST.List(); }
     [  
-      type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); }
-      ( "," type = Type() name = <IDENTIFIER> { list.add(new ast.AST.Parameter(type, name.image)); })*
+      type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
+      ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
     ]
     ")"
     ";"
