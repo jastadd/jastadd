@@ -89,21 +89,13 @@ $if(Java5)
       addChild(initialChildren[i]);
     }
   }
-
+  
   /**
-   * Adds the elements of the iterable as children to the new List.
-   * But in case the argument is an ASTNode (ASTNodes are also Iterable),
-   * the ASTNode is instead itself added as a child to the new List.
+   * Adds the elements of c as children to the new List.
    */
-  public List.List(Iterable<? extends T> iterable) {
-    if (iterable instanceof ASTNode) {
-     // ASTNodes are iterables. But for an ASTNode,
-     // we want to add the node itself, and not its children to the list!
-     addChild((T)iterable);
-    } else {
-     for (T node : iterable) {
-       addChild(node);
-     }
+  public List.List(java.util.Collection<? extends T> c) {
+    for (T node : c) {
+     addChild(node);
     }
   }
 $endif
