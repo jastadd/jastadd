@@ -324,33 +324,61 @@ aspect AttributeProblems {
 
   eq InhDecl.isDuplicateInhDecl() = prevDecl() != this;
 
-  CollDecl contributes unknownAnnotationProblem()
-    when hasUnknownAnnotationProblem()
+  AttrDecl contributes unsupportedAnnotationProblem()
+    when hasUnsupportedAnnotation()
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  syn boolean CollDecl.hasUnknownAnnotationProblem() {
-    for (Iterator iter = annotations.iterator(); iter.hasNext(); ) {
-      String annotation = (String)iter.next();
-      if (!knownAnnotation(annotation)) {
+  syn boolean AttrDecl.hasUnsupportedAnnotation() {
+    for (Annotation annotation: getAnnotationList()) {
+      if (!supportedAnnotation(annotation)) {
         return true;
       }
     }
     return false;
   }
 
-  syn Problem CollDecl.unknownAnnotationProblem() {
+  syn Problem AttrDecl.unsupportedAnnotationProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("unknown annotations: ");
+    buf.append("unsupported annotations for this attribute declaration: ");
     boolean first = true;
-    for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
-      String annotation = (String)iter.next();
-      if(!knownAnnotation(annotation)) {
+    for (Annotation annotation: getAnnotationList()) {
+      if (!supportedAnnotation(annotation)) {
         if (!first) {
           buf.append(", ");
         }
         first = false;
-        buf.append(annotation);
+        buf.append(annotation.getAnnotation());
+      }
+    }
+    return error(buf.toString());
+  }
+
+  AttrEq contributes unsupportedAnnotationProblem()
+    when hasUnsupportedAnnotation()
+    to TypeDecl.attributeProblems()
+    for hostClass();
+
+  syn boolean AttrEq.hasUnsupportedAnnotation() {
+    for (Annotation annotation: getAnnotationList()) {
+      if (!supportedAnnotation(annotation)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  syn Problem AttrEq.unsupportedAnnotationProblem() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("unsupported annotations for this attribute equation: ");
+    boolean first = true;
+    for (Annotation annotation: getAnnotationList()) {
+      if (!supportedAnnotation(annotation)) {
+        if (!first) {
+          buf.append(", ");
+        }
+        first = false;
+        buf.append(annotation.getAnnotation());
       }
     }
     return error(buf.toString());

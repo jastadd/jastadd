@@ -16,7 +16,9 @@ ASTDecl : TypeDecl ::= [Abstract] IdDecl [SuperClass:IdUse] Components*
 
 Abstract ;
 
-abstract AttrDecl ::= Parameter* <Name> <Type> <Lazy:boolean> <FileName> <StartLine:int> <EndLine:int> <Final:boolean> <NTA:boolean> <Comment:String> <AspectName:String>;
+Annotation ::= <Annotation:String>;
+
+abstract AttrDecl ::= Parameter* <Name> <Type> <Lazy:boolean> <FileName> <StartLine:int> <EndLine:int> <Final:boolean> <NTA:boolean> <Comment:String> <AspectName:String> Annotation*;
 SynDecl : AttrDecl;
 
 InhDecl : AttrDecl;
@@ -25,7 +27,7 @@ CollDecl : AttrDecl ::= <Target>;
 
 Parameter ::= <Type:String> <Name:String>;
 
-abstract AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String>;
+abstract AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> Annotation*;
 SynEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String>; // RightHandSide?
 InhEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> <SonName> [Index:Parameter]; // RightHandSide?
 CollEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> Contribution* <TargetName:String> <TargetAttributeName:String> <RefSet:boolean> <Reference:String>;

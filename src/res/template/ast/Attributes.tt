@@ -94,7 +94,7 @@ AttrDecl.abstractSynDecl = [[
 ]]
 
 AttrDecl.emitInlineCompute = [[
-  #hostFileComment
+  #annotations
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #parameterStructure
@@ -236,7 +236,8 @@ $else
 $endif
 ]]
 
-ASTDecl.genEquation [[
+AttrDecl.genEquation [[
+  #annotations
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #parameterStructure

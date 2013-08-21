@@ -93,6 +93,9 @@ public class SignatureUnparser implements JragParserVisitor {
     // AspectRefineConstructorDeclaration = FormalParameters
     return "#constructor#" + node.jjtGetChild(0).jjtAccept(this, data);
   }
+  public Object visit(ASTAspectFieldDeclarationLookahead self, Object data) {
+    return "";
+  }
   public Object visit(ASTAspectFieldDeclaration node, Object data) {
     return "";
   }

@@ -1,7 +1,14 @@
-2013-08-22  Jesper Öqvist <jesper@llbit.se>
+2013-08-22  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-	* Removed the suppressWarnings option from JastAdd2. JastAdd2 no longer
-	attempts to generate SuppressWarnings annotations.
+    * Removed the suppressWarnings option from JastAdd2. JastAdd2 no longer
+    attempts to generate SuppressWarnings annotations.
+    * Added support for annotations on synthesized attributes (must occur
+    before the `syn` or `eq` keywords)
+    * Annotations on collection attribute declarations must now be placed before
+    the `coll` keyword
+    * Annotations on inherited attributes and collection contribution
+    equations are still not supported, but no longer cause a generic
+    difficult-to-locate syntax error
 
 2013-08-21  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
@@ -10,7 +17,7 @@
 
 2013-08-21  Niklas Fors <niklas.fors@cs.lth.se>
 
-    * Added flag --lineColumnNumbers that adds methods for storing and 
+    * Added flag --lineColumnNumbers that adds methods for storing and
     retrieving line and column numbers (setStart, setEnd, getStartLine,
     getStartColumn, getEndLine, getEndColumn). This flag can be used together
     with the new flag to JastAddParser to remove the dependency to beaver.Symbol

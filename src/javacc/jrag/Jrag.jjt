@@ -23,8 +23,6 @@ options {
   NODE_USES_PARSER=true;
   NODE_SCOPE_HOOK= true;	//added!
   NODE_PACKAGE="org.jastadd.jrag.AST";
-
-  
 }
 
 PARSER_BEGIN(JragParser)
@@ -90,7 +88,7 @@ public class JragParser {
      Returns null if "get" is not a prefix; s  if no "(" found*/
   public String stripGet(String s) {
     if (!s.startsWith("get"))
-      return null;    
+      return null;
     s = s.substring(3, s.length());
     return s;
   }
@@ -425,9 +423,9 @@ ASTCompilationUnit CompilationUnit() :
   ( ImportDeclaration() )*
   ( TypeDeclaration() )*
   <EOF>
-                {
-		  return jjtThis;
-		}	
+  {
+    return jjtThis;
+  }
 }
 
 void PackageDeclaration() :
@@ -444,8 +442,8 @@ void ImportDeclaration() :
 
 String Modifiers() :
 {
-  StringBuffer buf = new StringBuffer();
-  String annotation = null;
+  StringBuilder buf = new StringBuilder();
+  String annotation;
 }
 {
  (LOOKAHEAD(2)
@@ -472,15 +470,19 @@ String Modifiers() :
   |
    "strictfp" { buf.append("strictfp "); }
   |
-   annotation = Annotation() { buf.append(annotation + " "); }
+   annotation = Annotation()
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(annotation);
+   }
   )
  )*
  { jjtree.popNode(); return buf.toString(); }
 }
 
 void TypeDeclaration() :
-{ 
-  String modifiers; 
+{
+  String modifiers;
 }
 {
   ";"
@@ -492,9 +494,9 @@ void TypeDeclaration() :
      InterfaceDeclaration(modifiers)
    |
      EnumDeclaration(modifiers)
-   | 
+   |
      AnnotationTypeDeclaration(modifiers)
-   | 
+   |
      AspectDeclaration(modifiers)
   )
 }
@@ -522,45 +524,47 @@ void AspectBodyDeclaration() :
 {
   LOOKAHEAD(<REFINE> <IDENTIFIER> "eq" <IDENTIFIER> "." <IDENTIFIER> "(" [<INT> <IDENTIFIER>] ")" "." <IDENTIFIER>)
   AspectRefineInhEquation()
-| 
+|
   LOOKAHEAD(<REFINE> <IDENTIFIER> "eq")
   AspectRefineSynEquation()
-| 
+|
   LOOKAHEAD(AspectRefineMethodDeclarationLookahead())
   AspectRefineMethodDeclaration()
 |
   LOOKAHEAD(<REFINE>)
   AspectRefineConstructorDeclaration()
-|  
+|
   LOOKAHEAD( ( "static" | "abstract" | "final" | "public" | "protected" | "private" )* "class" )
   AspectClassDeclaration()
 |
   LOOKAHEAD( ( "static" | "abstract" | "final" | "public" | "protected" | "private" )* "interface" )
   AspectInterfaceDeclaration()
 |
-  LOOKAHEAD("syn")
+  LOOKAHEAD( ( Annotation() )* "syn" )
   AspectSynAttributeDeclaration()
 |
-  LOOKAHEAD("inh")
+  LOOKAHEAD( ( Annotation() )* "inh" )
   AspectInhAttributeDeclaration()
 |
-  LOOKAHEAD("rewrite")
+  LOOKAHEAD( "rewrite" )
   AspectRewrite()
 |
-  LOOKAHEAD("eq" <IDENTIFIER> "." <IDENTIFIER> "(" [<INT> <IDENTIFIER>] ")" "." <IDENTIFIER>)
+  LOOKAHEAD( ( Annotation() )* "eq" <IDENTIFIER> "." <IDENTIFIER> "(" [<INT> <IDENTIFIER>] ")" "." )
   AspectInhEquation()
 |
+  LOOKAHEAD( ( Annotation() )* "eq" )
   AspectSynEquation()
 |
-  LOOKAHEAD(<IDENTIFIER> "implements")
+  LOOKAHEAD( <IDENTIFIER> "implements" )
   AspectAddInterface()
 |
-  LOOKAHEAD(<IDENTIFIER> "extends")
+  LOOKAHEAD( <IDENTIFIER> "extends" )
   AspectExtendInterface()
 |
+  LOOKAHEAD( ( Annotation() )* "coll" )
   CollectionAttribute()
-| 
-  LOOKAHEAD(<IDENTIFIER> "contributes")
+|
+  LOOKAHEAD( <IDENTIFIER> "contributes" )
   CollectionContribution()
 |
   LOOKAHEAD( AspectMethodDeclarationLookahead() )
@@ -569,6 +573,7 @@ void AspectBodyDeclaration() :
   LOOKAHEAD( [ "public" | "protected" | "private" ] <IDENTIFIER> "." <IDENTIFIER> "(" )
   AspectConstructorDeclaration()
 |
+  LOOKAHEAD( AspectFieldDeclarationLookahead() )
   AspectFieldDeclaration()
 
 }
@@ -677,7 +682,7 @@ void AspectSonsDeclaration() :
        );
      }
     )
-    | ( name = <IDENTIFIER> ":" type = <IDENTIFIER> ("*" { isList = true; } )? 
+    | ( name = <IDENTIFIER> ":" type = <IDENTIFIER> ("*" { isList = true; } )?
        {
          if(isList) {
            list.add(
@@ -707,7 +712,7 @@ void AspectSonsDeclaration() :
   {
     root.addComponents(className, list);
   }
-  
+
 }
 
 // EMMA_2009-11-16: Adding check of ignoreLazy
@@ -721,35 +726,44 @@ void AspectInterfaceSynAttributeDeclaration() :
   String type;
   Token name;
   String targetName;
-  
+
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
   SimpleNode eq = null;
 
   boolean init = false;
-  boolean isLazy = false; 
+  boolean isLazy = false;
   boolean isFinal = false;
-  SimpleNode bottomValue = null; }
+  SimpleNode bottomValue = null;
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
+}
 {
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
   "syn" { first = token; } ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true;}]
   attrType = Type() attrName = VariableDeclaratorId()
 
   "("
-  [  
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
   ")"
-  
+
   [
     <CIRCULAR> <LBRACKET> bottomValue = Expression() <RBRACKET>
   ]
-  
+
   ";" { last = token; }
   {
-    root.addSynDecl(attrName.image, attrType, className, (root.cacheImplicit || isLazy),
-    		fileName, first.beginLine, last.endLine, list, (ASTExpression) bottomValue, isFinal, false, jjtThis, enclosingAspect);
-    
+    root.addSynDecl(attrName.image, attrType, className,
+        (root.cacheImplicit || isLazy),
+        fileName, first.beginLine, last.endLine, list,
+        (ASTExpression) bottomValue, isFinal, false, jjtThis,
+        enclosingAspect, annotations);
+
   }
 }
 
@@ -760,36 +774,43 @@ void AspectInterfaceInhAttributeDeclaration() :
   Token attrName;
   Token t;
   Token first, last;
-  
+
   String type;
   Token name;
   String targetName;
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   SimpleNode bottomValue = null;
-  boolean isLazy = false; 
+  boolean isLazy = false;
   boolean isFinal = false;
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
 }
 {
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
   "inh" { first = token; } ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true;}] attrType = Type()
   attrName = VariableDeclaratorId()
- 
+
   "("
-  [ 
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
-  
+
   [
     <CIRCULAR> <LBRACKET> bottomValue = Expression() <RBRACKET>
   ]
-  
-  ";"  
+
+  ";"
   {
     last = token;
-    root.addInhDecl(attrName.image, attrType, className, (root.cacheImplicit || isLazy),
-        fileName, first.beginLine, last.endLine, list, (ASTExpression) bottomValue, isFinal, false, jjtThis, enclosingAspect);
+    root.addInhDecl(attrName.image, attrType, className,
+        (root.cacheImplicit || isLazy), fileName, first.beginLine,
+        last.endLine, list, (ASTExpression) bottomValue, isFinal,
+        false, jjtThis, enclosingAspect, annotations);
   }
 }
 
@@ -827,8 +848,8 @@ void AspectNestedInterfaceDeclaration() :
   ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
 
   "interface" { pushTopLevelOrAspect(false); } <IDENTIFIER> [ "extends" NameList() ]
-  "{" ( InterfaceMemberDeclaration() )* "}" 
-  { className = outerClassName; 
+  "{" ( InterfaceMemberDeclaration() )* "}"
+  { className = outerClassName;
     root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect); popTopLevelOrAspect(); }
 }
 
@@ -838,10 +859,10 @@ void AspectNestedClassDeclaration() :
 }
 {
   ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
-  "class" { pushTopLevelOrAspect(false); } <IDENTIFIER> 
+  "class" { pushTopLevelOrAspect(false); } <IDENTIFIER>
    [ "extends" ClassOrInterfaceType() ] [ "implements" TypeNameList() ]
-  ClassBody() 
-  { className = outerClassName; 
+  ClassBody()
+  { className = outerClassName;
     root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect); popTopLevelOrAspect(); }
 }
 
@@ -911,17 +932,22 @@ void AspectRefineConstructorDeclaration() :
   }
 }
 
+void AspectFieldDeclarationLookahead() :
+{}
+{
+  Modifiers()
+  ResultType() <IDENTIFIER> "." VariableDeclarator()
+}
+
 void AspectFieldDeclaration() :
 {Token t;}
 {
-  ( "public" | "protected" | "private" | "static" | "final" | "transient" | "volatile" )*
+  Modifiers()
   Type() t = <IDENTIFIER> "." { className = t.image; } VariableDeclarator() ( "," VariableDeclarator() )* ";" {
     root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect);
   }
 }
 
-// EMMA_2009-11-16: Adding check of ignoreLazy
-// EMMA_2009-11-16: Adding check of cacheImplicit
 void AspectSynAttributeDeclaration() :
 { String attrType;
   Token attrName;
@@ -931,41 +957,62 @@ void AspectSynAttributeDeclaration() :
   String type;
   Token name;
   String targetName;
-  
+
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
   SimpleNode eq = null;
 
   boolean init = false;
-  boolean isLazy = false; 
-  SimpleNode bottomValue = null; 
+  boolean isLazy = false;
+  SimpleNode bottomValue = null;
   boolean isFinal = false;
   boolean isNTA = false;
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
 }
 {
-  "syn" { first = token; } [<NTA> {isNTA = true; }] ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true; }]
-  attrType = Type() t = <IDENTIFIER> "." { targetName = t.image; } attrName = VariableDeclaratorId()
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
+  "syn" { first = token; }
+
+  [<NTA> {isNTA = true; }]
+
+  ["lazy" {isLazy = !root.ignoreLazy;}]
+
+  ["final" {isFinal = true; }]
+
+  attrType = Type()
+
+  t = <IDENTIFIER> "." { targetName = t.image; }
+
+  attrName = VariableDeclaratorId()
 
   "("
-  [  
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
   ")"
-  
+
   [
     <CIRCULAR> <LBRACKET> bottomValue = Expression() <RBRACKET>
   ]
-  
+
   ( ("=" eq = Expression() ";" { last = token; init = true;} )
   | (eq = Block() { last = token; init = true;})
   | ";" { last = token; } )
+
   {
-    root.addSynDecl(attrName.image, attrType, targetName, (root.cacheImplicit || isLazy),
-    		fileName, first.beginLine, last.endLine, list, (ASTExpression) bottomValue,isFinal, isNTA, jjtThis, enclosingAspect);
-    
+    root.addSynDecl(attrName.image, attrType, targetName,
+        (root.cacheImplicit || isLazy), fileName, first.beginLine,
+        last.endLine, list, (ASTExpression) bottomValue, isFinal,
+        isNTA, jjtThis, enclosingAspect, annotations);
+
     if (init) {
-      root.addSynEq(attrName.image, targetName, eq, fileName, first.beginLine, last.endLine, (org.jastadd.ast.AST.List)list.fullCopy(), jjtThis, enclosingAspect);
+      root.addSynEq(attrName.image, targetName, eq, fileName, first.beginLine,
+          last.endLine, (org.jastadd.ast.AST.List)list.fullCopy(), jjtThis,
+          enclosingAspect, annotations);
     }
   }
 }
@@ -977,38 +1024,45 @@ void AspectInhAttributeDeclaration() :
   Token attrName;
   Token t;
   Token first, last;
-  
+
   String type;
   Token name;
   String targetName;
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   SimpleNode bottomValue = null;
-  boolean isLazy = false; 
+  boolean isLazy = false;
   boolean isFinal = false;
   boolean isNTA = false;
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
 }
 {
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
   "inh" { first = token; } [<NTA> {isNTA = true;}] ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true; }] attrType = Type()
   t = <IDENTIFIER> "." { targetName = t.image; }
   attrName = VariableDeclaratorId()
- 
+
   "("
-  [ 
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
-  
+
   [
     <CIRCULAR> <LBRACKET> bottomValue = Expression() <RBRACKET>
   ]
-  
-  ";"  
+
+  ";"
   {
     last = token;
-    root.addInhDecl(attrName.image, attrType, targetName, (root.cacheImplicit || isLazy),
-        fileName, first.beginLine, last.endLine, list, (ASTExpression) bottomValue,isFinal,isNTA, jjtThis, enclosingAspect);
+    root.addInhDecl(attrName.image, attrType, targetName,
+        (root.cacheImplicit || isLazy), fileName, first.beginLine,
+        last.endLine, list, (ASTExpression) bottomValue, isFinal, isNTA,
+        jjtThis, enclosingAspect, annotations);
   }
 }
 
@@ -1019,7 +1073,7 @@ void AspectRewrite() :
   SimpleNode cond;
   SimpleNode eq;
   Token first, last;
-  
+
   Token parent = null;
   Token child = null;
   String type;
@@ -1029,7 +1083,7 @@ void AspectRewrite() :
   [<IDENTIFIER> parent = <IDENTIFIER> "." child = <IDENTIFIER> <LPAREN> <RPAREN>]
   <LBRACE>
     ( ["when" { first = token; } <LPAREN> cond = Expression() <RPAREN>]
-      "to" type = Type() ( (eq = Expression() ";" { last = token; }) | eq = Block() { last = token; } ) 
+      "to" type = Type() ( (eq = Expression() ";" { last = token; }) | eq = Block() { last = token; } )
       {
         if(parent != null && child != null) {
           root.addRewriteList(className, cond, eq, type, fileName, first.beginLine, last.endLine, parent.image, child.image, enclosingAspect);
@@ -1052,28 +1106,35 @@ void AspectSynEquation() :
   Token attrName;
   Token targetName;
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
 }
 {
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
   "eq" { first = token; }
 
   targetName = <IDENTIFIER> "."
   attrName = VariableDeclaratorId()
 
   "("
-  [ 
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
-  
+
   ( ("=" eq = Expression() ";" { last = token; })
   | eq = Block() { last = token; } )
-  
+
   {
-    root.addSynEq(attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, jjtThis, enclosingAspect);
+    root.addSynEq(attrName.image, targetName.image, eq, fileName,
+        first.beginLine, last.endLine, list, jjtThis, enclosingAspect,
+        annotations);
   }
-  
+
 }
 void AspectRefineSynEquation() :
 {
@@ -1096,13 +1157,13 @@ void AspectRefineSynEquation() :
   attrName = VariableDeclaratorId()
 
   "("
-  [ 
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
-  
+
   (
   (  ( ("=" eq = Expression() ";" { last = token; })
     | eq = Block() { last = token; } )
@@ -1111,16 +1172,16 @@ void AspectRefineSynEquation() :
 
   |
 
-  ( "to" <REFINE> secondAspectName = <IDENTIFIER> 
+  ( "to" <REFINE> secondAspectName = <IDENTIFIER>
     "eq" <IDENTIFIER> "." VariableDeclaratorId()
     "("
-    [ 
+    [
       type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
       ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
     ]
- 
+
     ")"
-    
+
     ( ("=" eq = Expression() ";" { last = token; })
     | eq = Block() { last = token; } )
     { root.addReplacedSynEq(attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, secondAspectName.image, aspectName.image, jjtThis, enclosingAspect); }
@@ -1140,8 +1201,13 @@ void AspectInhEquation() :
   Token sonName;
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   org.jastadd.ast.AST.Parameter p = null;
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
 }
 {
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
   "eq" { first = token; }
 
   targetName = <IDENTIFIER> "."
@@ -1149,18 +1215,20 @@ void AspectInhEquation() :
   attrName = VariableDeclaratorId()
 
   "("
-  [ 
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
-  
+
   ( ("=" eq = Expression() ";" { last = token; })
   | eq = Block() { last = token; } )
-  
+
   {
-    root.addInhEq(sonName.image, attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, p, jjtThis, enclosingAspect);
+    root.addInhEq(sonName.image, attrName.image, targetName.image, eq,
+        fileName, first.beginLine, last.endLine, list, p, jjtThis,
+        enclosingAspect, annotations);
   }
 }
 void AspectRefineInhEquation() :
@@ -1185,16 +1253,16 @@ void AspectRefineInhEquation() :
   attrName = VariableDeclaratorId()
 
   "("
-  [ 
+  [
     type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
     ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
   ]
 
   ")"
-  
+
   ( ("=" eq = Expression() ";" { last = token; })
   | eq = Block() { last = token; } )
-  
+
   {
     root.addRefinedInhEq(sonName.image, attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, p, aspectName.image, jjtThis, enclosingAspect);
   }
@@ -1212,18 +1280,20 @@ void CollectionAttribute():
   String rootName = null;
   SimpleNode startValue;
   boolean isCircular = false;
-  ArrayList annotations = new ArrayList();
+
+  ArrayList<String> annotations = new ArrayList<String>();
   String annotation;
 }
 {
-  "coll" { first = token; }
   ( annotation = Annotation() { annotations.add(annotation); } )*
+
+  "coll" { first = token; }
   attrType=Type() t = <IDENTIFIER> "." { targetName = t.image; } attrName = VariableDeclaratorId() "(" ")"
   [ <CIRCULAR> { isCircular = true; } ]
-  <LBRACKET> startValue = Expression() <RBRACKET> 
-  <IDENTIFIER> t = <IDENTIFIER> { combOp = t.image; } 
+  <LBRACKET> startValue = Expression() <RBRACKET>
+  <IDENTIFIER> t = <IDENTIFIER> { combOp = t.image; }
   [ <IDENTIFIER> t = <IDENTIFIER> { rootName = t.image; } ]
-  
+
   ";" { last = token; }
   {
     root.addCollDecl(attrName.image, attrType, targetName, fileName, first.beginLine, last.endLine, (ASTExpression)startValue, combOp, isCircular, annotations, jjtThis, rootName, enclosingAspect);
@@ -1243,8 +1313,13 @@ void CollectionContribution():
   SimpleNode reference;
   org.jastadd.ast.AST.List contributionList = new org.jastadd.ast.AST.List();
   boolean refSet = false;
+
+  ArrayList<String> annotations = new ArrayList<String>();
+  String annotation;
 }
 {
+  ( annotation = Annotation() { annotations.add(annotation); } )*
+
   t = <IDENTIFIER> { first = token; attributeType = t.image; }
   "contributes"
 
@@ -1262,7 +1337,7 @@ void CollectionContribution():
     }
   )*
   "to" t = <IDENTIFIER> "." { targetName = t.image; } t = <IDENTIFIER> { targetAttributeName = t.image; } "(" ")"
-  
+
   "for" [ "each" { refSet = true; } ] reference = Expression() ";" { last = token; }
   {
     root.addCollEq(targetName,
@@ -1275,7 +1350,8 @@ void CollectionContribution():
       last.endLine,
       refSet,
       jjtThis,
-      enclosingAspect); 
+      enclosingAspect,
+      annotations);
   }
 }
 
@@ -1294,7 +1370,7 @@ void AspectAddInterface() :
     last = token;
     root.addInterface(nameList, targetName.image, fileName);
   }
-  
+
 }
 
 void AspectExtendInterface() :
@@ -1312,7 +1388,7 @@ void AspectExtendInterface() :
     last = token;
     root.extendInterface(nameList, targetName.image, fileName);
   }
-  
+
 }
 
 
@@ -1340,12 +1416,12 @@ void ClassDeclaration(String modifiers) :
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
    [ "extends"
    node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
-  //t = <IDENTIFIER>  { name.append(t.image); } ("." t = <IDENTIFIER> {name.append("." + t.image); })* 
+  //t = <IDENTIFIER>  { name.append(t.image); } ("." t = <IDENTIFIER> {name.append("." + t.image); })*
   { if(!name.toString().equals("") && typeDecl instanceof org.jastadd.ast.AST.ClassDecl)
       ((org.jastadd.ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
   }
-   //Name() 
-   ] 
+   //Name()
+   ]
    [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName);} ]
   ClassBody() { className = outerClassName; popTopLevelOrAspect(); }
   //UnmodifiedClassDeclaration()
@@ -1454,7 +1530,7 @@ SimpleNode ClassBodyDeclaration() :
   |
     LOOKAHEAD( [TypeParameters() ] <IDENTIFIER> "(" )
     ConstructorDeclaration(modifiers)
-  | 
+  |
     LOOKAHEAD( Type() <IDENTIFIER> ( "[" "]" )* ( "," | "=" | ";" ) )
     FieldDeclaration(modifiers)
   |
@@ -1471,7 +1547,7 @@ SimpleNode ClassBodyDeclaration() :
 void InterfaceDeclaration(String modifiers) :
 {}
 {
-  UnmodifiedInterfaceDeclaration(modifiers) 
+  UnmodifiedInterfaceDeclaration(modifiers)
 }
 
 void UnmodifiedInterfaceDeclaration(String modifiers) :
@@ -1518,7 +1594,7 @@ void InterfaceMemberDeclaration() :
 void FieldDeclaration(String modifiers) :
 {}
 {
-  Type() VariableDeclarator() ( "," VariableDeclarator() )* ";" 
+  Type() VariableDeclarator() ( "," VariableDeclarator() )* ";"
   { if(inTopLevelOrAspect()) root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect); }
 }
 
@@ -1526,7 +1602,7 @@ void VariableDeclarator() :
 {}
 {
   VariableDeclaratorId() [ "=" VariableInitializer() ]
- 
+
 }
 
 /* Changed to return token (name) of variable */
@@ -1556,7 +1632,7 @@ void MethodDeclaration(String modifiers) :
 {
   [ TypeParameters() ]
   ResultType()  MethodDeclarator() [ "throws" NameList() ]
-  ( Block() | ";" ) 
+  ( Block() | ";" )
   { if(inTopLevelOrAspect()) {
       root.addMethodDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
     }
@@ -1589,7 +1665,7 @@ void ConstructorDeclaration(String modifiers) :
   "{"
     [ LOOKAHEAD(ExplicitConstructorInvocation()) ExplicitConstructorInvocation() ]
     ( BlockStatement() )*
-  "}" 
+  "}"
    { if(inTopLevelOrAspect()) root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect); }
 }
 
@@ -1716,7 +1792,7 @@ SimpleNode NameList() :
   )*
   )
   {
-    return jjtThis; 
+    return jjtThis;
   }
 }
 
@@ -1739,7 +1815,7 @@ SimpleNode Expression() :
 {
   (
   ConditionalExpression()
-  [ 
+  [
     LOOKAHEAD(2)
     AssignmentOperator() Expression()
   ]
@@ -2178,7 +2254,7 @@ void ForStatement() :
 
   (
       LOOKAHEAD(Type() <IDENTIFIER> ":")
-      Type() <IDENTIFIER> ":" Expression() 
+      Type() <IDENTIFIER> ":" Expression()
     |
      [ ForInit() ] ";" [ Expression() ] ";" [ ForUpdate() ]
   )
@@ -2277,12 +2353,13 @@ String Annotation():
 {}
 {
  (
-   LOOKAHEAD( "@" Name() "(" ( <IDENTIFIER> "=" | ")" ))
+   LOOKAHEAD( NormalAnnotation() )
    NormalAnnotation()
  |
-   LOOKAHEAD( "@" Name() "(" )
+   LOOKAHEAD( SingleMemberAnnotation() )
    SingleMemberAnnotation()
  |
+   LOOKAHEAD( MarkerAnnotation() )
    MarkerAnnotation()
  )
  { return Unparser.unparse(jjtThis); }
@@ -2380,7 +2457,7 @@ void DefaultValue():
   "default" MemberValue()
 }
 
-// EMMA_2009-11-13: Adding (cache|uncached) keywords in front of each line in the cache configuration. 
+// EMMA_2009-11-13: Adding (cache|uncached) keywords in front of each line in the cache configuration.
 // This information is propagated to the grammar via setSynDeclLazy(..) and setInhDeclLazy(..)
 void CacheDeclarations():
 {
@@ -2392,9 +2469,9 @@ void CacheDeclarations():
   String type;
   Token name;
   String targetName;
-  
+
   boolean shouldBeCached;
-  
+
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
 }
@@ -2405,28 +2482,28 @@ void CacheDeclarations():
   // TypeConversion eq Program.getChild().unknownConstructor();
   // VariableScope eq TypeDecl.getBodyDecl(int i).lookupVariable(String name);
   (
-  ( 
-	"cache" { shouldBeCached = true; } 
-  | 
+  (
+	"cache" { shouldBeCached = true; }
+  |
     "uncache" { shouldBeCached = false; }
   )
   first = <IDENTIFIER> { aspectName = first.image; }
   (
-    "syn" t = <IDENTIFIER> "." { targetName = t.image; } 
-    attrName = VariableDeclaratorId() 
+    "syn" t = <IDENTIFIER> "." { targetName = t.image; }
+    attrName = VariableDeclaratorId()
     "(" { list = new org.jastadd.ast.AST.List(); }
-    [  
+    [
       type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
       ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
     ]
     ")"
     ";"
     { root.setSynDeclLazy(shouldBeCached, aspectName, targetName, attrName.image, list, fileName, first.beginLine); }
-  |  
-    "inh" t = <IDENTIFIER> "." { targetName = t.image; } 
-    attrName = VariableDeclaratorId() 
+  |
+    "inh" t = <IDENTIFIER> "." { targetName = t.image; }
+    attrName = VariableDeclaratorId()
     "(" { list = new org.jastadd.ast.AST.List(); }
-    [  
+    [
       type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
       ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
     ]

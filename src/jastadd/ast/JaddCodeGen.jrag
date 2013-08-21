@@ -598,8 +598,6 @@ aspect JaddCodeGen {
 
   public abstract void Components.jaddGen(int index, boolean publicModifier, ASTDecl decl);
 
-  syn String ListComponents.annotations() = "";
-
   public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
     tt.bind("ListType", grammar().java5 ? "List<" + getId().type() + ">" : "List");
@@ -612,8 +610,6 @@ aspect JaddCodeGen {
     parse(tt.expand("ListComponent"));
   }
 
-  syn String OptionalComponent.annotations() = "";
-
   public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
     tt.bind("OptType", grammar().java5 ? "Opt<" + getId().type() + ">" : "Opt");
@@ -625,8 +621,6 @@ aspect JaddCodeGen {
 
     parse(tt.expand("OptionalComponent"));
   }
-
-  syn String TokenComponent.annotations() = "";
 
   private boolean TokenComponent.called = false;
 

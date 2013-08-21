@@ -427,8 +427,9 @@ aspect CollectionAttributes {
     }
   }
 
-  private ClassBodyObject ASTDecl.buildClassBodyObject(String data, String fileName, int line) {
-	org.jastadd.jrag.AST.SimpleNode n = new org.jastadd.jrag.AST.ASTBlock(0);
+  private ClassBodyObject ASTDecl.buildClassBodyObject(String data,
+      String fileName, int line) {
+    org.jastadd.jrag.AST.SimpleNode n = new org.jastadd.jrag.AST.ASTBlock(0);
     n.firstToken = n.lastToken = org.jastadd.jrag.AST.Token.newToken(0);
     n.firstToken.image = data;
     return new ClassBodyObject(n, fileName, line, "<NoAspect>");
@@ -453,7 +454,10 @@ aspect CollectionAttributes {
 
   // build AST from parser
   // EMMA_2009-11-27: Adding enclosing aspect as parameter
-  public void Grammar.addCollDecl(String name, String type, String className, String fileName, int startLine, int endLine, ASTExpression startValue, String combOp, boolean isCircular, ArrayList annotations, org.jastadd.jrag.AST.SimpleNode node, String root, String aspectName) {
+  public void Grammar.addCollDecl(String name, String type, String className,
+      String fileName, int startLine, int endLine, ASTExpression startValue,
+      String combOp, boolean isCircular, ArrayList<String> annotations,
+      org.jastadd.jrag.AST.SimpleNode node, String root, String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null/* && c instanceof ASTDecl*/) {
       CollDecl decl = new CollDecl();
@@ -466,7 +470,9 @@ aspect CollectionAttributes {
       decl.setParameterList(new List());
       decl.setStartValue(startValue);
       decl.setCombOp(combOp);
-      decl.setAnnotations(annotations);
+      for (String annotation: annotations) {
+        decl.addAnnotation(new Annotation(annotation));
+      }
       decl.setCircularCollection(isCircular || annotations.contains("@Circular"));
       decl.setComment(Unparser.unparseComment(node));
       decl.setTarget(className);
@@ -480,40 +486,35 @@ aspect CollectionAttributes {
 
   public String CollDecl.root = null;
 
-  public boolean AttrDecl.hasAnnotation(String s) { return false; }
-  public boolean CollDecl.hasAnnotation(String s) {
-    if(annotations == null) return false;
-    for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
-      String a = (String)iter.next();
-      if(a.equals(s) || a.startsWith(s + "("))
+  syn boolean AttrDecl.hasAnnotation(String name) {
+    for (int i = 0; i < getNumAnnotation(); ++i) {
+      if (getAnnotation(i).isAnnotation(name)) {
         return true;
+      }
     }
     return false;
   }
-  public String CollDecl.getAnnotationValue(String s) {
-    for(Iterator iter = annotations.iterator(); iter.hasNext(); ) {
-      String key = (String)iter.next();
-      key = key.replace('(', ',');
-      key = key.replace(')', ',');
-      if(key.startsWith(s + ",")) {
-        String[] strs = key.split(",");
-        if(strs.length > 1) {
-          return strs[1].substring(1,strs[1].length()-1); // remove quotes
-        }
+
+  syn String AttrDecl.getAnnotationValue(String name) {
+    for (int i = 0; i < getNumAnnotation(); ++i) {
+      if (getAnnotation(i).isAnnotation(name)) {
+        return getAnnotation(i).value();
       }
     }
+    // TODO: don't return null!!
     return null;
   }
-  private ArrayList CollDecl.annotations;
-  public void CollDecl.setAnnotations(ArrayList list) {
-    annotations = list;
-  }
 
-
-  public void Grammar.addCollEq(String targetName, String targetAttributeName, String attributeType, String reference, org.jastadd.ast.AST.List contributionList, String fileName, int startLine, int endLine, boolean refSet, org.jastadd.jrag.AST.SimpleNode node, String aspectName) {
+  public void Grammar.addCollEq(String targetName, String targetAttributeName,
+      String attributeType, String reference,
+      org.jastadd.ast.AST.List contributionList, String fileName,
+      int startLine, int endLine, boolean refSet,
+      org.jastadd.jrag.AST.SimpleNode node, String aspectName,
+      ArrayList<String> annotations) {
     TypeDecl c = lookup(attributeType);
     if (c != null && c instanceof ASTDecl) {
-      CollEq collEq = new CollEq(
+      CollEq equ = new CollEq(
+          new List(),
           new List(),
           targetName,
           fileName,
@@ -526,7 +527,10 @@ aspect CollectionAttributes {
           targetAttributeName,
           refSet,
           reference);
-      ((ASTDecl)c).addCollEq(collEq);
+      for (String annotation: annotations) {
+        equ.addAnnotation(new Annotation(annotation));
+      }
+      ((ASTDecl)c).addCollEq(equ);
     } else {
       error("Can not add collection contribution to unknown class " + attributeType + " in " + fileName + " at line " + startLine);
     }
@@ -548,22 +552,6 @@ aspect CollectionAttributes {
       if(!Character.isJavaIdentifierPart(s.charAt(i)))
         return false;
     return true;
-  }
-
-  syn boolean CollDecl.knownAnnotation(String s) {
-    if(s.equals("@OnePhase"))// TODO: document this annotation
-      return true;
-    if(s.equals("@SeparateEvaluation"))// TODO: document this annotation
-      return true;
-    if(s.equals("@LazyCondition"))// TODO: document this annotation
-      return true;
-    if(s.equals("@Circular"))// TODO: document this annotation
-      return true;
-    if(s.equals("@CollectionGroup") || s.startsWith("@CollectionGroup("))// TODO: document this annotation
-      return true;
-    if(s.equals("@Naive"))// TODO: document this annotation
-      return true;
-    return false;
   }
 
 }
