@@ -87,6 +87,12 @@ AttrDecl.synDecl = AttrDecl.inhDecl = [[
   public #getType #attributeName(#parametersDecl);
 ]]
 
+AttrDecl.abstractSynDecl = [[
+  #hostFileComment
+  #annotations
+  public abstract #getType #attributeName(#parametersDecl);
+]]
+
 AttrDecl.emitInlineCompute = [[
   #hostFileComment
   public #getType #attributeName($ParamDecl) {

@@ -266,6 +266,14 @@ aspect JragCodeGen {
     templateContext().expand("AttrDecl.synDecl", out);
   }
 
+  public void AttrDecl.emitAbstractSynDecl(PrintStream out) {
+    templateContext().expand("AttrDecl.abstractSynDecl", out);
+  }
+
+  /**
+   * Generate abstract method declarations for synthesized attributes
+   * that lack an equation.
+   */
   public void ASTDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
@@ -276,9 +284,7 @@ aspect JragCodeGen {
         }
       }
       if(!equ) {
-        out.println(attr.hostFileComment());
-        out.print(suppressWarnings());
-        out.println(grammar().ind + "public abstract " + attr.getType() + " " + attr.attributeName() + "(" + attr.parametersDecl() + ");");
+        attr.emitAbstractSynDecl(out);
       }
     }
   }
