@@ -609,16 +609,16 @@ $if(IncrementalEnabled)
 $if(#hasCache)
 
 $if(IncrementalLevelParam)
-else tmpHandler.clearDependencies();
+tmpHandler.clearDependencies();
 $endif
 
 $if(IncrementalLevelAttr)
-else tmpHandler.clearDependencies();
+tmpHandler.clearDependencies();
 $endif
 
 $if(IncrementalLevelNode)
 $if(!#getNTA)
-else tmpHandler.clearDependencies();
+tmpHandler.clearDependencies();
 $endif
 $endif
 

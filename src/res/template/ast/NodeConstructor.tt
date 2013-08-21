@@ -89,10 +89,13 @@ $if(Java5)
       addChild(initialChildren[i]);
     }
   }
-
-  public List.List(Iterable<? extends T> iterable) {
-    for (T node : iterable) {
-      addChild(node);
+  
+  /**
+   * Adds the elements of c as children to the new List.
+   */
+  public List.List(java.util.Collection<? extends T> c) {
+    for (T node : c) {
+     addChild(node);
     }
   }
 $endif

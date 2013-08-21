@@ -37,14 +37,14 @@ import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import jrag.AST.ASTCompilationUnit;
-import jrag.AST.JragParser;
+import org.jastadd.jrag.AST.ASTCompilationUnit;
+import org.jastadd.jrag.AST.JragParser;
 
-import ast.AST.ASTDecl;
-import ast.AST.Ast;
-import ast.AST.Components;
-import ast.AST.Grammar;
-import ast.AST.TokenComponent;
+import org.jastadd.ast.AST.ASTDecl;
+import org.jastadd.ast.AST.Ast;
+import org.jastadd.ast.AST.Components;
+import org.jastadd.ast.AST.Grammar;
+import org.jastadd.ast.AST.TokenComponent;
 
 /**
  * JastAdd main class.
@@ -171,6 +171,8 @@ public class JastAdd {
       root.problems.clear();
 
       genASTNode$State(root);
+      
+      genTracer(root);
 
       genIncrementalDDGNode(root);
 
@@ -254,7 +256,7 @@ public class JastAdd {
         jp.root = root;
         jp.setFileName(fileName);
         jp.CacheDeclarations();
-      } catch (jrag.AST.ParseException e) {
+      } catch (org.jastadd.jrag.AST.ParseException e) {
         problems.add(new Problem.Error("syntax error", fileName,
             e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
       } catch (FileNotFoundException e) {
@@ -272,7 +274,7 @@ public class JastAdd {
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 
-        jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
+        org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
         jp.root = root;
         jp.setFileName("");
         jp.className = "ASTNode";
@@ -313,7 +315,7 @@ public class JastAdd {
           jp.setFileName(fileName);
           ASTCompilationUnit au = jp.CompilationUnit();
           root.addCompUnit(au);
-        } catch (jrag.AST.ParseException e) {
+        } catch (org.jastadd.jrag.AST.ParseException e) {
           problems.add(new Problem.Error("syntax error", fileName,
               e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
         } catch (FileNotFoundException e) {
@@ -326,11 +328,30 @@ public class JastAdd {
     return problems;
   }
 
+  private void genTracer(Grammar root) {
+    java.io.StringWriter writer = new java.io.StringWriter();
+    root.emitTracer(new PrintWriter(writer));
+    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
+        new java.io.StringReader(writer.toString()));
+    jp.root = root;
+    jp.setFileName("ASTNode");
+    jp.className = "ASTNode";
+    jp.pushTopLevelOrAspect(true);
+    try {
+      while(true)
+        jp.AspectBodyDeclaration();
+    } catch (Exception e) {
+      // TODO: handle error?
+      // String s = e.getMessage();
+    }
+    jp.popTopLevelOrAspect();
+  }
+  
   private void genIncrementalDDGNode(Grammar root) {
     if (root.incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
       root.genIncrementalDDGNode(new PrintWriter(writer));
-      jrag.AST.JragParser jp = new jrag.AST.JragParser(
+      org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
           new java.io.StringReader(writer.toString()));
       jp.root = root;
       jp.setFileName("ASTNode");
@@ -351,7 +372,7 @@ public class JastAdd {
     java.io.StringWriter writer = new java.io.StringWriter();
     root.emitASTNode$State(new PrintWriter(writer));
 
-    jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
+    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
     jp.root = root;
     jp.setFileName("ASTNode");
     jp.className = "ASTNode";
@@ -388,9 +409,9 @@ public class JastAdd {
 
           problems.addAll(parser.parseProblems());
 
-        } catch (ast.AST.TokenMgrError e) {
+        } catch (org.jastadd.ast.AST.TokenMgrError e) {
           problems.add(new Problem.Error(e.getMessage(), fileName));
-        } catch (ast.AST.ParseException e) {
+        } catch (org.jastadd.ast.AST.ParseException e) {
           // Exceptions actually caught by error recovery in parser
         } catch (FileNotFoundException e) {
           problems.add(new Problem.Error("could not find abstract syntax file '" + fileName + "'"));
