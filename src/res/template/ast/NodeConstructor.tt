@@ -89,15 +89,6 @@ $if(Java5)
       addChild(initialChildren[i]);
     }
   }
-  
-  /**
-   * Adds the elements of c as children to the new List.
-   */
-  public List.List(java.util.Collection<? extends T> c) {
-    for (T node : c) {
-     addChild(node);
-    }
-  }
 $endif
 ]]
 

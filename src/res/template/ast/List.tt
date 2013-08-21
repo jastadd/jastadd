@@ -51,6 +51,25 @@ $endif
     $SynchEnd
   }
 
+$if(Java5)
+  public List<T> List.addAll(java.util.Collection<? extends T> c) {
+    $SynchBegin
+$if(DebugMode)
+    for (T node : c) {
+      if (node instanceof List)
+        throw new RuntimeException("Lists can not have children of type List");
+      if (node instanceof Opt)
+        throw new RuntimeException("Lists can not have children of type Opt");
+    }
+$endif
+    for (T node : c) {
+      addChild(node);
+    }
+    return this;
+    $SynchEnd
+  }
+$endif
+
   public void List.insertChild(ASTNode node, int i) {
     $SynchBegin
   
