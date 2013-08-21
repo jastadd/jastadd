@@ -1,9 +1,9 @@
-package jrag;
+package org.jastadd.jrag;
 
 import java.util.Set;
 import java.util.LinkedHashSet;
 
-import jrag.AST.*;
+import org.jastadd.jrag.AST.*;
 
 public class Unparser implements JragParserVisitor {
 
@@ -199,7 +199,7 @@ public class Unparser implements JragParserVisitor {
     StringBuffer buf = (StringBuffer) data;
     // MethodDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
-    jrag.AST.Node node = self;
+    org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
@@ -223,7 +223,7 @@ public class Unparser implements JragParserVisitor {
     StringBuffer buf = (StringBuffer) data;
     // MethodDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
-    jrag.AST.Node node = self;
+    org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
@@ -251,7 +251,7 @@ public class Unparser implements JragParserVisitor {
     StringBuffer buf = (StringBuffer) data;
     // FieldDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
-    jrag.AST.Node node = self;
+    org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
@@ -371,7 +371,7 @@ public class Unparser implements JragParserVisitor {
     StringBuffer buf = (StringBuffer) data;
     // FieldDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
-    jrag.AST.Node node = self;
+    org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
@@ -407,7 +407,7 @@ public class Unparser implements JragParserVisitor {
     StringBuffer buf = (StringBuffer) data;
     // MethodDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
-    jrag.AST.Node node = self;
+    org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }

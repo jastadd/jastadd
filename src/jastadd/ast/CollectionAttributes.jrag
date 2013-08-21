@@ -428,8 +428,8 @@ aspect CollectionAttributes {
   }
 
   private ClassBodyObject ASTDecl.buildClassBodyObject(String data, String fileName, int line) {
-    jrag.AST.SimpleNode n = new jrag.AST.ASTBlock(0);
-    n.firstToken = n.lastToken = jrag.AST.Token.newToken(0);
+	org.jastadd.jrag.AST.SimpleNode n = new org.jastadd.jrag.AST.ASTBlock(0);
+    n.firstToken = n.lastToken = org.jastadd.jrag.AST.Token.newToken(0);
     n.firstToken.image = data;
     return new ClassBodyObject(n, fileName, line, "<NoAspect>");
   }
@@ -453,7 +453,7 @@ aspect CollectionAttributes {
 
   // build AST from parser
   // EMMA_2009-11-27: Adding enclosing aspect as parameter
-  public void Grammar.addCollDecl(String name, String type, String className, String fileName, int startLine, int endLine, ASTExpression startValue, String combOp, boolean isCircular, ArrayList annotations, jrag.AST.SimpleNode node, String root, String aspectName) {
+  public void Grammar.addCollDecl(String name, String type, String className, String fileName, int startLine, int endLine, ASTExpression startValue, String combOp, boolean isCircular, ArrayList annotations, org.jastadd.jrag.AST.SimpleNode node, String root, String aspectName) {
     TypeDecl c = lookup(className);
     if(c != null/* && c instanceof ASTDecl*/) {
       CollDecl decl = new CollDecl();
@@ -510,7 +510,7 @@ aspect CollectionAttributes {
   }
 
 
-  public void Grammar.addCollEq(String targetName, String targetAttributeName, String attributeType, String reference, ast.AST.List contributionList, String fileName, int startLine, int endLine, boolean refSet, jrag.AST.SimpleNode node, String aspectName) {
+  public void Grammar.addCollEq(String targetName, String targetAttributeName, String attributeType, String reference, org.jastadd.ast.AST.List contributionList, String fileName, int startLine, int endLine, boolean refSet, org.jastadd.jrag.AST.SimpleNode node, String aspectName) {
     TypeDecl c = lookup(attributeType);
     if (c != null && c instanceof ASTDecl) {
       CollEq collEq = new CollEq(

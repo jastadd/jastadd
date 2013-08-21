@@ -37,7 +37,7 @@ import java.util.StringTokenizer;
 
 import org.jastadd.tinytemplate.TemplateContext;
 
-import ast.AST.Grammar;
+import org.jastadd.ast.AST.Grammar;
 
 /**
  * Tracks JastAdd configuration options.

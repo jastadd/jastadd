@@ -7,7 +7,7 @@
 	<property name="bin.dir" location="${basedir}/bin"/>
 	<property name="tools.dir" value="${basedir}/tools"/>
 	<property name="tt.src.dir" value="${basedir}/tinytemplate/src/java"/>
-
+	
 	<condition property="jastadd-jar" value="${jastadd.jar}"
 		else="${tools.dir}/jastadd2.jar">
 		<isset property="jastadd.jar"/>
@@ -17,19 +17,19 @@
 
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
 		classpath="${jastadd-jar}"/>
-
+	
 	<target name="build" depends="update-version-string"
 		description="Generate sources and build JastAdd2">
-		<mkdir dir="${gen.dir}/ast/AST"/>
-		<mkdir dir="${gen.dir}/jrag/AST"/>
+		<mkdir dir="${gen.dir}/org/jastadd/ast/AST"/>
+		<mkdir dir="${gen.dir}/org/jastadd/jrag/AST"/>
 		<mkdir dir="${bin.dir}"/>
-		<copy todir="${gen.dir}/jrag">
+		<copy todir="${gen.dir}/org/jastadd/jrag">
 			<fileset dir="${src.dir}/javacc/jrag">
 				<include name="**/*.java"/>
 			</fileset>
 		</copy>
 		<jastadd jjtree="true" rewrite="true"
-			grammar="Ast" package="ast.AST" outdir="${gen.dir}"
+			grammar="Ast" package="org.jastadd.ast.AST" outdir="${gen.dir}"
 			lazyMaps="false">
 			<fileset dir="${src.dir}/jastadd">
 				<include name="**/*.jrag"/>
@@ -37,10 +37,11 @@
 				<include name="**/*.ast"/>
 			</fileset>
 		</jastadd>
+		
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="${src.dir}/javacc/ast/Ast.jjt"/>
 		<java classpath="${tools.dir}/javacc.jar" classname="org.javacc.jjtree.Main">
-			<arg value="-OUTPUT_DIRECTORY=${gen.dir}/ast/AST"/>
+			<arg value="-OUTPUT_DIRECTORY=${gen.dir}/org/jastadd/ast/AST"/>
 			<arg value="-NODE_PREFIX=&quot;&quot;"/>
 			<arg value="${src.dir}/javacc/ast/Ast.jjt"/>
 		</java>
@@ -49,16 +50,18 @@
 			outputdirectory="${gen.dir}/ast/AST"
 			target="${src.dir}/javacc/ast/Ast.jjt"/-->
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
-			outputdirectory="${gen.dir}/ast/AST"
-			target="${gen.dir}/ast/AST/Ast.jj"/>
+			outputdirectory="${gen.dir}/org/jastadd/ast/AST"
+			target="${gen.dir}/org/jastadd/ast/AST/Ast.jj"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="${src.dir}/javacc/jrag/Jrag.jjt"/>
 		<jjtree javacchome="${tools.dir}"
-			outputdirectory="${gen.dir}/jrag/AST"
+			outputdirectory="${gen.dir}/org/jastadd/jrag/AST"
 			target="${src.dir}/javacc/jrag/Jrag.jjt"/>
 		<javacc javacchome="${tools.dir}" jdkversion="1.4"
-			outputdirectory="${gen.dir}/jrag/AST"
-			target="${gen.dir}/jrag/AST/Jrag.jj"/>
+			outputdirectory="${gen.dir}/org/jastadd/jrag/AST"
+			target="${gen.dir}/org/jastadd/jrag/AST/Jrag.jj"/>
+		
+		
 		<javac source="1.6" target="1.6"
 			destdir="${bin.dir}" includeantruntime="true">
 			<src path="${src.dir}/java"/>
