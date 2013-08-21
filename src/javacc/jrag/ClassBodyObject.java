@@ -1,4 +1,4 @@
-package jrag;
+package org.jastadd.jrag;
 
 /**
    Represents an association between a class body of a jrag file
@@ -6,7 +6,7 @@ package jrag;
    The file name is used to generate meaningful error messages.
 */
 
-import jrag.AST.SimpleNode;
+import org.jastadd.jrag.AST.SimpleNode;
 import java.io.File;
 
 public class ClassBodyObject {

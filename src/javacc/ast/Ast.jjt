@@ -2,14 +2,14 @@ options {
   MULTI=true;
   VISITOR=true;
   NODE_DEFAULT_VOID=true;
-  NODE_PACKAGE="ast.AST";
+  NODE_PACKAGE="org.jastadd.ast.AST";
   STATIC=false;
   NODE_SCOPE_HOOK= true;	//added!
 }
 
 PARSER_BEGIN(Ast)
 
-package ast.AST;
+package org.jastadd.ast.AST;
 
 import java.util.*;
 import org.jastadd.*;

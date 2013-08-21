@@ -28,13 +28,13 @@
 import java.util.*;
 import java.io.*;
 
-import ast.AST.*;
-import jrag.*;
+import org.jastadd.ast.AST.*;
+import org.jastadd.jrag.*;
 
-import jrag.AST.ASTCompilationUnit;
-import jrag.AST.ASTBlock;
+import org.jastadd.jrag.AST.ASTCompilationUnit;
+import org.jastadd.jrag.AST.ASTBlock;
 
-import jastadd.JastAdd;
+import org.jastadd.JastAdd;
 
 aspect AttributeKind {
   syn String AttrDecl.attributeKind();
@@ -148,8 +148,8 @@ aspect JragCodeGen {
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
     for(Iterator iter = getCompUnits(); iter.hasNext(); ) {
-        jrag.AST.ASTCompilationUnit u =
-          (jrag.AST.ASTCompilationUnit) iter.next();
+        org.jastadd.jrag.AST.ASTCompilationUnit u =
+          (org.jastadd.jrag.AST.ASTCompilationUnit) iter.next();
         imports.addAll(Unparser.getImports(u));
     }
     StringBuffer buf = new StringBuffer();
@@ -163,12 +163,12 @@ aspect JragCodeGen {
   public void InterfaceDecl.emitMembers(PrintStream out) {
     for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject o = (ClassBodyObject)iter.next();
-      jrag.AST.SimpleNode n = o.node;
+      org.jastadd.jrag.AST.SimpleNode n = o.node;
       //out.println(ind + "// Declared in " + o.fileName + " at line " + o.line);
-      if(n instanceof jrag.AST.ASTAspectMethodDeclaration) {
+      if(n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
-          jrag.AST.ASTAspectMethodDeclaration decl = (jrag.AST.ASTAspectMethodDeclaration)n;
+          org.jastadd.jrag.AST.ASTAspectMethodDeclaration decl = (org.jastadd.jrag.AST.ASTAspectMethodDeclaration)n;
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
@@ -176,10 +176,10 @@ aspect JragCodeGen {
           e.printStackTrace();
         }
       }
-      else if(n instanceof jrag.AST.ASTAspectRefineMethodDeclaration) {
+      else if(n instanceof org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
-          jrag.AST.ASTAspectRefineMethodDeclaration decl = (jrag.AST.ASTAspectRefineMethodDeclaration)n;
+          org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration decl = (org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration)n;
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
@@ -187,7 +187,7 @@ aspect JragCodeGen {
           e.printStackTrace();
         }
       }
-      else if(n instanceof jrag.AST.ASTBlock) {
+      else if(n instanceof org.jastadd.jrag.AST.ASTBlock) {
         // do not emit refined implementations
       }
       else {
@@ -240,7 +240,7 @@ aspect JragCodeGen {
   public void ASTDecl.emitMembers(PrintStream out) {
     for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
-      jrag.AST.SimpleNode node = obj.node;
+      org.jastadd.jrag.AST.SimpleNode node = obj.node;
       out.print(obj.modifiers);
       out.println(javadocComment(obj));
       out.print(grammar().ind);

@@ -25,7 +25,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-import ast.AST.*;
+import org.jastadd.ast.AST.*;
 
 import java.io.*;
 import java.util.*;
@@ -359,6 +359,11 @@ aspect JaddCodeGen {
 
     /* emit debug declarations */
     tt.expand("ASTNode.debugDecls", out);
+    
+    /* emit declarations for line and column */
+    if (grammar().lineColumnNumbers) {
+      tt.expand("ASTNode.lineColumnNumbers", out);
+    }
   }
 
   /**
@@ -653,7 +658,7 @@ aspect JaddCodeGen {
   }
 
   protected void Components.parse(String s) {
-    jrag.AST.JragParser jp = new jrag.AST.JragParser(new java.io.StringReader(s));
+    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(s));
     jp.root = hostClass().env();
 
     // The file name is not meaningful, as the component is completely generated
