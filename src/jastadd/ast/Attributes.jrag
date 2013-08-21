@@ -892,8 +892,8 @@ public aspect Attributes {
     for(int i = 3; i < node.jjtGetNumChildren(); i++)
       node.jjtAddChild(null, i);
 /*
-    jrag.AST.SimpleNode node = o.node;
-    jrag.AST.SimpleNode block = (jrag.AST.SimpleNode)node.jjtGetChild(4);
+    org.jastadd.jrag.AST.SimpleNode node = o.node;
+    org.jastadd.jrag.AST.SimpleNode block = (jrag.AST.SimpleNode)node.jjtGetChild(4);
     node.jjtAddChild(block, 2);
     node.lastToken = block.lastToken;
     ((jrag.AST.SimpleNode)node.jjtGetChild(1)).lastToken.next = block.firstToken;
@@ -1074,8 +1074,8 @@ public aspect Attributes {
 
           
           /*
-          jrag.AST.SimpleNode n = new jrag.AST.ASTBlock(0);
-          n.firstToken = n.lastToken = jrag.AST.Token.newToken(0);
+          org.jastadd.jrag.AST.SimpleNode n = new jrag.AST.ASTBlock(0);
+          n.firstToken = n.lastToken = org.jastadd.jrag.AST.Token.newToken(0);
           n.firstToken.image = s;
           // store signature explicitly in decl since the node is replaced.
           String signature = refinedDecl.signature();

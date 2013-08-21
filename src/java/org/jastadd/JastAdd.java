@@ -331,7 +331,7 @@ public class JastAdd {
   private void genTracer(Grammar root) {
     java.io.StringWriter writer = new java.io.StringWriter();
     root.emitTracer(new PrintWriter(writer));
-    jrag.AST.JragParser jp = new jrag.AST.JragParser(
+    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
         new java.io.StringReader(writer.toString()));
     jp.root = root;
     jp.setFileName("ASTNode");
