@@ -349,6 +349,11 @@ aspect JaddCodeGen {
 
     /* emit debug declarations */
     tt.expand("ASTNode.debugDecls", out);
+    
+    /* emit declarations for line and column */
+    if (grammar().lineColumnNumbers) {
+      tt.expand("ASTNode.lineColumnNumbers", out);
+    }
   }
 
   /**

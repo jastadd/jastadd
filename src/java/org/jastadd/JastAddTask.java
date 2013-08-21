@@ -66,6 +66,11 @@ public class JastAddTask extends Task {
   private boolean beaver = false;
   public void setBeaver(boolean b) { beaver = b; }
 
+  // line and column information
+  private boolean lineColumnNumbers = false;
+  public void setLineColumnNumbers(boolean b) { lineColumnNumbers = b; }
+
+  
   // make the generated files belong to this package
   private String packageName = null;
   public void setPackage(String name) { packageName = name; }
@@ -221,7 +226,8 @@ public class JastAddTask extends Task {
       args.add("--grammar=" + grammar);
     }
     if(beaver)              args.add("--beaver");
-
+    if(lineColumnNumbers)   args.add("--lineColumnNumbers");
+    
     if(packageName != null) args.add("--package=" + packageName);
     if(outdir != null)      args.add("--o=" + outdir);
 

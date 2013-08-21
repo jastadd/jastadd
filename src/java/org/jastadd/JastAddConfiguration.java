@@ -56,6 +56,7 @@ public class JastAddConfiguration {
   private final Option privateOption;
   private final Option rewrite;
   private final Option beaver;
+  private final Option lineColumnNumbers;
   private final Option noVisitCheck;
   private final Option noCacheCycle;
   private final Option noComponentCheck;
@@ -103,6 +104,7 @@ public class JastAddConfiguration {
     privateOption = new Option("private", "");
     rewrite = new Option("rewrite", "enable ReRAGs support");
     beaver = new Option("beaver", "use beaver base node");
+    lineColumnNumbers = new Option("lineColumnNumbers", "interface for storing line and column numbers");
     noVisitCheck = new Option("noVisitCheck", "disable circularity check for attributes");
     noCacheCycle = new Option("noCacheCycle", "disable cache cycle optimization for circular attributes");
     noComponentCheck = new Option("noComponentCheck", "enable strongly connected component optimization for circular attributes");
@@ -187,6 +189,7 @@ public class JastAddConfiguration {
     options.addOption(privateOption);
     options.addOption(rewrite);
     options.addOption(beaver);
+    options.addOption(lineColumnNumbers);
     options.addOption(noVisitCheck);
     options.addOption(noCacheCycle);
     options.addOption(noComponentCheck);
@@ -275,6 +278,7 @@ public class JastAddConfiguration {
 
     root.rewriteEnabled = rewrite.matched();
     root.beaver = beaver.matched();
+    root.lineColumnNumbers = lineColumnNumbers.matched();
     root.visitCheckEnabled = !noVisitCheck.matched();
     root.cacheCycle = !noCacheCycle.matched();
     root.componentCheck = componentCheck.matched();

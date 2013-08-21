@@ -582,3 +582,35 @@ $else
   }
 $endif
 ]]
+
+ASTNode.lineColumnNumbers = [[
+  /**
+   * Line and column information.
+   */
+  protected int ASTNode.startLine;
+  protected short ASTNode.startColumn;
+  protected int ASTNode.endLine;
+  protected short ASTNode.endColumn;
+  
+  public int ASTNode.getStartLine() {
+    return startLine;
+  }
+  public short ASTNode.getStartColumn() {
+    return startColumn;
+  }
+  public int ASTNode.getEndLine() {
+    return endLine;
+  }
+  public short ASTNode.getEndColumn() {
+    return endColumn;
+  }
+  
+  public void ASTNode.setStart(int startLine, short startColumn) {
+    this.startLine = startLine;
+    this.startColumn = startColumn;
+  }
+  public void ASTNode.setEnd(int endLine, short endColumn) {
+    this.endLine = endLine;
+    this.endColumn = endColumn;
+  }
+]]

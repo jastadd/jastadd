@@ -1,3 +1,10 @@
+2013-08-21  Niklas Fors <niklas.fors@cs.lth.se>
+
+    * Added flag --lineColumnNumbers that adds methods for storing and 
+    retrieving line and column numbers (setStart, setEnd, getStartLine,
+    getStartColumn, getEndLine, getEndColumn). This flag can be used together
+    with the new flag to JastAddParser to remove the dependency to beaver.Symbol
+
 2013-08-19  Niklas Fors <niklas.fors@cs.lth.se>
 
     * Added a new List constructor that takes an Iterable and adds the returned 
