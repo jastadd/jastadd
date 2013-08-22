@@ -25,7 +25,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package jastadd;
 
 import org.jastadd.ast.AST.*;
 
@@ -160,27 +159,6 @@ aspect JastAddCodeGen {
       return modifiers() + "interface " + getIdDecl().getID() + typeParameters + " extends " + s + " {";
   }
 
-  public String TypeDecl.classComment() {
-    return javadocComment();
-  }
-
-  public abstract String TypeDecl.javadocTag();
-  public String ClassDecl.javadocTag() { return "@ast class"; }
-  public String InterfaceDecl.javadocTag() { return "@ast interface"; }
-  public String ASTDecl.javadocTag() { return "@ast node"; }
-
-  public String TypeDecl.extraDocCommentLines() {
-    return "";
-  }
-  public String ASTDecl.extraDocCommentLines() {
-    String superclass = "";
-    if (hasSuperClass())
-      superclass = " : {@link "+getSuperClass().getID()+"}";
-    String components = "";
-    if (getNumComponents() > 0)
-      components = " ::=" + componentString();
-    return "* @production " + getIdDecl().getID() + superclass + components + ";\n";
-  }
   public String ASTDecl.componentString() {
     StringBuffer buf = new StringBuffer();
     for (int i = 0; i < getNumComponents(); ++i) {
@@ -214,34 +192,6 @@ aspect JastAddCodeGen {
     return getId().componentString();
   }
 
-  public String TypeDecl.javadocComment() {
-    String comment = getComment();
-    if (comment == null)
-      return augmentClassComment("/**\n */");
-    comment.trim();
-    if (comment.length() < 5)
-      return augmentClassComment("/**\n */");
-
-    int end = comment.lastIndexOf("*/");
-    int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
-
-    if (start != -1)
-      return augmentClassComment(comment.substring(start, end+2));
-    else {
-      return "\n" + augmentClassComment("/**\n */");
-    }
-  }
-
-  public String TypeDecl.augmentClassComment(String comment) {
-    StringBuffer sb = new StringBuffer();
-    sb.append(comment.substring(0, comment.length()-2));
-    sb.append(extraDocCommentLines());
-    sb.append(" * " + javadocTag() + "\n");
-    sb.append(" * " + ASTNode.declaredat(getFileName(), getStartLine()) + "\n");
-    sb.append(" */\n");
-    return sb.toString();
-  }
-
   public void TypeDecl.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
   }
 
@@ -263,7 +213,7 @@ aspect JastAddCodeGen {
       }
 
       stream.print(env().genImportsList());
-      stream.print(classComment());
+      stream.print(docComment());
       stream.println(typeDeclarationString());
 
       /*
@@ -314,7 +264,7 @@ aspect JastAddCodeGen {
       }
 
       stream.print(env().genImportsList());
-      stream.print(classComment());
+      stream.print(docComment());
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
       for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
@@ -369,7 +319,7 @@ aspect JastAddCodeGen {
 
       stream.print(env().genImportsList());
 
-      stream.print(classComment());
+      stream.print(docComment());
       stream.print("public ");
       if(hasAbstract()) {
         stream.print("abstract ");

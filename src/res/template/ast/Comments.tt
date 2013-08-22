@@ -26,7 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Attribute declaration JavaDoc comment
-AttrDecl.hostFileComment = [[
+AttrDecl.docComment = [[
   /**$SourceComment
    * @attribute #attributeKind
    * @aspect #getAspectName
@@ -34,7 +34,7 @@ AttrDecl.hostFileComment = [[
    */
 ]]
 
-AttrEq.hostFileComment = [[
+AttrEq.docComment = [[
   /**$SourceComment
    * @attribute #attributeKind
    * @aspect #getAspectName
@@ -42,13 +42,26 @@ AttrEq.hostFileComment = [[
    */
 ]]
 
-ASTDecl.javadocComment [[
-  /**
-   * $HostComment
-   * @ast method
-$if(HasAspect)
+ASTDecl.docComment [[
+  /**$SourceComment
+$if(HasAspectName)
    * @aspect $AspectName
 $endif
+$if(HasDeclaredAt)
    * $DeclaredAt
+$endif
    */
+]]
+
+TypeDecl.docComment [[
+/**$SourceComment
+ * @ast #typeDeclKind
+$if(HasAspectName)
+ * @aspect $AspectName
+$endif
+$if(HasDeclaredAt)
+ * $DeclaredAt
+$endif
+#extraDocCommentLines
+ */
 ]]

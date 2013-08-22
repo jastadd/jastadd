@@ -205,44 +205,12 @@ aspect JragCodeGen {
 
   public void TypeDecl.emitMembers(PrintStream out) { }
 
-  /**
-   * Returns a string with the JavaDoc comment taken from the
-   * original Class body object.
-   */
-  public String ASTDecl.javadocComment(ClassBodyObject obj) {
-    String comment = obj.comments;
-    String hostComment;
-    if (comment == null) {
-      hostComment = "";
-    } else {
-      comment = comment.trim();
-      if (comment.length() < 5) {
-        hostComment = "";
-      } else {
-        int end = comment.lastIndexOf("*/");
-        int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
-
-        if (start == -1) {
-          hostComment = "";
-        } else {
-          hostComment = comment.substring(start+3, end);
-        }
-      }
-    }
-    TemplateContext tt = templateContext();
-    tt.bind("HasAspect", obj.aspectName() != null && obj.aspectName().length() > 0);
-    tt.bind("AspectName", obj.aspectName());
-    tt.bind("HostComment", hostComment);
-    tt.bind("DeclaredAt", ASTNode.declaredat(obj.getFileName(), obj.getStartLine()));
-    return tt.expand("ASTDecl.javadocComment");
-  }
-
   public void ASTDecl.emitMembers(PrintStream out) {
     for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
       out.print(obj.modifiers);
-      out.println(javadocComment(obj));
+      out.print(docComment(obj));
       out.print(grammar().ind);
       StringBuffer buf = new StringBuffer();
       node.jjtAccept(new ClassBodyDeclUnparser(), buf);
@@ -254,7 +222,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      out.println(attr.hostFileComment());
+      out.print(attr.docComment());
       attr.emitSynDecl(out);
     }
   }
@@ -318,34 +286,7 @@ aspect JragCodeGen {
     return getName();
   }
 
-  public String AttrDecl.hostFileComment() {
-    TemplateContext tt = templateContext();
-    String comment = getComment().trim();
-    if (comment.length() >= 5 && comment.startsWith("/**")) {
-      tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
-    } else {
-      tt.bind("SourceComment", "");
-    }
-    return tt.expand("AttrDecl.hostFileComment");
-  }
-
   syn String AttrEq.attributeKind() = decl().attributeKind();
-
-  public String AttrEq.hostFileComment() {
-    TemplateContext tt = templateContext();
-    String comment = getComment().trim();
-
-    if (comment.isEmpty()) {
-      comment = decl().getComment().trim();
-    }
-
-    if (comment.length() >= 5 && comment.startsWith("/**")) {
-      tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
-    } else {
-      tt.bind("SourceComment", "");
-    }
-    return tt.expand("AttrEq.hostFileComment");
-  }
 
   public String AttrDecl.initLazyMaps() {
     StringBuffer s = new StringBuffer();
@@ -864,7 +805,7 @@ aspect JragCodeGen {
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
-         out.println(equ.hostFileComment());
+         out.print(equ.docComment());
          emitEquation(attr, equ.parametersDecl(), out);
          equ.emitComputeMethod(out);
        } else {
@@ -872,7 +813,6 @@ aspect JragCodeGen {
        }
     }
   }
-
 
   public boolean AttrDecl.isNTA() {
     return false;
@@ -966,7 +906,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.println(attr.hostFileComment());
+       out.print(attr.docComment());
        attr.emitInhDecl(out);
     }
   }
@@ -978,7 +918,7 @@ aspect JragCodeGen {
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.println(attr.hostFileComment());
+       out.print(attr.docComment());
        emitEquation(attr, attr.parametersDecl(), out);
        emitCacheDeclarations(out, attr);
     }

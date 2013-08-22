@@ -580,6 +580,7 @@ void AspectBodyDeclaration() :
 
 void AspectClassDeclaration() :
 { Token t;
+  Token first;
   String outerClassName;
   StringBuffer name = new StringBuffer();
   SimpleNode nameList = null;
@@ -590,11 +591,13 @@ void AspectClassDeclaration() :
 }
 {
   (( t="static" | t="abstract" | t="final" | t="public" | t="protected" | t="private" ) { modifiers.append(t.image + " "); })*
-  "class" t = <IDENTIFIER> {
+  first = "class"
+  t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
     outerClassName = className;
     className = t.image;
-    typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis));
+    typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
+        fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers.toString();
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
@@ -617,7 +620,9 @@ void AspectClassBody() :
 }
 
 void AspectInterfaceDeclaration() :
-{Token t;
+{
+  Token t;
+  Token first;
   String outerClassName;
   SimpleNode nameList = null;
   org.jastadd.ast.AST.TypeDecl typeDecl = null;
@@ -625,11 +630,13 @@ void AspectInterfaceDeclaration() :
 }
 {
   ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
-  "interface" t = <IDENTIFIER> {
+  first = "interface"
+  t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
     outerClassName = className;
     className = t.image;
-    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis));
+    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
+        fileName, first.beginLine, enclosingAspect);
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
@@ -1296,7 +1303,9 @@ void CollectionAttribute():
 
   ";" { last = token; }
   {
-    root.addCollDecl(attrName.image, attrType, targetName, fileName, first.beginLine, last.endLine, (ASTExpression)startValue, combOp, isCircular, annotations, jjtThis, rootName, enclosingAspect);
+    root.addCollDecl(attrName.image, attrType, targetName, fileName,
+        first.beginLine, last.endLine, (ASTExpression)startValue, combOp,
+        isCircular, annotations, jjtThis, rootName, enclosingAspect);
   }
 
 }
@@ -1398,6 +1407,7 @@ void AspectExtendInterface() :
 
 void ClassDeclaration(String modifiers) :
 { Token t;
+  Token first;
   SimpleNode node;
   String outerClassName;
   StringBuffer name = new StringBuffer();
@@ -1406,11 +1416,13 @@ void ClassDeclaration(String modifiers) :
   String typeParameters;
 }
 {
-  "class" t = <IDENTIFIER> {
+  first = "class"
+  t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
     outerClassName = className;
     className = t.image;
-    typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis));
+    typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
+        fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers;
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
@@ -1553,17 +1565,20 @@ void InterfaceDeclaration(String modifiers) :
 void UnmodifiedInterfaceDeclaration(String modifiers) :
 {
   Token t;
+  Token first;
   String outerClassName;
   SimpleNode nameList = null;
   String typeParameters;
   org.jastadd.ast.AST.TypeDecl typeDecl = null;
 }
 {
-  "interface" t = <IDENTIFIER> {
+  first = "interface"
+  t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
     outerClassName = className;
     className = t.image;
-    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis));
+    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
+        fileName, first.beginLine, enclosingAspect);
   }
   [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]

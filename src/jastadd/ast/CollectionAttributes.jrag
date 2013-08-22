@@ -35,7 +35,7 @@ aspect CollectionAttributes {
         attr.emitCircular(out);
         attr.emitCombineMethod(out);
       } else {
-        out.println(attr.hostFileComment());
+        out.println(attr.docComment());
         emitEquation(attr, attr.parametersDecl(), out);
         attr.emitComputeMethod(out);
         emitCacheDeclarations(out, attr);
@@ -207,7 +207,7 @@ aspect CollectionAttributes {
         tt.bind("BottomValue", bottomValue);
         tt.bind("CombOp", decl.getCombOp());
 
-        out.println(attr.hostFileComment());
+        out.println(attr.docComment());
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           tt.bind("Condition", c.getCondition().trim());
@@ -304,7 +304,7 @@ aspect CollectionAttributes {
         tt.bind("CombOp", decl.getCombOp());
         tt.bind("ValueAccess", valueAccess);
 
-        out.println(attr.hostFileComment());
+        out.println(attr.docComment());
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           tt.bind("Value", c.getValue().trim());

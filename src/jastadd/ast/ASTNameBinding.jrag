@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -49,31 +49,38 @@ aspect Lookup {
     return null;
   }
 
-  public TypeDecl Grammar.findClassDecl(String name, String comment) {
+  public TypeDecl Grammar.findClassDecl(String name, String comment,
+      String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
     if(!comment.startsWith("/"))
       comment = "";
-    
+
     TypeDecl t = lookup(name);
     if(t == null) {
-      t = new ClassDecl(new IdDecl(name), new List(), new List(), new List(), new List(), new List(), new List(), new List(), "", 0 ,0, comment);
+      t = new ClassDecl(new IdDecl(name), new List(), new List(), new List(),
+          new List(), new List(), new List(), new List(),
+          fileName, beginLine ,-1, comment,
+          enclosingAspect);
       addTypeDecl(t);
     }
     return t;
   }
-  
-  public TypeDecl Grammar.findInterfaceDecl(String name, String comment) {
+
+  public TypeDecl Grammar.findInterfaceDecl(String name, String comment,
+      String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
     if(!comment.startsWith("/"))
       comment = "";
     TypeDecl t = lookup(name);
     if(t == null) {
-      t = new InterfaceDecl(new IdDecl(name), new List(), new List(), new List(), new List(), new List(), new List(), new List(), "", 0, 0, comment);
+      t = new InterfaceDecl(new IdDecl(name), new List(), new List(),
+          new List(), new List(), new List(), new List(), new List(),
+          fileName, beginLine, -1, comment, enclosingAspect);
       addTypeDecl(t);
     }
     return t;
   }
-    
+
   syn lazy Components TypeDecl.lookupComponents(String name) = null;
   eq ASTDecl.lookupComponents(String name) {
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -88,7 +95,7 @@ aspect Lookup {
 aspect Names {
   syn String TypeDecl.name() = getIdDecl().name();
   syn String IdDecl.name() = getID();
-  
+
   syn String Components.name();
   eq ListComponents.name() = getId().name();
   eq OptionalComponent.name() = getId().name();

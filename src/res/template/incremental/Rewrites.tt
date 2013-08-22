@@ -29,10 +29,10 @@ ASTNode.incFlushRewritesLocateEnclosingRewriteMethod = [[
 $if(IncrementalEnabled)
 $if(!FullFlush)
 $if(IsAstNode)
+$if(IncrementalLevelParam)
   /**
    * @api internal
    */
-$if(IncrementalLevelParam)
    protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
      ASTNode child = this;
      ASTNode parent = this.parent;
@@ -44,9 +44,12 @@ $if(IncrementalLevelParam)
        parent = parent.parent;
      }
      return null;
-  } 
+  }
 $endif
 $if(IncrementalLevelAttr)
+  /**
+   * @api internal
+   */
    protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
      ASTNode child = this;
      ASTNode parent = this.parent;
@@ -58,9 +61,12 @@ $if(IncrementalLevelAttr)
        parent = parent.parent;
      }
      return null;
-  } 
+  }
 $endif
 $if(IncrementalLevelNode)
+  /**
+   * @api internal
+   */
   protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
     ASTNode node = parent;
     while (node != null) {
@@ -73,6 +79,9 @@ $if(IncrementalLevelNode)
   }
 $endif
 $if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
   protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
     ASTNode node = parent;
     while (node != null) {
@@ -139,7 +148,7 @@ $if(IncrementalLevelParam)
       child = parent;
       parent = parent.getParent();
     }
-  } 
+  }
 $endif
 $endif
 $endif
@@ -148,10 +157,10 @@ $endif
 ASTNode.incRestoreInitialForIndexMethod = [[
 $if(IncrementalEnabled)
 $if(IsAstNode)
+$if(IncrementalLevelParam)
   /**
    * @api internal
    */
-$if(IncrementalLevelParam)
   protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
       ASTNode oldNode = children[index];
@@ -164,9 +173,12 @@ $if(IncrementalLevelParam)
       return true;
     }
     return false;
-  } 
+  }
 $endif
 $if(IncrementalLevelAttr)
+  /**
+   * @api internal
+   */
   protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
       ASTNode oldNode = children[index];
@@ -179,9 +191,12 @@ $if(IncrementalLevelAttr)
       return true;
     }
     return false;
-  } 
+  }
 $endif
 $if(IncrementalLevelNode)
+  /**
+   * @api internal
+   */
   protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
       ASTNode oldNode = children[index];
@@ -193,9 +208,12 @@ $if(IncrementalLevelNode)
       return true;
     }
     return false;
-  } 
+  }
 $endif
 $if(IncrementalLevelRegion)
+  /**
+   * @api internal
+   */
   protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
       ASTNode oldNode = children[index];
@@ -253,7 +271,7 @@ $if(IsAstNode)
       }
     }
     // initial change point found
-    return child;      
+    return child;
   }
 $endif
 $endif
