@@ -38,7 +38,11 @@ AttrDecl.traceHookAttrCached = [[
 $if (TracingEnabled)
 $if(#getLazy)
 $if(#isParameterized)
+$if(#isCircular)
+Tracer.traceCached(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
+$else
 Tracer.traceCached(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+$endif
 $else
 Tracer.traceCached(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
@@ -50,7 +54,11 @@ AttrDecl.traceHookAttrCacheAbort = [[
 $if (TracingEnabled)
 $if(#getLazy)
 $if(#isParameterized)
+$if(#isCircular)
+Tracer.traceCacheAbort(this, "#(name).#(attributeName)", "" + _parameters, "" + _value.value);
+$else
 Tracer.traceCacheAbort(this, "#(name).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+$endif
 $else
 Tracer.traceCacheAbort(this, "#(name).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
@@ -61,9 +69,9 @@ $endif
 AttrDecl.traceHookCircularEnterCase1 = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceEnterCircularCase1(this, "#(getType).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+Tracer.traceEnterCircularCase1(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
 $else
-Tracer.traceEnterCircularCase1(this, "#(getType).#(attributeName)", "", "" + #(attributeSignature)_value);
+Tracer.traceEnterCircularCase1(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
 $endif
 ]]
@@ -71,10 +79,10 @@ $endif
 AttrDecl.traceHookCircularCase1Change = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceCircularCase1Change(this, "#(getType).#(attributeName)", "" + _parameters, 
-    #(attributeSignature)_value + "->" + new_#(attributeSignature)_value);
+Tracer.traceCircularCase1Change(this, "#(hostClassName).#(attributeName)", "" + _parameters, 
+    _value.value + "->" + new_#(attributeSignature)_value);
 $else
-Tracer.traceCircularCase1Change(this, "#(getType).#(attributeName)", "", 
+Tracer.traceCircularCase1Change(this, "#(hostClassName).#(attributeName)", "", 
     #(attributeSignature)_value + "->" + new_#(attributeSignature)_value);
 $endif
 $endif
@@ -83,9 +91,9 @@ $endif
 AttrDecl.traceHookCircularExitCase1 = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceExitCircularCase1(this, "#(getType).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+Tracer.traceExitCircularCase1(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
 $else
-Tracer.traceExitCircularCase1(this, "#(getType).#(attributeName)", "", "" + #(attributeSignature)_value);
+Tracer.traceExitCircularCase1(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
 $endif
 ]]
@@ -93,9 +101,9 @@ $endif
 AttrDecl.traceHookCircularEnterCase2 = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceEnterCircularCase2(this, "#(getType).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+Tracer.traceEnterCircularCase2(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
 $else
-Tracer.traceEnterCircularCase2(this, "#(getType).#(attributeName)", "", "" + #(attributeSignature)_value);
+Tracer.traceEnterCircularCase2(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
 $endif
 ]]
@@ -103,10 +111,10 @@ $endif
 AttrDecl.traceHookCircularCase2Change = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceCircularCase2Change(this, "#(getType).#(attributeName)", "" + _parameters, 
-    #(attributeSignature)_value + "->" + new_#(attributeSignature)_value);
+Tracer.traceCircularCase2Change(this, "#(hostClassName).#(attributeName)", "" + _parameters, 
+    _value.value + "->" + new_#(attributeSignature)_value);
 $else
-Tracer.traceCircularCase2Change(this, "#(getType).#(attributeName)", "", 
+Tracer.traceCircularCase2Change(this, "#(hostClassName).#(attributeName)", "", 
     #(attributeSignature)_value + "->" + new_#(attributeSignature)_value);
 $endif
 $endif
@@ -115,9 +123,9 @@ $endif
 AttrDecl.traceHookCircularExitCase2 = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceExitCircularCase2(this, "#(getType).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+Tracer.traceExitCircularCase2(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
 $else
-Tracer.traceExitCircularCase2(this, "#(getType).#(attributeName)", "", "" + #(attributeSignature)_value);
+Tracer.traceExitCircularCase2(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
 $endif
 ]]
@@ -125,9 +133,9 @@ $endif
 AttrDecl.traceHookCircularExitCase3 = [[
 $if (TracingEnabled)
 $if(#isParameterized)
-Tracer.traceExitCircularCase3(this, "#(getType).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+Tracer.traceExitCircularCase3(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
 $else
-Tracer.traceExitCircularCase3(this, "#(getType).#(attributeName)", "", "" + #(attributeSignature)_value);
+Tracer.traceExitCircularCase3(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
 $endif
 $endif
 ]]
@@ -140,7 +148,7 @@ $endif
 
 ASTNode.traceHookRewriteChange = [[
 $if (TracingEnabled)
-if (this.state().peek() == ASTNode$State.REWRITE_CHANGE) {
+if (this.state().peek() == ASTNode$$State.REWRITE_CHANGE) {
   Tracer.traceRewriteChange(this, "ASTNode.child", "" + i, 
       nodeToString(oldNode) + "->" + nodeToString(node));
 }

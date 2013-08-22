@@ -89,7 +89,7 @@ public static class Tracer {
   private static java.util.List<Tracer.Object> list = new java.util.ArrayList<Tracer.Object>();
 
   private static void trace(Tracer.Event evt, ASTNode node, String attr, String params, String value) {
-    list.add(new Tracer.Object(evt, node.toString(), attr, params, value));
+    list.add(new Tracer.Object(evt, String.format("%08X", node.hashCode()), attr, params, value));
   }
   
   /**
