@@ -529,14 +529,14 @@ if(#(attributeSignature)_values.containsKey(_parameters)) {
   if(!(_o instanceof ASTNode$$State.CircularValue)) {
     #traceEndCachedAttr
     return $FromRefTypeParamCircular;
-  } else { 
+  } else {
     _value = (ASTNode$$State.CircularValue)_o;
   }
 }
 $else
 if(#(attributeSignature)_values.containsKey(_parameters)) {
   #traceEndCachedAttr
-  return $FromRefTypeParam; 
+  return $FromRefTypeParam;
 }
 $endif
 $endif

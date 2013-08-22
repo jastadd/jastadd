@@ -309,7 +309,7 @@ $else
   public void ASTNode.addChild(ASTNode node) {
 $endif
     setChild(node, getNumChildNoTransform());
-    $include(ASTNode.incHookAddChild) 
+    $include(ASTNode.incHookAddChild)
   }
 ]]
 
@@ -318,7 +318,7 @@ ASTNode.numChildren = [[
    * @apilevel low-level
    */
    protected int ASTNode.numChildren;
-   
+
   /**
    * @apilevel low-level
    */
@@ -326,7 +326,7 @@ ASTNode.numChildren = [[
     $include(ASTNode.incHookNumChildren)
     return numChildren;
   }
-  
+
   /**
     * @apilevel low-level
     */
@@ -335,7 +335,7 @@ ASTNode.numChildren = [[
     return numChildren();
     $SynchEnd
   }
-  
+
   /**
     * <p><em>This method does not invoke AST transformations.</em></p>
     * @apilevel low-level
@@ -372,9 +372,9 @@ $endif
     if(i >= numChildren) {
       numChildren = i+1;
     }
-    if(node != null) { 
-      node.setParent(this); 
-      node.childIndex = i; 
+    if(node != null) {
+      node.setParent(this);
+      node.childIndex = i;
     }
     $include(ASTNode.incHookSetChild5)
     $include(ASTNode.flushHookSetChildInitState)
@@ -413,9 +413,9 @@ $endif
       $include(ASTNode.flushHookInsertChildUpdateState)
     }
     numChildren++;
-    if(node != null) { 
-      node.setParent(this); 
-      node.childIndex = i; 
+    if(node != null) {
+      node.setParent(this);
+      node.childIndex = i;
     }
     $SynchEnd
   }
@@ -431,7 +431,7 @@ ASTNode.removeChild = [[
       $include(ASTNode.incHookRemoveChild1)
       ASTNode child = (ASTNode)children[i];
       if(child != null) {
-        $include(ASTNode.incHookRemoveChild2) 
+        $include(ASTNode.incHookRemoveChild2)
         child.parent = null;
         child.childIndex = -1;
       }
@@ -464,7 +464,7 @@ ASTNode.getChild = [[
     * @apilevel low-level
     */
 $if(Java5)
-  @SuppressWarnings("cast") 
+  @SuppressWarnings("cast")
   public T ASTNode.getChild(int i) {
 $else
   public ASTNode ASTNode.getChild(int i) {
@@ -531,7 +531,7 @@ $if(RewriteEnabled)
         $include(ASTNode.traceHookRewriteCacheAbort)
       }
       $include(ASTNode.incHookGetChild2)
-      $include(ASTNode.traceHookRewriteExitCase1) 
+      $include(ASTNode.traceHookRewriteExitCase1)
     } else if(this.is$$Final() != node.is$$Final()) {
       this.state().boundariesCrossed++;
       $include(ASTNode.traceHookRewriteExitCase2)
@@ -558,10 +558,10 @@ ASTNode.getChildNoTransform = [[
     * <p><em>This method does not invoke AST transformations.</em></p>
     * @apilevel low-level
     */
-$if(Java5)  
+$if(Java5)
   @SuppressWarnings("cast")
   $if(IncrementalEnabled)
-  public T ASTNode.getChildNoTransform(int i) { 
+  public T ASTNode.getChildNoTransform(int i) {
   // Must be able to override get child methods for incremental evaluation
   $else
   public final T ASTNode.getChildNoTransform(int i) {
@@ -572,11 +572,11 @@ $if(Java5)
     }
     T child = (T)children[i];
     $include(ASTNode.incHookGetChildNT)
-    return child;        
+    return child;
     $SynchEnd
   }
 $else
-  $if(IncrementalEnabled)    
+  $if(IncrementalEnabled)
   public final ASTNode ASTNode.getChildNoTransform(int i) {
   // Must be able to override get child methods for incremental evaluation
   $else
@@ -588,7 +588,7 @@ $else
     }
     ASTNode child = (ASTNode)children[i];
     $include(ASTNode.incHookGetChildNT)
-    return child;        
+    return child;
     $SynchEnd
   }
 $endif
@@ -602,7 +602,7 @@ ASTNode.lineColumnNumbers = [[
   protected short ASTNode.startColumn;
   protected int ASTNode.endLine;
   protected short ASTNode.endColumn;
-  
+
   public int ASTNode.getStartLine() {
     return startLine;
   }
@@ -615,7 +615,7 @@ ASTNode.lineColumnNumbers = [[
   public short ASTNode.getEndColumn() {
     return endColumn;
   }
-  
+
   public void ASTNode.setStart(int startLine, short startColumn) {
     this.startLine = startLine;
     this.startColumn = startColumn;

@@ -72,11 +72,11 @@ $endif
 
   public void List.insertChild(ASTNode node, int i) {
     $SynchBegin
-  
+
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-  
+
     super.insertChild(node, i);
     $SynchEnd
   }
@@ -87,11 +87,11 @@ $else
   public void List.addChild(ASTNode node) {
 $endif
     $SynchBegin
-  
+
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-  
+
     super.addChild(node);
     $SynchEnd
   }
@@ -101,18 +101,18 @@ $endif
    */
   public void List.removeChild(int i) {
     $SynchBegin
-  
+
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-  
+
     super.removeChild(i);
     $SynchEnd
   }
 
   public int List.getNumChild() {
     $SynchBegin
-  
+
 $if(#needsListTouched)
     if (list$$touched) {
       for (int i = 0; i < getNumChildNoTransform(); i++) {
@@ -121,7 +121,7 @@ $if(#needsListTouched)
       list$$touched = false;
     }
 $endif
-  
+
     return getNumChildNoTransform();
     $SynchEnd
   }
