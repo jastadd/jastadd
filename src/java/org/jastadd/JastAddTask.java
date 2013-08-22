@@ -110,10 +110,6 @@ public class JastAddTask extends Task {
   private boolean noInhEqCheck = false;
   public void setNoInhEqCheck(boolean b) { noInhEqCheck = b; }
 
-  // suppress warnings when using Java 5
-  private boolean suppressWarnings = false;
-  public void setSuppressWarnings(boolean b) { suppressWarnings = b; }
-
   // generate javadoc like .html pages for sources
   private boolean doc = false;
   public void setDoc(boolean b) { doc = b; }
@@ -242,7 +238,6 @@ public class JastAddTask extends Task {
     if(noComponentCheck)    args.add("--noComponentCheck");
 
     if(noInhEqCheck)        args.add("--noInhEqCheck");
-    if(suppressWarnings)    args.add("--suppressWarnings");
 
     if(doc)     args.add("--doc");
     if(debug)   args.add("--debug");

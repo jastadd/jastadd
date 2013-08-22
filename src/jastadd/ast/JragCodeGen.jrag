@@ -251,8 +251,8 @@ aspect JragCodeGen {
     }
   }
 
-  syn String ASTDecl.annotations() = suppressWarnings();
-  syn String AttrDecl.annotations() = suppressWarnings();
+  syn String ASTDecl.annotations() = "";
+  syn String AttrDecl.annotations() = "";
 
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {

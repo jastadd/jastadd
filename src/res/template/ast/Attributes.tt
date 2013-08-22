@@ -285,7 +285,7 @@ $endif
 ]]
 
 ASTDecl.genCircularEquationNoParams [[
-  #suppressWarnings
+  #annotations
   public #getType #attributeName() {
     $SynchBegin
     #traceComputeContext
@@ -366,7 +366,7 @@ ASTDecl.genCircularEquationNoParams [[
 ]]
 
 ASTDecl.genCircularEquationWithParams [[
-  #suppressWarnings
+  #annotations
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #traceComputeContext

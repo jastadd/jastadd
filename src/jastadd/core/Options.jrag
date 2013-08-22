@@ -41,12 +41,6 @@ aspect JastAddOptions {
   eq Grammar.getChild().grammar() = this;
   syn Grammar Grammar.grammar() = this;
 
-  syn String Grammar.suppressWarnings() =
-    (suppressWarnings || java5) ?
-    "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
-
-  syn String ASTNode.suppressWarnings() = grammar().suppressWarnings();
-
   public boolean Grammar.jjtree;
   public String Grammar.parserName;
 
@@ -61,8 +55,6 @@ aspect JastAddOptions {
   public boolean Grammar.traceVisitCheck = false;
   public boolean Grammar.cacheCycle = true;
   public boolean Grammar.componentCheck = true;
-
-  public boolean Grammar.suppressWarnings = false;
 
   public boolean Grammar.doc = false;
 

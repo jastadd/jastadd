@@ -62,7 +62,6 @@ public class JastAddConfiguration {
   private final Option noComponentCheck;
   private final Option componentCheck;
   private final Option noInhEqCheck;
-  private final Option suppressWarnings;
   private final Option refineLegacy;
   private final Option noRefineLegacy;
   private final Option stagedRewrites;
@@ -110,7 +109,6 @@ public class JastAddConfiguration {
     noComponentCheck = new Option("noComponentCheck", "enable strongly connected component optimization for circular attributes");
     componentCheck = new Option("componentCheck", "disable strongly connected component optimization for circular attributes");
     noInhEqCheck = new Option("noInhEqCheck", "disable check for inherited equations");
-    suppressWarnings = new Option("suppressWarnings", "suppress warnings when using Java 5");
     refineLegacy = new Option("refineLegacy", "enable the legacy refine syntax");
     noRefineLegacy = new Option("noRefineLegacy", "disable the legacy refine syntax");
     stagedRewrites = new Option("stagedRewrites", "");
@@ -195,7 +193,6 @@ public class JastAddConfiguration {
     options.addOption(noComponentCheck);
     options.addOption(componentCheck);
     options.addOption(noInhEqCheck);
-    options.addOption(suppressWarnings);
     options.addOption(refineLegacy);
     options.addOption(noRefineLegacy);
     options.addOption(stagedRewrites);
@@ -283,8 +280,6 @@ public class JastAddConfiguration {
     root.cacheCycle = !noCacheCycle.matched();
     root.componentCheck = componentCheck.matched();
     root.noInhEqCheck = noInhEqCheck.matched();
-
-    root.suppressWarnings = suppressWarnings.matched();
 
     root.refineLegacy = !noRefineLegacy.matched();
 

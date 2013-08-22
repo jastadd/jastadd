@@ -44,7 +44,7 @@ $if(#isParameterized)
   protected $TypeDefaultMap #(attributeSignature)_values = $CreateDefaultMap;
 
   #hostFileComment
-  #suppressWarnings
+  #annotations
   public #getType #attributeName(#parametersDecl) {
     $BlockBegin
     #parameterStructure
@@ -121,7 +121,7 @@ $if(SeparateEvaluation)
 $endif
 
   #hostFileComment
-  #suppressWarnings
+  #annotations
   public #getType #attributeName(#parametersDecl) {
     $BlockBegin
     #parameterStructure
