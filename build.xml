@@ -249,6 +249,7 @@
 		<echo message="Updating JastAdd version string..."/>
 		<exec executable="git" outputproperty="version"
 			failifexecutionfails="false">
+			<arg value="--git-dir=${jastadd2.basedir}/.git"/>
 			<arg value="describe"/>
 		</exec>
 		<antcall target="-store-version-string"/>
@@ -265,6 +266,8 @@
 			<entry key="build.date" value="${build.date}"/>
 		</propertyfile>
 		<exec executable="git">
+			<arg value="--git-dir=${jastadd2.basedir}/.git"/>
+			<arg value="--work-tree=${jastadd2.basedir}"/>
 			<arg value="update-index"/>
 			<arg value="--assume-unchanged"/>
 			<arg value="${jastadd2.res.dir}/Version.properties"/>

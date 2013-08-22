@@ -29,6 +29,8 @@ package org.jastadd;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -44,6 +46,7 @@ import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Components;
 import org.jastadd.ast.AST.Grammar;
+import org.jastadd.ast.AST.ParseException;
 import org.jastadd.ast.AST.TokenComponent;
 
 /**
@@ -365,35 +368,55 @@ public class JastAdd {
     }
     jp.popTopLevelOrAspect();
   }
-
-  private Collection<Problem> parseAstGrammars(Grammar root) {
+  
+  public static Grammar parseASTSpec(InputStream source, String sourceName, Collection<Problem> problems){
+    Ast parser = new Ast(source);
+    parser.fileName = sourceName;
+    try {
+      Grammar astGrammar = parser.Grammar();
+      problems.addAll(parser.parseProblems());
+      return astGrammar;
+    }
+    catch (org.jastadd.ast.AST.TokenMgrError e) {
+      problems.add(new Problem.Error(e.getMessage(), sourceName));
+    } catch (ParseException e) {
+      // ParseExceptions actually caught by error recovery in parser
+    }
+    return null;
+  }
+  
+  private Collection<Problem> parseAstGrammars(Grammar rootGrammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    //out.println("parsing grammars");
+    // out.println("parsing grammars");
     for (Iterator<String> iter = config.getFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
-      if(fileName.endsWith(".ast")) {
+      if (fileName.endsWith(".ast")) {
+        InputStream inStream = null;
         try {
-          Ast parser = new Ast(new FileInputStream(fileName));
-          parser.fileName = fileName;
-          Grammar g = parser.Grammar();
-          for(int i = 0; i < g.getNumTypeDecl(); i++) {
-            root.addTypeDecl(g.getTypeDecl(i));
+          inStream = new FileInputStream(fileName);
+          Grammar astGrammar = parseASTSpec(inStream, fileName, problems);
+          if (astGrammar != null) {
+            for (int i = 0; i < astGrammar.getNumTypeDecl(); i++) {
+              rootGrammar.addTypeDecl(astGrammar.getTypeDecl(i));
+            }
+
+            // EMMA_2011-12-12: Adding region declarations for incremental
+            // evaluation
+            for (int i = 0; i < astGrammar.getNumRegionDecl(); i++) {
+              rootGrammar.addRegionDecl(astGrammar.getRegionDecl(i));
+            }
           }
 
-          // EMMA_2011-12-12: Adding region declarations for incremental evaluation
-          for (int i = 0; i < g.getNumRegionDecl(); i++) {
-            root.addRegionDecl(g.getRegionDecl(i));
-          }
-          //
-
-          problems.addAll(parser.parseProblems());
-
-        } catch (org.jastadd.ast.AST.TokenMgrError e) {
-          problems.add(new Problem.Error(e.getMessage(), fileName));
-        } catch (org.jastadd.ast.AST.ParseException e) {
-          // Exceptions actually caught by error recovery in parser
         } catch (FileNotFoundException e) {
-          problems.add(new Problem.Error("could not find abstract syntax file '" + fileName + "'"));
+          problems.add(new Problem.Error(
+              "could not find abstract syntax file '" + fileName + "'"));
+        } finally {
+          if (inStream != null)
+            try {
+              inStream.close();
+            } catch (IOException e) {
+              // do nothing
+            }
         }
       }
     }
