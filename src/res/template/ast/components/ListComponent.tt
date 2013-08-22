@@ -76,7 +76,7 @@ ListComponent = [[
     return ($Type) get$(Name)List().getChild(i);
     $SynchEnd
   }
-  
+
   /**
    * Check whether the $Name list has any children.
    * @return {@code true} if it has at least one child, {@code false} otherwise.
@@ -87,7 +87,6 @@ ListComponent = [[
     return get$(Name)List().getNumChild() != 0;
     $SynchEnd
   }
-  
 
   /**
    * Append an element to the $Name list.
