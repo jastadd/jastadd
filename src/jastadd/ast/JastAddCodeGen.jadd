@@ -132,9 +132,11 @@ aspect JastAddCodeGen {
   }
 
   public String TypeDecl.modifiers() {
-    if(modifiers == null || modifiers.equals(""))
+    if(modifiers == null || modifiers.trim().isEmpty())
+      // TODO: don't generate default public modifier?!
       return "public ";
     else
+      // TODO: don't remove static?!
       return modifiers.replaceAll("static ", "");
   }
 
@@ -268,13 +270,13 @@ aspect JastAddCodeGen {
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
       for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-        ClassBodyObject o = (ClassBodyObject)iter.next();
-        org.jastadd.jrag.AST.SimpleNode n = o.node;
+        ClassBodyObject obj = (ClassBodyObject)iter.next();
+        org.jastadd.jrag.AST.SimpleNode n = obj.node;
 
-        //buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
-        //if(!o.comments.equals(""))
-          //buf.append(o.comments + " ");
-        buf.append(o.modifiers);
+        //buf.append("    // Declared in " + obj.fileName + " at line " + obj.line + "\n");
+        //if(!obj.comments.equals(""))
+          //buf.append(obj.comments + " ");
+        buf.append(obj.modifiers + " ");
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         buf.append("\n\n");
       }

@@ -634,7 +634,13 @@ void AspectClassDeclaration() :
   String typeParameters;
 }
 {
-  (( t="static" | t="abstract" | t="final" | t="public" | t="protected" | t="private" ) { modifiers.append(t.image + " "); })*
+  (( t="static" | t="abstract" | t="final" | t="public" | t="protected" | t="private" )
+    {
+      if (modifiers.length() > 0)
+        modifiers.append(" ");
+      modifiers.append(t.image);
+    }
+  )*
   first = "class"
   t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
@@ -642,7 +648,7 @@ void AspectClassDeclaration() :
     className = t.image;
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
-    typeDecl.modifiers = modifiers.toString();
+    typeDecl.modifiers = modifiers.toString() + " ";
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [
@@ -1467,7 +1473,7 @@ void ClassDeclaration(String modifiers) :
     className = t.image;
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
-    typeDecl.modifiers = modifiers;
+    typeDecl.modifiers = modifiers + " ";
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
    [ "extends"

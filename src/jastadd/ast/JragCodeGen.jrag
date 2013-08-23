@@ -162,9 +162,9 @@ aspect JragCodeGen {
 
   public void InterfaceDecl.emitMembers(PrintStream out) {
     for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-      ClassBodyObject o = (ClassBodyObject)iter.next();
-      org.jastadd.jrag.AST.SimpleNode n = o.node;
-      //out.println(ind + "// Declared in " + o.fileName + " at line " + o.line);
+      ClassBodyObject obj = (ClassBodyObject)iter.next();
+      org.jastadd.jrag.AST.SimpleNode n = obj.node;
+      //out.println(ind + "// Declared in " + obj.fileName + " at line " + obj.line);
       if(n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
@@ -172,7 +172,7 @@ aspect JragCodeGen {
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
-          System.err.println("Error generating " + o.signature() + " in " + name());
+          System.err.println("Error generating " + obj.signature() + " in " + name());
           e.printStackTrace();
         }
       }
@@ -183,7 +183,7 @@ aspect JragCodeGen {
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
-          System.err.println("Error generating " + o.signature() + " in " + name());
+          System.err.println("Error generating " + obj.signature() + " in " + name());
           e.printStackTrace();
         }
       }
@@ -191,10 +191,10 @@ aspect JragCodeGen {
         // do not emit refined implementations
       }
       else {
-        if(!o.comments.equals("")) {
-          out.print(o.comments + " ");
+        if(!obj.comments.equals("")) {
+          out.print(obj.comments + " ");
         }
-        out.print(o.modifiers);
+        out.print(obj.modifiers + " ");
         StringBuffer buf = new StringBuffer();
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         out.print(buf.toString());
@@ -209,7 +209,7 @@ aspect JragCodeGen {
     for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
-      out.print(obj.modifiers);
+      out.print(obj.modifiers + " ");
       out.println(docComment(obj));
       out.print(grammar().ind);
       StringBuffer buf = new StringBuffer();
