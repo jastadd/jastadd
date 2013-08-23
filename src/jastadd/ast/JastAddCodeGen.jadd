@@ -131,13 +131,13 @@ aspect JastAddCodeGen {
     }
   }
 
-  public String TypeDecl.modifiers() {
-    if(modifiers == null || modifiers.trim().isEmpty())
-      // TODO: don't generate default public modifier?!
-      return "public ";
+  public String TypeDecl.modifiers = "";
+
+  syn String TypeDecl.modifiers() {
+    if (modifiers == null)
+      return "";
     else
-      // TODO: don't remove static?!
-      return modifiers.replaceAll("static ", "");
+      return modifiers + " ";
   }
 
   public String TypeDecl.typeParameters = "";
@@ -276,7 +276,7 @@ aspect JastAddCodeGen {
         //buf.append("    // Declared in " + obj.fileName + " at line " + obj.line + "\n");
         //if(!obj.comments.equals(""))
           //buf.append(obj.comments + " ");
-        buf.append(obj.modifiers + " ");
+        buf.append(obj.modifiers());
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         buf.append("\n\n");
       }

@@ -578,10 +578,10 @@ void AspectBodyDeclaration() :
   LOOKAHEAD(<REFINE>)
   AspectRefineConstructorDeclaration()
 |
-  LOOKAHEAD( ( "static" | "abstract" | "final" | "public" | "protected" | "private" )* "class" )
+  LOOKAHEAD( Modifiers() "class" )
   AspectClassDeclaration()
 |
-  LOOKAHEAD( ( "static" | "abstract" | "final" | "public" | "protected" | "private" )* "interface" )
+  LOOKAHEAD( Modifiers() "interface" )
   AspectInterfaceDeclaration()
 |
   LOOKAHEAD( ( Annotation() )* "syn" )
@@ -628,19 +628,13 @@ void AspectClassDeclaration() :
   String outerClassName;
   StringBuffer name = new StringBuffer();
   SimpleNode nameList = null;
-  StringBuffer modifiers = new StringBuffer();
+  String modifiers;
   SimpleNode node;
   org.jastadd.ast.AST.TypeDecl typeDecl = null;
   String typeParameters;
 }
 {
-  (( t="static" | t="abstract" | t="final" | t="public" | t="protected" | t="private" )
-    {
-      if (modifiers.length() > 0)
-        modifiers.append(" ");
-      modifiers.append(t.image);
-    }
-  )*
+  modifiers = Modifiers()
   first = "class"
   t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
@@ -648,7 +642,7 @@ void AspectClassDeclaration() :
     className = t.image;
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
-    typeDecl.modifiers = modifiers.toString() + " ";
+    typeDecl.modifiers = modifiers;
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [
@@ -677,9 +671,10 @@ void AspectInterfaceDeclaration() :
   SimpleNode nameList = null;
   org.jastadd.ast.AST.TypeDecl typeDecl = null;
   String typeParameters;
+  String modifiers;
 }
 {
-  ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
+  modifiers = Modifiers()
   first = "interface"
   t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
@@ -687,6 +682,7 @@ void AspectInterfaceDeclaration() :
     className = t.image;
     typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
+    typeDecl.modifiers = modifiers;
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
@@ -696,10 +692,10 @@ void AspectInterfaceDeclaration() :
 void AspectInterfaceMemberDeclaration() :
 {}
 {
-  LOOKAHEAD( ( "static" | "abstract" | "final" | "public" | "protected" | "private" )* "class" )
+  LOOKAHEAD( Modifiers() "class" )
   AspectNestedClassDeclaration()
 |
-  LOOKAHEAD( ( "static" | "abstract" | "final" | "public" | "protected" | "private" )* "interface" )
+  LOOKAHEAD( Modifiers() "interface" )
   AspectNestedInterfaceDeclaration()
 |
   LOOKAHEAD("sons")
@@ -879,7 +875,9 @@ void AspectInterfaceMethodDeclarationLookahead() :
 }
 
 void AspectInterfaceMethodDeclaration() :
-{Token t;}
+{
+  Token t;
+}
 {
   ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" )*
   ResultType() MethodDeclarator() [ "throws" NameList() ]
@@ -889,38 +887,51 @@ void AspectInterfaceMethodDeclaration() :
 }
 
 void AspectInterfaceFieldDeclaration() :
-{Token t;}
 {
-  ( "public" | "protected" | "private" | "static" | "final" | "transient" | "volatile" )*
-  Type() VariableDeclarator() ( "," VariableDeclarator() )* ";" {
+  Token t;
+  String modifiers;
+}
+{
+  modifiers = Modifiers()
+  Type() VariableDeclarator() ( "," VariableDeclarator() )* ";"
+  {
     root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect);
   }
 }
 
 void AspectNestedInterfaceDeclaration() :
-{ String outerClassName = className;
+{
+  String outerClassName = className;
   className = "D$u$m$m$y";
+  String modifiers;
 }
 {
-  ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
-
+  modifiers = Modifiers()
   "interface" { pushTopLevelOrAspect(false); } <IDENTIFIER> [ "extends" NameList() ]
   "{" ( InterfaceMemberDeclaration() )* "}"
-  { className = outerClassName;
-    root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect); popTopLevelOrAspect(); }
+  {
+    className = outerClassName;
+    root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
+    popTopLevelOrAspect();
+  }
 }
 
 void AspectNestedClassDeclaration() :
-{ String outerClassName = className;
+{
+  String outerClassName = className;
   className = "D$u$m$m$y";
+  String modifiers;
 }
 {
-  ( "static" | "abstract" | "final" | "public" | "protected" | "private" )*
+  modifiers = Modifiers()
   "class" { pushTopLevelOrAspect(false); } <IDENTIFIER>
    [ "extends" ClassOrInterfaceType() ] [ "implements" TypeNameList() ]
   ClassBody()
-  { className = outerClassName;
-    root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect); popTopLevelOrAspect(); }
+  {
+    className = outerClassName;
+    root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
+    popTopLevelOrAspect();
+  }
 }
 
 void AspectMethodDeclarationLookahead() :
@@ -1473,7 +1484,7 @@ void ClassDeclaration(String modifiers) :
     className = t.image;
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
-    typeDecl.modifiers = modifiers + " ";
+    typeDecl.modifiers = modifiers;
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
    [ "extends"

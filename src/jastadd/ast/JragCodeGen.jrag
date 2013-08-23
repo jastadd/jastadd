@@ -194,7 +194,7 @@ aspect JragCodeGen {
         if(!obj.comments.equals("")) {
           out.print(obj.comments + " ");
         }
-        out.print(obj.modifiers + " ");
+        out.print(obj.modifiers());
         StringBuffer buf = new StringBuffer();
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         out.print(buf.toString());
@@ -209,7 +209,7 @@ aspect JragCodeGen {
     for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
-      out.print(obj.modifiers + " ");
+      out.print(obj.modifiers());
       out.println(docComment(obj));
       out.print(grammar().ind);
       StringBuffer buf = new StringBuffer();

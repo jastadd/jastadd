@@ -387,8 +387,6 @@ public aspect Attributes {
     return null;
   }
 
-  public String TypeDecl.modifiers = "";
-
   public void Grammar.addCompUnit(org.jastadd.jrag.AST.ASTCompilationUnit compUnit) {
     compUnits.add(compUnit);
   }
@@ -412,7 +410,7 @@ public aspect Attributes {
     TypeDecl c = lookup(className);
     if(c != null) {
       ClassBodyObject obj = new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName);
-      obj.modifiers = modifiers + " ";
+      obj.modifiers = modifiers;
       c.classBodyDecls.add(obj);
     } else {
       error("can not add member to unknown class " + className, fileName, n.firstToken.beginLine);
@@ -425,7 +423,7 @@ public aspect Attributes {
     if(c != null) {
       ClassBodyObject obj = new ClassBodyObject(n, fileName,
           n.firstToken.beginLine, aspectName);
-      obj.modifiers = modifiers + " ";
+      obj.modifiers = modifiers;
       c.classBodyDecls.add(obj);
     } else {
       error("can not add member to unknown class " + className, fileName, n.firstToken.beginLine);
