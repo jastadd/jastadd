@@ -448,27 +448,71 @@ String Modifiers() :
 {
  (LOOKAHEAD(2)
   (
-   "public" { buf.append("public "); }
+   "public"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "static" { buf.append("static "); }
+   "static"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "protected" { buf.append("protected "); }
+   "protected"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "private" { buf.append("private "); }
+   "private"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "final" { buf.append("final "); }
+   "final"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "abstract" { buf.append("abstract "); }
+   "abstract"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "synchronized" { buf.append("synchronized "); }
+   "synchronized"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "native" { buf.append("native "); }
+   "native"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "transient" { buf.append("transient "); }
+   "transient"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "volatile" { buf.append("volatile "); }
+   "volatile"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
-   "strictfp" { buf.append("strictfp "); }
+   "strictfp"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
   |
    annotation = Annotation()
    {
