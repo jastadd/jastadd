@@ -256,7 +256,7 @@ ASTNode.iterator = [[
       public boolean hasNext() {
         return counter < getNumChild();
       }
-      @SuppressWarnings("unchecked") public T next() {
+      public T next() {
         if(hasNext())
           return (T)getChild(counter++);
         else
@@ -464,7 +464,6 @@ ASTNode.getChild = [[
     * @apilevel low-level
     */
 $if(Java5)
-  @SuppressWarnings("cast")
   public T ASTNode.getChild(int i) {
 $else
   public ASTNode ASTNode.getChild(int i) {
@@ -559,7 +558,6 @@ ASTNode.getChildNoTransform = [[
     * @apilevel low-level
     */
 $if(Java5)
-  @SuppressWarnings("cast")
   $if(IncrementalEnabled)
   public T ASTNode.getChildNoTransform(int i) {
   // Must be able to override get child methods for incremental evaluation
