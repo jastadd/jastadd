@@ -175,6 +175,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit || node == null) {
+      // skip the "<ASTNode>." part
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -202,6 +203,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit || node == null) {
+      // skip the "<ASTNode>." part
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -227,6 +229,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit || node == null) {
+      // skip the "<ASTNode>." part
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).firstToken;
       Token t2 = self.firstToken;
       while(t2.next.next.next != t1)
@@ -271,7 +274,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
   public Object visit(ASTAspectFieldDeclaration self, Object data) {
     StringBuffer buf = (StringBuffer) data;
     // Ditch the comment, if one exists
-    //self.firstToken.specialToken = null;
+    self.firstToken.specialToken = null;
 
     // FieldDeclaration <- ClassBodyDeclaration <- 
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
@@ -280,6 +283,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit || node == null) {
+      // skip the "<ASTNode>." part
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -380,6 +384,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit) {
+      // skip the "<ASTNode>." part
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -418,6 +423,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit) {
+      // skip the "<ASTNode>." part
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
