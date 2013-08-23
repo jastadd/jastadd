@@ -46,7 +46,7 @@ $if(#isParameterized)
 #docComment
   #annotations
   public #getType #attributeName(#parametersDecl) {
-    $BlockBegin
+    $SynchBegin
     #parameterStructure
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
@@ -98,7 +98,7 @@ $if(#isParameterized)
       return new_#(attributeSignature)_value;
     }
     return $FromRefType;
-    $BlockEnd
+    $SynchEnd
   }
 $else
   /**
