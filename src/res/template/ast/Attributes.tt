@@ -88,12 +88,13 @@ AttrDecl.synDecl = AttrDecl.inhDecl = [[
 ]]
 
 AttrDecl.abstractSynDecl = [[
-  #docComment
+#docComment
   #annotations
   public abstract #getType #attributeName(#parametersDecl);
 ]]
 
 AttrDecl.emitInlineCompute = [[
+#docComment
   #annotations
   public #getType #attributeName($ParamDecl) {
     $SynchBegin

@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@ aspect JastAddCodeGen {
         InterfaceDecl d = (InterfaceDecl)getTypeDecl(i);
         String name = d.name();
         //System.out.println("Processing interface " + name);
- 
+
         for(int j = 0; j < getNumTypeDecl(); j++) {
           if(getTypeDecl(j) instanceof ASTDecl) {
             ASTDecl dest = (ASTDecl)getTypeDecl(j);
@@ -81,22 +81,22 @@ aspect JastAddCodeGen {
                     dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                   }
               }
-             
+
               for(int k = 0; k < d.getNumSynDecl(); k++) {
                 //System.out.println("    adding syndecl " + d.getSynDecl(k).signature());
                 dest.addSynDecl((SynDecl)d.getSynDecl(k).fullCopy());
               }
-             
+
               for(int k = 0; k < d.getNumSynEq(); k++) {
                 //System.out.println("    adding syneq " + d.getSynEq(k).signature());
                 dest.addSynEq((SynEq)d.getSynEq(k).fullCopy());
               }
-             
+
               for(int k = 0; k < d.getNumInhDecl(); k++) {
                 //System.out.println("    adding inhdecl " + d.getInhDecl(k).signature());
                 dest.addInhDecl((InhDecl)d.getInhDecl(k).fullCopy());
               }
-             
+
               for(int k = 0; k < d.getNumInhEq(); k++) {
                 //System.out.println("    adding inheq " + d.getInhEq(k).signature());
                 dest.addInhEq((InhEq)d.getInhEq(k).fullCopy());
@@ -213,7 +213,7 @@ aspect JastAddCodeGen {
       }
 
       stream.print(env().genImportsList());
-      stream.print(docComment());
+      stream.println(docComment());
       stream.println(typeDeclarationString());
 
       /*
@@ -221,7 +221,7 @@ aspect JastAddCodeGen {
       for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         jrag.AST.SimpleNode n = o.node;
-        
+
         if(!(n instanceof ASTAspectMethodDeclaration) && !(n instanceof ASTAspectFieldDeclaration)) {
           buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
           n.jjtAccept(new ClassBodyDeclUnparser(), buf);
@@ -237,7 +237,7 @@ aspect JastAddCodeGen {
       emitInhDeclarations(stream);
       //emitInhEquations(stream);
       emitInterfaceCollections(stream);
-      
+
       stream.println("}");
       stream.close();
     } catch (FileNotFoundException f) {
@@ -245,7 +245,7 @@ aspect JastAddCodeGen {
       System.exit(1);
     }
   }
-  
+
   public void ClassDecl.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
     File file = null;
     try {
@@ -264,13 +264,13 @@ aspect JastAddCodeGen {
       }
 
       stream.print(env().genImportsList());
-      stream.print(docComment());
+      stream.println(docComment());
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
       for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
         ClassBodyObject o = (ClassBodyObject)iter.next();
         org.jastadd.jrag.AST.SimpleNode n = o.node;
-        
+
         //buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
         //if(!o.comments.equals(""))
           //buf.append(o.comments + " ");
@@ -285,7 +285,7 @@ aspect JastAddCodeGen {
       //emitSynEquations(stream);
       emitInhDeclarations(stream);
       //emitInhEquations(stream);
-      
+
       stream.println("}");
       stream.close();
     } catch (FileNotFoundException f) {
@@ -309,7 +309,7 @@ aspect JastAddCodeGen {
       // Insert comment notifying that this is a generated file
       stream.println("/* This file was generated with " +
           org.jastadd.JastAdd.getLongVersionString() + " */");
-        
+
       if(grammar().license != null && grammar().license.length() > 0)
         stream.println(grammar().license);
 
@@ -319,7 +319,7 @@ aspect JastAddCodeGen {
 
       stream.print(env().genImportsList());
 
-      stream.print(docComment());
+      stream.println(docComment());
       stream.print("public ");
       if(hasAbstract()) {
         stream.print("abstract ");
@@ -377,7 +377,7 @@ aspect JastAddCodeGen {
   public String ASTDecl.jastAddImplementsList() {
     StringBuffer buf = new StringBuffer();
     buf.append(" implements Cloneable");
-    
+
     for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
       buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
     }
@@ -399,7 +399,7 @@ aspect JastAddCodeGen {
     }
     return buf.toString();
   }
-  
+
   public void ASTDecl.jastAddAttributes(PrintStream out) {
     emitMembers(out);
     emitAbstractSyns(out);
@@ -415,6 +415,4 @@ aspect JastAddCodeGen {
   }
 
 }
-
-  
 
