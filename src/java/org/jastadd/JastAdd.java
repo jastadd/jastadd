@@ -27,8 +27,8 @@
  */
 package org.jastadd;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -36,8 +36,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import org.jastadd.jrag.AST.JragParser;
 
 import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Components;
@@ -149,7 +147,7 @@ public class JastAdd {
       Grammar root = config.buildRoot();
       root.genDefaultNodeTypes();
 
-      Collection<Problem> problems = JastAddUtil.parseASTFiles(root,config.getFiles());
+      Collection<Problem> problems = readASTFiles(root,config.getFiles());
       if (checkErrors(problems, err)) {
         return 1;
       }
@@ -172,7 +170,7 @@ public class JastAdd {
 
       genIncrementalDDGNode(root);
 
-      problems = JastAddUtil.parseJRAGFiles(root, config.getFiles());
+      problems = readJRAGFiles(root, config.getFiles());
       if (checkErrors(problems, err)) {
         return 1;
       }
@@ -241,25 +239,38 @@ public class JastAdd {
     }
     return hasError;
   }
-
-  private Collection<Problem> readCacheFiles(Grammar root) {
+  
+  private static Collection<Problem> readASTFiles(Grammar rootGrammar, Collection<String> fileNames) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    // out.println("parsing grammars");
+    for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
+      String fileName = iter.next();
+      if (fileName.endsWith(".ast")) {
+        File source = new File(fileName);
+        JastAddUtil.parseASTSpec(source, rootGrammar, problems);
+      }
+    }
+    return problems;
+  }
+  
+  private static Collection<Problem> readJRAGFiles(Grammar rootGrammar, Collection<String> fileNames) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
+      String fileName = iter.next();
+      if (fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
+        File source = new File(fileName);
+        JastAddUtil.parseJRAGSpec(source, rootGrammar, problems);
+      }
+    }
+    return problems;
+  }
+  
+  private Collection<Problem> readCacheFiles(Grammar rootGrammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
-      //out.println("Processing cache file: " + fileName);
-      try {
-        FileInputStream inputStream = new FileInputStream(fileName);
-        JragParser jp = new JragParser(inputStream);
-        jp.inputStream = inputStream; // Hack to make input stream visible for ast-parser
-        jp.root = root;
-        jp.setFileName(fileName);
-        jp.CacheDeclarations();
-      } catch (org.jastadd.jrag.AST.ParseException e) {
-        problems.add(new Problem.Error("syntax error", fileName,
-            e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
-      } catch (FileNotFoundException e) {
-        problems.add(new Problem.Error("could not find cache file '" + fileName + "'"));
-      }
+      File cacheFile = new File(fileName);
+      JastAddUtil.parseCacheDeclarations(cacheFile, rootGrammar, problems);
     }
     return problems;
   }
@@ -272,7 +283,7 @@ public class JastAdd {
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
         
-        JastAddUtil.parseAspectBodyDeclarations(rootGrammar, new java.io.StringReader(writer.toString()));
+        JastAddUtil.parseAspectBodyDeclarations(new java.io.StringReader(writer.toString()),"ASTNode",rootGrammar);
 
         int j = 0;
         for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
@@ -294,14 +305,14 @@ public class JastAdd {
     if (rootGrammar.incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
       rootGrammar.genIncrementalDDGNode(new PrintWriter(writer));
-      JastAddUtil.parseAspectBodyDeclarations(rootGrammar, new java.io.StringReader(writer.toString()));
+      JastAddUtil.parseAspectBodyDeclarations(writer.toString(),"ASTNode",rootGrammar);
     }
   }
 
   private void genASTNode$State(Grammar rootGrammar) {
     java.io.StringWriter writer = new java.io.StringWriter();
     rootGrammar.emitASTNode$State(new PrintWriter(writer));
-    JastAddUtil.parseAspectBodyDeclarations(rootGrammar,new java.io.StringReader(writer.toString()));
+    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),"ASTNode",rootGrammar);
   }
   
   @SuppressWarnings("unused")
