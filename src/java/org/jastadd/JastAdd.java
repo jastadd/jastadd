@@ -61,7 +61,7 @@ public class JastAdd {
       version = resources.getString("version");
       timestamp = resources.getString("timestamp");
     } catch (MissingResourceException e) {
-      throw new Error("Could not open Version resource bundle");
+      throw new Error("Could load version info: " + e.getMessage());
     }
   }
 
@@ -171,7 +171,7 @@ public class JastAdd {
       root.problems.clear();
 
       genASTNode$State(root);
-      
+
       genTracer(root);
 
       genIncrementalDDGNode(root);
@@ -346,7 +346,7 @@ public class JastAdd {
     }
     jp.popTopLevelOrAspect();
   }
-  
+
   private void genIncrementalDDGNode(Grammar root) {
     if (root.incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
