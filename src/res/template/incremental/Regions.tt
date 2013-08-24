@@ -47,7 +47,7 @@ $endif
 
 # Create regionRoot method
 ASTDecl.createRegionRootMethod = [[
-  public ASTNode #name.regionRoot() {
+  public $ASTNode #name.regionRoot() {
 $if (IsRegionRoot)
     return this;
 $else
@@ -68,12 +68,12 @@ $if (IsRegionRoot)
     return handler;
 $else
 $if (IsAstNode)
-    ASTNode root = regionRoot();
+    $ASTNode root = regionRoot();
     return root != null ? root.handler() : null;
 $else
     $DDGNodeName h = super.handler();
     if (h != null) return h;
-    ASTNode root = regionRoot();
+    $ASTNode root = regionRoot();
     return root != null ? root.handler() : null;
 $endif
 $endif
@@ -87,13 +87,13 @@ $endif
 # Create getParent method for region dependency tracking
 ASTDecl.trackGetParentForRegionMethod = [[
 // Overloading getParent for region root
-public ASTNode #name.getParent() {
-  ASTNode parent = super.getParent();
+public $ASTNode #name.getParent() {
+  $ASTNode parent = super.getParent();
   if (state().IN_COMPUTATION > 0 && parent != null) {
     parent.handler().addDependant(handler);
   }
   return parent;
-}          
+}
 ]]
 
 # Create getChild method for region dependency tracking
@@ -104,15 +104,15 @@ ASTDecl.trackGetChildForRegionMethod = [[
  // Overloading getChild for region leaf
 $if (Java5)
 public T #name.getChild(int i) {
-  ASTNode child = super.getChild(i);
+  $ASTNode child = super.getChild(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
     child.handler().addDependant(handler());
   }
   return (T)child;
-}    
+}
 $else
-public ASTNode #name.getChild(int i) {
-  ASTNode child = super.getChild(i);
+public $ASTNode #name.getChild(int i) {
+  $ASTNode child = super.getChild(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
     child.handler().addDependant(handler());
   }
@@ -129,15 +129,15 @@ ASTDecl.trackGetChildNoTranForRegionMethod = [[
  // Overloading getChildNoTransform for region leaf
 $if (Java5)
 public T #name.getChildNoTransform(int i) {
-  ASTNode child = super.getChildNoTransform(i);
+  $ASTNode child = super.getChildNoTransform(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
     child.handler().addDependant(handler());
   }
   return (T)child;
 }
 $else
-public ASTNode #name.getChildNoTransform(int i) {
-  ASTNode child = super.getChildNoTransform(i);
+public $ASTNode #name.getChildNoTransform(int i) {
+  $ASTNode child = super.getChildNoTransform(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
     child.handler().addDependant(handler());
   }

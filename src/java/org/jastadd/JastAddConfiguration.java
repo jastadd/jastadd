@@ -47,6 +47,9 @@ import org.jastadd.ast.AST.Grammar;
 public class JastAddConfiguration {
 
   private final CommandLineArguments options;
+  private final Option astNode;
+  private final Option list;
+  private final Option opt;
   private final Option jjtree;
   private final Option grammarOption;
   private final Option defaultMap;
@@ -94,6 +97,9 @@ public class JastAddConfiguration {
    * @param err output stream to print configuration warnings to
    */
   public JastAddConfiguration(String[] args, PrintStream err) {
+    astNode = new Option("ASTNode", "set the name of the ASTNode type", true);
+    list = new Option("List", "set the name of the List type", true);
+    opt = new Option("Opt", "set the name of the Opt type", true);
     jjtree = new Option("jjtree", "use jjtree base node, this requires --grammar to be set");
     grammarOption = new Option("grammar", "the name of the grammar's parser, required when using --jjtree", true);
     defaultMap = new Option("defaultMap", "use this expression to construct maps for attribute caches", true);
@@ -169,6 +175,9 @@ public class JastAddConfiguration {
     //noComponentCheck.setDeprecated();
 
     // set default values
+    astNode.setDefaultValue("ASTNode");
+    list.setDefaultValue("List");
+    opt.setDefaultValue("Opt");
     grammarOption.setDefaultValue("Unknown");
     defaultMap.setDefaultValue("new java.util.HashMap(4)");
     defaultSet.setDefaultValue("new java.util.HashSet(4)");
@@ -178,6 +187,9 @@ public class JastAddConfiguration {
     minListSize.setDefaultValue("4");
 
     options = new CommandLineArguments();
+    options.addOption(astNode);
+    options.addOption(list);
+    options.addOption(opt);
     options.addOption(jjtree);
     options.addOption(grammarOption);
     options.addOption(defaultMap);
@@ -244,6 +256,15 @@ public class JastAddConfiguration {
    */
   public Grammar buildRoot() {
     Grammar root = new Grammar();
+
+    root.astNodeType = astNode.value();
+    root.listType = list.value();
+    root.optType = opt.value();
+
+    root.blockBegin = "synchronized(" + root.astNodeType + ".class) {\n";
+    root.blockEnd =   "}\n";
+    root.createContributorSet = "new " + root.astNodeType + "$State.IdentityHashSet(4)";
+
     root.jjtree = jjtree.matched();
     root.parserName = grammarOption.value();
 
@@ -364,6 +385,9 @@ public class JastAddConfiguration {
     }
 
     // Bind global template variables:
+    tt.bind("ASTNode", root.astNodeType);
+    tt.bind("List", root.listType);
+    tt.bind("Opt", root.optType);
     tt.bind("NoStatic", root.noStatic);
     tt.bind("DebugMode", root.debugMode);
     tt.bind("MinListSize", "" + root.minListSize);
@@ -405,8 +429,8 @@ public class JastAddConfiguration {
     tt.bind("IncrementalPropLimit", root.incrementalPropLimit);
     tt.bind("IncrementalDebug", root.incrementalDebug);
     tt.bind("IncrementalTrack", root.incrementalTrack);
-    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
-    
+    tt.bind("DDGNodeName", root.astNodeType + "$DepGraphNode");
+
     // Tracing
     tt.bind("TracingEnabled", root.tracing);
 

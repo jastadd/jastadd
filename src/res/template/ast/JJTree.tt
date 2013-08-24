@@ -60,12 +60,12 @@ $if(#isOptDecl)
     if (i > 0) {
       throw new Error("Optional nodes can only have one child");
     }
-    if (!(n instanceof ASTNode)) {
-      throw new Error("Node type must be an instance of ASTNode");
+    if (!(n instanceof $ASTNode)) {
+      throw new Error("Node type must be an instance of $ASTNode");
     }
 $else$if(#isListDecl)
-    if (!(n instanceof ASTNode)) {
-      throw new Error("The node type of child " + i + " must be an instance of ASTNode");
+    if (!(n instanceof $ASTNode)) {
+      throw new Error("The node type of child " + i + " must be an instance of $ASTNode");
     }
 $else
     #checkRegularNodeStructure
@@ -75,14 +75,14 @@ $endif$endif
 
 ListComponents.checkComponentStructure = [[
   if(i == $ChildIndex) {
-    if(!(n instanceof List)) {
+    if(!(n instanceof $List)) {
       throw new Error("Child number $ChildIndex of $HostClassName has the type " +
-        n.getClass().getName() + " which is not an instance of List");
+        n.getClass().getName() + " which is not an instance of $List");
     }
-    for (int k = 0; k < ((List)n).getNumChildNoTransform(); k++) {
-      if (!(((List)n).getChildNoTransform(k) instanceof #type)) {
+    for (int k = 0; k < (($List) n).getNumChildNoTransform(); k++) {
+      if (!((($List) n).getChildNoTransform(k) instanceof #type)) {
         throw new Error("Child number " + k + " in #(name)List has the type " +
-          ((List)n).getChildNoTransform(k).getClass().getName() + " which is not an instance of #type");
+          (($List) n).getChildNoTransform(k).getClass().getName() + " which is not an instance of #type");
       }
     }
   }
@@ -90,11 +90,14 @@ ListComponents.checkComponentStructure = [[
 
 OptionalComponent.checkComponentStructure = [[
 if (i == $ChildIndex) {
-  if (!(n instanceof Opt)) {
-    throw new Error("Child number $ChildIndex of $HostClassName has the type " + n.getClass().getName() + " which is not an instance of Opt");
+  if (!(n instanceof $Opt)) {
+    throw new Error("Child number $ChildIndex of $HostClassName has the type " +
+        n.getClass().getName() + " which is not an instance of $Opt");
   }
-  if (((Opt)n).getNumChildNoTransform() != 0 && !(((Opt)n).getChildNoTransform(0) instanceof #type)) {
-        throw new Error("Optional name() has the type " + ((Opt)n).getChildNoTransform(0).getClass().getName() + " which is not an instance of #type");
+  if ((($Opt) n).getNumChildNoTransform() != 0 && !((($Opt) n).getChildNoTransform(0) instanceof #type)) {
+    throw new Error("Optional name() has the type " +
+        (($Opt) n).getChildNoTransform(0).getClass().getName() +
+        " which is not an instance of #type");
   }
 }
 ]]

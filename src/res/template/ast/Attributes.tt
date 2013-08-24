@@ -60,7 +60,7 @@ $if(LazyMaps)
   /**
    * @apilevel internal
    */
-  protected List #(attributeSignature)_list;
+  protected $List #(attributeSignature)_list;
 $else
   /**
    * @apilevel internal
@@ -69,7 +69,7 @@ $else
   /**
    * @apilevel internal
    */
-  protected List #(attributeSignature)_list;
+  protected $List #(attributeSignature)_list;
 $endif
 $else
 $if(LazyMaps)
@@ -103,7 +103,7 @@ AttrDecl.emitInlineCompute = [[
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
 $if(RewriteEnabled)
-    ASTNode$$State state = state();
+    $ASTNode$$State state = state();
 $endif
     $include(addInterruptedCircleDeclaration)
     #visitedCheck
@@ -190,7 +190,7 @@ $endif
 SynDecl.higherOrderAttributeCode:norewrite = [[
 $if(#isParameterized)
 if(#(attributeSignature)_list == null) {
-  #(attributeSignature)_list = new List();
+  #(attributeSignature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
   #(attributeSignature)_list.setParent(this);
 }
@@ -203,7 +203,7 @@ $endif
 SynDecl.higherOrderAttributeCode:nostagedrewrites = [[
 $if(#isParameterized)
 if(#(attributeSignature)_list == null) {
-  #(attributeSignature)_list = new List();
+  #(attributeSignature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
   #(attributeSignature)_list.is$$Final = true;
   #(attributeSignature)_list.setParent(this);
@@ -222,7 +222,7 @@ $endif
 SynDecl.higherOrderAttributeCode:stagedrewrites = [[
 $if(#isParameterized)
 if(#(attributeSignature)_list == null) {
-  #(attributeSignature)_list = new List();
+  #(attributeSignature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
   #(attributeSignature)_list.is$$Final = java.lang.Integer.MAX_VALUE;
   #(attributeSignature)_list.setParent(this);
@@ -247,7 +247,7 @@ AttrDecl.genEquation [[
     $include(AttrDecl.cacheCheck)
     $include(AttrDecl.incHookAttrCompStart)
 $if (RewriteEnabled)
-    ASTNode$$State state = state();
+    $ASTNode$$State state = state();
 $endif
     $include(addInterruptedCircleDeclaration)
     #visitedCheck
@@ -293,7 +293,7 @@ ASTDecl.genCircularEquationNoParams [[
     #traceComputeContext
     #parameterStructure
     $include(AttrDecl.cacheCheck)
-    ASTNode$$State state = state();
+    $ASTNode$$State state = state();
     #addComponentCheck
     if (!#(attributeSignature)_initialized) {
       #(attributeSignature)_initialized = true;
@@ -374,13 +374,13 @@ ASTDecl.genCircularEquationWithParams [[
     #traceComputeContext
     #parameterStructure
     #initLazyMaps
-    ASTNode$$State.CircularValue _value;
+    $ASTNode$$State.CircularValue _value;
     $include(AttrDecl.cacheCheck) else {
-      _value = new ASTNode$$State.CircularValue();
+      _value = new $ASTNode$$State.CircularValue();
       #(attributeSignature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
     }
-    ASTNode$$State state = state();
+    $ASTNode$$State state = state();
     #addComponentCheck
     if (!state.IN_CIRCLE) {
       $include(AttrDecl.traceHookCircularEnterCase1)
@@ -527,11 +527,11 @@ $else
 $if(#isCircular)
 if(#(attributeSignature)_values.containsKey(_parameters)) {
   Object _o = #(attributeSignature)_values.get(_parameters);
-  if(!(_o instanceof ASTNode$$State.CircularValue)) {
+  if(!(_o instanceof $ASTNode$$State.CircularValue)) {
     #traceEndCachedAttr
     return $FromRefTypeParamCircular;
   } else {
-    _value = (ASTNode$$State.CircularValue)_o;
+    _value = ($ASTNode$$State.CircularValue) _o;
   }
 }
 $else

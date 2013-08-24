@@ -1,9 +1,9 @@
 /* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,22 +33,22 @@ aspect IncrementalEval {
 
   public void ASTDecl.genIncremental(PrintWriter out) {
     if (!grammar().incremental) return;
-    
+
     TemplateContext tt = templateContext();
-    
-    tt.bind("IsAstNode", name().equals("ASTNode"));
-    tt.bind("IsListNode", name().equals("List"));
-    
+
+    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
+    tt.bind("IsListNode", name().equals(grammar().listType));
+
     tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
-    
+
     tt.expand("List.internalNTAList", out);
-    
+
     tt.bind("NtaIndexCheck", emitNtaIndexCheckString());
     tt.expand("ASTDecl.childIsNtaMethod", out);
-    
+
     genIncrementalHandlers(out);
     genIncrementalCopyHandlers(out);
-    genIncrementalNotification(out);    
+    genIncrementalNotification(out);
     genIncrementalState(out);
     genIncrementalRegions(out);
     genIncrementalDebug(out);
@@ -56,22 +56,22 @@ aspect IncrementalEval {
 
   /**
    * Returns a list of all cached attributes (syn, inh).
-   */ 
+   */
   public ArrayList ASTDecl.listOfCachedAttributes() {
     ArrayList list = new ArrayList();
     for(int k = 0; k < getNumSynEq(); k++) {
        AttrDecl attr = getSynEq(k).decl();
-       if (attr.getLazy() || attr.isCircular()) 
+       if (attr.getLazy() || attr.isCircular())
         list.add(attr);
     }
     for(int k = 0; k < getNumInhDecl(); k++) {
       InhDecl attr = getInhDecl(k);
-       if (attr.getLazy() || attr.isCircular()) 
+       if (attr.getLazy() || attr.isCircular())
         list.add(attr);
     }
     return list;
   }
-  
+
   /**
    * Returns a list of NTAs declared as attributes (syn, inh).
    */
@@ -79,12 +79,12 @@ aspect IncrementalEval {
     ArrayList list = new ArrayList();
     for(int k = 0; k < getNumSynDecl(); k++) {
       AttrDecl attr = getSynDecl(k);
-      if (attr.isNTA()) 
+      if (attr.isNTA())
         list.add(attr);
     }
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
-      if (attr.isNTA()) 
+      if (attr.isNTA())
         list.add(attr);
     }
     return list;

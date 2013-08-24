@@ -1,9 +1,9 @@
 /* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,13 +26,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
  aspect IncrementalNotification {
- 
+
   public void ASTDecl.genIncrementalNotification(PrintWriter out) {
-    if (!grammar().incremental) return; 
-    
+    if (!grammar().incremental) return;
+
     TemplateContext tt = templateContext();
-    
-    tt.bind("IsAstNode", name().equals("ASTNode"));
+
+    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
     if (!grammar().fullFlush) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
@@ -42,25 +42,25 @@
     tt.expand("ASTNode.incRestoreEnclosingRewriteMethod", out);
     tt.expand("ASTNode.incRestoreInitialForIndexMethod", out);
     tt.expand("ASTNode.incLocateInitialCopyMethod", out);
-    
+
     tt.bind("AttrAffectedChecks", emitAttrAffectedChecksString());
     tt.expand("ASTDecl.incValueAffectedMethod", out);
-    
+
     tt.bind("AttrFlushChecks", emitAttrFlushChecksString());
     tt.expand("ASTDecl.incReactToDepChangeMethod", out);
-    
+
     tt.bind("FlushAttrs", emitFlushAttrsString());
     tt.expand("ASTDecl.incFlushMethod", out);
 
-    tt.expand("ASTNode.incFlushChildMethod", out);    
-    
-    tt.bind("IsListNode", name().equals("List"));
-    tt.bind("IsOptNode", name().equals("Opt"));
+    tt.expand("ASTNode.incFlushChildMethod", out);
+
+    tt.bind("IsListNode", name().equals(grammar().listType));
+    tt.bind("IsOptNode", name().equals(grammar().optType));
     tt.bind("FlushNTAs", emitFlushNTAsString());
     tt.expand("ASTDecl.incFlushNTAMethod", out);
-    
+
     tt.expand("ASTDecl.incFlushRegionRootMethod", out);
-    
+
     tt.expand("ASTNode.incCheckRegionForInnerRewriteMethod", out);
 
     tt.bind("FlushNTAsInRegion", emitFlushNTAsInRegionString());
@@ -71,10 +71,10 @@
     tt.bind("FlushNtaSubTrees", emitFlushNtaSubTreesString());
     tt.bind("TransferSetsFromAttrTokenHandlers", emitTransferSetsFromAttrTokenHandlersString());
     tt.expand("ASTDecl.incFlushSubTreeMethod", out);
-    
-    tt.expand("ASTNode.incNotifyForRemoveMethod", out);    
+
+    tt.expand("ASTNode.incNotifyForRemoveMethod", out);
   }
-  
+
   /**
    * Creates string with code flushing NTA substrings.
    */
@@ -83,17 +83,17 @@
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParamAttr", attr.isParamAttr());
       Components comp = attr.findCorrespondingNTA();
       tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA));
       tt.bind("AttrSign", attr.attributeSignature());
-      res.append(tt.expand("ASTDecl.flushNtaSubtree"));    
+      res.append(tt.expand("ASTDecl.flushNtaSubtree"));
     }
     return res.toString();
   }
-  
+
   /**
    * Creates string with code transfering sets from attribute and token handlers.
    */
@@ -115,7 +115,7 @@
     }
     return res.toString();
   }
-  
+
   /**
    * Creates string with code flushing NTAs in region.
    */
@@ -124,7 +124,7 @@
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() 
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
             && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParamAttr", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.attributeSignature());
@@ -136,7 +136,7 @@
     }
     return res.toString();
   }
-  
+
   /**
    * Creates string with code flushing NTAs.
    */
@@ -145,7 +145,7 @@
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
       		!(attr.type().equals("String") || attr.type().equals("java.lang.String")) &&
       		attr.getNumParameter() == 0) {
         Components comp = attr.findCorrespondingNTA();
@@ -153,13 +153,13 @@
           tt.bind("AttrSign", attr.attributeSignature());
           tt.bind("AttrResetVisit", attr.resetVisit());
           tt.bind("AttrResetCache", attr.resetCache());
-          res.append(tt.expand("ASTDecl.ntaFlush"));        
+          res.append(tt.expand("ASTDecl.ntaFlush"));
         }
       }
     }
     return res.toString();
   }
-  
+
   /**
    * Creates string with code checking if the value of an attribute,
    * identified with name and parameters, is a affected by a change.
@@ -168,7 +168,7 @@
   public String ASTDecl.emitAttrAffectedChecksString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    boolean firstAttr = true;      
+    boolean firstAttr = true;
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       res.append(firstAttr ? "" : "else ");
@@ -190,18 +190,18 @@
     }
     return res.toString();
   }
-  
+
   /**
-   * Creates string with code checking if an attribute, identified with 
+   * Creates string with code checking if an attribute, identified with
    * name and parameters, should be flushed and dependencies notified.
-   */  
+   */
   public String ASTDecl.emitAttrFlushChecksString() {
     if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
       return "";
     }
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    boolean firstAttr = true;      
+    boolean firstAttr = true;
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       res.append(firstAttr ? "" : "else ");
@@ -210,8 +210,8 @@
       tt.bind("AttrType", attr.type());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && 
-      		!attr.isPrimitive() && !(attr.type().equals("String") || 
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) &&
+      		!attr.isPrimitive() && !(attr.type().equals("String") ||
       		attr.type().equals("java.lang.String")));
       res.append(tt.expand("ASTDecl.attrFlushCheck"));
       firstAttr = false;
@@ -221,7 +221,7 @@
 
   /**
    * Creates string with code flushing attributes.
-   */    
+   */
   public String ASTDecl.emitFlushAttrsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
@@ -231,12 +231,12 @@
       tt.bind("AttrSign", attr.attributeSignature());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && 
-      		!attr.isPrimitive() && !(attr.type().equals("String") || 
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) &&
+      		!attr.isPrimitive() && !(attr.type().equals("String") ||
       		attr.type().equals("java.lang.String")));
       res.append(tt.expand("ASTDecl.attrFlush"));
     }
     return res.toString();
   }
-  
+
 }

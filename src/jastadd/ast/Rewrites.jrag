@@ -59,7 +59,7 @@ aspect Rewrites {
 
     tt.expand("ASTDecl.emitRewrites.begin", out);
 
-    if(name().equals("List")) {
+    if(name().equals(grammar().listType)) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
         tt.expand("ASTDecl.emitRewrites.touch_list", out);
@@ -72,7 +72,7 @@ aspect Rewrites {
       }
     }
 
-    if(name().equals("ASTNode")) {
+    if(name().equals(grammar().astNodeType)) {
       tt.expand("ASTDecl.emitRewrites.end:ASTNode", out);
     } else if(!unconditional) {
       tt.expand("ASTDecl.emitRewrites.end:!unconditional", out);

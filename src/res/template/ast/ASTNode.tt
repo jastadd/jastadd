@@ -32,12 +32,12 @@ ASTNode.declarations = [[
   /**
    * @apilevel internal
    */
-  private int ASTNode.childIndex;
+  private int $ASTNode.childIndex;
 
   /**
    * @apilevel low-level
    */
-  public int ASTNode.getIndexOfChild(ASTNode node) {
+  public int $ASTNode.getIndexOfChild($ASTNode node) {
     if (node == null) {
       return -1;
     }
@@ -56,43 +56,43 @@ ASTNode.declarations = [[
   /**
    * @apilevel internal
    */
-  public static final boolean ASTNode.generatedWithCircularEnabled = $CircularEnabled;
+  public static final boolean $ASTNode.generatedWithCircularEnabled = $CircularEnabled;
   /**
    * @apilevel internal
    */
-  public static final boolean ASTNode.generatedWithCacheCycle = $CacheCycle;
+  public static final boolean $ASTNode.generatedWithCacheCycle = $CacheCycle;
   /**
    * @apilevel internal
    */
-  public static final boolean ASTNode.generatedWithComponentCheck = $ComponentCheck;
+  public static final boolean $ASTNode.generatedWithComponentCheck = $ComponentCheck;
 
 $if(!JJTree)
   /**
    * Parent pointer
    * @apilevel low-level
    */
-  protected ASTNode ASTNode.parent;
+  protected $ASTNode $ASTNode.parent;
 
   /**
    * Child array
    * @apilevel low-level
    */
-  protected ASTNode[] ASTNode.children;
+  protected $ASTNode[] $ASTNode.children;
 $endif
 
 $if(NoStatic)
   /**
    * @apilevel internal
    */
-  protected ASTNode$$State ASTNode.state = null;
+  protected $ASTNode$$State $ASTNode.state = null;
 
   /**
    * @apilevel internal
    */
-  public final ASTNode$$State ASTNode.state() {
+  public final $ASTNode$$State $ASTNode.state() {
     if(state == null) {
       if(parent == null) {
-        state = new ASTNode$$State();
+        state = new $ASTNode$$State();
         #debugASTNodeState
       } else {
         state = parent.state();
@@ -104,12 +104,12 @@ $else
   /**
    * @apilevel internal
    */
-  protected static ASTNode$$State ASTNode.state = new ASTNode$$State();
+  protected static $ASTNode$$State $ASTNode.state = new $ASTNode$$State();
 
   /**
    * @apilevel internal
    */
-  public final ASTNode$$State ASTNode.state() {
+  public final $ASTNode$$State $ASTNode.state() {
     return state;
   }
 $endif
@@ -118,19 +118,19 @@ $if(RewriteEnabled)
   /**
    * @apilevel internal
    */
-  public boolean ASTNode.in$$Circle = false;
+  public boolean $ASTNode.in$$Circle = false;
 
   /**
    * @apilevel internal
    */
-  public boolean ASTNode.in$$Circle() {
+  public boolean $ASTNode.in$$Circle() {
     return in$$Circle;
   }
 
   /**
    * @apilevel internal
    */
-  public void ASTNode.in$$Circle(boolean b) {
+  public void $ASTNode.in$$Circle(boolean b) {
     in$$Circle = b;
   }
 
@@ -138,7 +138,7 @@ $if(HasRewriteLimit)
   /**
    * @apilevel internal
    */
-  public void ASTNode.debugRewrite(String info) {
+  public void $ASTNode.debugRewrite(String info) {
     if(!parent.is$$Final()) return;
       java.util.ArrayList key = new java.util.ArrayList(2);
       key.add(getParent());
@@ -162,7 +162,7 @@ $if(HasRewriteLimit)
   /**
    * @apilevel internal
    */
-  public void ASTNode.debugRewriteRemove() {
+  public void $ASTNode.debugRewriteRemove() {
     java.util.ArrayList key = new java.util.ArrayList(2);
     key.add(getParent());
     key.add(new Integer(getParent().getIndexOfChild(this)));
@@ -173,36 +173,36 @@ $if(StagedRewrites)
   /**
    * @apilevel internal
    */
-  public int ASTNode.is$$Final = 0;
+  public int $ASTNode.is$$Final = 0;
   /**
    * @apilevel internal
    */
-  public boolean ASTNode.is$$Final() { return is$$Final >= state().rewritePhase; }
+  public boolean $ASTNode.is$$Final() { return is$$Final >= state().rewritePhase; }
   /**
    * @apilevel internal
    */
-  public void ASTNode.is$$Final(int phase) { is$$Final = phase; }
+  public void $ASTNode.is$$Final(int phase) { is$$Final = phase; }
   /**
    * @apilevel internal
    */
-  public void ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }
+  public void $ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }
   /**
    * @apilevel internal
    */
-  public boolean ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }
+  public boolean $ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }
 $else
   /**
    * @apilevel internal
    */
-  public boolean ASTNode.is$$Final = false;
+  public boolean $ASTNode.is$$Final = false;
   /**
    * @apilevel internal
    */
-  public boolean ASTNode.is$$Final() { return is$$Final; }
+  public boolean $ASTNode.is$$Final() { return is$$Final; }
   /**
    * @apilevel internal
    */
-  public void ASTNode.is$$Final(boolean b) { is$$Final = b; }
+  public void $ASTNode.is$$Final(boolean b) { is$$Final = b; }
 $endif
 $endif
 
@@ -214,14 +214,14 @@ $if(DebugMode)
   /**
    * @apilevel internal
    */
-  protected boolean ASTNode.debugNodeAttachmentIsRoot() {
+  protected boolean $ASTNode.debugNodeAttachmentIsRoot() {
     return false;
   }
 
   /**
    * @apilevel internal
    */
-  private static void ASTNode.debugNodeAttachment(ASTNode node) {
+  private static void $ASTNode.debugNodeAttachment($ASTNode node) {
     if(node == null) {
       throw new RuntimeException("Trying to assign null to a tree child node");
     }
@@ -231,7 +231,7 @@ $if(RewriteEnabled)
       if(node.in$$Circle())
         return;
 $endif
-      ASTNode parent = (ASTNode)node.parent;
+      $ASTNode parent = ($ASTNode) node.parent;
       if(parent != null && parent.getIndexOfChild(node) == -1) {
         return;
       }
@@ -249,7 +249,7 @@ ASTNode.iterator = [[
   /**
    * @apilevel low-level
    */
-  public java.util.Iterator<T> ASTNode.iterator() {
+  public java.util.Iterator<T> $ASTNode.iterator() {
     $SynchBegin
     return new java.util.Iterator<T>() {
       private int counter = 0;
@@ -274,7 +274,7 @@ ASTNode.setParent = [[
   /**
    * @apilevel low-level
    */
-  public void ASTNode.setParent(ASTNode node) {
+  public void $ASTNode.setParent($ASTNode node) {
     $SynchBegin
     $include(ASTNode.incHookSetParent)
     parent = node;
@@ -286,15 +286,15 @@ ASTNode.getParent = [[
   /**
    * @apilevel low-level
    */
-  public ASTNode ASTNode.getParent() {
+  public $ASTNode $ASTNode.getParent() {
     $SynchBegin
 $if(RewriteEnabled)
-    if(parent != null && ((ASTNode)parent).is$$Final() != is$$Final()) {
+    if(parent != null && (($ASTNode) parent).is$$Final() != is$$Final()) {
       state().boundariesCrossed++;
     }
 $endif
     $include(ASTNode.incHookGetParent);
-    return (ASTNode)parent;
+    return ($ASTNode) parent;
     $SynchEnd
   }
 ]]
@@ -304,9 +304,9 @@ ASTNode.addChild = [[
     * @apilevel low-level
     */
 $if(Java5)
-  public void ASTNode.addChild(T node) {
+  public void $ASTNode.addChild(T node) {
 $else
-  public void ASTNode.addChild(ASTNode node) {
+  public void $ASTNode.addChild($ASTNode node) {
 $endif
     setChild(node, getNumChildNoTransform());
     $include(ASTNode.incHookAddChild)
@@ -317,12 +317,12 @@ ASTNode.numChildren = [[
   /**
    * @apilevel low-level
    */
-   protected int ASTNode.numChildren;
+   protected int $ASTNode.numChildren;
 
   /**
    * @apilevel low-level
    */
-  protected int ASTNode.numChildren() {
+  protected int $ASTNode.numChildren() {
     $include(ASTNode.incHookNumChildren)
     return numChildren;
   }
@@ -330,7 +330,7 @@ ASTNode.numChildren = [[
   /**
     * @apilevel low-level
     */
-  public int ASTNode.getNumChild() {
+  public int $ASTNode.getNumChild() {
     $SynchBegin
     return numChildren();
     $SynchEnd
@@ -340,7 +340,7 @@ ASTNode.numChildren = [[
     * <p><em>This method does not invoke AST transformations.</em></p>
     * @apilevel low-level
     */
-  public final int ASTNode.getNumChildNoTransform() {
+  public final int $ASTNode.getNumChildNoTransform() {
     $SynchBegin
     return numChildren();
     $SynchEnd
@@ -351,17 +351,17 @@ ASTNode.setChild = [[
   /**
     * @apilevel low-level
     */
-  public void ASTNode.setChild(ASTNode node, int i) {
+  public void $ASTNode.setChild($ASTNode node, int i) {
     $SynchBegin
 $if(DebugMode)
     debugNodeAttachment(node);
 $endif
     $include(ASTNode.incHookSetChild1)
     if(children == null) {
-      children = new ASTNode[#initialChildArraySize];
+      children = new $ASTNode[#initialChildArraySize];
       $include(ASTNode.incHookSetChild2)
     } else if (i >= children.length) {
-      ASTNode c[] = new ASTNode[i << 1];
+      $ASTNode c[] = new $ASTNode[i << 1];
       System.arraycopy(children, 0, c, 0, children.length);
       children = c;
       $include(ASTNode.incHookSetChild3)
@@ -386,18 +386,18 @@ ASTNode.insertChild = [[
   /**
     * @apilevel low-level
     */
-  public void ASTNode.insertChild(ASTNode node, int i) {
+  public void $ASTNode.insertChild($ASTNode node, int i) {
     $SynchBegin
 $if(DebugMode)
     debugNodeAttachment(node);
 $endif
     $include(ASTNode.incHookInsertChild1)
     if(children == null) {
-      children = new ASTNode[#initialChildArraySize];
+      children = new $ASTNode[#initialChildArraySize];
       children[i] = node;
       $include(ASTNode.incHookInsertChild2)
     } else {
-      ASTNode c[] = new ASTNode[children.length + 1];
+      $ASTNode c[] = new $ASTNode[children.length + 1];
       System.arraycopy(children, 0, c, 0, i);
       c[i] = node;
       if(i < children.length) {
@@ -425,11 +425,11 @@ ASTNode.removeChild = [[
   /**
     * @apilevel low-level
     */
-  public void ASTNode.removeChild(int i) {
+  public void $ASTNode.removeChild(int i) {
     $SynchBegin
     if(children != null) {
       $include(ASTNode.incHookRemoveChild1)
-      ASTNode child = (ASTNode)children[i];
+      $ASTNode child = ($ASTNode) children[i];
       if(child != null) {
         $include(ASTNode.incHookRemoveChild2)
         child.parent = null;
@@ -438,14 +438,14 @@ ASTNode.removeChild = [[
       // Adding a check of this instance to make sure its a List, a move of children doesn't make
       // any sense for a node unless its a list. Also, there is a problem if a child of a non-List node is removed
       // and siblings are moved one step to the right, with null at the end.
-      if (this instanceof List || this instanceof Opt) {
+      if (this instanceof $List || this instanceof $Opt) {
         System.arraycopy(children, i+1, children, i, children.length-i-1);
         children[children.length-1] = null;
         numChildren--;
         // fix child indices
         for(int j = i; j < numChildren; ++j) {
           if(children[j] != null) {
-            child = (ASTNode) children[j];
+            child = ($ASTNode) children[j];
             child.childIndex = j;
           }
         }
@@ -464,14 +464,14 @@ ASTNode.getChild = [[
     * @apilevel low-level
     */
 $if(Java5)
-  public T ASTNode.getChild(int i) {
+  public T $ASTNode.getChild(int i) {
 $else
-  public ASTNode ASTNode.getChild(int i) {
+  public $ASTNode $ASTNode.getChild(int i) {
 $endif
 
 $if(RewriteEnabled)
     $SynchBegin
-    ASTNode node = this.getChildNoTransform(i);
+    $ASTNode node = this.getChildNoTransform(i);
     if(node == null) {
       return null;
     }
@@ -498,8 +498,8 @@ $if(RewriteEnabled)
       int rewriteState;
       int num = this.state().boundariesCrossed;
       do {
-        this.state().push(ASTNode$$State.REWRITE_CHANGE);
-        ASTNode oldNode = node;
+        this.state().push($ASTNode$$State.REWRITE_CHANGE);
+        $ASTNode oldNode = node;
         oldNode.in$$Circle(true);
         $include(ASTNode.incHookGetChild5)
         node = node.rewriteTo();
@@ -514,8 +514,8 @@ $if(RewriteEnabled)
         $include(ASTNode.incHookGetChild3)
         $include(ASTNode.flushHookGetChildRewritten)
         $include(ASTNode.incHookGetChild6)
-      } while(rewriteState == ASTNode$$State.REWRITE_CHANGE);
-      if(rewriteState == ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
+      } while(rewriteState == $ASTNode$$State.REWRITE_CHANGE);
+      if(rewriteState == $ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
   $if(StagedRewrites)
         node.is$$Final(this.state().rewritePhase);
   $else
@@ -544,7 +544,7 @@ $if(RewriteEnabled)
 
 $else
     // No rewrites
-    ASTNode child = getChildNoTransform(i);
+    $ASTNode child = getChildNoTransform(i);
     $include(ASTNode.incHookGetChildNT)
     return $(ReturnTypeCast)child;
 $endif
@@ -559,10 +559,10 @@ ASTNode.getChildNoTransform = [[
     */
 $if(Java5)
   $if(IncrementalEnabled)
-  public T ASTNode.getChildNoTransform(int i) {
+  public T $ASTNode.getChildNoTransform(int i) {
   // Must be able to override get child methods for incremental evaluation
   $else
-  public final T ASTNode.getChildNoTransform(int i) {
+  public final T $ASTNode.getChildNoTransform(int i) {
   $endif
     $SynchBegin
     if (children == null) {
@@ -575,16 +575,16 @@ $if(Java5)
   }
 $else
   $if(IncrementalEnabled)
-  public final ASTNode ASTNode.getChildNoTransform(int i) {
+  public final $ASTNode $ASTNode.getChildNoTransform(int i) {
   // Must be able to override get child methods for incremental evaluation
   $else
-  public final ASTNode ASTNode.getChildNoTransform(int i) {
+  public final $ASTNode $ASTNode.getChildNoTransform(int i) {
   $endif
     $SynchBegin
     if (children == null) {
       return null;
     }
-    ASTNode child = (ASTNode)children[i];
+    $ASTNode child = ($ASTNode) children[i];
     $include(ASTNode.incHookGetChildNT)
     return child;
     $SynchEnd
@@ -596,29 +596,29 @@ ASTNode.lineColumnNumbers = [[
   /**
    * Line and column information.
    */
-  protected int ASTNode.startLine;
-  protected short ASTNode.startColumn;
-  protected int ASTNode.endLine;
-  protected short ASTNode.endColumn;
+  protected int $ASTNode.startLine;
+  protected short $ASTNode.startColumn;
+  protected int $ASTNode.endLine;
+  protected short $ASTNode.endColumn;
 
-  public int ASTNode.getStartLine() {
+  public int $ASTNode.getStartLine() {
     return startLine;
   }
-  public short ASTNode.getStartColumn() {
+  public short $ASTNode.getStartColumn() {
     return startColumn;
   }
-  public int ASTNode.getEndLine() {
+  public int $ASTNode.getEndLine() {
     return endLine;
   }
-  public short ASTNode.getEndColumn() {
+  public short $ASTNode.getEndColumn() {
     return endColumn;
   }
 
-  public void ASTNode.setStart(int startLine, short startColumn) {
+  public void $ASTNode.setStart(int startLine, short startColumn) {
     this.startLine = startLine;
     this.startColumn = startColumn;
   }
-  public void ASTNode.setEnd(int endLine, short endColumn) {
+  public void $ASTNode.setEnd(int endLine, short endColumn) {
     this.endLine = endLine;
     this.endColumn = endColumn;
   }

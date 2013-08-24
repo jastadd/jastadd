@@ -139,7 +139,6 @@ aspect CollectionAttributes {
     }
   }
 
-  syn boolean ASTDecl.isASTNode() = name().equals("ASTNode");
   syn boolean TypeDecl.hasCollEq(CollDecl decl) = false;
   eq ASTDecl.hasCollEq(CollDecl decl) {
     for(int i = 0; i < getNumCollEq(); i++)
@@ -221,7 +220,7 @@ aspect CollectionAttributes {
           }
         }
       }
-      if (isASTNode()) {
+      if (isASTNodeDecl()) {
         out.println(grammar().ind(2) + "for(int i = 0; i < getNumChild(); i++)");
         out.println(grammar().ind(3) + "getChild(i).collect_contributors_" + decl.collectingSignature() + "();"); // once per group
       } else {
@@ -313,7 +312,7 @@ aspect CollectionAttributes {
           tt.expand("ASTDecl.nextIteration", out);
         }
       }
-      if(isASTNode()) {
+      if (isASTNodeDecl()) {
         out.println(grammar().ind(2) + "for(int i = 0; i < getNumChild(); i++)");
         out.println(grammar().ind(3) + "getChild(i)." + decl.getTarget() + "_" + firstEq.attributeSignature() + "_next_Iteration(n);"); // once per group
       } else {
@@ -390,7 +389,7 @@ aspect CollectionAttributes {
       TemplateContext tt = attr.templateContext();
 
       boolean separateEvaluation = attr.separateEvaluation();
-      TypeDecl astDecl = env().lookup("ASTNode");
+      TypeDecl astDecl = env().lookup(grammar().astNodeType);
       TypeDecl rootDecl = attr.root();
       if(astDecl != null && rootDecl != null) {
         boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());

@@ -126,7 +126,7 @@ $endif
     $BlockBegin
     #parameterStructure
     $include(AttrDecl.cacheCheck)
-    ASTNode node = this;
+    $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType))
       node = node.getParent();
     #collDebugString

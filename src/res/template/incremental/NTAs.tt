@@ -47,17 +47,17 @@ $if(IsListNode)
   /**
    * @apilevel internal
    */
-  public boolean List.inc_internalNTAList = false;
+  public boolean $List.inc_internalNTAList = false;
 
   /**
    * @apilevel internal
    */
-  public java.util.Map List.inc_internalNTAList_map;
+  public java.util.Map $List.inc_internalNTAList_map;
 
   /**
    * @apilevel internal
    */
-  public void List.inc_internalNTAList(java.util.Map m) {
+  public void $List.inc_internalNTAList(java.util.Map m) {
     inc_internalNTAList = true;
     inc_internalNTAList_map = m;
   }

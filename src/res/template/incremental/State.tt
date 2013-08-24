@@ -36,20 +36,20 @@ $endif
 
 //protected java.util.Stack handlerRewriteStack = new java.util.Stack();
 
-  public void addHandlerDepTo(ASTNode$$DepGraphNode handler) {
+  public void addHandlerDepTo($ASTNode$$DepGraphNode handler) {
     if (!IN_ATTR_STORE_EVAL || handler == null) {
 //  if (!IN_ATTR_STORE_EVAL && !IN_REWRITE_EVAL || handler == null) {
       return;
     }
 $if(IncrementalTrack)
-    ASTNode$$DepGraphNode.trackedReads++;
+    $ASTNode$$DepGraphNode.trackedReads++;
 $endif
     java.util.Stack handlerStack = handlerAttrStack;
-//  if (IN_REWRITE_EVAL) 
+//  if (IN_REWRITE_EVAL)
 //    handlerStack = handlerRewriteStack;
     if (!handlerStack.isEmpty()) {
       //throw new Error("Handler stack is empty at addition of dependency!");
-      ASTNode$$DepGraphNode top = (ASTNode$$DepGraphNode)handlerStack.peek();
+      $ASTNode$$DepGraphNode top = ($ASTNode$$DepGraphNode) handlerStack.peek();
       handler.addDependant(top);
 
 $if(IncrementalPropLimit)
@@ -61,9 +61,9 @@ $endif
 
   public boolean IN_ATTR_STORE_EVAL = false;
 
-  public void enterAttrStoreEval(ASTNode$$DepGraphNode handler) {
+  public void enterAttrStoreEval($ASTNode$$DepGraphNode handler) {
 $if(IncrementalTrack)
-    ASTNode$$DepGraphNode.trackedComputes++;
+    $ASTNode$$DepGraphNode.trackedComputes++;
 $endif
 //  if (!IN_REWRITE_EVAL) {
     IN_ATTR_STORE_EVAL = true;
@@ -72,7 +72,7 @@ $endif
 //  }
   }
 
-  public void exitAttrStoreEval(ASTNode$$DepGraphNode handler) {
+  public void exitAttrStoreEval($ASTNode$$DepGraphNode handler) {
 //  if (!IN_REWRITE_EVAL) {
     popHandler(handlerAttrStack, handler);
     //System.out.println("attr eval stack exit: " + handler.fAttrID);
@@ -82,16 +82,16 @@ $endif
 
 //public boolean IN_REWRITE_EVAL = false;
 
-  public void enterRewriteEval(ASTNode$$DepGraphNode handler) {
+  public void enterRewriteEval($ASTNode$$DepGraphNode handler) {
     enterAttrStoreEval(handler);
 //  if (grammar().incrementalTrack) {
-//    ASTNode$$DepGraphNode.trackedComp++;
+//    $ASTNode$$DepGraphNode.trackedComp++;
 //  }
 //  IN_REWRITE_EVAL = true;
 //  pushHandler(handlerRewriteStack, handler);
   }
 
-  public void exitRewriteEval(ASTNode$$DepGraphNode handler) {
+  public void exitRewriteEval($ASTNode$$DepGraphNode handler) {
     exitAttrStoreEval(handler);
 //  if (IN_REWRITE_EVAL) {
 //    popHandler(handlerRewriteStack, handler);
@@ -114,7 +114,7 @@ $endif
     IN_CONSTRUCTION = false;
   }
 
-  protected void pushHandler(java.util.Stack stack, ASTNode$$DepGraphNode handler) {
+  protected void pushHandler(java.util.Stack stack, $ASTNode$$DepGraphNode handler) {
 $if(IncrementalPropLimit)
     // assume that evaluation will be clean from cached values
     handler.noCacheRead = true;
@@ -122,15 +122,15 @@ $endif
     stack.push(handler);
   }
 
-  protected ASTNode$$DepGraphNode popHandler(java.util.Stack stack, ASTNode$$DepGraphNode handler) {
+  protected $ASTNode$$DepGraphNode popHandler(java.util.Stack stack, $ASTNode$$DepGraphNode handler) {
     if (stack.isEmpty())
       throw new Error("Handler stack is empty at exit!");
-    ASTNode$$DepGraphNode h = (ASTNode$$DepGraphNode)stack.pop();
+    $ASTNode$$DepGraphNode h = ($ASTNode$$DepGraphNode)stack.pop();
 //  Skip this for now, deal with transitive dependencies later
 //  if (grammar().incrementalPropLimit) {
 //    h.setCacheInDependent(h.noCacheRead);
 //    if (!stack.isEmpty()) {
-//      ASTNode$$DepGraphNode top = (ASTNode$$DepGraphNode)stack.peek();
+//      $ASTNode$$DepGraphNode top = ($ASTNode$$DepGraphNode) stack.peek();
 //      top.noCacheRead &= h.noCacheRead;
 //    }
 //  }
@@ -139,7 +139,7 @@ $endif
 //    throw new Error("Top of handler stack does not match at pop! [" + handler.fAttrID + "]");
     return h;
   }
-  
+
 $endif
 ]]
 
@@ -162,12 +162,12 @@ ASTDecl.incChangeStateMethod = [[
 public void #name.inc_changeState(int newState) {
 $if(IsAstNode)
   inc_state = newState;
-      
+
   $if(IncrementalLevelParam)
   getParent_handler.changeState(newState);
   numChildren_handler.changeState(newState);
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (getChild_handler[i] != null) {
       getChild_handler[i].changeState(newState);
     }
@@ -176,13 +176,13 @@ $if(IsAstNode)
     }
   }
   $endif
-      
+
   $if(IncrementalLevelAttr)
   getParent_handler.changeState(newState);
   numChildren_handler.changeState(newState);
   getChild_handler.changeState(newState);
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child != null) {
       child.inc_changeState(newState);
     }
@@ -192,7 +192,7 @@ $if(IsAstNode)
   $if(IncrementalLevelNode)
   handler.changeState(newState);
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child != null) {
       child.inc_changeState(newState);
     }
@@ -204,7 +204,7 @@ $if(IsAstNode)
     handler().changeState(newState);
   }
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child != null) {
       child.inc_changeState(newState);
     }
@@ -244,7 +244,7 @@ if ($(AttrSign)_handler != null) {
   $(AttrSign)_handler.changeState(newState);
 }
 $endif
-$endif  
+$endif
 $if(IncrementalLevelAttr)
 if ($(AttrSign)_handler != null) {
   $(AttrSign)_handler.changeState(newState);
@@ -256,7 +256,7 @@ if ($(AttrSign)_list != null) {
   $(AttrSign)_list.inc_changeState(newState);
 }
 $else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.inc_changeState(newState);
 }
 $endif
@@ -274,7 +274,7 @@ $if(IsAstNode)
   getParent_handler.throwAway();
   numChildren_handler.throwAway();
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (getChild_handler[i] != null) {
       getChild_handler[i].throwAway();
     }
@@ -291,7 +291,7 @@ $if(IsAstNode)
   numChildren_handler.throwAway();
   getChild_handler.throwAway();
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child != null) {
       child.inc_throwAway();
     }
@@ -303,7 +303,7 @@ $if(IsAstNode)
   $if(IncrementalLevelNode)
   handler.throwAway();
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child != null) {
       child.inc_throwAway();
     }
@@ -317,7 +317,7 @@ $if(IsAstNode)
     handler().throwAway();
   }
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child != null) {
       child.inc_throwAway();
     }
@@ -331,7 +331,7 @@ $else
 $endif
   $ThrowAwayTokens
   $ThrowAwayAttributes
-}    
+}
 ]]
 
 ASTDecl.throwAwayTokenHandler = [[
@@ -359,7 +359,7 @@ if ($(AttrSign)_handler != null) {
   $(AttrSign)_handler.throwAway();
 }
 $endif
-$endif  
+$endif
 $if(IncrementalLevelAttr)
 if ($(AttrSign)_handler != null) {
   $(AttrSign)_handler.throwAway();
@@ -371,7 +371,7 @@ if ($(AttrSign)_list != null) {
   $(AttrSign)_list.inc_throwAway();
 }
 $else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.inc_throwAway();
 }
 $endif
@@ -380,10 +380,10 @@ $endif
 
 ASTDecl.incStateFields = [[
 $if(IsAstNode)
-public static final int ASTNode.inc_CREATED = 0;  
-public static final int ASTNode.inc_CLONED = 1;  
-public static final int ASTNode.inc_LIVE = 2;  
-public static final int ASTNode.inc_GARBAGE = 3;  
-public int ASTNode.inc_state = inc_CREATED;  
+public static final int $ASTNode.inc_CREATED = 0;
+public static final int $ASTNode.inc_CLONED = 1;
+public static final int $ASTNode.inc_LIVE = 2;
+public static final int $ASTNode.inc_GARBAGE = 3;
+public int $ASTNode.inc_state = inc_CREATED;
 $endif
 ]]

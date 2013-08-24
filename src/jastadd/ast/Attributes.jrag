@@ -1202,11 +1202,16 @@ public aspect Attributes {
   }
 
 
-  syn String AttrDecl.interfaceParameters() = "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
-  syn String AttrDecl.interfaceParametersDecl() = "ASTNode caller, ASTNode child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
+  syn String AttrDecl.interfaceParameters() =
+    "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
+
+  syn String AttrDecl.interfaceParametersDecl() =
+    grammar().astNodeType + " caller, " + grammar().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
 
   syn String AttrEq.interfaceParameters() = "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
-  syn String AttrEq.interfaceParametersDecl() = "ASTNode caller, ASTNode child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
+
+  syn String AttrEq.interfaceParametersDecl() =
+    grammar().astNodeType + " caller, " + grammar().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
 
   public org.jastadd.jrag.AST.SimpleNode Rewrite.condition;
   public org.jastadd.jrag.AST.SimpleNode Rewrite.getCondition() {

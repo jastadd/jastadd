@@ -28,11 +28,11 @@
 # Generate code for a method creating a relative node id.
 ASTDecl.relativeNodeIDMethod = [[
 $if (IsAstNode)
-public String ASTNode.relativeNodeID() {
+public String $ASTNode.relativeNodeID() {
   String path = "";
-  ASTNode node = this;
+  $ASTNode node = this;
   while (node != null) {
-    ASTNode parent = node.parent;
+    $ASTNode parent = node.parent;
     int index = -1;
     if (parent != null) {
       for (int i = 0; parent.children != null && i < parent.children.length; i++) {
@@ -57,9 +57,9 @@ $endif
 ASTDecl.relativeNodeIDMethodWithRewrite = [[
 $if(!IncrementalDebug)
 $if (IsAstNode)
-public String ASTNode.relativeNodeID() {
+public String $ASTNode.relativeNodeID() {
   StringBuffer res = new StringBuffer();
-  ASTNode parent = this.parent;
+  $ASTNode parent = this.parent;
   int index = -1;
   if (parent != null) {
     res.append(parent.relativeNodeID() + "/");
@@ -83,12 +83,12 @@ $endif
 # Generate code for a method returning a string with attribute parameter values
 ASTDecl.printParamListMethod = [[
 $if (IsAstNode)
-protected String ASTNode.printParamList(java.util.List paramList) {
+protected String $ASTNode.printParamList(java.util.List paramList) {
   StringBuffer buf = new StringBuffer();
   for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {
     Object o = itr.next();
-    if (o instanceof ASTNode) {
-      buf.append(((ASTNode)o).relativeNodeID());
+    if (o instanceof $ASTNode) {
+      buf.append((($ASTNode) o).relativeNodeID());
     } else {
       buf.append(o.toString());
     }
@@ -102,11 +102,11 @@ $endif
 # Generate code for method printing a value
 ASTDecl.printValueMethod = [[
 $if (IsAstNode)
-protected String ASTNode.printValue(Object value) {
+protected String $ASTNode.printValue(Object value) {
   if (value == null) {
     return "null";
   }
-  if (value instanceof ASTNode && ((ASTNode)value).inc_state == inc_GARBAGE) {
+  if (value instanceof $ASTNode && (($ASTNode) value).inc_state == inc_GARBAGE) {
     throw new Error("Cached value is garbage");
   }
   return value.toString();
@@ -121,7 +121,7 @@ $if (IsAstNode)
   // Rewritten children
   for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {
     if (rewritten_children[k]) {
-      System.out.println(children[k].relativeNodeID() + " rewritten, initial=" + 
+      System.out.println(children[k].relativeNodeID() + " rewritten, initial=" +
         (init_children[k] != null ? init_children[k].relativeNodeID() : null));
     }
   }
@@ -139,12 +139,12 @@ ASTDecl.dumpCachedAttributeValue = [[
 $if (IsParamAttr)
 if ($(AttrSign)_values != null) {
   for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator();itr.hasNext();) {
-    Object key = (Object)itr.next(); 
+    Object key = (Object)itr.next();
     Object value = $(AttrSign)_values.get(key);
     System.out.println("value(" + relativeNodeID() + ":$(AttrSign)[" +
-      (key instanceof ASTNode ? ((ASTNode)key).relativeNodeID() : 
-        (key instanceof java.util.List ? printParamList((java.util.List)key) : key) ) + "], " + 
-      (value instanceof ASTNode ? ((ASTNode)value).relativeNodeID() : printValue(value)) + ")");
+      (key instanceof $ASTNode ? (($ASTNode) key).relativeNodeID() :
+        (key instanceof java.util.List ? printParamList((java.util.List)key) : key) ) + "], " +
+      (value instanceof $ASTNode ? (($ASTNode) value).relativeNodeID() : printValue(value)) + ")");
   }
 }
 $else
@@ -153,8 +153,8 @@ $if (PrintAsObject)
   System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
 $else
   Object obj = $(AttrSign)_value;
-  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + 
-    (obj instanceof ASTNode ? ((ASTNode)obj).relativeNodeID() : obj) + ")");
+  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " +
+    (obj instanceof $ASTNode ? (($ASTNode) obj).relativeNodeID() : obj) + ")");
 $endif
 }
 $endif
@@ -181,7 +181,7 @@ $endif
 $if (IncrementalLevelNode)
   handler.dumpDeps();
 $endif
-$endif 
+$endif
 $if (IncrementalLevelRegion)
 $if (IsRegionRoot)
   handler.dumpDeps();
@@ -192,7 +192,7 @@ $endif
   // TODO: dump collection attribute dependencies
 $if (!IsAstNode)
 $if (IncrementalLevelRegion)
-$if (!IsRegionRoot) 
+$if (!IsRegionRoot)
   super.dumpDependencies();
 $endif
 $else
@@ -202,7 +202,7 @@ $endif
 }
 ]]
 
-# Generate code for checking a token handler and dumping its dependencies 
+# Generate code for checking a token handler and dumping its dependencies
 ASTDecl.checkAndDumpTokenDeps = [[
 if (get$(Id)_handler != null) {
   get$(Id)_handler.dumpDeps();
@@ -216,7 +216,7 @@ $if (IsParamAttr)
 for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
   handler.dumpDeps();
-}    
+}
 $else
 if ($(AttrSign)_handler != null) {
   $(AttrSign)_handler.dumpDeps();
@@ -228,11 +228,11 @@ if ($(AttrSign)_list != null) {
   $(AttrSign)_list.dumpDependencies();
 }
 $else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.dumpDependencies();
 }
 $endif
-$endif        
+$endif
 $endif
 $if (IncrementalLevelAttr)
 if ($(AttrSign)_handler != null) {
@@ -244,11 +244,11 @@ if ($(AttrSign)_list != null) {
   $(AttrSign)_list.dumpDependencies();
 }
 $else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.dumpDependencies();
 }
 $endif
-$endif         
+$endif
 $endif
 ]]
 
@@ -257,7 +257,7 @@ ASTDecl.dumpDepsInTreeMethod = [[
 public void #name.dumpDepsInTree() {
   dumpDependencies();
   for (int i = 0; children != null && i < children.length; i++) {
-    ASTNode child = children[i];
+    $ASTNode child = children[i];
     if (child == null) {
       continue;
     }
@@ -274,7 +274,7 @@ if ($(AttrSign)_list != null) {
   $(AttrSign)_list.dumpDepsInTree();
 }
 $else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof ASTNode)) {
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.dumpDepsInTree();
 }
 $endif

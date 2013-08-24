@@ -44,7 +44,9 @@ import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Components;
 import org.jastadd.ast.AST.Grammar;
+import org.jastadd.ast.AST.List;
 import org.jastadd.ast.AST.TokenComponent;
+import org.jastadd.ast.AST.TypeDecl;
 
 /**
  * JastAdd main class.
@@ -277,7 +279,7 @@ public class JastAdd {
         org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
         jp.root = root;
         jp.setFileName("");
-        jp.className = "ASTNode";
+        jp.className = root.astNodeType;
         jp.pushTopLevelOrAspect(true);
         try {
           while(true)
@@ -334,8 +336,8 @@ public class JastAdd {
     org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
         new java.io.StringReader(writer.toString()));
     jp.root = root;
-    jp.setFileName("ASTNode");
-    jp.className = "ASTNode";
+    jp.setFileName(root.astNodeType);
+    jp.className = root.astNodeType;
     jp.pushTopLevelOrAspect(true);
     try {
       while(true)
@@ -354,8 +356,8 @@ public class JastAdd {
       org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
           new java.io.StringReader(writer.toString()));
       jp.root = root;
-      jp.setFileName("ASTNode");
-      jp.className = "ASTNode";
+      jp.setFileName(root.astNodeType);
+      jp.className = root.astNodeType;
       jp.pushTopLevelOrAspect(true);
       try {
         while(true)
@@ -374,8 +376,8 @@ public class JastAdd {
 
     org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(writer.toString()));
     jp.root = root;
-    jp.setFileName("ASTNode");
-    jp.className = "ASTNode";
+    jp.setFileName(root.astNodeType);
+    jp.className = root.astNodeType;
     jp.pushTopLevelOrAspect(true);
     try {
       while(true)
@@ -397,8 +399,9 @@ public class JastAdd {
           Ast parser = new Ast(new FileInputStream(fileName));
           parser.fileName = fileName;
           Grammar g = parser.Grammar();
-          for(int i = 0; i < g.getNumTypeDecl(); i++) {
-            root.addTypeDecl(g.getTypeDecl(i));
+          List<TypeDecl> typeDecls = g.getTypeDeclListNoTransform();
+          for(int i = 0; i < typeDecls.getNumChildNoTransform(); i++) {
+            root.addTypeDecl(typeDecls.getChildNoTransform(i));
           }
 
           // EMMA_2011-12-12: Adding region declarations for incremental evaluation

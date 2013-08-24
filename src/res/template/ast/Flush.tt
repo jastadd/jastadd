@@ -29,7 +29,7 @@ ASTNode.flushHookSetChildCopyState = [[
 $if(FullFlush)
 
 if (init_children != null) {
-  ASTNode d[] = new ASTNode[i << 1];
+  $ASTNode d[] = new $ASTNode[i << 1];
   System.arraycopy(init_children, 0, d, 0, init_children.length);
   init_children = d;
 }
@@ -56,7 +56,7 @@ ASTNode.flushHookInsertChildUpdateState = [[
 $if(FullFlush)
 
 if (init_children != null) {
-  ASTNode d[] = new ASTNode[init_children.length + 1];
+  $ASTNode d[] = new $ASTNode[init_children.length + 1];
   System.arraycopy(init_children, 0, d, 0, init_children.length);
   if (i < init_children.length) {
     System.arraycopy(init_children, i, d, i+1, init_children.length - i);
@@ -91,7 +91,7 @@ $endif
 ASTNode.flushHookGetChildInit = [[
 $if(FullFlush)
 if(this.init_children == null) {
-  this.init_children = new ASTNode[this.children.length];
+  this.init_children = new $ASTNode[this.children.length];
   this.rewritten_children = new boolean[this.children.length];
 }
 $endif
@@ -108,7 +108,7 @@ $endif
 
 ASTNode.flushHookGetChildRewritten = [[
 $if(FullFlush)
-if (rewriteState == ASTNode$$State.REWRITE_CHANGE) {
+if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
   this.rewritten_children[i] = true;
 }
 $endif
@@ -121,11 +121,11 @@ $if(IsAstNode)
   /**
    * @apilevel internal
    */
-  public ASTNode[] ASTNode.init_children;
+  public $ASTNode[] $ASTNode.init_children;
   /**
    * @apilevel internal
    */
-  public boolean[] ASTNode.rewritten_children;
+  public boolean[] $ASTNode.rewritten_children;
 $endif
 ]]
 
@@ -136,9 +136,9 @@ $if(IsAstNode)
   /**
     * @apilevel internal
     */
-  protected boolean ASTNode.inc_hasEnclosingRewrittenNode() {
-    ASTNode child = this;
-    ASTNode parent = this.parent;
+  protected boolean $ASTNode.inc_hasEnclosingRewrittenNode() {
+    $ASTNode child = this;
+    $ASTNode parent = this.parent;
     while (parent != null) {
       if (parent.mayHaveRewrite()) {
         return true;
@@ -197,7 +197,7 @@ ASTDecl.flushCollectionCacheMethod = [[
 
 TokenComponent.flushNTACache = [[
 $if(FullFlush)
-if (((Object)token$(TypeSign)_$Id) instanceof ASTNode) {
+if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
   token$(TypeSign)_$Id = null;
 }
 $endif

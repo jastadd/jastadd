@@ -33,9 +33,9 @@ $if(IncrementalLevelParam)
   /**
    * @api internal
    */
-   protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
-     ASTNode child = this;
-     ASTNode parent = this.parent;
+   protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
+     $ASTNode child = this;
+     $ASTNode parent = this.parent;
      while (parent != null) {
        if (child.mayHaveRewrite()) {
          return parent;
@@ -50,9 +50,9 @@ $if(IncrementalLevelAttr)
   /**
    * @api internal
    */
-   protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
-     ASTNode child = this;
-     ASTNode parent = this.parent;
+   protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
+     $ASTNode child = this;
+     $ASTNode parent = this.parent;
      while (parent != null) {
        if (child.mayHaveRewrite()) {
          return parent;
@@ -67,8 +67,8 @@ $if(IncrementalLevelNode)
   /**
    * @api internal
    */
-  protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
-    ASTNode node = parent;
+  protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
+    $ASTNode node = parent;
     while (node != null) {
       if (node.mayHaveRewrite()) {
         return node;
@@ -82,8 +82,8 @@ $if(IncrementalLevelRegion)
   /**
    * @api internal
    */
-  protected ASTNode ASTNode.inc_locateEnclosingRewrittenNode() {
-    ASTNode node = parent;
+  protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
+    $ASTNode node = parent;
     while (node != null) {
       if (node.mayHaveRewrite()) {
         return node;
@@ -105,7 +105,7 @@ $if(!FullFlush)
   /**
    * @api internal
    */
-  protected void ASTNode.inc_resetRewrites() {
+  protected void $ASTNode.inc_resetRewrites() {
     for (int i = 0; i < numChildren; i++) {
       if (rewritten_children != null && i < rewritten_children.length) {
         rewritten_children[i] = false;
@@ -131,9 +131,9 @@ $if(IncrementalLevelParam)
   /**
    * @api internal
    */
-  protected void ASTNode.inc_restoreEnclosingRewrite() {
-    ASTNode child = this;
-    ASTNode parent = this.parent;
+  protected void $ASTNode.inc_restoreEnclosingRewrite() {
+    $ASTNode child = this;
+    $ASTNode parent = this.parent;
     while (parent != null) {
       int index = -1;
       for (int i = 0; i < parent.children.length; i++) {
@@ -161,9 +161,9 @@ $if(IncrementalLevelParam)
   /**
    * @api internal
    */
-  protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
+  protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
-      ASTNode oldNode = children[index];
+      $ASTNode oldNode = children[index];
       state().enterConstruction();
       setChild(init_children[index], index);
       state().exitConstruction();
@@ -179,9 +179,9 @@ $if(IncrementalLevelAttr)
   /**
    * @api internal
    */
-  protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
+  protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
-      ASTNode oldNode = children[index];
+      $ASTNode oldNode = children[index];
       state().enterConstruction();
       setChild(init_children[index], index);
       state().exitConstruction();
@@ -197,9 +197,9 @@ $if(IncrementalLevelNode)
   /**
    * @api internal
    */
-  protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
+  protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
-      ASTNode oldNode = children[index];
+      $ASTNode oldNode = children[index];
       state().enterConstruction();
       setChild(init_children[index], index);
       state().exitConstruction();
@@ -214,9 +214,9 @@ $if(IncrementalLevelRegion)
   /**
    * @api internal
    */
-  protected boolean ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
+  protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
-      ASTNode oldNode = children[index];
+      $ASTNode oldNode = children[index];
       state().enterConstruction();
       setChild(init_children[index], index);
       state().exitConstruction();
@@ -237,10 +237,10 @@ $if(IsAstNode)
   /**
    * @api internal
    */
-  protected ASTNode ASTNode.inc_locateInitialCopy() {
+  protected $ASTNode $ASTNode.inc_locateInitialCopy() {
     // locate enclosing rewrite
-    ASTNode child = this;
-    ASTNode parent = getParent();
+    $ASTNode child = this;
+    $ASTNode parent = getParent();
     java.util.LinkedList indexList = new java.util.LinkedList();
     while (parent != null) {
       int index = child.childIndex;

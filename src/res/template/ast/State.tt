@@ -29,7 +29,7 @@ ASTNode$State = [[
 /**
  * @apilevel internal
  */
-public class ASTNode$$State {
+public class $ASTNode$$State {
 $if(CircularEnabled)
   $if(CacheCycle)
   /**
@@ -73,11 +73,11 @@ $if(CircularEnabled)
    * @apilevel internal
    */
   static class CircularEvalEntry {
-    ASTNode node;
+    $ASTNode node;
     String attrName;
     Object parameters;
 
-    public CircularEvalEntry(ASTNode node, String attrName, Object parameters) {
+    public CircularEvalEntry($ASTNode node, String attrName, Object parameters) {
       this.node = node;
       this.attrName = attrName;
       this.parameters = parameters;
@@ -98,11 +98,11 @@ $if(CircularEnabled)
     }
   }
 
-  public void addEvalEntry(ASTNode node, String attrName, Object parameters) {
+  public void addEvalEntry($ASTNode node, String attrName, Object parameters) {
     circularEvalSet.add(new CircularEvalEntry(node,attrName,parameters));
   }
 
-  public boolean containsEvalEntry(ASTNode node, String attrName, Object parameters) {
+  public boolean containsEvalEntry($ASTNode node, String attrName, Object parameters) {
     return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));
   }
 
@@ -161,7 +161,7 @@ $if(RewriteEnabled)
 
   private int pos;
 
-  public ASTNode$$State() {
+  public $ASTNode$$State() {
     stack = new int[64];
     pos = 0;
   }
@@ -298,7 +298,7 @@ ASTNode$State.reset = [[
   /**
    * @apilevel internal
    */
-  public void ASTNode$$State.reset() {
+  public void $ASTNode$$State.reset() {
     $SynchBegin
 $if(CircularEnabled)
     IN_CIRCLE = false;

@@ -1,9 +1,9 @@
 /* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -29,7 +29,7 @@ aspect Flush {
 
   public void ASTDecl.emitFlushCache(PrintWriter out) {
     TemplateContext tt = templateContext();
-    tt.bind("IsAstNode", name().equals("ASTNode"));
+    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
     tt.bind("FlushNTACache", emitFlushNTACacheString());
     tt.bind("FlushSynAttrCache", emitFlushSynAttrCacheString());
     tt.bind("FlushInhAttrCache", emitFlushInhAttrCacheString());
@@ -39,12 +39,12 @@ aspect Flush {
     if (grammar().fullFlush) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
-    }    
+    }
   }
-  
+
   /**
    * Creates string with code flush synthesized attributes in a node.
-   */  
+   */
   public String ASTDecl.emitFlushSynAttrCacheString() {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
@@ -59,7 +59,7 @@ aspect Flush {
 
   /**
    * Creates string with code flush inherited attributes in a node.
-   */  
+   */
   public String ASTDecl.emitFlushInhAttrCacheString() {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumInhDecl(); k++) {
@@ -69,7 +69,7 @@ aspect Flush {
     }
     return res.toString();
   }
-  
+
   syn String AttrDecl.resetCache() = resetCache("");
 
   public String AttrDecl.resetCache(String prefix) {
@@ -105,16 +105,16 @@ aspect Flush {
                  signature + "_list = null;";
         else
           return signature + "_values = " + grammar().createDefaultMap + ";\n" +
-                 signature + "_list = null;\n";        
+                 signature + "_list = null;\n";
       } else {
         if(grammar().lazyMaps)
           return signature + "_values = null;\n";
         else
           return signature + "_values = " + grammar().createDefaultMap + ";\n";
-      }        
+      }
     }
   }
-  
+
   /**
    * Creates string with code flushing NTAs in a node.
    */
@@ -138,7 +138,7 @@ aspect Flush {
 
   /**
    * Creates string with code flushing collection attributes in a node.
-   */  
+   */
   public String ASTDecl.emitFlushCollectionCacheString() {
     StringBuffer res = new StringBuffer();
     for(int i = 0; i < getNumCollDecl(); i++) {

@@ -64,8 +64,11 @@ aspect ASTErrors {
   }
 
   syn boolean TypeDecl.isRootNode() = false;
-  eq ASTDecl.isRootNode() = !hasAbstract() && !name().equals("ASTNode")
-    && !name().equals("Opt") && !name().equals("List") && fathers().isEmpty();
+  eq ASTDecl.isRootNode() =
+    !hasAbstract() &&
+    !name().equals(grammar().astNodeType) &&
+    !name().equals(grammar().optType) &&
+    !name().equals(grammar().listType) && fathers().isEmpty();
 
   // TODO add filename, line, col
   TypeDecl contributes new Problem.Error(

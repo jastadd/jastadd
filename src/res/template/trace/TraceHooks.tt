@@ -28,7 +28,7 @@
 
 ASTNode.emitNodeToStringMethod = [[
 $if (TracingEnabled)
-public static String ASTNode.nodeToString(ASTNode node) {
+public static String $ASTNode.nodeToString($ASTNode node) {
   return (node != null ? node.getClass().getSimpleName() : "null");
 }
 $endif
@@ -148,7 +148,7 @@ $endif
 
 ASTNode.traceHookRewriteChange = [[
 $if (TracingEnabled)
-if (this.state().peek() == ASTNode$$State.REWRITE_CHANGE) {
+if (this.state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
   Tracer.traceRewriteChange(this, "ASTNode.child", "" + i, 
       nodeToString(oldNode) + "->" + nodeToString(node));
 }
