@@ -28,7 +28,7 @@
 # Generate method for copying of DDG nodes
 ASTDecl.incrementalCopyHandlerMethod = [[
   protected void #name.inc_copyHandlers(#name copy) {
-$if (IsASTNode)
+$if (#isASTNodeDecl)
 $if (IncrementalLevelParam)
     // ast handlers
     if (getChild_handler != null) {

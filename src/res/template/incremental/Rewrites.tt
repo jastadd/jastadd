@@ -28,7 +28,7 @@
 ASTNode.incFlushRewritesLocateEnclosingRewriteMethod = [[
 $if(IncrementalEnabled)
 $if(!FullFlush)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
    * @api internal
@@ -100,7 +100,7 @@ $endif
 
 ASTNode.incResetRewritesMethod = [[
 $if(IncrementalEnabled)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 $if(!FullFlush)
   /**
    * @api internal
@@ -126,7 +126,7 @@ $endif
 
 ASTNode.incRestoreEnclosingRewriteMethod = [[
 $if(IncrementalEnabled)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
    * @api internal
@@ -156,7 +156,7 @@ $endif
 
 ASTNode.incRestoreInitialForIndexMethod = [[
 $if(IncrementalEnabled)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
    * @api internal
@@ -233,7 +233,7 @@ $endif
 
 ASTNode.incLocateInitialCopyMethod = [[
 $if(IncrementalEnabled)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */

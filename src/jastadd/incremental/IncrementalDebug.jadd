@@ -35,7 +35,6 @@ aspect IncrementalDebug {
   public void ASTDecl.genIncrementalDebug(PrintWriter out) {
     if (!grammar().incrementalDebug) return;
     TemplateContext tt = templateContext();
-    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
     tt.expand("ASTDecl.relativeNodeIDMethod", out);
     tt.expand("ASTDecl.printParamListMethod", out);
     tt.expand("ASTDecl.printValueMethod", out);

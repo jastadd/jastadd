@@ -35,7 +35,7 @@ $if(IncrementalPropLimit)
    */
   public boolean #name.inc_valueAffected(String attrID, Object _parameters) {
     $AttrAffectedChecks
-    $if(IsAstNode)
+    $if(#isASTNodeDecl)
     return true;
     $else
     return super.inc_valueAffected(attrID, _parameters);
@@ -131,7 +131,7 @@ $if(IncrementalLevelParam)
     $if(IncrementalChangeFlush)
     $include(ASTDecl.incChangeFlush)
     $endif
-    $if(!IsAstNode)
+    $if(!#isASTNodeDecl)
     super.reactToDependencyChange(attrID, _parameters);
     $endif
   }
@@ -145,14 +145,14 @@ $if(IncrementalLevelAttr)
     $if(IncrementalChangeFlush)
     $include(ASTDecl.incChangeFlush)
     $endif
-    $if(!IsAstNode)
+    $if(!#isASTNodeDecl)
     super.reactToDependencyChange(attrID);
     $endif
   }
 $endif
 
 $if(IncrementalLevelNode)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -175,7 +175,7 @@ $if(#isRegionRoot)
     $endif
   }
 $else
-  $if(IsAstNode)
+  $if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -193,7 +193,7 @@ $if(IncrementalChangeFlush)
 
 // flush children
 $if(IncrementalLevelParam)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 if (attrID.equals("getChild")) {
   int i = (Integer)_parameters;
   if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
@@ -224,7 +224,7 @@ $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 if (attrID.equals("getChild")) {
   if (inc_checkRegionForInnerRewrite()) {
     $ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
@@ -279,7 +279,7 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_valu
   $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.remove(_parameters);
   handler.throwAway();
   handler.notifyDependencies();
-  $if(!IsAstNode)
+  $if(!#isASTNodeDecl)
   super.reactToDependencyChange(attrID, _parameters);
   $endif
   return;
@@ -296,7 +296,7 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
   $AttrResetVisit
   $AttrResetCache
   $(AttrSign)_handler.notifyDependencies();
-  $if(!IsAstNode)
+  $if(!#isASTNodeDecl)
   super.reactToDependencyChange(attrID, _parameters);
   $endif
   return;
@@ -317,7 +317,7 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && !$(AttrSign)_val
   $AttrResetVisit
   $AttrResetCache
   $(AttrSign)_handler.notifyDependencies();
-  $if(!IsAstNode)
+  $if(!#isASTNodeDecl)
   super.reactToDependencyChange(attrID);
   $endif
   return;
@@ -334,7 +334,7 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
   $AttrResetVisit
   $AttrResetCache
   $(AttrSign)_handler.notifyDependencies();
-  $if(!IsAstNode)
+  $if(!#isASTNodeDecl)
   super.reactToDependencyChange(attrID);
   $endif
   return;
@@ -352,7 +352,7 @@ $if(IncrementalLevelNode)
    */
   public void #name.inc_flush() {
     $FlushAttrs
-$if(!IsAstNode)
+$if(!#isASTNodeDecl)
     super.inc_flush();
 $endif
   }
@@ -363,7 +363,7 @@ $if(IncrementalLevelRegion)
    */
   public void #name.inc_flush() {
     $FlushAttrs
-$if(!IsAstNode)
+$if(!#isASTNodeDecl)
     super.inc_flush();
 $endif
   }
@@ -393,7 +393,7 @@ $endif
 ASTNode.incFlushChildMethod = [[
 $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 
 $if(IncrementalLevelNode)
   /**
@@ -437,7 +437,7 @@ $if(IncrementalLevelNode)
    * @api internal
    */
   public boolean #name.inc_flush_NTA($ASTNode node) {
-  $if(IsListNode)
+  $if(#isListDecl)
     if (inc_internalNTAList) {
       state().enterConstruction();
       int childIndex = getIndexOfChild(node);
@@ -470,7 +470,7 @@ $if(IncrementalLevelNode)
       return false;
     }
   $else
-    $if(IsOptNode)
+    $if(#isListDecl)
     if (parent != null) {
       int index = parent.getIndexOfChild(this);
       if (index >= 0 && parent.childIsNTA(index)) {
@@ -496,7 +496,7 @@ $if(IncrementalLevelRegion)
    * @api internal
    */
   public boolean #name.inc_flush_NTA($ASTNode node) {
-  $if(IsListNode)
+  $if(#isListDecl)
     if (inc_internalNTAList) {
       state().enterConstruction();
       int childIndex = getIndexOfChild(node);
@@ -529,7 +529,7 @@ $if(IncrementalLevelRegion)
       return false;
     }
   $else
-    $if(IsOptNode)
+    $if(#isListDecl)
     if (parent != null) {
       int index = parent.getIndexOfChild(this);
       if (index >= 0 && parent.childIsNTA(index)) {
@@ -613,7 +613,7 @@ $if(#isRegionRoot)
     return true;
   }
 $else
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -659,7 +659,7 @@ $endif
 $endif
 
 $if(IncrementalLevelNode)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -695,7 +695,7 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 
 $if(IncrementalLevelRegion)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -720,7 +720,7 @@ $endif
 $endif
 
 $if(IncrementalLevelNode)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -745,7 +745,7 @@ $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -777,7 +777,7 @@ $if(IncrementalLevelRegion)
    * @api internal
    */
   public void #name.inc_flushRegion() {
-  $if(IsAstNode)
+  $if(#isASTNodeDecl)
     inc_flush();
     for (int i = 0; children != null && i < children.length; i++) {
       $ASTNode child = children[i];
@@ -846,7 +846,7 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 
 $if(IncrementalLevelRegion)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -874,7 +874,7 @@ $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -911,7 +911,7 @@ $if(IncrementalLevelRegion)
   protected void #name.inc_flush_subtree($DDGNodeName h) {
     inc_state = inc_GARBAGE;
     $FlushNtaSubTrees
-  $if(IsAstNode)
+  $if(#isASTNodeDecl)
     // flush subtree of values, take sets from encountered handler and remove it from DDG
     if (isRegionRoot()) {
       h.transferSetsFrom(handler());
@@ -936,7 +936,7 @@ $if(IncrementalLevelNode)
   protected void #name.inc_flush_subtree($DDGNodeName h) {
     inc_state = inc_GARBAGE;
     $FlushNtaSubTrees
-$if(IsAstNode)
+$if(#isASTNodeDecl)
     // flush subtree of values, take sets from encountered handler and remove it from DDG
     h.transferSetsFrom(handler());
     inc_flush();
@@ -960,7 +960,7 @@ $if(IncrementalLevelAttr)
     inc_state = inc_GARBAGE;
     $FlushNtaSubTrees
     $TransferSetsFromAttrTokenHandlers
-$if(IsAstNode)
+$if(#isASTNodeDecl)
     // flush subtree of values, take sets from encountered handler and remove it from DDG
     h.transferSetsFrom(getParent_handler);
     h.transferSetsFrom(getChild_handler);
@@ -985,7 +985,7 @@ $if(IncrementalLevelParam)
     inc_state = inc_GARBAGE;
     $FlushNtaSubTrees
     $TransferSetsFromAttrTokenHandlers
-$if(IsAstNode)
+$if(#isASTNodeDecl)
     // flush subtree of values, take sets from encountered handler and remove it from DDG
     h.transferSetsFrom(getParent_handler);
     h.transferSetsFrom(numChildren_handler);
@@ -1067,7 +1067,7 @@ ASTNode.incNotifyForRemoveMethod = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelRegion)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -1078,7 +1078,7 @@ $endif
 $endif
 
 $if(IncrementalLevelNode)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -1089,7 +1089,7 @@ $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */
@@ -1100,7 +1100,7 @@ $endif
 $endif
 
 $if(IncrementalLevelParam)
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @api internal
    */

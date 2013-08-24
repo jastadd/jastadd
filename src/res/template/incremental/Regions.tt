@@ -35,7 +35,7 @@ $if (IncrementalLevelRegion)
 $if (IsRegionRoot)
     return true;
 $else
-$if (IsAstNode)
+$if (#isASTNodeDecl)
     return false;
 $else
     return super.isRegionRoot();
@@ -51,7 +51,7 @@ ASTDecl.createRegionRootMethod = [[
 $if (IsRegionRoot)
     return this;
 $else
-$if (IsAstNode)
+$if (#isASTNodeDecl)
     return parent != null ? parent.regionRoot() : null;
 $else
     return super.regionRoot();
@@ -67,7 +67,7 @@ $if (IncrementalLevelRegion)
 $if (IsRegionRoot)
     return handler;
 $else
-$if (IsAstNode)
+$if (#isASTNodeDecl)
     $ASTNode root = regionRoot();
     return root != null ? root.handler() : null;
 $else

@@ -32,7 +32,6 @@
 
     TemplateContext tt = templateContext();
 
-    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
     if (!grammar().fullFlush) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
@@ -54,8 +53,6 @@
 
     tt.expand("ASTNode.incFlushChildMethod", out);
 
-    tt.bind("IsListNode", name().equals(grammar().listType));
-    tt.bind("IsOptNode", name().equals(grammar().optType));
     tt.bind("FlushNTAs", emitFlushNTAsString());
     tt.expand("ASTDecl.incFlushNTAMethod", out);
 

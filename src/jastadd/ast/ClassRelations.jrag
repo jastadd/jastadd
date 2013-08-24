@@ -30,7 +30,7 @@ import java.util.*;
 
 aspect Superclass {
   rewrite ASTDecl {
-    when(!hasSuperClass() && !name().equals(grammar().astNodeType))
+    when(!hasSuperClass() && !isASTNodeDecl())
     to ASTDecl {
       setSuperClass(new IdUse(grammar().astNodeType));
       return this;

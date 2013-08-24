@@ -117,7 +117,7 @@ $endif
 # State variables needed to handle flushing of rewrites
 # TODO: These should be protected, but are public now for debugging
 ASTNode.flushRewritesInitValue = [[
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
    * @apilevel internal
    */
@@ -132,7 +132,7 @@ $endif
 # Method needed for to handler flushing of rewrites.
 # Checks whether there is an enclosing rewritten node.
 ASTNode.flushRewritesHasEnclosingRewriteMethod = [[
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   /**
     * @apilevel internal
     */
@@ -157,11 +157,11 @@ ASTDecl.flushCacheMethod = [[
     */
   public void #name.flushCache() {
     $SynchBegin
-    $if(!IsAstNode)
+    $if(!#isASTNodeDecl)
     super.flushCache();
     $endif
 $if(FullFlush)
-  $if(IsAstNode)
+  $if(#isASTNodeDecl)
     for (int i = 0; i < getNumChildNoTransform(); i++) {
       if (rewritten_children != null && rewritten_children[i]) {
         if (init_children[i] != null) {
@@ -188,7 +188,7 @@ ASTDecl.flushCollectionCacheMethod = [[
     * @apilevel internal
     */
   public void #name.flushCollectionCache() {
-    $if(!IsAstNode)
+    $if(!#isASTNodeDecl)
     super.flushCollectionCache();
     $endif
     $FlushCollectionCache

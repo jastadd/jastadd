@@ -36,9 +36,6 @@ aspect IncrementalEval {
 
     TemplateContext tt = templateContext();
 
-    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
-    tt.bind("IsListNode", name().equals(grammar().listType));
-
     tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
 
     tt.expand("List.internalNTAList", out);

@@ -31,8 +31,6 @@ aspect IncrementalState {
 
 	TemplateContext tt = templateContext();
 
-	tt.bind("IsAstNode", name().equals(grammar().astNodeType));
-
 	tt.expand("ASTDecl.incStateFields", out);
 
 	tt.bind("ChangeStateTokens", emitChangeStateTokensString());

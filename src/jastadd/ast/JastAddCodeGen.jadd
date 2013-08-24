@@ -332,12 +332,12 @@ aspect JastAddCodeGen {
       }
       if (grammar().jjtree && isASTNodeDecl()) {
         stream.print(" extends SimpleNode ");
-      } else if(grammar().beaver && name().equals(grammar().astNodeType)) {
+      } else if (grammar().beaver && isASTNodeDecl()) {
         stream.print(" extends beaver.Symbol ");
-      } else if(hasSuperClass()) {
+      } else if (hasSuperClass()) {
         stream.print(" extends ");
         String name = getSuperClass().name();
-        if(grammar().java5) {
+        if (grammar().java5) {
           if (isListDecl() || isOptDecl()) {
             name = name + "<T>";
           } else if (name.equals(grammar().astNodeType)) {
@@ -384,7 +384,7 @@ aspect JastAddCodeGen {
       buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
     }
 
-    if(name().equals(grammar().astNodeType) && grammar().java5) {
+    if (isASTNodeDecl() && grammar().java5) {
       buf.append(", Iterable<T>");
     }
     return buf.toString();

@@ -160,7 +160,7 @@ ASTDecl.incChangeStateMethod = [[
  * @apilevel internal
  */
 public void #name.inc_changeState(int newState) {
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   inc_state = newState;
 
   $if(IncrementalLevelParam)
@@ -269,7 +269,7 @@ ASTDecl.incThrowAwayMethod = [[
  */
 public void #name.inc_throwAway() {
   inc_state = inc_GARBAGE;
-$if(IsAstNode)
+$if(#isASTNodeDecl)
   $if(IncrementalLevelParam)
   getParent_handler.throwAway();
   numChildren_handler.throwAway();
@@ -379,7 +379,7 @@ $endif
 ]]
 
 ASTDecl.incStateFields = [[
-$if(IsAstNode)
+$if(#isASTNodeDecl)
 public static final int $ASTNode.inc_CREATED = 0;
 public static final int $ASTNode.inc_CLONED = 1;
 public static final int $ASTNode.inc_LIVE = 2;

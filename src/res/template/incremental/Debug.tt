@@ -27,7 +27,7 @@
 
 # Generate code for a method creating a relative node id.
 ASTDecl.relativeNodeIDMethod = [[
-$if (IsAstNode)
+$if (#isASTNodeDecl)
 public String $ASTNode.relativeNodeID() {
   String path = "";
   $ASTNode node = this;
@@ -56,7 +56,7 @@ $endif
 # Annotate children with possible rewrites.
 ASTDecl.relativeNodeIDMethodWithRewrite = [[
 $if(!IncrementalDebug)
-$if (IsAstNode)
+$if (#isASTNodeDecl)
 public String $ASTNode.relativeNodeID() {
   StringBuffer res = new StringBuffer();
   $ASTNode parent = this.parent;
@@ -82,7 +82,7 @@ $endif
 
 # Generate code for a method returning a string with attribute parameter values
 ASTDecl.printParamListMethod = [[
-$if (IsAstNode)
+$if (#isASTNodeDecl)
 protected String $ASTNode.printParamList(java.util.List paramList) {
   StringBuffer buf = new StringBuffer();
   for (java.util.Iterator itr = paramList.iterator(); itr.hasNext();) {
@@ -101,7 +101,7 @@ $endif
 
 # Generate code for method printing a value
 ASTDecl.printValueMethod = [[
-$if (IsAstNode)
+$if (#isASTNodeDecl)
 protected String $ASTNode.printValue(Object value) {
   if (value == null) {
     return "null";
@@ -117,7 +117,7 @@ $endif
 # Generate code for method dumping cached values
 ASTDecl.dumpCachedValuesMethod = [[
 public void #name.dumpCachedValues() {
-$if (IsAstNode)
+$if (#isASTNodeDecl)
   // Rewritten children
   for (int k = 0; rewritten_children != null && k < rewritten_children.length; k++) {
     if (rewritten_children[k]) {
@@ -128,7 +128,7 @@ $if (IsAstNode)
 $endif
   $DumpAttributeValues
   // TODO: dump collection values
-$if (!IsAstNode)
+$if (!#isASTNodeDecl)
   super.dumpCachedValues();
 $endif
 }
@@ -163,7 +163,7 @@ $endif
 # Generate code for method dumping dependencies
 ASTDecl.dumpDependenciesMethod = [[
 public void #name.dumpDependencies() {
-$if (IsAstNode)
+$if (#isASTNodeDecl)
 $if (IncrementalLevelParam)
   getParent_handler.dumpDeps();
   numChildren_handler.dumpDeps();
@@ -190,7 +190,7 @@ $endif
   $DumpTokenDeps
   $DumpAttributeDeps
   // TODO: dump collection attribute dependencies
-$if (!IsAstNode)
+$if (!#isASTNodeDecl)
 $if (IncrementalLevelRegion)
 $if (!IsRegionRoot)
   super.dumpDependencies();

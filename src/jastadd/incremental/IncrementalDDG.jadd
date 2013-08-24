@@ -103,7 +103,6 @@ aspect IncrementalDDG {
   public void ASTDecl.genIncrementalCopyHandlers(PrintWriter out) {
     if (!grammar().incremental) return; 
     TemplateContext tt = templateContext();
-    tt.bind("IsASTNode", name().equals(grammar().astNodeType));
     tt.bind("IsRegionRoot", isRegionRoot());
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
     tt.bind("CopyAttributeHandlers", emitCopyAttributeHandlersString());
@@ -167,7 +166,6 @@ aspect IncrementalDDG {
   public void ASTDecl.genIncrementalRegions(PrintWriter out) {
     if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
-    tt.bind("IsAstNode", name().equals(grammar().astNodeType));
     tt.bind("IsRegionRoot", isRegionRoot());
     if (grammar().incrementalLevelNode) {
       tt.expand("ASTDecl.createIsRegionRootMethod", out);

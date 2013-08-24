@@ -32,7 +32,7 @@ $if(IncrementalEnabled)
     */
   protected boolean #name.childIsNTA(int index) {
     $NtaIndexCheck
-  $if(IsAstNode)
+  $if(#isASTNodeDecl)
     return false;
   $else
     return super.childIsNTA(index);
@@ -43,7 +43,7 @@ $endif
 
 List.internalNTAList = [[
 $if(IncrementalEnabled)
-$if(IsListNode)
+$if(#isListDecl)
   /**
    * @apilevel internal
    */
