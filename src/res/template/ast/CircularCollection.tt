@@ -76,9 +76,9 @@ $if(#isParameterized)
 
       #cacheStoreRewrite {
         #(attributeSignature)_computed.add(_parameters);
-        #cacheCycleInit
+        $include(cacheCycleInit)
       } else {
-        #resetCycleInit
+        $include(resetCycleInit)
         #(attributeSignature)_computed.remove(_parameters);
         #(attributeSignature)_initialized.remove(_parameters);
       }
@@ -172,9 +172,9 @@ $endif
 
       #cacheStoreRewrite {
         #(attributeSignature)_computed = true;
-        #cacheCycleInit
+        $include(cacheCycleInit)
       } else {
-        #resetCycleInit
+        $include(resetCycleInit)
         #(attributeSignature)_computed = false;
         #(attributeSignature)_initialized = false;
       }
