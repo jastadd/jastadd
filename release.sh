@@ -8,7 +8,7 @@ fi
 VERSION=$1
 
 echo "JastAdd2 Release $VERSION"
-echo "========================="
+echo "======================"
 echo
 echo "This script will tag, build and upload JastAdd2 $VERSION to"
 echo "http://jastadd.org/releases/jastadd2/$VERSION"
@@ -22,6 +22,8 @@ while true; do
         EDITOR=vim
       fi
       $EDITOR doc/release-notes.md
+      ant build-doc
+      echo "Generated doc/release-notes.html - check that the markup looks OK"
       break
       ;;
     [Nn]* ) break;;
@@ -29,7 +31,12 @@ while true; do
   esac
 done
 
+# show staged changes
+git add doc/release-notes.md
+git status -sb
+
 echo "NB: All **staged** changes will be added to the release commit!"
+echo "See the above status message for changes that will be committed."
 
 while true; do
   read -p "Proceed? (yes/no) " yn
@@ -64,7 +71,7 @@ echo "   * update download.md"
 echo "   * update documentation/reference-manual.php"
 echo "2. Browse to the website and check that everything looks okay."
 echo "3. Push the release commit"
-echo "    git push origin"
+echo "    git push origin master"
 echo "4. Push the release tag"
 echo "    git push origin ${VERSION}"
 
