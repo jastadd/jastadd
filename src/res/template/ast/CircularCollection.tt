@@ -123,7 +123,7 @@ $endif
 #docComment
   #annotations
   public #getType #attributeName(#parametersDecl) {
-    $BlockBegin
+    $SynchBegin
     #parameterStructure
     $include(AttrDecl.cacheCheck)
     $ASTNode node = this;
@@ -200,7 +200,7 @@ $endif
       $include(AttrDecl.returnStmt)
     }
     $include(AttrDecl.returnStmt)
-    $BlockEnd
+    $SynchEnd
   }
 $endif
 ]]
