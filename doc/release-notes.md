@@ -46,6 +46,15 @@ been deprecated and will be removed from JastAdd in a future release.
 
 ### Improvements and Additions
 
+* **Renaming ASTNode, List, Opt:** New options have been added to JastAdd2 that
+  allow renaming the generated `ASTNode`, `List` and `Opt` classes.  The names
+can be specified using the following command-line flags (corresponding options
+for the Ant task are also available):
+
+    - `--ASTNode=<NewName>` ASTNode will be named "NewName"
+    - `--List=<NewName>` List will be named "NewName"
+    - `--Opt=<NewName>` Opt will be named "NewName"
+
 * **Annotations:** Annotations are now supported for synthesized attributes and
   aspect-declared classes and interfaces!
 
