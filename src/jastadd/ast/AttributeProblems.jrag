@@ -91,6 +91,9 @@ aspect AttributeProblems {
   syn Problem AttrDecl.error(String message) =
     new Problem.Error(message, getFileName(), getStartLine());
 
+  syn Problem AttrDecl.warning(String message) =
+    new Problem.Warning(message, getFileName(), getStartLine());
+
   /**
    * @return Previous equation for same synthesized attribute
    */
@@ -313,7 +316,7 @@ aspect AttributeProblems {
       }
     }
 
-    return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
+    return warning(buf.toString());
   }
   
   
@@ -441,5 +444,4 @@ aspect AttributeProblems {
     when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
-
 }

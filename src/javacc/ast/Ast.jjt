@@ -212,6 +212,7 @@ void Class() #ASTDecl : { Token first = null, last; }
       jjtThis.setStartLine(first.beginLine);
       jjtThis.setEndLine(last.endLine);
       jjtThis.setComment(jjtThis.unparseComment());
+      jjtThis.modifiers = "public";
     }
   } catch(ParseException e) {
     error_skipto(SEMICOLON);

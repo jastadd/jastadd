@@ -134,10 +134,16 @@ aspect JastAddCodeGen {
   public String TypeDecl.modifiers = "";
 
   syn String TypeDecl.modifiers() {
-    if (modifiers == null)
+    // TODO: This is deprecated behaviour! Remove in next release!!
+    if (modifiers == null || modifiers.trim().isEmpty())
+      return "public ";
+    else
+      return (modifiers + " ").replaceAll("static ", "");
+    // TODO: Below is the future behaviour
+    /*if (modifiers == null)
       return "";
     else
-      return modifiers + " ";
+      return modifiers + " ";*/
   }
 
   public String TypeDecl.typeParameters = "";
