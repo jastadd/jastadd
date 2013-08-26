@@ -33,7 +33,7 @@ public class Tracer {
   /**
    * Trace filter interface used to filter the list of collected trace objects.
    */
-  public static interface Filter {
+  public interface Filter {
     public boolean include(Tracer.Object obj);
     public String desc();
   }
