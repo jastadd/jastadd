@@ -377,8 +377,8 @@ public class JastAddConfiguration {
     // be set already!
     TemplateContext tt = root.templateContext();
     if (synch.matched()) {
-      tt.bindExpansion("SynchBegin", "synchronized-block.begin");
-      tt.bindExpansion("SynchEnd", "synchronized-block.end");
+      tt.bindExpansion("SynchBegin", "SynchronizedBlockBegin");
+      tt.bindExpansion("SynchEnd", "SynchronizedBlockEnd");
     } else {
       tt.bind("SynchBegin", "");
       tt.bind("SynchEnd", "");
