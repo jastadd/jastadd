@@ -47,7 +47,7 @@ aspect JaddCodeGen {
     name.setID(grammar().astNodeType);
     cl.setIdDecl(name);
     cl.setFileName("");
-    cl.modifiers = "public ";
+    cl.modifiers = "public";
     addTypeDecl(cl);
 
     // Add List
@@ -56,7 +56,7 @@ aspect JaddCodeGen {
     name.setID(grammar().listType);
     cl.setIdDecl(name);
     cl.setFileName("");
-    cl.modifiers = "public ";
+    cl.modifiers = "public";
     addTypeDecl(cl);
 
     // Add Opt
@@ -65,7 +65,7 @@ aspect JaddCodeGen {
     name.setID(grammar().optType);
     cl.setIdDecl(name);
     cl.setFileName("");
-    cl.modifiers = "public ";
+    cl.modifiers = "public";
     addTypeDecl(cl);
   }
 
