@@ -31,8 +31,8 @@ $if(IncrementalEnabled)
     * @apilevel internal
     */
   protected boolean #name.childIsNTA(int index) {
-    $NtaIndexCheck        
-  $if(IsAstNode)
+    $NtaIndexCheck
+  $if(#isASTNodeDecl)
     return false;
   $else
     return super.childIsNTA(index);
@@ -43,26 +43,26 @@ $endif
 
 List.internalNTAList = [[
 $if(IncrementalEnabled)
-$if(IsListNode)
+$if(#isListDecl)
   /**
    * @apilevel internal
    */
-  public boolean List.inc_internalNTAList = false;
-  
+  public boolean $List.inc_internalNTAList = false;
+
   /**
    * @apilevel internal
    */
-  public java.util.Map List.inc_internalNTAList_map;
-  
+  public java.util.Map $List.inc_internalNTAList_map;
+
   /**
    * @apilevel internal
    */
-  public void List.inc_internalNTAList(java.util.Map m) {
+  public void $List.inc_internalNTAList(java.util.Map m) {
     inc_internalNTAList = true;
     inc_internalNTAList_map = m;
   }
 
-$endif  
+$endif
 $endif
 ]]
 
@@ -70,13 +70,13 @@ AttrDecl.incHookCreateNtaList = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelNode)
-$if(#getNTA) 
+$if(#getNTA)
 #(attributeSignature)_list.inc_internalNTAList(#(attributeSignature)_values);
 $endif
 $endif
 
 $if(IncrementalLevelRegion)
-$if(#getNTA) 
+$if(#getNTA)
 #(attributeSignature)_list.inc_internalNTAList(#(attributeSignature)_values);
 $endif
 $endif

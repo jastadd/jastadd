@@ -31,48 +31,67 @@
 List.implicitAspectDecls = [[
 
 $if(#needsListTouched)
-  private boolean List.list$$touched = true;
+  private boolean $List.list$$touched = true;
 $endif
 
 $if(Java5)
-  public List<T> List.add(T node) {
+  public $List<T> $List.add(T node) {
 $else
-  public List List.add(ASTNode node) {
+  public $List $List.add($ASTNode node) {
 $endif
     $SynchBegin
 $if(DebugMode)
-    if (node instanceof List)
-      throw new RuntimeException("Lists can not have children of type List");
-    if (node instanceof Opt)
-      throw new RuntimeException("Lists can not have children of type Opt");
+    if (node instanceof $List)
+      throw new RuntimeException("Lists can not have children of type $List");
+    if (node instanceof $Opt)
+      throw new RuntimeException("Lists can not have children of type $Opt");
 $endif
     addChild(node);
     return this;
     $SynchEnd
   }
 
-  public void List.insertChild(ASTNode node, int i) {
+$if(Java5)
+  public $List<T> $List.addAll(java.util.Collection<? extends T> c) {
     $SynchBegin
-  
+$if(DebugMode)
+    for (T node : c) {
+      if (node instanceof $List)
+        throw new RuntimeException("Lists can not have children of type $List");
+      if (node instanceof $Opt)
+        throw new RuntimeException("Lists can not have children of type $Opt");
+    }
+$endif
+    for (T node : c) {
+      addChild(node);
+    }
+    return this;
+    $SynchEnd
+  }
+$endif
+
+  public void $List.insertChild($ASTNode node, int i) {
+    $SynchBegin
+
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-  
+
     super.insertChild(node, i);
     $SynchEnd
   }
 
 $if(Java5)
-  public void List.addChild(T node) {
+  public void $List.addChild(T node) {
 $else
-  public void List.addChild(ASTNode node) {
+  public void $List.addChild($ASTNode node) {
 $endif
     $SynchBegin
-  
+
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-  
+
     super.addChild(node);
     $SynchEnd
   }
@@ -80,20 +99,20 @@ $endif
   /**
    * @apilevel low-level
    */
-  public void List.removeChild(int i) {
+  public void $List.removeChild(int i) {
     $SynchBegin
-  
+
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-  
+
     super.removeChild(i);
     $SynchEnd
   }
 
-  public int List.getNumChild() {
+  public int $List.getNumChild() {
     $SynchBegin
-  
+
 $if(#needsListTouched)
     if (list$$touched) {
       for (int i = 0; i < getNumChildNoTransform(); i++) {
@@ -102,7 +121,7 @@ $if(#needsListTouched)
       list$$touched = false;
     }
 $endif
-  
+
     return getNumChildNoTransform();
     $SynchEnd
   }

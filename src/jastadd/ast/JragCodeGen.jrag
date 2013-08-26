@@ -162,9 +162,9 @@ aspect JragCodeGen {
 
   public void InterfaceDecl.emitMembers(PrintStream out) {
     for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-      ClassBodyObject o = (ClassBodyObject)iter.next();
-      org.jastadd.jrag.AST.SimpleNode n = o.node;
-      //out.println(ind + "// Declared in " + o.fileName + " at line " + o.line);
+      ClassBodyObject obj = (ClassBodyObject)iter.next();
+      org.jastadd.jrag.AST.SimpleNode n = obj.node;
+      //out.println(ind + "// Declared in " + obj.fileName + " at line " + obj.line);
       if(n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
@@ -172,7 +172,7 @@ aspect JragCodeGen {
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
-          System.err.println("Error generating " + o.signature() + " in " + name());
+          System.err.println("Error generating " + obj.signature() + " in " + name());
           e.printStackTrace();
         }
       }
@@ -183,7 +183,7 @@ aspect JragCodeGen {
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
-          System.err.println("Error generating " + o.signature() + " in " + name());
+          System.err.println("Error generating " + obj.signature() + " in " + name());
           e.printStackTrace();
         }
       }
@@ -191,10 +191,10 @@ aspect JragCodeGen {
         // do not emit refined implementations
       }
       else {
-        if(!o.comments.equals("")) {
-          out.print(o.comments + " ");
+        if(!obj.comments.equals("")) {
+          out.print(obj.comments + " ");
         }
-        out.print(o.modifiers);
+        out.print(obj.modifiers());
         StringBuffer buf = new StringBuffer();
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         out.print(buf.toString());
@@ -205,44 +205,12 @@ aspect JragCodeGen {
 
   public void TypeDecl.emitMembers(PrintStream out) { }
 
-  /**
-   * Returns a string with the JavaDoc comment taken from the
-   * original Class body object.
-   */
-  public String ASTDecl.javadocComment(ClassBodyObject obj) {
-    String comment = obj.comments;
-    String hostComment;
-    if (comment == null) {
-      hostComment = "";
-    } else {
-      comment = comment.trim();
-      if (comment.length() < 5) {
-        hostComment = "";
-      } else {
-        int end = comment.lastIndexOf("*/");
-        int start = end == -1 ? -1 : comment.lastIndexOf("/**", end);
-
-        if (start == -1) {
-          hostComment = "";
-        } else {
-          hostComment = comment.substring(start+3, end);
-        }
-      }
-    }
-    TemplateContext tt = templateContext();
-    tt.bind("HasAspect", obj.aspectName() != null && obj.aspectName().length() > 0);
-    tt.bind("AspectName", obj.aspectName());
-    tt.bind("HostComment", hostComment);
-    tt.bind("DeclaredAt", ASTNode.declaredat(obj.getFileName(), obj.getStartLine()));
-    return tt.expand("ASTDecl.javadocComment");
-  }
-
   public void ASTDecl.emitMembers(PrintStream out) {
     for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
-      out.print(obj.modifiers);
-      out.println(javadocComment(obj));
+      out.print(obj.modifiers());
+      out.println(docComment(obj));
       out.print(grammar().ind);
       StringBuffer buf = new StringBuffer();
       node.jjtAccept(new ClassBodyDeclUnparser(), buf);
@@ -251,13 +219,10 @@ aspect JragCodeGen {
     }
   }
 
-  syn String ASTDecl.annotations() = suppressWarnings();
-  syn String AttrDecl.annotations() = suppressWarnings();
-
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      out.println(attr.hostFileComment());
+      out.println(attr.docComment());
       attr.emitSynDecl(out);
     }
   }
@@ -266,6 +231,14 @@ aspect JragCodeGen {
     templateContext().expand("AttrDecl.synDecl", out);
   }
 
+  public void AttrDecl.emitAbstractSynDecl(PrintStream out) {
+    templateContext().expand("AttrDecl.abstractSynDecl", out);
+  }
+
+  /**
+   * Generate abstract method declarations for synthesized attributes
+   * that lack an equation.
+   */
   public void ASTDecl.emitAbstractSyns(PrintStream out) {
     for(int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
@@ -276,9 +249,7 @@ aspect JragCodeGen {
         }
       }
       if(!equ) {
-        out.println(attr.hostFileComment());
-        out.print(suppressWarnings());
-        out.println(grammar().ind + "public abstract " + attr.getType() + " " + attr.attributeName() + "(" + attr.parametersDecl() + ");");
+        attr.emitAbstractSynDecl(out);
       }
     }
   }
@@ -315,34 +286,7 @@ aspect JragCodeGen {
     return getName();
   }
 
-  public String AttrDecl.hostFileComment() {
-    TemplateContext tt = templateContext();
-    String comment = getComment().trim();
-    if (comment.length() >= 5 && comment.startsWith("/**")) {
-      tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
-    } else {
-      tt.bind("SourceComment", "");
-    }
-    return tt.expand("AttrDecl.hostFileComment");
-  }
-
   syn String AttrEq.attributeKind() = decl().attributeKind();
-
-  public String AttrEq.hostFileComment() {
-    TemplateContext tt = templateContext();
-    String comment = getComment().trim();
-
-    if (comment.isEmpty()) {
-      comment = decl().getComment().trim();
-    }
-
-    if (comment.length() >= 5 && comment.startsWith("/**")) {
-      tt.bind("SourceComment", comment.substring(3, comment.indexOf("*/")));
-    } else {
-      tt.bind("SourceComment", "");
-    }
-    return tt.expand("AttrEq.hostFileComment");
-  }
 
   public String AttrDecl.initLazyMaps() {
     StringBuffer s = new StringBuffer();
@@ -665,7 +609,7 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
     tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
-    tt.expand("ASTDecl.genEquation", out);
+    tt.expand("AttrDecl.genEquation", out);
   }
 
   public void AttrDecl.emitCircularEquationNoParams(PrintStream out) {
@@ -861,7 +805,7 @@ aspect JragCodeGen {
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
-         out.println(equ.hostFileComment());
+         out.println(equ.docComment());
          emitEquation(attr, equ.parametersDecl(), out);
          equ.emitComputeMethod(out);
        } else {
@@ -869,7 +813,6 @@ aspect JragCodeGen {
        }
     }
   }
-
 
   public boolean AttrDecl.isNTA() {
     return false;
@@ -963,7 +906,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.println(attr.hostFileComment());
+       out.println(attr.docComment());
        attr.emitInhDecl(out);
     }
   }
@@ -975,7 +918,7 @@ aspect JragCodeGen {
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for(int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.println(attr.hostFileComment());
+       out.println(attr.docComment());
        emitEquation(attr, attr.parametersDecl(), out);
        emitCacheDeclarations(out, attr);
     }
@@ -1068,7 +1011,7 @@ aspect JragCodeGen {
 
   //  TODO: INH
   public void ASTDecl.emitInhEqSignatures(PrintStream out) {
-    if(name().equals("ASTNode")) {
+    if(name().equals(grammar().astNodeType)) {
       for(Iterator iter = env().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
         java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
         String attrId = (String)entry.getKey();

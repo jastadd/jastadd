@@ -29,7 +29,7 @@ ASTDecl.emitRewrites.begin = [[
   /**
    * @apilevel internal
    */
-  public ASTNode rewriteTo() {]]
+  public $ASTNode rewriteTo() {]]
 
 ASTDecl.emitRewrites.touch_list = [[
     if(list$$touched) {
@@ -41,9 +41,9 @@ ASTDecl.emitRewrites.touch_list = [[
     }]]
 
 ASTDecl.emitRewrites.end:ASTNode = [[
-    if(state().peek() == ASTNode$$State.REWRITE_CHANGE) {
+    if(state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
       state().pop();
-      state().push(ASTNode$$State.REWRITE_NOCHANGE);
+      state().push($ASTNode$$State.REWRITE_NOCHANGE);
     }
     return this;
   }]]
@@ -61,14 +61,14 @@ Rewrite.genRewrite.declaredat = [[
 Rewrite.genRewrite:conditional [[
     if ($Condition) {
       state().during#aspectName++;
-      ASTNode result = rewriteRule$RewriteIndex();
+      $ASTNode result = rewriteRule$RewriteIndex();
       state().during#aspectName--;
       return result;
     }]]
 
 Rewrite.genRewrite:unconditional [[
     state().during#aspectName++;
-    ASTNode result = rewriteRule$RewriteIndex();
+    $ASTNode result = rewriteRule$RewriteIndex();
     state().during#aspectName--;
     return result;]]
 
@@ -77,9 +77,9 @@ RewriteList.genRewrite [[
         ((#getParentName)getParent().getParent()).#(getChildName)ListNoTransform() == getParent()$Condition) {
 
       state().during#aspectName++;
-      List list = (List)getParent();
+      $List list = ($List) getParent();
       int i = list.getIndexOfChild(this);
-      List newList = rewrite#(getParentName)_#getChildName();
+      $List newList = rewrite#(getParentName)_#getChildName();
       // the first child is set by the normal rewrite loop
       //list.setChild(newList.getChildNoTransform(0), i);
       for(int j = 1; j < newList.getNumChildNoTransform(); j++)
@@ -90,13 +90,13 @@ RewriteList.genRewrite [[
     }]]
 
 Grammar.genRewriteOrderChecks = [[
-protected int ASTNode$$State.during$RewriteName = 0;
-protected boolean ASTNode.during$RewriteName() {
+protected int $ASTNode$$State.during$RewriteName = 0;
+protected boolean $ASTNode.during$RewriteName() {
   if(state().during$RewriteName == 0) {
     return false;
   } else {
     state().pop();
-    state().push(ASTNode$$State.REWRITE_INTERRUPT);
+    state().push($ASTNode$$State.REWRITE_INTERRUPT);
     return true;
   }
 }]]

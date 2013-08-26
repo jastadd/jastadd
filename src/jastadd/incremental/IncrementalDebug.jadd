@@ -1,9 +1,9 @@
 /* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -31,11 +31,10 @@ aspect IncrementalDebug {
    * Generate debugging code for incremental evaluation-
    * This includes code for identifying nodes with relative node IDs,
    * dumping cached values and dummping of DDG dependencies.
-   */ 
+   */
   public void ASTDecl.genIncrementalDebug(PrintWriter out) {
-    if (!grammar().incrementalDebug) return; 
+    if (!grammar().incrementalDebug) return;
     TemplateContext tt = templateContext();
-    tt.bind("IsAstNode", name().equals("ASTNode"));
     tt.expand("ASTDecl.relativeNodeIDMethod", out);
     tt.expand("ASTDecl.printParamListMethod", out);
     tt.expand("ASTDecl.printValueMethod", out);
@@ -45,9 +44,9 @@ aspect IncrementalDebug {
     tt.bind("DumpAttributeDeps", genDumpAttributeDepsString());
     tt.expand("ASTDecl.dumpDependenciesMethod", out);
     tt.bind("DumpDepsInNTAs", genDumpDepsInNTAsString());
-	tt.expand("ASTDecl.dumpDepsInTreeMethod", out);	
+	tt.expand("ASTDecl.dumpDepsInTreeMethod", out);
   }
-  
+
   /**
    * Generate string with code for dumping dependencies in NTAs
    */
@@ -56,16 +55,16 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-        tt.bind("IsParamAttr", attr.getNumParameter() > 0); 
+        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.attributeSignature());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
     }
     return res.toString();
   }
-  
+
   /**
    * Generate string with code for dumping attribute dependencies.
    */
@@ -76,14 +75,14 @@ aspect IncrementalDebug {
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParamAttr", attr.getNumParameter() > 0);
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() && 
+      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
             !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("AttrSign",  attr.attributeSignature());
       res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
     }
   	return res.toString();
   }
-  
+
   /**
    * Generate string with code for dumping token dependencies.
    */
@@ -101,7 +100,7 @@ aspect IncrementalDebug {
     }
     return res.toString();
   }
-  
+
   /**
    * Generate string with code for dumping attribute values.
    */
@@ -116,5 +115,5 @@ aspect IncrementalDebug {
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));
     }
     return res.toString();
-  } 
+  }
 }

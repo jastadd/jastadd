@@ -1,7 +1,50 @@
-2013-08-19  Niklas Fors <niklas.fors@cs.lth.se>
+2013-08-24  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
-    * Added a new List constructor that takes an Iterable and adds the returned 
-    objects to the list
+    * Added options to change the names of the generated ASTNode, List, and
+    Opt types
+
+2013-08-23  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Improved documentation comment generation
+    * Removed some double comment generation
+    * Fixed some incorrect generated comment tags
+    * Fixed some indentation issues for generated comments
+    * JastAdd2 no longer alters modifiers for type declarations by adding
+    `public` or removing `static` modifiers
+    * It is now possible to use annotations on interface and class declarations
+
+2013-08-22  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Removed the suppressWarnings option from JastAdd2. JastAdd2 no longer
+    attempts to generate SuppressWarnings annotations.
+    * Added support for annotations on synthesized attributes (must occur
+    before the `syn` or `eq` keywords)
+    * Annotations on collection attribute declarations must now be placed before
+    the `coll` keyword
+    * Annotations on inherited attributes and collection contribution
+    equations are still not supported, but no longer cause a generic
+    difficult-to-locate syntax error
+
+2013-08-21  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * The Ant build script now compiles to the ant-bin directory in order to
+    avoid conflicts with the eclipse project
+
+2013-08-21  Niklas Fors <niklas.fors@cs.lth.se>
+
+    * Added flag --lineColumnNumbers that adds methods for storing and
+    retrieving line and column numbers (setStart, setEnd, getStartLine,
+    getStartColumn, getEndLine, getEndColumn). This flag can be used together
+    with the new flag to JastAddParser to remove the dependency to beaver.Symbol
+
+2013-08-20  Görel Hedin <gorel.hedin@cs.lth.se>
+
+    * Added A.hasB() accessor for list children (B is a list child).
+
+2013-08-19  Niklas Fors <niklas.fors@cs.lth.se>
+2013-08-21  Görel Hedin <gorel.hedin@cs.lth.se>
+
+    * Added List.AddAll(Collection) to add many objects to a list.
 
 2013-05-31  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 

@@ -37,6 +37,8 @@ aspect Trace {
   syn String AttrDecl.tracePrintStartingCycle() = "";
   syn String AttrDecl.traceComputeContext() = "";
 
+  syn String AttrDecl.hostClassName() = hostClass().name();
+
   syn String AttrDecl.traceSignature() {
     StringBuilder b = new StringBuilder();
     b.append(getAspectName());
@@ -54,7 +56,7 @@ aspect Trace {
 
     b.append(getType());
     b.append(" ");
-    b.append(hostClass().name());
+    b.append(hostClassName());
     b.append(".");
     b.append(name());
     b.append("(");
@@ -83,7 +85,8 @@ aspect Trace {
   }
 
   protected String AttrDecl.trace(String s) {
-    if(!grammar().tracing)
+    // Diabling this print-based tracing in favor of the new in-memory tracing using templates
+    if(!grammar().tracing || grammar().tracing)
       return "";
     StringBuilder b = new StringBuilder();
     b.append("System.out.println(\"");

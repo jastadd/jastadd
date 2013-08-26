@@ -57,7 +57,7 @@ public class JastAdd {
       version = resources.getString("version");
       timestamp = resources.getString("timestamp");
     } catch (MissingResourceException e) {
-      throw new Error("Could not open Version resource bundle");
+      throw new Error("Could load version info: " + e.getMessage());
     }
   }
 
@@ -168,6 +168,8 @@ public class JastAdd {
 
       genASTNode$State(root);
 
+      genTracer(root);
+
       genIncrementalDDGNode(root);
 
       problems = readJRAGFiles(root, config.getFiles());
@@ -222,8 +224,6 @@ public class JastAdd {
     }
     return 0;
   }
-  
-  
 
   /**
    * Print problems and check for errors
@@ -300,6 +300,24 @@ public class JastAdd {
   }
 
 
+  private void genTracer(Grammar root) {
+    java.io.StringWriter writer = new java.io.StringWriter();
+    root.emitTracer(new PrintWriter(writer));
+    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
+        new java.io.StringReader(writer.toString()));
+    jp.root = root;
+    jp.setFileName(root.astNodeType);
+    jp.className = root.astNodeType;
+    jp.pushTopLevelOrAspect(true);
+    try {
+      while(true)
+        jp.AspectBodyDeclaration();
+    } catch (Exception e) {
+      // TODO: handle error?
+      // String s = e.getMessage();
+    }
+    jp.popTopLevelOrAspect();
+  }
     
   private void genIncrementalDDGNode(Grammar rootGrammar) {
     if (rootGrammar.incremental) {

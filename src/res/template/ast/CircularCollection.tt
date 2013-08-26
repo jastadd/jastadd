@@ -43,10 +43,10 @@ $if(#isParameterized)
    */
   protected $TypeDefaultMap #(attributeSignature)_values = $CreateDefaultMap;
 
-  #hostFileComment
-  #suppressWarnings
+#docComment
+  #annotations
   public #getType #attributeName(#parametersDecl) {
-    $BlockBegin
+    $SynchBegin
     #parameterStructure
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
@@ -76,9 +76,9 @@ $if(#isParameterized)
 
       #cacheStoreRewrite {
         #(attributeSignature)_computed.add(_parameters);
-        #cacheCycleInit
+        $include(cacheCycleInit)
       } else {
-        #resetCycleInit
+        $include(resetCycleInit)
         #(attributeSignature)_computed.remove(_parameters);
         #(attributeSignature)_initialized.remove(_parameters);
       }
@@ -98,7 +98,7 @@ $if(#isParameterized)
       return new_#(attributeSignature)_value;
     }
     return $FromRefType;
-    $BlockEnd
+    $SynchEnd
   }
 $else
   /**
@@ -120,13 +120,13 @@ $if(SeparateEvaluation)
   protected #getType new_#(attributeSignature)_value;
 $endif
 
-  #hostFileComment
-  #suppressWarnings
+#docComment
+  #annotations
   public #getType #attributeName(#parametersDecl) {
-    $BlockBegin
+    $SynchBegin
     #parameterStructure
     $include(AttrDecl.cacheCheck)
-    ASTNode node = this;
+    $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType))
       node = node.getParent();
     #collDebugString
@@ -169,12 +169,12 @@ $endif
         state().CIRCLE_INDEX++;
         #cycleLimitCheck
       } while (state().CHANGE);
-      
+
       #cacheStoreRewrite {
         #(attributeSignature)_computed = true;
-        #cacheCycleInit
+        $include(cacheCycleInit)
       } else {
-        #resetCycleInit
+        $include(resetCycleInit)
         #(attributeSignature)_computed = false;
         #(attributeSignature)_initialized = false;
       }
@@ -200,7 +200,7 @@ $endif
       $include(AttrDecl.returnStmt)
     }
     $include(AttrDecl.returnStmt)
-    $BlockEnd
+    $SynchEnd
   }
 $endif
 ]]

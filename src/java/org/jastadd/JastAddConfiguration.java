@@ -47,6 +47,9 @@ import org.jastadd.ast.AST.Grammar;
 public class JastAddConfiguration {
 
   private final CommandLineArguments options;
+  private final Option astNode;
+  private final Option list;
+  private final Option opt;
   private final Option jjtree;
   private final Option grammarOption;
   private final Option defaultMap;
@@ -56,12 +59,12 @@ public class JastAddConfiguration {
   private final Option privateOption;
   private final Option rewrite;
   private final Option beaver;
+  private final Option lineColumnNumbers;
   private final Option noVisitCheck;
   private final Option noCacheCycle;
   private final Option noComponentCheck;
   private final Option componentCheck;
   private final Option noInhEqCheck;
-  private final Option suppressWarnings;
   private final Option refineLegacy;
   private final Option noRefineLegacy;
   private final Option stagedRewrites;
@@ -94,6 +97,9 @@ public class JastAddConfiguration {
    * @param err output stream to print configuration warnings to
    */
   public JastAddConfiguration(String[] args, PrintStream err) {
+    astNode = new Option("ASTNode", "set the name of the ASTNode type", true);
+    list = new Option("List", "set the name of the List type", true);
+    opt = new Option("Opt", "set the name of the Opt type", true);
     jjtree = new Option("jjtree", "use jjtree base node, this requires --grammar to be set");
     grammarOption = new Option("grammar", "the name of the grammar's parser, required when using --jjtree", true);
     defaultMap = new Option("defaultMap", "use this expression to construct maps for attribute caches", true);
@@ -103,12 +109,12 @@ public class JastAddConfiguration {
     privateOption = new Option("private", "");
     rewrite = new Option("rewrite", "enable ReRAGs support");
     beaver = new Option("beaver", "use beaver base node");
+    lineColumnNumbers = new Option("lineColumnNumbers", "interface for storing line and column numbers");
     noVisitCheck = new Option("noVisitCheck", "disable circularity check for attributes");
     noCacheCycle = new Option("noCacheCycle", "disable cache cycle optimization for circular attributes");
     noComponentCheck = new Option("noComponentCheck", "enable strongly connected component optimization for circular attributes");
     componentCheck = new Option("componentCheck", "disable strongly connected component optimization for circular attributes");
     noInhEqCheck = new Option("noInhEqCheck", "disable check for inherited equations");
-    suppressWarnings = new Option("suppressWarnings", "suppress warnings when using Java 5");
     refineLegacy = new Option("refineLegacy", "enable the legacy refine syntax");
     noRefineLegacy = new Option("noRefineLegacy", "disable the legacy refine syntax");
     stagedRewrites = new Option("stagedRewrites", "");
@@ -169,6 +175,9 @@ public class JastAddConfiguration {
     //noComponentCheck.setDeprecated();
 
     // set default values
+    astNode.setDefaultValue("ASTNode");
+    list.setDefaultValue("List");
+    opt.setDefaultValue("Opt");
     grammarOption.setDefaultValue("Unknown");
     defaultMap.setDefaultValue("new java.util.HashMap(4)");
     defaultSet.setDefaultValue("new java.util.HashSet(4)");
@@ -178,6 +187,9 @@ public class JastAddConfiguration {
     minListSize.setDefaultValue("4");
 
     options = new CommandLineArguments();
+    options.addOption(astNode);
+    options.addOption(list);
+    options.addOption(opt);
     options.addOption(jjtree);
     options.addOption(grammarOption);
     options.addOption(defaultMap);
@@ -187,12 +199,12 @@ public class JastAddConfiguration {
     options.addOption(privateOption);
     options.addOption(rewrite);
     options.addOption(beaver);
+    options.addOption(lineColumnNumbers);
     options.addOption(noVisitCheck);
     options.addOption(noCacheCycle);
     options.addOption(noComponentCheck);
     options.addOption(componentCheck);
     options.addOption(noInhEqCheck);
-    options.addOption(suppressWarnings);
     options.addOption(refineLegacy);
     options.addOption(noRefineLegacy);
     options.addOption(stagedRewrites);
@@ -244,6 +256,15 @@ public class JastAddConfiguration {
    */
   public Grammar buildRoot() {
     Grammar root = new Grammar();
+
+    root.astNodeType = astNode.value();
+    root.listType = list.value();
+    root.optType = opt.value();
+
+    root.blockBegin = "synchronized(" + root.astNodeType + ".class) {\n";
+    root.blockEnd =   "}\n";
+    root.createContributorSet = "new " + root.astNodeType + "$State.IdentityHashSet(4)";
+
     root.jjtree = jjtree.matched();
     root.parserName = grammarOption.value();
 
@@ -275,12 +296,11 @@ public class JastAddConfiguration {
 
     root.rewriteEnabled = rewrite.matched();
     root.beaver = beaver.matched();
+    root.lineColumnNumbers = lineColumnNumbers.matched();
     root.visitCheckEnabled = !noVisitCheck.matched();
     root.cacheCycle = !noCacheCycle.matched();
     root.componentCheck = componentCheck.matched();
     root.noInhEqCheck = noInhEqCheck.matched();
-
-    root.suppressWarnings = suppressWarnings.matched();
 
     root.refineLegacy = !noRefineLegacy.matched();
 
@@ -365,6 +385,9 @@ public class JastAddConfiguration {
     }
 
     // Bind global template variables:
+    tt.bind("ASTNode", root.astNodeType);
+    tt.bind("List", root.listType);
+    tt.bind("Opt", root.optType);
     tt.bind("NoStatic", root.noStatic);
     tt.bind("DebugMode", root.debugMode);
     tt.bind("MinListSize", "" + root.minListSize);
@@ -406,7 +429,10 @@ public class JastAddConfiguration {
     tt.bind("IncrementalPropLimit", root.incrementalPropLimit);
     tt.bind("IncrementalDebug", root.incrementalDebug);
     tt.bind("IncrementalTrack", root.incrementalTrack);
-    tt.bind("DDGNodeName", "ASTNode$DepGraphNode");
+    tt.bind("DDGNodeName", root.astNodeType + "$DepGraphNode");
+
+    // Tracing
+    tt.bind("TracingEnabled", root.tracing);
 
     return root;
   }

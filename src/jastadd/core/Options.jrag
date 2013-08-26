@@ -1,9 +1,9 @@
 /* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,7 +28,7 @@
 
 /**
  * Options for JastAdd
- * 
+ *
  * These used to be static fields in ASTNode.
  * They are now moved to the Grammar node and made non-static.
  */
@@ -41,16 +41,26 @@ aspect JastAddOptions {
   eq Grammar.getChild().grammar() = this;
   syn Grammar Grammar.grammar() = this;
 
-  syn String Grammar.suppressWarnings() =
-    (suppressWarnings || java5) ?
-    "@SuppressWarnings({\"unchecked\", \"cast\"})\n" : "";
+  /**
+   * The name of the ASTNode type.
+   */
+  public String Grammar.astNodeType = "ASTNode";
 
-  syn String ASTNode.suppressWarnings() = grammar().suppressWarnings();
+  /**
+   * The name of the List type.
+   */
+  public String Grammar.listType = "List";
+
+  /**
+   * The name of the Opt type.
+   */
+  public String Grammar.optType = "Opt";
 
   public boolean Grammar.jjtree;
   public String Grammar.parserName;
 
   public boolean Grammar.beaver;
+  public boolean Grammar.lineColumnNumbers;
   public boolean Grammar.lazyMaps;
   public boolean Grammar.noInhEqCheck;
 
@@ -60,8 +70,6 @@ aspect JastAddOptions {
   public boolean Grammar.traceVisitCheck = false;
   public boolean Grammar.cacheCycle = true;
   public boolean Grammar.componentCheck = true;
-
-  public boolean Grammar.suppressWarnings = false;
 
   public boolean Grammar.doc = false;
 
@@ -81,8 +89,8 @@ aspect JastAddOptions {
   public boolean Grammar.debugMode = false;
 
   public boolean Grammar.block = false;
-  public String Grammar.blockBegin = "synchronized(ASTNode.class) {\n";
-  public String Grammar.blockEnd =   "}\n";
+  public String Grammar.blockBegin;
+  public String Grammar.blockEnd;
 
   public boolean Grammar.noStatic = false;
 
@@ -118,7 +126,7 @@ aspect JastAddOptions {
   // ES_2011-10-10: Adding field for full flush support
   public boolean Grammar.fullFlush = false;
 
-  public String Grammar.createContributorSet = "new ASTNode$State.IdentityHashSet(4)";
+  public String Grammar.createContributorSet;
 
   /**
    * The minimum list size (above zero)

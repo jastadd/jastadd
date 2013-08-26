@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -55,6 +55,21 @@ public class JastAddTask extends Task {
       this.files.add(baseDir + File.separator + files[i]);
   }
 
+  private String astNodeType = null;
+  public void setASTNode(String type) {
+    astNodeType = type;
+  }
+
+  private String listType = null;
+  public void setList(String type) {
+    listType = type;
+  }
+
+  private String optType = null;
+  public void setOpt(String type) {
+    optType = type;
+  }
+
   // use jjtree node as base node type, requires the grammar option
   private boolean jjtree = false;
   public void setJjtree(boolean b) { jjtree = b; }
@@ -65,6 +80,11 @@ public class JastAddTask extends Task {
   // use beaver node as base node type
   private boolean beaver = false;
   public void setBeaver(boolean b) { beaver = b; }
+
+  // line and column information
+  private boolean lineColumnNumbers = false;
+  public void setLineColumnNumbers(boolean b) { lineColumnNumbers = b; }
+
 
   // make the generated files belong to this package
   private String packageName = null;
@@ -104,10 +124,6 @@ public class JastAddTask extends Task {
   // disable check for inherited equations
   private boolean noInhEqCheck = false;
   public void setNoInhEqCheck(boolean b) { noInhEqCheck = b; }
-
-  // suppress warnings when using Java 5
-  private boolean suppressWarnings = false;
-  public void setSuppressWarnings(boolean b) { suppressWarnings = b; }
 
   // generate javadoc like .html pages for sources
   private boolean doc = false;
@@ -160,12 +176,12 @@ public class JastAddTask extends Task {
   private boolean cacheNone = false;
   public void setCacheNone(boolean b) { cacheNone = true; }
 
-  // EMMA_2009-11-16: Adding a new ant attribute cacheImplicit, same direct effect as cacheAll but with 
+  // EMMA_2009-11-16: Adding a new ant attribute cacheImplicit, same direct effect as cacheAll but with
   // the difference that the cache configuration has higher priority
   private boolean cacheImplicit = false;
   public void setCacheImplicit(boolean b) { cacheImplicit = true; }
 
-  // EMMA_2009-11-16: Adding a new ant attribute ignoreLazy, to remove the imediate need to strip a 
+  // EMMA_2009-11-16: Adding a new ant attribute ignoreLazy, to remove the imediate need to strip a
   // JastAdd specification of its lazy keywords in order to experiment with a cache configuration
   private boolean ignoreLazy = false;
   public void setIgnoreLazy(boolean b) { ignoreLazy = true; }
@@ -216,11 +232,21 @@ public class JastAddTask extends Task {
       }
     }
     Collection<String> args = new ArrayList<String>();
+    if (astNodeType != null) {
+      args.add("--ASTNode=" + astNodeType);
+    }
+    if (listType != null) {
+      args.add("--List=" + listType);
+    }
+    if (optType != null) {
+      args.add("--Opt=" + optType);
+    }
     if(jjtree) {
       args.add("--jjtree");
       args.add("--grammar=" + grammar);
     }
     if(beaver)              args.add("--beaver");
+    if(lineColumnNumbers)   args.add("--lineColumnNumbers");
 
     if(packageName != null) args.add("--package=" + packageName);
     if(outdir != null)      args.add("--o=" + outdir);
@@ -236,7 +262,6 @@ public class JastAddTask extends Task {
     if(noComponentCheck)    args.add("--noComponentCheck");
 
     if(noInhEqCheck)        args.add("--noInhEqCheck");
-    if(suppressWarnings)    args.add("--suppressWarnings");
 
     if(doc)     args.add("--doc");
     if(debug)   args.add("--debug");

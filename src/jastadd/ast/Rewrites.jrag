@@ -59,7 +59,7 @@ aspect Rewrites {
 
     tt.expand("ASTDecl.emitRewrites.begin", out);
 
-    if(name().equals("List")) {
+    if(name().equals(grammar().listType)) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
         tt.expand("ASTDecl.emitRewrites.touch_list", out);
@@ -72,7 +72,7 @@ aspect Rewrites {
       }
     }
 
-    if(name().equals("ASTNode")) {
+    if(name().equals(grammar().astNodeType)) {
       tt.expand("ASTDecl.emitRewrites.end:ASTNode", out);
     } else if(!unconditional) {
       tt.expand("ASTDecl.emitRewrites.end:!unconditional", out);
@@ -116,9 +116,8 @@ aspect Rewrites {
   public void Rewrite.genRewritesExtra(PrintStream out, int index) {
     String ind = grammar().ind;
     String ind2 = grammar().ind(2);
-    TemplateContext tt = templateContext();
-    tt.expand("Rewrite.javaDoc:internal", out);
     if(getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
+      templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
         out.println(ind2 +
@@ -127,8 +126,8 @@ aspect Rewrites {
           getStartLine() + "\");");
       out.print(Unparser.unparse(getResult()));
       out.println(ind + "}");
-    }
-    else {
+    } else {
+      templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if(grammar().rewriteLimit > 0)
         out.println(ind2 +
@@ -142,9 +141,8 @@ aspect Rewrites {
   public void RewriteList.genRewritesExtra(PrintStream out, int index) {
     String ind = grammar().ind;
     String ind2 = grammar().ind(2);
-    TemplateContext tt = templateContext();
-    tt.expand("Rewrite.javaDoc:internal", out);
     if(getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
+      templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
         out.println(ind2 +
@@ -153,8 +151,8 @@ aspect Rewrites {
           getStartLine() + "\");");
       out.print(Unparser.unparse(getResult()));
       out.println(ind + "}");
-    }
-    else {
+    } else {
+      templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       if(grammar().rewriteLimit > 0)
         out.println(ind2 +

@@ -18,7 +18,7 @@ public class ClassBodyObject {
     public String comments;
     public String modifiers = "";
     public String aspectName;
-    
+
     public ClassBodyObject(SimpleNode node, String fileName, int line, String comments, String aspectName) {
       this.fileName = fileName;
       this.line = line;
@@ -26,6 +26,7 @@ public class ClassBodyObject {
       this.comments = comments;
       this.aspectName = aspectName;
     }
+
     public ClassBodyObject(SimpleNode node, String fileName, int line, String aspectName) {
       this(node, fileName, line, Unparser.unparseComment(node), aspectName);
     }
@@ -55,8 +56,15 @@ public class ClassBodyObject {
       String[] names = name.split(pattern);
       return names[names.length-1];
     }
+
     public String aspectName() {
       return getAspectName();
     }
 
+	public String modifiers() {
+		if (modifiers.isEmpty())
+			return "";
+		else
+			return modifiers + " ";
+	}
 }

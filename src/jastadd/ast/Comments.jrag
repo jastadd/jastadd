@@ -1,0 +1,173 @@
+/* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+aspect Comments {
+
+  class JavaDocParser {
+    private static final String NL = System.getProperty("line.separator", "\n");
+    int i;
+    char[] javadoc;
+    StringBuilder out;
+
+    String parse(String comments) {
+      if (comments == null)
+        return "";
+
+      int start = 0;
+      int end = -2;
+      while (true) {
+        int newStart = comments.indexOf("/**", end + 2);
+        if (newStart == -1) {
+          break;
+        }
+        int newEnd = comments.indexOf("*/", newStart + 3);
+        if (newEnd == -1) {
+          break;
+        }
+        start = newStart;
+        end = newEnd;
+      }
+
+      if (end <= start+3)
+        return "";
+
+      javadoc = comments.substring(start+3, end).toCharArray();
+      out = new StringBuilder(javadoc.length);
+      i = 0;
+
+      while (i < javadoc.length) {
+        if (skipNewline()) {
+          skipWhitespace();
+          if (skipAsterisk()) {
+            out.append(NL);
+            out.append(" * ");
+            skipWhitespace();
+          }
+        } else {
+          out.append(javadoc[i++]);
+        }
+      }
+      return out.toString();
+    }
+
+    private boolean skipNewline() {
+      if (javadoc[i] == '\r') {
+        i += 1;
+        if (i < javadoc.length && javadoc[i] == '\n') {
+          i += 1;
+        }
+        return true;
+      } else if (javadoc[i] == '\n') {
+        i += 1;
+        return true;
+      }
+      return false;
+    }
+
+    private void skipWhitespace() {
+      while (i < javadoc.length && isWhitespace(javadoc[i])) {
+        i += 1;
+      }
+    }
+
+    private boolean isWhitespace(char c) {
+      return Character.isWhitespace(c) && c != '\n' && c != '\n';
+    }
+
+    private boolean skipAsterisk() {
+      if (i < javadoc.length && javadoc[i] == '*') {
+        i += 1;
+        return true;
+      }
+      return false;
+    }
+  }
+
+  /**
+   * Returns a string with the JavaDoc comment taken from the
+   * original class body object.
+   * @param obj original class body object
+   * @return generated javadoc comment
+   */
+  public String ASTDecl.docComment(ClassBodyObject obj) {
+    JavaDocParser parser = new JavaDocParser();
+    TemplateContext tt = templateContext();
+    tt.bind("SourceComment", parser.parse(obj.comments));
+    tt.bind("HasAspectName", obj.aspectName() != null && obj.aspectName().length() > 0);
+    tt.bind("AspectName", obj.aspectName());
+    String declaredat = ASTNode.declaredat(obj.getFileName(), obj.getStartLine());
+    tt.bind("HasDeclaredAt", declaredat.length() > 0);
+    tt.bind("DeclaredAt", declaredat);
+    return tt.expand("ASTDecl.docComment");
+  }
+
+  public String TypeDecl.docComment() {
+    JavaDocParser parser = new JavaDocParser();
+    TemplateContext tt = templateContext();
+    tt.bind("SourceComment", parser.parse(getComment()));
+    tt.bind("HasAspectName", getAspectName().length() > 0);
+    tt.bind("AspectName", getAspectName());
+    String declaredat = ASTNode.declaredat(getFileName(), getStartLine());
+    tt.bind("HasDeclaredAt", declaredat.length() > 0);
+    tt.bind("DeclaredAt", declaredat);
+    return tt.expand("TypeDecl.docComment");
+  }
+
+  syn String TypeDecl.typeDeclKind();
+  eq ClassDecl.typeDeclKind() = "class";
+  eq InterfaceDecl.typeDeclKind() = "interface";
+  eq ASTDecl.typeDeclKind() = "node";
+
+  public String TypeDecl.extraDocCommentLines() {
+    return "";
+  }
+  public String ASTDecl.extraDocCommentLines() {
+    String superclass = "";
+    if (hasSuperClass())
+      superclass = " : {@link "+getSuperClass().getID()+"}";
+    String components = "";
+    if (getNumComponents() > 0)
+      components = " ::=" + componentString();
+    return " * @production " + getIdDecl().getID() + superclass + components + ";\n";
+  }
+
+  public String AttrDecl.docComment() {
+    JavaDocParser parser = new JavaDocParser();
+    TemplateContext tt = templateContext();
+    tt.bind("SourceComment", parser.parse(getComment()));
+    return tt.expand("AttrDecl.docComment");
+  }
+
+  public String AttrEq.docComment() {
+    JavaDocParser parser = new JavaDocParser();
+    TemplateContext tt = templateContext();
+    tt.bind("SourceComment", parser.parse(getComment()));
+    return tt.expand("AttrEq.docComment");
+  }
+
+}

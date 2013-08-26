@@ -37,7 +37,7 @@ state().addHandlerDepTo(getParent_handler);
 $endif
 $if (IncrementalLevelNode)
 if (parent != null) {
-  state().addHandlerDepTo(((ASTNode)parent).handler);
+  state().addHandlerDepTo((($ASTNode) parent).handler);
 }
 $endif
 
@@ -53,7 +53,7 @@ $endif
 ]]
 
 ASTNode.incHookAddChild = [[
-$if(IncrementalEnabled) 
+$if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
 int i = getNumChildNoTransform() - 1;
@@ -64,7 +64,7 @@ $else
   getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
 $endif
 }
-state().addHandlerDepTo(getChild_handler[i]);    
+state().addHandlerDepTo(getChild_handler[i]);
 if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
   node.is$$Final(is$$Final());
 }
@@ -117,7 +117,7 @@ $if(IncrementalEnabled)
 
 $if (!FullFlush)
 if(this.init_children == null) {
-  this.init_children = new ASTNode[this.children.length];
+  this.init_children = new $ASTNode[this.children.length];
   this.rewritten_children = new boolean[this.children.length];
 }
 if(!node.inc_hasEnclosingRewrittenNode()) {
@@ -129,11 +129,11 @@ $endif
 $if(IncrementalLevelParam)
 this.state().enterRewriteEval(this.getChild_handler[i]);
 $endif
-    
+
 $if(IncrementalLevelAttr)
 this.state().enterRewriteEval(this.getChild_handler);
 $endif
-  
+
 $endif
 ]]
 
@@ -155,7 +155,7 @@ ASTNode.incHookGetChild3 = [[
 $if(IncrementalEnabled)
 
 $if(!FullFlush)
-if (rewriteState == ASTNode$$State.REWRITE_CHANGE) {
+if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
   this.rewritten_children[i] = true;
 }
 $endif
@@ -178,7 +178,7 @@ this.state().addHandlerDepTo(this.getChild_handler[i]);
 $endif
 
 $if(IncrementalLevelAttr)
-this.state().addHandlerDepTo(this.getChild_handler);  
+this.state().addHandlerDepTo(this.getChild_handler);
 $endif
 
 $if(IncrementalLevelNode)
@@ -186,7 +186,7 @@ if (node != null) {
   this.state().addHandlerDepTo(node.handler);
 }
 $endif
- 
+
 $endif
 ]]
 
@@ -210,20 +210,20 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelNode)
 this.state().exitRewriteEval(oldNode.handler);
 $endif
-  
+
 $if(IncrementalLevelRegion)
 this.state().IN_COMPUTATION--;
 $endif
-  
+
 $endif
 ]]
 
 ASTNode.incHookGetChild7 = [[
 $if(IncrementalEnabled)
 
-ASTNode initial = this.init_children[i];
+$ASTNode initial = this.init_children[i];
 
-$endif  
+$endif
 ]]
 
 ASTNode.incHookGetChild8 = [[
@@ -269,7 +269,7 @@ this.state().addHandlerDepTo(this.getChild_handler[i]);
 $endif
 
 $if(IncrementalLevelAttr)
-this.state().addHandlerDepTo(this.getChild_handler);  
+this.state().addHandlerDepTo(this.getChild_handler);
 $endif
 
 $if(IncrementalLevelNode)
@@ -299,7 +299,7 @@ if (state().IN_COMPUTATION > 0) {
 }
 $endif
 $endif
-  
+
 $endif
 ]]
 
@@ -318,7 +318,7 @@ state().addHandlerDepTo(getChild_handler[i]);
 $endif
 
 $if(IncrementalLevelAttr)
-state().addHandlerDepTo(getChild_handler);  
+state().addHandlerDepTo(getChild_handler);
 $endif
 
 $if(IncrementalLevelNode)
@@ -334,7 +334,7 @@ if (state().IN_COMPUTATION > 0 && child != null) {
 }
 $endif
 $endif
-    
+
 $endif
 ]]
 
@@ -352,8 +352,8 @@ $endif
 $if(IncrementalLevelNode)
 $if(!IsStringToken)
 $if(!#isPrimitive)
-if (token$(TypeInSignature)_$(Id) instanceof ASTNode) {
-  state().addHandlerDepTo(((ASTNode)token$(TypeInSignature)_$(Id)).handler);
+if (token$(TypeInSignature)_$(Id) instanceof $ASTNode) {
+  state().addHandlerDepTo((($ASTNode) token$(TypeInSignature)_$(Id)).handler);
 }
 $endif
 $endif
@@ -362,19 +362,19 @@ $endif
 $if(IncrementalLevelRegion)
 $if(!IsStringToken)
 $if(!#isPrimitive)
-if (token$(TypeInSignature)_$(Id) instanceof ASTNode && token$(TypeInSignature)_$(Id).isRegionRoot()) {
-  ((ASTNode)token$(TypeInSignature)_$(Id)).handler().addDependant(handler());
+if (token$(TypeInSignature)_$(Id) instanceof $ASTNode && token$(TypeInSignature)_$(Id).isRegionRoot()) {
+  (($ASTNode) token$(TypeInSignature)_$(Id)).handler().addDependant(handler());
 }
 $endif
 $endif
 $endif
-    
+
 $endif
 ]]
 
 AttrDecl.incHookAttrRead = [[
 $if(IncrementalEnabled)
-      
+
 $if(IncrementalLevelParam)
 $if(!#isParamAttr)
 if (#(attributeSignature)_handler == null) {
@@ -404,12 +404,12 @@ if (#(attributeSignature)_computed) {
 }
 $else
 if (#(attributeSignature)_values.containsKey(_parameters)) {
-  state().addHandlerDepTo(((ASTNode)#(attributeSignature)_values.get(_parameters)).handler());
+  state().addHandlerDepTo((($ASTNode) #(attributeSignature)_values.get(_parameters)).handler());
 }
 $endif
 $endif
 $endif
-    
+
 $if(IncrementalLevelRegion)
 $if(#getNTA)
 $if(!#isParamAttr)
@@ -417,8 +417,8 @@ if (#(attributeSignature)_computed && #(attributeSignature)_value.isRegionRoot()
   state().addHandlerDepTo(#(attributeSignature)_value.handler());
 }
 $else
-if (#(attributeSignature)_values.containsKey(_parameters) && ((ASTNode)#(attributeSignature)_values.get(_parameters)).isRegionRoot()) {
-  state().addHandlerDepTo(((ASTNode)#(attributeSignature)_values.get(_parameters)).handler());
+if (#(attributeSignature)_values.containsKey(_parameters) && (($ASTNode) #(attributeSignature)_values.get(_parameters)).isRegionRoot()) {
+  state().addHandlerDepTo((($ASTNode) #(attributeSignature)_values.get(_parameters)).handler());
 }
 $endif
 $endif
@@ -473,7 +473,7 @@ $else
 state().enterAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
 $endif
 $endif
-      
+
 $if(IncrementalLevelAttr)
 state().enterAttrStoreEval(#(attributeSignature)_handler);
 $endif
@@ -489,11 +489,11 @@ $else
 state().enterAttrStoreEval(handler);
 $endif
 $endif
-      
+
 $if(IncrementalLevelRegion)
 state().IN_COMPUTATION++;
 $endif
-      
+
 $endif
 $endif
 ]]
@@ -531,7 +531,7 @@ if (#(attributeSignature)_value.isRegionRoot()) {
 }
 $endif
 $endif
-      
+
 $endif
 $endif
 ]]
@@ -547,7 +547,7 @@ $else
 state().exitAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
 $endif
 $endif
-      
+
 $if(IncrementalLevelAttr)
 state().exitAttrStoreEval(#(attributeSignature)_handler);
 $endif
@@ -573,7 +573,7 @@ if (#(attributeSignature)_value.isRegionRoot()) {
 }
 $endif
 $endif
-      
+
 $endif
 $endif
 ]]
@@ -609,16 +609,16 @@ $if(IncrementalEnabled)
 $if(#hasCache)
 
 $if(IncrementalLevelParam)
-else tmpHandler.clearDependencies();
+tmpHandler.clearDependencies();
 $endif
 
 $if(IncrementalLevelAttr)
-else tmpHandler.clearDependencies();
+tmpHandler.clearDependencies();
 $endif
 
 $if(IncrementalLevelNode)
 $if(!#getNTA)
-else tmpHandler.clearDependencies();
+tmpHandler.clearDependencies();
 $endif
 $endif
 

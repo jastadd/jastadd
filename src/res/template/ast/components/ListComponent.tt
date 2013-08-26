@@ -78,6 +78,17 @@ ListComponent = [[
   }
 
   /**
+   * Check whether the $Name list has any children.
+   * @return {@code true} if it has at least one child, {@code false} otherwise.
+   * @apilevel high-level
+   */
+  $Modifier boolean $Host.has$Name() {
+    $SynchBegin
+    return get$(Name)List().getNumChild() != 0;
+    $SynchEnd
+  }
+
+  /**
    * Append an element to the $Name list.
    * @param node The element to append to the $Name list.
    * @apilevel high-level

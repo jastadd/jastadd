@@ -30,78 +30,78 @@ Grammar.emitDDGNode = [[
 /**
 * @apilevel internal
 */
-public static class $DDGNodeName {
+public class $DDGNodeName {
 
-$if (IncrementalLevelParam) 
+$if (IncrementalLevelParam)
   // Level: param
 
-  public ASTNode fNode;  
+  public $ASTNode fNode;
   public String fAttrID;
   protected Object fParams;
-  
-  public $DDGNodeName(ASTNode node, String attrID, Object params) {
+
+  public $DDGNodeName($ASTNode node, String attrID, Object params) {
     fNode = node;
     fAttrID = attrID;
     fParams = params;
     fState = node.inc_state;
     //createdHandlers.add(this);
   }
-   
-  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+
+  public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
     fNode = node;
     fAttrID = handler.fAttrID;
     fParams = handler.fParams;
     fState = node.inc_state;
     //createdHandlers.add(this);
   }
-  
+
   public void setParams(Object params) {
     fParams = params;
   }
-  
-$if (IncrementalPropLimit)  
+
+$if (IncrementalPropLimit)
   // Limit change propagation with the use of cache independence
-  
+
   public boolean cacheInDependent = false;
-  
-  public $DDGNodeName(ASTNode node, String attrID, Object params, boolean cacheInDependent) {
+
+  public $DDGNodeName($ASTNode node, String attrID, Object params, boolean cacheInDependent) {
     this(node, attrID, params);
     this.cacheInDependent = cacheInDependent;
   }
-  
+
   public boolean isCacheInDependent() {
     return cacheInDependent;
   }
-  
+
   public void setCacheInDependent(boolean b) {
     cacheInDependent = b;
   }
 
-  public boolean noCacheRead = true;  
+  public boolean noCacheRead = true;
 $endif
 
 $endif
 
 $if (IncrementalLevelAttr)
   // Level: attr
-  
-  public ASTNode fNode;
+
+  public $ASTNode fNode;
   public String fAttrID;
-  
-  public $DDGNodeName(ASTNode node, String attrID) {
+
+  public $DDGNodeName($ASTNode node, String attrID) {
     fNode = node;
     fAttrID = attrID;
     fState = node.inc_state;
     //createdHandlers.add(this);
   }
-  
-  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+
+  public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
     fNode = node;
     fAttrID = handler.fAttrID;
     fState = node.inc_state;
     //createdHandlers.add(this);
   }
-  
+
   public void flushRegion() {
     // Remove dependencies
     java.util.HashSet<$DDGNodeName> k = fDependencySet;
@@ -110,26 +110,26 @@ $if (IncrementalLevelAttr)
       node.removeDependant(this);
     }
     fNode.reactToDependencyChange(fAttrID);
-  }  
+  }
 $endif
 
 $if (IncrementalLevelNode)
-  // Level: node 
+  // Level: node
 
-  public ASTNode fNode;
-  
-  public $DDGNodeName(ASTNode node) {
+  public $ASTNode fNode;
+
+  public $DDGNodeName($ASTNode node) {
     fNode = node;
     fState = node.inc_state;
     //createdHandlers.add(this);
-  }    
-  
-  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+  }
+
+  public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
     fNode = node;
     fState = node.inc_state;
     //createdHandlers.add(this);
-  } 
-  
+  }
+
   public void flushRegion() {
     // Remove dependencies
     java.util.HashSet<$DDGNodeName> k = fDependencySet;
@@ -138,26 +138,26 @@ $if (IncrementalLevelNode)
       node.removeDependant(this);
     }
     fNode.reactToDependencyChange();
-  } 
+  }
 $endif
 
 $if (IncrementalLevelRegion)
   // Level: region
-  
-  public ASTNode fNode;
-  
-  public $DDGNodeName(ASTNode node) {
-    fNode = node;
-    fState = node.inc_state;
-    //createdHandlers.add(this);
-  }    
-  
-  public $DDGNodeName($DDGNodeName handler, ASTNode node) {
+
+  public $ASTNode fNode;
+
+  public $DDGNodeName($ASTNode node) {
     fNode = node;
     fState = node.inc_state;
     //createdHandlers.add(this);
   }
-  
+
+  public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
+    fNode = node;
+    fState = node.inc_state;
+    //createdHandlers.add(this);
+  }
+
   public void flushRegion() {
     // Remove dependencies
     java.util.HashSet<$DDGNodeName> k = fDependencySet;
@@ -166,23 +166,23 @@ $if (IncrementalLevelRegion)
       node.removeDependant(this);
     }
     fNode.reactToDependencyChange();
-  }          
+  }
 $endif
- 
+
   // Dependency management
-    
-  public java.util.HashSet<$DDGNodeName> fListenerSet = new java.util.HashSet<$DDGNodeName>(4);    
+
+  public java.util.HashSet<$DDGNodeName> fListenerSet = new java.util.HashSet<$DDGNodeName>(4);
   public java.util.HashSet<$DDGNodeName> fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
-  
+
   public boolean hasDependants() {
     return !fListenerSet.isEmpty();
   }
-  
+
   public void addDependant($DDGNodeName node) {
     fListenerSet.add(node);
     node.addDependency(this);
   }
-  
+
   public void removeDependant($DDGNodeName node) {
     fListenerSet.remove(node);
   }
@@ -193,23 +193,23 @@ $endif
     }
     fListenerSet.clear();
   }
-  
+
   public void clearDependencies() {
     for ($DDGNodeName node : fDependencySet) {
       node.removeDependant(this);
     }
     fDependencySet.clear();
   }
-  
+
   public void addDependency($DDGNodeName node) {
     fDependencySet.add(node);
   }
-  
+
   public void removeDependency($DDGNodeName node) {
     fDependencySet.remove(node);
   }
-  
-  /* 
+
+  /*
    * Transfers listeners from another handler, used in rewrites.
    */
   public void transferSetsFrom($DDGNodeName node) {
@@ -225,25 +225,25 @@ $endif
     node.throwAway();
   }
 
-  /* 
+  /*
    * Transfers dependencies from another handler, used in rewrites.
-   */  
+   */
   public void transferDependenciesFrom($DDGNodeName node) {
     if (node == null || this == node)
       return;
     for ($DDGNodeName l : node.fDependencySet) {
       l.addDependant(this);
     }
-$if (IncrementalPropLimit) 
+$if (IncrementalPropLimit)
     setCacheInDependent(node.cacheInDependent);
-$endif    
+$endif
     node.clearDependencies();
   }
- 
+
   // Notification
-   
+
   private boolean visited = false;
-  
+
   public void notifyDependencies() {
     // Notify and remove listeners
     if (!visited) {
@@ -258,12 +258,12 @@ $endif
       }
       visited = false;
     }
-  } 
- 
+  }
+
   // React to change
-  
+
   private boolean visitedChange = false;
-  
+
   public void dependencyChanged() {
     if (!visitedChange) {
       visitedChange = true;
@@ -271,7 +271,7 @@ $if (IncrementalTrack)
       trackedFlushes++;
       System.out.println(\"not(\" + this + \")\");
 $endif
-$if (IncrementalLevelParam)     
+$if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
       if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {
       } else {
@@ -284,7 +284,7 @@ $endif
             node.removeDependant(this);
           }
           fNode.reactToDependencyChange(fAttrID, fParams);
-        }   
+        }
 $if (IncrementalPropLimit)
       }
 $endif
@@ -295,8 +295,8 @@ $else
         fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
         for ($DDGNodeName node : k) {
           node.removeDependant(this);
-        }     
-$if (IncrementalLevelAttr) 
+        }
+$if (IncrementalLevelAttr)
         fNode.reactToDependencyChange(fAttrID);
 $endif
 $if (IncrementalLevelNode)
@@ -304,50 +304,50 @@ $if (IncrementalLevelNode)
 $endif
 $if (IncrementalLevelRegion)
         fNode.reactToDependencyChange();
-$endif           
+$endif
 	  }
-$endif      
+$endif
       visitedChange = false;
     }
   }
-  
+
   // State
-  
-  protected int fState = ASTNode.inc_CREATED;
-  
+
+  protected int fState = $ASTNode.inc_CREATED;
+
   public void changeState(int newState) {
     fState = newState;
   }
-  
+
   public void throwAway() {
-    fState = ASTNode.inc_GARBAGE;
-  }
-  
-  public void keepAlive() {
-    fState = ASTNode.inc_LIVE;
-  }
-  
-  public boolean isGarbage() {
-    return fState == ASTNode.inc_GARBAGE;
-  }
-  
-  public boolean isCreated() {
-    return fState == ASTNode.inc_CREATED;
-  }
-  
-  public boolean isCloned() {
-    return fState == ASTNode.inc_CLONED;
-  }
-  
-  public boolean isLive() {
-    return fState == ASTNode.inc_LIVE;
+    fState = $ASTNode.inc_GARBAGE;
   }
 
-$if (IncrementalDebug)  
+  public void keepAlive() {
+    fState = $ASTNode.inc_LIVE;
+  }
+
+  public boolean isGarbage() {
+    return fState == $ASTNode.inc_GARBAGE;
+  }
+
+  public boolean isCreated() {
+    return fState == $ASTNode.inc_CREATED;
+  }
+
+  public boolean isCloned() {
+    return fState == $ASTNode.inc_CLONED;
+  }
+
+  public boolean isLive() {
+    return fState == $ASTNode.inc_LIVE;
+  }
+
+$if (IncrementalDebug)
   // Debugging
-  
+
   private int dumpDependents_visited = 0;
-  
+
   public void dumpDependents(boolean changed, int visited) {
     if (visited != dumpDependents_visited) {
       dumpDependents_visited = visited;
@@ -375,7 +375,7 @@ $if (IncrementalDebug)
       }
     }
   }
-  
+
   public void dumpDeps() {
     java.util.TreeSet<String> sorted = new java.util.TreeSet<String>();
     for ($DDGNodeName node : fListenerSet) {
@@ -385,11 +385,11 @@ $if (IncrementalDebug)
       System.out.println("dep(" + s + " -> " + this + ")");
     }
   }
-  
-  public String toString() {  
+
+  public String toString() {
 $if (IncrementalLevelParam)
-    return fNode.relativeNodeID() + ":" + fAttrID + (fParams != null ? 
-            ("[" + (fParams instanceof ASTNode ? ((ASTNode)fParams).relativeNodeID() : fParams) + "]") 
+    return fNode.relativeNodeID() + ":" + fAttrID + (fParams != null ?
+            ("[" + (fParams instanceof $ASTNode ? (($ASTNode) fParams).relativeNodeID() : fParams) + "]")
             : "");
 $endif
 $if (IncrementalLevelAttr)
@@ -400,15 +400,15 @@ $if (IncrementalLevelNode)
 $endif
 $if (IncrementalLevelRegion)
     return fNode.relativeNodeID();
-$endif  
-  }    
+$endif
+  }
 $endif
 
   // Clean up
-  
+
   public boolean visitedDuringCleanup = false;
   public static int nbr_cleanup = 0;
-  
+
   public void cleanUpGarbage() {
     visitedDuringCleanup = true;
     nbr_cleanup++;
@@ -421,7 +421,7 @@ $endif
       }
     }
   }
-  
+
   /*
   public static LinkedList<$DDGNodeName> createdHandlers = new LinkedList<$DDGNodeName>();
   public static void doCleanUp() {
@@ -434,29 +434,29 @@ $endif
     }
   }
   */
-  
+
 $if(IncrementalTrack)
   // Tracking
-  
+
   public static int trackedReads = 0;
   public static int trackedComputes = 0;
   public static int trackedFlushes = 0;
-  
+
   public void trackChange() {
     System.out.println("change(" + this + ")");
   }
-  
+
   public static void resetTrackingCounters() {
     trackedReads = 0;
     trackedComputes = 0;
     trackedFlushes = 0;
   }
-  
+
   public static String getTrackingResult() {
     return "#reads = " + trackedReads + ", #computes = " + trackedComputes + ", #flushes = " + trackedFlushes;
   }
-$endif  
-} 
+$endif
+}
 ]]
 
 # Create DDG node for token
@@ -479,30 +479,30 @@ $endif
 
 # Create DDG nodes for AST
 ASTDecl.createASTHandlers = [[
-$if (IncrementalLevelParam) 
+$if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
-  protected $DDGNodeName ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null, true);
-  protected $DDGNodeName ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null, true);
+  protected $DDGNodeName $ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null, true);
+  protected $DDGNodeName $ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null, true);
 $else
-  protected $DDGNodeName ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null);
-  protected $DDGNodeName ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null);
+  protected $DDGNodeName $ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null);
+  protected $DDGNodeName $ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null);
 $endif
-  protected $DDGNodeName[] ASTNode.getChild_handler;
+  protected $DDGNodeName[] $ASTNode.getChild_handler;
 $endif
 $if (IncrementalLevelAttr)
-  protected $DDGNodeName ASTNode.getParent_handler = new $DDGNodeName(this, "getParent");
-  protected $DDGNodeName ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren");
-  protected $DDGNodeName ASTNode.getChild_handler = new $DDGNodeName(this, "getChild");
+  protected $DDGNodeName $ASTNode.getParent_handler = new $DDGNodeName(this, "getParent");
+  protected $DDGNodeName $ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren");
+  protected $DDGNodeName $ASTNode.getChild_handler = new $DDGNodeName(this, "getChild");
 $endif
 ]]
 
 # Create DDG node for AST node
 ASTDecl.createNodeHandler = [[
-  protected $DDGNodeName #name.handler = new $DDGNodeName(this);                    
+  protected $DDGNodeName #name.handler = new $DDGNodeName(this);
 ]]
 
 # Create DDG node for attribute
-ASTDecl.createAttributeHandler = [[        
+ASTDecl.createAttributeHandler = [[
 $if (IncrementalLevelParam)
 $if (IsParamAttr)
   protected java.util.Map #name.$(AttributeName)_handler = new java.util.HashMap(4);
@@ -511,7 +511,7 @@ $else
 $endif
 $endif
 $if (IncrementalLevelAttr)
-  protected $DDGNodeName #name.$(AttributeName)_handler;            
+  protected $DDGNodeName #name.$(AttributeName)_handler;
 $endif
 ]]
 

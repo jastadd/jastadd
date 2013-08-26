@@ -104,8 +104,8 @@ aspect NTADetector {
 
 aspect ConstructorParameterTypes {
   syn String Components.constrParmType();
-  eq ListComponents.constrParmType() = grammar().java5 ? "List<" + getId().type() + ">" : "List";
-  eq OptionalComponent.constrParmType() = grammar().java5 ? "Opt<" + getId().type() + ">" : "Opt";
+  eq ListComponents.constrParmType() = grammar().java5 ? grammar().listType + "<" + getId().type() + ">" : grammar().listType;
+  eq OptionalComponent.constrParmType() = grammar().java5 ? grammar().optType + "<" + getId().type() + ">" : grammar().optType;
   eq TokenComponent.constrParmType() = getTokenId().getTYPE();
   eq AggregateComponents.constrParmType() = getId().type();
 }
@@ -146,8 +146,8 @@ aspect CoarseIncremental {
 	
 	syn lazy boolean ASTDecl.isRegionLeaf() {
 
-    if (name().equals("List") || name().equals("Opt")) {
-      TypeDecl type = env().lookup("ASTNode");
+    if (name().equals(grammar().listType) || name().equals(grammar().optType)) {
+      TypeDecl type = env().lookup(grammar().astNodeType);
       if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
 	  			return false;
 	  	}

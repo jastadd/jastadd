@@ -29,7 +29,7 @@ ASTDecl.emitDefaultConstructor = [[
 $if(JJTree)
   public #name.#name(int i) {
     super(i);
-$if(#isASTNode)
+$if(#isASTNodeDecl)
     init$$Children();
 $endif
     $FinalInit
@@ -46,7 +46,7 @@ $endif
 $else
   public #name.#name() {
     super();
-$if(#isASTNode)
+$if(#isASTNodeDecl)
     init$$Children();
 $endif
     $FinalInit
@@ -69,9 +69,9 @@ ASTDecl.emitChildInitMethod = [[
 
 OptDecl.constructor = [[
 $if(Java5)
-  public Opt.Opt(T opt) {
+  public $Opt.$Opt(T opt) {
 $else
-  public Opt.Opt(ASTNode opt) {
+  public $Opt.$Opt($ASTNode opt) {
 $endif
     $include(State.incHookConstructionStart)
     setChild(opt, 0);
@@ -82,17 +82,11 @@ $endif
 # A list constructor that builds a list with all arguments
 ListDecl.constructor = [[
 $if(Java5)
-  public List.List(T... initialChildren) {
-    children = new ASTNode[initialChildren.length];
+  public $List.$List(T... initialChildren) {
+    children = new $ASTNode[initialChildren.length];
     #genIncrementalInitChildHandlers
     for (int i = 0; i < children.length; ++i) {
       addChild(initialChildren[i]);
-    }
-  }
-
-  public List.List(Iterable<? extends T> iterable) {
-    for (T node : iterable) {
-      addChild(node);
     }
   }
 $endif

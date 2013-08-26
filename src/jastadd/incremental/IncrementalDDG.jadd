@@ -52,13 +52,13 @@ aspect IncrementalDDG {
       tt.expand("ASTDecl.createNodeHandler", out);
     }
     if (grammar().incrementalLevelNode &&
-      		name().equals("ASTNode")) {
+      		name().equals(grammar().astNodeType)) {
       tt.expand("ASTDecl.createNodeHandler", out);
     } 
     if (grammar().incrementalLevelParam || 
     	grammar().incrementalLevelAttr) {
       
-      if (name().equals("ASTNode")) {      
+      if (name().equals(grammar().astNodeType)) {      
         tt.expand("ASTDecl.createASTHandlers", out);
       }
       // collect attributes
@@ -103,7 +103,6 @@ aspect IncrementalDDG {
   public void ASTDecl.genIncrementalCopyHandlers(PrintWriter out) {
     if (!grammar().incremental) return; 
     TemplateContext tt = templateContext();
-    tt.bind("IsASTNode", name().equals("ASTNode"));
     tt.bind("IsRegionRoot", isRegionRoot());
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
     tt.bind("CopyAttributeHandlers", emitCopyAttributeHandlersString());
@@ -167,11 +166,10 @@ aspect IncrementalDDG {
   public void ASTDecl.genIncrementalRegions(PrintWriter out) {
     if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
-    tt.bind("IsAstNode", name().equals("ASTNode"));
     tt.bind("IsRegionRoot", isRegionRoot());
     if (grammar().incrementalLevelNode) {
       tt.expand("ASTDecl.createIsRegionRootMethod", out);
-      if (name().equals("ASTNode")) {
+      if (name().equals(grammar().astNodeType)) {
         tt.expand("ASTDecl.createRegionHandlerMethod", out);
       }
     }
@@ -179,11 +177,11 @@ aspect IncrementalDDG {
       tt.expand("ASTDecl.createIsRegionRootMethod", out);
       tt.expand("ASTDecl.createRegionHandlerMethod", out);
       tt.expand("ASTDecl.createRegionRootMethod", out);
-      if (isRegionRoot() && !name().equals("ASTNode")) {
+      if (isRegionRoot() && !name().equals(grammar().astNodeType)) {
         tt.expand("ASTDecl.trackGetParentForRegionMethod", out);
       }
       if (isRegionLeaf()) {
-        if (name().equals("List") || name().equals("Opt") || !name().equals("ASTNode")) {
+        if (isListDecl() || isOptDecl() || !isASTNodeDecl()) {
           tt.expand("ASTDecl.trackGetChildForRegionMethod", out);
           tt.expand("ASTDecl.trackGetChildNoTranForRegionMethod", out);
         }
@@ -193,12 +191,12 @@ aspect IncrementalDDG {
     /*
     // method: removeChild(int) -- overloaded for region tracking
     if (grammar().incrementalLevelRegion) {
-      if (isRegionLeaf() && !name().equals("ASTNode")) {
+      if (isRegionLeaf() && !name().equals(grammar().astNodeType)) {
         stream.println(ind + "public void " + name() + ".removeChild(int index) {");
         stream.println(ind(2) + "// region leaf");
-        stream.println(ind(2) + "ASTNode child = getChild(index);");
+        stream.println(ind(2) + "" + grammar().astNodeType + " child = getChild(index);");
         stream.println(ind(2) + "if (child.isRegionRoot()) {");
-        stream.println(ind(3) +   "ASTNode$DepGraphNode handler = handler();");
+        stream.println(ind(3) +   "" + grammar().astNodeType + "$DepGraphNode handler = handler();");
         stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "super.removeChild(index);");
@@ -207,11 +205,11 @@ aspect IncrementalDDG {
     }
     // method: insertChild(ASTNode,int) -- overloaded for region tracking
     if (grammar().incrementalLevelRegion) {
-      if (isRegionLeaf() && !name().equals("ASTNode")) {
-        stream.println("    public void " + name() + ".insertChild(ASTNode node, int index) {");
+      if (isRegionLeaf() && !name().equals(grammar().astNodeType)) {
+        stream.println("    public void " + name() + ".insertChild(" + grammar().astNodeType + " node, int index) {");
         stream.println("      // region leaf");
         stream.println("      if (node.isRegionRoot()) {");
-        stream.println(ind(3) +   "ASTNode$DepGraphNode handler = handler();");
+        stream.println(ind(3) +   "" + grammar().astNodeType + "$DepGraphNode handler = handler();");
         stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
         stream.println("      }");
         stream.println("      super.insertChild(node, index);");

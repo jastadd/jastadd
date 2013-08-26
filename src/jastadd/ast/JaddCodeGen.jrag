@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,19 +40,19 @@ aspect JaddCodeGen {
   public void Grammar.genDefaultNodeTypes() {
     ASTDecl cl;
     IdDecl name;
-    
+
     // Add ASTNode
     cl = new ASTDecl();
     name = new IdDecl();
-    name.setID("ASTNode");
+    name.setID(grammar().astNodeType);
     cl.setIdDecl(name);
     cl.setFileName("");
     addTypeDecl(cl);
-    
+
     // Add List
     cl = new ASTDecl();
     name = new IdDecl();
-    name.setID("List");
+    name.setID(grammar().listType);
     cl.setIdDecl(name);
     cl.setFileName("");
     addTypeDecl(cl);
@@ -60,7 +60,7 @@ aspect JaddCodeGen {
     // Add Opt
     cl = new ASTDecl();
     name = new IdDecl();
-    name.setID("Opt");
+    name.setID(grammar().optType);
     cl.setIdDecl(name);
     cl.setFileName("");
     addTypeDecl(cl);
@@ -135,10 +135,10 @@ aspect JaddCodeGen {
 
     String initChildArray = "";
     if (childCount() > 0) {
-      initChildArray = "children = new ASTNode[" + childCount() + "];";
+      initChildArray = "children = new " + grammar().astNodeType + "[" + childCount() + "];";
       initChildArray += genIncrementalInitChildHandlers();
     }
-    
+
     tt.bind("InitChildArray", initChildArray);
 
     StringBuffer childInit = new StringBuffer();
@@ -147,10 +147,10 @@ aspect JaddCodeGen {
     for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       if(c instanceof ListComponents) {
-        childInit.append("setChild(new List(), " + i + ");\n");
+        childInit.append("setChild(new " + grammar().listType + "(), " + i + ");\n");
         i++;
       } else if(c instanceof OptionalComponent) {
-        childInit.append("setChild(new Opt(), " + i + ");\n");
+        childInit.append("setChild(new " + grammar().optType + "(), " + i + ");\n");
         i++;
       } else if(c instanceof AggregateComponents) {
         i++;
@@ -167,10 +167,10 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
     if(grammar().block) out.print(grammar().blockBegin);
-    
+
     TemplateContext tt = templateContext();
     out.print(tt.expand("State.incHookConstructionStart"));
-    
+
     int param = 0;
     int childIndex = 0;
     for(Iterator iter = getComponents(); iter.hasNext(); ) {
@@ -265,7 +265,7 @@ aspect JaddCodeGen {
 
   /**
    * Generate ASTNode$State aspect declarations.
-   * 
+   *
    * @param out Aspect output stream
    */
   public void Grammar.emitASTNode$State(PrintWriter out) {
@@ -273,12 +273,22 @@ aspect JaddCodeGen {
   }
 
   /**
+   * Generate Tracer class.
+   *
+   * @param out Aspect output stream
+   */
+  public void Grammar.emitTracer(PrintWriter out) {
+    templateContext().expand("Tracer", out);
+  }
+
+
+  /**
    * String for calculating the initial child array size.
    * List nodes use the minimum list size as the initial child
    * array size.
    */
   syn String ASTDecl.initialChildArraySize() {
-    return "(i+1>" + grammar().minListSize + " || !(this instanceof List))?i+1:" + grammar().minListSize;
+    return "(i+1>" + grammar().minListSize + " || !(this instanceof " + grammar().listType + "))?i+1:" + grammar().minListSize;
   }
 
   /**
@@ -349,6 +359,11 @@ aspect JaddCodeGen {
 
     /* emit debug declarations */
     tt.expand("ASTNode.debugDecls", out);
+
+    /* emit declarations for line and column */
+    if (grammar().lineColumnNumbers) {
+      tt.expand("ASTNode.lineColumnNumbers", out);
+    }
   }
 
   /**
@@ -360,7 +375,7 @@ aspect JaddCodeGen {
 
   /**
    * Generate implicit aspect declarations for the List type.
-   * 
+   *
    * @param out Aspect output stream
    */
   public void ASTDecl.emitImplicitListDecls(PrintWriter out) {
@@ -371,7 +386,7 @@ aspect JaddCodeGen {
   /**
    * Generate implicit aspect declarations for regular
    * (non-ASTNode, non-List, non-Opt) node types.
-   * 
+   *
    * @param out Aspect output stream
    */
   public void ASTDecl.emitImplicitRegularNodeDecls(PrintWriter out) {
@@ -382,9 +397,9 @@ aspect JaddCodeGen {
     }
   }
 
-  syn boolean ASTDecl.isASTNodeDecl() = name().equals("ASTNode");
-  syn boolean ASTDecl.isOptDecl() = name().equals("Opt");
-  syn boolean ASTDecl.isListDecl() = name().equals("List");
+  syn boolean ASTDecl.isASTNodeDecl() = name().equals(grammar().astNodeType);
+  syn boolean ASTDecl.isOptDecl() = name().equals(grammar().optType);
+  syn boolean ASTDecl.isListDecl() = name().equals(grammar().listType);
 
   /**
    * Check the node structure of a regular (non-Opt, non-List)
@@ -477,15 +492,15 @@ aspect JaddCodeGen {
     out.println(ind + " * @apilevel internal");
     out.println(ind + " */");
     out.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-    if(name().equals("List")) {
-      
+    if(name().equals(grammar().listType)) {
+
       // Avoiding list touch rewrite
       if (!(grammar().incremental || grammar().fullFlush)) {
         out.println(ind2 + "return true;");  // old code
       } else {
         out.println(ind2 + "return false;");
       }
-      
+
     } else if(!hasRewrites()) {
       out.println(ind2 + "return false;");
     } else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition()) {
@@ -528,16 +543,16 @@ aspect JaddCodeGen {
     }
 
     // Generate code common for all nodes by adding them to ASTNode
-    if (name().equals("ASTNode")) {
+    if (isASTNodeDecl()) {
       emitImplicitASTNodeDecls(out);
       env().genRewriteOrderChecks(out);
       env().genReset(out);
       if (grammar().java5) {
         templateContext().expand("ASTNode.iterator", out);
       }
-    } else if (name().equals("List")) {
+    } else if (isListDecl()) {
       emitImplicitListDecls(out);
-    } else if (name().equals("Opt")) {
+    } else if (isOptDecl()) {
       // do not override getNumChild with regular node implementation
     } else {
       emitImplicitRegularNodeDecls(out);
@@ -583,11 +598,9 @@ aspect JaddCodeGen {
 
   public abstract void Components.jaddGen(int index, boolean publicModifier, ASTDecl decl);
 
-  syn String ListComponents.annotations() = suppressWarnings();
-
   public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("ListType", grammar().java5 ? "List<" + getId().type() + ">" : "List");
+    tt.bind("ListType", grammar().java5 ? grammar().listType + "<" + getId().type() + ">" : grammar().listType);
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
     tt.bind("Index", String.valueOf(index));
@@ -597,11 +610,9 @@ aspect JaddCodeGen {
     parse(tt.expand("ListComponent"));
   }
 
-  syn String OptionalComponent.annotations() = suppressWarnings();
-
   public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("OptType", grammar().java5 ? "Opt<" + getId().type() + ">" : "Opt");
+    tt.bind("OptType", grammar().java5 ? grammar().optType + "<" + getId().type() + ">" : grammar().optType);
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
     tt.bind("Index", String.valueOf(index));
@@ -610,8 +621,6 @@ aspect JaddCodeGen {
 
     parse(tt.expand("OptionalComponent"));
   }
-
-  syn String TokenComponent.annotations() = suppressWarnings();
 
   private boolean TokenComponent.called = false;
 
@@ -627,7 +636,7 @@ aspect JaddCodeGen {
     boolean isRedefined = decl.redefinesTokenComponent(this);
     tt.bind("IsStringToken", isStringToken);
     tt.bind("IsRedefined", isRedefined);
-    
+
     parse(tt.expand("TokenComponent"));
   }
 
@@ -650,7 +659,7 @@ aspect JaddCodeGen {
     // from a node type specification
     jp.setFileName("");
 
-    // EMMA_2011-09-08: Adding this to give .ast generated methods an enclosing 
+    // EMMA_2011-09-08: Adding this to give .ast generated methods an enclosing
     // aspect "Ast" which allows for refinement of these methods. For example,
     // "getA" generated from "B ::= A" can be refined using the "Ast" aspect.
     //jp.enclosingAspect = "Ast";
