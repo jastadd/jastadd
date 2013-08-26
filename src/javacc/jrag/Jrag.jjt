@@ -1664,7 +1664,14 @@ void UnmodifiedInterfaceDeclaration(String modifiers) :
     className = t.image;
     typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
-    typeDecl.modifiers = modifiers;
+    //typeDecl.modifiers = modifiers; TODO: uncomment this!!
+
+    if (modifiers != null && !modifiers.trim().isEmpty()) {
+      System.err.println("WARNING: the interface " + className + " declared at " + fileName + ":" + first.beginLine +
+          " will have it's modifiers (" + modifiers + ") stripped! " +
+          "This behaviour will be changed in future versions of JastAdd, and the modifiers will then be retained in the " +
+          "generated code. Please ensure that you are using legal modifiers for this interface (no protected, private or static for top-level interfaces).");
+    }
 
     // TODO: Warning for deprecated implicit public modifiers - remove this when implicit public has been removed!
     if (modifiers == null || modifiers.trim().isEmpty()) {
