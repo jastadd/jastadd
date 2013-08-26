@@ -283,7 +283,7 @@ public class JastAdd {
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
         
-        JastAddUtil.parseAspectBodyDeclarations(new java.io.StringReader(writer.toString()),"ASTNode",rootGrammar);
+        JastAddUtil.parseAspectBodyDeclarations(new java.io.StringReader(writer.toString()),rootGrammar.astNodeType,rootGrammar);
 
         int j = 0;
         for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
@@ -299,38 +299,24 @@ public class JastAdd {
     }
   }
 
-
   private void genTracer(Grammar root) {
     java.io.StringWriter writer = new java.io.StringWriter();
     root.emitTracer(new PrintWriter(writer));
-    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
-        new java.io.StringReader(writer.toString()));
-    jp.root = root;
-    jp.setFileName(root.astNodeType);
-    jp.className = root.astNodeType;
-    jp.pushTopLevelOrAspect(true);
-    try {
-      while(true)
-        jp.AspectBodyDeclaration();
-    } catch (Exception e) {
-      // TODO: handle error?
-      // String s = e.getMessage();
-    }
-    jp.popTopLevelOrAspect();
+    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),root.astNodeType, root);
   }
     
   private void genIncrementalDDGNode(Grammar rootGrammar) {
     if (rootGrammar.incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
       rootGrammar.genIncrementalDDGNode(new PrintWriter(writer));
-      JastAddUtil.parseAspectBodyDeclarations(writer.toString(),"ASTNode",rootGrammar);
+      JastAddUtil.parseAspectBodyDeclarations(writer.toString(),rootGrammar.astNodeType,rootGrammar);
     }
   }
 
   private void genASTNode$State(Grammar rootGrammar) {
     java.io.StringWriter writer = new java.io.StringWriter();
     rootGrammar.emitASTNode$State(new PrintWriter(writer));
-    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),"ASTNode",rootGrammar);
+    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),rootGrammar.astNodeType,rootGrammar);
   }
   
   @SuppressWarnings("unused")
