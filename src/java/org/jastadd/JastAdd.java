@@ -27,6 +27,7 @@
  */
 package org.jastadd;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -174,7 +175,9 @@ public class JastAdd {
 
       genASTNode$State(root);
 
-      genTracer(root);
+      if (config.tracingEnabled()) {
+        genTracer(config, root);
+      }
 
       genIncrementalDDGNode(root);
 
@@ -330,23 +333,12 @@ public class JastAdd {
     return problems;
   }
 
-  private void genTracer(Grammar root) {
-    java.io.StringWriter writer = new java.io.StringWriter();
-    root.emitTracer(new PrintWriter(writer));
-    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(
-        new java.io.StringReader(writer.toString()));
-    jp.root = root;
-    jp.setFileName(root.astNodeType);
-    jp.className = root.astNodeType;
-    jp.pushTopLevelOrAspect(true);
-    try {
-      while(true)
-        jp.AspectBodyDeclaration();
-    } catch (Exception e) {
-      // TODO: handle error?
-      // String s = e.getMessage();
-    }
-    jp.popTopLevelOrAspect();
+  private void genTracer(JastAddConfiguration config, Grammar root)
+    throws FileNotFoundException {
+
+    PrintWriter writer = new PrintWriter(new File(config.getOutputDir(), "Tracer.java"));
+    root.emitTracer(writer);
+    writer.close();
   }
 
   private void genIncrementalDDGNode(Grammar root) {

@@ -686,4 +686,11 @@ public class JastAddConfiguration {
   public boolean shouldPrintNonStandardOptions() {
     return printNonStandardOptions.matched();
   }
+
+  /**
+   * @return <code>true</code> if the --tracing option is enabled
+   */
+  public boolean tracingEnabled() {
+    return tracing.matched();
+  }
 }
