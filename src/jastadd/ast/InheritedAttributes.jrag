@@ -53,23 +53,27 @@ aspect InheritedAttributes {
 }
 
 aspect FindInheritedEquations {
-  syn lazy Map<ASTDecl, LinkedList<ASTDecl>> InhDecl.missingEqs() {
-    Map<ASTDecl, LinkedList<ASTDecl>> missing = new LinkedHashMap<ASTDecl, LinkedList<ASTDecl>>();
+  syn lazy Map<ASTDecl, Map<ASTDecl, String>> InhDecl.missingEqs() {
+    Map<ASTDecl, Map<ASTDecl, String>> missing = new LinkedHashMap<ASTDecl, Map<ASTDecl, String>>();
 
     if(hostClass() instanceof ASTDecl) {
       ASTDecl host = (ASTDecl) hostClass();
-      LinkedList<ASTDecl> list;
+      Map<ASTDecl, String> map;
+   
+      // The visited set is used for caching (also for sub classes). 
       Set<ASTPair> visited = new HashSet<ASTPair>();
 
-      list = host.findMissingInhEqs(signature(), host.fathers(), visited);
-      if (!list.isEmpty()) {
-        missing.put(host, list);
+      // check class
+      map = host.findMissingInhEqs(signature(), host.fathers(), visited);
+      if (!map.isEmpty()) {
+        missing.put(host, map);
       }
 
+      // check sub classes (transitive)
       for (ASTDecl sub: host.subclassesTransitive()) {
-        list = sub.findMissingInhEqs(signature(), sub.fathersIntransitive(), visited);
-        if (!list.isEmpty()) {
-          missing.put(sub, list);
+        map = sub.findMissingInhEqs(signature(), sub.fathersIntransitive(), visited);
+        if (!map.isEmpty()) {
+          missing.put(sub, map);
         }
       }
     }
@@ -77,42 +81,61 @@ aspect FindInheritedEquations {
     return missing;
   }
 
-  protected LinkedList<ASTDecl> ASTDecl.findMissingInhEqs(String signature,
+  /**
+   * Checks if an inherited attribute is defined this class. Returns a map
+   * of parents of the class for which the attribute is not defined for.
+   */
+  protected Map<ASTDecl, String> ASTDecl.findMissingInhEqs(String signature,
       Collection<ASTDecl> fatherSet, Set<ASTPair> visited) {
-    LinkedList<ASTDecl> missing = new LinkedList<ASTDecl>();
+    Map<ASTDecl, String> missing = new LinkedHashMap<ASTDecl, String>();
     for (ASTDecl father: fatherSet) {
       if (!father.hasInhEq(this, signature)) {
-        if (father.isRootNode() ||
-            !father.isInhDefined(signature, visited)) {
-          missing.add(father);
+        if (father.isRootNode()) {
+          missing.put(father, father.name() + "->" + name());
+        } 
+        String path = father.isInhDefined(signature, visited);
+        if (path != null) {
+          missing.put(father, path + "->" + father.name() + "->" + name());
         }
       }
     }
     return missing;
   }
-
+  
+  /**
+   * Used for caching during inherited attribute check 
+   */
   class ASTPair extends Pair<ASTDecl, ASTDecl> {
     public ASTPair(ASTDecl a, ASTDecl b) {
       super(a, b);
     }
   }
 
-  protected boolean ASTDecl.isInhDefined(String signature, Set<ASTPair> visited) {
+  /** 
+   * The recursive search for equations of inherited attributes.
+   *
+   * Returns null if the attribute is defined, otherwise a path in the abstract grammar. 
+   **/
+  protected String ASTDecl.isInhDefined(String signature, Set<ASTPair> visited) {
     for (ASTDecl father: fathers()) {
-      ASTPair p = new ASTPair(father,  this);
+      // Cache for efficiency
+      ASTPair p = new ASTPair(father, this);
       if (visited.contains(p)) {
         break;
       }
       visited.add(p);
 
       if (!father.hasInhEq(this, signature)) {
-        if (father.isRootNode() ||
-            !father.isInhDefined(signature, visited)) {
-          return false;
+        if (father.isRootNode()) {
+            return father.name();
+        } 
+        String path = father.isInhDefined(signature, visited);
+        if (path != null) {
+            return path + "->" + father.name();
         }
       }
     }
-    return true;
+    return null;
   }
 
   syn lazy TypeDecl Components.typeDecl() = env().lookup(type());

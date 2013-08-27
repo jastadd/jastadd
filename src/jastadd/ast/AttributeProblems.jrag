@@ -299,7 +299,7 @@ aspect AttributeProblems {
     buf.append("missing inherited equation for attribute " + name() + " ");
 
     boolean first1 = true;
-    for (Map.Entry<ASTDecl, LinkedList<ASTDecl>> e: missingEqs().entrySet()) {
+    for (Map.Entry<ASTDecl, Map<ASTDecl, String>> e: missingEqs().entrySet()) {
       if (!first1) {
         buf.append(", and ");
       }
@@ -307,12 +307,13 @@ aspect AttributeProblems {
       buf.append("in class " + e.getKey().name() + " when being child of ");
 
       boolean first2 = true;
-      for (ASTDecl father: e.getValue()) {
+      for (Map.Entry<ASTDecl, String> father: e.getValue().entrySet()) {
         if (!first2) {
           buf.append(", ");
         }
         first2 = false;
-        buf.append(father.name());
+        buf.append(father.getKey().name());
+        buf.append(" (path: " + father.getValue() + ")");
       }
     }
 
