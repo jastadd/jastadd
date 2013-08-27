@@ -138,7 +138,7 @@ aspect FindInheritedEquations {
     return null;
   }
 
-  syn lazy TypeDecl Components.typeDecl() = env().lookup(type());
+  syn lazy TypeDecl Components.typeDecl() = grammar().lookup(type());
 
   protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
     for(Iterator children = getComponents(); children.hasNext(); ) {

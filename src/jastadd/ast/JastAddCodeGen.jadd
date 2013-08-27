@@ -220,7 +220,7 @@ aspect JastAddCodeGen {
         stream.println("package " + packageName + ";\n");
       }
 
-      stream.print(env().genImportsList());
+      stream.print(grammar().genImportsList());
       stream.println(docComment());
       stream.println(typeDeclarationString());
 
@@ -271,7 +271,7 @@ aspect JastAddCodeGen {
         stream.println("package " + packageName + ";\n");
       }
 
-      stream.print(env().genImportsList());
+      stream.print(grammar().genImportsList());
       stream.println(docComment());
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
@@ -325,7 +325,7 @@ aspect JastAddCodeGen {
         stream.println("package " + packageName + ";\n");
       }
 
-      stream.print(env().genImportsList());
+      stream.print(grammar().genImportsList());
 
       stream.println(docComment());
       stream.print("public ");

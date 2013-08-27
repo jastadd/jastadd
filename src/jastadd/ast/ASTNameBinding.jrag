@@ -28,18 +28,6 @@
 import org.jastadd.ast.AST.*;
 import java.util.*;
 
-aspect Environment {
-  eq Grammar.getTypeDecl().env() = this;
-
-  inh Grammar Components.env();
-  inh Grammar IdUse.env();
-  inh Grammar TypeDecl.env();
-
-  // ES_2011-12-05: Equation for the RegionDecl child of Grammar, coarse incremental dependency tracking
-  eq Grammar.getRegionDecl().env() = this;
-  //
-}
-
 aspect Lookup {
   syn TypeDecl Grammar.lookup(String name) {
     for(int i = 0; i < getNumTypeDecl(); i++) {

@@ -226,7 +226,7 @@ aspect LookupDecls {
     for(Iterator children = getComponents(); children.hasNext(); ) {
       Components c = (Components)children.next();
       if(!(c instanceof TokenComponent)) {
-        TypeDecl decl = (ASTDecl)env().lookup(c.type());
+        TypeDecl decl = (ASTDecl) grammar().lookup(c.type());
         if(decl != null && !visited.contains(decl)) {
           InhDecl d = decl.getInhDeclFor(signature, visited);
           if(d != null) return d;
@@ -245,7 +245,7 @@ aspect LookupDecls {
     for(Iterator children = getComponents(); children.hasNext(); ) {
       Components c = (Components)children.next();
       if(!(c instanceof TokenComponent)) {
-        TypeDecl decl = (ASTDecl)env().lookup(c.type());
+        TypeDecl decl = (ASTDecl) grammar().lookup(c.type());
         if(decl != null && !visited.contains(decl)) {
           InhDecl d = decl.getInhDeclFor(signature, visited);
           if(d != null) return d;
@@ -257,7 +257,7 @@ aspect LookupDecls {
      for(Iterator iter = synDeclarations().iterator(); iter.hasNext(); ) {
       SynDecl synDecl = (SynDecl)iter.next();
       if(synDecl.declaredNTA()) {
-        ASTDecl decl = (ASTDecl)env().lookup(synDecl.type());
+        ASTDecl decl = (ASTDecl) grammar().lookup(synDecl.type());
         if(decl != null && !visited.contains(decl)) {
           InhDecl d = decl.getInhDeclFor(signature, visited);
           if(d != null) return d;

@@ -56,8 +56,8 @@ aspect CollectionAttributes {
     }
   }
 
-  syn TypeDecl AttrDecl.root() = hostClass().env().root();
-  eq CollDecl.root() = root != null ? hostClass().env().lookup(root) : super.root();
+  syn TypeDecl AttrDecl.root() = grammar().root();
+  eq CollDecl.root() = root != null ? grammar().lookup(root) : super.root();
 
   syn String AttrDecl.collDebugString() {
     if(!grammar().debugMode)
@@ -389,7 +389,7 @@ aspect CollectionAttributes {
       TemplateContext tt = attr.templateContext();
 
       boolean separateEvaluation = attr.separateEvaluation();
-      TypeDecl astDecl = env().lookup(grammar().astNodeType);
+      TypeDecl astDecl = grammar().lookup(grammar().astNodeType);
       TypeDecl rootDecl = attr.root();
       if(astDecl != null && rootDecl != null) {
         boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());
@@ -438,7 +438,7 @@ aspect CollectionAttributes {
 
   // name binding
   eq CollEq.decl() {
-    TypeDecl typeDecl = hostClass().env().lookup(getTargetName());
+    TypeDecl typeDecl = grammar().lookup(getTargetName());
     if(typeDecl != null /*&& typeDecl instanceof ASTDecl*/) {
       TypeDecl astDecl = (TypeDecl)typeDecl;
       for(int i = 0; i < astDecl.getNumCollDecl(); i++)

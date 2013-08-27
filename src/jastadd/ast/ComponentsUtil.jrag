@@ -147,7 +147,7 @@ aspect CoarseIncremental {
 	syn lazy boolean ASTDecl.isRegionLeaf() {
 
     if (name().equals(grammar().listType) || name().equals(grammar().optType)) {
-      TypeDecl type = env().lookup(grammar().astNodeType);
+      TypeDecl type = grammar().lookup(grammar().astNodeType);
       if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
 	  			return false;
 	  	}
@@ -156,7 +156,7 @@ aspect CoarseIncremental {
 
 		for (int i = 0; i < getNumComponents(); i++) {
 			Components comp = getComponents(i);
-			TypeDecl type = comp.env().lookup(comp.type());
+			TypeDecl type = grammar().lookup(comp.type());
 			if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
 				return true;
 			}

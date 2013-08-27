@@ -42,20 +42,17 @@ aspect Superclass {
       return false;
     if(getSuperClassName().equals(name))
       return true;
-    ASTDecl superClass = (ASTDecl)env().lookup(getSuperClassName());
+    ASTDecl superClass = (ASTDecl) grammar().lookup(getSuperClassName());
     return superClass != null ? superClass.testCircular(name) : false;
   }
   syn boolean ASTDecl.isCircular() = testCircular(name());
 
   syn lazy ASTDecl ASTDecl.superClass() = hasSuperClass() && !isCircular() ?
-    (ASTDecl)env().lookup(getSuperClassName()) : null;
+    (ASTDecl) grammar().lookup(getSuperClassName()) : null;
 
 
   syn lazy String ASTDecl.getSuperClassName() = hasSuperClass() ?
     getSuperClass().name() : null;
-
-
-  eq ASTDecl.getSuperClass().env() = env();
 }
 
 aspect InstanceOf {

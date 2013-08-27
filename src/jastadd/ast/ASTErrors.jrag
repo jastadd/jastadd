@@ -74,14 +74,14 @@ aspect ASTErrors {
   // TODO add filename, line, col
   TypeDecl contributes new Problem.Error(
       "multiple production rule for non-terminal " + name())
-    when env().lookup(name()) != this
+    when grammar().lookup(name()) != this
     to Grammar.problems()
     for grammar();
 
   ASTDecl contributes new Problem.Error(
       "multiple production rule for non-terminal " + name(),
                                         getFileName(), getStartLine())
-    when env().lookup(name()) != this
+    when grammar().lookup(name()) != this
     to Grammar.problems()
     for grammar();
 
@@ -114,7 +114,7 @@ aspect ASTErrors {
     for grammar();
 
   public boolean Components.declared() {
-    return env().lookup(type()) != null;
+    return grammar().lookup(type()) != null;
   }
 
   public boolean TokenComponent.declared() {

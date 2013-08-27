@@ -135,7 +135,7 @@ aspect AttributeProblems {
     for hostClass();
 
   SynDecl contributes error("return type of NTA must be an AST node")
-    when getNTA() && !(hostClass().env().lookup(type().split("<")[0]) instanceof ASTDecl)
+    when getNTA() && !(grammar().lookup(type().split("<")[0]) instanceof ASTDecl)
     to TypeDecl.attributeProblems()
     for hostClass();
 
@@ -424,12 +424,12 @@ aspect AttributeProblems {
     for hostClass();
 
   syn boolean CollDecl.hasMultipleRootsProblem() =
-    root == null && hostClass().env().roots().size() != 1;
+    root == null && grammar().roots().size() != 1;
 
   syn Problem CollDecl.multipleRootsProblem() {
     StringBuilder buf = new StringBuilder();
     buf.append("multiple tree roots to search for contributions. Please explicitly select one of");
-    for (Iterator iter = hostClass().env().roots().iterator(); iter.hasNext(); ) {
+    for (Iterator iter = grammar().roots().iterator(); iter.hasNext(); ) {
       ASTDecl decl = (ASTDecl)iter.next();
       buf.append(" " + decl.name());
     }

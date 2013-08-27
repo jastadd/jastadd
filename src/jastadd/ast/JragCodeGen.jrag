@@ -1012,7 +1012,7 @@ aspect JragCodeGen {
   //  TODO: INH
   public void ASTDecl.emitInhEqSignatures(PrintStream out) {
     if(name().equals(grammar().astNodeType)) {
-      for(Iterator iter = env().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
+      for(Iterator iter = grammar().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
         java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
         String attrId = (String)entry.getKey();
         AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);

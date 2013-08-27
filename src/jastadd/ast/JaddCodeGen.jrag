@@ -306,7 +306,7 @@ aspect JaddCodeGen {
       StringBuilder buf = new StringBuilder();
       buf.append("if(");
       boolean first = true;
-      for (Iterator iter = env().roots().iterator(); iter.hasNext(); ) {
+      for (Iterator iter = grammar().roots().iterator(); iter.hasNext(); ) {
         ASTDecl root = (ASTDecl)iter.next();
         if (!first) {
           buf.append(" && ");
@@ -548,8 +548,8 @@ aspect JaddCodeGen {
     // Generate code common for all nodes by adding them to ASTNode
     if (isASTNodeDecl()) {
       emitImplicitASTNodeDecls(out);
-      env().genRewriteOrderChecks(out);
-      env().genReset(out);
+      grammar().genRewriteOrderChecks(out);
+      grammar().genReset(out);
       if (grammar().java5) {
         templateContext().expand("ASTNode.iterator", out);
       }
@@ -656,7 +656,7 @@ aspect JaddCodeGen {
 
   protected void Components.parse(String s) {
     org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(s));
-    jp.root = hostClass().env();
+    jp.root = grammar();
 
     // The file name is not meaningful, as the component is completely generated
     // from a node type specification
