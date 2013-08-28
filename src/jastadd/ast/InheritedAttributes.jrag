@@ -64,14 +64,14 @@ aspect FindInheritedEquations {
       Set<ASTPair> visited = new HashSet<ASTPair>();
 
       // check class
-      map = host.findMissingInhEqs(signature(), host.parents(), visited);
+      map = host.missingInhEqs(signature(), host.parents(), visited);
       if (!map.isEmpty()) {
         missing.put(host, map);
       }
 
       // check sub classes (transitive)
       for (ASTDecl sub: host.subclassesTransitive()) {
-        map = sub.findMissingInhEqs(signature(), sub.parentsIntransitive(), visited);
+        map = sub.missingInhEqs(signature(), sub.parentsIntransitive(), visited);
         if (!map.isEmpty()) {
           missing.put(sub, map);
         }
@@ -82,20 +82,19 @@ aspect FindInheritedEquations {
   }
 
   /**
-   * Checks if an inherited attribute is defined this class. Returns a map
-   * of parents of the class for which the attribute is not defined.
+   * Checks if an inherited attribute is defined this class.
+   *
+   * @return a map of parents of the class for which the attribute is not
+   * defined.
    */
-  protected Map<ASTDecl, String> ASTDecl.findMissingInhEqs(String signature,
+  protected Map<ASTDecl, String> ASTDecl.missingInhEqs(String signature,
       Collection<ASTDecl> parentSet, Set<ASTPair> visited) {
     Map<ASTDecl, String> missing = new LinkedHashMap<ASTDecl, String>();
     for (ASTDecl parent: parentSet) {
       if (!parent.hasInhEq(this, signature)) {
-        if (parent.isRootNode()) {
-          missing.put(parent, parent.name() + "->" + name());
-        }
-        String path = parent.isInhDefined(signature, visited);
+        String path = parent.missingInhEqPath(signature, visited);
         if (path != null) {
-          missing.put(parent, path + "->" + parent.name() + "->" + name());
+          missing.put(parent, path + "->" + name());
         }
       }
     }
@@ -117,7 +116,10 @@ aspect FindInheritedEquations {
    * @return <code>null</code> if the attribute is defined, otherwise a path in
    * the abstract grammar.
    */
-  protected String ASTDecl.isInhDefined(String signature, Set<ASTPair> visited) {
+  protected String ASTDecl.missingInhEqPath(String signature, Set<ASTPair> visited) {
+    if (parents().isEmpty()) {
+      return name();
+    }
     for (ASTDecl parent: parents()) {
       // Cache for efficiency
       ASTPair p = new ASTPair(parent, this);
@@ -127,12 +129,9 @@ aspect FindInheritedEquations {
       visited.add(p);
 
       if (!parent.hasInhEq(this, signature)) {
-        if (parent.isRootNode()) {
-            return parent.name();
-        }
-        String path = parent.isInhDefined(signature, visited);
+        String path = parent.missingInhEqPath(signature, visited);
         if (path != null) {
-            return path + "->" + parent.name();
+            return path + "->" + name();
         }
       }
     }
@@ -142,10 +141,10 @@ aspect FindInheritedEquations {
   syn lazy TypeDecl Components.typeDecl() = grammar().lookup(type());
 
   protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
-    for(Iterator children = getComponents(); children.hasNext(); ) {
+    for (Iterator children = getComponents(); children.hasNext(); ) {
       Components c = (Components)children.next();
-      if(child.instanceOf(c.typeDecl())) {
-        if(lookupInhEq(signature, c.name()) == null) {
+      if (child.instanceOf(c.typeDecl())) {
+        if (lookupInhEq(signature, c.name()) == null) {
           return false;
         }
       }
