@@ -60,7 +60,7 @@ aspect FindInheritedEquations {
       Map<ASTDecl, String> map;
 
       // The visited set is used for caching (also for sub classes).
-      Set<ASTPair> visited = new HashSet<ASTPair>();
+      Map<ASTDecl, Set<ASTDecl>> visited = new HashMap<ASTDecl, Set<ASTDecl>>();
 
       // check class
       map = host.missingInhEqs(signature(), host.parents(), visited);
@@ -87,7 +87,8 @@ aspect FindInheritedEquations {
    * defined.
    */
   protected Map<ASTDecl, String> ASTDecl.missingInhEqs(String signature,
-      Collection<ASTDecl> parentSet, Set<ASTPair> visited) {
+      Collection<ASTDecl> parentSet, Map<ASTDecl, Set<ASTDecl>> visited) {
+
     Map<ASTDecl, String> missing = new LinkedHashMap<ASTDecl, String>();
     for (ASTDecl parent: parentSet) {
       if (!parent.hasInhEq(this, signature)) {
@@ -101,31 +102,27 @@ aspect FindInheritedEquations {
   }
 
   /**
-   * Used for caching during inherited attribute check
-   */
-  class ASTPair extends Pair<ASTDecl, ASTDecl> {
-    public ASTPair(ASTDecl a, ASTDecl b) {
-      super(a, b);
-    }
-  }
-
-  /**
    * The recursive search for equations of inherited attributes.
    *
    * @return <code>null</code> if the attribute is defined, otherwise a path in
    * the abstract grammar.
    */
-  protected String ASTDecl.missingInhEqPath(String signature, Set<ASTPair> visited) {
+  protected String ASTDecl.missingInhEqPath(String signature,
+      Map<ASTDecl, Set<ASTDecl>> visited) {
+
     if (parents().isEmpty()) {
       return name();
     }
     for (ASTDecl parent: parents()) {
       // Cache for efficiency
-      ASTPair p = new ASTPair(parent, this);
-      if (visited.contains(p)) {
+      Set<ASTDecl> visitedChildren = visited.get(parent);
+      if (visitedChildren == null) {
+        visitedChildren = new HashSet<ASTDecl>();
+        visited.put(parent, visitedChildren);
+      } else if (visitedChildren.contains(this)) {
         break;
       }
-      visited.add(p);
+      visitedChildren.add(this);
 
       if (!parent.hasInhEq(this, signature)) {
         String path = parent.missingInhEqPath(signature, visited);
