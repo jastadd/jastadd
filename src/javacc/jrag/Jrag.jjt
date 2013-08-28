@@ -714,6 +714,7 @@ void AspectInterfaceMemberDeclaration() :
   LOOKAHEAD( Modifiers() "interface" )
   AspectNestedInterfaceDeclaration()
 |
+  // TODO make this feature deprecated!
   LOOKAHEAD("sons")
   AspectSonsDeclaration()
 |
@@ -729,6 +730,7 @@ void AspectInterfaceMemberDeclaration() :
   AspectInterfaceFieldDeclaration()
 }
 
+// TODO make this feature deprecated!
 void AspectSonsDeclaration() :
 {
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
