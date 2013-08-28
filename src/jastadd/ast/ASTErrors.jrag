@@ -45,24 +45,6 @@ aspect ASTErrors {
     [new LinkedList<Problem>()]
     with add;
 
-  Grammar contributes new Problem.Error("No root node available")
-    when roots().isEmpty()
-    to Grammar.problems()
-    for this;
-
-  syn ArrayList<ASTDecl> Grammar.roots() {
-    ArrayList<ASTDecl> l = new ArrayList<ASTDecl>();
-    for (int i = 0; i < getNumTypeDecl(); i++) {
-      if (getTypeDecl(i) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(i);
-        if (decl.isRootNode()) {
-          l.add(decl);
-        }
-      }
-    }
-    return l;
-  }
-
   syn boolean TypeDecl.isRootNode() = false;
   eq ASTDecl.isRootNode() =
     !hasAbstract() &&

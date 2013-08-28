@@ -424,7 +424,7 @@ aspect AttributeProblems {
     for hostClass();
 
   syn boolean CollDecl.hasMultipleRootsProblem() =
-    root == null && grammar().roots().size() != 1;
+    root == null && grammar().roots().size() > 1;
 
   syn Problem CollDecl.multipleRootsProblem() {
     StringBuilder buf = new StringBuilder();
@@ -435,6 +435,16 @@ aspect AttributeProblems {
     }
     return error(buf.toString());
   }
+
+  CollDecl contributes error(
+      "No tree roots to search for contributions. " +
+      "Please declare an explicit root node.")
+    when hasNoRootProblem()
+    to TypeDecl.attributeProblems()
+    for hostClass();
+
+  syn boolean CollDecl.hasNoRootProblem() =
+    root == null && grammar().roots().isEmpty();
 
   CollDecl contributes error("no contributions for this collection attribute")
     when uses().isEmpty()

@@ -298,10 +298,7 @@ aspect JaddCodeGen {
    * Checks that ASTNode.state can be evaluated.
    */
   syn String ASTDecl.debugASTNodeState() {
-    if(grammar().debugMode) {
-      // Debug mode should (probably) not be used here to ensure safe use of the state field
-      //  Jesper 2013-01-10
-
+    if(grammar().debugMode && !grammar().roots().isEmpty()) {
       // Check if a new state object is created for a node that is not a root node
       StringBuilder buf = new StringBuilder();
       buf.append("if(");
