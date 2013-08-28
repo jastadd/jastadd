@@ -30,7 +30,7 @@ Parameter ::= <Type:String> <Name:String>;
 
 abstract AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> Annotation*;
 SynEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String>; // RightHandSide?
-InhEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> <SonName> [Index:Parameter]; // RightHandSide?
+InhEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> <ChildName> [Index:Parameter]; // RightHandSide?
 CollEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String> <AspectName:String> Contribution* <TargetName:String> <TargetAttributeName:String> <RefSet:boolean> <Reference:String>;
 Contribution ::= <Value:String> <Condition:String>;
 

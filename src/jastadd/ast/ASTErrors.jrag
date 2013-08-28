@@ -69,7 +69,7 @@ aspect ASTErrors {
     !isASTNodeDecl() &&
     !isOptDecl() &&
     !isListDecl() &&
-    fathers().isEmpty();
+    parents().isEmpty();
 
   // TODO add filename, line, col
   TypeDecl contributes new Problem.Error(

@@ -1,9 +1,9 @@
 /* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -56,22 +56,22 @@ aspect FindInheritedEquations {
   syn lazy Map<ASTDecl, Map<ASTDecl, String>> InhDecl.missingEqs() {
     Map<ASTDecl, Map<ASTDecl, String>> missing = new LinkedHashMap<ASTDecl, Map<ASTDecl, String>>();
 
-    if(hostClass() instanceof ASTDecl) {
+    if (hostClass() instanceof ASTDecl) {
       ASTDecl host = (ASTDecl) hostClass();
       Map<ASTDecl, String> map;
-   
-      // The visited set is used for caching (also for sub classes). 
+
+      // The visited set is used for caching (also for sub classes).
       Set<ASTPair> visited = new HashSet<ASTPair>();
 
       // check class
-      map = host.findMissingInhEqs(signature(), host.fathers(), visited);
+      map = host.findMissingInhEqs(signature(), host.parents(), visited);
       if (!map.isEmpty()) {
         missing.put(host, map);
       }
 
       // check sub classes (transitive)
       for (ASTDecl sub: host.subclassesTransitive()) {
-        map = sub.findMissingInhEqs(signature(), sub.fathersIntransitive(), visited);
+        map = sub.findMissingInhEqs(signature(), sub.parentsIntransitive(), visited);
         if (!map.isEmpty()) {
           missing.put(sub, map);
         }
@@ -83,27 +83,27 @@ aspect FindInheritedEquations {
 
   /**
    * Checks if an inherited attribute is defined this class. Returns a map
-   * of parents of the class for which the attribute is not defined for.
+   * of parents of the class for which the attribute is not defined.
    */
   protected Map<ASTDecl, String> ASTDecl.findMissingInhEqs(String signature,
-      Collection<ASTDecl> fatherSet, Set<ASTPair> visited) {
+      Collection<ASTDecl> parentSet, Set<ASTPair> visited) {
     Map<ASTDecl, String> missing = new LinkedHashMap<ASTDecl, String>();
-    for (ASTDecl father: fatherSet) {
-      if (!father.hasInhEq(this, signature)) {
-        if (father.isRootNode()) {
-          missing.put(father, father.name() + "->" + name());
-        } 
-        String path = father.isInhDefined(signature, visited);
+    for (ASTDecl parent: parentSet) {
+      if (!parent.hasInhEq(this, signature)) {
+        if (parent.isRootNode()) {
+          missing.put(parent, parent.name() + "->" + name());
+        }
+        String path = parent.isInhDefined(signature, visited);
         if (path != null) {
-          missing.put(father, path + "->" + father.name() + "->" + name());
+          missing.put(parent, path + "->" + parent.name() + "->" + name());
         }
       }
     }
     return missing;
   }
-  
+
   /**
-   * Used for caching during inherited attribute check 
+   * Used for caching during inherited attribute check
    */
   class ASTPair extends Pair<ASTDecl, ASTDecl> {
     public ASTPair(ASTDecl a, ASTDecl b) {
@@ -111,27 +111,28 @@ aspect FindInheritedEquations {
     }
   }
 
-  /** 
+  /**
    * The recursive search for equations of inherited attributes.
    *
-   * Returns null if the attribute is defined, otherwise a path in the abstract grammar. 
-   **/
+   * @return <code>null</code> if the attribute is defined, otherwise a path in
+   * the abstract grammar.
+   */
   protected String ASTDecl.isInhDefined(String signature, Set<ASTPair> visited) {
-    for (ASTDecl father: fathers()) {
+    for (ASTDecl parent: parents()) {
       // Cache for efficiency
-      ASTPair p = new ASTPair(father, this);
+      ASTPair p = new ASTPair(parent, this);
       if (visited.contains(p)) {
         break;
       }
       visited.add(p);
 
-      if (!father.hasInhEq(this, signature)) {
-        if (father.isRootNode()) {
-            return father.name();
-        } 
-        String path = father.isInhDefined(signature, visited);
+      if (!parent.hasInhEq(this, signature)) {
+        if (parent.isRootNode()) {
+            return parent.name();
+        }
+        String path = parent.isInhDefined(signature, visited);
         if (path != null) {
-            return path + "->" + father.name();
+            return path + "->" + parent.name();
         }
       }
     }
@@ -187,21 +188,21 @@ aspect InheritedAttributeCodeGen {
 
         Components c = equ.getComponents();
         if(c instanceof ListComponents) {
-          out.print("if (caller == get" + equ.sonName() + "ListNoTransform())");
+          out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
         }
         else if(c instanceof OptionalComponent) {
-          out.print("if (caller == get" + equ.sonName() + "OptNoTransform())");
+          out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
         }
         else if(c != null) {
-          out.print("if (caller == get" + equ.sonName() + "NoTransform())");
+          out.print("if (caller == get" + equ.childName() + "NoTransform())");
         }
-        else if(equ.getSonName().equals("getChild")) {
+        else if(equ.getChildName().equals("getChild")) {
           hasGetChildEq = true;
         }
         else {
-          AttrDecl attrDecl = equ.getSonAttrDecl();
+          AttrDecl attrDecl = equ.getChildAttrDecl();
           if(attrDecl.getNumParameter() == 0)
-            out.print("if (caller == " + equ.sonName() + "_value)");
+            out.print("if (caller == " + equ.childName() + "_value)");
           else
             out.print("if (caller == " + attrDecl.signature() + "_list)");
         }
@@ -232,7 +233,7 @@ aspect InheritedAttributeCodeGen {
             out.println(ind2 + "}");
           }
         }
-        else if(equ.getSonName().equals("getChild")) {
+        else if(equ.getChildName().equals("getChild")) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
           if(equ.getRHS() instanceof ASTBlock) { // Block
             out.println(" {");
@@ -248,7 +249,7 @@ aspect InheritedAttributeCodeGen {
           }
         }
         else {
-          AttrDecl attrDecl = equ.getSonAttrDecl();
+          AttrDecl attrDecl = equ.getChildAttrDecl();
           out.println(" {");
           if(attrDecl.getNumParameter() != 0) {
             String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";

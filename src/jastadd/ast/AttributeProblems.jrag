@@ -194,12 +194,12 @@ aspect AttributeProblems {
 
   syn boolean InhEq.hasUnknownChildProblem() =
     getComponents() == null &&
-    getSonName().startsWith("get") &&
-    !getSonName().equals("getChild");
+    getChildName().startsWith("get") &&
+    !getChildName().equals("getChild");
 
   syn Problem InhEq.unknownChildProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("inherited equation for unknown child " + sonName() + " in class " + hostClass().name());
+    buf.append("inherited equation for unknown child " + childName() + " in class " + hostClass().name());
     for(Iterator iter = hostClass().getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       buf.append("\n    " + c.type() + " " + c.name());
@@ -214,17 +214,17 @@ aspect AttributeProblems {
 
   syn boolean InhEq.hasUnknownNTAProblem() =
     !hasUnknownChildProblem() &&
-    (getSonAttrDecl() == null || !getSonAttrDecl().getNTA()) &&
-    (getComponents() == null && !getSonName().equals("getChild"));
+    (getChildAttrDecl() == null || !getChildAttrDecl().getNTA()) &&
+    (getComponents() == null && !getChildName().equals("getChild"));
 
   syn Problem InhEq.unknownNTAProblem() {
     StringBuilder buf = new StringBuilder();
-    AttrDecl decl = getSonAttrDecl();
+    AttrDecl decl = getChildAttrDecl();
     if (decl == null) {
-      buf.append("inherited equation for unknown NTA " + sonName()
+      buf.append("inherited equation for unknown NTA " + childName()
            + " in class " + hostClass().name());
     } else if(!decl.getNTA()) {
-      buf.append("inherited equation for attribute " + sonName() + " which is not a NTA");
+      buf.append("inherited equation for attribute " + childName() + " which is not a NTA");
     }
     return error(buf.toString());
   }
@@ -237,7 +237,7 @@ aspect AttributeProblems {
   /**
    * @return Previous equation for this inherited attribute
    */
-  syn InhEq InhEq.prevEq() = hostClass().lookupInhEq(signature(), sonName());
+  syn InhEq InhEq.prevEq() = hostClass().lookupInhEq(signature(), childName());
 
   syn boolean InhEq.hasMultiDeclProblem() =
     prevEq() != null && prevEq() != this;
@@ -245,7 +245,7 @@ aspect AttributeProblems {
   syn Problem InhEq.multiDeclProblem() {
     StringBuilder buf = new StringBuilder();
     buf.append("multiple equation for inherited attribute " +
-        sonName() + "." + name() + " in class " + hostClass().name());
+        childName() + "." + name() + " in class " + hostClass().name());
     buf.append(" and " + prevEq().name() + " in class " + prevEq().hostClass().name() +
         " in " + prevEq().getFileName() + ":" + prevEq().getStartLine());
     return error(buf.toString());
@@ -260,10 +260,10 @@ aspect AttributeProblems {
     hasIndex() &&
     getComponents() != null &&
     !(getComponents() instanceof ListComponents) &&
-    !getSonName().equals("getChild");
+    !getChildName().equals("getChild");
 
   syn Problem InhEq.badIndexProblem() {
-    return error("may not supply index for non list child " + sonName() + 
+    return error("may not supply index for non list child " + childName() + 
         " in class " + hostClass().name());
   }
 
@@ -307,13 +307,13 @@ aspect AttributeProblems {
       buf.append("in class " + e.getKey().name() + " when being child of ");
 
       boolean first2 = true;
-      for (Map.Entry<ASTDecl, String> father: e.getValue().entrySet()) {
+      for (Map.Entry<ASTDecl, String> parent: e.getValue().entrySet()) {
         if (!first2) {
           buf.append(", ");
         }
         first2 = false;
-        buf.append(father.getKey().name());
-        buf.append(" (path: " + father.getValue() + ")");
+        buf.append(parent.getKey().name());
+        buf.append(" (path: " + parent.getValue() + ")");
       }
     }
 

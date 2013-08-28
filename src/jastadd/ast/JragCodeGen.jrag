@@ -939,14 +939,14 @@ aspect JragCodeGen {
   syn Components InhEq.getComponents() {
     TypeDecl c = hostClass();
     if(c != null)
-      return c.components(sonName());
+      return c.components(childName());
     return  null;
   }
-  syn String InhEq.sonName() = getSonName().startsWith("get") ? getSonName().substring(3) : getSonName();
+  syn String InhEq.childName() = getChildName().startsWith("get") ? getChildName().substring(3) : getChildName();
 
-  syn AttrDecl InhEq.getSonAttrDecl() {
-    AttrDecl decl = hostClass().lookupSynDeclPrefix(sonName());
-    if(decl == null) decl = hostClass().lookupInhDeclPrefix(sonName());
+  syn AttrDecl InhEq.getChildAttrDecl() {
+    AttrDecl decl = hostClass().lookupSynDeclPrefix(childName());
+    if(decl == null) decl = hostClass().lookupInhDeclPrefix(childName());
     return decl;
   }
 

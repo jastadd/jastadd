@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -164,7 +164,7 @@ aspect BindSynEquations {
       return equations;
     return superClass().lookupSynEq(signature);
   }
-  
+
   syn lazy InhDecl TypeDecl.lookupInhDecl(String signature) {
     for(int i = 0; i < getNumInhDecl(); i++)
       if(getInhDecl(i).signature().equals(signature))
@@ -177,7 +177,7 @@ aspect BindSynEquations {
       return decl;
     return superClass().lookupInhDecl(signature);
   }
-  
+
   syn lazy InhDecl TypeDecl.lookupInhDeclSubclasses(String signature) =
     lookupInhDecl(signature);
   eq ASTDecl.lookupInhDeclSubclasses(String signature) {
@@ -193,10 +193,10 @@ aspect BindSynEquations {
 
   syn lazy InhEq TypeDecl.lookupInhEq(String signature, String childName) {
     for(int i = 0; i < getNumInhEq(); i++)
-      if(getInhEq(i).signature().equals(signature) && getInhEq(i).sonName().equals(childName))
+      if(getInhEq(i).signature().equals(signature) && getInhEq(i).childName().equals(childName))
         return getInhEq(i);
     for(int i = 0; i < getNumInhEq(); i++)
-      if(getInhEq(i).signature().equals(signature) && getInhEq(i).sonName().equals("Child"))
+      if(getInhEq(i).signature().equals(signature) && getInhEq(i).childName().equals("Child"))
         return getInhEq(i);
     return null;
   }
@@ -206,7 +206,7 @@ aspect BindSynEquations {
       return equation;
     return superClass().lookupInhEq(signature, childName);
   }
-  
+
 }
 
 aspect LookupDecls {
@@ -214,7 +214,7 @@ aspect LookupDecls {
   eq InhEq.decl() = hostClass().getInhDeclFor(signature(), new LinkedHashSet());
   //eq InhEq.decl() = hostClass().getInhDeclFor(signature());
   eq SynEq.decl() = hostClass().lookupSynDecl(signature());
-  
+
 
 
   syn InhDecl TypeDecl.getInhDeclFor(String signature, Collection visited) {
@@ -264,7 +264,7 @@ aspect LookupDecls {
         }
       }
     }*/
-    
+
     for(Iterator iter = subclasses().iterator(); iter.hasNext(); ) {
       ASTDecl subclass = (ASTDecl)iter.next();
       if(!visited.contains(subclass)) {
@@ -287,7 +287,7 @@ aspect ASTDecl {
         list = new LinkedList();
         map.put(id, list);
       }
-      if(equ.getSonName().equals("getChild")) {
+      if(equ.getChildName().equals("getChild")) {
         list.add(equ); // insert last
       }
       else if(equ.getComponents() != null && equ.getComponents().isNTA()) {

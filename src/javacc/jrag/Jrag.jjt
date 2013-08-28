@@ -1284,7 +1284,7 @@ void AspectInhEquation() :
   String type;
   Token attrName;
   Token targetName;
-  Token sonName;
+  Token childName;
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   org.jastadd.ast.AST.Parameter p = null;
 
@@ -1297,7 +1297,7 @@ void AspectInhEquation() :
   "eq" { first = token; }
 
   targetName = <IDENTIFIER> "."
-  sonName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new org.jastadd.ast.AST.Parameter("int", name.image); } ] ")" "."
+  childName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new org.jastadd.ast.AST.Parameter("int", name.image); } ] ")" "."
   attrName = VariableDeclaratorId()
 
   "("
@@ -1312,7 +1312,7 @@ void AspectInhEquation() :
   | eq = Block() { last = token; } )
 
   {
-    root.addInhEq(sonName.image, attrName.image, targetName.image, eq,
+    root.addInhEq(childName.image, attrName.image, targetName.image, eq,
         fileName, first.beginLine, last.endLine, list, p, jjtThis,
         enclosingAspect, annotations);
   }
@@ -1326,7 +1326,7 @@ void AspectRefineInhEquation() :
   String type;
   Token attrName;
   Token targetName;
-  Token sonName;
+  Token childName;
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   org.jastadd.ast.AST.Parameter p = null;
   Token aspectName;
@@ -1335,7 +1335,7 @@ void AspectRefineInhEquation() :
   <REFINE> aspectName = <IDENTIFIER> "eq" { first = token; }
 
   targetName = <IDENTIFIER> "."
-  sonName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new org.jastadd.ast.AST.Parameter("int", name.image); } ] ")" "."
+  childName = <IDENTIFIER> "(" [ <INT> name = <IDENTIFIER> { p = new org.jastadd.ast.AST.Parameter("int", name.image); } ] ")" "."
   attrName = VariableDeclaratorId()
 
   "("
@@ -1350,7 +1350,7 @@ void AspectRefineInhEquation() :
   | eq = Block() { last = token; } )
 
   {
-    root.addRefinedInhEq(sonName.image, attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, p, aspectName.image, jjtThis, enclosingAspect);
+    root.addRefinedInhEq(childName.image, attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, p, aspectName.image, jjtThis, enclosingAspect);
   }
 }
 

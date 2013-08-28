@@ -334,16 +334,16 @@ public aspect Attributes {
     }
   }
 
-  public void Grammar.addInhEq(String sonName, String name, String className,
+  public void Grammar.addInhEq(String childName, String name, String className,
       org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine,
       int endLine, org.jastadd.ast.AST.List list,
       org.jastadd.jrag.AST.SimpleNode node, String aspectName,
       ArrayList<String> annotations) {
-    addInhEq(sonName, name, className, rhs, fileName, startLine, endLine,
+    addInhEq(childName, name, className, rhs, fileName, startLine, endLine,
         list, null, node, aspectName, annotations);
   }
 
-  public void Grammar.addInhEq(String sonName, String name, String className,
+  public void Grammar.addInhEq(String childName, String name, String className,
       org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine,
       int endLine, org.jastadd.ast.AST.List list, Parameter p,
       org.jastadd.jrag.AST.SimpleNode node, String aspectName,
@@ -356,7 +356,7 @@ public aspect Attributes {
         equ.setStartLine(startLine);
         equ.setEndLine(endLine);
         equ.setRHS(rhs);
-        equ.setSonName(sonName);
+        equ.setChildName(childName);
         equ.setParameterList(list);
         equ.setComment(Unparser.unparseComment(node));
         equ.setAspectName(aspectName);
@@ -690,11 +690,11 @@ public aspect Attributes {
   }
 
   public LinkedList TypeDecl.refinedInhEqs = new LinkedList();
-  public void Grammar.addRefinedInhEq(String sonName, String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, String aspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
-    addRefinedInhEq(sonName, name, className, rhs, fileName, startLine, endLine, list, null, aspectName, node, declaredAspect);
+  public void Grammar.addRefinedInhEq(String childName, String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, String aspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
+    addRefinedInhEq(childName, name, className, rhs, fileName, startLine, endLine, list, null, aspectName, node, declaredAspect);
   }
 
-  public void Grammar.addRefinedInhEq(String sonName, String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, Parameter p, String aspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
+  public void Grammar.addRefinedInhEq(String childName, String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, Parameter p, String aspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
     TypeDecl c = lookup(className);
     if(c != null) {
         InhEq equ = new InhEq();
@@ -703,7 +703,7 @@ public aspect Attributes {
         equ.setStartLine(startLine);
         equ.setEndLine(endLine);
         equ.setRHS(rhs);
-        equ.setSonName(sonName);
+        equ.setChildName(childName);
         equ.setParameterList(list);
         equ.refinesAspect = aspectName;
         equ.setComment(Unparser.unparseComment(node));
@@ -727,7 +727,7 @@ public aspect Attributes {
           InhEq refinedCandidate = (InhEq)outerIter.next();
           boolean legacyCondition = grammar().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
           if(equ.signature().equals(refinedCandidate.signature()) &&
-             equ.sonName().equals(refinedCandidate.sonName()) &&
+             equ.childName().equals(refinedCandidate.childName()) &&
              (equ.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
             if(refinedEqu == null) {
@@ -753,7 +753,7 @@ public aspect Attributes {
   public void TypeDecl.refineWith(InhEq equ, InhEq refinedEqu) {
     // build a ClassBodyObject from the original equation
     StringBuffer s = new StringBuffer();
-    String newMethodName = "refined_" + equ.aspectName() + "_" + name() + "_" + equ.sonName()
+    String newMethodName = "refined_" + equ.aspectName() + "_" + name() + "_" + equ.childName()
       + "_" + equ.signature();
 
     String indexName = "";
@@ -791,7 +791,7 @@ public aspect Attributes {
     if(grammar().refineLegacy)
       pattern = "(" + pattern + ")|("
       + equ.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\.get"
-      + equ.sonName() + "\\([^\\)]*\\)\\." + equ.attributeName() + "\\("
+      + equ.childName() + "\\([^\\)]*\\)\\." + equ.attributeName() + "\\("
       + ")";
 
     java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s.toString());
