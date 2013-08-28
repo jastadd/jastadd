@@ -115,7 +115,7 @@ aspect Subclasses {
   }
 }
 
-aspect Fathers {
+aspect Parents {
   syn lazy HashMap Grammar.parentMap() {
     HashMap map = new LinkedHashMap();
     for(int j = 0; j < getNumTypeDecl(); j++) {
