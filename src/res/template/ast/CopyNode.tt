@@ -31,7 +31,7 @@ ASTDecl.emitCopyNode = [[
    * @apilevel internal
    */
   #annotations
-  public #copyReturnType copy() {
+  public #copyReturnType #name.copy() {
     $SynchBegin
     try {
       $include(ASTDecl.traceHookCopyNode)
@@ -66,7 +66,7 @@ ASTDecl.emitFullCopy = [[
    * @apilevel low-level
    */
   #annotations
-  public #copyReturnType fullCopy() {
+  public #copyReturnType #name.fullCopy() {
     $SynchBegin
     #name tree = (#name) copy();
     if (children != null) {
@@ -95,7 +95,7 @@ ASTDecl.emitCloneNode = [[
    * @apilevel internal
    */
   #annotations
-  public #copyReturnType clone() throws CloneNotSupportedException {
+  public #copyReturnType #name.clone() throws CloneNotSupportedException {
     $SynchBegin
     #name node = (#name) super.clone();
     $CloneBody

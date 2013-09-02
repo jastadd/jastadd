@@ -41,13 +41,14 @@ aspect ASTCloneNode {
   }
 
   public void ASTDecl.emitCloneNode(PrintWriter stream) {
-
     StringBuffer cloneBody = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrEq equ = getSynEq(k);
       AttrDecl attr = equ.decl();
-      cloneBody.append(attr.resetVisit("node."));
-      cloneBody.append(attr.resetCache("node."));
+      if (attr != null) {
+        cloneBody.append(attr.resetVisit("node."));
+        cloneBody.append(attr.resetCache("node."));
+      }
     }
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);

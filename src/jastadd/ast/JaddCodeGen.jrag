@@ -563,6 +563,9 @@ aspect JaddCodeGen {
     }
 
     emitFlushCache(out);
+    emitCloneNode(out);
+    emitCopyNode(out);
+    emitFullCopy(out);
 
     genIncremental(out);
   }
