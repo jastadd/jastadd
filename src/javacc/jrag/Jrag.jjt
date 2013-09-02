@@ -736,10 +736,11 @@ void AspectSonsDeclaration() :
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
   Token type;
   Token name;
+  Token first;
   boolean isList = false;
 }
 {
-  "sons"
+  first = "sons"
   (
     ("[" name = <IDENTIFIER> ":" type = <IDENTIFIER> "]"
      {
@@ -782,6 +783,11 @@ void AspectSonsDeclaration() :
   ";"
   {
     root.addComponents(className, list);
+    // TODO remove sons declaration feature
+    // print warning about sons being deprecated:
+    System.err.println("WARNING: \"sons\" declaration used at " +
+        fileName + ":" + first.beginLine + " aspect \"sons\" declarations " +
+        "are DEPRECATED and will be removed in a future version of JastAdd!");
   }
 
 }
