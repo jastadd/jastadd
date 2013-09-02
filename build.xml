@@ -18,8 +18,8 @@
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
 		classpath="${jastadd-jar}"/>
 
-	<target name="build" depends="update-version-string"
-		description="Generate sources and build JastAdd2">
+	<target name="build" depends="update-version-string, init-tinytemplate"
+			description="Generate sources and build JastAdd2">
 		<mkdir dir="${gen.dir}/org/jastadd/ast/AST"/>
 		<mkdir dir="${gen.dir}/org/jastadd/jrag/AST"/>
 		<mkdir dir="${bin.dir}"/>
@@ -71,6 +71,23 @@
 				<include name="**/*"/>
 			</fileset>
 		</copy>
+	</target>
+
+    <!-- Automatically initialize the submodule tinytemplate -->	
+	<target name="init-tinytemplate" depends="tinytemplate-check" unless="tinytemplate.exists" >
+		<exec executable="git">
+			<arg value="submodule"/>
+			<arg value="init"/>
+		</exec>
+		<exec executable="git">
+			<arg value="submodule"/>
+			<arg value="update"/>
+		</exec>
+	</target>
+	<target name="tinytemplate-check">
+		<condition property="tinytemplate.exists">
+			<available file="${tt.src.dir}" type="dir" />
+		</condition>
 	</target>
 
 	<target name="clean-dist" depends="clean"
