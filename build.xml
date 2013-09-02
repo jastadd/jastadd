@@ -73,7 +73,7 @@
 		</copy>
 	</target>
 
-    <!-- Automatically initialize the submodule tinytemplate -->	
+	<!-- Automatically initialize the submodule tinytemplate -->	
 	<target name="init-tinytemplate" depends="tinytemplate-check" unless="tinytemplate.exists" >
 		<exec executable="git">
 			<arg value="submodule"/>
