@@ -453,7 +453,7 @@ $if(IncrementalTrack)
   }
 
   public static String getTrackingResult() {
-    return "#reads = " + trackedReads + ", #computes = " + trackedComputes + ", #flushes = " + trackedFlushes;
+    return "nbr.reads = " + trackedReads + ", nbr.computes = " + trackedComputes + ", nbr.flushes = " + trackedFlushes;
   }
 $endif
 }
