@@ -42,6 +42,16 @@ aspect JastAddOptions {
   syn Grammar Grammar.grammar() = this;
 
   /**
+   * The relative path to the base output directory for generated code.
+   */
+  public String Grammar.outputDir;
+
+  /**
+   * The package name for the generated AST classes.
+   */
+  public String Grammar.packageName = "";
+
+  /**
    * The name of the ASTNode type.
    */
   public String Grammar.astNodeType = "ASTNode";

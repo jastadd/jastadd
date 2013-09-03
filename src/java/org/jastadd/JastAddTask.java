@@ -218,9 +218,6 @@ public class JastAddTask extends Task {
       if(!outdir.endsWith(File.separator))
         name.append(File.separator);
     }
-    if(packageName != null) {
-      name.append(packageName.replace('.', File.separatorChar) + File.separator);
-    }
     name.append("ASTNode.java");
     File generated = new File(name.toString());
     if (generated.exists()) {

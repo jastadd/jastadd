@@ -120,14 +120,11 @@ aspect JastAddCodeGen {
     return false;
   }
 
-  public void Grammar.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
-    if(packageName != null && !packageName.equals("")) {
-      File dir = new File(outputDir, packageName.replace('.', File.separatorChar));
-      dir.mkdirs();
-    }
+  public void Grammar.jastAddGen(boolean publicModifier) {
+    createPackageOutputDirectory();
 
     for(int i = 0; i < getNumTypeDecl(); i++) {
-      getTypeDecl(i).jastAddGen(outputDir, grammarName, packageName, publicModifier);
+      getTypeDecl(i).jastAddGen(publicModifier);
     }
   }
 
@@ -200,24 +197,19 @@ aspect JastAddCodeGen {
     return getId().componentString();
   }
 
-  public void TypeDecl.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
+  public void TypeDecl.jastAddGen(boolean publicModifier) {
   }
 
-  public void InterfaceDecl.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
-    File file = null;
+  public void InterfaceDecl.jastAddGen(boolean publicModifier) {
+    File file = grammar().targetJavaFile(name());
     try {
-      if(packageName != null && !packageName.equals("")) {
-        file = new File(outputDir, packageName.replace('.', File.separatorChar) + File.separator + name() + ".java");
-      }
-      else {
-        file = new File(outputDir, name() + ".java");
-      }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
       if(grammar().license != null && grammar().license.length() > 0)
         stream.println(grammar().license);
 
-      if(packageName != null && !packageName.equals("")) {
-        stream.println("package " + packageName + ";\n");
+      // TODO move to template
+      if (!grammar().packageName.isEmpty()) {
+        stream.println("package " + grammar().packageName + ";\n");
       }
 
       stream.print(grammar().genImportsList());
@@ -254,21 +246,16 @@ aspect JastAddCodeGen {
     }
   }
 
-  public void ClassDecl.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
-    File file = null;
+  public void ClassDecl.jastAddGen(boolean publicModifier) {
+    File file = grammar().targetJavaFile(name());
     try {
-      if(packageName != null && !packageName.equals("")) {
-        file = new File(outputDir, packageName.replace('.', File.separatorChar) + File.separator + name() + ".java");
-      }
-      else {
-        file = new File(outputDir, name() + ".java");
-      }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
       if(grammar().license != null && grammar().license.length() > 0)
         stream.println(grammar().license);
 
-      if(packageName != null && !packageName.equals("")) {
-        stream.println("package " + packageName + ";\n");
+      // TODO move to template
+      if (!grammar().packageName.isEmpty()) {
+        stream.println("package " + grammar().packageName + ";\n");
       }
 
       stream.print(grammar().genImportsList());
@@ -303,15 +290,9 @@ aspect JastAddCodeGen {
   }
 
 
-  public void ASTDecl.jastAddGen(File outputDir, String grammarName, String packageName, boolean publicModifier) {
-    File file = null;
+  public void ASTDecl.jastAddGen(boolean publicModifier) {
+    File file = grammar().targetJavaFile(name());
     try {
-      if(packageName != null && !packageName.equals("")) {
-        file = new File(outputDir, packageName.replace('.', File.separatorChar) + File.separator + name() + ".java");
-      }
-      else {
-        file = new File(outputDir, name() + ".java");
-      }
       PrintStream stream = new PrintStream(new FileOutputStream(file));
 
       // Insert comment notifying that this is a generated file
@@ -321,8 +302,9 @@ aspect JastAddCodeGen {
       if(grammar().license != null && grammar().license.length() > 0)
         stream.println(grammar().license);
 
-      if(packageName != null && !packageName.equals("")) {
-        stream.println("package " + packageName + ";\n");
+      // TODO move to template
+      if (!grammar().packageName.isEmpty()) {
+        stream.println("package " + grammar().packageName + ";\n");
       }
 
       stream.print(grammar().genImportsList());

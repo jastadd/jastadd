@@ -213,8 +213,7 @@ public class JastAdd {
 
       long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
 
-      root.jastAddGen(config.getOutputDir(), root.parserName,
-          config.getTargetPackage(), config.getPublicModifier());
+      root.jastAddGen(config.getPublicModifier());
 
       @SuppressWarnings("unused")
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
@@ -336,7 +335,9 @@ public class JastAdd {
   private void genTracer(JastAddConfiguration config, Grammar root)
     throws FileNotFoundException {
 
-    PrintWriter writer = new PrintWriter(new File(config.getOutputDir(), "Tracer.java"));
+    root.createPackageOutputDirectory();
+
+    PrintWriter writer = new PrintWriter(root.targetJavaFile("Tracer"));
     root.emitTracer(writer);
     writer.close();
   }

@@ -243,7 +243,7 @@ public class JastAddConfiguration {
    * Output directory to write generated AST node types in.
    * @return The configured output directory
    */
-  public File getOutputDir() {
+  private File getOutputDir() {
     return new File(outputDirOption.value());
 
   }
@@ -261,6 +261,9 @@ public class JastAddConfiguration {
    */
   public Grammar buildRoot() {
     Grammar root = new Grammar();
+
+    root.outputDir = outputDirOption.value();
+    root.packageName = packageOption.value();
 
     root.astNodeType = astNode.value();
     root.listType = list.value();
@@ -390,6 +393,11 @@ public class JastAddConfiguration {
     }
 
     // Bind global template variables:
+    if (root.packageName.isEmpty()) {
+      tt.bind("PackageDecl", "");
+    } else {
+      tt.bind("PackageDecl", "package " + root.packageName + ";");
+    }
     tt.bind("ASTNode", root.astNodeType);
     tt.bind("List", root.listType);
     tt.bind("Opt", root.optType);
@@ -618,14 +626,6 @@ public class JastAddConfiguration {
     }
 
     return cacheFiles;
-  }
-
-  /**
-   * Package for generated AST node types.
-   * @return target package name
-   */
-  public String getTargetPackage() {
-    return packageOption.value().replace('/', '.');
   }
 
   /**
