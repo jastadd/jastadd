@@ -1,6 +1,27 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.4
+-----
+
+* Fixed regression in version 2.1.3 that caused the generated `Tracer` class to
+  always be generated in the default package. If it is generated, the `Tracer`
+class is now generated in the same package as the rest of the AST.
+
+* The generated methods `clone`, `copy`, and `fullCopy` can now be refined just
+  like regular aspect methods.
+
+* The undocumented `sons` declaration is now deprecated. This feature did not
+  actually alter code generation in any way, but was still used in for example
+JastAddJ. If the JastAdd parser encounters such a declaration it now generates
+a warning.
+
+* JastAdd no longer requires an implicit root node in the AST grammar. A root
+  node is a non-abstract node that can not be a child of any other node type.
+Root nodes are still required for collection attributes, so if you use a
+collection attribute with a grammar that lacks an implicit root node, you must
+declare the root node in the attribute declaration.
+
 2.1.3
 -----
 
