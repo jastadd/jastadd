@@ -458,7 +458,9 @@ public class Tracer {
         firstTimeStamp = false;
         prevTime = startTime = obj.timeStamp;
       }
-      out.println(indentToStr(indent) + obj + " - " + ((obj.timeStamp-prevTime)/1000) + " ms - " + ((obj.timeStamp-startTime)/1000) + " ms");
+      out.print(indentToStr(indent) + obj + " - ");
+      out.print(((obj.timeStamp-prevTime)/1000000) + " ms - ");
+      out.println(((obj.timeStamp-startTime)/1000000) + " ms");
       if (incIndent(obj.event)) indent++;
       else if (decIndent(obj.event)) indent--;
       prevTime = obj.timeStamp;
