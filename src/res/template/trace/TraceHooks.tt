@@ -34,6 +34,64 @@ public static String $ASTNode.nodeToString($ASTNode node) {
 $endif
 ]]
 
+AttrDecl.traceHookAttrComputeBegin = [[
+$if (TracingEnabled)
+$if(#isParameterized)
+$if(#isCircular)
+Tracer.traceComputeBegin(this, "#(hostClassName).#(attributeName)", "" + _parameters, "");
+$else
+Tracer.traceComputeBegin(this, "#(hostClassName).#(attributeName)", "" + _parameters, "");
+$endif
+$else
+Tracer.traceComputeBegin(this, "#(hostClassName).#(attributeName)", "", "");
+$endif
+$endif
+]]
+
+AttrDecl.traceHookAttrComputeEnd = [[
+$if (TracingEnabled)
+$if(#isParameterized)
+$if(#isCircular)
+Tracer.traceComputeEnd(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
+$else
+Tracer.traceComputeEnd(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+$endif
+$else
+Tracer.traceComputeEnd(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
+$endif
+$endif
+]]
+
+AttrDecl.traceHookAttrComputeEndInline = [[
+$if (TracingEnabled)
+$if(#isParameterized)
+$if(#isCircular)
+Tracer.traceComputeEnd(this, "#(hostClassName).#(attributeName)", "" + _parameters, "");
+$else
+Tracer.traceComputeEnd(this, "#(hostClassName).#(attributeName)", "" + _parameters, "");
+$endif
+$else
+Tracer.traceComputeEnd(this, "#(hostClassName).#(attributeName)", "", "");
+$endif
+$endif
+]]
+
+AttrDecl.traceHookAttrCacheRead = [[
+$if (TracingEnabled)
+$if(#getLazy)
+$if(#isParameterized)
+$if(#isCircular)
+Tracer.traceCacheRead(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + _value.value);
+$else
+Tracer.traceCacheRead(this, "#(hostClassName).#(attributeName)", "" + _parameters, "" + #(attributeSignature)_value);
+$endif
+$else
+Tracer.traceCacheRead(this, "#(hostClassName).#(attributeName)", "", "" + #(attributeSignature)_value);
+$endif
+$endif
+$endif
+]]
+
 AttrDecl.traceHookAttrCached = [[
 $if (TracingEnabled)
 $if(#getLazy)

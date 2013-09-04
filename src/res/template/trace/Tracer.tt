@@ -62,8 +62,11 @@ public class Tracer {
    * Trace events corresponding to where trace objects where collected.
    */
   public enum Event {
+    COMPUTE_BEGIN,
+    COMPUTE_END,
     CACHED,
     CACHE_ABORT,
+    CACHE_READ,
     REWRITE_CASE1_START,
     REWRITE_CASE1_CHANGE,
     REWRITE_CASE1_RETURN,
@@ -91,6 +94,39 @@ public class Tracer {
 
   private static void trace(Tracer.Event evt, $ASTNode node, String attr, String params, String value) {
     list.add(new Tracer.Object(evt, String.format("%08X", node.hashCode()), attr, params, value));
+  }
+
+  /**
+   * Trace that an attribute instance started its computation.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The value of the attribute instance.
+   */
+  public static void traceComputeBegin($ASTNode node, String attr, String params, String value) {
+    trace(Tracer.Event.COMPUTE_BEGIN, node, attr, params, value);
+  }
+
+  /**
+   * Trace that an attribute instance ended its computation.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The value of the attribute instance.
+   */
+  public static void traceComputeEnd($ASTNode node, String attr, String params, String value) {
+    trace(Tracer.Event.COMPUTE_END, node, attr, params, value);
+  }
+
+  /**
+   * Trace that the cache of an attribute instances was read.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The value of the attribute instance.
+   */
+  public static void traceCacheRead($ASTNode node, String attr, String params, String value) {
+    trace(Tracer.Event.CACHE_READ, node, attr, params, value);
   }
 
   /**
@@ -329,9 +365,10 @@ public class Tracer {
 
   /**
    * Print report from collected trace using the given filter.
+   * @param out Print stream to use.
    * @param filter The filter to use.
    */
-  protected static void printReport(java.io.PrintWriter out, Tracer.Filter filter) {
+  public static void printReport(java.io.PrintWriter out, Tracer.Filter filter) {
     // Construct report model: attr->param->node:count
     java.util.Map<String,java.util.Map<String,java.util.Map<String,Integer>>> attrMap =
         new java.util.HashMap<String,java.util.Map<String,java.util.Map<String,Integer>>>();
@@ -378,6 +415,7 @@ public class Tracer {
 
   protected static boolean incIndent(Tracer.Event evt) {
     switch (evt) {
+    case COMPUTE_BEGIN:
     case REWRITE_CASE1_START:
     case CIRCULAR_NTA_CASE1_START:
     case CIRCULAR_NTA_CASE2_START:
@@ -389,6 +427,7 @@ public class Tracer {
 
   protected static boolean decIndent(Tracer.Event evt) {
     switch (evt) {
+    case COMPUTE_END:
     case REWRITE_CASE1_RETURN:
     case CIRCULAR_NTA_CASE1_RETURN:
     case CIRCULAR_NTA_CASE2_RETURN:

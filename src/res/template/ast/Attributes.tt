@@ -99,7 +99,6 @@ AttrDecl.emitInlineCompute = [[
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #parameterStructure
-    #traceBeginAttr
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
 $if(RewriteEnabled)
@@ -109,12 +108,13 @@ $endif
     #visitedCheck
     #setVisited
     $include(addCheckInterruptedCircle)
+    $include(AttrDecl.traceHookAttrComputeBegin)
     try $ComputeBody
     finally {
       #higherOrderAttributeCode
       #clearVisited
       $include(addClearInterruptedCircle)
-      #traceEndAttr
+      $include(AttrDecl.traceHookAttrComputeEndInline)
     }
     $SynchEnd
   }
@@ -242,7 +242,6 @@ AttrDecl.genEquation [[
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
     #parameterStructure
-    #traceBeginAttr
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
     $include(AttrDecl.incHookAttrCompStart)
@@ -254,7 +253,9 @@ $endif
     #setVisited
     $include(addCheckInterruptedCircle)
     #cacheInit
+    $include(AttrDecl.traceHookAttrComputeBegin)
     #callCompute
+    $include(AttrDecl.traceHookAttrComputeEnd)
     #higherOrderAttributeCode
 $if(#getLazy)
   $if(#isParameterized)
@@ -280,7 +281,6 @@ $endif
 
     #clearVisited
     $include(addClearInterruptedCircle)
-    #traceEndAttr
     $include(AttrDecl.returnStmt)
     $SynchEnd
   }
@@ -290,7 +290,6 @@ ASTDecl.genCircularEquationNoParams [[
   #annotations
   public #getType #attributeName() {
     $SynchBegin
-    #traceComputeContext
     #parameterStructure
     $include(AttrDecl.cacheCheck)
     $ASTNode$$State state = state();
@@ -313,7 +312,9 @@ ASTDecl.genCircularEquationNoParams [[
         #inhDebugString
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
+        $include(AttrDecl.traceHookAttrComputeBegin)
         #getType new_#(attributeSignature)_value = #circularComputeCall;
+        $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
           state.CHANGE = true;
@@ -349,7 +350,9 @@ ASTDecl.genCircularEquationNoParams [[
       #inhDebugString
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
+      $include(AttrDecl.traceHookAttrComputeBegin)
       #getType new_#(attributeSignature)_value = #circularComputeCall;
+      $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($Cond2) {
         state.CHANGE = true;
@@ -371,7 +374,6 @@ ASTDecl.genCircularEquationWithParams [[
   #annotations
   public #getType #attributeName($ParamDecl) {
     $SynchBegin
-    #traceComputeContext
     #parameterStructure
     #initLazyMaps
     $ASTNode$$State.CircularValue _value;
@@ -401,7 +403,9 @@ $endif
         #inhDebugString
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
+        $include(AttrDecl.traceHookAttrComputeBegin)
         new_#(attributeSignature)_value = #circularComputeCall;
+        $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
           state.CHANGE = true;
@@ -442,7 +446,9 @@ $endif
       #inhDebugString
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
+      $include(AttrDecl.traceHookAttrComputeBegin)
       #getType new_#(attributeSignature)_value = #circularComputeCall;
+      $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
@@ -508,19 +514,19 @@ $include(AttrDecl.incHookAttrRead)
 $if(#isAttrNTA)
 $if(!#isParamAttr)
 if(#(attributeSignature)_computed) {
-  #traceEndCachedAttr
+  $include(AttrDecl.traceHookAttrCacheRead)
   return (#getType) getChild(#(attributeSignature)ChildPosition());
 }
 $else
 if(#(attributeSignature)_values.containsKey(_parameters)) {
-  #traceEndCachedAttr
+  $include(AttrDecl.traceHookAttrCacheRead)
   return (#getType) getChild(#(attributeSignature)ChildPosition()));
 }
 $endif
 $endif
 $if(!#isParamAttr)
 if(#(attributeSignature)_computed) {
-  #traceEndCachedAttr
+  $include(AttrDecl.traceHookAttrCacheRead)
   return #(attributeSignature)_value;
 }
 $else
@@ -528,7 +534,7 @@ $if(#isCircular)
 if(#(attributeSignature)_values.containsKey(_parameters)) {
   Object _o = #(attributeSignature)_values.get(_parameters);
   if(!(_o instanceof $ASTNode$$State.CircularValue)) {
-    #traceEndCachedAttr
+    $include(AttrDecl.traceHookAttrCacheRead)
     return $FromRefTypeParamCircular;
   } else {
     _value = ($ASTNode$$State.CircularValue) _o;
@@ -536,7 +542,7 @@ if(#(attributeSignature)_values.containsKey(_parameters)) {
 }
 $else
 if(#(attributeSignature)_values.containsKey(_parameters)) {
-  #traceEndCachedAttr
+  $include(AttrDecl.traceHookAttrCacheRead)
   return $FromRefTypeParam;
 }
 $endif
