@@ -89,11 +89,43 @@ public class Tracer {
     COPY_NODE,
     INH_ATTR_EVAL
   }
+  
+  // Default input filter accepting all events
+  private static final Tracer.Filter defaultInputFilter = new Tracer.Filter() {
+    public boolean include(Tracer.Object obj) {
+      return true;
+    }
+    public String desc() {
+      return "Default input filter accepting all events";
+    }
+  };
+  
+  private static Tracer.Filter inputFilter = defaultInputFilter; 
+  
+  /**
+   * Registers an input filter to use during tracing.
+   * @param filter The input filter to register.
+   */
+  public static void registerInputFilter(Tracer.Filter filter) {
+    if (filter != null) {
+      inputFilter = filter;
+    }
+  }
+  
+  /**
+   * Resets the input filter to the default input filter accepting all events.
+   */
+  public static void unregisterInputFilter() {
+    inputFilter = defaultInputFilter;
+  }
 
   private static java.util.List<Tracer.Object> list = new java.util.ArrayList<Tracer.Object>();
 
   private static void trace(Tracer.Event evt, $ASTNode node, String attr, String params, String value) {
-    list.add(new Tracer.Object(evt, String.format("%08X", node.hashCode()), attr, params, value));
+    Tracer.Object obj = new Tracer.Object(evt, String.format("%08X", node.hashCode()), attr, params, value);
+    if (inputFilter.include(obj)) {
+      list.add(obj);
+    }
   }
 
   /**
@@ -365,7 +397,7 @@ public class Tracer {
 
   /**
    * Print report from collected trace using the given filter.
-   * @param out Print stream to use.
+   * @param out Print writer to use.
    * @param filter The filter to use.
    */
   public static void printReport(java.io.PrintWriter out, Tracer.Filter filter) {
