@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -111,7 +111,7 @@ aspect JragCodeGen {
     else if (grammar().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined(); //Ast.AttrDecl.getLazy(); 
+      return declaredNTA() || refined(); //Ast.AttrDecl.getLazy();
 //    return (Ast.AttrDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
 
@@ -131,7 +131,7 @@ aspect JragCodeGen {
     else if (grammar().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined(); //Ast.InhDecl.getLazy(); 
+      return declaredNTA() || refined(); //Ast.InhDecl.getLazy();
 //    return (Ast.InhDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
   }
 
@@ -672,9 +672,9 @@ aspect JragCodeGen {
         "if (state.LAST_CYCLE) {\n" +
         attributeSignature() + "_computed = true;\n" +
         inhDebugString() +
-        tt.expand("AttrDecl.incHookAttrCompStartCircular") + 
+        tt.expand("AttrDecl.incHookAttrCompStartCircular") +
         ind + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
-        tt.expand("AttrDecl.incHookAttrCompEndCircular") + 
+        tt.expand("AttrDecl.incHookAttrCompEndCircular") +
         ind + "return new_" + attributeSignature() + "_value;\n" +
         "}\n";
     } else {
@@ -710,11 +710,11 @@ aspect JragCodeGen {
     }
     else {
       if(grammar().rewriteEnabled) {
-        if (grammar().java5) 
+        if (grammar().java5)
           return
           "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-        else 
+        else
           return
           "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
@@ -746,7 +746,7 @@ aspect JragCodeGen {
   public void ASTDecl.emitCacheDeclarations(PrintStream out, AttrDecl attr) {
     boolean needsCacheDeclaration = true;
     if(attr instanceof SynDecl) {
-      // EMMA_2011-09-13: Setting this to true to get declarations for each 
+      // EMMA_2011-09-13: Setting this to true to get declarations for each
       // equation of an attribute. If an equation lacks its own visited declaration
       // and calls an overriden equation it can cause a circularity exception.
       needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
@@ -1022,9 +1022,8 @@ aspect JragCodeGen {
       }
     }
   }
-  
+
   syn boolean AttrDecl.hasCache() = getLazy() || isCircular();
-  syn boolean AttrDecl.isParamAttr() = getNumParameter() > 0;
   syn boolean AttrDecl.isAttrNTA() = isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
-  
+
 }

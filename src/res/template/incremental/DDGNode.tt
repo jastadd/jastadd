@@ -504,7 +504,7 @@ ASTDecl.createNodeHandler = [[
 # Create DDG node for attribute
 ASTDecl.createAttributeHandler = [[
 $if (IncrementalLevelParam)
-$if (IsParamAttr)
+$if (IsParameterized)
   protected java.util.Map #name.$(AttributeName)_handler = new java.util.HashMap(4);
 $else
   protected $DDGNodeName #name.$(AttributeName)_handler;

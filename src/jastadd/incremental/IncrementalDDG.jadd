@@ -1,9 +1,9 @@
 /* Copyright (c) 2011-2013, Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,83 +35,83 @@ aspect IncrementalDDG {
     TemplateContext tt = templateContext();
     tt.expand("Grammar.emitDDGNode", out);
   }
-  
-  /** 
+
+  /**
    * Generate DDG nodes for storage that needs dependency tracking in an AST node.
    * The number of DDG nodes needed depend on the incremental configuration:
    *  - param: children by index, parent, attributes with parameters
    *  - attr:  children, parent, attributes
    *  - node:  one per node
    *  - region: on node if region root (non region roots use a method to find the root)
-   */ 
+   */
   public void ASTDecl.genIncrementalHandlers(PrintWriter out) {
-    if (!grammar().incremental) return; 
+    if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
-    if (grammar().incrementalLevelRegion && 
+    if (grammar().incrementalLevelRegion &&
     	isRegionRoot() && !hasRegionRootAsSuperClass()) {
       tt.expand("ASTDecl.createNodeHandler", out);
     }
     if (grammar().incrementalLevelNode &&
       		name().equals(grammar().astNodeType)) {
       tt.expand("ASTDecl.createNodeHandler", out);
-    } 
-    if (grammar().incrementalLevelParam || 
+    }
+    if (grammar().incrementalLevelParam ||
     	grammar().incrementalLevelAttr) {
-      
-      if (name().equals(grammar().astNodeType)) {      
+
+      if (name().equals(grammar().astNodeType)) {
         tt.expand("ASTDecl.createASTHandlers", out);
       }
       // collect attributes
       ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
+        if (attr.getLazy() || attr.isCircular())
           list.add(attr);
       }
       for(int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular()) 
+        if (attr.getLazy() || attr.isCircular())
           list.add(attr);
       }
       for (int k = 0; k < getNumCollDecl(); k++) {
         CollDecl attr = getCollDecl(k);
-        list.add(attr);      
+        list.add(attr);
       }
-      // attribute code 
+      // attribute code
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         tt.bind("AttributeName", attr.attributeSignature());
-        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
-        tt.expand("ASTDecl.createAttributeHandler", out);        
+        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        tt.expand("ASTDecl.createAttributeHandler", out);
       }
     }
   }
-  
+
   /**
    * Initialize child handlers.
-   * This only applies for the incremental param configuration. 
+   * This only applies for the incremental param configuration.
    */
   public String ASTDecl.genIncrementalInitChildHandlers() {
     if (!grammar().incremental) return "";
     TemplateContext tt = templateContext();
     return tt.expand("ASTDecl.incrementalInitChildHandlers");
   }
-  
+
   /**
    * Generate code for copying of DDG nodes.
    */
   public void ASTDecl.genIncrementalCopyHandlers(PrintWriter out) {
-    if (!grammar().incremental) return; 
+    if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
     tt.bind("IsRegionRoot", isRegionRoot());
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
     tt.bind("CopyAttributeHandlers", emitCopyAttributeHandlersString());
     tt.expand("ASTDecl.incrementalCopyHandlerMethod", out);
   }
-  
+
   /**
    * Emit string for copying of token DDG nodes in a node.
-   */ 
+   */
   public String ASTDecl.emitCopyTokenHandlersString() {
     StringBuffer res = new StringBuffer();
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
@@ -126,10 +126,10 @@ aspect IncrementalDDG {
     }
     return res.toString();
   }
-  
+
   /**
    * Emit string for copying of attribute DDG nodes in a node.
-   */ 
+   */
   public String ASTDecl.emitCopyAttributeHandlersString() {
     StringBuffer res = new StringBuffer();
     if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
@@ -137,12 +137,12 @@ aspect IncrementalDDG {
       ArrayList list = new ArrayList();
       for(int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+        if (attr != null && (attr.getLazy() || attr.isCircular()))
           list.add(attr);
       }
       for(int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr != null && (attr.getLazy() || attr.isCircular())) 
+        if (attr != null && (attr.getLazy() || attr.isCircular()))
           list.add(attr);
       }
       // Attribute code
@@ -150,19 +150,19 @@ aspect IncrementalDDG {
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         tt.bind("AttributeName", attr.attributeSignature());
-        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
-        res.append(tt.expand("ASTDecl.copyAttributeHandler"));        
-      }    
+        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        res.append(tt.expand("ASTDecl.copyAttributeHandler"));
+      }
     }
     return res.toString();
   }
-  
+
   /**
    * Generate code for incremental regions.
    * This is a incremental configuration that requires additional
    * methods for finding the current region, identifying region roots,
    * and tracking of region dependencies.
-   */ 
+   */
   public void ASTDecl.genIncrementalRegions(PrintWriter out) {
     if (!grammar().incremental) return;
     TemplateContext tt = templateContext();
@@ -214,7 +214,7 @@ aspect IncrementalDDG {
         stream.println("      }");
         stream.println("      super.insertChild(node, index);");
         stream.println("    }");
-      }        
+      }
     }
     */
   }

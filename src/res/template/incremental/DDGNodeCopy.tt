@@ -89,7 +89,7 @@ TokenComponent.copyTokenHandler = [[
 # Copy attribute DDG node
 ASTDecl.copyAttributeHandler = [[
 $if (IncrementalLevelParam)
-$if (IsParamAttr)
+$if (IsParameterized)
     if ($(AttributeName)_handler != null) {
       copy.$(AttributeName)_handler = new java.util.HashMap(4);
     }

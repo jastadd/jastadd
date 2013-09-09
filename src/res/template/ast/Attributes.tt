@@ -512,7 +512,7 @@ AttrDecl.cacheCheck = [[
 $if(#hasCache)
 $include(AttrDecl.incHookAttrRead)
 $if(#isAttrNTA)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 if(#(attributeSignature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return (#getType) getChild(#(attributeSignature)ChildPosition());
@@ -524,7 +524,7 @@ if(#(attributeSignature)_values.containsKey(_parameters)) {
 }
 $endif
 $endif
-$if(!#isParamAttr)
+$if(!#isParameterized)
 if(#(attributeSignature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return #(attributeSignature)_value;

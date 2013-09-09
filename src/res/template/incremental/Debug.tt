@@ -136,7 +136,7 @@ $endif
 
 # Generate code for dumping a cached attribute value
 ASTDecl.dumpCachedAttributeValue = [[
-$if (IsParamAttr)
+$if (IsParameterized)
 if ($(AttrSign)_values != null) {
   for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator();itr.hasNext();) {
     Object key = (Object)itr.next();
@@ -212,7 +212,7 @@ if (get$(Id)_handler != null) {
 # Generate code for checking an attribute handler and dumping its dependencies
 ASTDecl.checkAndDumpAttributeDeps = [[
 $if (IncrementalLevelParam)
-$if (IsParamAttr)
+$if (IsParameterized)
 for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
   handler.dumpDeps();
@@ -223,7 +223,7 @@ if ($(AttrSign)_handler != null) {
 }
 $endif
 $if (IsNTA)
-$if (IsParamAttr)
+$if (IsParameterized)
 if ($(AttrSign)_list != null) {
   $(AttrSign)_list.dumpDependencies();
 }
@@ -239,7 +239,7 @@ if ($(AttrSign)_handler != null) {
   $(AttrSign)_handler.dumpDeps();
 }
 $if (IsNTA)
-$if (IsParamAttr)
+$if (IsParameterized)
 if ($(AttrSign)_list != null) {
   $(AttrSign)_list.dumpDependencies();
 }
@@ -269,7 +269,7 @@ public void #name.dumpDepsInTree() {
 
 # Generate string with code for dumping dependencies in NTAs
 ASTDecl.checkAndDumpNTADeps = [[
-$if (IsParamAttr)
+$if (IsParameterized)
 if ($(AttrSign)_list != null) {
   $(AttrSign)_list.dumpDepsInTree();
 }

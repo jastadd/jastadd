@@ -234,7 +234,7 @@ $endif
 
 ASTDecl.changeStateAttributeHandler = [[
 $if(IncrementalLevelParam)
-$if(IsParamAttr)
+$if(IsParameterized)
 for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
   handler.changeState(newState);
@@ -251,7 +251,7 @@ if ($(AttrSign)_handler != null) {
 }
 $endif
 $if(ChangeStateValue)
-$if(IsParamAttr)
+$if(IsParameterized)
 if ($(AttrSign)_list != null) {
   $(AttrSign)_list.inc_changeState(newState);
 }
@@ -349,7 +349,7 @@ $endif
 
 ASTDecl.throwAwayAttributeHandler = [[
 $if(IncrementalLevelParam)
-$if(IsParamAttr)
+$if(IsParameterized)
 for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
   handler.throwAway();
@@ -366,7 +366,7 @@ if ($(AttrSign)_handler != null) {
 }
 $endif
 $if(ThrowAwayValue)
-$if(IsParamAttr)
+$if(IsParameterized)
 if ($(AttrSign)_list != null) {
   $(AttrSign)_list.inc_throwAway();
 }

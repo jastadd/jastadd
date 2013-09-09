@@ -82,7 +82,7 @@
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
-      tt.bind("IsParamAttr", attr.isParamAttr());
+      tt.bind("IsParameterized", attr.isParameterized());
       Components comp = attr.findCorrespondingNTA();
       tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA));
       tt.bind("AttrSign", attr.attributeSignature());
@@ -99,7 +99,7 @@
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParamAttr", attr.isParamAttr());
+      tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.attributeSignature());
       res.append(tt.expand("ASTDecl.transferSetsFromAttributeHandler"));
     }
@@ -123,7 +123,7 @@
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
             && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
-      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.attributeSignature());
       Components comp = attr.findCorrespondingNTA();
       tt.bind("IsNtaWithTree", comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA);
@@ -172,7 +172,7 @@
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
       tt.bind("IsNTA", attr.getNTA() || attr.isNTA());
-      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("IsAttrWithOneParam", attr.getNumParameter() == 1);
       tt.bind("IsPrimitiveAttr", attr.isPrimitive());
       tt.bind("AttrSign", attr.attributeSignature());
@@ -202,7 +202,7 @@
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       res.append(firstAttr ? "" : "else ");
-      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.attributeSignature());
       tt.bind("AttrType", attr.type());
       tt.bind("AttrResetVisit", attr.resetVisit());
@@ -224,7 +224,7 @@
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.attributeSignature());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());

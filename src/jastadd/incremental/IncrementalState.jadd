@@ -61,7 +61,7 @@ aspect IncrementalState {
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParamAttr", attr.isParamAttr());
+      tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.attributeSignature());
       tt.bind("ChangeStateValue", (attr.isNTA() || attr.getNTA()) &&
           !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
@@ -88,7 +88,7 @@ aspect IncrementalState {
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParamAttr", attr.isParamAttr());
+      tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.attributeSignature());
       tt.bind("ThrowAwayValue", (attr.isNTA() || attr.getNTA()) &&
           !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));

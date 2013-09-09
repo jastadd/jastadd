@@ -57,7 +57,7 @@ aspect IncrementalDebug {
       AttrDecl attr = (AttrDecl)itr.next();
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-        tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+        tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.attributeSignature());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
@@ -74,7 +74,7 @@ aspect IncrementalDebug {
     // Add dump string for each attribute
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
             !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("AttrSign",  attr.attributeSignature());
@@ -109,7 +109,7 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParamAttr", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
       tt.bind("AttrSign", attr.attributeSignature());
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));

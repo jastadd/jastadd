@@ -51,7 +51,7 @@ $endif
 ASTDecl.checkAttrValueAffected = [[
 $if(IsNTA)
 // NTAs are always considered affected
-$if(IsParamAttr)
+$if(IsParameterized)
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
 $else
 if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
@@ -60,7 +60,7 @@ $endif
 }
 $else
 // non-NTAs
-$if(IsParamAttr)
+$if(IsParameterized)
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
   $if(IsPrimitiveAttr)
   // store old value
@@ -260,7 +260,7 @@ $endif
 
 ASTDecl.attrFlushCheck = [[
 $if(IncrementalLevelParam)
-$if(IsParamAttr)
+$if(IsParameterized)
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
   $if(IsNTA)
   $AttrType value = ($AttrType)$(AttrSign)_values.remove(_parameters);
@@ -305,7 +305,7 @@ $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsParamAttr)
+$if(IsParameterized)
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
   $if(IsNTA)
   if ($(AttrSign)_list != null) {
@@ -378,7 +378,7 @@ $if(IncrementalLevelRegion)
 // TODO: Add a flush of non-region root NTA children
 $endif
 $else
-$if(IsParamAttr)
+$if(IsParameterized)
 if ($(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
   $AttrResetVisit
   $AttrResetCache
@@ -800,7 +800,7 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 
 $if(IsNTA)
-$if(IsParamAttr)
+$if(IsParameterized)
 if ($(AttrSign)_list != null) {
   for (int index = 0; index < $(AttrSign)_list.numChildren; index++) {
     $ASTNode value = $(AttrSign)_list.children[index];
@@ -1016,7 +1016,7 @@ $if(IncrementalLevelAttr)
 h.transferSetsFrom($(AttrSign)_handler);
 $endif
 $if(IncrementalLevelParam)
-$if(IsParamAttr)
+$if(IsParameterized)
 if ($(AttrSign)_handler != null) {
   for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
     h.transferSetsFrom(($DDGNodeName)itr.next());
@@ -1047,7 +1047,7 @@ ASTDecl.flushNtaSubtree = [[
 $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 $if(IsNTA)
-$if(IsParamAttr)
+$if(IsParameterized)
 if ($(AttrSign)_list != null) {
   $(AttrSign)_list.inc_flush_subtree(h);
 }

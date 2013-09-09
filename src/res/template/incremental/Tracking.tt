@@ -376,7 +376,7 @@ AttrDecl.incHookAttrRead = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 if (#(attributeSignature)_handler == null) {
   #(attributeSignature)_handler = new $DDGNodeName(this, "#(attributeSignature)", null);
 }
@@ -398,7 +398,7 @@ $endif
 
 $if(IncrementalLevelNode)
 $if(#getNTA)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 if (#(attributeSignature)_computed) {
   state().addHandlerDepTo(#(attributeSignature)_value.handler());
 }
@@ -412,7 +412,7 @@ $endif
 
 $if(IncrementalLevelRegion)
 $if(#getNTA)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 if (#(attributeSignature)_computed && #(attributeSignature)_value.isRegionRoot()) {
   state().addHandlerDepTo(#(attributeSignature)_value.handler());
 }
@@ -467,7 +467,7 @@ $if(IncrementalEnabled)
 $if(#hasCache)
 
 $if(IncrementalLevelParam)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 state().enterAttrStoreEval(#(attributeSignature)_handler);
 $else
 state().enterAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
@@ -541,7 +541,7 @@ $if(IncrementalEnabled)
 $if(#hasCache)
 
 $if(IncrementalLevelParam)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 state().exitAttrStoreEval(#(attributeSignature)_handler);
 $else
 state().exitAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
@@ -583,7 +583,7 @@ $if(IncrementalEnabled)
 $if(#hasCache)
 
 $if(IncrementalLevelParam)
-$if(!#isParamAttr)
+$if(!#isParameterized)
 #(attributeSignature)_handler.transferDependenciesFrom(tmpHandler);
 $else
 (($DDGNodeName)#(attributeSignature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
