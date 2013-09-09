@@ -10,6 +10,9 @@
 	<property name="jastadd2.tools.dir" value="${jastadd2.basedir}/tools"/>
 	<property name="tt.src.dir" value="${jastadd2.basedir}/tinytemplate/src/java"/>
 
+  <!-- set to "true" to compile in debug mode -->
+  <property name="debug" value="false"/>
+
 	<condition property="jastadd-jar" value="${jastadd.jar}"
 		else="${jastadd2.tools.dir}/jastadd2.jar">
 		<isset property="jastadd.jar"/>
@@ -64,7 +67,9 @@
 			target="${jastadd2.gen.dir}/org/jastadd/jrag/AST/Jrag.jj"/>
 
 
-		<javac source="1.6" target="1.6"
+		<javac
+      debug="${debug}"
+      source="1.6" target="1.6"
 			destdir="${jastadd2.bin.dir}" includeantruntime="true">
 			<src path="${jastadd2.src.dir}/java"/>
 			<src path="${jastadd2.gen.dir}"/>
