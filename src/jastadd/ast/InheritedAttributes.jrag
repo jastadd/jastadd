@@ -168,7 +168,7 @@ aspect InheritedAttributeCodeGen {
       out.println(ind + " * " + equ.declaredat());
       out.println(ind + " * @apilevel internal");
       out.println(ind + " */");
-      out.println(ind + "public " + decl.getType() + " Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersDecl() + ") {");
+      out.println(ind + "public " + decl.getType() + " Define_" + decl.getTypeInSignature() + "_" + decl.name() + "(" + decl.interfaceParametersDecl() + ") {");
 
       // have we already generated a component equation?
       boolean hasComponentEq = false;
@@ -272,13 +272,13 @@ aspect InheritedAttributeCodeGen {
           out.println("else {");
         }
         if(superClass() != null && superClass().hasInhEq(decl.name())) {
-          out.println(ind3 + "return super.Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParameters() + ");");
+          out.println(ind3 + "return super.Define_" + decl.getTypeInSignature() + "_" + decl.name() + "(" + decl.interfaceParameters() + ");");
           out.println(ind2 + "}");
         }
         else {
           // TODO: INH
           out.print(decl.inhDebugString());
-          out.println(ind3 +   "return getParent().Define_" + decl.getTypeInSignature() + "_" + decl.attributeName() + "(" + decl.interfaceParametersContinue() + ");");
+          out.println(ind3 +   "return getParent().Define_" + decl.getTypeInSignature() + "_" + decl.name() + "(" + decl.interfaceParametersContinue() + ");");
           out.println(ind2 + "}");
         }
       }

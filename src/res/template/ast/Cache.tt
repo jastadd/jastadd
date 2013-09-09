@@ -28,11 +28,11 @@
 AttrDecl.resetCycleCheck = [[
 if (state.RESET_CYCLE) {
 $if(#isParameterized)
-  #(attributeSignature)_values.remove(_parameters);
+  #(signature)_values.remove(_parameters);
 $else
-  #(attributeSignature)_computed = false;
-  #(attributeSignature)_initialized = false;
-  #(attributeSignature)_visited = -1;
+  #(signature)_computed = false;
+  #(signature)_initialized = false;
+  #(signature)_visited = -1;
   $include(AttrDecl.returnStmt)
 $endif
 }

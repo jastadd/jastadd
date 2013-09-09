@@ -377,34 +377,34 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
-if (#(attributeSignature)_handler == null) {
-  #(attributeSignature)_handler = new $DDGNodeName(this, "#(attributeSignature)", null);
+if (#(signature)_handler == null) {
+  #(signature)_handler = new $DDGNodeName(this, "#(signature)", null);
 }
-state().addHandlerDepTo(#(attributeSignature)_handler);
+state().addHandlerDepTo(#(signature)_handler);
 $else
-if (!#(attributeSignature)_handler.containsKey(_parameters)) {
-  #(attributeSignature)_handler.put(_parameters, new $DDGNodeName(this, "#(attributeSignature)", _parameters));
+if (!#(signature)_handler.containsKey(_parameters)) {
+  #(signature)_handler.put(_parameters, new $DDGNodeName(this, "#(signature)", _parameters));
 }
-state().addHandlerDepTo(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
+state().addHandlerDepTo(($DDGNodeName)#(signature)_handler.get(_parameters));
 $endif
 $endif
 
 $if(IncrementalLevelAttr)
-if (#(attributeSignature)_handler == null) {
-  #(attributeSignature)_handler = new $DDGNodeName(this, "#(attributeSignature)");
+if (#(signature)_handler == null) {
+  #(signature)_handler = new $DDGNodeName(this, "#(signature)");
 }
-state().addHandlerDepTo(#(attributeSignature)_handler);
+state().addHandlerDepTo(#(signature)_handler);
 $endif
 
 $if(IncrementalLevelNode)
 $if(#getNTA)
 $if(!#isParameterized)
-if (#(attributeSignature)_computed) {
-  state().addHandlerDepTo(#(attributeSignature)_value.handler());
+if (#(signature)_computed) {
+  state().addHandlerDepTo(#(signature)_value.handler());
 }
 $else
-if (#(attributeSignature)_values.containsKey(_parameters)) {
-  state().addHandlerDepTo((($ASTNode) #(attributeSignature)_values.get(_parameters)).handler());
+if (#(signature)_values.containsKey(_parameters)) {
+  state().addHandlerDepTo((($ASTNode) #(signature)_values.get(_parameters)).handler());
 }
 $endif
 $endif
@@ -413,12 +413,12 @@ $endif
 $if(IncrementalLevelRegion)
 $if(#getNTA)
 $if(!#isParameterized)
-if (#(attributeSignature)_computed && #(attributeSignature)_value.isRegionRoot()) {
-  state().addHandlerDepTo(#(attributeSignature)_value.handler());
+if (#(signature)_computed && #(signature)_value.isRegionRoot()) {
+  state().addHandlerDepTo(#(signature)_value.handler());
 }
 $else
-if (#(attributeSignature)_values.containsKey(_parameters) && (($ASTNode) #(attributeSignature)_values.get(_parameters)).isRegionRoot()) {
-  state().addHandlerDepTo((($ASTNode) #(attributeSignature)_values.get(_parameters)).handler());
+if (#(signature)_values.containsKey(_parameters) && (($ASTNode) #(signature)_values.get(_parameters)).isRegionRoot()) {
+  state().addHandlerDepTo((($ASTNode) #(signature)_values.get(_parameters)).handler());
 }
 $endif
 $endif
@@ -468,14 +468,14 @@ $if(#hasCache)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
-state().enterAttrStoreEval(#(attributeSignature)_handler);
+state().enterAttrStoreEval(#(signature)_handler);
 $else
-state().enterAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
+state().enterAttrStoreEval(($DDGNodeName)#(signature)_handler.get(_parameters));
 $endif
 $endif
 
 $if(IncrementalLevelAttr)
-state().enterAttrStoreEval(#(attributeSignature)_handler);
+state().enterAttrStoreEval(#(signature)_handler);
 $endif
 
 $if(IncrementalLevelNode)
@@ -512,10 +512,10 @@ $endif
 
 $if(IncrementalLevelNode)
 $if(#getNTA)
-#(attributeSignature)_value.handler = newHandler;
-#(attributeSignature)_value.handler.fNode = #(attributeSignature)_value;
-state().exitAttrStoreEval(#(attributeSignature)_value.handler);
-state().addHandlerDepTo(#(attributeSignature)_value.handler);
+#(signature)_value.handler = newHandler;
+#(signature)_value.handler.fNode = #(signature)_value;
+state().exitAttrStoreEval(#(signature)_value.handler);
+state().addHandlerDepTo(#(signature)_value.handler);
 $else
 state().exitAttrStoreEval(tmpHandler);
 $endif
@@ -524,10 +524,10 @@ $endif
 $if(IncrementalLevelRegion)
 state().IN_COMPUTATION--;
 $if(#getNTA)
-if (#(attributeSignature)_value.isRegionRoot()) {
+if (#(signature)_value.isRegionRoot()) {
   $DDGNodeName nodeHandler = handler();
-  nodeHandler.addDependant(#(attributeSignature)_value.handler());
-  #(attributeSignature)_value.handler().addDependant(nodeHandler);
+  nodeHandler.addDependant(#(signature)_value.handler());
+  #(signature)_value.handler().addDependant(nodeHandler);
 }
 $endif
 $endif
@@ -542,22 +542,22 @@ $if(#hasCache)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
-state().exitAttrStoreEval(#(attributeSignature)_handler);
+state().exitAttrStoreEval(#(signature)_handler);
 $else
-state().exitAttrStoreEval(($DDGNodeName)#(attributeSignature)_handler.get(_parameters));
+state().exitAttrStoreEval(($DDGNodeName)#(signature)_handler.get(_parameters));
 $endif
 $endif
 
 $if(IncrementalLevelAttr)
-state().exitAttrStoreEval(#(attributeSignature)_handler);
+state().exitAttrStoreEval(#(signature)_handler);
 $endif
 
 $if(IncrementalLevelNode)
 $if(#getNTA)
-#(attributeSignature)_value.handler = newHandler;
-#(attributeSignature)_value.handler.fNode = #(attributeSignature)_value;
-state().exitAttrStoreEval(#(attributeSignature)_value.handler);
-state().addHandlerDepTo(#(attributeSignature)_value.handler);
+#(signature)_value.handler = newHandler;
+#(signature)_value.handler.fNode = #(signature)_value;
+state().exitAttrStoreEval(#(signature)_value.handler);
+state().addHandlerDepTo(#(signature)_value.handler);
 $else
 state().exitAttrStoreEval(handler);
 $endif
@@ -566,10 +566,10 @@ $endif
 $if(IncrementalLevelRegion)
 state().IN_COMPUTATION--;
 $if(#getNTA)
-if (#(attributeSignature)_value.isRegionRoot()) {
+if (#(signature)_value.isRegionRoot()) {
   $DDGNodeName nodeHandler = handler();
-  nodeHandler.addDependant(#(attributeSignature)_value.handler());
-  #(attributeSignature)_value.handler().addDependant(nodeHandler);
+  nodeHandler.addDependant(#(signature)_value.handler());
+  #(signature)_value.handler().addDependant(nodeHandler);
 }
 $endif
 $endif
@@ -584,14 +584,14 @@ $if(#hasCache)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
-#(attributeSignature)_handler.transferDependenciesFrom(tmpHandler);
+#(signature)_handler.transferDependenciesFrom(tmpHandler);
 $else
-(($DDGNodeName)#(attributeSignature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
+(($DDGNodeName)#(signature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
 $endif
 $endif
 
 $if (IncrementalLevelAttr)
-#(attributeSignature)_handler.transferDependenciesFrom(tmpHandler);
+#(signature)_handler.transferDependenciesFrom(tmpHandler);
 $endif
 
 $if(IncrementalLevelNode)

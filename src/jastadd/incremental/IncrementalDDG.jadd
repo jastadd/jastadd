@@ -80,7 +80,7 @@ aspect IncrementalDDG {
       // attribute code
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        tt.bind("AttributeName", attr.attributeSignature());
+        tt.bind("AttributeName", attr.signature());// TODO rename template variable?
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.expand("ASTDecl.createAttributeHandler", out);
       }
@@ -149,7 +149,7 @@ aspect IncrementalDDG {
       TemplateContext tt = templateContext();
       for(Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        tt.bind("AttributeName", attr.attributeSignature());
+        tt.bind("AttributeName", attr.signature());// TODO rename template variable?
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         res.append(tt.expand("ASTDecl.copyAttributeHandler"));
       }

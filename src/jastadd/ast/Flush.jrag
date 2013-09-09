@@ -74,7 +74,7 @@ aspect Flush {
   public String AttrDecl.resetCache(String prefix) {
     if(!getLazy() && !isCircular())
       return "";
-    String signature = prefix + attributeSignature();
+    String signature = prefix + signature();
     if(getNumParameter() == 0) {
       if(isCircular()) {
         if(isPrimitive())
@@ -145,7 +145,7 @@ aspect Flush {
       res.append(attr.resetVisit());
       res.append(attr.resetCache());
       if(!attr.separateEvaluation() && !attr.onePhase())
-        res.append(grammar().ind(2) + attr.attributeSignature() + "_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n");
+        res.append(grammar().ind(2) + attr.signature() + "_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n");
     }
     res.append(collectionReset());
     return res.toString();

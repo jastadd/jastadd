@@ -29,16 +29,16 @@ CollDecl.computeMethod:separateEvaluation = [[
   /**
    * @apilevel internal
    */
-  private #getType #(attributeName)_compute(#parametersDecl) {
+  private #getType #(name)_compute(#parametersDecl) {
     $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType)) {
       node = node.getParent();
     }
     #collDebugString
     $RootType root = ($RootType) node;
-    #(attributeSignature)_value = $BottomValue;
-    root.#(name)_#(attributeSignature)_nextIteration(this);
-    return #(attributeSignature)_value;
+    #(signature)_value = $BottomValue;
+    root.#(name)_#(signature)_nextIteration(this);
+    return #(signature)_value;
   }
 ]]
 
@@ -46,7 +46,7 @@ CollDecl.computeMethod:onePhase = [[
   /**
    * @apilevel internal
    */
-  private #getType #(attributeName)_compute(#parametersDecl) {
+  private #getType #(name)_compute(#parametersDecl) {
     $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType)) {`
       node = node.getParent();
@@ -54,32 +54,32 @@ CollDecl.computeMethod:onePhase = [[
     #collDebugString
     $RootType root = ($RootType) node;
     root.collect_contributors_#collectingSignature();
-    if(#(attributeSignature)_value == null) {
-      #(attributeSignature)_value = $BottomValue;
+    if(#(signature)_value == null) {
+      #(signature)_value = $BottomValue;
     }
-    return #(attributeSignature)_value;
+    return #(signature)_value;
   }
 ]]
 
 CollDecl.computeMethod = [[
-  $DefaultSetType #(attributeSignature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
+  $DefaultSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
 
   /**
    * @apilevel internal
    * @return the contributor set for #name
    */
-  public $DefaultSetType #(attributeSignature)_contributors() {
+  public $DefaultSetType #(signature)_contributors() {
 $if(LazyMaps)
-    if(#(attributeSignature)_contributors == null)
-      #(attributeSignature)_contributors  = $CreateContributorSet;
+    if(#(signature)_contributors == null)
+      #(signature)_contributors  = $CreateContributorSet;
 $endif
-    return #(attributeSignature)_contributors;
+    return #(signature)_contributors;
   }
 
   /**
    * @apilevel internal
    */
-  private #getType #(attributeName)_compute(#parametersDecl) {
+  private #getType #(name)_compute(#parametersDecl) {
     $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType)) {
       node = node.getParent();
@@ -87,45 +87,45 @@ $endif
     #collDebugString
     $RootType root = ($RootType) node;
     root.collect_contributors_#collectingSignature();
-    #(attributeSignature)_value = $BottomValue;
+    #(signature)_value = $BottomValue;
 $if(LazyMaps)
-    if(#(attributeSignature)_contributors != null)
+    if(#(signature)_contributors != null)
 $endif
-    for (java.util.Iterator iter = #(attributeSignature)_contributors.iterator(); iter.hasNext(); ) {
+    for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
       $ASTNode contributor = ($ASTNode) iter.next();
-      contributor.contributeTo_#(getTarget)_#(attributeSignature)(#(attributeSignature)_value);
+      contributor.contributeTo_#(getTarget)_#(signature)(#(signature)_value);
     }
     // TODO: disabled temporarily since collections may not be cached
-    //$if(LazyMaps)#(attributeSignature)_contributors = null;$endif
-    return #(attributeSignature)_value;
+    //$if(LazyMaps)#(signature)_contributors = null;$endif
+    return #(signature)_value;
   }
 ]]
 
 CollDecl.combineMethod = [[
-  $DefaultSetType #(attributeSignature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
+  $DefaultSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
 
   /**
    * @apilevel internal
    * @return the contributor set for #name
    */
-  public $DefaultSetType #(attributeSignature)_contributors() {
+  public $DefaultSetType #(signature)_contributors() {
 $if(LazyMaps)
-    if(#(attributeSignature)_contributors == null)
-      #(attributeSignature)_contributors  = $CreateContributorSet;
+    if(#(signature)_contributors == null)
+      #(signature)_contributors  = $CreateContributorSet;
 $endif
-    return #(attributeSignature)_contributors;
+    return #(signature)_contributors;
   }
 
-  private #getType combine_#(attributeSignature)_contributions(#getType h) {
+  private #getType combine_#(signature)_contributions(#getType h) {
 $if(LazyMaps)
-    if(#(attributeSignature)_contributors != null)
+    if(#(signature)_contributors != null)
 $endif
-    for(java.util.Iterator iter = #(attributeSignature)_contributors.iterator(); iter.hasNext(); ) {
+    for(java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
       $ASTNode contributor = ($ASTNode) iter.next();
-      contributor.contributeTo_#(getTarget)_#(attributeSignature)(h);
+      contributor.contributeTo_#(getTarget)_#(signature)(h);
     }
     // TODO: disabled temporarily since collections may not be cached
-    //$if(LazyMaps)#(attributeSignature)_contributors = null;$endif
+    //$if(LazyMaps)#(signature)_contributors = null;$endif
     return h;
   }
 ]]
@@ -138,20 +138,20 @@ $if(#getRefSet)
       for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
         #getTargetName ref = (#getTargetName) iter.next();
         if (ref != null) {
-          if (ref.#(attributeSignature)_value == null) {
-            ref.#(attributeSignature)_value = $BottomValue;
+          if (ref.#(signature)_value == null) {
+            ref.#(signature)_value = $BottomValue;
           }
-          ref.#(attributeSignature)_value.$CombOp($Value);
+          ref.#(signature)_value.$CombOp($Value);
         }
       }
 $else
       {
         #getTargetName ref = #getReference;
         if (ref != null) {
-          if (ref.#(attributeSignature)_value == null) {
-            ref.#(attributeSignature)_value = $BottomValue;
+          if (ref.#(signature)_value == null) {
+            ref.#(signature)_value = $BottomValue;
           }
-          ref.#(attributeSignature)_value.$CombOp($Value);
+          ref.#(signature)_value.$CombOp($Value);
         }
       }
 $endif
@@ -168,14 +168,14 @@ $if(#getRefSet)
       for(java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
         #getTargetName ref = (#getTargetName) iter.next();
         if (ref != null) {
-          ref.#(attributeSignature)_contributors().add(this);
+          ref.#(signature)_contributors().add(this);
         }
       }
 $else
       {
         #getTargetName ref = (#getTargetName) (#getReference);
         if (ref != null) {
-          ref.#(attributeSignature)_contributors().add(this);
+          ref.#(signature)_contributors().add(this);
         }
       }
 $endif
@@ -191,12 +191,12 @@ $if(#getRefSet)
     for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
       #getTargetName ref = (#getTargetName) iter.next();
       if(ref == n && ($Condition)) {
-        $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
+        $(ValueAccess)#(signature)_value.$CombOp($Value);
       }
     }
 $else
     if (#getReference == n && ($Condition)) {
-      $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
+      $(ValueAccess)#(signature)_value.$CombOp($Value);
     }
 $endif
 $else
@@ -205,12 +205,12 @@ $if(#getRefSet)
       for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
         #getTargetName ref = (#getTargetName) iter.next();
         if (ref == n) {
-          $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
+          $(ValueAccess)#(signature)_value.$CombOp($Value);
         }
       }
 $else
       if (#getReference == n) {
-        $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
+        $(ValueAccess)#(signature)_value.$CombOp($Value);
       }
 $endif
     }
@@ -220,21 +220,21 @@ $if(#getRefSet)
     for(java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
       #getTargetName ref = (#getTargetName) iter.next();
       if (ref == n) {
-        $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
+        $(ValueAccess)#(signature)_value.$CombOp($Value);
       }
     }
 $else
     if (#getReference == n) {
-      $(ValueAccess)#(attributeSignature)_value.$CombOp($Value);
+      $(ValueAccess)#(signature)_value.$CombOp($Value);
     }
 $endif
 $endif
 ]]
 
 ASTDecl.weaveCollectionAttributes.nextIteration = [[
-  protected void #(getTarget)_#(attributeSignature)_nextIteration(#getTarget n) {
+  protected void #(getTarget)_#(signature)_nextIteration(#getTarget n) {
     for(int i = 0; i < getNumChild(); i++) {
-      getChild(i).#(getTarget)_#(attributeSignature)_nextIteration(n);
+      getChild(i).#(getTarget)_#(signature)_nextIteration(n);
     }
   }
 ]]
@@ -248,7 +248,7 @@ ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
 ]]
 
 ASTDecl.weaveCollectionAttributes.contributeTo = [[
-  protected void contributeTo_#(getTarget)_#(attributeSignature)(#getType collection) {
+  protected void contributeTo_#(getTarget)_#(signature)(#getType collection) {
   }
 ]]
 

@@ -152,7 +152,7 @@ aspect JragCodeGen {
           (org.jastadd.jrag.AST.ASTCompilationUnit) iter.next();
         imports.addAll(Unparser.getImports(u));
     }
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     for(Iterator iter = imports.iterator(); iter.hasNext(); ) {
       buf.append(iter.next());
       buf.append('\n');
@@ -254,56 +254,24 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.attributeSignature() {
-    if(getNumParameter() == 0) {
-      return getName();
-    }
-    StringBuffer s = new StringBuffer();
-    s.append(getName());
-    for(int i = 0; i < getNumParameter(); i++) {
-      s.append("_" + getParameter(i).getTypeInSignature());
-    }
-    return s.toString();
-  }
-
-  public String AttrDecl.attributeName() {
-    return getName();
-  }
-
-  public String AttrEq.attributeSignature() {
-    if(getNumParameter() == 0) {
-      return getName();
-    }
-    StringBuffer s = new StringBuffer();
-    s.append(getName());
-    for(int i = 0; i < getNumParameter(); i++) {
-      s.append("_" + getParameter(i).getTypeInSignature());
-    }
-    return s.toString();
-  }
-
-  public String AttrEq.attributeName() {
-    return getName();
-  }
-
   syn String AttrEq.attributeKind() = decl().attributeKind();
 
   public String AttrDecl.initLazyMaps() {
-    StringBuffer s = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     if(grammar().lazyMaps) {
       if(!isCircular()) {
         if(getNumParameter() != 0 && grammar().visitCheckEnabled && grammar().rewriteEnabled) {
-          s.append("if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultMap + ";\n");
+          sb.append("if(" + signature() + "_visited == null) " + signature() + "_visited = " + grammar().createDefaultMap + ";\n");
         }
         else if(getNumParameter() != 0 && grammar().visitCheckEnabled) {
-          s.append("if(" + attributeSignature() + "_visited == null) " + attributeSignature() + "_visited = " + grammar().createDefaultSet + ";\n");
+          sb.append("if(" + signature() + "_visited == null) " + signature() + "_visited = " + grammar().createDefaultSet + ";\n");
         }
       }
       if(getNumParameter() != 0 && (getLazy() || isCircular())) {
-        s.append("if(" + attributeSignature() + "_values == null) " + attributeSignature() + "_values = " + grammar().createDefaultMap + ";\n");
+        sb.append("if(" + signature() + "_values == null) " + signature() + "_values = " + grammar().createDefaultMap + ";\n");
       }
     }
-    return s.toString();
+    return sb.toString();
   }
 
   public void AttrDecl.emitVisitedDeclarations(PrintStream out) {
@@ -360,7 +328,7 @@ aspect JragCodeGen {
   syn String AttrDecl.resetVisit() = resetVisit("");
 
   public String AttrDecl.resetVisit(String prefix) {
-    String signature = prefix + attributeSignature();
+    String signature = prefix + signature();
     if(isCircular()) {
       if(getNumParameter() == 0)
         return signature + "_visited = -1;\n";
@@ -406,13 +374,13 @@ aspect JragCodeGen {
       return "";
     } else if(grammar().rewriteEnabled) {
       if(getNumParameter() == 0)
-        return attributeSignature() + "_visited = -1;\n";
+        return signature() + "_visited = -1;\n";
       else
-        return attributeSignature() + "_visited.remove(_parameters);\n";
+        return signature() + "_visited.remove(_parameters);\n";
     } else if(getNumParameter() == 0) {
-      return attributeSignature() + "_visited = false;\n";
+      return signature() + "_visited = false;\n";
     } else {
-      return attributeSignature() + "_visited.remove(_parameters);\n";
+      return signature() + "_visited.remove(_parameters);\n";
     }
   }
 
@@ -493,12 +461,12 @@ aspect JragCodeGen {
     } else if(getNumParameter() == 1) {
       return "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
     } else {
-      StringBuffer s = new StringBuffer();
-      s.append("java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
+      StringBuilder sb = new StringBuilder();
+      sb.append("java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
       for(int i = 0; i < getNumParameter(); i++) {
-        s.append("_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
+        sb.append("_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
       }
-      return s.toString();
+      return sb.toString();
     }
   }
 
@@ -519,19 +487,19 @@ aspect JragCodeGen {
 
   public String AttrDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0)
-      return attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
+      return signature() + "_value = " + name() + "_compute(" + parameters() + ");\n";
     else
-      return getType() + " " + attributeSignature() + "_value = " + attributeName() + "_compute(" + parameters() + ");\n";
+      return getType() + " " + signature() + "_value = " + name() + "_compute(" + parameters() + ");\n";
   }
 
   // TODO: INH
   public String InhDecl.callCompute() {
     if(getLazy() && getNumParameter() == 0) {
       return inhDebugString() +
-        attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
+        signature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ");\n";
     } else {
       return inhDebugString() +
-        getType() + " " + attributeSignature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ");\n";
+        getType() + " " + signature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ");\n";
     }
   }
 
@@ -543,7 +511,7 @@ aspect JragCodeGen {
   }
 
   syn String AttrDecl.attributeValueReference() =
-        toReferenceType(attributeSignature() + "_value", getType());
+        toReferenceType(signature() + "_value", getType());
 
   syn boolean AttrDecl.isNTAToken() =
     isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
@@ -558,7 +526,7 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", equ.parametersDecl());
     tt.bind("ComputeBody", equ.computeMethodBody());
-    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
+    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.emitInlineCompute", out);
   }
 
@@ -608,31 +576,31 @@ aspect JragCodeGen {
   public void AttrDecl.emitEquation(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
-    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
+    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.genEquation", out);
   }
 
   public void AttrDecl.emitCircularEquationNoParams(PrintStream out) {
     TemplateContext tt = templateContext();
-    tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
-    tt.bind("Cond2", differs("new_" + attributeSignature() + "_value", attributeSignature() + "_value"));
+    tt.bind("Cond1", differs("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("Cond2", differs("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
-    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(attributeSignature() + "_value"));
-    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(attributeSignature() + "_value"));
+    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
+    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
     tt.expand("ASTDecl.genCircularEquationNoParams", out);
   }
 
   public void AttrDecl.emitCircularEquationWithParams(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
-    tt.bind("Cond1", differs("new_" + attributeSignature() + "_value", fromReferenceType("_value.value", getType())));
-    tt.bind("ToRefType", toReferenceType("new_" + attributeSignature() + "_value", getType()));
+    tt.bind("Cond1", differs("new_" + signature() + "_value", fromReferenceType("_value.value", getType())));
+    tt.bind("ToRefType", toReferenceType("new_" + signature() + "_value", getType()));
     tt.bind("FromRefType", fromReferenceType("_value.value", getType()));
     tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
-    tt.bind("FromRefTypeParam", fromReferenceType(attributeSignature() + "_values.get(_parameters)", getType()));
+    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
     tt.bind("ParamDecl", paramDecl);
-    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + attributeSignature() + "_value"));
-    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(attributeSignature() + "_values.get(_parameters)" , getType())));
+    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + signature() + "_value"));
+    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(signature() + "_values.get(_parameters)" , getType())));
     tt.expand("ASTDecl.genCircularEquationWithParams", out);
   }
 
@@ -655,9 +623,9 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.circularComputeCall() { return ""; }
-  public String SynDecl.circularComputeCall() { return attributeName() + "_compute(" + parameters() + ")"; }
+  public String SynDecl.circularComputeCall() { return name() + "_compute(" + parameters() + ")"; }
   public String InhDecl.circularComputeCall() {
-    return "getParent().Define_" + getTypeInSignature() + "_" + attributeName() + "(" + interfaceParametersStart() + ")";
+    return "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
   }
 
   syn boolean AttrDecl.isParameterized() =
@@ -670,25 +638,25 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       return
         "if (state.LAST_CYCLE) {\n" +
-        attributeSignature() + "_computed = true;\n" +
+        signature() + "_computed = true;\n" +
         inhDebugString() +
         tt.expand("AttrDecl.incHookAttrCompStartCircular") +
-        ind + getType() + " new_" + attributeSignature() + "_value = " + circularComputeCall() + ";\n" +
+        ind + getType() + " new_" + signature() + "_value = " + circularComputeCall() + ";\n" +
         tt.expand("AttrDecl.incHookAttrCompEndCircular") +
-        ind + "return new_" + attributeSignature() + "_value;\n" +
+        ind + "return new_" + signature() + "_value;\n" +
         "}\n";
     } else {
       if (grammar().java5) {
         return
           "if (state.LAST_CYCLE) {\n" +
           inhDebugString() +
-          ind + attributeSignature() + "_values.put(_parameters, new_" + attributeSignature() + "_value);\n" +
+          ind + signature() + "_values.put(_parameters, new_" + signature() + "_value);\n" +
           "}\n";
       } else {
         return
           "if (state.LAST_CYCLE) {\n" +
           inhDebugString() +
-          ind + attributeSignature() + "_values.put(_parameters, " + toReferenceType("new_" + attributeSignature() + "_value", getType()) + ");\n" +
+          ind + signature() + "_values.put(_parameters, " + toReferenceType("new_" + signature() + "_value", getType()) + ");\n" +
           "}\n";
       }
     }
@@ -701,26 +669,26 @@ aspect JragCodeGen {
     if(getNumParameter() == 0) {
       if(grammar().rewriteEnabled)
         return
-        "if(" + attributeSignature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
+        "if(" + signature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
         ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        "if(" + attributeSignature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", null))\n" +
+        "if(" + signature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
         ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
       if(grammar().rewriteEnabled) {
         if (grammar().java5)
           return
-          "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
+          "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
         else
           return
-          "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
+          "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       } else
         return
-        "if(_value.visited != -1 && !state.containsEvalEntry(this, \"" + attributeSignature() + "\", _parameters))\n" +
+        "if(_value.visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
         ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
@@ -729,10 +697,10 @@ aspect JragCodeGen {
     if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
     if(getNumParameter() == 0) {
       return
-        "state.addEvalEntry(this, \"" + attributeSignature() + "\", null);\n";
+        "state.addEvalEntry(this, \"" + signature() + "\", null);\n";
     } else {
       return
-        "state.addEvalEntry(this, \"" + attributeSignature() + "\", _parameters);\n";
+        "state.addEvalEntry(this, \"" + signature() + "\", _parameters);\n";
     }
   }
 
@@ -770,15 +738,15 @@ aspect JragCodeGen {
           out.println(ind + "/**");
           out.println(ind + " * @apilevel internal");
           out.println(ind + " */");
-          out.println(ind + "protected boolean " + attr.attributeSignature() + "_computed = false;");
+          out.println(ind + "protected boolean " + attr.signature() + "_computed = false;");
           out.println(ind + "/**");
           out.println(ind + " * @apilevel internal");
           out.println(ind + " */");
-          out.println(ind + "protected boolean " + attr.attributeSignature() + "_initialized = false;");
+          out.println(ind + "protected boolean " + attr.signature() + "_initialized = false;");
           out.println(ind + "/**");
           out.println(ind + " * @apilevel internal");
           out.println(ind + " */");
-          out.println(ind + "protected " + attr.getType() + " " + attr.attributeSignature() + "_value;");
+          out.println(ind + "protected " + attr.getType() + " " + attr.signature() + "_value;");
           return;
         }
       }
@@ -786,10 +754,10 @@ aspect JragCodeGen {
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
           if (grammar().lazyMaps) {
-            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.attributeSignature() + "_values;");
+            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.signature() + "_values;");
             return;
           } else {
-            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.attributeSignature() + "_values = " + grammar().createDefaultMap + ";");
+            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.signature() + "_values = " + grammar().createDefaultMap + ";");
             return;
           }
         }
@@ -882,7 +850,7 @@ aspect JragCodeGen {
       }
     } else {
       // non-NTA
-      StringBuffer result = new StringBuffer();
+      StringBuilder result = new StringBuilder();
       Components comp = findCorrespondingNTA();
       if(comp != null) {
         String attrName = getName().substring(3); // remove get
@@ -890,13 +858,13 @@ aspect JragCodeGen {
               comp instanceof OptionalComponentNTA
               || comp instanceof TokenComponentNTA
               || comp instanceof AggregateComponentsNTA )) {
-          result.append(grammar().ind + "set" + attrName + "(" + attributeSignature() + "_value);\n");
+          result.append(grammar().ind + "set" + attrName + "(" + signature() + "_value);\n");
         }
         if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-          result.append("set" + attrName + "(" + attributeSignature() + "_value);\n");
+          result.append("set" + attrName + "(" + signature() + "_value);\n");
         }
         if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-          result.append("set" + attrName + "(" + attributeSignature() + "_value);\n");
+          result.append("set" + attrName + "(" + signature() + "_value);\n");
         }
       }
       return result.toString();
@@ -993,14 +961,14 @@ aspect JragCodeGen {
     getAspectName();
 
   public String Grammar.genResetDuringCounters() {
-    StringBuffer out = new StringBuffer();
+    StringBuffer sb = new StringBuffer();
     TemplateContext tt = templateContext();
     for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
       String name = (String)iter.next();
       tt.bind("Name", name);
-      tt.expand("Grammar.genResetDuringCounters", out);
+      tt.expand("Grammar.genResetDuringCounters", sb);
     }
-    return out.toString();
+    return sb.toString();
   }
 
   syn String AttrEq.inhDebugString() = decl().inhDebugString();

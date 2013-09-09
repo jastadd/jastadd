@@ -85,7 +85,7 @@
       tt.bind("IsParameterized", attr.isParameterized());
       Components comp = attr.findCorrespondingNTA();
       tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA));
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.flushNtaSubtree"));
     }
     return res.toString();
@@ -100,7 +100,7 @@
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.isParameterized());
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.transferSetsFromAttributeHandler"));
     }
     for (int c = 0; c < getNumComponents(); c++) {
@@ -124,7 +124,7 @@
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
             && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       Components comp = attr.findCorrespondingNTA();
       tt.bind("IsNtaWithTree", comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA);
       tt.bind("AttrResetVisit", attr.resetVisit());
@@ -147,7 +147,7 @@
       		attr.getNumParameter() == 0) {
         Components comp = attr.findCorrespondingNTA();
         if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA) {
-          tt.bind("AttrSign", attr.attributeSignature());
+          tt.bind("AttrSign", attr.signature());
           tt.bind("AttrResetVisit", attr.resetVisit());
           tt.bind("AttrResetCache", attr.resetCache());
           res.append(tt.expand("ASTDecl.ntaFlush"));
@@ -175,7 +175,7 @@
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("IsAttrWithOneParam", attr.getNumParameter() == 1);
       tt.bind("IsPrimitiveAttr", attr.isPrimitive());
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       tt.bind("AttrName", attr.getName());
       tt.bind("AttrType", attr.type());
       String attrObjectType = attr.type();
@@ -203,7 +203,7 @@
       AttrDecl attr = (AttrDecl)itr.next();
       res.append(firstAttr ? "" : "else ");
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       tt.bind("AttrType", attr.type());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
@@ -225,7 +225,7 @@
     for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) &&

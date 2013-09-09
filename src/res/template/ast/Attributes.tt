@@ -27,15 +27,15 @@
 
 AttrDecl.returnStmt = [[
 $if(#isNTAToken)
-#(getType) node = (#getType) this.getChild(#(attributeSignature)ChildPosition());
+#(getType) node = (#getType) this.getChild(#(signature)ChildPosition());
 $include(AttrDecl.incHookAttrCompEnd)
 return node;
 $else
   $if(#isCircular)
-return #(attributeSignature)_value;
+return #(signature)_value;
   $else
 $include(AttrDecl.incHookAttrCompEnd)
-return #(attributeSignature)_value;
+return #(signature)_value;
   $endif
 $endif
 ]]
@@ -45,37 +45,37 @@ $if(!#isParameterized)
   /**
    * @apilevel internal
    */
-  protected boolean #(attributeSignature)_computed = false;
+  protected boolean #(signature)_computed = false;
   /**
    * @apilevel internal
    */
-  protected #getType #(attributeSignature)_value;
+  protected #getType #(signature)_value;
 $else
 $if(#declaredNTA)
 $if(LazyMaps)
   /**
    * @apilevel internal
    */
-  protected $DefaultMapType #(attributeSignature)_values;
+  protected $DefaultMapType #(signature)_values;
   /**
    * @apilevel internal
    */
-  protected $List #(attributeSignature)_list;
+  protected $List #(signature)_list;
 $else
   /**
    * @apilevel internal
    */
-  protected $DefaultMapType #(attributeSignature)_values = $CreateDefaultMap;
+  protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
   /**
    * @apilevel internal
    */
-  protected $List #(attributeSignature)_list;
+  protected $List #(signature)_list;
 $endif
 $else
 $if(LazyMaps)
-  protected $DefaultMapType #(attributeSignature)_values;
+  protected $DefaultMapType #(signature)_values;
 $else
-  protected $DefaultMapType #(attributeSignature)_values = $CreateDefaultMap;
+  protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
 $endif
 $endif
 $endif
@@ -84,19 +84,19 @@ $endif
 # attribute declarations
 AttrDecl.synDecl = AttrDecl.inhDecl = [[
   #annotations
-  public #getType #attributeName(#parametersDecl);
+  public #getType #name(#parametersDecl);
 ]]
 
 AttrDecl.abstractSynDecl = [[
 #docComment
   #annotations
-  public abstract #getType #attributeName(#parametersDecl);
+  public abstract #getType #name(#parametersDecl);
 ]]
 
 AttrDecl.emitInlineCompute = [[
 #docComment
   #annotations
-  public #getType #attributeName($ParamDecl) {
+  public #getType #name($ParamDecl) {
     $SynchBegin
     #parameterStructure
     #initLazyMaps
@@ -124,14 +124,14 @@ SynEq.emitComputeMethod = [[
   /**
    * @apilevel internal
    */
-  private #getType #(attributeName)_compute(#parametersDecl) $ComputeBody
+  private #getType #(name)_compute(#parametersDecl) $ComputeBody
 ]]
 
 AttrDecl.visitedException = [[
 $if(TraceVisitCheck)
-System.out.println("Circular definition of attr: #attributeName in class: $ClassName");
+System.out.println("Circular definition of attr: #name in class: $ClassName");
 $else
-throw new RuntimeException("Circular definition of attr: #attributeName in class: $ClassName");
+throw new RuntimeException("Circular definition of attr: #name in class: $ClassName");
 $endif
 ]]
 
@@ -140,26 +140,26 @@ $if (VisitCheckEnabled)
   $if (RewriteEnabled)
     $if(#isParameterized)
       $if (Java5)
-if (Integer.valueOf(state().boundariesCrossed).equals(#(attributeSignature)_visited.get(_parameters))) {
+if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
   #visitedException
 }
       $else
-if (new Integer(state().boundariesCrossed).equals(#(attributeSignature)_visited.get(_parameters))) {
+if (new Integer(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
   #visitedException
 }
       $endif
     $else
-if (#(attributeSignature)_visited == state().boundariesCrossed) {
+if (#(signature)_visited == state().boundariesCrossed) {
   #visitedException
 }
     $endif
   $else
     $if(#isParameterized)
-if (#(attributeSignature)_visited.contains(_parameters)) {
+if (#(signature)_visited.contains(_parameters)) {
   #visitedException
 }
     $else
-if (#(attributeSignature)_visited) {
+if (#(signature)_visited) {
   #visitedException
 }
     $endif
@@ -171,75 +171,75 @@ AttrDecl.setVisited = [[
 $if (RewriteEnabled)
   $if(#isParameterized)
     $if (Java5)
-#(attributeSignature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
+#(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
     $else
-#(attributeSignature)_visited.put(_parameters, new Integer(state().boundariesCrossed));
+#(signature)_visited.put(_parameters, new Integer(state().boundariesCrossed));
     $endif
   $else
-#(attributeSignature)_visited = state().boundariesCrossed;
+#(signature)_visited = state().boundariesCrossed;
   $endif
 $else
   $if(#isParameterized)
-#(attributeSignature)_visited.add(_parameters);
+#(signature)_visited.add(_parameters);
   $else
-#(attributeSignature)_visited = true;
+#(signature)_visited = true;
   $endif
 $endif
 ]]
 
 SynDecl.higherOrderAttributeCode:norewrite = [[
 $if(#isParameterized)
-if(#(attributeSignature)_list == null) {
-  #(attributeSignature)_list = new $List();
+if(#(signature)_list == null) {
+  #(signature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
-  #(attributeSignature)_list.setParent(this);
+  #(signature)_list.setParent(this);
 }
-#(attributeSignature)_list.add(#(attributeSignature)_value);
+#(signature)_list.add(#(signature)_value);
 $else
-#(attributeSignature)_value.setParent(this);
+#(signature)_value.setParent(this);
 $endif
 ]]
 
 SynDecl.higherOrderAttributeCode:nostagedrewrites = [[
 $if(#isParameterized)
-if(#(attributeSignature)_list == null) {
-  #(attributeSignature)_list = new $List();
+if(#(signature)_list == null) {
+  #(signature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
-  #(attributeSignature)_list.is$$Final = true;
-  #(attributeSignature)_list.setParent(this);
+  #(signature)_list.is$$Final = true;
+  #(signature)_list.setParent(this);
 }
-#(attributeSignature)_list.add(#(attributeSignature)_value);
-if(#(attributeSignature)_value != null) {
-  #(attributeSignature)_value = (#getType) #(attributeSignature)_list.getChild(#(attributeSignature)_list.numChildren-1);
-  #(attributeSignature)_value.is$$Final = true;
+#(signature)_list.add(#(signature)_value);
+if(#(signature)_value != null) {
+  #(signature)_value = (#getType) #(signature)_list.getChild(#(signature)_list.numChildren-1);
+  #(signature)_value.is$$Final = true;
 }
 $else
-#(attributeSignature)_value.setParent(this);
-#(attributeSignature)_value.is$$Final = true;
+#(signature)_value.setParent(this);
+#(signature)_value.is$$Final = true;
 $endif
 ]]
 
 SynDecl.higherOrderAttributeCode:stagedrewrites = [[
 $if(#isParameterized)
-if(#(attributeSignature)_list == null) {
-  #(attributeSignature)_list = new $List();
+if(#(signature)_list == null) {
+  #(signature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
-  #(attributeSignature)_list.is$$Final = java.lang.Integer.MAX_VALUE;
-  #(attributeSignature)_list.setParent(this);
+  #(signature)_list.is$$Final = java.lang.Integer.MAX_VALUE;
+  #(signature)_list.setParent(this);
 }
-if(#(attributeSignature)_value != null) {
-  #(attributeSignature)_list.add(#(attributeSignature)_value);
-  #(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
+if(#(signature)_value != null) {
+  #(signature)_list.add(#(signature)_value);
+  #(signature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
 }
 $else
-#(attributeSignature)_value.setParent(this);
-#(attributeSignature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
+#(signature)_value.setParent(this);
+#(signature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
 $endif
 ]]
 
 AttrDecl.genEquation [[
   #annotations
-  public #getType #attributeName($ParamDecl) {
+  public #getType #name($ParamDecl) {
     $SynchBegin
     #parameterStructure
     #initLazyMaps
@@ -261,7 +261,7 @@ $if(#getLazy)
   $if(#isParameterized)
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(attributeSignature)_values.put(_parameters, #attributeValueReference);
+      #(signature)_values.put(_parameters, #attributeValueReference);
       $include(AttrDecl.traceHookAttrCached)
     } else {
       $include(AttrDecl.traceHookAttrCacheAbort)
@@ -270,7 +270,7 @@ $if(#getLazy)
   $else
     #cacheStoreRewrite {
       $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(attributeSignature)_computed = true;
+      #(signature)_computed = true;
       $include(AttrDecl.traceHookAttrCached)
     } else {
       $include(AttrDecl.traceHookAttrCacheAbort)
@@ -288,15 +288,15 @@ $endif
 
 ASTDecl.genCircularEquationNoParams [[
   #annotations
-  public #getType #attributeName() {
+  public #getType #name() {
     $SynchBegin
     #parameterStructure
     $include(AttrDecl.cacheCheck)
     $ASTNode$$State state = state();
     #addComponentCheck
-    if (!#(attributeSignature)_initialized) {
-      #(attributeSignature)_initialized = true;
-      #(attributeSignature)_value = $BottomValue;
+    if (!#(signature)_initialized) {
+      #(signature)_initialized = true;
+      #(signature)_value = $BottomValue;
     }
     if (!state.IN_CIRCLE) {
       $include(AttrDecl.traceHookCircularEnterCase1)
@@ -307,32 +307,32 @@ ASTDecl.genCircularEquationNoParams [[
       // TODO: fixme
       // state().CIRCLE_INDEX = 1;
       do {
-        #(attributeSignature)_visited = state.CIRCLE_INDEX;
+        #(signature)_visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
         #inhDebugString
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
-        #getType new_#(attributeSignature)_value = #circularComputeCall;
+        #getType new_#(signature)_value = #circularComputeCall;
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
           state.CHANGE = true;
           $include(AttrDecl.traceHookCircularCase1Change)
         }
-        #(attributeSignature)_value = new_#(attributeSignature)_value;
+        #(signature)_value = new_#(signature)_value;
         state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.CHANGE);
       #cacheStoreRewrite {
-        #(attributeSignature)_computed = true;
+        #(signature)_computed = true;
         $include(cacheCycleInit)
         $include(AttrDecl.traceHookAttrCached)
       } else {
         $include(resetCycleInit)
-        #(attributeSignature)_computed = false;
-        #(attributeSignature)_initialized = false;
+        #(signature)_computed = false;
+        #(signature)_initialized = false;
         $include(AttrDecl.traceHookAttrCacheAbort)
       }
       state.IN_CIRCLE = false;
@@ -341,9 +341,9 @@ ASTDecl.genCircularEquationNoParams [[
       $include(AttrDecl.traceHookCircularExitCase1)
       $include(AttrDecl.returnStmt)
     }
-    if(#(attributeSignature)_visited != state.CIRCLE_INDEX) {
+    if(#(signature)_visited != state.CIRCLE_INDEX) {
       $include(AttrDecl.traceHookCircularEnterCase2)
-      #(attributeSignature)_visited = state.CIRCLE_INDEX;
+      #(signature)_visited = state.CIRCLE_INDEX;
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
@@ -351,14 +351,14 @@ ASTDecl.genCircularEquationNoParams [[
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
-      #getType new_#(attributeSignature)_value = #circularComputeCall;
+      #getType new_#(signature)_value = #circularComputeCall;
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($Cond2) {
         state.CHANGE = true;
         $include(AttrDecl.traceHookCircularCase2Change)
       }
-      #(attributeSignature)_value = new_#(attributeSignature)_value;
+      #(signature)_value = new_#(signature)_value;
       $TracePrintReturnNewValue
       $include(AttrDecl.traceHookCircularExitCase2)
       $include(AttrDecl.returnStmt)
@@ -372,14 +372,14 @@ ASTDecl.genCircularEquationNoParams [[
 
 ASTDecl.genCircularEquationWithParams [[
   #annotations
-  public #getType #attributeName($ParamDecl) {
+  public #getType #name($ParamDecl) {
     $SynchBegin
     #parameterStructure
     #initLazyMaps
     $ASTNode$$State.CircularValue _value;
     $include(AttrDecl.cacheCheck) else {
       _value = new $ASTNode$$State.CircularValue();
-      #(attributeSignature)_values.put(_parameters, _value);
+      #(signature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
     }
     $ASTNode$$State state = state();
@@ -392,7 +392,7 @@ ASTDecl.genCircularEquationWithParams [[
       #addAddToComponent
       // TODO: fixme
       // state().CIRCLE_INDEX = 1;
-      #getType new_#(attributeSignature)_value;
+      #getType new_#(signature)_value;
       do {
 $if (Java5)
         _value.visited = new Integer(state.CIRCLE_INDEX);
@@ -404,7 +404,7 @@ $endif
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
-        new_#(attributeSignature)_value = #circularComputeCall;
+        new_#(signature)_value = #circularComputeCall;
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
@@ -418,14 +418,14 @@ $endif
       } while (state.CHANGE);
       #(cacheStoreRewrite) {
 $if (Java5)
-        #(attributeSignature)_values.put(_parameters, new_#(attributeSignature)_value);
+        #(signature)_values.put(_parameters, new_#(signature)_value);
 $else
-        #(attributeSignature)_values.put(_parameters, $ToRefType);
+        #(signature)_values.put(_parameters, $ToRefType);
 $endif
         $include(cacheCycleInit)
         $include(AttrDecl.traceHookAttrCached)
       } else {
-        #(attributeSignature)_values.remove(_parameters);
+        #(signature)_values.remove(_parameters);
         $include(resetCycleInit)
         $include(AttrDecl.traceHookAttrCacheAbort)
       }
@@ -433,7 +433,7 @@ $endif
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
       $include(AttrDecl.traceHookCircularExitCase1)
-      return new_#(attributeSignature)_value;
+      return new_#(signature)_value;
     }
 $if (Java5)
     if (!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {
@@ -447,7 +447,7 @@ $endif
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
-      #getType new_#(attributeSignature)_value = #circularComputeCall;
+      #getType new_#(signature)_value = #circularComputeCall;
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       #cacheCycleCheck
@@ -456,14 +456,14 @@ $endif
         state.CHANGE = true;
         $include(AttrDecl.traceHookCircularCase2Change)
 $if (Java5)
-        _value.value = new_#(attributeSignature)_value;
+        _value.value = new_#(signature)_value;
 $else
         _value.value = $ToRefType;
 $endif
       }
       $TracePrintReturnNewValue
       $include(AttrDecl.traceHookCircularExitCase2)
-      return new_#(attributeSignature)_value;
+      return new_#(signature)_value;
     }
     $TracePrintReturnPreviousValue
     $include(AttrDecl.traceHookCircularExitCase3)
@@ -513,26 +513,26 @@ $if(#hasCache)
 $include(AttrDecl.incHookAttrRead)
 $if(#isAttrNTA)
 $if(!#isParameterized)
-if(#(attributeSignature)_computed) {
+if(#(signature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
-  return (#getType) getChild(#(attributeSignature)ChildPosition());
+  return (#getType) getChild(#(signature)ChildPosition());
 }
 $else
-if(#(attributeSignature)_values.containsKey(_parameters)) {
+if(#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceHookAttrCacheRead)
-  return (#getType) getChild(#(attributeSignature)ChildPosition()));
+  return (#getType) getChild(#(signature)ChildPosition()));
 }
 $endif
 $endif
 $if(!#isParameterized)
-if(#(attributeSignature)_computed) {
+if(#(signature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
-  return #(attributeSignature)_value;
+  return #(signature)_value;
 }
 $else
 $if(#isCircular)
-if(#(attributeSignature)_values.containsKey(_parameters)) {
-  Object _o = #(attributeSignature)_values.get(_parameters);
+if(#(signature)_values.containsKey(_parameters)) {
+  Object _o = #(signature)_values.get(_parameters);
   if(!(_o instanceof $ASTNode$$State.CircularValue)) {
     $include(AttrDecl.traceHookAttrCacheRead)
     return $FromRefTypeParamCircular;
@@ -541,7 +541,7 @@ if(#(attributeSignature)_values.containsKey(_parameters)) {
   }
 }
 $else
-if(#(attributeSignature)_values.containsKey(_parameters)) {
+if(#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return $FromRefTypeParam;
 }

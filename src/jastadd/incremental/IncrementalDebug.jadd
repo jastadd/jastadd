@@ -58,7 +58,7 @@ aspect IncrementalDebug {
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
-        tt.bind("AttrSign", attr.attributeSignature());
+        tt.bind("AttrSign", attr.signature());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
     }
@@ -77,7 +77,7 @@ aspect IncrementalDebug {
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
             !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
-      tt.bind("AttrSign",  attr.attributeSignature());
+      tt.bind("AttrSign",  attr.signature());
       res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
     }
   	return res.toString();
@@ -111,7 +111,7 @@ aspect IncrementalDebug {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
-      tt.bind("AttrSign", attr.attributeSignature());
+      tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));
     }
     return res.toString();

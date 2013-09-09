@@ -669,7 +669,7 @@ public aspect Attributes {
       buf.append("\\b");
       buf.append(equ.legacyAspectName());
       buf.append("\\.[a-zA-Z0-9_$]+\\.");
-      buf.append(equ.attributeName());
+      buf.append(equ.name());
       buf.append("\\b)");
       pattern = buf.toString();
     }
@@ -791,7 +791,7 @@ public aspect Attributes {
     if(grammar().refineLegacy)
       pattern = "(" + pattern + ")|("
       + equ.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\.get"
-      + equ.childName() + "\\([^\\)]*\\)\\." + equ.attributeName() + "\\("
+      + equ.childName() + "\\([^\\)]*\\)\\." + equ.name() + "\\("
       + ")";
 
     java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s.toString());
