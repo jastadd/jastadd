@@ -167,34 +167,34 @@ public class JastAddTask extends Task {
   private String tracing = "";
   public void setTracing(String s) { tracing = s; }
 
+
+  private String cache = "";
+  public void setCache(String s) { cache = s; }
+    
+  // Deprecated: replaced with cache=all
   private boolean cacheAll = false;
+  public void setCacheAll(boolean b) { cacheAll = b; }
+
+  // Deprecated: replace with cache=none
   private boolean noCaching = false;
-  public void setCacheAll(boolean b) {
-    if(b)
-      cacheAll = true;
-    else
-      noCaching = true;
-  }
+  public void setNoCaching(boolean b) { noCaching = b; }
 
-  // EMMA_2009-11-16: Adding a new ant attributes cacheNone to replace noCaching
+  // Deprecated: replaced with cache=none
   private boolean cacheNone = false;
-  public void setCacheNone(boolean b) { cacheNone = true; }
+  public void setCacheNone(boolean b) { cacheNone = b; }
 
-  // EMMA_2009-11-16: Adding a new ant attribute cacheImplicit, same direct effect as cacheAll but with
-  // the difference that the cache configuration has higher priority
+  // Deprecated: replaced with cache=implicit
   private boolean cacheImplicit = false;
-  public void setCacheImplicit(boolean b) { cacheImplicit = true; }
+  public void setCacheImplicit(boolean b) { cacheImplicit = b; }
 
-  // EMMA_2009-11-16: Adding a new ant attribute ignoreLazy, to remove the imediate need to strip a
-  // JastAdd specification of its lazy keywords in order to experiment with a cache configuration
+  // Deprecated: no replacement
   private boolean ignoreLazy = false;
-  public void setIgnoreLazy(boolean b) { ignoreLazy = true; }
+  public void setIgnoreLazy(boolean b) { ignoreLazy = b; }
 
-  // ES_2011-09-06: Adding flag for incremental evaluation
+  
   private String incremental = "";
   public void setIncremental(String s) { incremental = s; }
 
-  // ES_2011-10-10: Adding flag for full flush
   private boolean fullFlush = false;
   public void setFullFlush(boolean b) { fullFlush = b; }
 
@@ -287,23 +287,18 @@ public class JastAddTask extends Task {
     } else if (!tracing.isEmpty()) {
       args.add("--tracing=" + tracing);
     } 
-      
-    if(cacheAll) {
-      args.add("--cacheAll");
-    }
-    if(noCaching) {
-      args.add("--noCaching");
-    }
+          
+    if (!cache.equals("")) args.add("--cache=" + cache);
+    
+    // Deprecated caching flags 
+    if(cacheAll) args.add("--cacheAll");
+    if(cacheNone) args.add("--cacheNone");
+    if(noCaching) args.add("--noCaching");
+    if(cacheImplicit) args.add("--cacheImplicit");
+    if(ignoreLazy) args.add("--ignoreLazy");
 
-    // EMMA_2009-11-16: Adding ant task attributes as JastAdd arguments
-    if (cacheNone) args.add("--cacheNone");
-    if (cacheImplicit) args.add("--cacheImplicit");
-    if (ignoreLazy) args.add("--ignoreLazy");
-
-    // ES_2011-09-06: Adding incremental attribute as JastAdd arguments
     if (!incremental.equals("")) args.add("--incremental=" + incremental);
 
-    // ES_2011-10-10: Adding full flush attribute as JastAdd argument
     if (fullFlush) args.add("--fullFlush");
 
     if (!indent.isEmpty()) args.add("--indent=" + indent);

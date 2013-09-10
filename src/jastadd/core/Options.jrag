@@ -121,14 +121,10 @@ aspect JastAddOptions {
   public boolean Grammar.traceCopy = false;
   
   public boolean Grammar.cacheAll = false;
-  public boolean Grammar.noCaching = false;
-
-  // EMMA_2009-11-16: Adding attributes for new JastAdd flags
   public boolean Grammar.cacheNone = false;
+  public boolean Grammar.cacheConfig = false;
   public boolean Grammar.cacheImplicit = false;
-  public boolean Grammar.ignoreLazy = false;
-
-  // EMMA_2011-09-19: Adding attribute fields for incremental evalution
+    
   public boolean Grammar.incremental = false; // the flag
   public boolean Grammar.incrementalLevelParam = false; // track on param level
   public boolean Grammar.incrementalLevelAttr = false; // track on attribute level
@@ -141,7 +137,6 @@ aspect JastAddOptions {
   public boolean Grammar.incrementalDebug = false; // debugging
   public boolean Grammar.incrementalTrack = false; // tracking
 
-  // ES_2011-10-10: Adding field for full flush support
   public boolean Grammar.fullFlush = false;
 
   public String Grammar.createContributorSet;

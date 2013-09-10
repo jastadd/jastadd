@@ -1,3 +1,13 @@
+2013-09-10  Emma Söderberg <emma.soderberg@cs.lth.se>
+
+    * Changed cache configuration flags. The new flag is called "cache" and
+      takes one of "all","none","config", or "implicit" as argument.
+    * Deprecated old cache configuration flags: "cacheAll", "cacheNone",
+      "cacheImplicit", and "ignoreLazy". The first three deprecated flags
+      can be given on a new format with the new flag. The last deprecated flag
+      ("ignoreLazy") has no direct mapping, but all options with the new
+      flag are intended to ignore the 'lazy' configuration.
+
 2013-09-10  Niklas Fors <niklas.fors@cs.lth.se>
 
     * Changed tracing flag to enable static filtering of tracing, e.g.,

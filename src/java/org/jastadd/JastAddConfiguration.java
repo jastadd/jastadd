@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -78,11 +79,15 @@ public class JastAddConfiguration {
   private final Option deterministic;
   private final Option outputDirOption;
   private final Option tracing;
+  private final Option cache;
+  
   private final Option cacheAll;
   private final Option noCaching;
   private final Option cacheNone;
   private final Option cacheImplicit;
+  
   private final Option ignoreLazy;
+  
   private final Option packageOption;
   private final Option version;
   private final Option help;
@@ -129,17 +134,28 @@ public class JastAddConfiguration {
     deterministic = new Option("deterministic", "");
     outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
     tracing = new Option("tracing", "weaves in code collecting evaluation information", false, false, true);
-    cacheAll = new Option("cacheAll", "cache all attributes");
-    noCaching = new Option("noCaching", "");// what does this actually do? the same as cacheNone?? - Jesper
-    cacheNone = new Option("cacheNone", "cache no attributes, except NTAs");
-    cacheImplicit = new Option("cacheImplicit", "make caching implicit, .caching files have higher priority");
-    ignoreLazy = new Option("ignoreLazy", "ignore the \"lazy\" keyword");
     packageOption = new Option("package", "optional package for generated files", true);
     version = new Option("version", "print version string and halts");
     help = new Option("help", "prints a short help output and halts");
     printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
     indent = new Option("indent", "Type of indentation {2space|4space|8space|tab}", true);
     minListSize = new Option("minListSize", "Minimum (non-empty) list size", true);
+    
+    // Cache flags
+    cache = new Option("cache", "Overrides 'lazy' configurations with one of the following options:\n" +
+    "            all: caches all attributes\n" +
+    "           none: caches no attributes\n" + 
+    "         config: caches attributes according to a given .config file on the following format:\n" +
+    "                   ((cache|uncache)<WS><ASPECT_NAME><WS>(syn|inh)<WS><NODE_TYPE><DOT><ATTR_NAME>\n" +
+    "                   <LPAREN>(<ARG_TYPE> <ARG_NAME>)*<RPAREN><SEMICOLON><EOL>)*\n" +
+    "       implicit: caches all attribute but also reads a .config file that takes precedence", true);
+    
+    // TODO: Deprecated, removed when phased out
+    cacheAll = new Option("cacheAll", "DEPRECATED: Replaced with --cache=all");
+    noCaching = new Option("noCaching", "DEPRECATED: Replaced with --cache=none");// what does this actually do? the same as cacheNone?? - Jesper, Deprecated - Emma
+    cacheNone = new Option("cacheNone", "DEPRECATED: Replaced with --cache=none");
+    cacheImplicit = new Option("cacheImplicit", "DEPRECATED: Replaced with --cache=implicit");
+    ignoreLazy = new Option("ignoreLazy", "DEPRECATED: ignores the \"lazy\" keyword");
 
     // Incremental flags
     incremental = new Option("incremental", "turns on incremental evaluation with the given configuration\n" +
@@ -169,9 +185,14 @@ public class JastAddConfiguration {
     stagedRewrites.setNonStandard();
     synch.setNonStandard();
     noStatic.setNonStandard();
-    noCaching.setNonStandard();
 
+    // Deprecated options
     suppressWarnings.setDeprecated();
+    ignoreLazy.setDeprecated();
+    cacheAll.setDeprecated();
+    cacheNone.setDeprecated();
+    cacheImplicit.setDeprecated();
+    noCaching.setDeprecated();
 
     // Should these be deprecated? They are default ON
     //lazyMaps.setDeprecated();
@@ -222,11 +243,14 @@ public class JastAddConfiguration {
     options.addOption(deterministic);
     options.addOption(outputDirOption);
     options.addOption(tracing);
+    options.addOption(cache);
+    
     options.addOption(cacheAll);
     options.addOption(noCaching);
     options.addOption(cacheNone);
     options.addOption(cacheImplicit);
     options.addOption(ignoreLazy);
+    
     options.addOption(packageOption);
     options.addOption(version);
     options.addOption(help);
@@ -358,7 +382,7 @@ public class JastAddConfiguration {
       root.traceCircular = true;
       root.traceCopy = true;
     } else if (tracing.matched()) {
-      Set<String> set = parseCSV(tracing.value());
+      Set<String> set = parseCommaSeparatedValue(tracing.value());
       root.tracing = true;
       root.traceCompute = set.contains("compute");
       root.traceCache = set.contains("cache");
@@ -367,24 +391,29 @@ public class JastAddConfiguration {
       root.traceCircular = set.contains("circular");
       root.traceCopy = set.contains("copy");
     }
+        
+    // Cache flag
+    String cacheValue = cache.matched() ? cache.value() : "";
+    if (cacheValue.equals("all")) root.cacheAll = true;
+    else if (cacheValue.equals("none")) root.cacheNone = true;
+    else if (cacheValue.equals("config")) root.cacheConfig = true;
+    else if (cacheValue.equals("implicit")) root.cacheImplicit = true;
     
-    root.cacheAll = cacheAll.matched();
-    root.noCaching = noCaching.matched();
-
-    // Handle new flags
-    root.cacheNone = cacheNone.matched();
-    root.cacheImplicit = cacheImplicit.matched();
-    root.ignoreLazy = ignoreLazy.matched();
-
-    // ES_2011-09-06: Handle incremental flag
+    // TODO: Deprecated, remove when phased out
+    root.cacheAll |= cacheAll.matched();
+    
+    // TODO: Deprecated, remove when phased out
+    root.cacheNone |= cacheNone.matched();
+    
+    // TODO: Deprecated, remove when phased out
+    root.cacheNone |= noCaching.matched();
+    
+    // TODO: Deprecated, remove when phased out
+    root.cacheImplicit |= cacheImplicit.matched();
+    
+    // Incremental flag
     root.incremental = incremental.matched();
-    String incrementalConfig;
-    if (incremental.matched()) {
-      incrementalConfig = incremental.value();
-    } else {
-      incrementalConfig = "";
-    }
-    Set<String> incrementalArgSet = parseCSV(incrementalConfig);
+    Set<String> incrementalArgSet = parseCommaSeparatedValue(root.incremental ? incremental.value() : "");
     root.incrementalLevelParam = incrementalArgSet.contains("param");
     root.incrementalLevelAttr = incrementalArgSet.contains("attr");
     root.incrementalLevelNode = incrementalArgSet.contains("node");
@@ -396,7 +425,6 @@ public class JastAddConfiguration {
     root.incrementalDebug = incrementalArgSet.contains("debug");
     root.incrementalTrack = incrementalArgSet.contains("track");
 
-    // ES_2011-10-10: Handle full flush flag
     root.fullFlush = fullFlush.matched();
 
     // The first time we access templateContext the Grammar.ind option must
@@ -478,6 +506,7 @@ public class JastAddConfiguration {
    * @return <code>true</code> if configuration has errors
    */
   public boolean checkProblems() {
+    
     if (jjtree.matched() && !grammarOption.matched()) {
       System.err.println("Missing grammar option. It is required in jjtree-mode!");
       return true;
@@ -516,34 +545,54 @@ public class JastAddConfiguration {
       return true;
     }
 
+    if (!checkCacheConfig()) {
+      return true;
+    }
+
     return false;
   }
-
+  
   /**
-   * Parse comma-separated values 
-   * @param str
-   * @return
+   * Parse comma separated option value.
+   * @param value The comma separated value to parse 
+   * @return A set of values 
    */
-  private Set<String> parseCSV(String str) {
+  private Set<String> parseCommaSeparatedValue(String value) {
     Set<String> set = new HashSet<String>();
-    StringTokenizer st = new StringTokenizer(str, ",");
+    StringTokenizer st = new StringTokenizer(value, ",");
     while (st.hasMoreTokens()) {
       set.add(st.nextToken().trim());
     }
     return set;
   }
+  
+  /**
+   * Checks the cache configuration for errors.
+   * @return true if no errors
+   */
+  private boolean checkCacheConfig() {    
+    boolean cacheAllFlag = cacheAll.matched();
+    boolean cacheNoneFlag = cacheNone.matched();
+    boolean noCachingFlag = noCaching.matched();
+    boolean cacheImplicitFlag = cacheImplicit.matched();
+    // Only one of cacheAll, cacheNone, noCaching, and cacheImplicit can be true
+    if ((cacheAllFlag && (cacheNoneFlag || noCachingFlag || cacheImplicitFlag)) 
+        || (cacheNoneFlag && (cacheAllFlag || noCachingFlag || cacheImplicitFlag))
+        || (noCachingFlag && (cacheAllFlag || cacheNoneFlag || cacheImplicitFlag))
+        || (cacheImplicitFlag && (cacheAllFlag || cacheNoneFlag || noCachingFlag))) {
+      System.err.println("error: Conflict in cache configuration. " +
+        "Cannot combine --cacheAll, --cacheNone, --noCaching, and --cacheImplicit flags.");
+      return false;  
+    }
+    return true;
+  }
 
   /**
-   * Check of incremental configuration.
+   * Checks the incremental configuration for errors.
+   * @return true if no errors
    */
   private boolean checkIncrementalConfig() {
-    String incrementalConfig;
-    if (incremental.matched()) {
-      incrementalConfig = incremental.value();
-    } else {
-      incrementalConfig = "";
-    }
-    Set<String> incrementalArgSet = parseCSV(incrementalConfig);
+    Set<String> incrementalArgSet = parseCommaSeparatedValue(incremental.matched() ? incremental.value() : "");
     boolean incrementalLevelParam = incrementalArgSet.contains("param");
     boolean incrementalLevelAttr = incrementalArgSet.contains("attr");
     boolean incrementalLevelNode = incrementalArgSet.contains("node");
@@ -552,7 +601,6 @@ public class JastAddConfiguration {
     boolean incrementalChangeMark = incrementalArgSet.contains("mark");
     boolean incrementalPropFull = incrementalArgSet.contains("full");
     boolean incrementalPropLimit = incrementalArgSet.contains("limit");
-
     // check level: only one level at a time
     if (incrementalLevelAttr && incrementalLevelNode ||
         incrementalLevelAttr && incrementalLevelParam ||
@@ -569,7 +617,6 @@ public class JastAddConfiguration {
         !incrementalLevelParam && !incrementalLevelRegion) {
       incrementalLevelAttr = true;
     }
-
     // check invalidate: only one strategy at a time
     if (incrementalChangeFlush && incrementalChangeMark) {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
@@ -580,13 +627,12 @@ public class JastAddConfiguration {
     if (!incrementalChangeFlush && !incrementalChangeMark) {
       incrementalChangeFlush = true;
     }
-    // check invalidate: currently not supporting mark startegy -- "mark"
+    // check invalidate: currently not supporting mark strategy -- "mark"
     if (incrementalChangeMark) {
       System.err.println("error: Unsupported incremental evaluation configuration: " +
           "\"mark\".");
       return false;
     }
-
     // check propagation: only one strategy at a time
     if (incrementalPropFull && incrementalPropLimit) {
       System.err.println("error: Conflict in incremental evaluation configuration. " +
@@ -597,13 +643,12 @@ public class JastAddConfiguration {
     if (!incrementalPropFull && !incrementalPropLimit) {
       incrementalPropFull = true;
     }
-    // check propagration: currently not supporting limit strategy -- "limit" - we do now
+    // check propagation: currently not supporting limit strategy -- "limit" - we do now
     //if (root.incrementalPropLimit) {
     //    System.err.println("error: Unsupported incremental evaluation configuration: " +
     //        "\"limit\".");
     //    return false;
     //}
-
     return true;
   }
 

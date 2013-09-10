@@ -792,8 +792,6 @@ void AspectSonsDeclaration() :
 
 }
 
-// EMMA_2009-11-16: Adding check of ignoreLazy
-// EMMA_2009-11-16: Adding check of cacheImplicit
 void AspectInterfaceSynAttributeDeclaration() :
 { String attrType;
   Token attrName;
@@ -819,7 +817,7 @@ void AspectInterfaceSynAttributeDeclaration() :
 {
   ( annotation = Annotation() { annotations.add(annotation); } )*
 
-  "syn" { first = token; } ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true;}]
+  "syn" { first = token; } ["lazy" {isLazy = true;}] ["final" {isFinal = true;}]
   attrType = Type() attrName = VariableDeclaratorId()
 
   "("
@@ -844,8 +842,6 @@ void AspectInterfaceSynAttributeDeclaration() :
   }
 }
 
-// EMMA_2009-11-16: Adding check if ignoreLazy
-// EMMA_2009-11-16: Adding check if cacheImplicit
 void AspectInterfaceInhAttributeDeclaration() :
 { String attrType;
   Token attrName;
@@ -866,7 +862,7 @@ void AspectInterfaceInhAttributeDeclaration() :
 {
   ( annotation = Annotation() { annotations.add(annotation); } )*
 
-  "inh" { first = token; } ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true;}] attrType = Type()
+  "inh" { first = token; } ["lazy" {isLazy = true;}] ["final" {isFinal = true;}] attrType = Type()
   attrName = VariableDeclaratorId()
 
   "("
@@ -1070,7 +1066,7 @@ void AspectSynAttributeDeclaration() :
 
   [<NTA> {isNTA = true; }]
 
-  ["lazy" {isLazy = !root.ignoreLazy;}]
+  ["lazy" {isLazy = true;}]
 
   ["final" {isFinal = true; }]
 
@@ -1109,8 +1105,6 @@ void AspectSynAttributeDeclaration() :
   }
 }
 
-// EMMA_2009-11-16: Adding check of ignoreLazy
-// EMMA_2009-11-16: Adding check of cacheImplicit
 void AspectInhAttributeDeclaration() :
 { String attrType;
   Token attrName;
@@ -1132,7 +1126,7 @@ void AspectInhAttributeDeclaration() :
 {
   ( annotation = Annotation() { annotations.add(annotation); } )*
 
-  "inh" { first = token; } [<NTA> {isNTA = true;}] ["lazy" {isLazy = !root.ignoreLazy;}] ["final" {isFinal = true; }] attrType = Type()
+  "inh" { first = token; } [<NTA> {isNTA = true;}] ["lazy" {isLazy = true;}] ["final" {isFinal = true; }] attrType = Type()
   t = <IDENTIFIER> "." { targetName = t.image; }
   attrName = VariableDeclaratorId()
 

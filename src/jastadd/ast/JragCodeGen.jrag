@@ -104,15 +104,13 @@ aspect JragCodeGen {
   syn String RewriteList.declaredat() =
     ASTNode.declaredat(getFileName(), getStartLine());
 
-  // EMMA_2009-11-16: Modifying cache conditions, using cacheNone instead of noCaching
   refine  public boolean AttrDecl.getLazy() {
     if (grammar().cacheAll)
       return true;
     else if (grammar().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined(); //Ast.AttrDecl.getLazy();
-//    return (Ast.AttrDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
+      return declaredNTA() || refined();
   }
 
   refine  public boolean SynDecl.getLazy() {
@@ -121,8 +119,7 @@ aspect JragCodeGen {
     else if (grammar().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined(); //Ast.SynDecl.getLazy();
-//    return (Ast.SynDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
+      return declaredNTA() || refined();
   }
 
   refine  public boolean InhDecl.getLazy() {
@@ -131,8 +128,7 @@ aspect JragCodeGen {
     else if (grammar().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined(); //Ast.InhDecl.getLazy();
-//    return (Ast.InhDecl.getLazy() || grammar().cacheAll) && (!noCaching || declaredNTA());
+      return declaredNTA() || refined();
   }
 
   refine  public boolean CollDecl.getLazy() {
@@ -141,8 +137,7 @@ aspect JragCodeGen {
     else if (grammar().cacheNone)
       return false;
     else
-      return declaredNTA() || refined(); //Ast.CollDecl.getLazy();
-//    return (Ast.CollDecl.getLazy() || grammar().cacheAll) && !noCaching;
+      return declaredNTA() || refined();
   }
 
   public String Grammar.genImportsList() {
