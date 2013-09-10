@@ -102,3 +102,28 @@ aspect Trace {
   syn String AttrDecl.traceEndCachedAttr() =
     trace("end cached " + traceSignature());
 }
+
+aspect NewTrace {
+  syn boolean AttrDecl.hasOneParameter() = getNumParameter() == 1;
+  
+  syn String AttrDecl.signatureJavaStyle() {
+    if (getNumParameter() == 0) {
+      return getName() + "()";
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(getName()).append("(");
+    boolean first = true;
+    for (Parameter p: getParameters()) {
+      if (first) {
+        first = false;
+      } else {
+        // Do not insert space since the trace output can be sorted
+        // using the UNIX command sort (and spaces creates new columns).
+        sb.append(",");
+      }
+      sb.append(p.getTypeInSignature());
+    }
+    sb.append(")");
+    return sb.toString();
+  }
+}

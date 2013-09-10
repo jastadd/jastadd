@@ -111,7 +111,15 @@ aspect JastAddOptions {
 
   public boolean Grammar.deterministic;
 
-  public boolean Grammar.tracing;
+  // Tracing
+  public boolean Grammar.tracing = false;
+  public boolean Grammar.traceCompute = false;
+  public boolean Grammar.traceCache = false;
+  public boolean Grammar.traceRewrite = false;
+  public boolean Grammar.traceCircularNTA = false;
+  public boolean Grammar.traceCircular = false;
+  public boolean Grammar.traceCopy = false;
+  
   public boolean Grammar.cacheAll = false;
   public boolean Grammar.noCaching = false;
 

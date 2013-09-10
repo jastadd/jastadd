@@ -62,6 +62,7 @@ public class Option {
   protected String value;
   protected String defaultValue;
   protected boolean needsValue = false;
+  protected boolean valueIsOptional = false;
   protected boolean hasDefaultValue = false;
 
   /**
@@ -96,6 +97,21 @@ public class Option {
    */
   public Option(String optionName, String description, boolean needsValue,
       boolean isNonStandard) {
+    this(optionName, description, needsValue, isNonStandard, false);
+  }
+  
+  /**
+   * Create a new option.
+   *
+   * @param optionName The name of the option
+   * @param description The description that will be printed in the help line
+   * @param needsValue <code>true</code> if this option requires a value
+   * @param isNonStandard <code>true</code> makes this option a
+   * non-standard option
+   * @param valueIsOptional <code>true</code> if the value is optional
+   */
+  public Option(String optionName, String description, boolean needsValue,
+      boolean isNonStandard, boolean valueIsOptional) {
     name = optionName;
     longName = OPTION_PREFIX + optionName;
     longNameLower = longName.toLowerCase();
@@ -103,6 +119,7 @@ public class Option {
     nonStandard = isNonStandard;
     value = "";
     this.needsValue = needsValue;
+    this.valueIsOptional = valueIsOptional;
   }
 
   /**
@@ -202,7 +219,8 @@ public class Option {
       }
       currentMatch = true;
       offset = 1;
-    } else if (needsValue && args[index].toLowerCase().startsWith(longNameLower + "=")) {
+    } else if ((needsValue || valueIsOptional) 
+        && args[index].toLowerCase().startsWith(longNameLower + "=")) {
       value = args[index].substring(longNameLower.length() + 1);
       currentMatch = true;
       offset = 1;

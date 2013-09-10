@@ -1,3 +1,17 @@
+2013-09-10  Niklas Fors <niklas.fors@cs.lth.se>
+
+    * Changed tracing flag to enable static filtering of tracing, e.g.,
+    --tracing=compute will only trace compute events. The new tracing flags are:
+    compute,cache,rewrite,circularNTA,circular,copy. These can be combined, 
+    e.g., --tracing=compute,cache . The flag --tracing will enable tracing of
+    all trace events (as before).
+    * Added abstract class InputFilter to tracing that can be used to control 
+    how tracing objects are created (e.g., to save memory), and it can also be 
+    used to dynamically filter which trace events to save. 
+    * Added Processor interface to process (e.g., aggregate information) trace 
+    events after they have been collected.
+    * Fixed compile time errors in the generated tracing code.
+
 2013-09-03  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Fixed code generation regression for the Tracer class - it is now

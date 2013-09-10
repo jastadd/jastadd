@@ -31,8 +31,8 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.jastadd.tinytemplate.TemplateContext;
@@ -128,7 +128,7 @@ public class JastAddConfiguration {
     noStatic = new Option("noStatic", "the generated state field is non-static");
     deterministic = new Option("deterministic", "");
     outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
-    tracing = new Option("tracing", "weaves in code collecting evaluation information");
+    tracing = new Option("tracing", "weaves in code collecting evaluation information", false, false, true);
     cacheAll = new Option("cacheAll", "cache all attributes");
     noCaching = new Option("noCaching", "");// what does this actually do? the same as cacheNone?? - Jesper
     cacheNone = new Option("cacheNone", "cache no attributes, except NTAs");
@@ -349,7 +349,25 @@ public class JastAddConfiguration {
       root.createDefaultSet = "new java.util.LinkedHashSet(4)";
     }
 
-    root.tracing = tracing.matched();
+    if (tracing.matched() && tracing.value().isEmpty()) {
+      root.tracing = true;
+      root.traceCompute = true;
+      root.traceCache = true;
+      root.traceRewrite = true;
+      root.traceCircularNTA = true;
+      root.traceCircular = true;
+      root.traceCopy = true;
+    } else if (tracing.matched()) {
+      Set<String> set = parseCSV(tracing.value());
+      root.tracing = true;
+      root.traceCompute = set.contains("compute");
+      root.traceCache = set.contains("cache");
+      root.traceRewrite = set.contains("rewrite");
+      root.traceCircularNTA = set.contains("circularNTA");
+      root.traceCircular = set.contains("circular");
+      root.traceCopy = set.contains("copy");
+    }
+    
     root.cacheAll = cacheAll.matched();
     root.noCaching = noCaching.matched();
 
@@ -366,17 +384,17 @@ public class JastAddConfiguration {
     } else {
       incrementalConfig = "";
     }
-    Map<String, String> incrementalArgMap = parseIncrementalConfig(incrementalConfig);
-    root.incrementalLevelParam = incrementalArgMap.containsKey("param");
-    root.incrementalLevelAttr = incrementalArgMap.containsKey("attr");
-    root.incrementalLevelNode = incrementalArgMap.containsKey("node");
-    root.incrementalLevelRegion = incrementalArgMap.containsKey("region");
-    root.incrementalChangeFlush = incrementalArgMap.containsKey("flush");
-    root.incrementalChangeMark = incrementalArgMap.containsKey("mark");
-    root.incrementalPropFull = incrementalArgMap.containsKey("full");
-    root.incrementalPropLimit = incrementalArgMap.containsKey("limit");
-    root.incrementalDebug = incrementalArgMap.containsKey("debug");
-    root.incrementalTrack = incrementalArgMap.containsKey("track");
+    Set<String> incrementalArgSet = parseCSV(incrementalConfig);
+    root.incrementalLevelParam = incrementalArgSet.contains("param");
+    root.incrementalLevelAttr = incrementalArgSet.contains("attr");
+    root.incrementalLevelNode = incrementalArgSet.contains("node");
+    root.incrementalLevelRegion = incrementalArgSet.contains("region");
+    root.incrementalChangeFlush = incrementalArgSet.contains("flush");
+    root.incrementalChangeMark = incrementalArgSet.contains("mark");
+    root.incrementalPropFull = incrementalArgSet.contains("full");
+    root.incrementalPropLimit = incrementalArgSet.contains("limit");
+    root.incrementalDebug = incrementalArgSet.contains("debug");
+    root.incrementalTrack = incrementalArgSet.contains("track");
 
     // ES_2011-10-10: Handle full flush flag
     root.fullFlush = fullFlush.matched();
@@ -446,6 +464,12 @@ public class JastAddConfiguration {
 
     // Tracing
     tt.bind("TracingEnabled", root.tracing);
+    tt.bind("TraceCompute", root.traceCompute);
+    tt.bind("TraceCache", root.traceCache);
+    tt.bind("TraceRewrite", root.traceRewrite);
+    tt.bind("TraceCircularNTA", root.traceCircularNTA);
+    tt.bind("TraceCircular", root.traceCircular);
+    tt.bind("TraceCopy", root.traceCopy);
 
     return root;
   }
@@ -496,18 +520,17 @@ public class JastAddConfiguration {
   }
 
   /**
-   * Parses the incremental configuration argument given to
-   * the flag turning on incremental evaluation.
+   * Parse comma-separated values 
    * @param str
    * @return
    */
-  private Map<String, String> parseIncrementalConfig(String str) {
-    Map<String, String> map = new HashMap<String, String>();
+  private Set<String> parseCSV(String str) {
+    Set<String> set = new HashSet<String>();
     StringTokenizer st = new StringTokenizer(str, ",");
     while (st.hasMoreTokens()) {
-      map.put(st.nextToken().trim(), "");
+      set.add(st.nextToken().trim());
     }
-    return map;
+    return set;
   }
 
   /**
@@ -520,15 +543,15 @@ public class JastAddConfiguration {
     } else {
       incrementalConfig = "";
     }
-    Map<String, String> incrementalArgMap = parseIncrementalConfig(incrementalConfig);
-    boolean incrementalLevelParam = incrementalArgMap.containsKey("param");
-    boolean incrementalLevelAttr = incrementalArgMap.containsKey("attr");
-    boolean incrementalLevelNode = incrementalArgMap.containsKey("node");
-    boolean incrementalLevelRegion = incrementalArgMap.containsKey("region");
-    boolean incrementalChangeFlush = incrementalArgMap.containsKey("flush");
-    boolean incrementalChangeMark = incrementalArgMap.containsKey("mark");
-    boolean incrementalPropFull = incrementalArgMap.containsKey("full");
-    boolean incrementalPropLimit = incrementalArgMap.containsKey("limit");
+    Set<String> incrementalArgSet = parseCSV(incrementalConfig);
+    boolean incrementalLevelParam = incrementalArgSet.contains("param");
+    boolean incrementalLevelAttr = incrementalArgSet.contains("attr");
+    boolean incrementalLevelNode = incrementalArgSet.contains("node");
+    boolean incrementalLevelRegion = incrementalArgSet.contains("region");
+    boolean incrementalChangeFlush = incrementalArgSet.contains("flush");
+    boolean incrementalChangeMark = incrementalArgSet.contains("mark");
+    boolean incrementalPropFull = incrementalArgSet.contains("full");
+    boolean incrementalPropLimit = incrementalArgSet.contains("limit");
 
     // check level: only one level at a time
     if (incrementalLevelAttr && incrementalLevelNode ||

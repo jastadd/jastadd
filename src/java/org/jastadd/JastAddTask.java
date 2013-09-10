@@ -164,8 +164,8 @@ public class JastAddTask extends Task {
   private boolean deterministic = false;
   public void setDeterministic(boolean b) { deterministic = b; }
 
-  private boolean tracing = false;
-  public void setTracing(boolean b) { tracing = b; }
+  private String tracing = "";
+  public void setTracing(String s) { tracing = s; }
 
   private boolean cacheAll = false;
   private boolean noCaching = false;
@@ -282,7 +282,12 @@ public class JastAddTask extends Task {
 
     if(deterministic) args.add("--deterministic");
 
-    if(tracing) args.add("--tracing");
+    if(tracing.equals("true")) {
+      args.add("--tracing");
+    } else if (!tracing.isEmpty()) {
+      args.add("--tracing=" + tracing);
+    } 
+      
     if(cacheAll) {
       args.add("--cacheAll");
     }
