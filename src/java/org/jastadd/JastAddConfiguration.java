@@ -128,7 +128,7 @@ public class JastAddConfiguration {
     noStatic = new Option("noStatic", "the generated state field is non-static");
     deterministic = new Option("deterministic", "");
     outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
-    tracing = new Option("tracing", "weaves in code generating a cache tree");
+    tracing = new Option("tracing", "weaves in code collecting evaluation information");
     cacheAll = new Option("cacheAll", "cache all attributes");
     noCaching = new Option("noCaching", "");// what does this actually do? the same as cacheNone?? - Jesper
     cacheNone = new Option("cacheNone", "cache no attributes, except NTAs");
