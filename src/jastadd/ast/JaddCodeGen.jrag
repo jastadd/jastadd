@@ -290,7 +290,27 @@ aspect JaddCodeGen {
    * @param out Aspect output stream
    */
   public void Grammar.emitCacheAnalyzer(PrintWriter out) {
-    templateContext().expand("CacheAnalyzer", out);
+    StringBuilder sb = new StringBuilder();
+    boolean first = false;
+    for (TypeDecl typeDecl : getTypeDecls()) {
+      for (SynDecl synDecl : typeDecl.getSynDecls()) {
+        sb.append("\"" + synDecl.hostClassName() + "."  + synDecl.signatureJavaStyle() + "\"");
+        if (first) {
+          sb.append(",");
+          first = false;
+        }
+      }
+      for (InhDecl inhDecl : typeDecl.getInhDecls()) {
+        sb.append("\"" + inhDecl.hostClassName() + "." + inhDecl.signatureJavaStyle() + "\"");
+        if (first) {
+          sb.append(",");
+          first = false;
+        }
+      }
+    }
+    TemplateContext tt = templateContext();
+    tt.bind("AttrNameList", sb.toString());
+    tt.expand("CacheAnalyzer", out);
   }
 
   /**

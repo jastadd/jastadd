@@ -84,6 +84,7 @@ aspect TemplateUtil {
     
     loadTemplates(tt, "trace/Tracer");
     loadTemplates(tt, "trace/TraceHooks");
+    loadTemplates(tt, "trace/CacheAnalyzer");
     
     return new SimpleContext(tt, this);
   }

@@ -136,7 +136,15 @@ public class Tracer {
     }
   };
   
-  private static Tracer.InputFilter inputFilter = defaultInputFilter; 
+  $if(CacheAnalyzeEnabled)
+  private static final CacheAnalyzer cacheAnalyzer = new CacheAnalyzer();
+  public static CacheAnalyzer cacheAnalyzer() {
+    return cacheAnalyzer;
+  }
+  private static Tracer.InputFilter inputFilter = cacheAnalyzer;
+  $else
+  private static Tracer.InputFilter inputFilter = defaultInputFilter;
+  $endif 
   
   /**
    * Registers an input filter to use during tracing.

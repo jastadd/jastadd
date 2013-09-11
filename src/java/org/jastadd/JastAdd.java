@@ -173,10 +173,6 @@ public class JastAdd {
         genTracer(config, root);
       }
       
-      if (config.cacheAnalyzeEnabled()) {
-        genCacheAnalyzer(config, root);
-      }
-
       genIncrementalDDGNode(root);
 
       problems = readJRAGFiles(root, config.getFiles());
@@ -189,6 +185,10 @@ public class JastAdd {
       problems = readCacheFiles(root);
       if (checkErrors(problems, err)) {
         return 1;
+      }
+      
+      if (config.cacheAnalyzeEnabled()) {
+        genCacheAnalyzer(config, root);
       }
       
       root.processInterfaceRefinements();

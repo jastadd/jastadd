@@ -403,6 +403,8 @@ public class JastAddConfiguration {
       root.cacheAnalyze = true;
       // this analysis needs full caching and tracing of cache usage
       root.cacheAll = true;
+      tracing.setToMatched(); // later checks are done on the option which is why it needs to be matched
+      root.tracing = true;
       root.traceCache = true;
     }
     
@@ -505,6 +507,9 @@ public class JastAddConfiguration {
     tt.bind("TraceCircularNTA", root.traceCircularNTA);
     tt.bind("TraceCircular", root.traceCircular);
     tt.bind("TraceCopy", root.traceCopy);
+    
+    // Cache
+    tt.bind("CacheAnalyzeEnabled", root.cacheAnalyze);
 
     return root;
   }

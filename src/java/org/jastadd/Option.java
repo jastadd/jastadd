@@ -242,4 +242,18 @@ public class Option {
 
     return offset;
   }
+  
+  /**
+   * Sets the option to matched.
+   * 
+   * This is useful when another option makes this option matched.
+   * For instance, cache=analyze sets the tracing option to true.
+   * 
+   * The configuration checks the state of the options rather than
+   * the option flags in the root node when checking if an option
+   * is matched. 
+   */
+  public void setToMatched() {
+    matched = true;
+  }
 }

@@ -85,7 +85,7 @@ aspect Trace {
   }
 
   protected String AttrDecl.trace(String s) {
-    // Diabling this print-based tracing in favor of the new in-memory tracing using templates
+    // Disabling this print-based tracing in favor of the new in-memory tracing using templates
     if(!grammar().tracing || grammar().tracing)
       return "";
     StringBuilder b = new StringBuilder();
@@ -106,12 +106,8 @@ aspect Trace {
 aspect NewTrace {
   syn boolean AttrDecl.hasOneParameter() = getNumParameter() == 1;
   
-  syn String AttrDecl.signatureJavaStyle() {
-    if (getNumParameter() == 0) {
-      return getName() + "()";
-    }
+  syn String AttrDecl.parameterTypesAsCSV() {
     StringBuilder sb = new StringBuilder();
-    sb.append(getName()).append("(");
     boolean first = true;
     for (Parameter p: getParameters()) {
       if (first) {
@@ -123,7 +119,10 @@ aspect NewTrace {
       }
       sb.append(p.getTypeInSignature());
     }
-    sb.append(")");
     return sb.toString();
+  }
+  
+  syn String AttrDecl.signatureJavaStyle() {
+    return getName() + "(" + parameterTypesAsCSV() + ")";
   }
 }

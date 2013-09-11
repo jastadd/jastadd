@@ -33,15 +33,21 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class CacheAnalyzer extends Tracer.InputFilter {
+  
+  private final String[] ATTRIBUTES = { $AttrNameList };
+  private Map<String,Integer> attrMap = null;
 
-  private Map<String,Integer> map = null;
+  public Tracer.TraceObject createTraceObject(Tracer.Event evt, $ASTNode node, String attr, Object params, Object value) {
+    if (attrMap == null) {
+      attrMap = createAttrMap();
+    }
+    if (evt == Tracer.Event.CACHED || evt == Tracer.Event.CACHE_READ) {
+      attrMap.put(attr, attrMap.get(attr) + 1); 
+    }  
+    return super.createTraceObject(evt, node, attr, params, value);
+  }
 
   public boolean include(Tracer.TraceObject obj) {
-    if (map == null) {
-      map = createAttrMap();
-    }
-    if (obj.event == Tracer.Event.CACHED || obj.event == Tracer.Event.CACHE_READ) {
-    }
     return false;
   }
 
@@ -51,6 +57,17 @@ public class CacheAnalyzer extends Tracer.InputFilter {
 
   private Map<String,Integer> createAttrMap() {
     Map<String,Integer> map = new HashMap<String,Integer>();
+    for (String attrName : ATTRIBUTES) {
+      map.put(attrName, 0);
+    }
+    return map;
+  }
+  
+  public Map<String,Integer> getRawResult() {
+    Map<String,Integer> map = new HashMap<String,Integer>();
+    for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
+      map.put(e.getKey(), e.getValue());
+    }
     return map;
   }
 }

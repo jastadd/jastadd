@@ -1,3 +1,10 @@
+2013-09-11  Emma Söderberg <emma.soderberg@cs.lth.se>
+
+    * Added support for --cache=analyze
+      This argument to cache will enable full caching and
+      tracing of cache events, and it generates a CacheAnalyzer
+      class which is registered as an input filter in the Tracer class.
+
 2013-09-10  Emma Söderberg <emma.soderberg@cs.lth.se>
 
     * Changed cache configuration flags. The new flag is called "cache" and
