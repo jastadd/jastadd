@@ -48,10 +48,9 @@ aspect Flush {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumSynEq(); k++) {
       AttrDecl attr = getSynEq(k).decl();
-      if (attr != null) {
-        res.append(attr.resetVisit());
-        res.append(attr.resetCache());
-      }
+      if (attr == null) continue;
+      res.append(attr.resetVisit());
+      res.append(attr.resetCache());
     }
     return res.toString();
   }
@@ -63,6 +62,7 @@ aspect Flush {
     StringBuffer res = new StringBuffer();
     for(int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
+      if (attr == null) continue;
       res.append(attr.resetVisit());
       res.append(attr.resetCache());
     }
@@ -72,7 +72,7 @@ aspect Flush {
   syn String AttrDecl.resetCache() = resetCache("");
 
   public String AttrDecl.resetCache(String prefix) {
-    if(!getLazy() && !isCircular())
+    if(!(getLazy() || isCircular()))
       return "";
     String signature = prefix + signature();
     if(getNumParameter() == 0) {

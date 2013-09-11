@@ -518,12 +518,12 @@ public class JastAddConfiguration {
       if (!(fileName.endsWith(".ast")
           || fileName.endsWith(".jrag")
           || fileName.endsWith(".jadd")
-          || fileName.endsWith(".caching"))) {
+          || fileName.endsWith(".config"))) {
         System.err.println("Unrecognized file extension: " + fileName);
         return true;
       }
     }
-
+    
     File outputDir = getOutputDir();
     if (!outputDir.exists()) {
       System.err.println("Output directory " + outputDir.getAbsolutePath() +
@@ -570,7 +570,7 @@ public class JastAddConfiguration {
    * Checks the cache configuration for errors.
    * @return true if no errors
    */
-  private boolean checkCacheConfig() {    
+  private boolean checkCacheConfig() {
     boolean cacheAllFlag = cacheAll.matched();
     boolean cacheNoneFlag = cacheNone.matched();
     boolean noCachingFlag = noCaching.matched();
@@ -584,6 +584,7 @@ public class JastAddConfiguration {
         "Cannot combine --cacheAll, --cacheNone, --noCaching, and --cacheImplicit flags.");
       return false;  
     }
+    
     return true;
   }
 
@@ -685,10 +686,9 @@ public class JastAddConfiguration {
    */
   public Collection<String> getCacheFiles() {
     Collection<String> cacheFiles = new ArrayList<String>();
-
     for (int i = 0; i < options.getNumOperands(); ++i) {
       String fileName = options.getOperand(i);
-      if (fileName.endsWith(".caching")) {
+      if (fileName.endsWith(".config")) {
         cacheFiles.add(fileName);
       }
     }
@@ -714,7 +714,7 @@ public class JastAddConfiguration {
     options.printHelp(out);
     out.println();
     out.println("Arguments:");
-    out.println("Names of .ast, .jrag, .jadd and .caching source files");
+    out.println("Names of .ast, .jrag, .jadd and .config source files");
     out.println();
     out.println("Example: The following command reads and translates files NameAnalysis.jrag");
     out.println("and TypeAnalysis.jrag, weaves PrettyPrint.jadd into the abstract syntax tree");

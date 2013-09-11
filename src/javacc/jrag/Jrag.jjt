@@ -231,8 +231,8 @@ TOKEN :
 | < EACH: "each"> // added
 | < NTA: "nta"> // added
 
-| < CACHE: "cache"> // added EMMA_2009-11-13
-| < UNCACHE: "uncache"> // added EMMA_2009-11-13
+| < CACHE: "cache"> // added
+| < UNCACHE: "uncache"> // added
 
 }
 
@@ -2575,7 +2575,7 @@ void DefaultValue():
   "default" MemberValue()
 }
 
-// EMMA_2009-11-13: Adding (cache|uncached) keywords in front of each line in the cache configuration.
+// Adding (cache|uncached) keywords in front of each line in the cache configuration.
 // This information is propagated to the grammar via setSynDeclLazy(..) and setInhDeclLazy(..)
 void CacheDeclarations():
 {
@@ -2605,7 +2605,6 @@ void CacheDeclarations():
   |
     "uncache" { shouldBeCached = false; }
   )
-  first = <IDENTIFIER> { aspectName = first.image; }
   (
     "syn" t = <IDENTIFIER> "." { targetName = t.image; }
     attrName = VariableDeclaratorId()
@@ -2616,7 +2615,7 @@ void CacheDeclarations():
     ]
     ")"
     ";"
-    { root.setSynDeclLazy(shouldBeCached, aspectName, targetName, attrName.image, list, fileName, first.beginLine); }
+    { root.setSynDeclLazy(shouldBeCached, targetName, attrName.image, list, fileName, t.beginLine); }
   |
     "inh" t = <IDENTIFIER> "." { targetName = t.image; }
     attrName = VariableDeclaratorId()
@@ -2627,7 +2626,7 @@ void CacheDeclarations():
     ]
     ")"
     ";"
-    { root.setInhDeclLazy(shouldBeCached, aspectName, targetName, attrName.image, list, fileName, first.beginLine); }
+    { root.setInhDeclLazy(shouldBeCached, targetName, attrName.image, list, fileName, t.beginLine); }
   )
   )*
 }

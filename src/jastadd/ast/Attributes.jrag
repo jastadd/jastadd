@@ -127,15 +127,22 @@ public aspect Attributes {
     }
   }
 
-  // EMMA_2009-11-13: Adding boolean parameter shouldBeCached to the below two attributes to handle uncache cases
-  public void Grammar.setSynDeclLazy(boolean shouldBeCached, String aspectName, String className,
+  /**
+   * Finds a synthesized attribute and sets it to cached or not cached.
+   * @param shouldBeCached Whether the attribute should be cached or not.
+   * @param className The class hosting the attribute
+   * @param name The attribute name
+   * @param parameterList The list of attribute parameters
+   * @param fileName The name of the file with the attribute declaration
+   * @param startLine The line of the attribute declaration
+   */
+  public void Grammar.setSynDeclLazy(boolean shouldBeCached, String className,
         String name, org.jastadd.ast.AST.List parameterList, String fileName, int startLine) {
     TypeDecl c = lookup(className);
     if(c != null) {
       for(int i = 0; i < c.getNumSynDecl(); i++) {
         SynDecl s = c.getSynDecl(i);
-        if(s.getName().equals(name) && s.getAspectName().equals(aspectName) &&
-              parameterList.getNumChild() == s.getNumParameter()) {
+        if(s.getName().equals(name) && parameterList.getNumChild() == s.getNumParameter()) {
           boolean paramOK = true;
           for(int j = 0; j < s.getNumParameter(); j++) {
             Parameter p1 = (Parameter)parameterList.getChild(j);
@@ -145,36 +152,41 @@ public aspect Attributes {
           if(paramOK) {
 
             if (shouldBeCached && s.getLazy()) {
-                System.err.println("Warning: syn attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " is already lazy");
+                System.err.println("Warning: syn attribute " + name + " in " + className + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
-                System.err.println("Warning: syn attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " is already not lazy");
+                System.err.println("Warning: syn attribute " + name + " in " + className + " is already not lazy");
             } else {
 
               s.setLazy(shouldBeCached);
-              System.out.println("Making syn attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + (shouldBeCached?"":" not") + " lazy");
+              System.out.println("Making syn attribute " + name + " in " + className + (shouldBeCached?"":" not") + " lazy");
             }
 
             return;
           }
         }
       }
-      error("could not find attribute '" + name + "' in " + className + " defined in aspect " + aspectName);
+      error("could not find attribute '" + name + "' in " + className);
     } else {
-      error("can not find synthesized attribute '" + name + "' in unknown class " +
-          className, fileName, startLine);
+      error("can not find synthesized attribute '" + name + "' in unknown class " + className, fileName, startLine);
     }
   }
-  public void Grammar.setInhDeclLazy(boolean shouldBeCached, String aspectName, String className,
+  
+  /**
+   * Finds an inherited attribute and sets it to cached or not cached.
+   * @param shouldBeCached Whether the attribute should be cached or not.
+   * @param className The class hosting the attribute
+   * @param name The attribute name
+   * @param parameterList The list of attribute parameters
+   * @param fileName The name of the file with the attribute declaration
+   * @param startLine The line of the attribute declaration
+   */
+  public void Grammar.setInhDeclLazy(boolean shouldBeCached, String className,
         String name, org.jastadd.ast.AST.List parameterList, String fileName, int startLine) {
     TypeDecl c = lookup(className);
     if(c != null) {
       for(int i = 0; i < c.getNumInhDecl(); i++) {
         InhDecl s = c.getInhDecl(i);
-        if(s.getName().equals(name) && s.getAspectName().equals(aspectName) &&
-              parameterList.getNumChild() == s.getNumParameter()) {
+        if(s.getName().equals(name) && parameterList.getNumChild() == s.getNumParameter()) {
           boolean paramOK = true;
           for(int j = 0; j < s.getNumParameter(); j++) {
             Parameter p1 = (Parameter)parameterList.getChild(j);
@@ -184,36 +196,28 @@ public aspect Attributes {
           if(paramOK) {
 
             if (shouldBeCached && s.getLazy()) {
-                System.err.println("Warning: inh attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " is already lazy");
+                System.err.println("Warning: inh attribute " + name + " in " + className + " is already lazy");
             } else if(!shouldBeCached && !s.getLazy()) {
-                System.err.println("Warning: inh attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " is already not lazy");
+                System.err.println("Warning: inh attribute " + name + " in " + className + " is already not lazy");
             } else {
 
               s.setLazy(shouldBeCached);
-              System.out.println("Making inh attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + (shouldBeCached?"":" not") + " lazy");
+              System.out.println("Making inh attribute " + name + " in " + className + (shouldBeCached?"":" not") + " lazy");
             }
-
 /*
             if (shouldBeCached) {
               if(s.getLazy())
-                System.err.println("Warning: attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " is already lazy");
+                System.err.println("Warning: attribute " + name + " in " + className + " is already lazy");
               else {
                 s.setLazy(true);
-                System.out.println("Making attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " lazy");
+                System.out.println("Making attribute " + name + " in " + className + " lazy");
               }
             } else {
               if(!s.getLazy())
-                System.err.println("Warning: attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " is already not lazy");
+                System.err.println("Warning: attribute " + name + " in " + className + " is already not lazy");
               else {
                 s.setLazy(false);
-                System.out.println("Making attribute " + name + " in " + className +
-                    " defined in aspect " + aspectName + " not lazy");
+                System.out.println("Making attribute " + name + " in " + className + " not lazy");
               }
             }
 */
@@ -221,13 +225,11 @@ public aspect Attributes {
           }
         }
       }
-      error("could not find attribute " + name + " in " + className + " defined in aspect " + aspectName);
+      error("could not find attribute " + name + " in " + className);
     } else {
-      error("can not find inherited attribute " + name + " in unknown class " +
-          className, fileName, startLine);
+      error("can not find inherited attribute " + name + " in unknown class " + className, fileName, startLine);
     }
   }
-
 
   public void Grammar.addSynDecl(
       String name,

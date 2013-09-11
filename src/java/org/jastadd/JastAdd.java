@@ -182,6 +182,11 @@ public class JastAdd {
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
+      problems = readCacheFiles(root);
+      if (checkErrors(problems, err)) {
+        return 1;
+      }
+      
       root.processInterfaceRefinements();
       root.weaveInterfaceIntroductions();
 
@@ -189,10 +194,6 @@ public class JastAdd {
 
       root.processRefinements();
 
-      problems = readCacheFiles(root);
-      if (checkErrors(problems, err)) {
-        return 1;
-      }
 
       root.weaveCollectionAttributes();
 
@@ -269,6 +270,9 @@ public class JastAdd {
 
   private Collection<Problem> readCacheFiles(Grammar rootGrammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
+    if (!(rootGrammar.cacheConfig || rootGrammar.cacheImplicit)) {
+      return problems;  
+    }
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
       File cacheFile = new File(fileName);
