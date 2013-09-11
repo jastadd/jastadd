@@ -284,6 +284,14 @@ aspect JaddCodeGen {
     templateContext().expand("Tracer", out);
   }
 
+  /**
+   * Generate CacheAnalyzer class.
+   *
+   * @param out Aspect output stream
+   */
+  public void Grammar.emitCacheAnalyzer(PrintWriter out) {
+    templateContext().expand("CacheAnalyzer", out);
+  }
 
   /**
    * String for calculating the initial child array size.

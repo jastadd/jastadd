@@ -172,6 +172,10 @@ public class JastAdd {
       if (config.tracingEnabled()) {
         genTracer(config, root);
       }
+      
+      if (config.cacheAnalyzeEnabled()) {
+        genCacheAnalyzer(config, root);
+      }
 
       genIncrementalDDGNode(root);
 
@@ -312,6 +316,16 @@ public class JastAdd {
 
     PrintWriter writer = new PrintWriter(root.targetJavaFile("Tracer"));
     root.emitTracer(writer);
+    writer.close();
+  }
+
+  private void genCacheAnalyzer(JastAddConfiguration config, Grammar root)
+    throws FileNotFoundException {
+
+    root.createPackageOutputDirectory();
+
+    PrintWriter writer = new PrintWriter(root.targetJavaFile("CacheAnalyzer"));
+    root.emitCacheAnalyzer(writer);
     writer.close();
   }
 

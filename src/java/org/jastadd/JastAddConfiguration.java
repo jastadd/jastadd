@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -148,7 +147,9 @@ public class JastAddConfiguration {
     "         config: caches attributes according to a given .config file on the following format:\n" +
     "                   ((cache|uncache)<WS><ASPECT_NAME><WS>(syn|inh)<WS><NODE_TYPE><DOT><ATTR_NAME>\n" +
     "                   <LPAREN>(<ARG_TYPE> <ARG_NAME>)*<RPAREN><SEMICOLON><EOL>)*\n" +
-    "       implicit: caches all attribute but also reads a .config file that takes precedence", true);
+    "       implicit: caches all attribute but also reads a .config file that takes precedence\n" +
+    "        analyze: analyzes cache use during evaluation (when all attributes are cached)\n" +
+    "                 the result is available via the API in org.jastadd.CacheAnalyzer", true);
     
     // TODO: Deprecated, removed when phased out
     cacheAll = new Option("cacheAll", "DEPRECATED: Replaced with --cache=all");
@@ -398,6 +399,12 @@ public class JastAddConfiguration {
     else if (cacheValue.equals("none")) root.cacheNone = true;
     else if (cacheValue.equals("config")) root.cacheConfig = true;
     else if (cacheValue.equals("implicit")) root.cacheImplicit = true;
+    else if (cacheValue.equals("analyze")) {
+      root.cacheAnalyze = true;
+      // this analysis needs full caching and tracing of cache usage
+      root.cacheAll = true;
+      root.traceCache = true;
+    }
     
     // TODO: Deprecated, remove when phased out
     root.cacheAll |= cacheAll.matched();
@@ -761,4 +768,12 @@ public class JastAddConfiguration {
   public boolean tracingEnabled() {
     return tracing.matched();
   }
+
+  /**
+   * @return <code>true</code> if the --cache=analyze option is enabled
+   */
+  public boolean cacheAnalyzeEnabled() {
+    return cache.matched() && cache.value().equals("analyze");
+  }
+
 }
