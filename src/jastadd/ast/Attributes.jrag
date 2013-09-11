@@ -131,15 +131,14 @@ public aspect Attributes {
    * Configures the caching behavior for an attribute.
    * 
    * @param cacheConfig The cache configuration, should be "cache" or "uncache"
-   * @param attrKind The attribute kind, should be "syn" or "inh"
    * @param hostName The node type hosting the attribute
    * @param attrName The attribute name
    * @param paramList The list of attribute parameters
    * @param fileName The name of the file with the attribute declaration
    * @param startLine The line of the attribute declaration
    */
-  public void Grammar.setAttrDeclLazy(String cacheConfig, String attrKind, String hostName,
-        String attrName, org.jastadd.ast.AST.List paramList, String fileName, int startLine) {
+  public void Grammar.setAttrDeclLazy(String cacheConfig, String hostName, String attrName, 
+      org.jastadd.ast.AST.List paramList, String fileName, int startLine) {
     // Lookup type
     TypeDecl type = lookup(hostName);
     if (type == null) {
@@ -152,14 +151,11 @@ public aspect Attributes {
     for (int i = 0; i < paramList.getNumChild(); i++) {
       signBuf.append("_" + ((Parameter)paramList.getChild(i)).getTypeInSignature());
     }
-    // Lookup attribute
-    AttrDecl attr = null;
-    if (attrKind.equals("syn")) {
-      attr = type.lookupSynDecl(signBuf.toString());
-    } else if (attrKind.equals("inh")) {
-      attr = type.lookupInhDecl(signBuf.toString());
-    }
-    if (attr == null) {
+    // Lookup attribute; first 'syn' then 'inh'
+    AttrDecl attr = null; 
+    String signature = signBuf.toString();
+    if ((attr = type.lookupSynDecl(signature)) == null && 
+        (attr = type.lookupInhDecl(signature)) == null) {
       error("can not find attribute " + attrName + " in class " + hostName);
       return;
     }

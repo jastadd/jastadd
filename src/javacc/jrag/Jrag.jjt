@@ -2581,7 +2581,6 @@ void CacheDeclarations():
 {
   Token t;
   Token cacheConfig;
-  Token attrKind;
   Token hostType;
   Token attrName;
 
@@ -2592,7 +2591,6 @@ void CacheDeclarations():
 {
 (
   ( cacheConfig = "cache" | cacheConfig = "uncache" )
-  ( attrKind = "syn" | attrKind = "inh" )
   hostType = <IDENTIFIER> "." 
   attrName = VariableDeclaratorId()
   "(" { paramList = new org.jastadd.ast.AST.List(); }
@@ -2607,8 +2605,8 @@ void CacheDeclarations():
   ")" 
   ";"
   { 
-    root.setAttrDeclLazy(cacheConfig.image, attrKind.image, hostType.image, 
-        attrName.image, paramList, fileName, cacheConfig.beginLine); 
+    root.setAttrDeclLazy(cacheConfig.image, hostType.image, attrName.image, 
+        paramList, fileName, cacheConfig.beginLine); 
   }
 )*
 }
