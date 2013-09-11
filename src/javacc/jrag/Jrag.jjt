@@ -2576,57 +2576,39 @@ void DefaultValue():
 }
 
 // Adding (cache|uncached) keywords in front of each line in the cache configuration.
-// This information is propagated to the grammar via setSynDeclLazy(..) and setInhDeclLazy(..)
+// This information is propagated to the grammar via setAttrDeclLazy(..)
 void CacheDeclarations():
 {
-  Token first;
-  String aspectName;
-  String attrType;
-  Token attrName;
   Token t;
-  String type;
-  Token name;
-  String targetName;
+  Token cacheConfig;
+  Token attrKind;
+  Token hostType;
+  Token attrName;
 
-  boolean shouldBeCached;
-
-  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
-
+  String paramType;
+  Token paramName;
+  org.jastadd.ast.AST.List paramList = new org.jastadd.ast.AST.List();
 }
 {
-  // TypeConversion syn TypeDecl.identityConversionTo(TypeDecl type);
-  // TypeConversion eq ShortType.narrowingConversionTo(TypeDecl type);
-  // TypeConversion inh InterfaceDecl.unknownMethod();
-  // TypeConversion eq Program.getChild().unknownConstructor();
-  // VariableScope eq TypeDecl.getBodyDecl(int i).lookupVariable(String name);
-  (
-  (
-	"cache" { shouldBeCached = true; }
-  |
-    "uncache" { shouldBeCached = false; }
-  )
-  (
-    "syn" t = <IDENTIFIER> "." { targetName = t.image; }
-    attrName = VariableDeclaratorId()
-    "(" { list = new org.jastadd.ast.AST.List(); }
-    [
-      type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
-      ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
-    ]
-    ")"
-    ";"
-    { root.setSynDeclLazy(shouldBeCached, targetName, attrName.image, list, fileName, t.beginLine); }
-  |
-    "inh" t = <IDENTIFIER> "." { targetName = t.image; }
-    attrName = VariableDeclaratorId()
-    "(" { list = new org.jastadd.ast.AST.List(); }
-    [
-      type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
-      ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
-    ]
-    ")"
-    ";"
-    { root.setInhDeclLazy(shouldBeCached, targetName, attrName.image, list, fileName, t.beginLine); }
-  )
-  )*
+(
+  ( cacheConfig = "cache" | cacheConfig = "uncache" )
+  ( attrKind = "syn" | attrKind = "inh" )
+  hostType = <IDENTIFIER> "." 
+  attrName = VariableDeclaratorId()
+  "(" { paramList = new org.jastadd.ast.AST.List(); }
+  [
+    paramType = Type() paramName = <IDENTIFIER> 
+      { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, paramName.image)); }
+    ( 
+      "," paramType = Type() paramName = <IDENTIFIER> 
+        { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, paramName.image)); }
+    )*
+  ]
+  ")" 
+  ";"
+  { 
+    root.setAttrDeclLazy(cacheConfig.image, attrKind.image, hostType.image, 
+        attrName.image, paramList, fileName, cacheConfig.beginLine); 
+  }
+)*
 }

@@ -128,106 +128,48 @@ public aspect Attributes {
   }
 
   /**
-   * Finds a synthesized attribute and sets it to cached or not cached.
-   * @param shouldBeCached Whether the attribute should be cached or not.
-   * @param className The class hosting the attribute
-   * @param name The attribute name
-   * @param parameterList The list of attribute parameters
+   * Configures the caching behavior for an attribute.
+   * 
+   * @param cacheConfig The cache configuration, should be "cache" or "uncache"
+   * @param attrKind The attribute kind, should be "syn" or "inh"
+   * @param hostName The node type hosting the attribute
+   * @param attrName The attribute name
+   * @param paramList The list of attribute parameters
    * @param fileName The name of the file with the attribute declaration
    * @param startLine The line of the attribute declaration
    */
-  public void Grammar.setSynDeclLazy(boolean shouldBeCached, String className,
-        String name, org.jastadd.ast.AST.List parameterList, String fileName, int startLine) {
-    TypeDecl c = lookup(className);
-    if(c != null) {
-      for(int i = 0; i < c.getNumSynDecl(); i++) {
-        SynDecl s = c.getSynDecl(i);
-        if(s.getName().equals(name) && parameterList.getNumChild() == s.getNumParameter()) {
-          boolean paramOK = true;
-          for(int j = 0; j < s.getNumParameter(); j++) {
-            Parameter p1 = (Parameter)parameterList.getChild(j);
-            if(!p1.getType().equals(s.getParameter(j).getType()) || !p1.getName().equals(s.getParameter(j).getName()))
-              paramOK = false;
-          }
-          if(paramOK) {
-
-            if (shouldBeCached && s.getLazy()) {
-                System.err.println("Warning: syn attribute " + name + " in " + className + " is already lazy");
-            } else if(!shouldBeCached && !s.getLazy()) {
-                System.err.println("Warning: syn attribute " + name + " in " + className + " is already not lazy");
-            } else {
-
-              s.setLazy(shouldBeCached);
-              System.out.println("Making syn attribute " + name + " in " + className + (shouldBeCached?"":" not") + " lazy");
-            }
-
-            return;
-          }
-        }
-      }
-      error("could not find attribute '" + name + "' in " + className);
-    } else {
-      error("can not find synthesized attribute '" + name + "' in unknown class " + className, fileName, startLine);
+  public void Grammar.setAttrDeclLazy(String cacheConfig, String attrKind, String hostName,
+        String attrName, org.jastadd.ast.AST.List paramList, String fileName, int startLine) {
+    // Lookup type
+    TypeDecl type = lookup(hostName);
+    if (type == null) {
+      error("can not find attribute " + attrName + " in unknown class " + hostName, fileName, startLine);
+      return;
     }
-  }
-  
-  /**
-   * Finds an inherited attribute and sets it to cached or not cached.
-   * @param shouldBeCached Whether the attribute should be cached or not.
-   * @param className The class hosting the attribute
-   * @param name The attribute name
-   * @param parameterList The list of attribute parameters
-   * @param fileName The name of the file with the attribute declaration
-   * @param startLine The line of the attribute declaration
-   */
-  public void Grammar.setInhDeclLazy(boolean shouldBeCached, String className,
-        String name, org.jastadd.ast.AST.List parameterList, String fileName, int startLine) {
-    TypeDecl c = lookup(className);
-    if(c != null) {
-      for(int i = 0; i < c.getNumInhDecl(); i++) {
-        InhDecl s = c.getInhDecl(i);
-        if(s.getName().equals(name) && parameterList.getNumChild() == s.getNumParameter()) {
-          boolean paramOK = true;
-          for(int j = 0; j < s.getNumParameter(); j++) {
-            Parameter p1 = (Parameter)parameterList.getChild(j);
-            if(!p1.getType().equals(s.getParameter(j).getType()) || !p1.getName().equals(s.getParameter(j).getName()))
-              paramOK = false;
-          }
-          if(paramOK) {
-
-            if (shouldBeCached && s.getLazy()) {
-                System.err.println("Warning: inh attribute " + name + " in " + className + " is already lazy");
-            } else if(!shouldBeCached && !s.getLazy()) {
-                System.err.println("Warning: inh attribute " + name + " in " + className + " is already not lazy");
-            } else {
-
-              s.setLazy(shouldBeCached);
-              System.out.println("Making inh attribute " + name + " in " + className + (shouldBeCached?"":" not") + " lazy");
-            }
-/*
-            if (shouldBeCached) {
-              if(s.getLazy())
-                System.err.println("Warning: attribute " + name + " in " + className + " is already lazy");
-              else {
-                s.setLazy(true);
-                System.out.println("Making attribute " + name + " in " + className + " lazy");
-              }
-            } else {
-              if(!s.getLazy())
-                System.err.println("Warning: attribute " + name + " in " + className + " is already not lazy");
-              else {
-                s.setLazy(false);
-                System.out.println("Making attribute " + name + " in " + className + " not lazy");
-              }
-            }
-*/
-            return;
-          }
-        }
-      }
-      error("could not find attribute " + name + " in " + className);
+    // Build signature for lookup of inherited attribute
+    StringBuilder signBuf = new StringBuilder();
+    signBuf.append(attrName);
+    for (int i = 0; i < paramList.getNumChild(); i++) {
+      signBuf.append("_" + ((Parameter)paramList.getChild(i)).getTypeInSignature());
+    }
+    // Lookup attribute
+    AttrDecl attr = null;
+    if (attrKind.equals("syn")) {
+      attr = type.lookupSynDecl(signBuf.toString());
+    } else if (attrKind.equals("inh")) {
+      attr = type.lookupInhDecl(signBuf.toString());
+    }
+    if (attr == null) {
+      error("can not find attribute " + attrName + " in class " + hostName);
+      return;
+    }
+    // Configure attribute caching
+    if (cacheConfig.equals("cache")) {
+      attr.setLazy(true);
+    } else if (cacheConfig.equals("uncache")) { 
+      attr.setLazy(false);
     } else {
-      error("can not find inherited attribute " + name + " in unknown class " + className, fileName, startLine);
+      error("unknown configuration " + cacheConfig + " for attribute " + hostName + "." + attrName, fileName, startLine);
     }
   }
 
