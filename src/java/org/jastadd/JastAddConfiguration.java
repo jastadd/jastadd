@@ -145,8 +145,7 @@ public class JastAddConfiguration {
     "            all: caches all attributes\n" +
     "           none: caches no attributes\n" + 
     "         config: caches attributes according to a given .config file on the following format:\n" +
-    "                   ((cache|uncache)<WS><ASPECT_NAME><WS>(syn|inh)<WS><NODE_TYPE><DOT><ATTR_NAME>\n" +
-    "                   <LPAREN>(<ARG_TYPE> <ARG_NAME>)*<RPAREN><SEMICOLON><EOL>)*\n" +
+    "                   ((cache|uncache)<WS><NODE_TYPE><DOT><ATTR_NAME><LPAREN>(<PTYPE> <PNAME>)*<RPAREN><SEMICOLON><EOL>)*\n" +
     "       implicit: caches all attribute but also reads a .config file that takes precedence\n" +
     "        analyze: analyzes cache use during evaluation (when all attributes are cached)\n" +
     "                 the result is available via the API in org.jastadd.CacheAnalyzer", true);
