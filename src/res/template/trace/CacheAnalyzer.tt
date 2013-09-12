@@ -47,14 +47,21 @@ import java.util.HashSet;
 public class CacheAnalyzer extends Tracer.InputFilter {
   
   private final String[] ATTRIBUTES = { $AttrNameList };
-  private Map<String,Integer> attrMap = null;
+  private Map<String,Map<String,Integer>> attrMap = null;
 
   public Tracer.TraceObject createTraceObject(Tracer.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    if (attrMap == null) {
-      attrMap = createAttrMap();
-    }
     if (evt == Tracer.Event.CACHED || evt == Tracer.Event.CACHE_READ) {
-      attrMap.put(attr, attrMap.get(attr) + 1); 
+      if (attrMap == null) {
+        createAttrMap();
+      }
+      Map<String,Integer> instanceMap = attrMap.get(attr);
+      if (instanceMap == null) {
+        instanceMap = new HashMap<String,Integer>();
+        attrMap.put(attr, instanceMap);
+      }
+      String instance = String.format("%08X", node.hashCode());
+      Integer calls = instanceMap.get(instance);
+      instanceMap.put(instance, calls == null ? 1 : calls + 1); 
     }  
     return super.createTraceObject(evt, node, attr, params, value);
   }
@@ -67,23 +74,52 @@ public class CacheAnalyzer extends Tracer.InputFilter {
     return "Cache analyzer";
   }
 
-  private Map<String,Integer> createAttrMap() {
-    Map<String,Integer> map = new HashMap<String,Integer>();
+  private Map<String,Map<String,Integer>> createAttrMap() {
+    attrMap = new HashMap<String,Map<String,Integer>>();
     for (String attrName : ATTRIBUTES) {
-      map.put(attrName, 0);
+      attrMap.put(attrName, null);
     }
-    return map;
+    return attrMap;
   }
   
   /**
    * @return The raw trace result of the analyzer, mapping attribute names to call counts
    */
-  public Map<String,Integer> getRawResult() {
-    Map<String,Integer> map = new HashMap<String,Integer>();
-    for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
-      map.put(e.getKey(), e.getValue());
+  public Map<String,Map<String,Integer>> getRawResult() {
+    Map<String,Map<String,Integer>> map = new HashMap<String,Map<String,Integer>>();
+    if (attrMap == null) {
+      return map;
+    }
+    for (Map.Entry<String,Map<String,Integer>> e : attrMap.entrySet()) {
+      if (e.getValue() != null) {
+        Map<String,Integer> innerMap = new HashMap<String,Integer>();
+        for (Map.Entry<String,Integer> ie : e.getValue().entrySet()) {
+          innerMap.put(ie.getKey(), ie.getValue());    
+        }
+        map.put(e.getKey(), innerMap);
+      } else {
+        map.put(e.getKey(), null);
+      }
     }
     return map;
+  }
+  
+  /**
+   * @return The average number of calls per instance for the given attribute
+   */
+  public double getAverageAttrCalls(String attr) {
+    if (attrMap == null) {
+      return 0.0;
+    }
+    Map<String, Integer> instanceMap = attrMap.get(attr);
+    if (instanceMap == null) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (Integer calls : instanceMap.values()) {
+      sum += calls;
+    }
+    return sum / instanceMap.size();
   }
   
   /**
@@ -91,6 +127,9 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    */
   public Set<String> getAllSet() {
     Set<String> set = new HashSet<String>();
+    if (attrMap == null) {
+      return set;
+    }
     for (String attrName : ATTRIBUTES) {
       set.add(attrName);
     }
@@ -102,8 +141,11 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    */
   public Set<String> getUsedSet() {
     Set<String> set = new HashSet<String>();
-    for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
-      if (e.getValue() > 0) {
+    if (attrMap == null) {
+      return set;
+    }
+    for (Map.Entry<String,Map<String,Integer>> e : attrMap.entrySet()) {
+      if (e.getValue() != null) {
         set.add(e.getKey());
       }
     }
@@ -115,8 +157,11 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    */
   public Set<String> getOneSet() {
     Set<String> set = new HashSet<String>();
-    for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
-      if (e.getValue() == 1) {
+    if (attrMap == null) {
+      return set;
+    }
+    for (Map.Entry<String,Map<String,Integer>> e : attrMap.entrySet()) {
+      if (e.getValue() != null && getAverageAttrCalls(e.getKey()) <= 1.0) {
         set.add(e.getKey());
       }
     }
