@@ -132,23 +132,31 @@ public class JastAddConfiguration {
     noStatic = new Option("noStatic", "the generated state field is non-static");
     deterministic = new Option("deterministic", "");
     outputDirOption = new Option("o", "optional base output directory, default is current directory", true);
-    tracing = new Option("tracing", "weaves in code collecting evaluation information", false, false, true);
+    tracing = new Option("tracing", "weaves in code collecting evaluation events", false, false, true);
+    tracing.acceptsMultipleValues(true);
+    tracing.addAcceptedValue("compute", "trace begin and end of attribute computation");
+    tracing.addAcceptedValue("cache", "trace value cached, read cache, and cache aborted");
+    tracing.addAcceptedValue("rewrite", "trace rewrite evaluation");
+    tracing.addAcceptedValue("circular", "trace circular attribute evaluation");
+    tracing.addAcceptedValue("copy", "trace node copy operations");
+    tracing.addAdditionalDesc("all events are collected by default\n" +
+        "the result is available via the API in org.jastadd.Tracer"); 
     packageOption = new Option("package", "optional package for generated files", true);
     version = new Option("version", "print version string and halts");
     help = new Option("help", "prints a short help output and halts");
     printNonStandardOptions = new Option("X", "print list of non-standard options and halt");
-    indent = new Option("indent", "Type of indentation {2space|4space|8space|tab}", true);
+    indent = new Option("indent", "type of indentation {2space|4space|8space|tab}", true);
     minListSize = new Option("minListSize", "Minimum (non-empty) list size", true);
-    
-    // Cache flags
-    cache = new Option("cache", "Overrides 'lazy' configurations with one of the following options:\n" +
-    "            all: caches all attributes\n" +
-    "           none: caches no attributes\n" + 
-    "         config: caches attributes according to a given .config file on the following format:\n" +
-    "                   ((cache|uncache)<WS><NODE_TYPE><DOT><ATTR_NAME><LPAREN>(<PTYPE> <PNAME>)*<RPAREN><SEMICOLON><EOL>)*\n" +
-    "       implicit: caches all attribute but also reads a .config file that takes precedence\n" +
-    "        analyze: analyzes cache use during evaluation (when all attributes are cached)\n" +
-    "                 the result is available via the API in org.jastadd.CacheAnalyzer", true);
+    cache = new Option("cache", "global cache configuration overriding 'lazy'", true);
+    cache.acceptsMultipleValues(false);
+    cache.addAcceptedValue("all", "caches all attributes");
+    cache.addAcceptedValue("none", "caches no attributes");
+    cache.addAcceptedValue("config", "caches attributes according to a given .config file");
+    cache.addAcceptedValue("implicit", "caches all attribute but also reads a .config file that takes precedence");
+    cache.addAcceptedValue("analyze", "analyzes the cache use during evaluation (when all attributes are cached)\n" +
+        "the result is available via the API in org.jastadd.CacheAnalyzer");
+    cache.addAdditionalDesc("a .config file contains a list of lines on the following format:\n" +
+        " ((cache|uncache) NodeType.AttrName((ParamType(,ParamType)*)?);)*");
     
     // TODO: Deprecated, removed when phased out
     cacheAll = new Option("cacheAll", "DEPRECATED: Replaced with --cache=all");
@@ -157,28 +165,19 @@ public class JastAddConfiguration {
     cacheImplicit = new Option("cacheImplicit", "DEPRECATED: Replaced with --cache=implicit");
     ignoreLazy = new Option("ignoreLazy", "DEPRECATED: ignores the \"lazy\" keyword");
 
-    // Incremental flags
-    incremental = new Option("incremental", "turns on incremental evaluation with the given configuration\n" +
-    "    CONFIGURATION: ATTRIBUTE(,ATTRIBUTE)* (comma separated list of attributes)\n" +
-    "    ATTRIBUTE: param  (dependency tracking on parameter level, not combinable\n" +
-    "                       with attr, node, region)\n" +
-    "    ATTRIBUTE: attr  (dependency tracking on attribute level, default, not\n" +
-    "                      combinable with param, node, region)\n" +
-    "    ATTRIBUTE: node  (dependency tracking on node level, not combinable with\n" +
-    "                      param, attr, region)\n" +
-    "    ATTRIBUTE: region (dependency tracking on region level, not combinable\n" +
-    "                       with param, attr, node)\n" +
-    "    ATTRIBUTE: flush (invalidate with flush, default, not combinable with mark)\n" +
-    "    ATTRIBUTE: mark  (invalidate with mark, not combinable with flush, NOT\n" +
-    "                      SUPPORTED YET)\n" +
-    "    ATTRIBUTE: full  (full change propagation, default, not combinable with\n" +
-    "                      limit)\n" +
-    "    ATTRIBUTE: limit (limited change propagation, not combinable with full,\n" +
-    "                      NOT SUPPORTED YET)\n" +
-    "    ATTRIBUTE: debug (generate code for debugging and dumping of dependencies)", true);
-    fullFlush = new Option("fullFlush", "full flush in incremental evaluation");
-
-
+    incremental = new Option("incremental", "turns on incremental evaluation with the given configuration", true);
+    incremental.acceptsMultipleValues(true);
+    incremental.addAcceptedValue("param", "dependency tracking on parameter level");
+    //incremental.addValue("attr", "dependency tracking on attribute level -- should probably be taken away, not tested any more
+    //incremental.addValue("node", "dependency tracking on node level -- should probably be taken away, not tested any more
+    incremental.addAcceptedValue("region", "dependency tracking on region level");
+    incremental.addAcceptedValue("flush", "invalidate with flush (default)");
+    // incremental.addValue("mark", "invalidate with mark"); -- not supported yet
+    incremental.addAcceptedValue("full", "full change propagation (default)");
+    //incremental.addValue("limit", "limited change propagation"); -- not supported yet
+    incremental.addAcceptedValue("debug", "generate code for debugging and dumping of dependencies");
+    fullFlush = new Option("fullFlush", "support for full flushing of attribute caches and rewrites");
+    
     defaultMap.setNonStandard();
     defaultSet.setNonStandard();
     privateOption.setNonStandard();

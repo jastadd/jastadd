@@ -28,6 +28,12 @@
 package org.jastadd;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 /**
  * Handles matching and parsing of command line options.
@@ -51,8 +57,12 @@ public class Option {
    * options.
    */
   public static final String OPTION_PREFIX = "--";
+  
+  protected static final String INDENT = "  ";
+  protected static final int OPT_COL_WIDTH = 18;
 
   protected String desc;
+  protected String additionalDesc;
   protected String name;
   protected String longName;
   protected String longNameLower;
@@ -64,6 +74,8 @@ public class Option {
   protected boolean needsValue = false;
   protected boolean valueIsOptional = false;
   protected boolean hasDefaultValue = false;
+  protected boolean acceptsMultipleValues = false;
+  protected List<String[]> acceptedValues;
 
   /**
    * Create a new standard option without value argument.
@@ -176,22 +188,58 @@ public class Option {
    * @param out output stream to print help to
    */
   public void printHelp(PrintStream out) {
-    int col = 18;
-    out.print("  " + longName);
+    int col = OPT_COL_WIDTH;
+    out.print(INDENT + longName);
     col -= longName.length();
     if (col < 1)
       col = 1;
-    for (int i = 0; i < col; ++i) {
-      out.print(' ');
-    }
+    printWhiteSpace(out, col);
     if (hasDefaultValue) {
       out.print(desc);
       out.println(" (default = \"" + defaultValue + "\")");
     } else {
       out.println(desc);
     }
+    printValueHelp(out);
+    printDesc(out, additionalDesc, OPTION_PREFIX.length() + OPT_COL_WIDTH + INDENT.length(), true);
   }
-
+  
+  protected void printValueHelp(PrintStream out) {
+    if (acceptedValues == null) {
+      return;
+    }
+    printWhiteSpace(out, OPT_COL_WIDTH + 2*INDENT.length());
+    out.println("accepts " + (acceptsMultipleValues ? "multiple" : "one" ) + 
+         " of the following" + (needsValue ? " " : " optional") + " values:");
+    for (String[] s : acceptedValues) {
+      printWhiteSpace(out, OPT_COL_WIDTH + 2*INDENT.length());
+      out.print("'" + s[0] + "'");
+      printWhiteSpace(out, OPT_COL_WIDTH/2 - s[0].length());
+      printDesc(out, s[1], OPT_COL_WIDTH + OPT_COL_WIDTH/2 + 3*INDENT.length(), false);
+    }
+  }
+  
+  protected void printDesc(PrintStream out, String desc, int col, boolean indentFirstLine) {
+    if (desc == null) {
+      return;
+    }
+    StringTokenizer tok = new StringTokenizer(desc,"\n");
+    while (tok.hasMoreTokens()) {
+      if (indentFirstLine) {
+        printWhiteSpace(out, col);
+      }
+      out.println(tok.nextToken());
+      indentFirstLine = true;
+    }
+    
+  }
+  
+  protected void printWhiteSpace(PrintStream out, int nbr) {
+    for (int i = 0; i < nbr; ++i) {
+      out.print(' ');
+    }    
+  }
+  
   /**
    * Match this option against the argument list.
    *
@@ -255,5 +303,38 @@ public class Option {
    */
   public void setToMatched() {
     matched = true;
+  }
+  
+  /**
+   * Adds an accepted value.
+   * 
+   * For options which support a set of values.
+   * 
+   * @param value The name of the value
+   * @param desc The description of the value
+   */
+  public void addAcceptedValue(String value, String desc) {
+    if (acceptedValues == null) {
+      acceptedValues = new ArrayList<String[]>();
+    }
+    acceptedValues.add(new String[]{value, desc});
+  }
+  
+  /**
+   * Configures if this option accepts multiple values in a list
+   * 
+   * @param acceptsMultiple true if multiple values are supported
+   */
+  public void acceptsMultipleValues(boolean acceptsMultiple) {
+    acceptsMultipleValues = acceptsMultiple;
+  }
+  
+  /**
+   * Adds an additional description
+   * 
+   * @param desc The additional description
+   */
+  public void addAdditionalDesc(String desc) {
+    additionalDesc = desc;
   }
 }
