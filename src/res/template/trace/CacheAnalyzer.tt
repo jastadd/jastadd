@@ -31,7 +31,19 @@ $PackageDecl
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
+/**
+ * Cache analyzer based on the ideas presented in
+ *
+ *   <a href="http://dx.doi.org/10.1007/978-3-642-19440-5_2">
+ *   Automated selective caching for reference attribute grammars"
+ *    </a>
+ *   <i>Emma S&ouml;derberg and G&ouml;rel Hedin</i>
+ *   <i>Dept. of Computer Science, Lund University</i>
+ *
+ */
 public class CacheAnalyzer extends Tracer.InputFilter {
   
   private final String[] ATTRIBUTES = { $AttrNameList };
@@ -63,12 +75,52 @@ public class CacheAnalyzer extends Tracer.InputFilter {
     return map;
   }
   
+  /**
+   * @return The raw trace result of the analyzer, mapping attribute names to call counts
+   */
   public Map<String,Integer> getRawResult() {
     Map<String,Integer> map = new HashMap<String,Integer>();
     for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
       map.put(e.getKey(), e.getValue());
     }
     return map;
+  }
+  
+  /**
+   * @return The set of all attributes, represented with signature strings
+   */
+  public Set<String> getAllSet() {
+    Set<String> set = new HashSet<String>();
+    for (String attrName : ATTRIBUTES) {
+      set.add(attrName);
+    }
+    return set;
+  }
+  
+  /**
+   * @return The set of used attributes, represented with signature strings
+   */
+  public Set<String> getUsedSet() {
+    Set<String> set = new HashSet<String>();
+    for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
+      if (e.getValue() > 0) {
+        set.add(e.getKey());
+      }
+    }
+    return set;
+  }
+  
+  /**
+   * @return The set of attributes used once, represented with signature strings
+   */
+  public Set<String> getOneSet() {
+    Set<String> set = new HashSet<String>();
+    for (Map.Entry<String,Integer> e : attrMap.entrySet()) {
+      if (e.getValue() == 1) {
+        set.add(e.getKey());
+      }
+    }
+    return set;
   }
 }
 ]]

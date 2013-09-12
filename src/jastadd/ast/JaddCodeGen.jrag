@@ -291,21 +291,21 @@ aspect JaddCodeGen {
    */
   public void Grammar.emitCacheAnalyzer(PrintWriter out) {
     StringBuilder sb = new StringBuilder();
-    boolean first = false;
+    boolean first = true;
     for (TypeDecl typeDecl : getTypeDecls()) {
       for (SynDecl synDecl : typeDecl.getSynDecls()) {
-        sb.append("\"" + synDecl.hostClassName() + "."  + synDecl.signatureJavaStyle() + "\"");
-        if (first) {
+        if (!first) {
           sb.append(",");
-          first = false;
         }
+        sb.append("\"" + synDecl.hostClassName() + "."  + synDecl.signatureJavaStyle() + "\"");
+        first = false;
       }
       for (InhDecl inhDecl : typeDecl.getInhDecls()) {
-        sb.append("\"" + inhDecl.hostClassName() + "." + inhDecl.signatureJavaStyle() + "\"");
-        if (first) {
+        if (!first) {
           sb.append(",");
-          first = false;
         }
+        sb.append("\"" + inhDecl.hostClassName() + "." + inhDecl.signatureJavaStyle() + "\"");
+        first = false;
       }
     }
     TemplateContext tt = templateContext();
