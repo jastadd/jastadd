@@ -122,5 +122,12 @@ public class CacheAnalyzer extends Tracer.InputFilter {
     }
     return set;
   }
+  
+  /**
+   * @return The attribute coverage in percent (i.e., Used/All)
+   */
+   public double getAttributeCoverage() {
+     return (getUsedSet().size()*1.0 / getAllSet().size()*1.0) * 100.0;
+   }
 }
 ]]
