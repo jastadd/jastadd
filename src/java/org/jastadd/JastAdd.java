@@ -83,13 +83,13 @@ public class JastAdd {
     return "JastAdd2 (http://jastadd.org) version " + version;
   }
 
-  private final JastAddConfiguration config;
+  private final Configuration config;
 
   /**
    * Constructor
    * @param configuration
    */
-  public JastAdd(JastAddConfiguration configuration) {
+  public JastAdd(Configuration configuration) {
     this.config = configuration;
   }
 
@@ -112,7 +112,7 @@ public class JastAdd {
    * @return exit value - 0 indicates no errors
    */
   public static int compile(String[] args, PrintStream out, PrintStream err) {
-    JastAdd jastadd = new JastAdd(new JastAddConfiguration(args, err));
+    JastAdd jastadd = new JastAdd(new Configuration(args, err));
     return jastadd.compile(out, err);
   }
 
@@ -123,7 +123,7 @@ public class JastAdd {
    * @return exit value - 0 indicates no errors
    */
   public int compile(PrintStream out, PrintStream err) {
-    if (config.checkProblems()) {
+    if (config.checkProblems(err)) {
       return 1;
     } else if (config.shouldPrintVersion()) {
       out.println(getVersionString());
@@ -309,7 +309,7 @@ public class JastAdd {
     }
   }
 
-  private void genTracer(JastAddConfiguration config, Grammar root)
+  private void genTracer(Configuration config, Grammar root)
     throws FileNotFoundException {
 
     root.createPackageOutputDirectory();
@@ -319,7 +319,7 @@ public class JastAdd {
     writer.close();
   }
 
-  private void genCacheAnalyzer(JastAddConfiguration config, Grammar root)
+  private void genCacheAnalyzer(Configuration config, Grammar root)
     throws FileNotFoundException {
 
     root.createPackageOutputDirectory();
