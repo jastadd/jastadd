@@ -28,11 +28,11 @@
  aspect IncrementalNotification {
 
   public void ASTDecl.genIncrementalNotification(PrintWriter out) {
-    if (!grammar().incremental) return;
+    if (!config().incremental) return;
 
     TemplateContext tt = templateContext();
 
-    if (!grammar().fullFlush) {
+    if (!config().fullFlush) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
     }
@@ -78,7 +78,7 @@
   public String ASTDecl.emitFlushNtaSubTreesString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
@@ -97,7 +97,7 @@
   public String ASTDecl.emitTransferSetsFromAttrTokenHandlersString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.signature());
@@ -119,7 +119,7 @@
   public String ASTDecl.emitFlushNTAsInRegionString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
             && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
@@ -140,7 +140,7 @@
   public String ASTDecl.emitFlushNTAsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
       		!(attr.type().equals("String") || attr.type().equals("java.lang.String")) &&
@@ -166,7 +166,7 @@
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     boolean firstAttr = true;
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       res.append(firstAttr ? "" : "else ");
       tt.bind("AttrResetVisit", attr.resetVisit());
@@ -193,13 +193,13 @@
    * name and parameters, should be flushed and dependencies notified.
    */
   public String ASTDecl.emitAttrFlushChecksString() {
-    if (grammar().incrementalLevelNode || grammar().incrementalLevelRegion) {
+    if (config().incrementalLevelNode || config().incrementalLevelRegion) {
       return "";
     }
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     boolean firstAttr = true;
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       res.append(firstAttr ? "" : "else ");
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
@@ -222,7 +222,7 @@
   public String ASTDecl.emitFlushAttrsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.signature());

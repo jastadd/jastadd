@@ -80,17 +80,17 @@ public class JastAddUtil {
    * @param source - the stream-based source
    * @param resourceName - the source's name
    * @param problems - a collection where problems should be added for later error handling
-   * @param rootGrammar - the grammar object where the AST specifications contents should be added
+   * @param grammar - the grammar object where the AST specifications contents should be added
    */
-  public static void parseASTSpec(Reader source, String resourceName, Grammar rootGrammar, Collection<Problem> problems){
+  public static void parseASTSpec(Reader source, String resourceName, Grammar grammar, Collection<Problem> problems){
     Grammar astGrammar = parseASTSpec(source, resourceName, problems);
     if (astGrammar != null) {
       List<TypeDecl> typeDecls = astGrammar.getTypeDeclListNoTransform();
       for (int i = 0; i < typeDecls.getNumChildNoTransform(); i++) {
-        rootGrammar.addTypeDecl(typeDecls.getChildNoTransform(i));
+        grammar.addTypeDecl(typeDecls.getChildNoTransform(i));
       }
       for (int i = 0; i < astGrammar.getNumRegionDecl(); i++) {
-        rootGrammar.addRegionDecl(astGrammar.getRegionDecl(i));
+        grammar.addRegionDecl(astGrammar.getRegionDecl(i));
       }
     }
   }
@@ -100,14 +100,14 @@ public class JastAddUtil {
    *
    * @param source - the file based source
    * @param problems - a collection where problems should be added for later error handling
-   * @param rootGrammar - the grammar object where the AST specifications contents should be added
+   * @param grammar - the grammar object where the AST specifications contents should be added
    */
-  public static void parseASTSpec(File source, Grammar rootGrammar, Collection<Problem> problems){
+  public static void parseASTSpec(File source, Grammar grammar, Collection<Problem> problems){
     Reader inStream = null;
     String fileName = source.getPath();
     try {
       inStream = new FileReader(source);
-      parseASTSpec(inStream,fileName,rootGrammar,problems);
+      parseASTSpec(inStream,fileName,grammar,problems);
 
     } catch (FileNotFoundException e) {
       problems.add(new Problem.Error(
@@ -128,11 +128,11 @@ public class JastAddUtil {
    * @param source - the string-based source
    * @param sourceName - the name of the source
    * @param problems - a collection where problems should be added for later error handling
-   * @param rootGrammar - the grammar object where the AST specifications contents should be added
+   * @param grammar - the grammar object where the AST specifications contents should be added
    */
-  public static void parseASTSpec(String source, String sourceName, Grammar rootGrammar, Collection<Problem> problems){
+  public static void parseASTSpec(String source, String sourceName, Grammar grammar, Collection<Problem> problems){
     Reader inStream = new StringReader(source);
-    parseASTSpec(inStream,sourceName,rootGrammar,problems);
+    parseASTSpec(inStream,sourceName,grammar,problems);
   }
 
   /**
@@ -168,30 +168,31 @@ public class JastAddUtil {
    *
    * @param source - the stream-based source
    * @param sourceName - the name of the source
-   * @param rootGrammar - the grammar object to parameterize the parser
+   * @param grammar - the grammar object to parameterize the parser
    * @param problems - the collection where new objects can be added
    */
   public static void parseJRAGSpec(Reader source,
-      String sourceName, Grammar rootGrammar, Collection<Problem> problems) {
-    ASTCompilationUnit cu = parseJRAGSpec(source, sourceName, problems, rootGrammar);
-    if(cu!=null)
-      rootGrammar.addCompUnit(cu);
+      String sourceName, Grammar grammar, Collection<Problem> problems) {
+    ASTCompilationUnit cu = parseJRAGSpec(source, sourceName, problems, grammar);
+    if (cu!=null) {
+      grammar.addCompUnit(cu);
+    }
   }
 
   /**
    * Parses a JRAG or JADD specification from a given file and adds it to the given grammar object.
    *
    * @param source - the file-based source
-   * @param rootGrammar - the grammar where the content should be added
+   * @param grammar - the grammar where the content should be added
    * @param problems - the collection where new objects can be added
    *
    */
-  public static void parseJRAGSpec(File source, Grammar rootGrammar, Collection<Problem> problems) {
+  public static void parseJRAGSpec(File source, Grammar grammar, Collection<Problem> problems) {
     Reader inStream = null;
     String fileName = source.getPath();
     try {
       inStream = new FileReader(source);
-      parseJRAGSpec(inStream, fileName, rootGrammar, problems);
+      parseJRAGSpec(inStream, fileName, grammar, problems);
      } catch (FileNotFoundException e) {
       problems.add(new Problem.Error("could not find aspect file '" + fileName + "'"));
     }
@@ -210,13 +211,13 @@ public class JastAddUtil {
    *
    * @param source - the string-based source
    * @param sourceName - the source name
-   * @param rootGrammar - the grammar where the content should be added
+   * @param grammar - the grammar where the content should be added
    * @param problems - the collection where new objects can be added
    *
    */
-  public static void parseJRAGSpec(String source, String sourceName, Grammar rootGrammar, Collection<Problem> problems) {
+  public static void parseJRAGSpec(String source, String sourceName, Grammar grammar, Collection<Problem> problems) {
     Reader inStream = new StringReader(source);
-    parseJRAGSpec(inStream, sourceName, rootGrammar, problems);
+    parseJRAGSpec(inStream, sourceName, grammar, problems);
   }
 
   /**
@@ -225,13 +226,13 @@ public class JastAddUtil {
    *
    * @param source
    * @param sourceName
-   * @param rootGrammar
+   * @param grammar
    * @return A list of problems that may only contain internal errors.
    */
-  public static Collection<Problem> parseAspectBodyDeclarations(Reader source, String sourceName, Grammar rootGrammar){
+  public static Collection<Problem> parseAspectBodyDeclarations(Reader source, String sourceName, Grammar grammar){
     Collection<Problem> problems = new LinkedList<Problem>();
     JragParser jp = new JragParser(source);
-    jp.root = rootGrammar;
+    jp.root = grammar;
     jp.setFileName(sourceName);
     jp.className = sourceName;
     jp.pushTopLevelOrAspect(true);
@@ -251,12 +252,12 @@ public class JastAddUtil {
    *
    * @param source
    * @param sourceName
-   * @param rootGrammar
+   * @param grammar
    * @return A list of problems that may only contain internal errors.
    */
-  public static Collection<Problem> parseAspectBodyDeclarations(String source, String sourceName, Grammar rootGrammar){
+  public static Collection<Problem> parseAspectBodyDeclarations(String source, String sourceName, Grammar grammar){
     StringReader inStream = new StringReader(source);
-    return parseAspectBodyDeclarations(inStream, sourceName, rootGrammar);
+    return parseAspectBodyDeclarations(inStream, sourceName, grammar);
   }
 
   /**
@@ -265,14 +266,14 @@ public class JastAddUtil {
    *
    * @param source - the source stream
    * @param sourceName - the name of the source
-   * @param rootGrammar - the root grammar object
+   * @param grammar - the root grammar object
    * @param problems - the collection problems should be added to
    */
   public static void parseCacheDeclarations(Reader source,
-    String sourceName, Grammar rootGrammar, Collection<Problem> problems) {
+    String sourceName, Grammar grammar, Collection<Problem> problems) {
     try {
       JragParser jp = new JragParser(source);
-      jp.root = rootGrammar;
+      jp.root = grammar;
       jp.setFileName(sourceName);
       jp.CacheDeclarations();
     } catch (org.jastadd.jrag.AST.ParseException e) {
@@ -283,15 +284,15 @@ public class JastAddUtil {
 
   /**
    * @param source
-   * @param rootGrammar
+   * @param grammar
    * @param problems
    */
-  public static void parseCacheDeclarations(File source, Grammar rootGrammar, Collection<Problem> problems){
+  public static void parseCacheDeclarations(File source, Grammar grammar, Collection<Problem> problems){
     Reader inStream = null;
     String fileName = source.getName();
     try {
       inStream = new FileReader(source);
-      parseCacheDeclarations(inStream, fileName, rootGrammar, problems);
+      parseCacheDeclarations(inStream, fileName, grammar, problems);
     }
     catch (FileNotFoundException e) {
       problems.add(new Problem.Error("could not find cache file '" + fileName + "'"));

@@ -44,7 +44,7 @@ aspect JaddCodeGen {
     // Add ASTNode
     cl = new ASTDecl();
     name = new IdDecl();
-    name.setID(grammar().astNodeType);
+    name.setID(config().astNodeType);
     cl.setIdDecl(name);
     cl.setFileName("");
     cl.modifiers = "public";
@@ -53,7 +53,7 @@ aspect JaddCodeGen {
     // Add List
     cl = new ASTDecl();
     name = new IdDecl();
-    name.setID(grammar().listType);
+    name.setID(config().listType);
     cl.setIdDecl(name);
     cl.setFileName("");
     cl.modifiers = "public";
@@ -62,7 +62,7 @@ aspect JaddCodeGen {
     // Add Opt
     cl = new ASTDecl();
     name = new IdDecl();
-    name.setID(grammar().optType);
+    name.setID(config().optType);
     cl.setIdDecl(name);
     cl.setFileName("");
     cl.modifiers = "public";
@@ -71,9 +71,9 @@ aspect JaddCodeGen {
 
   syn int ASTDecl.numNonNTAComponents() {
     int num = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA()) {
+      if (!c.isNTA()) {
         num++;
       }
     }
@@ -85,9 +85,9 @@ aspect JaddCodeGen {
    */
   syn int ASTDecl.childCount() {
     int i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!(c instanceof TokenComponent)) {
+      if (!(c instanceof TokenComponent)) {
         i++;
       }
     }
@@ -99,9 +99,9 @@ aspect JaddCodeGen {
    */
   syn int ASTDecl.numRegularChildren() {
     int i = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA() && !(c instanceof TokenComponent)) {
+      if (!c.isNTA() && !(c instanceof TokenComponent)) {
         i++;
       }
     }
@@ -117,8 +117,8 @@ aspect JaddCodeGen {
     TemplateContext tt = templateContext();
 
     String finalInit = "";
-    if(grammar().rewriteEnabled && isRootNode()) {
-      if(grammar().stagedRewrites) {
+    if (config().rewriteEnabled && isRootNode()) {
+      if (config().stagedRewrites) {
         finalInit = "is$Final(state().rewritePhase);";
       } else {
         finalInit = "is$Final(true);";
@@ -138,7 +138,7 @@ aspect JaddCodeGen {
 
     String initChildArray = "";
     if (childCount() > 0) {
-      initChildArray = "children = new " + grammar().astNodeType + "[" + childCount() + "];";
+      initChildArray = "children = new " + config().astNodeType + "[" + childCount() + "];";
       initChildArray += genIncrementalInitChildHandlers();
     }
 
@@ -149,13 +149,13 @@ aspect JaddCodeGen {
     int i = 0;
     for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(c instanceof ListComponents) {
-        childInit.append("setChild(new " + grammar().listType + "(), " + i + ");\n");
+      if (c instanceof ListComponents) {
+        childInit.append("setChild(new " + config().listType + "(), " + i + ");\n");
         i++;
-      } else if(c instanceof OptionalComponent) {
-        childInit.append("setChild(new " + grammar().optType + "(), " + i + ");\n");
+      } else if (c instanceof OptionalComponent) {
+        childInit.append("setChild(new " + config().optType + "(), " + i + ");\n");
         i++;
-      } else if(c instanceof AggregateComponents) {
+      } else if (c instanceof AggregateComponents) {
         i++;
       }
     }
@@ -169,44 +169,45 @@ aspect JaddCodeGen {
    * Emits the constructor body for tree building constructors
    */
   public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
-    if(grammar().block) out.print(grammar().blockBegin);
+    if (config().block) out.print(config().blockBegin);
 
     TemplateContext tt = templateContext();
     out.print(tt.expand("State.incHookConstructionStart"));
 
     int param = 0;
     int childIndex = 0;
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(c instanceof TokenComponent) {
+      if (!c.isNTA()) {
+        if (c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
           String tokenId = t.getTokenId().getID();
-          out.println(grammar().ind(2) + "set" + tokenId + "(p" + param + ");");
+          out.println(config().ind(2) + "set" + tokenId + "(p" + param + ");");
         }
         else {
-          out.println(grammar().ind(2) + "setChild(p" + param + ", " + childIndex + ");");
+          out.println(config().ind(2) + "setChild(p" + param + ", " + childIndex + ");");
           childIndex++;
         }
         param += 1;
       } else {
-        if(c instanceof ListComponents ||
+        if (c instanceof ListComponents ||
           c instanceof OptionalComponent ||
           c instanceof AggregateComponents) {
         childIndex++;
         }
       }
     }
-    if(grammar().rewriteEnabled && isRootNode()) {
-      if(grammar().stagedRewrites)
-        out.println(grammar().ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
-      else
-        out.println(grammar().ind(2) + "is$Final(true);");
+    if (config().rewriteEnabled && isRootNode()) {
+      if (config().stagedRewrites) {
+        out.println(config().ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
+      } else {
+        out.println(config().ind(2) + "is$Final(true);");
+      }
     }
 
     out.print(tt.expand("State.incHookConstructionEnd"));
 
-    if(grammar().block) out.print(grammar().blockEnd);
+    if (config().block) out.print(config().blockEnd);
   }
 
   /**
@@ -214,43 +215,43 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
     // we only build constructors if there are components
-    if(!getComponents().hasNext())
+    if (!getComponents().hasNext())
       return;
-    out.print(grammar().ind + "public " + name() + "." + name() + "(");
+    out.print(config().indent + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(i != 0) out.print(", ");
+      if (!c.isNTA()) {
+        if (i != 0) out.print(", ");
         out.print(c.constrParmType() + " p" + i);
         i++;
       }
     }
     out.println(") {");
     emitBuildingConstructorBody(out);
-    out.println(grammar().ind + "}");
+    out.println(config().indent + "}");
   }
 
   public void ASTDecl.emitSymbolConstructor(PrintWriter out) {
     // we only build constructors if there are components ...
-    if(!getComponents().hasNext())
+    if (!getComponents().hasNext())
       return;
     // ... and one of these components is a string token component
     boolean stringArg = false;
-    for(Iterator iter = getComponents(); !stringArg && iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); !stringArg && iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
+      if (!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
         stringArg = true;
     }
-    if(!stringArg) return;
+    if (!stringArg) return;
 
-    out.print(grammar().ind + "public " + name() + "." + name() + "(");
+    out.print(config().indent + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(!c.isNTA()) {
-        if(i != 0) out.print(", ");
-        if(c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
+      if (!c.isNTA()) {
+        if (i != 0) out.print(", ");
+        if (c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
           out.print("beaver.Symbol p" + i);
         else
           out.print(c.constrParmType() + " p" + i);
@@ -259,7 +260,7 @@ aspect JaddCodeGen {
     }
     out.println(") {");
     emitBuildingConstructorBody(out);
-    out.println(grammar().ind + "}");
+    out.println(config().indent + "}");
   }
 
   public void Grammar.genReset(PrintWriter out) {
@@ -319,17 +320,17 @@ aspect JaddCodeGen {
    * array size.
    */
   syn String ASTDecl.initialChildArraySize() {
-    return "(i+1>" + grammar().minListSize + " || !(this instanceof " + grammar().listType + "))?i+1:" + grammar().minListSize;
+    return "(i+1>" + config().minListSize + " || !(this instanceof " + config().listType + "))?i+1:" + config().minListSize;
   }
 
   /**
    * Checks that ASTNode.state can be evaluated.
    */
   syn String ASTDecl.debugASTNodeState() {
-    if(grammar().debugMode && !grammar().roots().isEmpty()) {
+    if (config().debugMode && !grammar().roots().isEmpty()) {
       // Check if a new state object is created for a node that is not a root node
       StringBuilder buf = new StringBuilder();
-      buf.append("if(");
+      buf.append("if (");
       boolean first = true;
       for (Iterator iter = grammar().roots().iterator(); iter.hasNext(); ) {
         ASTDecl root = (ASTDecl)iter.next();
@@ -340,7 +341,7 @@ aspect JaddCodeGen {
         buf.append("!(this instanceof " + root.name() + ")");
       }
       buf.append(")\n");
-      buf.append(grammar().ind + "throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
+      buf.append(config().indent + "throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
       return buf.toString();
     } else {
       return "";
@@ -359,8 +360,8 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.declarations", out);
 
     /* emit getChild */
-    tt.bind("ReturnTypeCast", grammar().java5 ? "(T) " : "");
-    tt.bind("PositiveRewriteLimit", grammar().rewriteLimit > 0);
+    tt.bind("ReturnTypeCast", config().java5 ? "(T) " : "");
+    tt.bind("PositiveRewriteLimit", config().rewriteLimit > 0);
     tt.expand("ASTNode.getChild", out);
 
     /* emit addChild */
@@ -389,7 +390,7 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.debugDecls", out);
 
     /* emit declarations for line and column */
-    if (grammar().lineColumnNumbers) {
+    if (config().lineColumnNumbers) {
       tt.expand("ASTNode.lineColumnNumbers", out);
     }
   }
@@ -399,7 +400,7 @@ aspect JaddCodeGen {
    * ASTDecl.
    */
   syn boolean ASTDecl.needsListTouched() =
-    !(grammar().incremental || grammar().fullFlush);
+    !(config().incremental || config().fullFlush);
 
   /**
    * Generate implicit aspect declarations for the List type.
@@ -420,14 +421,14 @@ aspect JaddCodeGen {
   public void ASTDecl.emitImplicitRegularNodeDecls(PrintWriter out) {
     TemplateContext tt = templateContext();
     tt.expand("RegularNodeType.getNumChild", out);
-    if (grammar().debugMode && isRootNode()) {
+    if (config().debugMode && isRootNode()) {
       tt.expand("RegularNodeType.debugNodeAttachmentIsRoot", out);
     }
   }
 
-  syn boolean ASTDecl.isASTNodeDecl() = name().equals(grammar().astNodeType);
-  syn boolean ASTDecl.isOptDecl() = name().equals(grammar().optType);
-  syn boolean ASTDecl.isListDecl() = name().equals(grammar().listType);
+  syn boolean ASTDecl.isASTNodeDecl() = name().equals(config().astNodeType);
+  syn boolean ASTDecl.isOptDecl() = name().equals(config().optType);
+  syn boolean ASTDecl.isListDecl() = name().equals(config().listType);
 
   /**
    * Check the node structure of a regular (non-Opt, non-List)
@@ -491,18 +492,18 @@ aspect JaddCodeGen {
 
     emitChildInitMethod(out);
 
-    if(numNonNTAComponents() != 0) {
+    if (numNonNTAComponents() != 0) {
       emitBuildingConstructor(out);
-      if(grammar().beaver)
+      if (config().useBeaverSymbol)
         emitSymbolConstructor(out);
     }
 
-    if(isOptDecl()) {
+    if (isOptDecl()) {
       TemplateContext tt = templateContext();
       tt.expand("OptDecl.constructor", out);
     }
 
-    if(isListDecl()) {
+    if (isListDecl()) {
       TemplateContext tt = templateContext();
       tt.expand("ListDecl.constructor", out);
     }
@@ -514,29 +515,29 @@ aspect JaddCodeGen {
    * @param out Aspect output stream
    */
   public void ASTDecl.emitMayHaveRewrite(PrintWriter out) {
-    String ind = grammar().ind;
-    String ind2 = grammar().ind(2);
+    String ind = config().indent;
+    String ind2 = config().ind(2);
     out.println(ind + "/**");
     out.println(ind + " * @apilevel internal");
     out.println(ind + " */");
     out.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-    if(name().equals(grammar().listType)) {
+    if (name().equals(config().listType)) {
 
       // Avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) {
+      if (!(config().incremental || config().fullFlush)) {
         out.println(ind2 + "return true;");  // old code
       } else {
         out.println(ind2 + "return false;");
       }
 
-    } else if(!hasRewrites()) {
+    } else if (!hasRewrites()) {
       out.println(ind2 + "return false;");
-    } else if(!grammar().stagedRewrites || rewriteWithNoPhaseCondition()) {
+    } else if (!config().stagedRewrites || rewriteWithNoPhaseCondition()) {
       out.println(ind2 + "return true;");
     } else {
-      for(Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
+      for (Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
         String condition = (String)iter.next();
-        out.println(ind2 + "if(" + condition + ") return true;");
+        out.println(ind2 + "if (" + condition + ") return true;");
       }
       out.println(ind2 + "return false;");
     }
@@ -554,7 +555,7 @@ aspect JaddCodeGen {
 
     emitConstructor(out);
 
-    if (grammar().jjtree) {
+    if (config().jjtree) {
       TemplateContext tt = templateContext();
 
       // emit the dumpTree method
@@ -575,7 +576,7 @@ aspect JaddCodeGen {
       emitImplicitASTNodeDecls(out);
       grammar().genRewriteOrderChecks(out);
       grammar().genReset(out);
-      if (grammar().java5) {
+      if (config().java5) {
         templateContext().expand("ASTNode.iterator", out);
       }
     } else if (isListDecl()) {
@@ -586,7 +587,7 @@ aspect JaddCodeGen {
       emitImplicitRegularNodeDecls(out);
     }
 
-    if (grammar().rewriteEnabled) {
+    if (config().rewriteEnabled) {
       emitMayHaveRewrite(out);
     }
 
@@ -599,11 +600,11 @@ aspect JaddCodeGen {
   }
 
   syn boolean ASTDecl.rewriteWithNoPhaseCondition() {
-    for(int i = 0; i < getNumRewrite(); i++) {
-      if(getRewrite(i).getCondition() == null)
+    for (int i = 0; i < getNumRewrite(); i++) {
+      if (getRewrite(i).getCondition() == null)
         return true;
       String condition = Unparser.unparse(getRewrite(i).getCondition());
-      if(condition.indexOf("inRewritePhase") == -1 && condition.indexOf("inExactRewritePhase") == -1)
+      if (condition.indexOf("inRewritePhase") == -1 && condition.indexOf("inExactRewritePhase") == -1)
         return true;
     }
     return superClass() instanceof ASTDecl && ((ASTDecl)superClass()).rewriteWithNoPhaseCondition();
@@ -612,18 +613,19 @@ aspect JaddCodeGen {
   syn java.util.Set ASTDecl.rewritePhaseConditions() {
     java.util.Set set = new java.util.LinkedHashSet();
     Pattern p = Pattern.compile("inRewritePhase\\([\\w\\.]*\\)|inExactRewritePhase\\([\\w\\.]*\\)");
-    for(int i = 0; i < getNumRewrite(); i++) {
-      if(getRewrite(i).getCondition() != null) {
+    for (int i = 0; i < getNumRewrite(); i++) {
+      if (getRewrite(i).getCondition() != null) {
         String condition = Unparser.unparse(getRewrite(i).getCondition());
         Matcher m = p.matcher(condition);
-        while(m.find()) {
+        while (m.find()) {
           String match = m.group();
           set.add(match);
         }
       }
     }
-    if(superClass() instanceof ASTDecl)
+    if (superClass() instanceof ASTDecl) {
       set.addAll(((ASTDecl)superClass()).rewritePhaseConditions());
+    }
     return set;
   }
 
@@ -631,7 +633,7 @@ aspect JaddCodeGen {
 
   public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("ListType", grammar().java5 ? grammar().listType + "<" + getId().type() + ">" : grammar().listType);
+    tt.bind("ListType", config().java5 ? config().listType + "<" + getId().type() + ">" : config().listType);
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
     tt.bind("Index", String.valueOf(index));
@@ -643,7 +645,7 @@ aspect JaddCodeGen {
 
   public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("OptType", grammar().java5 ? grammar().optType + "<" + getId().type() + ">" : grammar().optType);
+    tt.bind("OptType", config().java5 ? config().optType + "<" + getId().type() + ">" : config().optType);
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
     tt.bind("Index", String.valueOf(index));
@@ -696,7 +698,7 @@ aspect JaddCodeGen {
     //jp.enclosingAspect = "Ast";
 
     try {
-      while(true) {
+      while (true) {
         jp.AspectBodyDeclaration();
       }
     } catch (Exception e) {

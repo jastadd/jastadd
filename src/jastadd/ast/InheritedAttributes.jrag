@@ -155,10 +155,10 @@ aspect InheritedAttributeCodeGen {
    * @param out
    */
   public void ASTDecl.emitInhEquations(PrintStream out) {
-    String ind = grammar().ind;
-    String ind2 = grammar().ind(2);
-    String ind3 = grammar().ind(3);
-    for(Iterator idIter = inhAttrSet(); idIter.hasNext(); ) {
+    String ind = config().indent;
+    String ind2 = config().ind(2);
+    String ind3 = config().ind(3);
+    for (Iterator idIter = inhAttrSet(); idIter.hasNext(); ) {
       String attrId = (String)idIter.next();
       Iterator iter = inhAttrEqs(attrId);
       InhEq equ = (InhEq)iter.next();
@@ -182,29 +182,29 @@ aspect InheritedAttributeCodeGen {
         hasComponentEq = true;
 
         Components c = equ.getComponents();
-        if(c instanceof ListComponents) {
+        if (c instanceof ListComponents) {
           out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
         }
-        else if(c instanceof OptionalComponent) {
+        else if (c instanceof OptionalComponent) {
           out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
         }
-        else if(c != null) {
+        else if (c != null) {
           out.print("if (caller == get" + equ.childName() + "NoTransform())");
         }
-        else if(equ.getChildName().equals("getChild")) {
+        else if (equ.getChildName().equals("getChild")) {
           hasGetChildEq = true;
         }
         else {
           AttrDecl attrDecl = equ.getChildAttrDecl();
-          if(attrDecl.getNumParameter() == 0)
+          if (attrDecl.getNumParameter() == 0)
             out.print("if (caller == " + equ.childName() + "_value)");
           else
             out.print("if (caller == " + attrDecl.signature() + "_list)");
         }
 
-        if(c instanceof ListComponents) {
+        if (c instanceof ListComponents) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-          if(equ.getRHS() instanceof ASTBlock) { // Block
+          if (equ.getRHS() instanceof ASTBlock) { // Block
             out.println(" {");
             out.println(ind3 + "int " + childIndex + " = caller.getIndexOfChild(child);");
             out.println(ind3 + Unparser.unparse(equ.getRHS()));
@@ -218,8 +218,8 @@ aspect InheritedAttributeCodeGen {
           }
 
         }
-        else if(c != null) {
-          if(equ.getRHS() instanceof ASTBlock) { // Block
+        else if (c != null) {
+          if (equ.getRHS() instanceof ASTBlock) { // Block
             out.println(Unparser.unparse(equ.getRHS()));
           }
           else { // Expr
@@ -228,9 +228,9 @@ aspect InheritedAttributeCodeGen {
             out.println(ind2 + "}");
           }
         }
-        else if(equ.getChildName().equals("getChild")) {
+        else if (equ.getChildName().equals("getChild")) {
           String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-          if(equ.getRHS() instanceof ASTBlock) { // Block
+          if (equ.getRHS() instanceof ASTBlock) { // Block
             out.println(" {");
             out.println(ind3 + "int " + childIndex + " = this.getIndexOfChild(caller);");
             out.println(Unparser.unparse(equ.getRHS()));
@@ -246,11 +246,11 @@ aspect InheritedAttributeCodeGen {
         else {
           AttrDecl attrDecl = equ.getChildAttrDecl();
           out.println(" {");
-          if(attrDecl.getNumParameter() != 0) {
+          if (attrDecl.getNumParameter() != 0) {
             String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
             out.println(ind3 + "int " + childIndex + " = caller.getIndexOfChild(child);");
           }
-          if(equ.getRHS() instanceof ASTBlock) { // Block
+          if (equ.getRHS() instanceof ASTBlock) { // Block
             out.println(Unparser.unparse(equ.getRHS()));
           } else { // Expr
             out.println(ind3 + "return " + Unparser.unparse(equ.getRHS()) + ";");
@@ -258,20 +258,20 @@ aspect InheritedAttributeCodeGen {
           out.println(ind2 + "}");
         }
 
-        if(iter.hasNext()) {
+        if (iter.hasNext()) {
           equ = (InhEq)iter.next();
         }
         else {
           equ = null;
         }
-      } while(equ != null);
+      } while (equ != null);
 
       if (!hasGetChildEq) {
         out.print(ind2);
         if (hasComponentEq) {
           out.println("else {");
         }
-        if(superClass() != null && superClass().hasInhEq(decl.name())) {
+        if (superClass() != null && superClass().hasInhEq(decl.name())) {
           out.println(ind3 + "return super.Define_" + decl.getTypeInSignature() + "_" + decl.name() + "(" + decl.interfaceParameters() + ");");
           out.println(ind2 + "}");
         }

@@ -26,13 +26,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.jastadd.Configuration;
+
 /**
  * Options for JastAdd
  *
  * These used to be static fields in ASTNode.
  * They are now moved to the Grammar node and made non-static.
  */
-aspect JastAddOptions {
+aspect Configuration {
   /**
    * Provides a reference to the grammar root node for all
    * nodes in the AST.
@@ -41,110 +43,22 @@ aspect JastAddOptions {
   eq Grammar.getChild().grammar() = this;
   syn Grammar Grammar.grammar() = this;
 
-  /**
-   * The relative path to the base output directory for generated code.
-   */
-  public String Grammar.outputDir;
+  private Configuration Grammar.configuration = null;
+
+  public void Grammar.setConfiguration(Configuration config) {
+    configuration = config;
+  }
 
   /**
-   * The package name for the generated AST classes.
+   * Provides a reference to the JastAdd configuration for all
+   * nodes in the AST.
    */
-  public String Grammar.packageName = "";
-
-  /**
-   * The name of the ASTNode type.
-   */
-  public String Grammar.astNodeType = "ASTNode";
-
-  /**
-   * The name of the List type.
-   */
-  public String Grammar.listType = "List";
-
-  /**
-   * The name of the Opt type.
-   */
-  public String Grammar.optType = "Opt";
-
-  public boolean Grammar.jjtree;
-  public String Grammar.parserName;
-
-  public boolean Grammar.beaver;
-  public boolean Grammar.lineColumnNumbers;
-  public boolean Grammar.lazyMaps;
-  public boolean Grammar.noInhEqCheck;
-
-  public boolean Grammar.rewriteEnabled = false;
-  public boolean Grammar.circularEnabled = true;
-  public boolean Grammar.visitCheckEnabled = true;
-  public boolean Grammar.traceVisitCheck = false;
-  public boolean Grammar.cacheCycle = true;
-  public boolean Grammar.componentCheck = true;
-
-  public boolean Grammar.doc = false;
-
-  public String Grammar.license = "";
-
-  public boolean Grammar.java5 = true;
-
-  public boolean Grammar.refineLegacy = false;
-  public boolean Grammar.stagedRewrites = false;
-
-  //public int Grammar.cycleLimit = 100;
-  //public int Grammar.rewriteLimit = 100;
-  //public boolean Grammar.debugMode = true;
-
-  public int Grammar.cycleLimit = 0;
-  public int Grammar.rewriteLimit = 0;
-  public boolean Grammar.debugMode = false;
-
-  public boolean Grammar.block = false;
-  public String Grammar.blockBegin;
-  public String Grammar.blockEnd;
-
-  public boolean Grammar.noStatic = false;
-
-  public String Grammar.createDefaultMap = "new java.util.HashMap(4)";
-  public String Grammar.createDefaultSet = "new java.util.HashSet(4)";
-  public String Grammar.typeDefaultMap = "java.util.Map";
-  public String Grammar.typeDefaultSet = "java.util.Set";
-
-  public boolean Grammar.deterministic;
-
-  // Tracing
-  public boolean Grammar.tracing = false;
-  public boolean Grammar.traceCompute = false;
-  public boolean Grammar.traceCache = false;
-  public boolean Grammar.traceRewrite = false;
-  public boolean Grammar.traceCircularNTA = false;
-  public boolean Grammar.traceCircular = false;
-  public boolean Grammar.traceCopy = false;
-  
-  public boolean Grammar.cacheAll = false;
-  public boolean Grammar.cacheNone = false;
-  public boolean Grammar.cacheConfig = false;
-  public boolean Grammar.cacheImplicit = false;
-  public boolean Grammar.cacheAnalyze = false;
-    
-  public boolean Grammar.incremental = false; // the flag
-  public boolean Grammar.incrementalLevelParam = false; // track on param level
-  public boolean Grammar.incrementalLevelAttr = false; // track on attribute level
-  public boolean Grammar.incrementalLevelNode = false; // track on node level
-  public boolean Grammar.incrementalLevelRegion = false; // track on region level
-  public boolean Grammar.incrementalChangeFlush = false; // invalidate with flush
-  public boolean Grammar.incrementalChangeMark = false; // invalidate with mark
-  public boolean Grammar.incrementalPropFull = false; // full propagation of change
-  public boolean Grammar.incrementalPropLimit = false; // limited propagation of change
-  public boolean Grammar.incrementalDebug = false; // debugging
-  public boolean Grammar.incrementalTrack = false; // tracking
-
-  public boolean Grammar.fullFlush = false;
-
-  public String Grammar.createContributorSet;
-
-  /**
-   * The minimum list size (above zero)
-   */
-  public int Grammar.minListSize = 4;
-
+  inh lazy Configuration ASTNode.config();
+  eq Grammar.getChild().config() = config();
+  syn Configuration Grammar.config() {
+    if (configuration == null) {
+      throw new Error("Configuration object not initialized!");
+    }
+    return configuration;
+  }
 }

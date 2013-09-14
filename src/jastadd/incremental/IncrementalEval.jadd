@@ -32,7 +32,7 @@
 aspect IncrementalEval {
 
   public void ASTDecl.genIncremental(PrintWriter out) {
-    if (!grammar().incremental) return;
+    if (!config().incremental) return;
 
     TemplateContext tt = templateContext();
 
@@ -56,12 +56,12 @@ aspect IncrementalEval {
    */
   public ArrayList ASTDecl.listOfCachedAttributes() {
     ArrayList list = new ArrayList();
-    for(int k = 0; k < getNumSynEq(); k++) {
+    for (int k = 0; k < getNumSynEq(); k++) {
        AttrDecl attr = getSynEq(k).decl();
        if (attr.getLazy() || attr.isCircular())
         list.add(attr);
     }
-    for(int k = 0; k < getNumInhDecl(); k++) {
+    for (int k = 0; k < getNumInhDecl(); k++) {
       InhDecl attr = getInhDecl(k);
        if (attr.getLazy() || attr.isCircular())
         list.add(attr);
@@ -74,12 +74,12 @@ aspect IncrementalEval {
    */
   public ArrayList ASTDecl.listOfNtaAttributes() {
     ArrayList list = new ArrayList();
-    for(int k = 0; k < getNumSynDecl(); k++) {
+    for (int k = 0; k < getNumSynDecl(); k++) {
       AttrDecl attr = getSynDecl(k);
       if (attr.isNTA())
         list.add(attr);
     }
-    for(int k = 0; k < getNumInhDecl(); k++) {
+    for (int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
       if (attr.isNTA())
         list.add(attr);

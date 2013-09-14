@@ -145,17 +145,17 @@ public class JastAdd {
     try {
       long time = System.currentTimeMillis();
 
-      Grammar root = config.buildRoot();
-      root.genDefaultNodeTypes();
+      Grammar grammar = config.buildRoot();
+      grammar.genDefaultNodeTypes();
 
-      Collection<Problem> problems = readASTFiles(root, config.getFiles());
+      Collection<Problem> problems = readASTFiles(grammar, config.getFiles());
       if (checkErrors(problems, err)) {
         return 1;
       }
 
       long astParseTime = System.currentTimeMillis() - time;
 
-      problems = root.problems();
+      problems = grammar.problems();
 
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
 
@@ -165,54 +165,54 @@ public class JastAdd {
 
       // reset weaving errors
       // TODO do we really need to do this?!
-      root.problems.clear();
+      grammar.problems.clear();
 
-      genASTNode$State(root);
+      genASTNode$State(grammar);
 
       if (config.tracingEnabled()) {
-        genTracer(config, root);
+        genTracer(grammar);
       }
-      
-      genIncrementalDDGNode(root);
 
-      problems = readJRAGFiles(root, config.getFiles());
+      genIncrementalDDGNode(grammar);
+
+      problems = readJRAGFiles(grammar, config.getFiles());
       if (checkErrors(problems, err)) {
         return 1;
       }
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
-      problems = readCacheFiles(root);
+      problems = readCacheFiles(grammar);
       if (checkErrors(problems, err)) {
         return 1;
       }
-      
+
       if (config.cacheAnalyzeEnabled()) {
-        genCacheAnalyzer(config, root);
+        genCacheAnalyzer(grammar);
       }
-      
-      root.processInterfaceRefinements();
-      root.weaveInterfaceIntroductions();
 
-      weaveAspects(root);
+      grammar.processInterfaceRefinements();
+      grammar.weaveInterfaceIntroductions();
 
-      root.processRefinements();
+      weaveAspects(grammar);
+
+      grammar.processRefinements();
 
 
-      root.weaveCollectionAttributes();
+      grammar.weaveCollectionAttributes();
 
-      problems = root.attributeProblems();
-      problems.addAll(root.weavingProblems());
+      problems = grammar.attributeProblems();
+      problems.addAll(grammar.weavingProblems());
 
       if (checkErrors(problems, err)) {
         return 1;
       }
 
-      root.removeDuplicateInhDecls();
+      grammar.removeDuplicateInhDecls();
 
       long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
 
-      root.jastAddGen(config.getPublicModifier());
+      grammar.jastAddGen(config.getPublicModifier());
 
       @SuppressWarnings("unused")
       long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
@@ -247,53 +247,54 @@ public class JastAdd {
     return hasError;
   }
 
-  private static Collection<Problem> readASTFiles(Grammar rootGrammar, Collection<String> fileNames) {
+  private static Collection<Problem> readASTFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
     // out.println("parsing grammars");
     for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
       String fileName = iter.next();
       if (fileName.endsWith(".ast")) {
         File source = new File(fileName);
-        JastAddUtil.parseASTSpec(source, rootGrammar, problems);
+        JastAddUtil.parseASTSpec(source, grammar, problems);
       }
     }
     return problems;
   }
 
-  private static Collection<Problem> readJRAGFiles(Grammar rootGrammar, Collection<String> fileNames) {
+  private static Collection<Problem> readJRAGFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
       String fileName = iter.next();
       if (fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
         File source = new File(fileName);
-        JastAddUtil.parseJRAGSpec(source, rootGrammar, problems);
+        JastAddUtil.parseJRAGSpec(source, grammar, problems);
       }
     }
     return problems;
   }
 
-  private Collection<Problem> readCacheFiles(Grammar rootGrammar) {
+  private Collection<Problem> readCacheFiles(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    if (!(rootGrammar.cacheConfig || rootGrammar.cacheImplicit)) {
-      return problems;  
+    if (!(grammar.config().cacheConfig || grammar.config().cacheImplicit)) {
+      return problems;
     }
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
       File cacheFile = new File(fileName);
-      JastAddUtil.parseCacheDeclarations(cacheFile, rootGrammar, problems);
+      JastAddUtil.parseCacheDeclarations(cacheFile, grammar, problems);
     }
     return problems;
   }
 
-  private void weaveAspects(Grammar rootGrammar) {
+  private void weaveAspects(Grammar grammar) {
     //out.println("weaving aspect and attribute definitions");
-    for (int i = 0; i < rootGrammar.getNumTypeDecl(); i++) {
-      if (rootGrammar.getTypeDecl(i) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)rootGrammar.getTypeDecl(i);
+    for (int i = 0; i < grammar.getNumTypeDecl(); i++) {
+      if (grammar.getTypeDecl(i) instanceof ASTDecl) {
+        ASTDecl decl = (ASTDecl)grammar.getTypeDecl(i);
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 
-        JastAddUtil.parseAspectBodyDeclarations(new java.io.StringReader(writer.toString()),rootGrammar.astNodeType,rootGrammar);
+        JastAddUtil.parseAspectBodyDeclarations(new java.io.StringReader(writer.toString()),
+            grammar.config().astNodeType, grammar);
 
         int j = 0;
         for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
@@ -309,38 +310,40 @@ public class JastAdd {
     }
   }
 
-  private void genTracer(Configuration config, Grammar root)
+  private void genTracer(Grammar grammar)
     throws FileNotFoundException {
 
-    root.createPackageOutputDirectory();
+    grammar.createPackageOutputDirectory();
 
-    PrintWriter writer = new PrintWriter(root.targetJavaFile("Tracer"));
-    root.emitTracer(writer);
+    PrintWriter writer = new PrintWriter(grammar.targetJavaFile("Tracer"));
+    grammar.emitTracer(writer);
     writer.close();
   }
 
-  private void genCacheAnalyzer(Configuration config, Grammar root)
+  private void genCacheAnalyzer(Grammar grammar)
     throws FileNotFoundException {
 
-    root.createPackageOutputDirectory();
+    grammar.createPackageOutputDirectory();
 
-    PrintWriter writer = new PrintWriter(root.targetJavaFile("CacheAnalyzer"));
-    root.emitCacheAnalyzer(writer);
+    PrintWriter writer = new PrintWriter(grammar.targetJavaFile("CacheAnalyzer"));
+    grammar.emitCacheAnalyzer(writer);
     writer.close();
   }
 
-  private void genIncrementalDDGNode(Grammar rootGrammar) {
-    if (rootGrammar.incremental) {
+  private void genIncrementalDDGNode(Grammar grammar) {
+    if (grammar.config().incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
-      rootGrammar.genIncrementalDDGNode(new PrintWriter(writer));
-      JastAddUtil.parseAspectBodyDeclarations(writer.toString(),rootGrammar.astNodeType,rootGrammar);
+      grammar.genIncrementalDDGNode(new PrintWriter(writer));
+      JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
+          grammar.config().astNodeType, grammar);
     }
   }
 
-  private void genASTNode$State(Grammar rootGrammar) {
+  private void genASTNode$State(Grammar grammar) {
     java.io.StringWriter writer = new java.io.StringWriter();
-    rootGrammar.emitASTNode$State(new PrintWriter(writer));
-    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),rootGrammar.astNodeType,rootGrammar);
+    grammar.emitASTNode$State(new PrintWriter(writer));
+    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
+        grammar.config().astNodeType, grammar);
   }
 
   @SuppressWarnings("unused")

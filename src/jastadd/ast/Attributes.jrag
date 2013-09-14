@@ -79,7 +79,7 @@ public aspect Attributes {
       String aspectName) {
 
     TypeDecl c = lookup(className);
-    if(c != null && c instanceof ASTDecl) {
+    if (c != null && c instanceof ASTDecl) {
       RewriteList r = new RewriteList();
       r.setFileName(fileName);
       r.setStartLine(startLine);
@@ -91,7 +91,7 @@ public aspect Attributes {
       r.setChildName(childName);
       r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
-    } else if(c != null) {
+    } else if (c != null) {
       error("can not rewrite to non AST class '" + className + "'", fileName, startLine);
     } else {
       error("can not rewrite to unknown class '" + className + "'", fileName, startLine);
@@ -110,7 +110,7 @@ public aspect Attributes {
       String aspectName) {
 
     TypeDecl c = lookup(className);
-    if(c != null && c instanceof ASTDecl) {
+    if (c != null && c instanceof ASTDecl) {
       Rewrite r = new Rewrite();
       r.setFileName(fileName);
       r.setStartLine(startLine);
@@ -120,7 +120,7 @@ public aspect Attributes {
       r.setReturnType(type);
       r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
-    } else if(c != null) {
+    } else if (c != null) {
       error("can not rewrite to non AST class '" + className + "'", fileName, startLine);
     } else {
       error("can not rewrite to unknown class '" + className + "'", fileName, startLine);
@@ -185,7 +185,7 @@ public aspect Attributes {
       String aspectName,
       ArrayList<String> annotations) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       SynDecl decl = new SynDecl(
         parameterList,
         name,
@@ -223,7 +223,7 @@ public aspect Attributes {
       String aspectName,
       ArrayList<String> annotations) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       SynEq equ = new SynEq();
       equ.setName(name);
       equ.setFileName(fileName);
@@ -248,7 +248,7 @@ public aspect Attributes {
       boolean isFinal, boolean isNTA, org.jastadd.jrag.AST.SimpleNode node,
       String aspectName, ArrayList<String> annotations) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       InhDecl decl = new InhDecl(
         parameterList,
         name,
@@ -289,7 +289,7 @@ public aspect Attributes {
       org.jastadd.jrag.AST.SimpleNode node, String aspectName,
       ArrayList<String> annotations) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
         InhEq equ = new InhEq();
         equ.setName(name);
         equ.setFileName(fileName);
@@ -303,7 +303,7 @@ public aspect Attributes {
         for (String annotation: annotations) {
           equ.addAnnotation(new Annotation(annotation));
         }
-        if(p != null) equ.setIndex(p);
+        if (p != null) equ.setIndex(p);
         c.addInhEq(equ); // Sortera i bokstavsordning därefter non NTA först
     } else {
       error("can not add equation for inherited attribute " + name + " to unknown class " + className,
@@ -313,15 +313,15 @@ public aspect Attributes {
 
   public void Grammar.addComponents(String className, org.jastadd.ast.AST.List componentsList) {
     TypeDecl d = lookup(className);
-    if(d != null) {
+    if (d != null) {
       d.setComponentsList(componentsList);
     }
   }
 
   syn lazy Components TypeDecl.components(String name) {
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(c.name().equals(name))
+      if (c.name().equals(name))
         return c;
     }
     return null;
@@ -337,7 +337,7 @@ public aspect Attributes {
 
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className, String fileName, String aspectName) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       c.classBodyDecls.add(new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName));
     } else {
       error("can not add member to unknown class " + className,
@@ -348,7 +348,7 @@ public aspect Attributes {
   public void Grammar.addMethodDecl(org.jastadd.jrag.AST.SimpleNode n, String className,
       String fileName, String modifiers, String aspectName) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       ClassBodyObject obj = new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName);
       obj.modifiers = modifiers;
       c.classBodyDecls.add(obj);
@@ -360,7 +360,7 @@ public aspect Attributes {
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className,
       String fileName, String modifiers, String aspectName) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       ClassBodyObject obj = new ClassBodyObject(n, fileName,
           n.firstToken.beginLine, aspectName);
       obj.modifiers = modifiers;
@@ -375,12 +375,12 @@ public aspect Attributes {
   }
 
   public void Grammar.addInterface(org.jastadd.jrag.AST.SimpleNode nameList, String className, String fileName) {
-    if(nameList == null) {
+    if (nameList == null) {
       System.err.println("Panic");
     } else {
 
       TypeDecl c = lookup(className);
-      if(c != null) {
+      if (c != null) {
         c.implementsList.add(nameList);
       } else {
         int line = nameList.firstToken.beginLine;
@@ -390,13 +390,13 @@ public aspect Attributes {
   }
 
   public void Grammar.extendInterface(org.jastadd.jrag.AST.SimpleNode nameList, String className, String fileName) {
-    if(nameList == null) {
+    if (nameList == null) {
       System.err.println("Panic");
     } else {
       TypeDecl c = lookup(className);
-      if(c instanceof InterfaceDecl) {
+      if (c instanceof InterfaceDecl) {
         c.implementsList.add(nameList);
-      } else if(c != null) {
+      } else if (c != null) {
         int line = nameList.firstToken.beginLine;
         error(className + " is not an interface and can therefore not be extended", fileName, line);
       } else {
@@ -418,11 +418,11 @@ public aspect Attributes {
   }
   public String AttrEq.legacyAspectName() {
     String name = getFileName();
-     if(name.endsWith(".jrag"))
+     if (name.endsWith(".jrag"))
       name = name.substring(0, name.length() - 5);
-    else if(name.endsWith(".jadd"))
+    else if (name.endsWith(".jadd"))
       name = name.substring(0, name.length() - 5);
-    else if(name.endsWith(".ast"))
+    else if (name.endsWith(".ast"))
       name = name.substring(0, name.length() - 4);
     String pattern = File.separator.equals("\\") ? pattern = "\\\\" : File.separator;
     String[] names = name.split(pattern);
@@ -430,7 +430,7 @@ public aspect Attributes {
   }
 
   public void Grammar.processRefinements() {
-    for(int i = 0; i < getNumTypeDecl(); i++) {
+    for (int i = 0; i < getNumTypeDecl(); i++) {
       TypeDecl typeDecl = getTypeDecl(i);
       if (!(typeDecl instanceof InterfaceDecl)) {
         typeDecl.processReplacements();
@@ -443,7 +443,7 @@ public aspect Attributes {
   }
 
   public void Grammar.processInterfaceRefinements() {
-    for(int i = 0; i < getNumTypeDecl(); i++) {
+    for (int i = 0; i < getNumTypeDecl(); i++) {
       TypeDecl typeDecl = getTypeDecl(i);
       if (typeDecl instanceof InterfaceDecl) {
         typeDecl.processReplacements();
@@ -458,7 +458,7 @@ public aspect Attributes {
   public LinkedList TypeDecl.refinedSynEqs = new LinkedList();
   public void Grammar.addRefinedSynEq(String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, String aspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       SynEq equ = new SynEq();
       equ.setName(name);
       equ.setFileName(fileName);
@@ -478,7 +478,7 @@ public aspect Attributes {
 
   public void Grammar.addReplacedSynEq(String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, String aspectName, String secondAspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       SynEq equ = new SynEq();
       equ.setName(name);
       equ.setFileName(fileName);
@@ -501,18 +501,18 @@ public aspect Attributes {
   public void TypeDecl.processSynEqReplacements() {
     boolean change = true;
     ArrayList list = new ArrayList();
-    while(change && !replacedSynEqs.isEmpty()) {
+    while (change && !replacedSynEqs.isEmpty()) {
       change = false;
-      for(Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
+      for (Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
         SynEq decl = (SynEq)iter.next();
         SynEq refinedDecl = null;
-        for(Iterator outerIter = replacedSynEqs.iterator(); outerIter.hasNext(); ) {
+        for (Iterator outerIter = replacedSynEqs.iterator(); outerIter.hasNext(); ) {
           SynEq refinedCandidate = (SynEq)outerIter.next();
-          boolean legacyCondition = grammar().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.replacesAspect) : false;
-          if(decl.signature().equals(refinedCandidate.signature())
+          boolean legacyCondition = config().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.replacesAspect) : false;
+          if (decl.signature().equals(refinedCandidate.signature())
              && (decl.aspectName().equals(refinedCandidate.replacesAspect) || legacyCondition)) {
             change = true;
-            if(refinedDecl == null) {
+            if (refinedDecl == null) {
               refinedDecl = refinedCandidate;
             } else {
               grammar().error("refinement previously defined at " +
@@ -522,7 +522,7 @@ public aspect Attributes {
             outerIter.remove();
           }
         }
-        if(refinedDecl != null) {
+        if (refinedDecl != null) {
           iter.remove();
           refinedDecl.replacesAspect = null;
           list.add(refinedDecl);
@@ -530,7 +530,7 @@ public aspect Attributes {
       }
       refinedSynEqs.addAll(list);
     }
-    for(Iterator iter = replacedSynEqs.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = replacedSynEqs.iterator(); iter.hasNext(); ) {
       SynEq decl = (SynEq)iter.next();
       refineError("equation", decl.getFileName(), decl.getStartLine());
     }
@@ -544,18 +544,18 @@ public aspect Attributes {
   //   detect multiple attempts to refine an equation using the same aspect name
   public void TypeDecl.processRefinedSynEqs() {
     boolean change = true;
-    while(change && !refinedSynEqs.isEmpty()) {
+    while (change && !refinedSynEqs.isEmpty()) {
       change = false;
-      for(int i = 0; i < getNumSynEq(); i++) {
+      for (int i = 0; i < getNumSynEq(); i++) {
         SynEq equ = getSynEq(i);
         SynEq refinedEqu = null;
-        for(Iterator outerIter = refinedSynEqs.iterator(); outerIter.hasNext(); ) {
+        for (Iterator outerIter = refinedSynEqs.iterator(); outerIter.hasNext(); ) {
           SynEq refinedCandidate = (SynEq)outerIter.next();
-          boolean legacyCondition = grammar().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
-          if(equ.signature().equals(refinedCandidate.signature())
+          boolean legacyCondition = config().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+          if (equ.signature().equals(refinedCandidate.signature())
              && (equ.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
-            if(refinedEqu == null) {
+            if (refinedEqu == null) {
               refinedEqu = refinedCandidate;
             } else {
               grammar().error("refinement previously defined at " +
@@ -565,11 +565,11 @@ public aspect Attributes {
             outerIter.remove();
           }
         }
-        if(refinedEqu != null)
+        if (refinedEqu != null)
           refineWith(equ, refinedEqu);
       }
     }
-    for(Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
       SynEq equ = (SynEq)iter.next();
       refineError("syn equation", equ.getFileName(), equ.getStartLine());
     }
@@ -580,7 +580,7 @@ public aspect Attributes {
     String newMethodName = "refined_" + equ.aspectName() + "_" + name() + "_" + equ.signature();
     s.append("private " + equ.decl().getType() + " " + newMethodName + "(" +
       equ.parametersDecl() + ")\n");
-    if(equ.getRHS() instanceof ASTBlock)
+    if (equ.getRHS() instanceof ASTBlock)
       s.append(Unparser.unparse(equ.getRHS()));
     else
       s.append("{ return " + Unparser.unparse(equ.getRHS()) + "; }");
@@ -591,7 +591,7 @@ public aspect Attributes {
     // TODO:
 
     // change references to original equation in refined body
-    if(refinedEqu.getRHS() instanceof org.jastadd.jrag.AST.ASTBlock)
+    if (refinedEqu.getRHS() instanceof org.jastadd.jrag.AST.ASTBlock)
       n = new org.jastadd.jrag.AST.ASTBlock(0);
     else
       n = new org.jastadd.jrag.AST.SimpleNode(0);
@@ -601,7 +601,7 @@ public aspect Attributes {
     refinedEqu.getRHS().jjtAccept(new ClassBodyDeclUnparser(), s);
 
     String pattern = "\\brefined\\b";
-    if(grammar().refineLegacy) {
+    if (config().refineLegacy) {
       StringBuffer buf = new StringBuffer();
       buf.append("(");
       buf.append(pattern);
@@ -614,7 +614,7 @@ public aspect Attributes {
       pattern = buf.toString();
     }
     java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s.toString());
-    if(matcher.find()) {
+    if (matcher.find()) {
       n.firstToken.image = matcher.replaceAll(newMethodName);
       classBodyDecls.add(object);
     }
@@ -636,7 +636,7 @@ public aspect Attributes {
 
   public void Grammar.addRefinedInhEq(String childName, String name, String className, org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine, org.jastadd.ast.AST.List list, Parameter p, String aspectName, org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
         InhEq equ = new InhEq();
         equ.setName(name);
         equ.setFileName(fileName);
@@ -648,7 +648,7 @@ public aspect Attributes {
         equ.refinesAspect = aspectName;
         equ.setComment(Unparser.unparseComment(node));
         equ.setAspectName(declaredAspect);
-        if(p != null) equ.setIndex(p);
+        if (p != null) equ.setIndex(p);
         c.refinedInhEqs.add(equ); // Sortera i bokstavsordning därefter non NTA först
     } else {
       error("can not add equation for inherited attribute " + name + " to unknown class " + className,
@@ -658,19 +658,19 @@ public aspect Attributes {
 
   public void TypeDecl.processRefinedInhEqs() {
     boolean change = true;
-    while(change && !refinedInhEqs.isEmpty()) {
+    while (change && !refinedInhEqs.isEmpty()) {
       change = false;
-      for(int i = 0; i < getNumInhEq(); i++) {
+      for (int i = 0; i < getNumInhEq(); i++) {
         InhEq equ = getInhEq(i);
         InhEq refinedEqu = null;
-        for(Iterator outerIter = refinedInhEqs.iterator(); outerIter.hasNext(); ) {
+        for (Iterator outerIter = refinedInhEqs.iterator(); outerIter.hasNext(); ) {
           InhEq refinedCandidate = (InhEq)outerIter.next();
-          boolean legacyCondition = grammar().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
-          if(equ.signature().equals(refinedCandidate.signature()) &&
+          boolean legacyCondition = config().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+          if (equ.signature().equals(refinedCandidate.signature()) &&
              equ.childName().equals(refinedCandidate.childName()) &&
              (equ.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
-            if(refinedEqu == null) {
+            if (refinedEqu == null) {
               refinedEqu = refinedCandidate;
             } else {
               grammar().error("refinement previously defined at " +
@@ -680,11 +680,11 @@ public aspect Attributes {
             outerIter.remove();
           }
         }
-        if(refinedEqu != null)
+        if (refinedEqu != null)
           refineWith(equ, refinedEqu);
       }
     }
-    for(Iterator iter = refinedInhEqs.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = refinedInhEqs.iterator(); iter.hasNext(); ) {
       InhEq equ = (InhEq)iter.next();
       refineError("inh equation", equ.getFileName(), equ.getStartLine());
     }
@@ -699,10 +699,10 @@ public aspect Attributes {
     String indexName = "";
     String indexDecl = "";
     boolean isList = equ.getComponents() instanceof ListComponents;
-    if(isList) {
+    if (isList) {
       indexName = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
       indexDecl = "int " + indexName;
-      if(equ.getNumParameter() != 0) {
+      if (equ.getNumParameter() != 0) {
         indexName += ", ";
         indexDecl += ", ";
       }
@@ -710,7 +710,7 @@ public aspect Attributes {
 
     s.append("private " + equ.decl().getType() + " " + newMethodName + "(" +
       indexDecl + equ.parametersDecl() + ")\n");
-    if(equ.getRHS() instanceof ASTBlock)
+    if (equ.getRHS() instanceof ASTBlock)
       s.append(Unparser.unparse(equ.getRHS()));
     else
       s.append("{ return " + Unparser.unparse(equ.getRHS()) + "; }");
@@ -719,7 +719,7 @@ public aspect Attributes {
     n.firstToken.image = s.toString();
     ClassBodyObject object = new ClassBodyObject(n, equ.getFileName(), equ.getStartLine(), equ.getAspectName());
     // change references to original equation in refined body
-    if(refinedEqu.getRHS() instanceof org.jastadd.jrag.AST.ASTBlock)
+    if (refinedEqu.getRHS() instanceof org.jastadd.jrag.AST.ASTBlock)
       n = new org.jastadd.jrag.AST.ASTBlock(0);
     else
       n = new org.jastadd.jrag.AST.SimpleNode(0);
@@ -728,14 +728,14 @@ public aspect Attributes {
     refinedEqu.getRHS().jjtAccept(new ClassBodyDeclUnparser(), s);
 
     String pattern = "refined\\(";
-    if(grammar().refineLegacy)
+    if (config().refineLegacy)
       pattern = "(" + pattern + ")|("
       + equ.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\.get"
       + equ.childName() + "\\([^\\)]*\\)\\." + equ.name() + "\\("
       + ")";
 
     java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s.toString());
-    if(matcher.find()) {
+    if (matcher.find()) {
       n.firstToken.image = matcher.replaceAll(newMethodName + "(" + indexName);
       classBodyDecls.add(object);
     }
@@ -754,7 +754,7 @@ public aspect Attributes {
   public LinkedList TypeDecl.refinedClassBodyDecls = new LinkedList();
   public void Grammar.addRefinedClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className, String fileName, String aspectName, String declaredAspect) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       ClassBodyObject o = new ClassBodyObject(n, fileName, n.firstToken.beginLine, declaredAspect);
       o.refinesAspect = aspectName;
       c.refinedClassBodyDecls.add(o);
@@ -765,7 +765,7 @@ public aspect Attributes {
   public void Grammar.addReplacedClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className, String fileName, String aspectName,
     String replacedAspect, org.jastadd.jrag.AST.SimpleNode replacedSignature, String declaredAspect) {
     TypeDecl c = lookup(className);
-    if(c != null) {
+    if (c != null) {
       ClassBodyObject o = new ClassBodyObject(n, fileName, n.firstToken.beginLine, declaredAspect);
       o.refinesAspect = aspectName;
       o.replaceAspect = replacedAspect;
@@ -791,19 +791,19 @@ public aspect Attributes {
     boolean change = true;
     ArrayList list = new ArrayList();
 
-    while(change && !refinedClassBodyDecls.isEmpty()) {
+    while (change && !refinedClassBodyDecls.isEmpty()) {
       change = false;
-      for(Iterator iter = classBodyDecls.iterator(); iter.hasNext(); ) {
+      for (Iterator iter = classBodyDecls.iterator(); iter.hasNext(); ) {
         ClassBodyObject decl = (ClassBodyObject)iter.next();
         ClassBodyObject refinedDecl = null;
-        for(Iterator outerIter = refinedClassBodyDecls.iterator(); outerIter.hasNext(); ) {
+        for (Iterator outerIter = refinedClassBodyDecls.iterator(); outerIter.hasNext(); ) {
           ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
 
-          boolean legacyCondition = grammar().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
-          if(decl.signature().equals(refinedCandidate.signature())
+          boolean legacyCondition = config().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+          if (decl.signature().equals(refinedCandidate.signature())
              && (decl.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
-            if(refinedDecl == null) {
+            if (refinedDecl == null) {
               refinedDecl = refinedCandidate;
             } else {
               grammar().error("refinement previously defined at " +
@@ -813,15 +813,15 @@ public aspect Attributes {
             outerIter.remove();
           }
         }
-        if(refinedDecl != null) {
-          if(!refineWith(decl, refinedDecl))
+        if (refinedDecl != null) {
+          if (!refineWith(decl, refinedDecl))
             iter.remove();
           list.add(refinedDecl);
         }
       }
       classBodyDecls.addAll(list);
     }
-    for(Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
       ClassBodyObject decl = (ClassBodyObject)iter.next();
       refineError("method", decl.getFileName(), decl.getStartLine());
     }
@@ -830,18 +830,18 @@ public aspect Attributes {
   public void TypeDecl.processReplacements() {
     boolean change = true;
     ArrayList list = new ArrayList();
-    while(change && !replacements.isEmpty()) {
+    while (change && !replacements.isEmpty()) {
       change = false;
-      for(Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
+      for (Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
         ClassBodyObject decl = (ClassBodyObject)iter.next();
         ClassBodyObject refinedDecl = null;
-        for(Iterator outerIter = replacements.iterator(); outerIter.hasNext(); ) {
+        for (Iterator outerIter = replacements.iterator(); outerIter.hasNext(); ) {
           ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
-          boolean legacyCondition = grammar().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.replaceAspect) : false;
-          if(decl.signature().equals(refinedCandidate.signature())
+          boolean legacyCondition = config().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.replaceAspect) : false;
+          if (decl.signature().equals(refinedCandidate.signature())
              && (decl.aspectName().equals(refinedCandidate.replaceAspect) || legacyCondition)) {
             change = true;
-            if(refinedDecl == null) {
+            if (refinedDecl == null) {
               refinedDecl = refinedCandidate;
             } else {
               grammar().error("refinement previously defined at " +
@@ -851,7 +851,7 @@ public aspect Attributes {
             outerIter.remove();
           }
         }
-        if(refinedDecl != null) {
+        if (refinedDecl != null) {
           iter.remove();
           replaceWith(refinedDecl);
           list.add(refinedDecl);
@@ -859,7 +859,7 @@ public aspect Attributes {
       }
       refinedClassBodyDecls.addAll(list);
     }
-    for(Iterator iter = replacements.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = replacements.iterator(); iter.hasNext(); ) {
       ClassBodyObject decl = (ClassBodyObject)iter.next();
       refineError("method", decl.getFileName(), decl.getStartLine());
     }
@@ -874,7 +874,7 @@ public aspect Attributes {
     node.jjtAddChild(node.jjtGetChild(3), 1);
     node.jjtAddChild(node.jjtGetChild(4), 2);
     // clear remaining children
-    for(int i = 3; i < node.jjtGetNumChildren(); i++)
+    for (int i = 3; i < node.jjtGetNumChildren(); i++)
       node.jjtAddChild(null, i);
 /*
     org.jastadd.jrag.AST.SimpleNode node = o.node;
@@ -882,7 +882,7 @@ public aspect Attributes {
     node.jjtAddChild(block, 2);
     node.lastToken = block.lastToken;
     ((jrag.AST.SimpleNode)node.jjtGetChild(1)).lastToken.next = block.firstToken;
-    for(int i = 3; i < node.jjtGetNumChildren(); i++)
+    for (int i = 3; i < node.jjtGetNumChildren(); i++)
       node.jjtAddChild(null, i);
  */
   }
@@ -890,14 +890,14 @@ public aspect Attributes {
 	  org.jastadd.jrag.AST.SimpleNode node = refinedDecl.node;
           boolean keep = true;
 
-          if(node instanceof org.jastadd.jrag.AST.ASTAspectConstructorDeclaration || node instanceof org.jastadd.jrag.AST.ASTAspectRefineConstructorDeclaration) {
+          if (node instanceof org.jastadd.jrag.AST.ASTAspectConstructorDeclaration || node instanceof org.jastadd.jrag.AST.ASTAspectRefineConstructorDeclaration) {
             // the name of a constructor is the same as the type name
             String methodName = name();
 
             // add prefix void refined_
             org.jastadd.jrag.AST.Token t1 = ((org.jastadd.jrag.AST.SimpleNode)decl.node.jjtGetChild(0)).firstToken;
             org.jastadd.jrag.AST.Token t2 = ((org.jastadd.jrag.AST.SimpleNode)decl.node).firstToken;
-            while(t2.next != t1)
+            while (t2.next != t1)
               t2 = t2.next;
             t2.image = "void refined_" + decl.aspectName() + "_" + name() + "_" + t2.image;
 
@@ -905,9 +905,9 @@ public aspect Attributes {
             org.jastadd.jrag.AST.SimpleNode parent = node;
             boolean first = true;
             keep = false;
-            for(int index = 1; index < parent.jjtGetNumChildren(); index++) {
+            for (int index = 1; index < parent.jjtGetNumChildren(); index++) {
               org.jastadd.jrag.AST.SimpleNode child = (org.jastadd.jrag.AST.SimpleNode)parent.jjtGetChild(index);
-              if(child instanceof org.jastadd.jrag.AST.ASTBlockStatement || child instanceof org.jastadd.jrag.AST.ASTExplicitConstructorInvocation) {
+              if (child instanceof org.jastadd.jrag.AST.ASTBlockStatement || child instanceof org.jastadd.jrag.AST.ASTExplicitConstructorInvocation) {
                 node = child;
                 // replace "aspectName.typeName.methodName" in refinedDecl with "refined_aspectName_methodName"
                 StringBuffer buf = new StringBuffer();
@@ -915,7 +915,7 @@ public aspect Attributes {
                 String s = buf.toString();
 
                 String pattern = "\\brefined\\b";
-                if(grammar().refineLegacy) {
+                if (config().refineLegacy) {
                   buf = new StringBuffer();
                   buf.append("(");
                   buf.append(pattern);
@@ -932,16 +932,16 @@ public aspect Attributes {
                 // TODO: update keep to false if no strings are replaced
 
                 java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s);
-                if(matcher.find()) {
+                if (matcher.find()) {
                   s = matcher.replaceAll(newContents);
                   keep = true;
                 }
 
-                if(first) {
+                if (first) {
                   s = " {" + s;
                   first = false;
                 }
-                if(index == (parent.jjtGetNumChildren() - 1)) {
+                if (index == (parent.jjtGetNumChildren() - 1)) {
                   s = s + "\n}\n";
                 }
 
@@ -960,23 +960,23 @@ public aspect Attributes {
 
             parent = decl.node;
             first = true;
-            for(int index = 1; index < parent.jjtGetNumChildren(); index++) {
+            for (int index = 1; index < parent.jjtGetNumChildren(); index++) {
             	org.jastadd.jrag.AST.SimpleNode child = (org.jastadd.jrag.AST.SimpleNode)parent.jjtGetChild(index);
-              if(child instanceof org.jastadd.jrag.AST.ASTExplicitConstructorInvocation) {
+              if (child instanceof org.jastadd.jrag.AST.ASTExplicitConstructorInvocation) {
                 node = child;
                 // replace "aspectName.typeName.methodName" in refinedDecl with "refined_aspectName_methodName"
                 StringBuffer buf = new StringBuffer();
                 node.jjtAccept(new ClassBodyDeclUnparser(), buf);
                 String s = buf.toString();
-                if(child instanceof org.jastadd.jrag.AST.ASTExplicitConstructorInvocation) {
+                if (child instanceof org.jastadd.jrag.AST.ASTExplicitConstructorInvocation) {
                   s = "";
                 }
-                if(first) {
+                if (first) {
                   s = " {" + s;
                   first = false;
                 }
                 /*
-                if(index == (parent.jjtGetNumChildren() - 1)) {
+                if (index == (parent.jjtGetNumChildren() - 1)) {
                   s = s + "\n}\n";
                 }
                 */
@@ -994,7 +994,7 @@ public aspect Attributes {
               }
             }
           }
-          else if(node instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration ||
+          else if (node instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration ||
         		      node instanceof org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) {
             // retrieve methodName
             // AspectMethodDeclaration -> MethodDeclarator -> <IDENTIFIER>
@@ -1007,9 +1007,9 @@ public aspect Attributes {
 
             org.jastadd.jrag.AST.SimpleNode parent = node;
             int index = 2;
-            while(index < node.jjtGetNumChildren() && !(node.jjtGetChild(index) instanceof org.jastadd.jrag.AST.ASTBlock))
+            while (index < node.jjtGetNumChildren() && !(node.jjtGetChild(index) instanceof org.jastadd.jrag.AST.ASTBlock))
               index++;
-            if(index >= node.jjtGetNumChildren())
+            if (index >= node.jjtGetNumChildren())
               throw new Error("Could not find block node");
             node = (org.jastadd.jrag.AST.SimpleNode)node.jjtGetChild(index);
 
@@ -1018,7 +1018,7 @@ public aspect Attributes {
             node.jjtAccept(new ClassBodyDeclUnparser(), buf);
             String s = buf.toString();
             String pattern = "\\brefined\\b";
-            if(grammar().refineLegacy) {
+            if (config().refineLegacy) {
               buf = new StringBuffer();
               buf.append("(");
               buf.append(pattern);
@@ -1035,7 +1035,7 @@ public aspect Attributes {
             // TODO: update keep to false if no strings are replaced
 
             java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(s);
-            if(matcher.find()) {
+            if (matcher.find()) {
               s = matcher.replaceAll(newContents);
             }
             else {
@@ -1074,17 +1074,17 @@ public aspect Attributes {
   public LinkedList TypeDecl.implementsList = new LinkedList();
 
   public boolean ASTDecl.implementsInterface(String name) { // DRAGONS
-    for(Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
       org.jastadd.jrag.AST.SimpleNode n = (org.jastadd.jrag.AST.SimpleNode)iter.next();
       StringBuffer s = new StringBuffer();
       n.jjtAccept(new Unparser(), s);
       String i = s.toString();
       int index = i.indexOf(name);
-      if(index == -1)
+      if (index == -1)
         continue;
-      if(index > 0 && Character.isJavaIdentifierPart(i.charAt(index-1)))
+      if (index > 0 && Character.isJavaIdentifierPart(i.charAt(index-1)))
         continue;
-      if(index + name.length() < i.length() && Character.isJavaIdentifierPart(i.charAt(index + name.length())))
+      if (index + name.length() < i.length() && Character.isJavaIdentifierPart(i.charAt(index + name.length())))
         continue;
       return true;
     }
@@ -1104,39 +1104,39 @@ public aspect Attributes {
 
   syn String AttrEq.parametersDecl() {
     StringBuffer s = new StringBuffer();
-    for(int i = 0; i < getNumParameter(); i++) {
+    for (int i = 0; i < getNumParameter(); i++) {
       Parameter p = getParameter(i);
       s.append(p.getType() + " " + p.getName());
-      if(i < getNumParameter() - 1) s.append(", ");
+      if (i < getNumParameter() - 1) s.append(", ");
     }
     return s.toString();
   }
 
   syn String AttrEq.parameters() {
     StringBuffer s = new StringBuffer();
-    for(int i = 0; i < getNumParameter(); i++) {
+    for (int i = 0; i < getNumParameter(); i++) {
       Parameter p = getParameter(i);
       s.append(p.getName());
-      if(i < getNumParameter() - 1) s.append(", ");
+      if (i < getNumParameter() - 1) s.append(", ");
     }
     return s.toString();
   }
   syn String AttrDecl.parametersDecl() {
     StringBuffer s = new StringBuffer();
-    for(int i = 0; i < getNumParameter(); i++) {
+    for (int i = 0; i < getNumParameter(); i++) {
       Parameter p = getParameter(i);
       s.append(p.getType() + " " + p.getName());
-      if(i < getNumParameter() - 1) s.append(", ");
+      if (i < getNumParameter() - 1) s.append(", ");
     }
     return s.toString();
   }
 
   syn String AttrDecl.parameters() {
     StringBuffer s = new StringBuffer();
-    for(int i = 0; i < getNumParameter(); i++) {
+    for (int i = 0; i < getNumParameter(); i++) {
       Parameter p = getParameter(i);
       s.append(p.getName());
-      if(i < getNumParameter() - 1) s.append(", ");
+      if (i < getNumParameter() - 1) s.append(", ");
     }
     return s.toString();
   }
@@ -1146,12 +1146,12 @@ public aspect Attributes {
     "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
 
   syn String AttrDecl.interfaceParametersDecl() =
-    grammar().astNodeType + " caller, " + grammar().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
+    config().astNodeType + " caller, " + config().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
 
   syn String AttrEq.interfaceParameters() = "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
 
   syn String AttrEq.interfaceParametersDecl() =
-    grammar().astNodeType + " caller, " + grammar().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
+    config().astNodeType + " caller, " + config().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
 
   public org.jastadd.jrag.AST.SimpleNode Rewrite.condition;
   public org.jastadd.jrag.AST.SimpleNode Rewrite.getCondition() {

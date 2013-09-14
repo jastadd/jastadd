@@ -32,15 +32,15 @@ aspect Superclass {
   rewrite ASTDecl {
     when(!hasSuperClass() && !isASTNodeDecl())
     to ASTDecl {
-      setSuperClass(new IdUse(grammar().astNodeType));
+      setSuperClass(new IdUse(config().astNodeType));
       return this;
     }
   }
 
   syn boolean ASTDecl.testCircular(String name) {
-    if(!hasSuperClass())
+    if (!hasSuperClass())
       return false;
-    if(getSuperClassName().equals(name))
+    if (getSuperClassName().equals(name))
       return true;
     ASTDecl superClass = (ASTDecl) grammar().lookup(getSuperClassName());
     return superClass != null ? superClass.testCircular(name) : false;
@@ -59,7 +59,7 @@ aspect InstanceOf {
   syn boolean TypeDecl.instanceOf(TypeDecl c) = c == this;
 
   eq ASTDecl.instanceOf(TypeDecl c) {
-    if(c == this) {
+    if (c == this) {
       return true;
     }
     TypeDecl superClass = superClass();
@@ -94,10 +94,10 @@ aspect Subclasses {
     return subclassMap().get(target);
     /*
     ArrayList list = new ArrayList();
-    for(int j = 0; j < getNumTypeDecl(); j++) {
-      if(getTypeDecl(j) instanceof ASTDecl) {
+    for (int j = 0; j < getNumTypeDecl(); j++) {
+      if (getTypeDecl(j) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        if(target.equals(decl.superClass())) {
+        if (target.equals(decl.superClass())) {
           list.add(decl);
         }
       }
@@ -118,21 +118,21 @@ aspect Subclasses {
 aspect Parents {
   syn lazy HashMap Grammar.parentMap() {
     HashMap map = new LinkedHashMap();
-    for(int j = 0; j < getNumTypeDecl(); j++) {
-      if(getTypeDecl(j) instanceof ASTDecl) {
+    for (int j = 0; j < getNumTypeDecl(); j++) {
+      if (getTypeDecl(j) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)getTypeDecl(j);
         map.put(decl, new LinkedHashSet());
       }
     }
 
-    for(int j = 0; j < getNumTypeDecl(); j++) {
-      if(getTypeDecl(j) instanceof ASTDecl) {
+    for (int j = 0; j < getNumTypeDecl(); j++) {
+      if (getTypeDecl(j) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        for(Iterator iter = decl.getComponents(); iter.hasNext(); ) {
+        for (Iterator iter = decl.getComponents(); iter.hasNext(); ) {
           Components c = (Components)iter.next();
           if (!(c instanceof TokenComponent)) {
             TypeDecl t = lookup(c.type());
-            if(t != null) {
+            if (t != null) {
               ((HashSet)map.get(t)).add(decl);
             }
           }
@@ -145,7 +145,7 @@ aspect Parents {
   eq Grammar.getTypeDecl().findParents(ASTDecl node) {
     Set<ASTDecl> set = new LinkedHashSet<ASTDecl>();
     set.addAll((Collection) parentMap().get(node));
-    if(node.superClass() != null)
+    if (node.superClass() != null)
       set.addAll(node.superClass().parents());
     return set;
   }

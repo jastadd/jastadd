@@ -59,7 +59,7 @@ aspect IncrementalState {
   public String ASTDecl.emitChangeStateAttributesString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.signature());
@@ -86,7 +86,7 @@ aspect IncrementalState {
   public String ASTDecl.emitThrowAwayAttributesString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.signature());

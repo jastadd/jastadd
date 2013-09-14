@@ -47,10 +47,19 @@ public class Configuration {
 
   private final ArgumentParser argParser;
 
+  /**
+   * The name of the ASTNode type.
+   */
   public String astNodeType = "ASTNode";
 
+  /**
+   * The name of the List type.
+   */
   public String listType = "List";
 
+  /**
+   * The name of the Opt type.
+   */
   public String optType = "Opt";
 
   public boolean jjtree = false;
@@ -61,13 +70,17 @@ public class Configuration {
 
   public String createDefaultSet = "new java.util.HashSet(4)";
 
+  public String typeDefaultMap = "java.util.Map";
+
+  public String typeDefaultSet = "java.util.Set";
+
   public boolean lazyMaps = true;
 
   public boolean publicModifier = true;
 
   public boolean rewriteEnabled = false;
 
-  public boolean beaverSymbol = false;
+  public boolean useBeaverSymbol = false;
 
   public boolean lineColumnNumbers = false;
 
@@ -95,14 +108,26 @@ public class Configuration {
 
   public int rewriteLimit = 0;
 
+  /**
+   * The relative path to the base output directory for generated code.
+   */
   public String outputDir = System.getProperty("user.dir");
 
   public boolean block = false;
+
+  // These must be set by buildRoot
+  // TODO make these non-null!
+  public String blockBegin = null;
+  public String blockEnd = null;
+  public String createContributorSet = null;
 
   public boolean noStatic = false;
 
   public boolean deterministic = false;
 
+  /**
+   * The package name for the generated AST classes.
+   */
   public String packageName = "";
 
   public boolean printVersion = false;
@@ -111,8 +136,37 @@ public class Configuration {
 
   public boolean printNonStandardOptions = false;
 
+  /**
+   * One level of indentation.
+   */
   public String indent = "  ";
 
+  /**
+   * Indentation level cache.
+   */
+  protected java.util.List<String> indList = new ArrayList<String>(32);
+
+  /**
+   * Builds an indentation string equal to a certain level of
+   * indentation.
+   *
+   * @param level the required indentation level
+   * @return the indentation string
+   */
+  public final String ind(int level) {
+    while (indList.size() <= level) {
+      if (indList.size() == 0) {
+        indList.add("");
+      } else {
+        indList.add(indList.get(indList.size()-1) + indent);
+      }
+    }
+    return indList.get(level);
+  }
+
+  /**
+   * The minimum list size (above zero)
+   */
   public int minListSize = 4;
 
   public boolean tracing = false;
@@ -142,6 +196,12 @@ public class Configuration {
   public boolean incrementalTrack = false;
 
   public boolean fullFlush = false;
+
+  // TODO unused?
+  public boolean traceVisitCheck = false;
+
+  // TODO unused?
+  public boolean circularEnabled = true;
 
   /**
    * Constructor - sets up available options.
@@ -247,7 +307,7 @@ public class Configuration {
           "beaver", "use beaver.Symbol base node") {
       @Override
       public void onMatch() {
-        beaverSymbol = true;
+        useBeaverSymbol = true;
       }
     });
     argParser.addOption(new Option(
@@ -692,96 +752,13 @@ public class Configuration {
    */
   public Grammar buildRoot() {
     Grammar root = new Grammar();
+    root.setConfiguration(this);
 
-    root.outputDir = outputDir;
-    root.packageName = packageName;
+    blockBegin = "synchronized(" + astNodeType + ".class) {\n";
+    blockEnd =   "}\n";
+    createContributorSet = "new " + astNodeType + "$State.IdentityHashSet(4)";
 
-    root.astNodeType = astNodeType;
-    root.listType = listType;
-    root.optType = optType;
-
-    root.blockBegin = "synchronized(" + root.astNodeType + ".class) {\n";
-    root.blockEnd =   "}\n";
-    root.createContributorSet = "new " + root.astNodeType + "$State.IdentityHashSet(4)";
-
-    root.jjtree = jjtree;
-    root.parserName = parserName;
-
-    root.createDefaultMap = createDefaultMap;
-    root.createDefaultSet = createDefaultSet;
-
-    root.ind = indent;
-
-    root.minListSize = minListSize;
-
-    root.lazyMaps = lazyMaps;
-
-    root.rewriteEnabled = rewriteEnabled;
-    root.beaver = beaverSymbol;
-    root.lineColumnNumbers = lineColumnNumbers;
-    root.visitCheckEnabled = visitCheckEnabled;
-    root.cacheCycle = cacheCycle;
-    root.componentCheck = componentCheck;
-    root.noInhEqCheck = !inhEqCheck;
-
-    root.refineLegacy = refineLegacy;
-
-    root.stagedRewrites = stagedRewrites;
-
-    root.doc = doc;
-
-    root.license = license;
-
-    root.java5 = java5;
-
-    root.debugMode = debugMode;
-    root.cycleLimit = cycleLimit;
-    root.rewriteLimit = rewriteLimit;
-    root.visitCheckEnabled = visitCheckEnabled;
-
-    root.block = block;
-
-    root.noStatic = noStatic;
-
-    root.deterministic = deterministic;
-
-    root.tracing = tracing;
-    root.traceCompute = traceCompute;
-    root.traceCache = traceCache;
-    root.traceRewrite = traceRewrite;
-    root.traceCircularNTA = traceCircularNTA;
-    root.traceCircular = traceCircular;
-    root.traceCopy = traceCopy;
-
-    // TODO: Deprecated, remove when phased out
-    root.cacheAll = cacheAll;
-
-    // TODO: Deprecated, remove when phased out
-    root.cacheNone = cacheNone;
-
-    // TODO: Deprecated, remove when phased out
-    root.cacheImplicit = cacheImplicit;
-
-    root.cacheConfig = cacheConfig;
-    root.cacheAnalyze = cacheAnalyze;
-
-    // Incremental flag
-    root.incremental = incremental;
-    root.incrementalLevelParam = incrementalLevelParam;
-    root.incrementalLevelAttr = incrementalLevelAttr;
-    root.incrementalLevelNode = incrementalLevelNode;
-    root.incrementalLevelRegion = incrementalLevelRegion;
-    root.incrementalChangeFlush = incrementalChangeFlush;
-    root.incrementalChangeMark = incrementalChangeMark;
-    root.incrementalPropFull = incrementalPropFull;
-    root.incrementalPropLimit = incrementalPropLimit;
-    root.incrementalDebug = incrementalDebug;
-    root.incrementalTrack = incrementalTrack;
-
-    root.fullFlush = fullFlush;
-
-    // The first time we access templateContext the Grammar.ind option must
-    // be set already!
+    // Configuration object must be set before creating root template context!
     TemplateContext tt = root.templateContext();
     if (block) {
       tt.bindExpansion("SynchBegin", "SynchronizedBlockBegin");
@@ -792,68 +769,68 @@ public class Configuration {
     }
 
     // Bind global template variables:
-    if (root.packageName.isEmpty()) {
+    if (packageName.isEmpty()) {
       tt.bind("PackageDecl", "");
     } else {
-      tt.bind("PackageDecl", "package " + root.packageName + ";");
+      tt.bind("PackageDecl", "package " + packageName + ";");
     }
-    tt.bind("ASTNode", root.astNodeType);
-    tt.bind("List", root.listType);
-    tt.bind("Opt", root.optType);
-    tt.bind("NoStatic", root.noStatic);
-    tt.bind("DebugMode", root.debugMode);
-    tt.bind("MinListSize", "" + root.minListSize);
-    tt.bind("Deterministic", root.deterministic);
-    tt.bind("LazyMaps", root.lazyMaps);
-    tt.bind("CircularEnabled", root.circularEnabled);
-    tt.bind("ComponentCheck", root.componentCheck);
-    tt.bind("CacheCycle", root.cacheCycle);
-    tt.bind("Java5", root.java5);
-    tt.bind("Beaver", root.beaver);
-    tt.bind("VisitCheckEnabled", root.visitCheckEnabled);
-    tt.bind("TraceVisitCheck", root.traceVisitCheck);
-    tt.bind("RewriteLimit", "" + root.rewriteLimit);
-    tt.bind("HasRewriteLimit", root.rewriteLimit > 0);
-    tt.bind("StagedRewrites", root.stagedRewrites);
-    tt.bind("RewriteEnabled", root.rewriteEnabled);
-    tt.bind("CreateDefaultMap", root.createDefaultMap);
-    tt.bind("DefaultMapType", root.typeDefaultMap);
-    tt.bind("CreateDefaultSet", root.createDefaultSet);
-    tt.bind("DefaultSetType", root.typeDefaultSet);
-    tt.bind("CreateContributorSet", root.createContributorSet);
+    tt.bind("ASTNode", astNodeType);
+    tt.bind("List", listType);
+    tt.bind("Opt", optType);
+    tt.bind("NoStatic", noStatic);
+    tt.bind("DebugMode", debugMode);
+    tt.bind("MinListSize", "" + minListSize);
+    tt.bind("Deterministic", deterministic);
+    tt.bind("LazyMaps", lazyMaps);
+    tt.bind("CircularEnabled", circularEnabled);
+    tt.bind("ComponentCheck", componentCheck);
+    tt.bind("CacheCycle", cacheCycle);
+    tt.bind("Java5", java5);
+    tt.bind("Beaver", useBeaverSymbol);
+    tt.bind("VisitCheckEnabled", visitCheckEnabled);
+    tt.bind("TraceVisitCheck", traceVisitCheck);
+    tt.bind("RewriteLimit", "" + rewriteLimit);
+    tt.bind("HasRewriteLimit", rewriteLimit > 0);
+    tt.bind("StagedRewrites", stagedRewrites);
+    tt.bind("RewriteEnabled", rewriteEnabled);
+    tt.bind("CreateDefaultMap", createDefaultMap);
+    tt.bind("DefaultMapType", typeDefaultMap);
+    tt.bind("CreateDefaultSet", createDefaultSet);
+    tt.bind("DefaultSetType", typeDefaultSet);
+    tt.bind("CreateContributorSet", createContributorSet);
 
     // JJTree
     tt.bind("JJTree", jjtree);
     tt.bind("ParserName", parserName);
 
     // Flush
-    tt.bind("FullFlush", root.fullFlush);
+    tt.bind("FullFlush", fullFlush);
 
     // Incremental
-    tt.bind("IncrementalEnabled", root.incremental);
-    tt.bind("IncrementalLevelParam", root.incrementalLevelParam);
-    tt.bind("IncrementalLevelAttr", root.incrementalLevelAttr);
-    tt.bind("IncrementalLevelNode", root.incrementalLevelNode);
-    tt.bind("IncrementalLevelRegion", root.incrementalLevelRegion);
-    tt.bind("IncrementalChangeFlush", root.incrementalChangeFlush);
-    tt.bind("IncrementalChangeMark", root.incrementalChangeMark);
-    tt.bind("IncrementalPropFull", root.incrementalPropFull);
-    tt.bind("IncrementalPropLimit", root.incrementalPropLimit);
-    tt.bind("IncrementalDebug", root.incrementalDebug);
-    tt.bind("IncrementalTrack", root.incrementalTrack);
-    tt.bind("DDGNodeName", root.astNodeType + "$DepGraphNode");
+    tt.bind("IncrementalEnabled", incremental);
+    tt.bind("IncrementalLevelParam", incrementalLevelParam);
+    tt.bind("IncrementalLevelAttr", incrementalLevelAttr);
+    tt.bind("IncrementalLevelNode", incrementalLevelNode);
+    tt.bind("IncrementalLevelRegion", incrementalLevelRegion);
+    tt.bind("IncrementalChangeFlush", incrementalChangeFlush);
+    tt.bind("IncrementalChangeMark", incrementalChangeMark);
+    tt.bind("IncrementalPropFull", incrementalPropFull);
+    tt.bind("IncrementalPropLimit", incrementalPropLimit);
+    tt.bind("IncrementalDebug", incrementalDebug);
+    tt.bind("IncrementalTrack", incrementalTrack);
+    tt.bind("DDGNodeName", astNodeType + "$DepGraphNode");
 
     // Tracing
-    tt.bind("TracingEnabled", root.tracing);
-    tt.bind("TraceCompute", root.traceCompute);
-    tt.bind("TraceCache", root.traceCache);
-    tt.bind("TraceRewrite", root.traceRewrite);
-    tt.bind("TraceCircularNTA", root.traceCircularNTA);
-    tt.bind("TraceCircular", root.traceCircular);
-    tt.bind("TraceCopy", root.traceCopy);
+    tt.bind("TracingEnabled", tracing);
+    tt.bind("TraceCompute", traceCompute);
+    tt.bind("TraceCache", traceCache);
+    tt.bind("TraceRewrite", traceRewrite);
+    tt.bind("TraceCircularNTA", traceCircularNTA);
+    tt.bind("TraceCircular", traceCircular);
+    tt.bind("TraceCopy", traceCopy);
 
     // Cache
-    tt.bind("CacheAnalyzeEnabled", root.cacheAnalyze);
+    tt.bind("CacheAnalyzeEnabled", cacheAnalyze);
 
     return root;
   }

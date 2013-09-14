@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -31,24 +31,24 @@ import java.util.*;
 aspect ASTDecl {
   syn lazy Collection ASTDecl.tempComponents() {
     LinkedList list = new LinkedList();
-    if(superClass() != null) {
+    if (superClass() != null) {
       list.addAll(superClass().tempComponents());
     }
-    for(int i = 0; i < getNumComponents(); i++) {
+    for (int i = 0; i < getNumComponents(); i++) {
       boolean done = false;
-      for(ListIterator iter = list.listIterator(); !done && iter.hasNext(); ) {
+      for (ListIterator iter = list.listIterator(); !done && iter.hasNext(); ) {
         Components c = (Components)iter.next();
-        if(c.name().equals(getComponents(i).name()) && c.type().equals(getComponents(i).type())) {
+        if (c.name().equals(getComponents(i).name()) && c.type().equals(getComponents(i).type())) {
           iter.remove();
           done = true;
         }
       }
-      if(getComponents(i).isNTA()) {
+      if (getComponents(i).isNTA()) {
         list.add(getComponents(i));
       }
       else {
         int j = 0;
-        while(j < list.size() && !((Components)list.get(j)).isNTA())
+        while (j < list.size() && !((Components)list.get(j)).isNTA())
           j++;
         list.add(j, getComponents(i));
       }
@@ -58,13 +58,13 @@ aspect ASTDecl {
   syn Iterator ASTDecl.getComponents() = tempComponents().iterator();
 
   syn boolean ASTDecl.redefinesTokenComponent(TokenComponent c) {
-    if(c.hostClass() != this) // inherited component
+    if (c.hostClass() != this) // inherited component
       return false;
-    if(superClass() == null) // no definition in superclass
+    if (superClass() == null) // no definition in superclass
       return true;
-    for(Iterator iter = superClass().getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = superClass().getComponents(); iter.hasNext(); ) {
       Components d = (Components)iter.next();
-      if(d.name().equals(c.name()) && d instanceof TokenComponent && c.isNTA() == d.isNTA()) {
+      if (d.name().equals(c.name()) && d instanceof TokenComponent && c.isNTA() == d.isNTA()) {
         return false;
       }
     }
@@ -77,7 +77,7 @@ aspect Comp {
   }
   syn lazy Collection TypeDecl.tempComponents() {
     LinkedList list = new LinkedList();
-    for(int i = 0; i < getNumComponents(); i++) {
+    for (int i = 0; i < getNumComponents(); i++) {
       list.add(getComponents(i));
     }
     return list;
@@ -104,8 +104,8 @@ aspect NTADetector {
 
 aspect ConstructorParameterTypes {
   syn String Components.constrParmType();
-  eq ListComponents.constrParmType() = grammar().java5 ? grammar().listType + "<" + getId().type() + ">" : grammar().listType;
-  eq OptionalComponent.constrParmType() = grammar().java5 ? grammar().optType + "<" + getId().type() + ">" : grammar().optType;
+  eq ListComponents.constrParmType() = config().java5 ? config().listType + "<" + getId().type() + ">" : config().listType;
+  eq OptionalComponent.constrParmType() = config().java5 ? config().optType + "<" + getId().type() + ">" : config().optType;
   eq TokenComponent.constrParmType() = getTokenId().getTYPE();
   eq AggregateComponents.constrParmType() = getId().type();
 }
@@ -121,7 +121,7 @@ aspect ComponentsHostClass {
 aspect CoarseIncremental {
 
 	syn lazy boolean ASTDecl.isRegionRoot() = isRootNode() || lookupRegionDecl(name()) != null;
-	
+
 	inh RegionDecl ASTDecl.lookupRegionDecl(String name);
 	eq Grammar.getTypeDecl().lookupRegionDecl(String name) {
 		for (int i = 0; i < getNumRegionDecl(); i++) {
@@ -143,11 +143,11 @@ aspect CoarseIncremental {
     }
     return false;
   }
-	
+
 	syn lazy boolean ASTDecl.isRegionLeaf() {
 
-    if (name().equals(grammar().listType) || name().equals(grammar().optType)) {
-      TypeDecl type = grammar().lookup(grammar().astNodeType);
+    if (name().equals(config().listType) || name().equals(config().optType)) {
+      TypeDecl type = grammar().lookup(config().astNodeType);
       if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
 	  			return false;
 	  	}

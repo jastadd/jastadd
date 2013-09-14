@@ -50,6 +50,7 @@ aspect OutputDestination {
    * @return The output directory for the AST package.
    */
   syn lazy File Grammar.packageDirectory() {
+    String packageName = config().packageName;
     if (packageName.isEmpty()) {
       return outputDirectory();
     } else {
@@ -61,5 +62,5 @@ aspect OutputDestination {
   /**
    * @return The base output directory for generated Java code.
    */
-  syn lazy File Grammar.outputDirectory() = new File(outputDir);
+  syn lazy File Grammar.outputDirectory() = new File(config().outputDir);
 }

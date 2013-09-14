@@ -30,8 +30,8 @@ import java.util.*;
 
 aspect Lookup {
   syn TypeDecl Grammar.lookup(String name) {
-    for(int i = 0; i < getNumTypeDecl(); i++) {
-      if(getTypeDecl(i).name().equals(name))
+    for (int i = 0; i < getNumTypeDecl(); i++) {
+      if (getTypeDecl(i).name().equals(name))
         return getTypeDecl(i);
     }
     return null;
@@ -40,11 +40,11 @@ aspect Lookup {
   public TypeDecl Grammar.findClassDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if(!comment.startsWith("/"))
+    if (!comment.startsWith("/"))
       comment = "";
 
     TypeDecl t = lookup(name);
-    if(t == null) {
+    if (t == null) {
       t = new ClassDecl(new IdDecl(name), new List(), new List(), new List(),
           new List(), new List(), new List(), new List(),
           fileName, beginLine ,-1, comment,
@@ -57,10 +57,10 @@ aspect Lookup {
   public TypeDecl Grammar.findInterfaceDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if(!comment.startsWith("/"))
+    if (!comment.startsWith("/"))
       comment = "";
     TypeDecl t = lookup(name);
-    if(t == null) {
+    if (t == null) {
       t = new InterfaceDecl(new IdDecl(name), new List(), new List(),
           new List(), new List(), new List(), new List(), new List(),
           fileName, beginLine, -1, comment, enclosingAspect);
@@ -71,9 +71,9 @@ aspect Lookup {
 
   syn lazy Components TypeDecl.lookupComponents(String name) = null;
   eq ASTDecl.lookupComponents(String name) {
-    for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
-      if(c.name().equals(name))
+      if (c.name().equals(name))
         return c;
     }
     return null;

@@ -33,7 +33,7 @@ aspect IncrementalDebug {
    * dumping cached values and dummping of DDG dependencies.
    */
   public void ASTDecl.genIncrementalDebug(PrintWriter out) {
-    if (!grammar().incrementalDebug) return;
+    if (!config().incrementalDebug) return;
     TemplateContext tt = templateContext();
     tt.expand("ASTDecl.relativeNodeIDMethod", out);
     tt.expand("ASTDecl.printParamListMethod", out);
@@ -53,7 +53,7 @@ aspect IncrementalDebug {
   public String ASTDecl.genDumpDepsInNTAsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
@@ -72,7 +72,7 @@ aspect IncrementalDebug {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     // Add dump string for each attribute
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
@@ -89,8 +89,8 @@ aspect IncrementalDebug {
   public String ASTDecl.genDumpTokenDepsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
-      for(Iterator iter = getComponents(); iter.hasNext(); ) {
+    if (config().incrementalLevelParam || config().incrementalLevelAttr) {
+      for (Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
         if (c instanceof TokenComponent && !c.isNTA()) {
           tt.bind("Id",  ((TokenComponent)c).getTokenId().getID());
@@ -107,7 +107,7 @@ aspect IncrementalDebug {
   public String ASTDecl.genDumpAttributeValuesString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));

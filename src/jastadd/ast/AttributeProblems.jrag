@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@ aspect AttributeProblems {
    */
   syn Collection<Problem> Grammar.attributeProblems() {
     Collection<Problem> problems = new LinkedList<Problem>();
-    for(int i = 0; i < getNumTypeDecl(); i++) {
+    for (int i = 0; i < getNumTypeDecl(); i++) {
       problems.addAll(getTypeDecl(i).attributeProblems());
     }
     return problems;
@@ -200,7 +200,7 @@ aspect AttributeProblems {
   syn Problem InhEq.unknownChildProblem() {
     StringBuilder buf = new StringBuilder();
     buf.append("inherited equation for unknown child " + childName() + " in class " + hostClass().name());
-    for(Iterator iter = hostClass().getComponents(); iter.hasNext(); ) {
+    for (Iterator iter = hostClass().getComponents(); iter.hasNext(); ) {
       Components c = (Components)iter.next();
       buf.append("\n    " + c.type() + " " + c.name());
     }
@@ -223,7 +223,7 @@ aspect AttributeProblems {
     if (decl == null) {
       buf.append("inherited equation for unknown NTA " + childName()
            + " in class " + hostClass().name());
-    } else if(!decl.getNTA()) {
+    } else if (!decl.getNTA()) {
       buf.append("inherited equation for attribute " + childName() + " which is not a NTA");
     }
     return error(buf.toString());
@@ -263,7 +263,7 @@ aspect AttributeProblems {
     !getChildName().equals("getChild");
 
   syn Problem InhEq.badIndexProblem() {
-    return error("may not supply index for non list child " + childName() + 
+    return error("may not supply index for non list child " + childName() +
         " in class " + hostClass().name());
   }
 
@@ -279,7 +279,7 @@ aspect AttributeProblems {
     return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
   }
 
-  InhDecl contributes 
+  InhDecl contributes
       error("inherited attribute " + name() + " defined on root node " + hostClass().name())
     when hostClass().isRootNode()
     to TypeDecl.attributeProblems()
@@ -291,8 +291,7 @@ aspect AttributeProblems {
     for hostClass();
 
   syn boolean InhDecl.hasMissingEqProblem() =
-    !grammar().noInhEqCheck && !missingEqs().isEmpty();
-
+    config().inhEqCheck && !missingEqs().isEmpty();
 
   syn Problem InhDecl.missingEqProblem() {
     StringBuilder buf = new StringBuilder();
@@ -319,9 +318,7 @@ aspect AttributeProblems {
 
     return warning(buf.toString());
   }
-  
-  
-  
+
   syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
 
   syn boolean AttrDecl.isDuplicateInhDecl() = false;
@@ -405,13 +402,13 @@ aspect AttributeProblems {
 
   syn Problem CollDecl.collectionGroupProblem() {
     String msg = "";
-    if(hasAnnotation("@CollectionGroup")) {
+    if (hasAnnotation("@CollectionGroup")) {
       String value = getAnnotationValue("@CollectionGroup");
-      if(value == null) {
+      if (value == null) {
         msg = "missing CollectionGroup argument";
-      } else if(value.equals("")) {
+      } else if (value.equals("")) {
         msg = "CollectionGroup argument can not be empty";
-      } else if(!isValidIdentifierPart(value)) {
+      } else if (!isValidIdentifierPart(value)) {
         msg = "CollectionGroup argument must be a valid identifier part";
       }
     }

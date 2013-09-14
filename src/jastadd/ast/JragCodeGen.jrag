@@ -46,34 +46,6 @@ aspect AttributeKind {
 aspect JragCodeGen {
 
   /**
-   * One level of indentation.
-   */
-  public String Grammar.ind = "  ";
-
-  /**
-   * Indentation level cache.
-   */
-  protected java.util.List<String> Grammar.indList = new ArrayList<String>(32);
-
-  /**
-   * Builds an indentation string equal to a certain level of
-   * indentation.
-   *
-   * @param level the required indentation level
-   * @return the indentation string
-   */
-  public final String Grammar.ind(int level) {
-    while (indList.size() <= level) {
-      if (indList.size() == 0) {
-        indList.add("");
-      } else {
-        indList.add(indList.get(indList.size()-1) + ind);
-      }
-    }
-    return indList.get(level);
-  }
-
-  /**
    * Generate the declaredat documentation tag. If no file name is available
    * then no tag is generated.
    *
@@ -105,36 +77,36 @@ aspect JragCodeGen {
     ASTNode.declaredat(getFileName(), getStartLine());
 
   refine  public boolean AttrDecl.getLazy() {
-    if (grammar().cacheAll)
+    if (config().cacheAll)
       return true;
-    else if (grammar().cacheNone)
+    else if (config().cacheNone)
       return declaredNTA();
     else
       return declaredNTA() || refined();
   }
 
   refine  public boolean SynDecl.getLazy() {
-    if (grammar().cacheAll)
+    if (config().cacheAll)
       return true;
-    else if (grammar().cacheNone)
+    else if (config().cacheNone)
       return declaredNTA();
     else
       return declaredNTA() || refined();
   }
 
   refine  public boolean InhDecl.getLazy() {
-    if (grammar().cacheAll)
+    if (config().cacheAll)
       return true;
-    else if (grammar().cacheNone)
+    else if (config().cacheNone)
       return declaredNTA();
     else
       return declaredNTA() || refined();
   }
 
   refine  public boolean CollDecl.getLazy() {
-    if (grammar().cacheAll)
+    if (config().cacheAll)
       return true;
-    else if (grammar().cacheNone)
+    else if (config().cacheNone)
       return false;
     else
       return declaredNTA() || refined();
@@ -142,13 +114,13 @@ aspect JragCodeGen {
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
-    for(Iterator iter = getCompUnits(); iter.hasNext(); ) {
+    for (Iterator iter = getCompUnits(); iter.hasNext(); ) {
         org.jastadd.jrag.AST.ASTCompilationUnit u =
           (org.jastadd.jrag.AST.ASTCompilationUnit) iter.next();
         imports.addAll(Unparser.getImports(u));
     }
     StringBuilder buf = new StringBuilder();
-    for(Iterator iter = imports.iterator(); iter.hasNext(); ) {
+    for (Iterator iter = imports.iterator(); iter.hasNext(); ) {
       buf.append(iter.next());
       buf.append('\n');
     }
@@ -156,11 +128,11 @@ aspect JragCodeGen {
   }
 
   public void InterfaceDecl.emitMembers(PrintStream out) {
-    for(Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
+    for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
       ClassBodyObject obj = (ClassBodyObject)iter.next();
       org.jastadd.jrag.AST.SimpleNode n = obj.node;
       //out.println(ind + "// Declared in " + obj.fileName + " at line " + obj.line);
-      if(n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
+      if (n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
           org.jastadd.jrag.AST.ASTAspectMethodDeclaration decl = (org.jastadd.jrag.AST.ASTAspectMethodDeclaration)n;
@@ -171,7 +143,7 @@ aspect JragCodeGen {
           e.printStackTrace();
         }
       }
-      else if(n instanceof org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) {
+      else if (n instanceof org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
           org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration decl = (org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration)n;
@@ -182,11 +154,11 @@ aspect JragCodeGen {
           e.printStackTrace();
         }
       }
-      else if(n instanceof org.jastadd.jrag.AST.ASTBlock) {
+      else if (n instanceof org.jastadd.jrag.AST.ASTBlock) {
         // do not emit refined implementations
       }
       else {
-        if(!obj.comments.equals("")) {
+        if (!obj.comments.equals("")) {
           out.print(obj.comments + " ");
         }
         out.print(obj.modifiers());
@@ -206,7 +178,7 @@ aspect JragCodeGen {
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
       out.print(obj.modifiers());
       out.println(docComment(obj));
-      out.print(grammar().ind);
+      out.print(config().indent);
       StringBuffer buf = new StringBuffer();
       node.jjtAccept(new ClassBodyDeclUnparser(), buf);
       out.print(buf.toString());
@@ -215,7 +187,7 @@ aspect JragCodeGen {
   }
 
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
-    for(int i = 0; i < getNumSynDecl(); i++) {
+    for (int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
       out.println(attr.docComment());
       attr.emitSynDecl(out);
@@ -235,15 +207,15 @@ aspect JragCodeGen {
    * that lack an equation.
    */
   public void ASTDecl.emitAbstractSyns(PrintStream out) {
-    for(int i = 0; i < getNumSynDecl(); i++) {
+    for (int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
       boolean equ = false;
-      for(int j = 0; j < getNumSynEq(); j++) {
-        if(getSynEq(j).signature().equals(attr.signature())) {
+      for (int j = 0; j < getNumSynEq(); j++) {
+        if (getSynEq(j).signature().equals(attr.signature())) {
           equ = true;
         }
       }
-      if(!equ) {
+      if (!equ) {
         attr.emitAbstractSynDecl(out);
       }
     }
@@ -253,58 +225,58 @@ aspect JragCodeGen {
 
   public String AttrDecl.initLazyMaps() {
     StringBuilder sb = new StringBuilder();
-    if(grammar().lazyMaps) {
-      if(!isCircular()) {
-        if(getNumParameter() != 0 && grammar().visitCheckEnabled && grammar().rewriteEnabled) {
-          sb.append("if(" + signature() + "_visited == null) " + signature() + "_visited = " + grammar().createDefaultMap + ";\n");
+    if (config().lazyMaps) {
+      if (!isCircular()) {
+        if (getNumParameter() != 0 && config().visitCheckEnabled && config().rewriteEnabled) {
+          sb.append("if (" + signature() + "_visited == null) " + signature() + "_visited = " + config().createDefaultMap + ";\n");
         }
-        else if(getNumParameter() != 0 && grammar().visitCheckEnabled) {
-          sb.append("if(" + signature() + "_visited == null) " + signature() + "_visited = " + grammar().createDefaultSet + ";\n");
+        else if (getNumParameter() != 0 && config().visitCheckEnabled) {
+          sb.append("if (" + signature() + "_visited == null) " + signature() + "_visited = " + config().createDefaultSet + ";\n");
         }
       }
-      if(getNumParameter() != 0 && (getLazy() || isCircular())) {
-        sb.append("if(" + signature() + "_values == null) " + signature() + "_values = " + grammar().createDefaultMap + ";\n");
+      if (getNumParameter() != 0 && (getLazy() || isCircular())) {
+        sb.append("if (" + signature() + "_values == null) " + signature() + "_values = " + config().createDefaultMap + ";\n");
       }
     }
     return sb.toString();
   }
 
   public void AttrDecl.emitVisitedDeclarations(PrintStream out) {
-    if(!grammar().visitCheckEnabled && !isCircular()) {
+    if ( !config().visitCheckEnabled && !isCircular()) {
       return;
     }
 
     String type;
     String init;
-    if(isCircular()) {
-      if(getNumParameter() == 0) {
+    if (isCircular()) {
+      if (getNumParameter() == 0) {
         type = "int";
         init = " = -1";
       } else {
         // the visited flag is part of the State$Value object
         return;
       }
-    } else if(grammar().rewriteEnabled) {
-      if(getNumParameter() == 0) {
+    } else if (config().rewriteEnabled) {
+      if (getNumParameter() == 0) {
         type = "int";
         init = " = -1";
       } else {
-        type = grammar().typeDefaultMap;
-        if(grammar().lazyMaps) {
+        type = config().typeDefaultMap;
+        if (config().lazyMaps) {
           init = "";
         } else {
-          init = " = " + grammar().createDefaultMap;
+          init = " = " + config().createDefaultMap;
         }
       }
-    } else if(getNumParameter() == 0) {
+    } else if (getNumParameter() == 0) {
       type = "boolean";
       init = " = false";
     } else {
-      type = grammar().typeDefaultSet;
-      if(grammar().lazyMaps) {
+      type = config().typeDefaultSet;
+      if (config().lazyMaps) {
           init = "";
       } else {
-          init = " = " + grammar().createDefaultSet;
+          init = " = " + config().createDefaultSet;
       }
     }
 
@@ -324,32 +296,32 @@ aspect JragCodeGen {
 
   public String AttrDecl.resetVisit(String prefix) {
     String signature = prefix + signature();
-    if(isCircular()) {
-      if(getNumParameter() == 0)
+    if (isCircular()) {
+      if (getNumParameter() == 0) {
         return signature + "_visited = -1;\n";
-      else {
+      } else {
         // visited is handled in value object
         return "";
       }
     }
-    if(!grammar().visitCheckEnabled) return "";
-    else if(grammar().rewriteEnabled) {
-      if(getNumParameter() == 0)
+    if (!config().visitCheckEnabled) return "";
+    else if (config().rewriteEnabled) {
+      if (getNumParameter() == 0)
         return signature + "_visited = -1;\n";
       else {
-        if(grammar().lazyMaps)
+        if (config().lazyMaps)
           return signature + "_visited = null;\n";
         else
-          return signature + "_visited = " + grammar().createDefaultMap + ";\n";
+          return signature + "_visited = " + config().createDefaultMap + ";\n";
       }
     }
-    if(getNumParameter() == 0)
+    if (getNumParameter() == 0)
       return signature + "_visited = false;\n";
     else {
-      if(grammar().lazyMaps)
+      if (config().lazyMaps)
         return signature + "_visited = null;\n";
       else
-        return signature + "_visited = " + grammar().createDefaultSet + ";\n";
+        return signature + "_visited = " + config().createDefaultSet + ";\n";
     }
   }
 
@@ -358,21 +330,21 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.setVisited() {
-    if(!grammar().visitCheckEnabled && !isCircular()) {
+    if (!config().visitCheckEnabled && !isCircular()) {
       return "";
     }
     return templateContext().expand("AttrDecl.setVisited");
   }
 
   public String AttrDecl.clearVisited() {
-    if(!grammar().visitCheckEnabled && !isCircular()) {
+    if (!config().visitCheckEnabled && !isCircular()) {
       return "";
-    } else if(grammar().rewriteEnabled) {
-      if(getNumParameter() == 0)
+    } else if (config().rewriteEnabled) {
+      if (getNumParameter() == 0)
         return signature() + "_visited = -1;\n";
       else
         return signature() + "_visited.remove(_parameters);\n";
-    } else if(getNumParameter() == 0) {
+    } else if (getNumParameter() == 0) {
       return signature() + "_visited = false;\n";
     } else {
       return signature() + "_visited.remove(_parameters);\n";
@@ -394,37 +366,37 @@ aspect JragCodeGen {
   }
 
   public String ASTNode.toReferenceType(String value, String type) {
-    if(type.equals("int"))
-      return grammar().java5 ? "Integer.valueOf(" + value + ")" : "new Integer(" + value + ")";
-    else if(type.equals("short"))
-      return grammar().java5 ? "Short.valueOf(" + value + ")" : "new Short(" + value + ")";
-    else if(type.equals("long"))
-      return grammar().java5 ? "Long.valueOf(" + value + ")" : "new Long(" + value + ")";
-    else if(type.equals("float"))
-      return grammar().java5 ? "Float.valueOf(" + value + ")" : "new Float(" + value + ")";
-    else if(type.equals("double"))
-      return grammar().java5 ? "Double.valueOf(" + value + ")" : "new Double(" + value + ")";
-    else if(type.equals("boolean"))
+    if (type.equals("int"))
+      return config().java5 ? "Integer.valueOf(" + value + ")" : "new Integer(" + value + ")";
+    else if (type.equals("short"))
+      return config().java5 ? "Short.valueOf(" + value + ")" : "new Short(" + value + ")";
+    else if (type.equals("long"))
+      return config().java5 ? "Long.valueOf(" + value + ")" : "new Long(" + value + ")";
+    else if (type.equals("float"))
+      return config().java5 ? "Float.valueOf(" + value + ")" : "new Float(" + value + ")";
+    else if (type.equals("double"))
+      return config().java5 ? "Double.valueOf(" + value + ")" : "new Double(" + value + ")";
+    else if (type.equals("boolean"))
       return "Boolean.valueOf(" + value + ")";
-    else if(type.equals("char"))
-      return grammar().java5 ? "Character.valueOf(" + value + ")" : "new Character(" + value + ")";
+    else if (type.equals("char"))
+      return config().java5 ? "Character.valueOf(" + value + ")" : "new Character(" + value + ")";
     else return value;
   }
 
   public String ASTNode.fromReferenceType(String value, String type) {
-    if(type.equals("int"))
+    if (type.equals("int"))
       return "((Integer)" + value + ").intValue()";
-    else if(type.equals("short"))
+    else if (type.equals("short"))
       return "((Short)" + value + ").shortValue()";
-    else if(type.equals("long"))
+    else if (type.equals("long"))
       return "((Long)" + value + ").longValue()";
-    else if(type.equals("float"))
+    else if (type.equals("float"))
       return "((Float)" + value + ").floatValue()";
-    else if(type.equals("double"))
+    else if (type.equals("double"))
       return "((Double)" + value + ").doubleValue()";
-    else if(type.equals("boolean"))
+    else if (type.equals("boolean"))
       return "((Boolean)" + value + ").booleanValue()";
-    else if(type.equals("char"))
+    else if (type.equals("char"))
       return "((Character)" + value + ").charValue()";
     else
       return "(" + type + ")" + value;
@@ -451,14 +423,14 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.parameterStructure() {
-    if(getNumParameter() == 0 || (!getLazy() && !isCircular() && !grammar().visitCheckEnabled)) {
+    if (getNumParameter() == 0 || (!getLazy() && !isCircular() && !config().visitCheckEnabled)) {
       return "";
-    } else if(getNumParameter() == 1) {
+    } else if (getNumParameter() == 1) {
       return "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
     } else {
       StringBuilder sb = new StringBuilder();
       sb.append("java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
-      for(int i = 0; i < getNumParameter(); i++) {
+      for (int i = 0; i < getNumParameter(); i++) {
         sb.append("_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
       }
       return sb.toString();
@@ -466,13 +438,13 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheInit() {
-    if(!getLazy())
+    if (!getLazy())
       return "";
     return cacheInitRewrite();
   }
 
   public String AttrDecl.cacheInitRewrite() {
-    if(!grammar().rewriteEnabled) {
+    if (!config().rewriteEnabled) {
       return "";
     } else {
       return "int num = state.boundariesCrossed;\n" +
@@ -481,7 +453,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.callCompute() {
-    if(getLazy() && getNumParameter() == 0)
+    if (getLazy() && getNumParameter() == 0)
       return signature() + "_value = " + name() + "_compute(" + parameters() + ");\n";
     else
       return getType() + " " + signature() + "_value = " + name() + "_compute(" + parameters() + ");\n";
@@ -489,7 +461,7 @@ aspect JragCodeGen {
 
   // TODO: INH
   public String InhDecl.callCompute() {
-    if(getLazy() && getNumParameter() == 0) {
+    if (getLazy() && getNumParameter() == 0) {
       return inhDebugString() +
         signature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ");\n";
     } else {
@@ -499,10 +471,10 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheStoreRewrite() {
-    if(!grammar().rewriteEnabled || getFinal())
-      return "if(true)";
+    if (!config().rewriteEnabled || getFinal())
+      return "if (true)";
     else
-      return "if(isFinal && num == state().boundariesCrossed)";
+      return "if (isFinal && num == state().boundariesCrossed)";
   }
 
   syn String AttrDecl.attributeValueReference() =
@@ -530,7 +502,7 @@ aspect JragCodeGen {
   }
 
   public String SynEq.computeMethodBody() {
-    if(hasComputeBlock())
+    if (hasComputeBlock())
       return Unparser.unparse(getRHS());
     else
       return "{  return " + Unparser.unparse(getRHS()) + ";  }";
@@ -549,15 +521,15 @@ aspect JragCodeGen {
   }
 
   syn String AttrDecl.inhDebugString() {
-    if(!grammar().debugMode) {
+    if (!config().debugMode) {
       return "";
     } else {
-      return grammar().ind(2) + "if(getParent() == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
+      return config().ind(2) + "if (getParent() == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
     }
   }
 
   public boolean TypeDecl.hasLazySynEqFor(AttrDecl attr) {
-    if(attr instanceof SynDecl) {
+    if (attr instanceof SynDecl) {
       SynEq synEq = lookupSynEq(attr.signature());
       return synEq != null && (synEq.decl().getLazy() || synEq.decl().isCircular()) ;
     }
@@ -566,7 +538,7 @@ aspect JragCodeGen {
 
   syn String AttrDecl.cycleLimitCheck() = "";
    // TODO: fixme cycleLimit > 0 ?
-   //    "if(state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
+   //    "if (state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
 
   public void AttrDecl.emitEquation(String paramDecl, PrintStream out) {
     TemplateContext tt = templateContext();
@@ -609,7 +581,7 @@ aspect JragCodeGen {
     if (!attr.isCircular()) {
       attr.emitEquation(paramDecl, out);
     } else {
-      if(attr.getNumParameter() == 0) {
+      if (attr.getNumParameter() == 0) {
         attr.emitCircularEquationNoParams(out);
       } else {
         attr.emitCircularEquationWithParams(paramDecl, out);
@@ -627,10 +599,10 @@ aspect JragCodeGen {
     getNumParameter() != 0;
 
   public String AttrDecl.cacheCycleCheck() {
-    if (!grammar().cacheCycle) return "";
+    if (!config().cacheCycle) return "";
     TemplateContext tt = templateContext();
-    String ind = grammar().ind;
-    if(getNumParameter() == 0) {
+    String ind = config().indent;
+    if (getNumParameter() == 0) {
       return
         "if (state.LAST_CYCLE) {\n" +
         signature() + "_computed = true;\n" +
@@ -641,7 +613,7 @@ aspect JragCodeGen {
         ind + "return new_" + signature() + "_value;\n" +
         "}\n";
     } else {
-      if (grammar().java5) {
+      if (config().java5) {
         return
           "if (state.LAST_CYCLE) {\n" +
           inhDebugString() +
@@ -658,39 +630,39 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.addComponentCheck() {
-    if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
+    if (!config().componentCheck || !config().visitCheckEnabled) return "";
     String arg = getNumParameter() == 0 ? "null" : "_parameters";
-    String ind = grammar().ind;
-    if(getNumParameter() == 0) {
-      if(grammar().rewriteEnabled)
+    String ind = config().indent;
+    if (getNumParameter() == 0) {
+      if (config().rewriteEnabled)
         return
-        "if(" + signature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
+        "if (" + signature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
         ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       else
         return
-        "if(" + signature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
+        "if (" + signature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
         ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
     else {
-      if(grammar().rewriteEnabled) {
-        if (grammar().java5)
+      if (config().rewriteEnabled) {
+        if (config().java5)
           return
-          "if(new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
+          "if (new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
         else
           return
-          "if(new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
+          "if (new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       } else
         return
-        "if(_value.visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
+        "if (_value.visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
         ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
     }
   }
 
   public String AttrDecl.addAddToComponent() {
-    if(!grammar().componentCheck || !grammar().visitCheckEnabled) return "";
-    if(getNumParameter() == 0) {
+    if (!config().componentCheck || !config().visitCheckEnabled) return "";
+    if (getNumParameter() == 0) {
       return
         "state.addEvalEntry(this, \"" + signature() + "\", null);\n";
     } else {
@@ -708,13 +680,13 @@ aspect JragCodeGen {
 
   public void ASTDecl.emitCacheDeclarations(PrintStream out, AttrDecl attr) {
     boolean needsCacheDeclaration = true;
-    if(attr instanceof SynDecl) {
+    if (attr instanceof SynDecl) {
       // EMMA_2011-09-13: Setting this to true to get declarations for each
       // equation of an attribute. If an equation lacks its own visited declaration
       // and calls an overriden equation it can cause a circularity exception.
       needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
     }
-    String ind = grammar().ind;
+    String ind = config().indent;
     if (!attr.isCircular()) {
       if (needsCacheDeclaration) {
         attr.emitVisitedDeclarations(out);
@@ -748,11 +720,11 @@ aspect JragCodeGen {
       else {
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
-          if (grammar().lazyMaps) {
-            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.signature() + "_values;");
+          if (config().lazyMaps) {
+            out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values;");
             return;
           } else {
-            out.println(ind + "protected " + grammar().typeDefaultMap + " " + attr.signature() + "_values = " + grammar().createDefaultMap + ";");
+            out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values = " + config().createDefaultMap + ";");
             return;
           }
         }
@@ -763,7 +735,7 @@ aspect JragCodeGen {
   syn String AttrEq.getType() = decl().getType();
 
   public void ASTDecl.emitSynEquations(PrintStream out) {
-    for(int i = 0; i < getNumSynEq(); i++) {
+    for (int i = 0; i < getNumSynEq(); i++) {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
@@ -788,13 +760,13 @@ aspect JragCodeGen {
   public int AttrDecl.indexNTAchild() {
     Components comp = findCorrespondingNTA();
     TypeDecl c = hostClass();
-    while(c != null) {
+    while (c != null) {
       int index = 0;
-      for(Iterator iter = c.getComponents(); iter.hasNext(); ) {
+      for (Iterator iter = c.getComponents(); iter.hasNext(); ) {
         Components next = (Components)iter.next();
-        if(next == comp)
+        if (next == comp)
           return index;
-        if(!(next instanceof TokenComponent))
+        if (!(next instanceof TokenComponent))
           index++;
       }
       c = c instanceof ASTDecl ? ((ASTDecl)c).superClass() : null;
@@ -803,23 +775,23 @@ aspect JragCodeGen {
   }
 
   public Components AttrDecl.findCorrespondingNTA() {
-    if(!getName().startsWith("get"))
+    if (!getName().startsWith("get"))
       return null;
     String attrName = getName().substring(3);
     TypeDecl c = hostClass();
-    while(c != null) {
-      for(Iterator iter = c.getComponents(); iter.hasNext(); ) {
+    while (c != null) {
+      for (Iterator iter = c.getComponents(); iter.hasNext(); ) {
         Components comp = (Components)iter.next();
-        if(comp.name().equals(attrName) && (
+        if (comp.name().equals(attrName) && (
             comp instanceof OptionalComponentNTA
             || comp instanceof TokenComponentNTA
             || comp instanceof AggregateComponentsNTA )) {
           return comp;
         }
-        if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
+        if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
           return comp;
         }
-        if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+        if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
           return comp;
         }
       }
@@ -833,9 +805,9 @@ aspect JragCodeGen {
   }
 
   public String SynDecl.higherOrderAttributeCode() {
-    if(getNTA()) {
-      if(grammar().rewriteEnabled) {
-        if(grammar().stagedRewrites) {
+    if (getNTA()) {
+      if (config().rewriteEnabled) {
+        if (config().stagedRewrites) {
           return templateContext().expand("SynDecl.higherOrderAttributeCode:stagedrewrites");
         } else {
           return templateContext().expand("SynDecl.higherOrderAttributeCode:nostagedrewrites");
@@ -847,18 +819,18 @@ aspect JragCodeGen {
       // non-NTA
       StringBuilder result = new StringBuilder();
       Components comp = findCorrespondingNTA();
-      if(comp != null) {
+      if (comp != null) {
         String attrName = getName().substring(3); // remove get
-        if(comp.name().equals(attrName) && (
+        if (comp.name().equals(attrName) && (
               comp instanceof OptionalComponentNTA
               || comp instanceof TokenComponentNTA
               || comp instanceof AggregateComponentsNTA )) {
-          result.append(grammar().ind + "set" + attrName + "(" + signature() + "_value);\n");
+          result.append(config().indent + "set" + attrName + "(" + signature() + "_value);\n");
         }
-        if(attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
+        if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
           result.append("set" + attrName + "(" + signature() + "_value);\n");
         }
-        if(attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+        if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
           result.append("set" + attrName + "(" + signature() + "_value);\n");
         }
       }
@@ -867,7 +839,7 @@ aspect JragCodeGen {
   }
 
   public void TypeDecl.emitInhDeclarations(PrintStream out) {
-    for(int i = 0; i < getNumInhDecl(); i++) {
+    for (int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
        out.println(attr.docComment());
        attr.emitInhDecl(out);
@@ -879,7 +851,7 @@ aspect JragCodeGen {
   }
 
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
-    for(int i = 0; i < getNumInhDecl(); i++) {
+    for (int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
        out.println(attr.docComment());
        emitEquation(attr, attr.parametersDecl(), out);
@@ -888,9 +860,9 @@ aspect JragCodeGen {
   }
 
   syn boolean TypeDecl.hasInhEq(String attrName) {
-    for(int i = 0; i < getNumInhEq(); i++) {
+    for (int i = 0; i < getNumInhEq(); i++) {
       InhEq equ = getInhEq(i);
-      if(equ.getName().equals(attrName)) {
+      if (equ.getName().equals(attrName)) {
         return true;
       }
     }
@@ -901,7 +873,7 @@ aspect JragCodeGen {
 
   syn Components InhEq.getComponents() {
     TypeDecl c = hostClass();
-    if(c != null)
+    if (c != null)
       return c.components(childName());
     return  null;
   }
@@ -909,31 +881,31 @@ aspect JragCodeGen {
 
   syn AttrDecl InhEq.getChildAttrDecl() {
     AttrDecl decl = hostClass().lookupSynDeclPrefix(childName());
-    if(decl == null) decl = hostClass().lookupInhDeclPrefix(childName());
+    if (decl == null) decl = hostClass().lookupInhDeclPrefix(childName());
     return decl;
   }
 
   syn SynDecl TypeDecl.lookupSynDeclPrefix(String signature) {
-    for(int i = 0; i < getNumSynDecl(); i++)
-      if(getSynDecl(i).signature().equals(signature) || getSynDecl(i).signature().startsWith(signature + "_"))
+    for (int i = 0; i < getNumSynDecl(); i++)
+      if (getSynDecl(i).signature().equals(signature) || getSynDecl(i).signature().startsWith(signature + "_"))
         return getSynDecl(i);
     return null;
   }
   eq ASTDecl.lookupSynDeclPrefix(String signature) {
     SynDecl decl = super.lookupSynDeclPrefix(signature);
-    if(decl != null || superClass() == null)
+    if (decl != null || superClass() == null)
       return decl;
     return superClass().lookupSynDeclPrefix(signature);
   }
   syn InhDecl TypeDecl.lookupInhDeclPrefix(String signature) {
-    for(int i = 0; i < getNumInhDecl(); i++)
-      if(getInhDecl(i).signature().equals(signature) || getInhDecl(i).signature().startsWith(signature + "_"))
+    for (int i = 0; i < getNumInhDecl(); i++)
+      if (getInhDecl(i).signature().equals(signature) || getInhDecl(i).signature().startsWith(signature + "_"))
         return getInhDecl(i);
     return null;
   }
   syn InhDecl ASTDecl.lookupInhDeclPrefix(String signature) {
     InhDecl decl = super.lookupInhDeclPrefix(signature);
-    if(decl != null || superClass() == null)
+    if (decl != null || superClass() == null)
       return decl;
     return superClass().lookupInhDeclPrefix(signature);
   }
@@ -944,8 +916,8 @@ aspect JragCodeGen {
 
   syn lazy HashMap Grammar.inhEqMap() {
     HashMap map = new LinkedHashMap();
-    for(int i = 0; i < getNumTypeDecl(); i++) {
-      if(getTypeDecl(i) instanceof ASTDecl) {
+    for (int i = 0; i < getNumTypeDecl(); i++) {
+      if (getTypeDecl(i) instanceof ASTDecl) {
         map.putAll(((ASTDecl)getTypeDecl(i)).inhEqMap());
       }
     }
@@ -958,7 +930,7 @@ aspect JragCodeGen {
   public String Grammar.genResetDuringCounters() {
     StringBuffer sb = new StringBuffer();
     TemplateContext tt = templateContext();
-    for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
+    for (Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
       String name = (String)iter.next();
       tt.bind("Name", name);
       tt.expand("Grammar.genResetDuringCounters", sb);
@@ -974,12 +946,12 @@ aspect JragCodeGen {
 
   //  TODO: INH
   public void ASTDecl.emitInhEqSignatures(PrintStream out) {
-    if(name().equals(grammar().astNodeType)) {
-      for(Iterator iter = grammar().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
+    if (name().equals(config().astNodeType)) {
+      for (Iterator iter = grammar().inhEqMap().entrySet().iterator(); iter.hasNext(); ) {
         java.util.Map.Entry entry = (java.util.Map.Entry)iter.next();
         String attrId = (String)entry.getKey();
         AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
-        if(!hasInhEq(attr.decl().name())) {
+        if (!hasInhEq(attr.decl().name())) {
           attr.emitInhEqSignature(out);
         }
       }

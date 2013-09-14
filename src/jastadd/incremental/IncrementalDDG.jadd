@@ -31,7 +31,7 @@ aspect IncrementalDDG {
    * Generates the class representing dynamic dependency graph (DDG) nodes.
    */
   public void Grammar.genIncrementalDDGNode(PrintWriter out) {
-    if (!grammar().incremental) return;
+    if (!config().incremental) return;
     TemplateContext tt = templateContext();
     tt.expand("Grammar.emitDDGNode", out);
   }
@@ -45,30 +45,30 @@ aspect IncrementalDDG {
    *  - region: on node if region root (non region roots use a method to find the root)
    */
   public void ASTDecl.genIncrementalHandlers(PrintWriter out) {
-    if (!grammar().incremental) return;
+    if (!config().incremental) return;
     TemplateContext tt = templateContext();
-    if (grammar().incrementalLevelRegion &&
+    if (config().incrementalLevelRegion &&
     	isRegionRoot() && !hasRegionRootAsSuperClass()) {
       tt.expand("ASTDecl.createNodeHandler", out);
     }
-    if (grammar().incrementalLevelNode &&
-      		name().equals(grammar().astNodeType)) {
+    if (config().incrementalLevelNode &&
+      		name().equals(config().astNodeType)) {
       tt.expand("ASTDecl.createNodeHandler", out);
     }
-    if (grammar().incrementalLevelParam ||
-    	grammar().incrementalLevelAttr) {
+    if (config().incrementalLevelParam ||
+    	config().incrementalLevelAttr) {
 
-      if (name().equals(grammar().astNodeType)) {
+      if (name().equals(config().astNodeType)) {
         tt.expand("ASTDecl.createASTHandlers", out);
       }
       // collect attributes
       ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynDecl(); k++) {
+      for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
         if (attr.getLazy() || attr.isCircular())
           list.add(attr);
       }
-      for(int k = 0; k < getNumInhDecl(); k++) {
+      for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
         if (attr.getLazy() || attr.isCircular())
           list.add(attr);
@@ -92,7 +92,7 @@ aspect IncrementalDDG {
    * This only applies for the incremental param configuration.
    */
   public String ASTDecl.genIncrementalInitChildHandlers() {
-    if (!grammar().incremental) return "";
+    if (!config().incremental) return "";
     TemplateContext tt = templateContext();
     return tt.expand("ASTDecl.incrementalInitChildHandlers");
   }
@@ -101,7 +101,7 @@ aspect IncrementalDDG {
    * Generate code for copying of DDG nodes.
    */
   public void ASTDecl.genIncrementalCopyHandlers(PrintWriter out) {
-    if (!grammar().incremental) return;
+    if (!config().incremental) return;
     TemplateContext tt = templateContext();
     tt.bind("IsRegionRoot", isRegionRoot());
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
@@ -114,7 +114,7 @@ aspect IncrementalDDG {
    */
   public String ASTDecl.emitCopyTokenHandlersString() {
     StringBuffer res = new StringBuffer();
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+    if (config().incrementalLevelParam || config().incrementalLevelAttr) {
       TemplateContext tt = templateContext();
       for (int c = 0; c < getNumComponents(); c++) {
         Components comp = getComponents(c);
@@ -132,22 +132,22 @@ aspect IncrementalDDG {
    */
   public String ASTDecl.emitCopyAttributeHandlersString() {
     StringBuffer res = new StringBuffer();
-    if (grammar().incrementalLevelParam || grammar().incrementalLevelAttr) {
+    if (config().incrementalLevelParam || config().incrementalLevelAttr) {
       // Collect attributes
       ArrayList list = new ArrayList();
-      for(int k = 0; k < getNumSynDecl(); k++) {
+      for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
         if (attr != null && (attr.getLazy() || attr.isCircular()))
           list.add(attr);
       }
-      for(int k = 0; k < getNumInhDecl(); k++) {
+      for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
         if (attr != null && (attr.getLazy() || attr.isCircular()))
           list.add(attr);
       }
       // Attribute code
       TemplateContext tt = templateContext();
-      for(Iterator itr = list.iterator(); itr.hasNext();) {
+      for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
         tt.bind("AttributeName", attr.signature());// TODO rename template variable?
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
@@ -164,20 +164,20 @@ aspect IncrementalDDG {
    * and tracking of region dependencies.
    */
   public void ASTDecl.genIncrementalRegions(PrintWriter out) {
-    if (!grammar().incremental) return;
+    if (!config().incremental) return;
     TemplateContext tt = templateContext();
     tt.bind("IsRegionRoot", isRegionRoot());
-    if (grammar().incrementalLevelNode) {
+    if (config().incrementalLevelNode) {
       tt.expand("ASTDecl.createIsRegionRootMethod", out);
-      if (name().equals(grammar().astNodeType)) {
+      if (name().equals(config().astNodeType)) {
         tt.expand("ASTDecl.createRegionHandlerMethod", out);
       }
     }
-    if (grammar().incrementalLevelRegion) {
+    if (config().incrementalLevelRegion) {
       tt.expand("ASTDecl.createIsRegionRootMethod", out);
       tt.expand("ASTDecl.createRegionHandlerMethod", out);
       tt.expand("ASTDecl.createRegionRootMethod", out);
-      if (isRegionRoot() && !name().equals(grammar().astNodeType)) {
+      if (isRegionRoot() && !name().equals(config().astNodeType)) {
         tt.expand("ASTDecl.trackGetParentForRegionMethod", out);
       }
       if (isRegionLeaf()) {
@@ -190,13 +190,13 @@ aspect IncrementalDDG {
     // TODO revisit these methods
     /*
     // method: removeChild(int) -- overloaded for region tracking
-    if (grammar().incrementalLevelRegion) {
-      if (isRegionLeaf() && !name().equals(grammar().astNodeType)) {
+    if (config().incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals(config().astNodeType)) {
         stream.println(ind + "public void " + name() + ".removeChild(int index) {");
         stream.println(ind(2) + "// region leaf");
-        stream.println(ind(2) + "" + grammar().astNodeType + " child = getChild(index);");
+        stream.println(ind(2) + "" + config().astNodeType + " child = getChild(index);");
         stream.println(ind(2) + "if (child.isRegionRoot()) {");
-        stream.println(ind(3) +   "" + grammar().astNodeType + "$DepGraphNode handler = handler();");
+        stream.println(ind(3) +   "" + config().astNodeType + "$DepGraphNode handler = handler();");
         stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
         stream.println(ind(2) + "}");
         stream.println(ind(2) + "super.removeChild(index);");
@@ -204,12 +204,12 @@ aspect IncrementalDDG {
       }
     }
     // method: insertChild(ASTNode,int) -- overloaded for region tracking
-    if (grammar().incrementalLevelRegion) {
-      if (isRegionLeaf() && !name().equals(grammar().astNodeType)) {
-        stream.println("    public void " + name() + ".insertChild(" + grammar().astNodeType + " node, int index) {");
+    if (config().incrementalLevelRegion) {
+      if (isRegionLeaf() && !name().equals(config().astNodeType)) {
+        stream.println("    public void " + name() + ".insertChild(" + config().astNodeType + " node, int index) {");
         stream.println("      // region leaf");
         stream.println("      if (node.isRegionRoot()) {");
-        stream.println(ind(3) +   "" + grammar().astNodeType + "$DepGraphNode handler = handler();");
+        stream.println(ind(3) +   "" + config().astNodeType + "$DepGraphNode handler = handler();");
         stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
         stream.println("      }");
         stream.println("      super.insertChild(node, index);");

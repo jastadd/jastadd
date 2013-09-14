@@ -35,7 +35,7 @@ aspect Flush {
     tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
     tt.expand("ASTDecl.flushCacheMethod", out);
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
-    if (grammar().fullFlush) {
+    if (config().fullFlush) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
     }
@@ -46,7 +46,7 @@ aspect Flush {
    */
   public String ASTDecl.emitFlushSynAttrCacheString() {
     StringBuffer res = new StringBuffer();
-    for(int k = 0; k < getNumSynEq(); k++) {
+    for (int k = 0; k < getNumSynEq(); k++) {
       AttrDecl attr = getSynEq(k).decl();
       if (attr == null) continue;
       res.append(attr.resetVisit());
@@ -60,7 +60,7 @@ aspect Flush {
    */
   public String ASTDecl.emitFlushInhAttrCacheString() {
     StringBuffer res = new StringBuffer();
-    for(int k = 0; k < getNumInhDecl(); k++) {
+    for (int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
       if (attr == null) continue;
       res.append(attr.resetVisit());
@@ -72,12 +72,12 @@ aspect Flush {
   syn String AttrDecl.resetCache() = resetCache("");
 
   public String AttrDecl.resetCache(String prefix) {
-    if(!(getLazy() || isCircular()))
+    if (!(getLazy() || isCircular()))
       return "";
     String signature = prefix + signature();
-    if(getNumParameter() == 0) {
-      if(isCircular()) {
-        if(isPrimitive())
+    if (getNumParameter() == 0) {
+      if (isCircular()) {
+        if (isPrimitive())
           return signature + "_computed = false;\n" +
                  signature + "_initialized = false;\n";
         else
@@ -85,31 +85,34 @@ aspect Flush {
                  signature + "_initialized = false;\n" +
                  signature + "_value = null;\n";
       }
-      if(isPrimitive())
+      if (isPrimitive())
         return signature + "_computed = false;\n";
       else
         return signature + "_computed = false;\n" +
                signature + "_value = null;\n";
     }
-    else if(isCircular()) {
-        if(grammar().lazyMaps)
+    else if (isCircular()) {
+        if (config().lazyMaps) {
           return signature + "_values = null;\n";
-        else
-          return signature + "_values = " + grammar().createDefaultMap + ";\n";
+        } else {
+          return signature + "_values = " + config().createDefaultMap + ";\n";
+        }
     }
     else {
       if (getNTA()) {
-        if(grammar().lazyMaps)
+        if (config().lazyMaps) {
           return signature + "_values = null;\n" +
                  signature + "_list = null;";
-        else
-          return signature + "_values = " + grammar().createDefaultMap + ";\n" +
+        } else {
+          return signature + "_values = " + config().createDefaultMap + ";\n" +
                  signature + "_list = null;\n";
+        }
       } else {
-        if(grammar().lazyMaps)
+        if (config().lazyMaps) {
           return signature + "_values = null;\n";
-        else
-          return signature + "_values = " + grammar().createDefaultMap + ";\n";
+        } else {
+          return signature + "_values = " + config().createDefaultMap + ";\n";
+        }
       }
     }
   }
@@ -140,12 +143,13 @@ aspect Flush {
    */
   public String ASTDecl.emitFlushCollectionCacheString() {
     StringBuffer res = new StringBuffer();
-    for(int i = 0; i < getNumCollDecl(); i++) {
+    for (int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       res.append(attr.resetVisit());
       res.append(attr.resetCache());
-      if(!attr.separateEvaluation() && !attr.onePhase())
-        res.append(grammar().ind(2) + attr.signature() + "_contributors = " + (grammar().lazyMaps ? "null" : grammar().createContributorSet) + ";\n");
+      if (!attr.separateEvaluation() && !attr.onePhase()) {
+        res.append(config().ind(2) + attr.signature() + "_contributors = " + (config().lazyMaps ? "null" : config().createContributorSet) + ";\n");
+      }
     }
     res.append(collectionReset());
     return res.toString();

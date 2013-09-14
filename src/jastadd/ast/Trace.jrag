@@ -1,11 +1,11 @@
 /* Copyright (c) 2010-2013,
- * Torbjörn Ekman 
+ * Torbjörn Ekman
  * Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -14,7 +14,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -43,15 +43,15 @@ aspect Trace {
     StringBuilder b = new StringBuilder();
     b.append(getAspectName());
     b.append(": ");
-    if(this instanceof SynDecl)
+    if (this instanceof SynDecl)
       b.append("syn ");
-    if(this instanceof InhDecl)
+    if (this instanceof InhDecl)
       b.append("inh ");
     if (this instanceof CollDecl)
       b.append("coll ");
-    if(getLazy())
+    if (getLazy())
       b.append("lazy ");
-    if(isCircular())
+    if (isCircular())
       b.append(" circular");
 
     b.append(getType());
@@ -60,8 +60,8 @@ aspect Trace {
     b.append(".");
     b.append(name());
     b.append("(");
-    for(int i = 0; i < getNumParameter(); i++) {
-      if(i != 0)
+    for (int i = 0; i < getNumParameter(); i++) {
+      if (i != 0)
         b.append(", ");
       b.append(getParameter(i).getType());
       b.append(" ");
@@ -70,13 +70,13 @@ aspect Trace {
     b.append(")");
     b.append(", ");
     b.append("this = \" + this.getClass().getName() + \"@\"+ Integer.toHexString(this.hashCode()) + \"");
-    for(int i = 0; i < getNumParameter(); i++) {
+    for (int i = 0; i < getNumParameter(); i++) {
       String name = getParameter(i).getName();
       String type = getParameter(i).getType();
       b.append(", ");
       b.append(name);
       b.append(" = ");
-      if(isPrimitive(type) || type.equals("String") || type.equals("java.lang.String"))
+      if (isPrimitive(type) || type.equals("String") || type.equals("java.lang.String"))
         b.append("\" + " + name + " + \"");
       else
         b.append("\" + " + name + ".getClass().getName() + \"@\" + Integer.toHexString(" + name + ".hashCode()) + \"");
@@ -86,13 +86,16 @@ aspect Trace {
 
   protected String AttrDecl.trace(String s) {
     // Disabling this print-based tracing in favor of the new in-memory tracing using templates
-    if(!grammar().tracing || grammar().tracing)
+    /*if (!grammar().tracing || grammar().tracing)
       return "";
     StringBuilder b = new StringBuilder();
     b.append("System.out.println(\"");
     b.append(s);
     b.append("\");\n");
-    return b.toString();
+    return b.toString();*/
+
+    // removed above dead code /jesper
+    return "";
   }
 
   syn String AttrDecl.traceBeginAttr() =
@@ -105,7 +108,7 @@ aspect Trace {
 
 aspect NewTrace {
   syn boolean AttrDecl.hasOneParameter() = getNumParameter() == 1;
-  
+
   syn String AttrDecl.parameterTypesAsCSV() {
     StringBuilder sb = new StringBuilder();
     boolean first = true;
@@ -121,7 +124,7 @@ aspect NewTrace {
     }
     return sb.toString();
   }
-  
+
   syn String AttrDecl.signatureJavaStyle() {
     return getName() + "(" + parameterTypesAsCSV() + ")";
   }

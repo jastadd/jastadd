@@ -1,9 +1,9 @@
 /* Copyright (c) 2005-2013, The JastAdd Team
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the Lund University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,10 +33,10 @@ aspect Rewrites {
 
   syn lazy Collection Grammar.rewriteAspects() {
     Set set = new LinkedHashSet();
-    for(int i = 0; i < getNumTypeDecl(); i++) {
-      if(getTypeDecl(i) instanceof ASTDecl) {
+    for (int i = 0; i < getNumTypeDecl(); i++) {
+      if (getTypeDecl(i) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)getTypeDecl(i);
-        for(int j = 0; j < decl.getNumRewrite(); j++) {
+        for (int j = 0; j < decl.getNumRewrite(); j++) {
           Rewrite r = decl.getRewrite(j);
           set.add(r.aspectName());
         }
@@ -47,7 +47,7 @@ aspect Rewrites {
 
   public void Grammar.genRewriteOrderChecks(PrintWriter out) {
     TemplateContext tt = templateContext();
-    for(Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
+    for (Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
       tt.bind("RewriteName", (String) iter.next());
       tt.expand("Grammar.genRewriteOrderChecks", out);
     }
@@ -59,28 +59,28 @@ aspect Rewrites {
 
     tt.expand("ASTDecl.emitRewrites.begin", out);
 
-    if(name().equals(grammar().listType)) {
+    if (name().equals(config().listType)) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
-      if (!(grammar().incremental || grammar().fullFlush)) {
+      if (!(config().incremental || config().fullFlush)) {
         tt.expand("ASTDecl.emitRewrites.touch_list", out);
       }
     }
-    for(int i = 0; i < getNumRewrite(); i++) {
+    for (int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
       if (r.genRewrite(out, i)) {
         unconditional = true;
       }
     }
 
-    if(name().equals(grammar().astNodeType)) {
+    if (name().equals(config().astNodeType)) {
       tt.expand("ASTDecl.emitRewrites.end:ASTNode", out);
-    } else if(!unconditional) {
+    } else if (!unconditional) {
       tt.expand("ASTDecl.emitRewrites.end:!unconditional", out);
     } else {
       tt.expand("ASTDecl.emitRewrites.end", out);
     }
 
-    for(int i = 0; i < getNumRewrite(); i++) {
+    for (int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
       r.genRewritesExtra(out, i);
     }
@@ -90,7 +90,7 @@ aspect Rewrites {
     TemplateContext tt = templateContext();
     tt.bind("RewriteIndex", "" + index);
     tt.expand("Rewrite.genRewrite.declaredat", out);
-    if(getCondition() != null) {
+    if (getCondition() != null) {
       tt.bind("Condition", Unparser.unparse(getCondition()));
       tt.expand("Rewrite.genRewrite:conditional", out);
       return false;
@@ -103,7 +103,7 @@ aspect Rewrites {
     TemplateContext tt = templateContext();
     tt.expand("Rewrite.genRewrite.declaredat", out);
 
-    if(getCondition() != null) {
+    if (getCondition() != null) {
       tt.bind("Condition", " && " + Unparser.unparse(getCondition()));
     } else {
       tt.bind("Condition", "");
@@ -114,12 +114,12 @@ aspect Rewrites {
   }
 
   public void Rewrite.genRewritesExtra(PrintStream out, int index) {
-    String ind = grammar().ind;
-    String ind2 = grammar().ind(2);
-    if(getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
+    String ind = config().indent;
+    String ind2 = config().ind(2);
+    if (getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      if(grammar().rewriteLimit > 0)
+      if (config().rewriteLimit > 0)
         out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -129,7 +129,7 @@ aspect Rewrites {
     } else {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      if(grammar().rewriteLimit > 0)
+      if (config().rewriteLimit > 0)
         out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -139,12 +139,12 @@ aspect Rewrites {
     }
   }
   public void RewriteList.genRewritesExtra(PrintStream out, int index) {
-    String ind = grammar().ind;
-    String ind2 = grammar().ind(2);
-    if(getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
+    String ind = config().indent;
+    String ind2 = config().ind(2);
+    if (getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
-      if(grammar().rewriteLimit > 0)
+      if (config().rewriteLimit > 0)
         out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
@@ -154,7 +154,7 @@ aspect Rewrites {
     } else {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
-      if(grammar().rewriteLimit > 0)
+      if (config().rewriteLimit > 0)
         out.println(ind2 +
           "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
           "using rule in " + getFileNameEscaped() + " at line " +
