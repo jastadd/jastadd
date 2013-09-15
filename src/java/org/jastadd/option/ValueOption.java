@@ -79,7 +79,7 @@ public class ValueOption extends Option {
   public void matchWithArg(PrintStream err, String arg) {
     doMatch(err, arg);
   }
-  
+
   @Override
   public int matchWithSeparateArg(PrintStream err, String arg) {
     doMatch(err, arg);
@@ -122,15 +122,6 @@ public class ValueOption extends Option {
   }
 
   /**
-   * Configures if this option accepts multiple values in a list
-   *
-   * @param acceptsMultiple true if multiple values are supported
-   */
-  public void acceptsMultipleValues(boolean acceptsMultiple) {
-    acceptsMultipleValues = acceptsMultiple;
-  }
-
-  /**
    * Match the option with argument.
    */
   protected final void doMatch(PrintStream out, String arg) {
@@ -145,7 +136,7 @@ public class ValueOption extends Option {
 
     alreadyMatched = true;
   }
-  
+
   /**
    * Check problems and print warning messages.
    *

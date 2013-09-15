@@ -486,7 +486,8 @@ public class Configuration {
     argParser.addOption(new ValueOption(
           "tracing", "weaves in code collecting evaluation events") {
       {
-        acceptsMultipleValues(true);
+        acceptsMultipleValues = true;
+        needsValue = false;
         addAcceptedValue("compute", "trace begin and end of attribute computation");
         addAcceptedValue("cache", "trace value cached, read cache, and cache aborted");
         addAcceptedValue("rewrite", "trace rewrite evaluation");
@@ -600,7 +601,7 @@ public class Configuration {
     argParser.addOption(new ValueOption(
           "cache", "global cache configuration overriding 'lazy'") {
       {
-        acceptsMultipleValues(false);
+        acceptsMultipleValues = false;
         addAcceptedValue("all", "cache all attributes");
         addAcceptedValue("none", "disable attribute caching");
         addAcceptedValue("config", "cache attributes according to a given .config file");
@@ -685,7 +686,7 @@ public class Configuration {
     argParser.addOption(new ValueOption(
           "incremental", "turns on incremental evaluation with the given configuration") {
       {
-        acceptsMultipleValues(true);
+        acceptsMultipleValues = true;
         addAcceptedValue("param", "dependency tracking on parameter level");
         addAcceptedValue("region", "dependency tracking on region level");
         addAcceptedValue("flush", "invalidate with flush (default)");// Default on: Any way to disable??
