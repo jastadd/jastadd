@@ -28,8 +28,7 @@ OPTIONS:
 	<taskdef name="jastadd" classname="jastadd.JastAddTask"
 		classpath="${jastadd-jar}"/>
 
-	<target name="build" depends="update-version-string, init-tinytemplate"
-			description="Generate sources and build JastAdd2">
+	<target name="gen" description="generate sources">
 		<mkdir dir="${jastadd2.gen.dir}/org/jastadd/ast/AST"/>
 		<mkdir dir="${jastadd2.gen.dir}/org/jastadd/jrag/AST"/>
 		<mkdir dir="${jastadd2.bin.dir}"/>
@@ -59,21 +58,28 @@ OPTIONS:
 		<!--jjtree javacchome="${jastadd2.tools.dir}" nodeprefix="&quot;&quot;"
 			outputdirectory="${jastadd2.gen.dir}/ast/AST"
 			target="${jastadd2.src.dir}/javacc/ast/Ast.jjt"/-->
-		<javacc javacchome="${jastadd2.tools.dir}" jdkversion="1.4"
+		<javacc
+			javacchome="${jastadd2.tools.dir}"
+			jdkversion="1.4"
 			outputdirectory="${jastadd2.gen.dir}/org/jastadd/ast/AST"
 			target="${jastadd2.gen.dir}/org/jastadd/ast/AST/Ast.jj"/>
 		<!-- Ast.jjt must be touched, or Ant will not run jjtree -->
 		<touch file="${jastadd2.src.dir}/javacc/jrag/Jrag.jjt"/>
-		<jjtree javacchome="${jastadd2.tools.dir}"
+		<jjtree
+			javacchome="${jastadd2.tools.dir}"
 			outputdirectory="${jastadd2.gen.dir}/org/jastadd/jrag/AST"
 			target="${jastadd2.src.dir}/javacc/jrag/Jrag.jjt"/>
-		<javacc javacchome="${jastadd2.tools.dir}" jdkversion="1.4"
+		<javacc
+			javacchome="${jastadd2.tools.dir}"
+			jdkversion="1.4"
 			outputdirectory="${jastadd2.gen.dir}/org/jastadd/jrag/AST"
 			target="${jastadd2.gen.dir}/org/jastadd/jrag/AST/Jrag.jj"/>
+	</target>
 
-
+	<target name="build" depends="gen,update-version-string,init-tinytemplate"
+		description="build JastAdd2">
 		<javac
-      encoding="utf8"
+			encoding="utf8"
 			debug="${debug}"
 			source="1.6" target="1.6"
 			destdir="${jastadd2.bin.dir}" includeantruntime="true">
