@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.jastadd.option.ArgumentParser;
 import org.jastadd.option.Option;
@@ -847,6 +848,17 @@ public class Configuration {
       return true;
     }
 
+    Collection<String> grammarFiles = new LinkedList<String>();
+    for (String filename: argParser.getFilenames()) {
+      if (filename.endsWith(".ast")) {
+        grammarFiles.add(filename);
+      }
+    }
+    if (grammarFiles.isEmpty()) {
+      out.println("Error: No grammar files specified.");
+      return true;
+    }
+
     for (String filename: argParser.getFilenames()) {
       if (!(filename.endsWith(".ast")
           || filename.endsWith(".jrag")
@@ -1048,7 +1060,7 @@ public class Configuration {
    * @return <code>true</code> if the help message should be printed
    */
   public boolean shouldPrintHelp() {
-    return printHelp || getFiles().isEmpty();
+    return printHelp;
   }
 
   /**

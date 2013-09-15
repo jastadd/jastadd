@@ -124,6 +124,7 @@ public class JastAdd {
    */
   public int compile(PrintStream out, PrintStream err) {
     if (config.checkProblems(err)) {
+      out.println("Run JastAdd2 again with the --h option to view help.");
       return 1;
     } else if (config.shouldPrintVersion()) {
       out.println(getVersionString());

@@ -1,3 +1,14 @@
+2013-09-15  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * An error is now reported if no grammar files are given on the command
+    line.
+    * If any error prevents JastAdd from running, a short line will be printed
+    with info about obtaining help (--h), rather than the full help output.
+    This makes it easier to spot the error message on the command line.
+    * Refactored option handling.
+    * All JastAdd configuration options are now stored in
+    org.jastadd.Configuration.
+
 2013-09-11  Emma Söderberg <emma.soderberg@cs.lth.se>
 
     * Added support for --cache=analyze
@@ -19,13 +30,13 @@
 
     * Changed tracing flag to enable static filtering of tracing, e.g.,
     --tracing=compute will only trace compute events. The new tracing flags are:
-    compute,cache,rewrite,circularNTA,circular,copy. These can be combined, 
+    compute,cache,rewrite,circularNTA,circular,copy. These can be combined,
     e.g., --tracing=compute,cache . The flag --tracing will enable tracing of
     all trace events (as before).
-    * Added abstract class InputFilter to tracing that can be used to control 
-    how tracing objects are created (e.g., to save memory), and it can also be 
-    used to dynamically filter which trace events to save. 
-    * Added Processor interface to process (e.g., aggregate information) trace 
+    * Added abstract class InputFilter to tracing that can be used to control
+    how tracing objects are created (e.g., to save memory), and it can also be
+    used to dynamically filter which trace events to save.
+    * Added Processor interface to process (e.g., aggregate information) trace
     events after they have been collected.
     * Fixed compile time errors in the generated tracing code.
 
@@ -317,7 +328,7 @@
     *  Synthesized attributes with no equation generate an abstract method
     even if another attribute with the same name has an equation in the same
     node type. Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/78
-    
+
     * Removed the generated attribute for accessing parameterized non-terminal
     value maps due to possible faulty code generation.
     Trac ticket: http://svn.cs.lth.se/trac/jastadd-trac/ticket/80
@@ -409,7 +420,7 @@ aspectj in Makefile to make sure ast.AST.TokenComponent is
 handled before ast.AST.TokenComponentNTA. The order of the
 file list apparently affects the result of aspectj 1.5.3
 and if not sorted an error will occur. This problem does
-not occur when the ant script is run because it the 
+not occur when the ant script is run because it the
 file list given to aspectj has a different order.
 -------------------------------------------------------
 2011-01-09: (JO) Improved the generated documentation comments
@@ -485,9 +496,9 @@ java1.4 code.
 2011-09-08: (ES) First bootstrap step
 Did a bootstrap with the java1.4 flag on. Updated the
 refinement syntax in JragCodeGen.jrag and hand to rename
-the "String ASTDecl.flushCollectionCache" to 
+the "String ASTDecl.flushCollectionCache" to
 "String ASTDecl.flushCollectionCacheString" to prevent
-a collision with the now generated 
+a collision with the now generated
 "void ASTDecl.flushCollectionCache".
 --------------------------------------------------------
 2011-09-08: (ES) Added generation of java1.4 code
@@ -502,7 +513,7 @@ the "refined()" construct instead of the "A.C.m()" construct.
 The tests for the latter alternative fails.
 --------------------------------------------------------
 2011-09-08: (ES) Added support for refinement of grammar generated methods
-(from .ast) via an "Ast" aspect. 
+(from .ast) via an "Ast" aspect.
 --------------------------------------------------------
 2011-09-08: (ES) Added tests for refine (110-116)
 --------------------------------------------------------
