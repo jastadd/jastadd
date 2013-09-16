@@ -137,7 +137,7 @@ public class Option {
    *
    * @param err Error output stream
    */
-  public void matchNoArg(PrintStream err) {
+  public void matchWithoutArg(PrintStream err) {
     doMatch(err);
   }
 
@@ -206,5 +206,19 @@ public class Option {
   @Override
   public String toString() {
     return PREFIX + name;
+  }
+
+  /**
+   * @return {@code true} if this option is deprecated
+   */
+  public boolean isDeprecated() {
+    return isDeprecated;
+  }
+
+  /**
+   * @return the name of this option
+   */
+  public String name() {
+    return name;
   }
 }

@@ -70,7 +70,7 @@ public class ValueOption extends Option {
   }
 
   @Override
-  public void matchNoArg(PrintStream err) {
+  public void matchWithoutArg(PrintStream err) {
     err.println("Warning: Missing value for option " + name);
     doMatch(err);
   }

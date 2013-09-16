@@ -31,7 +31,8 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
-import java.util.*;
+import org.jastadd.option.Option;
+
 import java.io.*;
 
 /**
@@ -39,283 +40,220 @@ import java.io.*;
  */
 @SuppressWarnings("javadoc")
 public class JastAddTask extends Task {
+
+  private final Configuration config = new Configuration();
+
+  private void setOption(Option option, boolean enable) {
+    if (option.isDeprecated()) {
+      System.err.println("Warning: the option " + option.name() +
+          " is deprecated!");
+    }
+    if (enable) {
+      option.matchWithoutArg(System.err);
+    }
+  }
+
+  private void setOption(Option option, String value) {
+    if (option.isDeprecated()) {
+      System.err.println("Warning: the option " + option.name() +
+          " is deprecated!");
+    }
+    option.matchWithArg(System.err, value);
+  }
+
   public JastAddTask() {
     super();
   }
+
+  @Override
   public void init() {
     super.init();
   }
 
-  private Set<String> files = new LinkedHashSet<String>();
   public void addConfiguredFileSet(FileSet fileset) {
     DirectoryScanner s = fileset.getDirectoryScanner(getProject());
     String[] files = s.getIncludedFiles();
     String baseDir = s.getBasedir().getPath();
-    for(int i = 0; i < files.length; i++)
-      this.files.add(baseDir + File.separator + files[i]);
+    for (int i = 0; i < files.length; i++) {
+      config.filenames.add(baseDir + File.separator + files[i]);
+    }
   }
 
-  private String astNodeType = null;
-  public void setASTNode(String type) {
-    astNodeType = type;
+  public void setASTNode(String arg) {
+    setOption(config.ASTNodeOption, arg);
   }
 
-  private String listType = null;
-  public void setList(String type) {
-    listType = type;
+  public void setList(String arg) {
+    setOption(config.ListOption, arg);
   }
 
-  private String optType = null;
-  public void setOpt(String type) {
-    optType = type;
+  public void setOpt(String arg) {
+    setOption(config.OptOption, arg);
   }
 
-  // use jjtree node as base node type, requires the grammar option
-  private boolean jjtree = false;
-  public void setJjtree(boolean b) { jjtree = b; }
-
-  private String grammar = null;
-  public void setGrammar(String g) { grammar = g; }
-
-  // use beaver node as base node type
-  private boolean beaver = false;
-  public void setBeaver(boolean b) { beaver = b; }
-
-  // line and column information
-  private boolean lineColumnNumbers = false;
-  public void setLineColumnNumbers(boolean b) { lineColumnNumbers = b; }
-
-
-  // make the generated files belong to this package
-  private String packageName = null;
-  public void setPackage(String name) { packageName = name; }
-
-  // place the generated files in this directory
-  private String outdir = null;
-  public void setOutdir(String dir) { outdir = dir; }
-
-  // use these datastructures to hold cached attributes
-  private String defaultMap = null;
-  public void setDefaultMap(String map) { defaultMap = map; }
-  private String defaultSet = null;
-  public void setDefaultSet(String set) { defaultSet = set; }
-  private boolean lazyMaps = true;
-  public void setLazyMaps(boolean b) { lazyMaps = b; }
-
-  // generate code for rewrites
-  private boolean rewrite = false;
-  public void setRewrite(boolean b) { rewrite = b; }
-
-  // generate check for detection of circular evaluation of non circular attributes
-  private boolean novisitcheck = false;
-  public void setNovisitcheck(boolean b) { novisitcheck = b;}
-  public void setVisitCheck(boolean b) { novisitcheck = !b; }
-
-  // generate last cycle cache optimization for circular attributes
-  private boolean noCacheCycle = false;
-  public void setNoCacheCycle(boolean b) { noCacheCycle = b; }
-  public void setCacheCycle(boolean b) { noCacheCycle = !b; }
-
-  // generate strongly connected component optimization for circular attributes
-  private boolean noComponentCheck = true; // disabled by default for now
-  public void setNoComponentCheck(boolean b) { noComponentCheck = b; }
-  public void setComponentCheck(boolean b) { noComponentCheck = !b; }
-
-  // disable check for inherited equations
-  private boolean noInhEqCheck = false;
-  public void setNoInhEqCheck(boolean b) { noInhEqCheck = b; }
-
-  // suppress warnings when using Java 5
-  private boolean suppressWarnings = false;
-  public void setSuppressWarnings(boolean b) { suppressWarnings = b; }
-
-  // generate javadoc like .html pages for sources
-  private boolean doc = false;
-  public void setDoc(boolean b) { doc = b; }
-
-  // TODO: remove
-  public void setDoxygen(boolean b) { doc = b; }
-
-  // include the following license file in all generated files
-  private String license = null;
-  public void setLicense(String license) {
-    this.license = license;
+  public void setJjtree(boolean enable) {
+    setOption(config.jjtreeOption, enable);
   }
 
-  private boolean java14 = false;
-  public void setJava14(boolean b) { java14 = b; }
+  public void setGrammar(String arg) {
+    setOption(config.grammarOption, arg);
+  }
 
-  // generate run-time checks for debugging
-  private boolean debug = false;
-  public void setDebug(boolean b) { debug = b; }
+  public void setBeaver(boolean enable) {
+    setOption(config.beaverOption, enable);
+  }
 
-  private boolean synch = false;
-  public void setSynch(boolean b) { synch = b; }
+  public void setLineColumnNumbers(boolean enable) {
+    setOption(config.lineColumnNumbersOption, enable);
+  }
 
-  private boolean noStatic = false;
-  public void setNoStatic(boolean b) { noStatic = b; }
+  public void setPackage(String arg) {
+    setOption(config.packageOption, arg);
+  }
 
-  private boolean refineLegacy = true;
-  public void setRefineLegacy(boolean b) { refineLegacy = b; }
+  public void setOutdir(String arg) {
+    setOption(config.oOption, arg);
+  }
 
-  private boolean stagedRewrites = false;
-  public void setStagedRewrites(boolean b) { stagedRewrites = b; }
+  public void setDefaultMap(String arg) {
+    setOption(config.defaultMapOption, arg);
+  }
 
-  private boolean deterministic = false;
-  public void setDeterministic(boolean b) { deterministic = b; }
+  public void setDefaultSet(String arg) {
+    setOption(config.defaultSetOption, arg);
+  }
 
-  private String tracing = "";
-  public void setTracing(String s) { tracing = s; }
+  public void setLazyMaps(boolean enable) {
+    setOption(config.lazyMapsOption, enable);
+  }
 
+  public void setRewrite(boolean enable) {
+    setOption(config.rewriteOption, enable);
+  }
 
-  private String cache = "";
-  public void setCache(String s) { cache = s; }
+  public void setNovisitcheck(boolean enable) {
+    setOption(config.noVisitCheckOption, enable);
+  }
 
-  // Deprecated: replaced with cache=all
-  private boolean cacheAll = false;
-  public void setCacheAll(boolean b) { cacheAll = b; }
+  public void setVisitCheck(boolean enable) {
+    setOption(config.visitCheckOption, enable);
+  }
 
-  // Deprecated: replace with cache=none
-  private boolean noCaching = false;
-  public void setNoCaching(boolean b) { noCaching = b; }
+  public void setNoCacheCycle(boolean enable) {
+    setOption(config.noCacheCycleOption, enable);
+  }
 
-  // Deprecated: replaced with cache=none
-  private boolean cacheNone = false;
-  public void setCacheNone(boolean b) { cacheNone = b; }
+  public void setCacheCycle(boolean enable) {
+    setOption(config.cacheCycleOption, enable);
+  }
 
-  // Deprecated: replaced with cache=implicit
-  private boolean cacheImplicit = false;
-  public void setCacheImplicit(boolean b) { cacheImplicit = b; }
+  public void setNoComponentCheck(boolean enable) {
+    setOption(config.noComponentCheckOption, enable);
+  }
 
-  // Deprecated: no replacement
-  private boolean ignoreLazy = false;
-  public void setIgnoreLazy(boolean b) { ignoreLazy = b; }
+  public void setComponentCheck(boolean enable) {
+    setOption(config.componentCheckOption, enable);
+  }
 
+  public void setNoInhEqCheck(boolean enable) {
+    setOption(config.noInhEqCheckOption, enable);
+  }
 
-  private String incremental = "";
-  public void setIncremental(String s) { incremental = s; }
+  public void setSuppressWarnings(boolean enable) {
+    setOption(config.suppressWarningsOption, enable);
+  }
 
-  private boolean fullFlush = false;
-  public void setFullFlush(boolean b) { fullFlush = b; }
+  public void setDoc(boolean enable) {
+    setOption(config.docOption, enable);
+  }
 
-  private String indent = "";
-  public void setIndent(String s) { indent = s; }
+  public void setDoxygen(boolean enable) {
+    setOption(config.doxygenOption, enable);
+  }
 
-  private String minListSize = "";
-  public void setMinListSize(String s) { minListSize = s; }
+  public void setLicense(String arg) {
+    setOption(config.licenseOption, arg);
+  }
 
+  public void setJava14(boolean enable) {
+    setOption(config.java1_4Option, enable);
+  }
+
+  public void setDebug(boolean enable) {
+    setOption(config.debugOption, enable);
+  }
+
+  public void setSynch(boolean enable) {
+    setOption(config.synchOption, enable);
+  }
+
+  public void setNoStatic(boolean enable) {
+    setOption(config.noStaticOption, enable);
+  }
+
+  public void setRefineLegacy(boolean enable) {
+    setOption(config.refineLegacyOption, enable);
+  }
+
+  public void setStagedRewrites(boolean enable) {
+    setOption(config.stagedRewritesOption, enable);
+  }
+
+  public void setDeterministic(boolean enable) {
+    setOption(config.deterministicOption, enable);
+  }
+
+  public void setTracing(String arg) {
+    setOption(config.tracingOption, arg);
+  }
+
+  public void setCache(String arg) {
+    setOption(config.cacheOption, arg);
+  }
+
+  public void setCacheAll(boolean enable) {
+    setOption(config.cacheAllOption, enable);
+  }
+
+  public void setNoCaching(boolean enable) {
+    setOption(config.noCachingOption, enable);
+  }
+
+  public void setCacheNone(boolean enable) {
+    setOption(config.cacheNoneOption, enable);
+  }
+
+  public void setCacheImplicit(boolean enable) {
+    setOption(config.cacheImplicitOption, enable);
+  }
+
+  public void setIgnoreLazy(boolean enable) {
+    setOption(config.ignoreLazyOption, enable);
+  }
+
+  public void setIncremental(String arg) {
+    setOption(config.incrementalOption, arg);
+  }
+
+  public void setFullFlush(boolean enable) {
+    setOption(config.fullFlushOption, enable);
+  }
+
+  public void setIndent(String arg) {
+    setOption(config.indentOption, arg);
+  }
+
+  public void setMinListSize(String arg) {
+    setOption(config.minListSizeOption, arg);
+  }
+
+  @Override
   public void execute() throws BuildException {
-    if(jjtree && grammar == null)
-      throw new BuildException("JJTree option requires grammar to be set");
-    if(jjtree && beaver)
-      throw new BuildException("Can not generate AST for both JJTree and Beaver");
-    if(files.size() == 0)
-      throw new BuildException("JastAdd requires grammar and aspect files");
-
-    StringBuffer name = new StringBuffer();
-    if(outdir != null) {
-      name.append(outdir);
-      if(!outdir.endsWith(File.separator))
-        name.append(File.separator);
-    }
-    name.append("ASTNode.java");
-    File generated = new File(name.toString());
-    if (generated.exists()) {
-      boolean changed = false;
-      for (Iterator<String> iter = files.iterator(); iter.hasNext();) {
-        String fileName = iter.next();
-        File file = new File(fileName);
-        if(!file.exists() || file.lastModified() > generated.lastModified())
-          changed = true;
-      }
-      if(!changed) {
-        return;
-      }
-    }
-    Collection<String> args = new ArrayList<String>();
-    if (astNodeType != null) {
-      args.add("--ASTNode=" + astNodeType);
-    }
-    if (listType != null) {
-      args.add("--List=" + listType);
-    }
-    if (optType != null) {
-      args.add("--Opt=" + optType);
-    }
-    if(jjtree) {
-      args.add("--jjtree");
-      args.add("--grammar=" + grammar);
-    }
-    if(beaver)              args.add("--beaver");
-    if(lineColumnNumbers)   args.add("--lineColumnNumbers");
-
-    if(packageName != null) args.add("--package=" + packageName);
-    if(outdir != null)      args.add("--o=" + outdir);
-
-    if(defaultMap != null)  args.add("--defaultMap=" + defaultMap);
-    if(defaultSet != null)  args.add("--defaultSet=" + defaultSet);
-    if(lazyMaps)            args.add("--lazyMaps");
-    else                    args.add("--noLazyMaps");
-
-    if(rewrite)             args.add("--rewrite");
-    if(novisitcheck)        args.add("--novisitcheck");
-    if(noCacheCycle)        args.add("--noCacheCycle");
-    if(noComponentCheck)    args.add("--noComponentCheck");
-
-    if(noInhEqCheck)        args.add("--noInhEqCheck");
-    if(suppressWarnings)    args.add("--suppressWarnings");
-
-    if(doc)     args.add("--doc");
-    if(debug)   args.add("--debug");
-
-    if(license != null)     args.add("--license=" + license);
-
-    if(java14) args.add("--java1.4");
-
-    if(synch) args.add("--synch");
-
-    if(noStatic) args.add("--noStatic");
-
-    if(refineLegacy) args.add("--refineLegacy");
-
-    if(stagedRewrites) args.add("--stagedRewrites");
-
-    if(deterministic) args.add("--deterministic");
-
-    if(tracing.equals("true")) {
-      args.add("--tracing");
-    } else if (!tracing.isEmpty()) {
-      args.add("--tracing=" + tracing);
-    }
-
-    if (!cache.equals("")) args.add("--cache=" + cache);
-
-    // Deprecated caching flags
-    if(cacheAll) args.add("--cacheAll");
-    if(cacheNone) args.add("--cacheNone");
-    if(noCaching) args.add("--noCaching");
-    if(cacheImplicit) args.add("--cacheImplicit");
-    if(ignoreLazy) args.add("--ignoreLazy");
-
-    if (!incremental.equals("")) args.add("--incremental=" + incremental);
-
-    if (fullFlush) args.add("--fullFlush");
-
-    if (!indent.isEmpty()) args.add("--indent=" + indent);
-
-    if (!minListSize.isEmpty()) args.add("--minListSize=" + minListSize);
-
-    args.addAll(files);
-
-    int i = 0;
-    String[] argsArray = new String[args.size()];
-    for (Iterator<String> iter = args.iterator(); iter.hasNext(); i++) {
-      argsArray[i] = iter.next().trim();
-    }
     System.err.println("generating node types and weaving aspects");
-    int exitVal = JastAdd.compile(argsArray, System.out, System.err);
+    JastAdd jastadd = new JastAdd(config);
+    int exitVal = jastadd.compile(System.out, System.err);
     if (exitVal != 0) {
-      throw new BuildException("Failed to generate AST");
+      throw new BuildException("Failed to generate AST!");
     }
     System.err.println("done");
   }
