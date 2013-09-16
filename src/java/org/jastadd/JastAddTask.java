@@ -170,7 +170,7 @@ public class JastAddTask extends Task {
 
   private String cache = "";
   public void setCache(String s) { cache = s; }
-    
+
   // Deprecated: replaced with cache=all
   private boolean cacheAll = false;
   public void setCacheAll(boolean b) { cacheAll = b; }
@@ -191,7 +191,7 @@ public class JastAddTask extends Task {
   private boolean ignoreLazy = false;
   public void setIgnoreLazy(boolean b) { ignoreLazy = b; }
 
-  
+
   private String incremental = "";
   public void setIncremental(String s) { incremental = s; }
 
@@ -286,11 +286,11 @@ public class JastAddTask extends Task {
       args.add("--tracing");
     } else if (!tracing.isEmpty()) {
       args.add("--tracing=" + tracing);
-    } 
-          
+    }
+
     if (!cache.equals("")) args.add("--cache=" + cache);
-    
-    // Deprecated caching flags 
+
+    // Deprecated caching flags
     if(cacheAll) args.add("--cacheAll");
     if(cacheNone) args.add("--cacheNone");
     if(noCaching) args.add("--noCaching");

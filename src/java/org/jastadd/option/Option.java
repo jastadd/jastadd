@@ -132,13 +132,6 @@ public class Option {
   }
 
   /**
-   * This type of option does not accept arguments.
-   */
-  public boolean acceptsArgs() {
-    return false;
-  }
-
-  /**
    * Called when the option was matched against an argument list, with no
    * arguments for the option.
    *
@@ -160,7 +153,7 @@ public class Option {
         "The argument value '" + arg + "' will be ignored!");
     doMatch(err);
   }
-  
+
   /**
    * Called when the option was matched against an argument list, with a
    * separate argument for the option.
@@ -209,7 +202,7 @@ public class Option {
    */
   public void onMatch() {
   }
-  
+
   @Override
   public String toString() {
     return PREFIX + name;

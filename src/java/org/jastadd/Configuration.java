@@ -63,50 +63,124 @@ public class Configuration {
    */
   public String optType = "Opt";
 
+  /**
+   * JJTree mode flag.
+   */
   public boolean jjtree = false;
 
+  /**
+   * Parser/grammar name. Used in JJTree mode.
+   */
   public String parserName = "";
 
+  /**
+   * Code to create default maps.
+   */
   public String createDefaultMap = "new java.util.HashMap(4)";
 
+  /**
+   * Code to create default sets.
+   */
   public String createDefaultSet = "new java.util.HashSet(4)";
 
+  /**
+   * Default map type.
+   */
   public String typeDefaultMap = "java.util.Map";
 
+  /**
+   * Default set type.
+   */
   public String typeDefaultSet = "java.util.Set";
 
+  /**
+   * Lazy maps flag.
+   */
   public boolean lazyMaps = true;
 
+  /**
+   * Public modifier flag.
+   * TODO make deprecated!
+   */
   public boolean publicModifier = true;
 
+  /**
+   * Rewrite flag.
+   */
   public boolean rewriteEnabled = false;
 
+  /**
+   * Beaver symbol flag.
+   * TODO make deprecated!
+   */
   public boolean useBeaverSymbol = false;
 
+  /**
+   * Generate getter/setters for line and column numbers.
+   */
   public boolean lineColumnNumbers = false;
 
+  /**
+   * Visit check flag.
+   */
   public boolean visitCheckEnabled = true;
 
+  /**
+   * Cache cycle check flag.
+   */
   public boolean cacheCycle = true;
 
+  /**
+   * Component check flag.
+   */
   public boolean componentCheck = false;
 
+  /**
+   * Inh eq check flag.
+   */
   public boolean inhEqCheck = true;
 
+  /**
+   * Lega refine syntax flag.
+   * TODO make deprecated!
+   */
   public boolean refineLegacy = true;
 
+  /**
+   * Staged rewrites flag.
+   */
   public boolean stagedRewrites = false;
 
+  /**
+   * Documentation flag.
+   * TODO review this option!
+   */
   public boolean doc = false;
 
+  /**
+   * License header.
+   */
   public String license = "";
 
+  /**
+   * Java 5 flag.
+   * TODO make deprecated!
+   */
   public boolean java5 = true;
 
+  /**
+   * Debug mode flag.
+   */
   public boolean debugMode = false;
 
+  /**
+   * Cycle limit.
+   */
   public int cycleLimit = 0;
 
+  /**
+   * Rewrite limit.
+   */
   public int rewriteLimit = 0;
 
   /**
@@ -114,16 +188,39 @@ public class Configuration {
    */
   public String outputDir = System.getProperty("user.dir");
 
+  /**
+   * Use syncronized blocks flag.
+   */
   public boolean block = false;
 
-  // These must be set by buildRoot
-  // TODO make these non-null!
+  /**
+   * Synchronized block begin template.
+   * TODO make non-null!
+   */
   public String blockBegin = null;
+
+  /**
+   * Synchronized block end template.
+   * TODO make non-null!
+   */
   public String blockEnd = null;
+
+  /**
+   * Code to create contributor set.
+   * TODO make non-null!
+   */
   public String createContributorSet = null;
 
+  /**
+   * No-static flag.
+   * TODO review this option!
+   */
   public boolean noStatic = false;
 
+  /**
+   * Deterministic flag.
+   * TODO review this option!
+   */
   public boolean deterministic = false;
 
   /**
@@ -131,10 +228,19 @@ public class Configuration {
    */
   public String packageName = "";
 
+  /**
+   * If version name should be printed.
+   */
   public boolean printVersion = false;
 
+  /**
+   * If help should be printed.
+   */
   public boolean printHelp = false;
 
+  /**
+   * If non-standard option help should be printed.
+   */
   public boolean printNonStandardOptions = false;
 
   /**
@@ -170,38 +276,134 @@ public class Configuration {
    */
   public int minListSize = 4;
 
+  /**
+   * Tracing flag.
+   */
   public boolean tracing = false;
+
+  /**
+   * trace=compute
+   */
   public boolean traceCompute = false;
+
+  /**
+   * trace=cache
+   */
   public boolean traceCache = false;
+
+  /**
+   * trace=rewrite
+   */
   public boolean traceRewrite = false;
+
+  /**
+   * trace=circularNTA
+   */
   public boolean traceCircularNTA = false;
+
+  /**
+   * trace=circular
+   */
   public boolean traceCircular = false;
+
+  /**
+   * trace=copy
+   */
   public boolean traceCopy = false;
 
+  /**
+   * cache=all
+   */
   public boolean cacheAll = false;
+
+  /**
+   * cache=none
+   */
   public boolean cacheNone = false;
+
+  /**
+   * cache=config
+   */
   public boolean cacheConfig = false;
+
+  /**
+   * cache=implicit
+   */
   public boolean cacheImplicit = false;
+
+  /**
+   * cache=analyze
+   */
   public boolean cacheAnalyze = false;
 
+  /**
+   * Incremental flag.
+   */
   public boolean incremental = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalLevelParam = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalLevelAttr = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalLevelNode = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalLevelRegion = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalChangeFlush = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalChangeMark = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalPropFull = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalPropLimit = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalDebug = false;
+
+  /**
+   * incremental...
+   */
   public boolean incrementalTrack = false;
 
+  /**
+   * Full flush flag.
+   */
   public boolean fullFlush = false;
 
-  // TODO unused?
+  /**
+   * TODO unused?
+   */
   public boolean traceVisitCheck = false;
 
-  // TODO unused?
+  /**
+   * TODO unused?
+   */
   public boolean circularEnabled = true;
 
   /**
