@@ -1,3 +1,10 @@
+2013-09-17  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Undeprecated the --visitCheck option (will replace --noVisitCheck in the
+    future by adding a boolean argument)
+    * Undeprecated the --cacheCycle option (will replace --noCacheCycle in the
+    future by adding boolean argument)
+
 2013-09-16  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * jastadd.JastAddTask prints deprecation warning when used
@@ -9,7 +16,7 @@
     * An error is now reported if no grammar files are given on the command
     line.
     * If any error prevents JastAdd from running, a short line will be printed
-    with info about obtaining help (--h), rather than the full help output.
+    with info about obtaining help (--help), rather than the full help output.
     This makes it easier to spot the error message on the command line.
     * Refactored option handling.
     * All JastAdd configuration options are now stored in

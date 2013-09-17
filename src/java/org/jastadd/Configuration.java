@@ -470,13 +470,9 @@ public class Configuration {
     }
   };
 
+  // TODO add boolean value
   Option lazyMapsOption = new Option(
       "lazyMaps", "use lazy maps") {
-    {
-      // TODO make deprecated
-      // isDeprecated = true;
-    }
-
     @Override
     public void onMatch() {
       lazyMaps = true;
@@ -485,6 +481,11 @@ public class Configuration {
 
   Option noLazyMapsOption = new Option(
       "noLazyMaps", "don't use lazy maps") {
+    {
+      // TODO make deprecated - replace with lazyMaps={true|false}
+      // isDeprecated = true;
+    }
+
     @Override
     public void onMatch() {
       lazyMaps = false;
@@ -531,17 +532,20 @@ public class Configuration {
 
   Option noVisitCheckOption = new Option(
       "noVisitCheck", "disable circularity check for attributes") {
+    {
+      // TODO make deprecated - replace with visitCheck={true|false}
+      // isDeprecated = true;
+    }
+
     @Override
     public void onMatch() {
       visitCheckEnabled = false;
     }
   };
 
+  // TODO add boolean value
   Option visitCheckOption = new Option(
       "visitCheck", "enable circularity check for attributes") {
-    {
-      isDeprecated = true;
-    }
     @Override
     public void onMatch() {
       visitCheckEnabled = true;
@@ -550,17 +554,20 @@ public class Configuration {
 
   Option noCacheCycleOption = new Option(
       "noCacheCycle", "disable cache cycle optimization for circular attributes") {
+    {
+      // TODO make deprecated - replace with cacheCycle={true|false}
+      // isDeprecated = true;
+    }
+
     @Override
     public void onMatch() {
       cacheCycle = false;
     }
   };
 
+  // TODO add boolean value
   Option cacheCycleOption = new Option(
       "cacheCycle", "enable cache cycle optimization for circular attributes") {
-    {
-      isDeprecated = true;
-    }
     @Override
     public void onMatch() {
       cacheCycle = true;
@@ -570,7 +577,7 @@ public class Configuration {
   Option noComponentCheckOption = new Option(
       "noComponentCheck", "enable strongly connected component optimization for circular attributes") {
     {
-      // TODO make deprecated
+      // TODO make deprecated - replace with componentCheck={true|false}
       // isDeprecated = true;
     }
 
@@ -580,6 +587,7 @@ public class Configuration {
     }
   };
 
+  // TODO add boolean value
   Option componentCheckOption = new Option(
       "componentCheck", "disable strongly connected component optimization for circular attributes") {
     @Override
@@ -590,6 +598,11 @@ public class Configuration {
 
   Option noInhEqCheckOption = new Option(
       "noInhEqCheck", "disable check for inherited equations") {
+    {
+      // TODO make deprecated - replace with inhEqCheck={true|false}
+      // isDeprecated = true;
+    }
+
     @Override
     public void onMatch() {
       inhEqCheck = false;
@@ -622,6 +635,11 @@ public class Configuration {
 
   Option noRefineLegacyOption = new Option(
       "noRefineLegacy", "disable the legacy refine syntax") {
+    {
+      // TODO make deprecated - replace with refineLegacy={true|false}
+      // isDeprecated = true;
+    }
+
     @Override
     public void onMatch() {
       refineLegacy = false;
@@ -730,6 +748,8 @@ public class Configuration {
   Option noStaticOption = new Option(
       "noStatic", "the generated state field is non-static") {
     {
+      // TODO make deprecated - replace with staticStateField={true|false}
+      // isDeprecated = true;
       isNonStandard = true;
     }
 
