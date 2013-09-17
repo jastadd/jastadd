@@ -653,14 +653,6 @@ void AspectClassDeclaration() :
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers;
-
-    // TODO: Warning for deprecated implicit public modifiers - remove this when implicit public has been removed!
-    if (modifiers == null || modifiers.trim().isEmpty()) {
-      System.err.println("WARNING: public modifier added to " + className +
-          " declared at " + fileName + ":" + first.beginLine + ". " +
-          "Please explicitly add 'public' if the class is accessed outside the AST package. " +
-          "The implicit 'public' generation is DEPRECATED and will be removed in future versions of JastAdd!");
-    }
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [
@@ -701,14 +693,6 @@ void AspectInterfaceDeclaration() :
     typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers;
-
-    // TODO: Warning for deprecated implicit public modifiers - remove this when implicit public has been removed!
-    if (modifiers == null || modifiers.trim().isEmpty()) {
-      System.err.println("WARNING: public modifier added to " + className +
-          " declared at " + fileName + ":" + first.beginLine + ". " +
-          "Please explicitly add 'public' if the class is accessed outside the AST package. " +
-          "The implicit 'public' generation is DEPRECATED and will be removed in future versions of JastAdd!");
-    }
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
@@ -1513,14 +1497,6 @@ void ClassDeclaration(String modifiers) :
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
         fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers;
-
-    // TODO: Warning for deprecated implicit public modifiers - remove this when implicit public has been removed!
-    if (modifiers == null || modifiers.trim().isEmpty()) {
-      System.err.println("WARNING: public modifier added to " + className +
-          " declared at " + fileName + ":" + first.beginLine + ". " +
-          "Please explicitly add 'public' if the class is accessed outside the AST package. " +
-          "The implicit 'public' generation is DEPRECATED and will be removed in future versions of JastAdd!");
-    }
   }
    [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
    [ "extends"
@@ -1685,14 +1661,6 @@ void UnmodifiedInterfaceDeclaration(String modifiers) :
           " will have it's modifiers (" + modifiers + ") stripped! " +
           "This behaviour will be changed in future versions of JastAdd, and the modifiers will then be retained in the " +
           "generated code. Please ensure that you are using legal modifiers for this interface (no protected, private or static for top-level interfaces).");
-    }
-
-    // TODO: Warning for deprecated implicit public modifiers - remove this when implicit public has been removed!
-    if (modifiers == null || modifiers.trim().isEmpty()) {
-      System.err.println("WARNING: public modifier added to " + className +
-          " declared at " + fileName + ":" + first.beginLine + ". " +
-          "Please explicitly add 'public' if the class is accessed outside the AST package. " +
-          "The implicit 'public' generation is DEPRECATED and will be removed in future versions of JastAdd!");
     }
   }
   [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
