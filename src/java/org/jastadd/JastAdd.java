@@ -123,10 +123,7 @@ public class JastAdd {
    * @return exit value - 0 indicates no errors
    */
   public int compile(PrintStream out, PrintStream err) {
-    if (config.checkProblems(err)) {
-      out.println("Run JastAdd2 again with the --h option to view help.");
-      return 1;
-    } else if (config.shouldPrintVersion()) {
+    if (config.shouldPrintVersion()) {
       out.println(getVersionString());
       out.println(getBuildTimestamp());
       out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
@@ -141,6 +138,9 @@ public class JastAdd {
     } else if (config.shouldPrintNonStandardOptions()) {
       config.printNonStandardOptions(out);
       return 0;
+    } else if (config.checkProblems(err)) {
+      out.println("Run JastAdd2 again with the --help option to view help.");
+      return 1;
     }
 
     try {
