@@ -124,6 +124,9 @@ public class Tracer {
     public Tracer.TraceObject createTraceObject(Tracer.Event evt, $ASTNode node, String attr, Object params, Object value) {
       return new Tracer.TraceObject(evt, String.format("%08X", node.hashCode()), attr, String.valueOf(params), String.valueOf(value));
     }
+    public String desc() {
+      return "Custom input filter";
+    }
   }
   
   // Default input filter accepting all events
