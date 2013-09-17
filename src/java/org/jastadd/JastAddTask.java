@@ -137,6 +137,8 @@ public class JastAddTask extends Task {
 
   public void setVisitCheck(boolean enable) {
     setOption(config.visitCheckOption, enable);
+	// inverse to disable visit check (deprecated)
+    setOption(config.noVisitCheckOption, !enable);
   }
 
   public void setNoCacheCycle(boolean enable) {
@@ -145,10 +147,14 @@ public class JastAddTask extends Task {
 
   public void setCacheCycle(boolean enable) {
     setOption(config.cacheCycleOption, enable);
+	// inverse to disable cache cycle (deprecated)
+    setOption(config.noCacheCycleOption, !enable);
   }
 
   public void setNoComponentCheck(boolean enable) {
     setOption(config.noComponentCheckOption, enable);
+	// inverse to enable component check (deprecated)
+    setOption(config.componentCheckOption, !enable);
   }
 
   public void setComponentCheck(boolean enable) {
