@@ -50,9 +50,6 @@ public class SignatureUnparser implements JragParserVisitor {
   public Object visit(ASTAspectInterfaceMemberDeclaration node, Object data) {
     return "";
   }
-  public Object visit(ASTAspectSonsDeclaration node, Object data) {
-    return "";
-  }
   public Object visit(ASTAspectInterfaceSynAttributeDeclaration node, Object data) {
     return "";
   }

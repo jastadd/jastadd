@@ -217,7 +217,6 @@ TOKEN :
 
 | < INH: "inh"> //added
 | < SYN: "syn"> //added
-| < SONS: "sons"> //added
 | < LAZY: "lazy"> //added
 | < REWRITE: "rewrite"> //added
 | < TO: "to"> //added
@@ -708,10 +707,6 @@ void AspectInterfaceMemberDeclaration() :
   LOOKAHEAD( Modifiers() "interface" )
   AspectNestedInterfaceDeclaration()
 |
-  // TODO make this feature deprecated!
-  LOOKAHEAD("sons")
-  AspectSonsDeclaration()
-|
   LOOKAHEAD("syn")
   AspectInterfaceSynAttributeDeclaration()
 |
@@ -722,68 +717,6 @@ void AspectInterfaceMemberDeclaration() :
   AspectInterfaceMethodDeclaration()
 |
   AspectInterfaceFieldDeclaration()
-}
-
-// TODO make this feature deprecated!
-void AspectSonsDeclaration() :
-{
-  org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
-  Token type;
-  Token name;
-  Token first;
-  boolean isList = false;
-}
-{
-  first = "sons"
-  (
-    ("[" name = <IDENTIFIER> ":" type = <IDENTIFIER> "]"
-     {
-       list.add(
-         new org.jastadd.ast.AST.OptionalComponent(
-           new org.jastadd.ast.AST.Id(
-             new org.jastadd.ast.AST.Opt(new org.jastadd.ast.AST.NameNode(name.image)),
-             new org.jastadd.ast.AST.IdUse(type.image)
-           )
-         )
-       );
-     }
-    )
-    | ( name = <IDENTIFIER> ":" type = <IDENTIFIER> ("*" { isList = true; } )?
-       {
-         if(isList) {
-           list.add(
-             new org.jastadd.ast.AST.ListComponents(
-               new org.jastadd.ast.AST.Id(
-                 new org.jastadd.ast.AST.Opt(new org.jastadd.ast.AST.NameNode(name.image)),
-                 new org.jastadd.ast.AST.IdUse(type.image)
-               )
-             )
-           );
-         }
-         else {
-           list.add(
-             new org.jastadd.ast.AST.AggregateComponents(
-               new org.jastadd.ast.AST.Id(
-                 new org.jastadd.ast.AST.Opt(new org.jastadd.ast.AST.NameNode(name.image)),
-                 new org.jastadd.ast.AST.IdUse(type.image)
-               )
-             )
-           );
-         }
-       }
-      )
-  )*
-
-  ";"
-  {
-    root.addComponents(className, list);
-    // TODO remove sons declaration feature
-    // print warning about sons being deprecated:
-    System.err.println("WARNING: \"sons\" declaration used at " +
-        fileName + ":" + first.beginLine + " aspect \"sons\" declarations " +
-        "are DEPRECATED and will be removed in a future version of JastAdd!");
-  }
-
 }
 
 void AspectInterfaceSynAttributeDeclaration() :
