@@ -130,7 +130,7 @@ public class ValueOption extends Option {
     StringTokenizer tokenizer = new StringTokenizer(arg, ",");
     boolean first = true;
     while (tokenizer.hasMoreTokens()) {
-      if (!first) {
+      if (!first && !acceptsMultipleValues) {
         out.println("Warning: too many values given to option '" + name +
             "'. The extraneous values will be ignored!");
         break;
