@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.jastadd.option.ArgumentParser;
+import org.jastadd.option.BooleanOption;
 import org.jastadd.option.Option;
 import org.jastadd.option.ValueOption;
 import org.jastadd.tinytemplate.TemplateContext;
@@ -470,12 +471,11 @@ public class Configuration {
     }
   };
 
-  // TODO add boolean value
-  Option lazyMapsOption = new Option(
-      "lazyMaps", "use lazy maps") {
+  BooleanOption lazyMapsOption = new BooleanOption(
+      "lazyMaps", "use lazy maps (default=on)") {
     @Override
-    public void onMatch() {
-      lazyMaps = true;
+    public void onMatch(boolean value) {
+      lazyMaps = value;
     }
   };
 

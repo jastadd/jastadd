@@ -170,7 +170,7 @@ public class Option {
   /**
    * Match the option, without argument.
    */
-  protected final void doMatch(PrintStream out) {
+  protected void doMatch(PrintStream out) {
     reportWarnings(out);
     onMatch();
 
