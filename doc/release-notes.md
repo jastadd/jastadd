@@ -155,7 +155,11 @@ readable error messages rather than standard mysterious parser syntax errors.
   component is non-empty.
 
 * Added flag `--lineColumnNumbers` which makes JastAdd generate methods to get
-  and set start- and end positions for AST nodes.
+  and set start- and end positions for AST nodes. This can be used with version
+1.0.2 and later of JastAddParser (by passing `--no-beaver-symbol` to
+JastAddParser) to remove the need of having beaver.Symbol as a supertype of
+ASTNode when Beaver is used as the parser generator. See the JastAddParser
+documentation for further details.
 
 ### Internal Changes
 
