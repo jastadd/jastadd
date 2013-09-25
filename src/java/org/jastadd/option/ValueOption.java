@@ -97,14 +97,15 @@ public class ValueOption extends Option {
            " of the following" + (needsValue ? " " : " optional") + " values:");
       for (String[] s : valueDescriptions) {
         printIndent(out, TAB_3);
-        out.print("'" + s[0] + "'");
-        printIndent(out, Math.max(TAB_4 - s[0].length() - TAB_3, 1));
-        printDescription(out, s[1], TAB_3);
+        String value = "'" + s[0] + "'";
+        out.print(value);
+        printIndent(out, Math.max(TAB_4 - value.length() - TAB_3, 1));
+        printDescription(out, s[1], TAB_4);
       }
     }
     if (!additionalDescription.isEmpty()) {
       printIndent(out, TAB_2);
-      out.println(additionalDescription);
+      printDescription(out, additionalDescription, TAB_2);      
     }
   }
 

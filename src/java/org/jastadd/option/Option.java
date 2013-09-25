@@ -75,7 +75,7 @@ public class Option {
   /**
    * Indentation of value description (fourth tab stop)
    */
-  protected static final int TAB_4 = 31;
+  protected static final int TAB_4 = 33;
 
   protected String desc = "";
   protected String name;
