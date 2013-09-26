@@ -480,9 +480,6 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheStore() {
-    if (getFinal()) {
-      return "if (true)";
-    }
     StringBuilder cacheCond = new StringBuilder();
     cacheCond.append(cacheStoreRewrite());
     String circularCond = (!isCircular() ? cacheStoreCircular() : "");
@@ -509,6 +506,10 @@ aspect JragCodeGen {
 
   public String AttrDecl.cacheStoreRewrite() {
     if (config().rewriteEnabled) {
+      // TODO: Should final on attributes be allowed? 
+      if (getFinal()) {
+        return "(num == state().boundariesCrossed)";
+      }
       return "(isFinal && num == state().boundariesCrossed)";
     } else {
       return "";
