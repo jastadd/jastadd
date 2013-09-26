@@ -26,7 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ASTNode.flushHookSetChildCopyState = [[
-$if(FullFlush)
+$if(FlushRewrite)
 
 if (init_children != null) {
   $ASTNode d[] = new $ASTNode[i << 1];
@@ -43,7 +43,7 @@ $endif
 ]]
 
 ASTNode.flushHookSetChildInitState = [[
-$if(FullFlush)
+$if(FlushRewrite)
 
 if (rewritten_children != null) {
   rewritten_children[i] = false;
@@ -53,7 +53,7 @@ $endif
 ]]
 
 ASTNode.flushHookInsertChildUpdateState = [[
-$if(FullFlush)
+$if(FlushRewrite)
 
 if (init_children != null) {
   $ASTNode d[] = new $ASTNode[init_children.length + 1];
@@ -76,7 +76,7 @@ $endif
 ]]
 
 ASTNode.flushHookRemoveChild = [[
-$if(FullFlush)
+$if(FlushRewrite)
 
 if (init_children != null) {
   System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);
@@ -89,7 +89,7 @@ $endif
 ]]
 
 ASTNode.flushHookGetChildInit = [[
-$if(FullFlush)
+$if(FlushRewrite)
 if(this.init_children == null) {
   this.init_children = new $ASTNode[this.children.length];
   this.rewritten_children = new boolean[this.children.length];
@@ -98,7 +98,7 @@ $endif
 ]]
 
 ASTNode.flushHookGetChildCheckStoreInit = [[
-$if(FullFlush)
+$if(FlushRewrite)
 if(!node.inc_hasEnclosingRewrittenNode() && this.init_children[i] == null) {
   this.init_children[i] = node.fullCopy();
   this.rewritten_children[i] = true;
@@ -107,7 +107,7 @@ $endif
 ]]
 
 ASTNode.flushHookGetChildRewritten = [[
-$if(FullFlush)
+$if(FlushRewrite)
 if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
   this.rewritten_children[i] = true;
 }
@@ -152,6 +152,7 @@ $endif
 ]]
 
 ASTDecl.flushCacheMethod = [[
+$if(FlushEnabled)
   /**
     * @apilevel low-level
     */
@@ -160,7 +161,7 @@ ASTDecl.flushCacheMethod = [[
     $if(!#isASTNodeDecl)
     super.flushCache();
     $endif
-$if(FullFlush)
+$if(FlushRewrite)
   $if(#isASTNodeDecl)
     for (int i = 0; i < getNumChildNoTransform(); i++) {
       if (rewritten_children != null && rewritten_children[i]) {
@@ -181,9 +182,11 @@ $endif
     $FlushCollectionCache
     $SynchEnd
   }
+$endif
 ]]
 
 ASTDecl.flushCollectionCacheMethod = [[
+$if(FlushEnabled)
   /**
     * @apilevel internal
     */
@@ -193,10 +196,11 @@ ASTDecl.flushCollectionCacheMethod = [[
     $endif
     $FlushCollectionCache
   }
+$endif
 ]]
 
 TokenComponent.flushNTACache = [[
-$if(FullFlush)
+$if(FlushNTA)
 if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
   token$(TypeSign)_$Id = null;
 }

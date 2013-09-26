@@ -115,7 +115,7 @@ $endif
 ASTNode.incHookGetChild1 = [[
 $if(IncrementalEnabled)
 
-$if (!FullFlush)
+$if (!FlushRewrite)
 if(this.init_children == null) {
   this.init_children = new $ASTNode[this.children.length];
   this.rewritten_children = new boolean[this.children.length];
@@ -154,7 +154,7 @@ $endif
 ASTNode.incHookGetChild3 = [[
 $if(IncrementalEnabled)
 
-$if(!FullFlush)
+$if(!FlushRewrite)
 if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
   this.rewritten_children[i] = true;
 }

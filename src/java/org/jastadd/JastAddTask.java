@@ -244,6 +244,10 @@ public class JastAddTask extends Task {
   public void setFullFlush(boolean enable) {
     setOption(config.fullFlushOption, enable);
   }
+  
+  public void setFlush(String arg) {
+    setOption(config.flushOption, arg);
+  }
 
   public void setIndent(String arg) {
     setOption(config.indentOption, arg);

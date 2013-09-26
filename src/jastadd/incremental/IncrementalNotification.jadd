@@ -32,7 +32,7 @@
 
     TemplateContext tt = templateContext();
 
-    if (!config().fullFlush) {
+    if (!config().flushRewrite) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
     }

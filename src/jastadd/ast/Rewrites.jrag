@@ -61,7 +61,7 @@ aspect Rewrites {
 
     if (name().equals(config().listType)) {
       // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
-      if (!(config().incremental || config().fullFlush)) {
+      if (!(config().incremental || config().flushRewrite)) {
         tt.expand("ASTDecl.emitRewrites.touch_list", out);
       }
     }

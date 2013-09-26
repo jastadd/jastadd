@@ -400,7 +400,7 @@ aspect JaddCodeGen {
    * ASTDecl.
    */
   syn boolean ASTDecl.needsListTouched() =
-    !(config().incremental || config().fullFlush);
+    !(config().incremental || config().flushRewrite);
 
   /**
    * Generate implicit aspect declarations for the List type.
@@ -524,7 +524,7 @@ aspect JaddCodeGen {
     if (name().equals(config().listType)) {
 
       // Avoiding list touch rewrite
-      if (!(config().incremental || config().fullFlush)) {
+      if (!(config().incremental || config().flushRewrite)) {
         out.println(ind2 + "return true;");  // old code
       } else {
         out.println(ind2 + "return false;");

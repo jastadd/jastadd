@@ -393,10 +393,31 @@ public class Configuration {
   public boolean incrementalTrack = false;
 
   /**
-   * Full flush flag.
+   * Use of --flush 
    */
-  public boolean fullFlush = false;
-
+  // TODO: Make the default behavior false by deprecating default generation of flush methods
+  public boolean flushEnabled = true;
+  
+  /**
+   * --flush=tree
+   */
+  public boolean flushTree = false;
+  
+  /**
+   * --flush=rewrite
+   */
+  public boolean flushRewrite = false;
+  
+  /**
+   * --flush=nta 
+   */
+  public boolean flushNTA = false;
+  
+  /**
+   * --flush=attr
+   */
+  public boolean flushAttr = false;
+  
   /**
    * TODO unused?
    */
@@ -824,7 +845,47 @@ public class Configuration {
       }
     }
   };
+  
+  ValueOption flushOption = new ValueOption(
+      "flush", "adds flushing of cached values") {
+    {
+      acceptsMultipleValues = true;
+      needsValue = false;
+      addAcceptedValue("full", "flushing of all computed values (combines tree, rewrite, and nta)");
+      addAcceptedValue("tree", "adds flushing of trees");
+      addAcceptedValue("rewrite", "adds flushing of rewrites");
+      addAcceptedValue("nta", "adds flushing of NTAs");
+      addAcceptedValue("attr", "adds flushing of single attributes");
+    }
 
+    @Override
+    public void onMatch() {
+      flushEnabled = true;
+      flushTree = false;
+      flushRewrite = false;
+      flushNTA = false;
+      flushAttr = false;
+    }
+
+    @Override
+    public void onMatch(String arg) {
+      flushEnabled = true;
+      if (arg.equals("full")) {
+        flushTree = true;
+        flushRewrite = true;
+        flushNTA = true;
+      } else if (arg.equals("tree")) {
+        flushTree = true;
+      } else if (arg.equals("rewrite")) {
+        flushRewrite = true;
+      } else if (arg.equals("nta")) {
+        flushNTA = true;
+      } else if (arg.equals("attr")) {
+        flushAttr = true;
+      }
+    }
+  };
+  
   ValueOption packageOption = new ValueOption(
       "package", "optional package name for generated classes") {
     @Override
@@ -1047,10 +1108,17 @@ public class Configuration {
   };
 
   Option fullFlushOption = new Option(
-      "fullFlush", "support for full flushing of attribute caches and rewrites") {
+      "fullFlush", "Replaced by --flush=full") {
+    {
+      isDeprecated = true;
+    }
+
     @Override
     public void onMatch() {
-      fullFlush = true;
+      flushEnabled = true;
+      flushTree = true;
+      flushRewrite = true;
+      flushNTA = true;
     }
   };
 
@@ -1108,6 +1176,7 @@ public class Configuration {
     argParser.addOption(deterministicOption);
     argParser.addOption(oOption);
     argParser.addOption(tracingOption);
+    argParser.addOption(flushOption);
     argParser.addOption(packageOption);
     argParser.addOption(versionOption);
     argParser.addOption(helpOption);
@@ -1199,7 +1268,11 @@ public class Configuration {
     tt.bind("ParserName", parserName);
 
     // Flush
-    tt.bind("FullFlush", fullFlush);
+    tt.bind("FlushEnabled", flushEnabled);
+    tt.bind("FlushTree", flushTree);
+    tt.bind("FlushRewrite", flushRewrite);
+    tt.bind("FlushNTA", flushNTA);
+    tt.bind("FlushAttr", flushAttr);
 
     // Incremental
     tt.bind("IncrementalEnabled", incremental);
