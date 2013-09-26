@@ -25,6 +25,30 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Method flushing rewrites in a node
+ASTDecl.flushRewriteCacheMethod = [[
+$if(FlushRewrite)
+$if(#isASTNodeDecl)
+  /**
+   * @api internal
+   */
+  public void $ASTNode.flushRewriteCache() {
+    $SynchBegin
+    for (int i = 0; i < getNumChildNoTransform(); i++) {
+      if (rewritten_children != null && rewritten_children[i]) {
+        if (init_children[i] != null) {
+          setChild(init_children[i], i);
+          init_children[i] = null;
+        }
+        rewritten_children[i] = false;
+      }
+    }
+    $SynchEnd
+  }
+$endif
+$endif
+]]
+
 # State variables needed to handle flushing of rewrites
 # TODO: These should be protected, but are public now for debugging
 ASTNode.flushRewritesInitValue = [[

@@ -36,22 +36,12 @@ $if(FlushEnabled)
     $if(!#isASTNodeDecl)
     super.flushCache();
     $endif
-$if(FlushRewrite)
-  $if(#isASTNodeDecl)
-    for (int i = 0; i < getNumChildNoTransform(); i++) {
-      if (rewritten_children != null && rewritten_children[i]) {
-        if (init_children[i] != null) {
-          setChild(init_children[i], i);
-          init_children[i] = null;
-        }
-        rewritten_children[i] = false;
-      } else {
-        getChildNoTransform(i).flushCache();
-      }
-    }
-  $endif
+    $if (FlushRewrite)
+    $if(#isASTNodeDecl)
+    flushRewriteCache();
+    $endif
+    $endif
     $FlushNTACache
-$endif
     $FlushSynAttrCache
     $FlushInhAttrCache
     $FlushCollectionCache
