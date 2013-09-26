@@ -74,7 +74,7 @@ $if(#isParameterized)
         #cycleLimitCheck
       } while (state().CHANGE);
 
-      #cacheStoreRewrite {
+      #cacheStore {
         #(signature)_computed.add(_parameters);
         $include(cacheCycleInit)
       } else {
@@ -170,7 +170,7 @@ $endif
         #cycleLimitCheck
       } while (state().CHANGE);
 
-      #cacheStoreRewrite {
+      #cacheStore {
         #(signature)_computed = true;
         $include(cacheCycleInit)
       } else {

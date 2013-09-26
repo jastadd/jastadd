@@ -440,9 +440,18 @@ aspect JragCodeGen {
   public String AttrDecl.cacheInit() {
     if (!getLazy())
       return "";
-    return cacheInitRewrite();
+    return cacheInitCircular() + cacheInitRewrite();
   }
-
+  
+  public String AttrDecl.cacheInitCircular() {
+    if (!config().circularEnabled) {
+      return "";
+    } else {
+      return "boolean intermediate = state.INTERMEDIATE_VALUE;\n" + 
+             "state.INTERMEDIATE_VALUE = false;\n";
+    }
+  }
+  
   public String AttrDecl.cacheInitRewrite() {
     if (!config().rewriteEnabled) {
       return "";
@@ -470,11 +479,48 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.cacheStoreRewrite() {
-    if (!config().rewriteEnabled || getFinal())
+  public String AttrDecl.cacheStore() {
+    if (getFinal()) {
       return "if (true)";
-    else
-      return "if (isFinal && num == state().boundariesCrossed)";
+    }
+    StringBuilder cacheCond = new StringBuilder();
+    cacheCond.append(cacheStoreRewrite());
+    String circularCond = (!isCircular() ? cacheStoreCircular() : "");
+    if (cacheCond.length() != 0 && !circularCond.isEmpty()) {
+      cacheCond.append(" && ");
+    }
+    cacheCond.append(circularCond);
+    if (cacheCond.length() == 0) {
+      cacheCond.append("true");
+    }
+    return "if (" + cacheCond.toString() + ")";
+  }
+
+  public String AttrDecl.cacheStoreCircular() {
+    if (config().circularEnabled) {
+      if (config().cacheCycle) {
+        return "(!state.IN_CIRCLE || (state.IN_CIRCLE && (!state.INTERMEDIATE_VALUE || state.LAST_CYCLE)))";
+      }
+      return "!state.INTERMEDIATE_VALUE";
+    } else {
+      return "";
+    }  
+  }
+
+  public String AttrDecl.cacheStoreRewrite() {
+    if (config().rewriteEnabled) {
+      return "(isFinal && num == state().boundariesCrossed)";
+    } else {
+      return "";
+    }
+  }
+  
+  public String AttrDecl.cacheRestore() {
+    if (config().circularEnabled) {
+      return "state.INTERMEDIATE_VALUE |= intermediate;\n";
+    } else {
+      return "";
+    }
   }
 
   syn String AttrDecl.attributeValueReference() =

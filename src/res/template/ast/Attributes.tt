@@ -259,7 +259,7 @@ $endif
     #higherOrderAttributeCode
 $if(#getLazy)
   $if(#isParameterized)
-    #cacheStoreRewrite {
+    #cacheStore {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(signature)_values.put(_parameters, #attributeValueReference);
       $include(AttrDecl.traceHookAttrCached)
@@ -268,7 +268,7 @@ $if(#getLazy)
       $include(AttrDecl.incHookAttrCompAfterStore)
     }
   $else
-    #cacheStoreRewrite {
+    #cacheStore {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(signature)_computed = true;
       $include(AttrDecl.traceHookAttrCached)
@@ -277,6 +277,7 @@ $if(#getLazy)
       $include(AttrDecl.incHookAttrCompAfterStore)
     }
   $endif
+    #cacheRestore
 $endif
 
     #clearVisited
@@ -325,7 +326,7 @@ ASTDecl.genCircularEquationNoParams [[
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.CHANGE);
-      #cacheStoreRewrite {
+      #cacheStore {
         #(signature)_computed = true;
         $include(cacheCycleInit)
         $include(AttrDecl.traceHookAttrCached)
@@ -338,6 +339,7 @@ ASTDecl.genCircularEquationNoParams [[
       state.IN_CIRCLE = false;
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
+      state.INTERMEDIATE_VALUE = false;
       $include(AttrDecl.traceHookCircularExitCase1)
       $include(AttrDecl.returnStmt)
     }
@@ -360,10 +362,12 @@ ASTDecl.genCircularEquationNoParams [[
       }
       #(signature)_value = new_#(signature)_value;
       $TracePrintReturnNewValue
+      state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceHookCircularExitCase2)
       $include(AttrDecl.returnStmt)
     }
     $TracePrintReturnPreviousValue
+    state.INTERMEDIATE_VALUE = true;
     $include(AttrDecl.traceHookCircularExitCase3)
     $include(AttrDecl.returnStmt)
     $SynchEnd
@@ -416,7 +420,7 @@ $endif
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.CHANGE);
-      #(cacheStoreRewrite) {
+      #cacheStore {
 $if (Java5)
         #(signature)_values.put(_parameters, new_#(signature)_value);
 $else
@@ -432,6 +436,7 @@ $endif
       state.IN_CIRCLE = false;
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
+      state.INTERMEDIATE_VALUE = false;
       $include(AttrDecl.traceHookCircularExitCase1)
       return new_#(signature)_value;
     }
@@ -462,10 +467,12 @@ $else
 $endif
       }
       $TracePrintReturnNewValue
+      state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceHookCircularExitCase2)
       return new_#(signature)_value;
     }
     $TracePrintReturnPreviousValue
+    state.INTERMEDIATE_VALUE = true;
     $include(AttrDecl.traceHookCircularExitCase3)
     return $FromRefType;
     $SynchEnd
