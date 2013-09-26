@@ -53,7 +53,6 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/Collections");
     loadTemplates(tt, "ast/Comments");
     loadTemplates(tt, "ast/CopyNode");
-    loadTemplates(tt, "ast/Flush");
     loadTemplates(tt, "ast/ImplicitDeclarations");
     loadTemplates(tt, "ast/InheritedAttributes");
     loadTemplates(tt, "ast/JJTree");
@@ -68,6 +67,10 @@ aspect TemplateUtil {
     loadTemplates(tt, "ast/components/TokenComponent");
 
     loadTemplates(tt, "core/Synchronization");
+    
+    loadTemplates(tt, "flush/Flush");
+    loadTemplates(tt, "flush/FlushHooks");
+    loadTemplates(tt, "flush/FlushRewrite");
 
     if (config().incremental) {
       loadTemplates(tt, "incremental/DDGNodeCopy");
