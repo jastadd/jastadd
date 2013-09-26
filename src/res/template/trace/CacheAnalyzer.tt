@@ -185,6 +185,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
      for (String attr : configSet) {
        out.println("cache " + attr + ";");  
      }
+     out.flush();
    }
    
   /**
@@ -197,6 +198,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
      for (String attr : configSet) {
        out.println("cache " + attr + ";");  
      }
+     out.flush();
    }
 }
 ]]

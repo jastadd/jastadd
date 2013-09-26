@@ -488,6 +488,7 @@ public class Tracer {
       totalCount += attrCount;
     }
     out.println("[report:" + filter.desc() + "] - " + totalCount + "\n" + res.toString());
+    out.flush();
   }
 
   protected static boolean incIndent(Tracer.Event evt) {
@@ -542,6 +543,7 @@ public class Tracer {
       else if (decIndent(obj.event)) indent--;
       prevTime = obj.timeStamp;
     }
+    out.flush();
   }
 
   /**
