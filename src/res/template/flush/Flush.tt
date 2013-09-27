@@ -44,7 +44,7 @@ $if(FlushEnabled)
     $FlushNTACache
     $FlushSynAttrCache
     $FlushInhAttrCache
-    $FlushCollectionCache
+    flushCollectionCache();
     $SynchEnd
   }
 $endif
