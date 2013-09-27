@@ -116,12 +116,16 @@ public class Option {
   protected void printDescription(PrintStream out, String desc, int col) {
     StringTokenizer tok = new StringTokenizer(desc,"\n");
     boolean first = true;
-    while (tok.hasMoreTokens()) {
-      if (!first) {
-        printIndent(out, col);
+    if (!tok.hasMoreTokens()) {
+      out.println();
+    } else {
+      while (tok.hasMoreTokens()) {
+        if (!first) {
+          printIndent(out, col);
+        }
+        first = false;
+        out.println(tok.nextToken());
       }
-      first = false;
-      out.println(tok.nextToken());
     }
   }
 
