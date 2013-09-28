@@ -118,12 +118,12 @@ $if (TraceCache)
   $if(#getLazy)
     $if(#isParameterized)
       $if(#isCircular)
-Tracer.traceCacheAbort(this, "#(name).#(signatureJavaStyle)", _parameters, _value.value);
+Tracer.traceCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
       $else
-Tracer.traceCacheAbort(this, "#(name).#(signatureJavaStyle)", _parameters, #(signature)_value);
+Tracer.traceCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, #(signature)_value);
       $endif
     $else
-Tracer.traceCacheAbort(this, "#(name).#(signatureJavaStyle)", "", #(signature)_value);
+Tracer.traceCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
     $endif
   $endif
 $endif
