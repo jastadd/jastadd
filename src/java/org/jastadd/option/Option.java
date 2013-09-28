@@ -28,7 +28,6 @@
 package org.jastadd.option;
 
 import java.io.PrintStream;
-import java.util.StringTokenizer;
 
 /**
  * Handles matching and parsing of a command-line option.
@@ -114,18 +113,12 @@ public class Option {
   }
 
   protected void printDescription(PrintStream out, String desc, int col) {
-    StringTokenizer tok = new StringTokenizer(desc,"\n");
-    boolean first = true;
-    if (!tok.hasMoreTokens()) {
-      out.println();
-    } else {
-      while (tok.hasMoreTokens()) {
-        if (!first) {
-          printIndent(out, col);
-        }
-        first = false;
-        out.println(tok.nextToken());
+    String[] lines = desc.split("\n", -1);
+    for (int i = 0; i < lines.length; ++i) {
+      if (i != 0) {
+        printIndent(out, col);
       }
+      out.println(lines[i]);
     }
   }
 
