@@ -179,7 +179,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    * Prints a cache configuration corresponding to All-One
    * @param out Print writer to use 
    */
-   public void printAllOneConfig(java.io.PrintWriter out) {
+   public void printAllMinusOneConfig(java.io.PrintWriter out) {
      Set<String> configSet = getAllSet();
      configSet.removeAll(getOneSet());
      for (String attr : configSet) {
@@ -192,7 +192,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    * Prints a cache configuration corresponding to Used-One
    * @param out Print writer to use 
    */
-   public void printUsedOneConfig(java.io.PrintWriter out) {
+   public void printUsedMinusOneConfig(java.io.PrintWriter out) {
      Set<String> configSet = getUsedSet();
      configSet.removeAll(getOneSet());
      for (String attr : configSet) {
