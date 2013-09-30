@@ -25,40 +25,39 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Code for Tracer
-Tracer = [[
-$PackageDecl
-
-public class Tracer {
+# Code for inner class Trace
+TraceClass = [[
+$if(TracingEnabled)
+public static class Trace {
 
   /**
    * Trace filter interface used to filter the list of collected trace class.
    */
-  public interface Filter {
-    public boolean include(Tracer.TraceObject obj);
+  public static interface Filter {
+    public boolean include($ASTNode$$State.Trace.Entry e);
     public String desc();
   }
   
   /** 
    * Interface used to process collected trace objects.
    *
-   * Use it together with the method Tracer.process(Tracer.Processor).
+   * Use it together with the method $ASTNode$$State.Trace.process($ASTNode$$State.Trace.Processor).
    */
-  public interface Processor {
-    public void process(Tracer.TraceObject obj);
+  public static interface Processor {
+    public void process($ASTNode$$State.Trace.Entry e);
   }
 
   /**
-   * Trace objects collected during attribute evaluation.
+   * Trace entries collected during attribute evaluation.
    */
-  public static class TraceObject {
-    public final Tracer.Event event;
+  public static class Entry {
+    public final $ASTNode$$State.Trace.Event event;
     public final String node;
     public final String attr;
     public final String params;
     public final String value;
     public final long timeStamp;
-    public TraceObject(Tracer.Event e, String n, String a, String p, String v) {
+    public Entry($ASTNode$$State.Trace.Event e, String n, String a, String p, String v) {
       event = e; node = n; attr = a; params = p; value = v;
       timeStamp = System.nanoTime();
     }
@@ -68,7 +67,7 @@ public class Tracer {
   }
 
   /**
-   * Trace events corresponding to where trace objects where collected.
+   * Trace events corresponding to where trace entries where collected.
    * 
    * These events can be filtered statically using the flag --tracing to
    * JastAdd2. For example, the flag --tracing=compute,cache will only trace
@@ -76,7 +75,7 @@ public class Tracer {
    *
    * These events can also be filtered dynamically by extending the InputFilter
    * class and then register this subclass using the method
-   * registerInputFilter(Tracing.InputFilter).
+   * registerInputFilter($ASTNode$$State.Trace.InputFilter).
    */
   public enum Event {
     // Flag --tracing=compute
@@ -121,8 +120,8 @@ public class Tracer {
    * Class used to filter input
    */
   public static abstract class InputFilter implements Filter {
-    public Tracer.TraceObject createTraceObject(Tracer.Event evt, $ASTNode node, String attr, Object params, Object value) {
-      return new Tracer.TraceObject(evt, String.format("%08X", node.hashCode()), attr, String.valueOf(params), String.valueOf(value));
+    public Entry createEntry($ASTNode$$State.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
+      return new Entry(evt, String.format("%08X", node.hashCode()), attr, String.valueOf(params), String.valueOf(value));
     }
     public String desc() {
       return "Custom input filter";
@@ -130,8 +129,8 @@ public class Tracer {
   }
   
   // Default input filter accepting all events
-  private static final Tracer.InputFilter defaultInputFilter = new Tracer.InputFilter() {
-    public boolean include(TraceObject obj) {
+  private final InputFilter defaultInputFilter = new InputFilter() {
+    public boolean include(Entry e) {
       return true;
     }
     public String desc() {
@@ -140,20 +139,20 @@ public class Tracer {
   };
   
   $if(CacheAnalyzeEnabled)
-  private static final CacheAnalyzer cacheAnalyzer = new CacheAnalyzer();
-  public static CacheAnalyzer cacheAnalyzer() {
+  private final CacheAnalyzer cacheAnalyzer = new CacheAnalyzer(); 
+  public CacheAnalyzer cacheAnalyzer() {
     return cacheAnalyzer;
   }
-  private static Tracer.InputFilter inputFilter = cacheAnalyzer;
+  private Trace.InputFilter inputFilter = cacheAnalyzer;
   $else
-  private static Tracer.InputFilter inputFilter = defaultInputFilter;
+  private Trace.InputFilter inputFilter = defaultInputFilter;
   $endif 
   
   /**
    * Registers an input filter to use during tracing.
    * @param filter The input filter to register.
    */
-  public static void registerInputFilter(Tracer.InputFilter filter) {
+  public void registerInputFilter($ASTNode$$State.Trace.InputFilter filter) {
     if (filter != null) {
       inputFilter = filter;
     }
@@ -162,20 +161,20 @@ public class Tracer {
   /**
    * Resets the input filter to the default input filter accepting all events.
    */
-  public static void unregisterInputFilter() {
+  public void unregisterInputFilter() {
     inputFilter = defaultInputFilter;
   }
-
-  private static java.util.List<TraceObject> list = new java.util.ArrayList<TraceObject>();
   
-  private static void trace(Tracer.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    TraceObject obj = inputFilter.createTraceObject(evt, node, attr, params, value); 
-    if (inputFilter.include(obj)) {
-      list.add(obj);
+  private java.util.List<$ASTNode$$State.Trace.Entry> list = new java.util.ArrayList<$ASTNode$$State.Trace.Entry>();
+  
+  private void add($ASTNode$$State.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
+    $ASTNode$$State.Trace.Entry e = inputFilter.createEntry(evt, node, attr, params, value); 
+    if (inputFilter.include(e)) {
+      list.add(e);
     }
   }
   
-  public static void clear() {
+  public void clear() {
     list.clear();
   }
 
@@ -186,8 +185,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public static void traceComputeBegin($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.COMPUTE_BEGIN, node, attr, params, value);
+  public void addComputeBegin($ASTNode node, String attr, Object params, Object value) {
+    add(Event.COMPUTE_BEGIN, node, attr, params, value);
   }
 
   /**
@@ -197,8 +196,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public static void traceComputeEnd($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.COMPUTE_END, node, attr, params, value);
+  public void addComputeEnd($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.COMPUTE_END, node, attr, params, value);
   }
 
   /**
@@ -208,8 +207,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public static void traceCacheRead($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CACHE_READ, node, attr, params, value);
+  public void addCacheRead($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CACHE_READ, node, attr, params, value);
   }
 
   /**
@@ -219,8 +218,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public static void traceCached($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CACHED, node, attr, params, value);
+  public void addCached($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CACHED, node, attr, params, value);
   }
   /**
    * Trace that the caching of an attribute instance was aborted.
@@ -229,8 +228,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public static void traceCacheAbort($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CACHE_ABORT, node, attr, params, value);
+  public void addCacheAbort($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CACHE_ABORT, node, attr, params, value);
   }
 
   /**
@@ -240,8 +239,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public static void traceEnterRewriteCase1($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.REWRITE_CASE1_START, node, attr, params, value);
+  public void addEnterRewriteCase1($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.REWRITE_CASE1_START, node, attr, params, value);
   }
   /**
    * Trace that a rewrite in evaluation case 1 changed value.
@@ -250,8 +249,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the rewrite before and after.
    */
-  public static void traceRewriteChange($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.REWRITE_CASE1_CHANGE, node, attr, params, value);
+  public void addRewriteChange($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.REWRITE_CASE1_CHANGE, node, attr, params, value);
   }
   /**
    * Trace that a rewrite returned from evaluation case 1.
@@ -260,8 +259,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public static void traceExitRewriteCase1($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.REWRITE_CASE1_RETURN, node, attr, params, value);
+  public void addExitRewriteCase1($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.REWRITE_CASE1_RETURN, node, attr, params, value);
   }
   /**
    * Trace that a rewrite returned from evaluation case 2.
@@ -270,8 +269,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public static void traceExitRewriteCase2($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.REWRITE_CASE2_RETURN, node, attr, params, value);
+  public void addExitRewriteCase2($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.REWRITE_CASE2_RETURN, node, attr, params, value);
   }
   /**
    * Trace that a rewrite returned from evaluation case 3.
@@ -280,8 +279,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public static void traceExitRewriteCase3($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.REWRITE_CASE3_RETURN, node, attr, params, value);
+  public void addExitRewriteCase3($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.REWRITE_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
@@ -291,8 +290,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public static void traceEnterCircularCase1($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE1_START, node, attr, params, value);
+  public void addEnterCircularCase1($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE1_START, node, attr, params, value);
   }
   /**
    * Trace that a circular attribute instance in evaluation case 1 changed value.
@@ -301,8 +300,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance, before and after.
    */
-  public static void traceCircularCase1Change($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE1_CHANGE, node, attr, params, value);
+  public void addCircularCase1Change($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE1_CHANGE, node, attr, params, value);
   }
   /**
    * Trace that a circular attribute instance returned from evaluation case 1.
@@ -311,8 +310,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public static void traceExitCircularCase1($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE1_RETURN, node, attr, params, value);
+  public void addExitCircularCase1($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE1_RETURN, node, attr, params, value);
   }
   /**
    * Trace that a circular attribute instance entered evaluation case 2.
@@ -321,8 +320,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public static void traceEnterCircularCase2($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE2_START, node, attr, params, value);
+  public void addEnterCircularCase2($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE2_START, node, attr, params, value);
   }
   /**
    * Trace that a circular attribute instance in evaluation case 2 changed value.
@@ -331,8 +330,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance, before and after.
    */
-  public static void traceCircularCase2Change($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE2_CHANGE, node, attr, params, value);
+  public void addCircularCase2Change($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE2_CHANGE, node, attr, params, value);
   }
   /**
    * Trace that a circular attribute instance returned from evaluation case 2.
@@ -341,8 +340,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public static void traceExitCircularCase2($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE2_RETURN, node, attr, params, value);
+  public void addExitCircularCase2($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE2_RETURN, node, attr, params, value);
   }
   /**
    * Trace that a circular attribute instance returned from evaluation case 2.
@@ -351,8 +350,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public static void traceExitCircularCase3($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_CASE3_RETURN, node, attr, params, value);
+  public void addExitCircularCase3($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
@@ -362,8 +361,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public static void traceEnterCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE1_START, node, attr, params, value);
+  public void addEnterCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE1_START, node, attr, params, value);
   }
   /**
    * Trace that a circular NTA in evaluation case 1 changed value.
@@ -372,8 +371,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA, before and after.
    */
-  public static void traceCircularNTACase1Change($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE1_CHANGE, node, attr, params, value);
+  public void addCircularNTACase1Change($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE1_CHANGE, node, attr, params, value);
   }
   /**
    * Trace that a circular NTA returned from evaluation case 1.
@@ -382,8 +381,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public static void traceExitCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE1_RETURN, node, attr, params, value);
+  public void addExitCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE1_RETURN, node, attr, params, value);
   }
   /**
    * Trace that a circular NTA entered evaluation case 2.
@@ -392,8 +391,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public static void traceEnterCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE2_START, node, attr, params, value);
+  public void addEnterCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE2_START, node, attr, params, value);
   }
   /**
    * Trace that a circular NTA in evaluation case 2 changed value.
@@ -402,8 +401,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA, before and after.
    */
-  public static void traceCircularNTACase2Change($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE2_CHANGE, node, attr, params, value);
+  public void addCircularNTACase2Change($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE2_CHANGE, node, attr, params, value);
   }
   /**
    * Trace that a circular NTA returned from evaluation case 2.
@@ -412,8 +411,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public static void traceExitCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE2_RETURN, node, attr, params, value);
+  public void addExitCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE2_RETURN, node, attr, params, value);
   }
   /**
    * Trace that a circular NTA returned from evaluation case 2.
@@ -422,8 +421,8 @@ public class Tracer {
    * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public static void traceExitCircularNTACase3($ASTNode node, String attr, Object params, Object value) {
-    trace(Tracer.Event.CIRCULAR_NTA_CASE3_RETURN, node, attr, params, value);
+  public void addExitCircularNTACase3($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
@@ -431,16 +430,16 @@ public class Tracer {
    * @param node The copied node.
    * @param value The value of the node.
    */
-  public static void traceCopy($ASTNode node, Object value) {
-    trace(Tracer.Event.COPY_NODE, node, "ASTNode.copy", "", value);
+  public void addCopy($ASTNode node, Object value) {
+    add($ASTNode$$State.Trace.Event.COPY_NODE, node, "ASTNode.copy", "", value);
   }
 
   /**
-   * Process all trace objects given a trace processor
+   * Process all trace entries given a trace processor
    */ 
-  public static void process(Tracer.Processor processor) {
-    for (TraceObject obj: list) {
-      processor.process(obj);
+  public void process($ASTNode$$State.Trace.Processor processor) {
+    for ($ASTNode$$State.Trace.Entry e: list) {
+      processor.process(e);
     }
   }
 
@@ -449,25 +448,25 @@ public class Tracer {
    * @param out Print writer to use.
    * @param filter The filter to use.
    */
-  public static void printReport(java.io.PrintWriter out, Tracer.Filter filter) {
+  public void printReport(java.io.PrintWriter out, $ASTNode$$State.Trace.Filter filter) {
     // Construct report model: attr->param->node:count
     java.util.Map<String,java.util.Map<String,java.util.Map<String,Integer>>> attrMap =
         new java.util.HashMap<String,java.util.Map<String,java.util.Map<String,Integer>>>();
-    for (TraceObject obj : list) {
-      if (filter.include(obj)) {
-        if (!attrMap.containsKey(obj.attr)) {
-          attrMap.put(obj.attr, new java.util.HashMap<String,java.util.Map<String,Integer>>());
+    for ($ASTNode$$State.Trace.Entry e : list) {
+      if (filter.include(e)) {
+        if (!attrMap.containsKey(e.attr)) {
+          attrMap.put(e.attr, new java.util.HashMap<String,java.util.Map<String,Integer>>());
         }
-        java.util.Map<String,java.util.Map<String,Integer>> paramMap = attrMap.get(obj.attr);
-        if (!paramMap.containsKey(obj.params)) {
-          paramMap.put(obj.params, new java.util.HashMap<String,Integer>());
+        java.util.Map<String,java.util.Map<String,Integer>> paramMap = attrMap.get(e.attr);
+        if (!paramMap.containsKey(e.params)) {
+          paramMap.put(e.params, new java.util.HashMap<String,Integer>());
         }
-        java.util.Map<String,Integer> nodeMap = paramMap.get(obj.params);
-        if (!nodeMap.containsKey(obj.node)) {
-          nodeMap.put(obj.node, new Integer(0));
+        java.util.Map<String,Integer> nodeMap = paramMap.get(e.params);
+        if (!nodeMap.containsKey(e.node)) {
+          nodeMap.put(e.node, new Integer(0));
         }
-        Integer nodeCount = nodeMap.get(obj.node);
-        nodeMap.put(obj.node, new Integer(nodeCount + 1));
+        Integer nodeCount = nodeMap.get(e.node);
+        nodeMap.put(e.node, new Integer(nodeCount + 1));
       }
     }
     // Create result string
@@ -495,7 +494,7 @@ public class Tracer {
     out.flush();
   }
 
-  protected static boolean incIndent(Tracer.Event evt) {
+  protected boolean incIndent($ASTNode$$State.Trace.Event evt) {
     switch (evt) {
     case COMPUTE_BEGIN:
     case REWRITE_CASE1_START:
@@ -507,7 +506,7 @@ public class Tracer {
     }
   }
 
-  protected static boolean decIndent(Tracer.Event evt) {
+  protected boolean decIndent($ASTNode$$State.Trace.Event evt) {
     switch (evt) {
     case COMPUTE_END:
     case REWRITE_CASE1_RETURN:
@@ -519,8 +518,8 @@ public class Tracer {
     }
   }
 
-  protected static String INDENT_STEP = " ";
-  protected static String indentToStr(int indent) {
+  protected String INDENT_STEP = " ";
+  protected String indentToStr(int indent) {
     StringBuffer buf = new StringBuffer();
     for(int i = 0; i < indent; i++) {
       buf.append(INDENT_STEP);
@@ -531,21 +530,21 @@ public class Tracer {
   /**
    * Prints all objects in the collected trace list.
    */
-  public static void printTrace(java.io.PrintWriter out) {
+  public void printTrace(java.io.PrintWriter out) {
     boolean firstTimeStamp = true;
     long prevTime = 0; long startTime = 0;
     int indent = 0;
-    for (TraceObject obj : list) {
+    for ($ASTNode$$State.Trace.Entry e : list) {
       if (firstTimeStamp) {
         firstTimeStamp = false;
-        prevTime = startTime = obj.timeStamp;
+        prevTime = startTime = e.timeStamp;
       }
-      out.print(indentToStr(indent) + obj + " - ");
-      out.print(((obj.timeStamp-prevTime)/1000000) + " ms - ");
-      out.println(((obj.timeStamp-startTime)/1000000) + " ms");
-      if (incIndent(obj.event)) indent++;
-      else if (decIndent(obj.event)) indent--;
-      prevTime = obj.timeStamp;
+      out.print(indentToStr(indent) + e + " - ");
+      out.print(((e.timeStamp-prevTime)/1000000) + " ms - ");
+      out.println(((e.timeStamp-startTime)/1000000) + " ms");
+      if (incIndent(e.event)) indent++;
+      else if (decIndent(e.event)) indent--;
+      prevTime = e.timeStamp;
     }
     out.flush();
   }
@@ -553,10 +552,10 @@ public class Tracer {
   /**
    * Prints all of attribute instance computations (cached or aborted).
    */
-  public static void printComputeReport(java.io.PrintWriter out) {
-    printReport(out, new Tracer.Filter() {
-      public boolean include(Tracer.TraceObject obj) {
-        return obj.event == Tracer.Event.CACHE_ABORT || obj.event == Tracer.Event.CACHED;
+  public void printComputeReport(java.io.PrintWriter out) {
+    printReport(out, new $ASTNode$$State.Trace.Filter() {
+      public boolean include($ASTNode$$State.Trace.Entry e) {
+        return e.event == $ASTNode$$State.Trace.Event.CACHE_ABORT || e.event == $ASTNode$$State.Trace.Event.CACHED;
       }
       public String desc() {
         return "computed(i.e.,CACHE_ABORT||CACHED)";
@@ -567,10 +566,10 @@ public class Tracer {
   /**
    * Prints all cache aborts.
    */
-  public static void printCacheAbortReport(java.io.PrintWriter out) {
-    printReport(out, new Tracer.Filter() {
-      public boolean include(Tracer.TraceObject obj) {
-        return obj.event == Tracer.Event.CACHE_ABORT;
+  public void printCacheAbortReport(java.io.PrintWriter out) {
+    printReport(out, new $ASTNode$$State.Trace.Filter() {
+      public boolean include($ASTNode$$State.Trace.Entry e) {
+        return e.event == $ASTNode$$State.Trace.Event.CACHE_ABORT;
       }
       public String desc() {
         return "CACHE_ABORT";
@@ -581,10 +580,10 @@ public class Tracer {
   /**
    * Prints all cached.
    */
-  public static void printCacheReport(java.io.PrintWriter out) {
-    printReport(out, new Tracer.Filter() {
-      public boolean include(Tracer.TraceObject obj) {
-        return obj.event == Tracer.Event.CACHED;
+  public void printCacheReport(java.io.PrintWriter out) {
+    printReport(out, new $ASTNode$$State.Trace.Filter() {
+      public boolean include($ASTNode$$State.Trace.Entry e) {
+        return e.event == $ASTNode$$State.Trace.Event.CACHED;
       }
       public String desc() {
         return "CACHED";
@@ -595,10 +594,10 @@ public class Tracer {
   /**
    * Prints all copied nodes.
    */
-  public static void printCopyReport(java.io.PrintWriter out) {
-    printReport(out, new Tracer.Filter() {
-      public boolean include(Tracer.TraceObject obj) {
-        return obj.event == Tracer.Event.COPY_NODE;
+  public void printCopyReport(java.io.PrintWriter out) {
+    printReport(out, new $ASTNode$$State.Trace.Filter() {
+      public boolean include($ASTNode$$State.Trace.Entry e) {
+        return e.event == $ASTNode$$State.Trace.Event.COPY_NODE;
       }
       public String desc() {
         return "COPY_NODE";
@@ -609,7 +608,7 @@ public class Tracer {
   /**
    * Prints report of maxiumum nesting of circular NTA evaluations.
    */
-  public static void printCircularNtaNestingReport(java.io.PrintWriter out) {
+  public void printCircularNtaNestingReport(java.io.PrintWriter out) {
     class NestingCounter {
       int nesting = 0;
       int maxNesting = 0;
@@ -625,16 +624,16 @@ public class Tracer {
       public int max() { return maxNesting; }
     }
     final NestingCounter counter = new NestingCounter();
-    printReport(out, new Tracer.Filter() {
-      public boolean include(Tracer.TraceObject obj) {
+    printReport(out, new $ASTNode$$State.Trace.Filter() {
+      public boolean include($ASTNode$$State.Trace.Entry e) {
         boolean res = false;
-        if (obj.event == Tracer.Event.CIRCULAR_NTA_CASE1_START ||
-            obj.event == Tracer.Event.CIRCULAR_NTA_CASE2_START) {
+        if (e.event == $ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE1_START ||
+            e.event == $ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE2_START) {
           res = true;
           counter.push();
         }
-        if (obj.event == Tracer.Event.CIRCULAR_NTA_CASE1_RETURN ||
-            obj.event == Tracer.Event.CIRCULAR_NTA_CASE2_RETURN) {
+        if (e.event == $ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE1_RETURN ||
+            e.event == $ASTNode$$State.Trace.Event.CIRCULAR_NTA_CASE2_RETURN) {
           counter.pop();
         }
         return res;
@@ -645,6 +644,6 @@ public class Tracer {
     });
     System.out.println("Max nesting: " + counter.max() + "\n");
   }
-
 }
+$endif
 ]]

@@ -25,15 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Code for CacheAnalyzer
+# Code for inner class CacheAnalyzer
 CacheAnalyzer = [[
-$PackageDecl
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-
 /**
  * Cache analyzer based on the ideas presented in
  *
@@ -44,29 +37,29 @@ import java.util.HashSet;
  *   <i>Dept. of Computer Science, Lund University</i>
  *
  */
-public class CacheAnalyzer extends Tracer.InputFilter {
+public class CacheAnalyzer extends ASTNode$$State.Trace.InputFilter {
   
   private final String[] ATTRIBUTES = { $AttrNameList };
-  private Map<String,Map<String,Integer>> attrMap = null;
+  private java.util.Map<String,java.util.Map<String,Integer>> attrMap = null;
 
-  public Tracer.TraceObject createTraceObject(Tracer.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    if (evt == Tracer.Event.CACHED || evt == Tracer.Event.CACHE_READ) {
+  public $ASTNode$$State.Trace.Entry createEntry($ASTNode$$State.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
+    if (evt == $ASTNode$$State.Trace.Event.CACHED || evt == $ASTNode$$State.Trace.Event.CACHE_READ) {
       if (attrMap == null) {
         createAttrMap();
       }
-      Map<String,Integer> instanceMap = attrMap.get(attr);
+      java.util.Map<String,Integer> instanceMap = attrMap.get(attr);
       if (instanceMap == null) {
-        instanceMap = new HashMap<String,Integer>();
+        instanceMap = new java.util.HashMap<String,Integer>();
         attrMap.put(attr, instanceMap);
       }
       String instance = String.format("%08X", node.hashCode());
       Integer calls = instanceMap.get(instance);
       instanceMap.put(instance, calls == null ? 1 : calls + 1); 
     }  
-    return super.createTraceObject(evt, node, attr, params, value);
+    return super.createEntry(evt, node, attr, params, value);
   }
 
-  public boolean include(Tracer.TraceObject obj) {
+  public boolean include($ASTNode$$State.Trace.Entry e) {
     return false;
   }
 
@@ -74,8 +67,8 @@ public class CacheAnalyzer extends Tracer.InputFilter {
     return "Cache analyzer";
   }
 
-  private Map<String,Map<String,Integer>> createAttrMap() {
-    attrMap = new HashMap<String,Map<String,Integer>>();
+  private java.util.Map<String,java.util.Map<String,Integer>> createAttrMap() {
+    attrMap = new java.util.HashMap<String,java.util.Map<String,Integer>>();
     for (String attrName : ATTRIBUTES) {
       attrMap.put(attrName, null);
     }
@@ -85,15 +78,15 @@ public class CacheAnalyzer extends Tracer.InputFilter {
   /**
    * @return The raw trace result of the analyzer, mapping attribute names to call counts
    */
-  public Map<String,Map<String,Integer>> getRawResult() {
-    Map<String,Map<String,Integer>> map = new HashMap<String,Map<String,Integer>>();
+  public java.util.Map<String,java.util.Map<String,Integer>> getRawResult() {
+    java.util.Map<String,java.util.Map<String,Integer>> map = new java.util.HashMap<String,java.util.Map<String,Integer>>();
     if (attrMap == null) {
       return map;
     }
-    for (Map.Entry<String,Map<String,Integer>> e : attrMap.entrySet()) {
+    for (java.util.Map.Entry<String,java.util.Map<String,Integer>> e : attrMap.entrySet()) {
       if (e.getValue() != null) {
-        Map<String,Integer> innerMap = new HashMap<String,Integer>();
-        for (Map.Entry<String,Integer> ie : e.getValue().entrySet()) {
+        java.util.Map<String,Integer> innerMap = new java.util.HashMap<String,Integer>();
+        for (java.util.Map.Entry<String,Integer> ie : e.getValue().entrySet()) {
           innerMap.put(ie.getKey(), ie.getValue());    
         }
         map.put(e.getKey(), innerMap);
@@ -111,7 +104,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
     if (attrMap == null) {
       return 0.0;
     }
-    Map<String, Integer> instanceMap = attrMap.get(attr);
+    java.util.Map<String, Integer> instanceMap = attrMap.get(attr);
     if (instanceMap == null) {
       return 0.0;
     }
@@ -125,8 +118,8 @@ public class CacheAnalyzer extends Tracer.InputFilter {
   /**
    * @return The set of all attributes, represented with signature strings
    */
-  public Set<String> getAllSet() {
-    Set<String> set = new HashSet<String>();
+  public java.util.Set<String> getAllSet() {
+    java.util.Set<String> set = new java.util.HashSet<String>();
     if (attrMap == null) {
       return set;
     }
@@ -139,12 +132,12 @@ public class CacheAnalyzer extends Tracer.InputFilter {
   /**
    * @return The set of used attributes, represented with signature strings
    */
-  public Set<String> getUsedSet() {
-    Set<String> set = new HashSet<String>();
+  public java.util.Set<String> getUsedSet() {
+    java.util.Set<String> set = new java.util.HashSet<String>();
     if (attrMap == null) {
       return set;
     }
-    for (Map.Entry<String,Map<String,Integer>> e : attrMap.entrySet()) {
+    for (java.util.Map.Entry<String,java.util.Map<String,Integer>> e : attrMap.entrySet()) {
       if (e.getValue() != null) {
         set.add(e.getKey());
       }
@@ -155,12 +148,12 @@ public class CacheAnalyzer extends Tracer.InputFilter {
   /**
    * @return The set of attributes used once, represented with signature strings
    */
-  public Set<String> getOneSet() {
-    Set<String> set = new HashSet<String>();
+  public java.util.Set<String> getOneSet() {
+    java.util.Set<String> set = new java.util.HashSet<String>();
     if (attrMap == null) {
       return set;
     }
-    for (Map.Entry<String,Map<String,Integer>> e : attrMap.entrySet()) {
+    for (java.util.Map.Entry<String,java.util.Map<String,Integer>> e : attrMap.entrySet()) {
       if (e.getValue() != null && getAverageAttrCalls(e.getKey()) <= 1.0) {
         set.add(e.getKey());
       }
@@ -180,7 +173,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    * @param out Print writer to use 
    */
    public void printAllMinusOneConfig(java.io.PrintWriter out) {
-     Set<String> configSet = getAllSet();
+     java.util.Set<String> configSet = getAllSet();
      configSet.removeAll(getOneSet());
      for (String attr : configSet) {
        out.println("cache " + attr + ";");  
@@ -193,7 +186,7 @@ public class CacheAnalyzer extends Tracer.InputFilter {
    * @param out Print writer to use 
    */
    public void printUsedMinusOneConfig(java.io.PrintWriter out) {
-     Set<String> configSet = getUsedSet();
+     java.util.Set<String> configSet = getUsedSet();
      configSet.removeAll(getOneSet());
      for (String attr : configSet) {
        out.println("cache " + attr + ";");  

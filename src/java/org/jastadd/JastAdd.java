@@ -170,10 +170,6 @@ public class JastAdd {
 
       genASTNode$State(grammar);
 
-      if (config.tracingEnabled()) {
-        genTracer(grammar);
-      }
-
       genIncrementalDDGNode(grammar);
 
       problems = readJRAGFiles(grammar, config.getFiles());
@@ -311,21 +307,9 @@ public class JastAdd {
     }
   }
 
-  private void genTracer(Grammar grammar)
-    throws FileNotFoundException {
-
-    grammar.createPackageOutputDirectory();
-
-    PrintWriter writer = new PrintWriter(grammar.targetJavaFile("Tracer"));
-    grammar.emitTracer(writer);
-    writer.close();
-  }
-
   private void genCacheAnalyzer(Grammar grammar)
-    throws FileNotFoundException {
-
+      throws FileNotFoundException {
     grammar.createPackageOutputDirectory();
-
     PrintWriter writer = new PrintWriter(grammar.targetJavaFile("CacheAnalyzer"));
     grammar.emitCacheAnalyzer(writer);
     writer.close();

@@ -80,6 +80,12 @@ $if(!JJTree)
   protected $ASTNode[] $ASTNode.children;
 $endif
 
+$if(TracingEnabled)
+  public final $ASTNode$$State.Trace $ASTNode.trace() {
+    return state().trace();
+  } 
+$endif
+
 $if(NoStatic)
   /**
    * @apilevel internal

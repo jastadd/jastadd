@@ -277,15 +277,6 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Generate Tracer class.
-   *
-   * @param out Aspect output stream
-   */
-  public void Grammar.emitTracer(PrintWriter out) {
-    templateContext().expand("Tracer", out);
-  }
-
-  /**
    * Generate CacheAnalyzer class.
    *
    * @param out Aspect output stream

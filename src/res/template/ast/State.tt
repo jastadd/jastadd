@@ -297,6 +297,17 @@ $else
   }
 $endif
   $include(State.incHook)
+
+$if(TracingEnabled)
+  private Trace trace = null;
+  public Trace trace() {
+    if (trace == null) {
+      trace = new Trace();
+    }
+    return trace;
+  }
+  $include(TraceClass)   
+$endif
 }
 ]]
 
