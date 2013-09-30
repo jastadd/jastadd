@@ -29,13 +29,21 @@ aspect Flush {
 
   public void ASTDecl.emitFlushCache(PrintWriter out) {
     TemplateContext tt = templateContext();
-    tt.bind("FlushNTACache", emitFlushNTACacheString());
+    
+    tt.expand("ASTDecl.flushCacheMethod", out);
+    
     tt.bind("FlushSynAttrCache", emitFlushSynAttrCacheString());
     tt.bind("FlushInhAttrCache", emitFlushInhAttrCacheString());
+    tt.expand("ASTDecl.flushAttrCacheMethod", out);
+    
     tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
-    tt.expand("ASTDecl.flushCacheMethod", out);
-    tt.expand("ASTDecl.flushRewriteCacheMethod", out);
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
+    
+    tt.bind("FlushNTACache", emitFlushNTACacheString());
+    tt.expand("ASTDecl.flushNTACacheMethod", out);
+    
+    tt.expand("ASTDecl.flushRewriteCacheMethod", out);
+    
     if (config().flushRewrite) {
       tt.expand("ASTNode.flushRewritesInitValue", out);
       tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);

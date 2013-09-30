@@ -399,9 +399,9 @@ public class Configuration {
   public boolean flushEnabled = true;
   
   /**
-   * --flush=tree
+   * --flush=attr
    */
-  public boolean flushTree = false;
+  public boolean flushAttr = false;
   
   /**
    * --flush=rewrite
@@ -414,9 +414,9 @@ public class Configuration {
   public boolean flushNTA = false;
   
   /**
-   * --flush=attr
+   * --flush=coll
    */
-  public boolean flushAttr = false;
+  public boolean flushColl = false;
   
   /**
    * TODO unused?
@@ -851,38 +851,40 @@ public class Configuration {
     {
       acceptsMultipleValues = true;
       needsValue = false;
-      addAcceptedValue("full", "flushing of all computed values (combines tree, rewrite, and nta)");
-      addAcceptedValue("tree", "adds flushing of trees");
-      addAcceptedValue("rewrite", "adds flushing of rewrites");
+      addAcceptedValue("full", "flushing of all computed values (combines attr, coll, nta, and rewrite)");
+      addAcceptedValue("attr", "adds flushing of attributes (syn,inh)");
+      addAcceptedValue("coll", "adds flushing of collection attributes");
       addAcceptedValue("nta", "adds flushing of NTAs");
-      addAcceptedValue("attr", "adds flushing of single attributes");
+      addAcceptedValue("rewrite", "adds flushing of rewrites");
+      additionalDescription = "default is 'attr' and 'coll'";
     }
 
     @Override
     public void onMatch() {
       flushEnabled = true;
-      flushTree = false;
-      flushRewrite = false;
+      flushAttr = true;
+      flushColl = true;
       flushNTA = false;
-      flushAttr = false;
+      flushRewrite = false;
     }
 
     @Override
     public void onMatch(String arg) {
       flushEnabled = true;
       if (arg.equals("full")) {
-        flushTree = true;
+        flushAttr = true;
+        flushColl = true;
         flushRewrite = true;
         flushNTA = true;
-      } else if (arg.equals("tree")) {
-        flushTree = true;
+      } else if (arg.equals("attr")) {
+        flushAttr = true;
+      } else if (arg.equals("coll")) {
+        flushColl = true;
       } else if (arg.equals("rewrite")) {
         flushRewrite = true;
       } else if (arg.equals("nta")) {
         flushNTA = true;
-      } else if (arg.equals("attr")) {
-        flushAttr = true;
-      }
+      } 
     }
   };
   
@@ -1116,7 +1118,8 @@ public class Configuration {
     @Override
     public void onMatch() {
       flushEnabled = true;
-      flushTree = true;
+      flushAttr = true;
+      flushColl = true;
       flushRewrite = true;
       flushNTA = true;
     }
@@ -1269,10 +1272,10 @@ public class Configuration {
 
     // Flush
     tt.bind("FlushEnabled", flushEnabled);
-    tt.bind("FlushTree", flushTree);
-    tt.bind("FlushRewrite", flushRewrite);
-    tt.bind("FlushNTA", flushNTA);
     tt.bind("FlushAttr", flushAttr);
+    tt.bind("FlushColl", flushColl);
+    tt.bind("FlushNTA", flushNTA);
+    tt.bind("FlushRewrite", flushRewrite);
 
     // Incremental
     tt.bind("IncrementalEnabled", incremental);

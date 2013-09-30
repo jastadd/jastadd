@@ -35,23 +35,42 @@ $if(FlushEnabled)
     $SynchBegin
     $if(!#isASTNodeDecl)
     super.flushCache();
-    $endif
-    $if (FlushRewrite)
-    $if(#isASTNodeDecl)
+    $else
+    $if(FlushRewrite)
     flushRewriteCache();
+    $endif  
     $endif
+    $if(FlushAttr)
+    flushAttrCache();
     $endif
-    $FlushNTACache
-    $FlushSynAttrCache
-    $FlushInhAttrCache
+    $if(FlushColl)
     flushCollectionCache();
+    $endif
+    $if(FlushNTA)
+    flushNTACache();
+    $endif
     $SynchEnd
   }
 $endif
 ]]
 
+ASTDecl.flushAttrCacheMethod = [[
+$if(FlushAttr)
+  /**
+    * @apilevel internal
+    */
+  public void #name.flushAttrCache() {
+    $if(!#isASTNodeDecl)
+    super.flushAttrCache();
+    $endif
+    $FlushSynAttrCache
+    $FlushInhAttrCache
+  }
+$endif
+]]
+
 ASTDecl.flushCollectionCacheMethod = [[
-$if(FlushEnabled)
+$if(FlushColl)
   /**
     * @apilevel internal
     */
@@ -60,6 +79,20 @@ $if(FlushEnabled)
     super.flushCollectionCache();
     $endif
     $FlushCollectionCache
+  }
+$endif
+]]
+
+ASTDecl.flushNTACacheMethod = [[
+$if(FlushNTA)
+  /**
+    * @apilevel internal
+    */
+  public void #name.flushNTACache() {
+    $if(!#isASTNodeDecl)
+    super.flushNTACache();
+    $endif
+    $FlushNTACache    
   }
 $endif
 ]]
