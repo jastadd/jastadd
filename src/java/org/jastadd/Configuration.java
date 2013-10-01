@@ -401,7 +401,7 @@ public class Configuration {
   /**
    * --flush=attr
    */
-  public boolean flushAttr = false;
+  public boolean flushAttr = true;
   
   /**
    * --flush=rewrite
@@ -416,7 +416,7 @@ public class Configuration {
   /**
    * --flush=coll
    */
-  public boolean flushColl = false;
+  public boolean flushColl = true;
   
   /**
    * TODO unused?
