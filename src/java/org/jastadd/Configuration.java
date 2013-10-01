@@ -409,11 +409,6 @@ public class Configuration {
   public boolean flushRewrite = false;
   
   /**
-   * --flush=nta 
-   */
-  public boolean flushNTA = false;
-  
-  /**
    * --flush=coll
    */
   public boolean flushColl = true;
@@ -851,10 +846,9 @@ public class Configuration {
     {
       acceptsMultipleValues = true;
       needsValue = false;
-      addAcceptedValue("full", "flushing of all computed values (combines attr, coll, nta, and rewrite)");
+      addAcceptedValue("full", "flushing of all computed values (combines attr, coll, and rewrite)");
       addAcceptedValue("attr", "adds flushing of attributes (syn,inh)");
       addAcceptedValue("coll", "adds flushing of collection attributes");
-      addAcceptedValue("nta", "adds flushing of NTAs");
       addAcceptedValue("rewrite", "adds flushing of rewrites");
       additionalDescription = "default is 'attr' and 'coll'";
     }
@@ -864,7 +858,6 @@ public class Configuration {
       flushEnabled = true;
       flushAttr = true;
       flushColl = true;
-      flushNTA = false;
       flushRewrite = false;
     }
 
@@ -875,15 +868,12 @@ public class Configuration {
         flushAttr = true;
         flushColl = true;
         flushRewrite = true;
-        flushNTA = true;
       } else if (arg.equals("attr")) {
         flushAttr = true;
       } else if (arg.equals("coll")) {
         flushColl = true;
       } else if (arg.equals("rewrite")) {
         flushRewrite = true;
-      } else if (arg.equals("nta")) {
-        flushNTA = true;
       } 
     }
   };
@@ -1121,7 +1111,6 @@ public class Configuration {
       flushAttr = true;
       flushColl = true;
       flushRewrite = true;
-      flushNTA = true;
     }
   };
 
@@ -1274,7 +1263,6 @@ public class Configuration {
     tt.bind("FlushEnabled", flushEnabled);
     tt.bind("FlushAttr", flushAttr);
     tt.bind("FlushColl", flushColl);
-    tt.bind("FlushNTA", flushNTA);
     tt.bind("FlushRewrite", flushRewrite);
 
     // Incremental

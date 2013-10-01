@@ -46,9 +46,6 @@ $if(FlushEnabled)
     $if(FlushColl)
     flushCollectionCache();
     $endif
-    $if(FlushNTA)
-    flushNTACache();
-    $endif
     $SynchEnd
   }
 $endif
@@ -83,22 +80,9 @@ $if(FlushColl)
 $endif
 ]]
 
-ASTDecl.flushNTACacheMethod = [[
-$if(FlushNTA)
-  /**
-    * @apilevel internal
-    */
-  public void #name.flushNTACache() {
-    $if(!#isASTNodeDecl)
-    super.flushNTACache();
-    $endif
-    $FlushNTACache    
-  }
-$endif
-]]
-
+# TODO: Figure out if this can be removed
 TokenComponent.flushNTACache = [[
-$if(FlushNTA)
+$if(FlushAttr)
 if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
   token$(TypeSign)_$Id = null;
 }
