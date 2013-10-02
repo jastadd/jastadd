@@ -30,6 +30,7 @@ aspect Flush {
   public void ASTDecl.emitFlushCache(PrintWriter out) {
     TemplateContext tt = templateContext();
     
+    tt.expand("ASTNode.flushTreeCacheMethod", out);
     tt.expand("ASTDecl.flushCacheMethod", out);
     
     tt.bind("FlushSynAttrCache", emitFlushSynAttrCacheString());
