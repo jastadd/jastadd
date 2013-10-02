@@ -36,7 +36,7 @@ $if(FlushEnabled)
     $if(!#isASTNodeDecl)
     super.flushCache();
     $else
-    $if(FlushRewrite)
+    $if(RewriteEnabled)
     flushRewriteCache();
     $endif  
     $endif
@@ -86,5 +86,54 @@ $if(FlushAttr)
 if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
   token$(TypeSign)_$Id = null;
 }
+$endif
+]]
+
+# Not used yet
+AttrDecl.flushAttrCache = [[
+$if(IsCircular)
+ $if(HasParameters)
+  $if(LazyMaps)
+   #(signature)_values = null;
+  $else
+   #(signature)_values = $DefaultMap;
+  $endif
+ $else
+  $if(IsPrimitive)
+   #(signature)_computed = false;
+   #(signature)_initialized = false;
+  $else
+   #(signature)_computed = false;
+   #(signature)_initialized = false;
+   #(signature)_value = null;
+  $endif
+ $endif
+$else
+ $if(isLazy)
+  $if(IsNTA)
+   $if(LazyMaps)
+    #(signature)_values = null;
+    #(signature)_list = null;
+   $else
+    #(signature)_values = $DefaultMap;
+    #(signature)_list = null;
+   $endif
+  $else
+    $if(HasParameters)
+     $if(LazyMaps)
+      #(signature)_values = null;
+     $else
+      #(signature)_values = $DefaultMap;
+     $endif
+    $else
+     $if(IsPrimitive)
+      #(signature)_computed = false;
+     $else
+      #(signature)_computed = false;
+      #(signature)_value = null;
+     $endif    
+    $endif  
+  $endif
+ $endif
 $endif
 ]]

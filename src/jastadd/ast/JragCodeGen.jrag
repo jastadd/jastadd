@@ -292,38 +292,6 @@ aspect JragCodeGen {
     return tt.expand("AttrDecl.visitedException");
   }
 
-  syn String AttrDecl.resetVisit() = resetVisit("");
-
-  public String AttrDecl.resetVisit(String prefix) {
-    String signature = prefix + signature();
-    if (isCircular()) {
-      if (getNumParameter() == 0) {
-        return signature + "_visited = -1;\n";
-      } else {
-        // visited is handled in value object
-        return "";
-      }
-    }
-    if (!config().visitCheckEnabled) return "";
-    else if (config().rewriteEnabled) {
-      if (getNumParameter() == 0)
-        return signature + "_visited = -1;\n";
-      else {
-        if (config().lazyMaps)
-          return signature + "_visited = null;\n";
-        else
-          return signature + "_visited = " + config().createDefaultMap + ";\n";
-      }
-    }
-    if (getNumParameter() == 0)
-      return signature + "_visited = false;\n";
-    else {
-      if (config().lazyMaps)
-        return signature + "_visited = null;\n";
-      else
-        return signature + "_visited = " + config().createDefaultSet + ";\n";
-    }
-  }
 
   public String AttrDecl.visitedCheck() {
     return templateContext().expand("AttrDecl.visitedCheck");

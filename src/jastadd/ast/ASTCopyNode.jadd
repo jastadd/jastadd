@@ -41,33 +41,7 @@ aspect ASTCloneNode {
   }
 
   public void ASTDecl.emitCloneNode(PrintWriter stream) {
-    StringBuffer cloneBody = new StringBuffer();
-    for (int k = 0; k < getNumSynEq(); k++) {
-      AttrEq equ = getSynEq(k);
-      AttrDecl attr = equ.decl();
-      if (attr != null) {
-        cloneBody.append(attr.resetVisit("node."));
-        cloneBody.append(attr.resetCache("node."));
-      }
-    }
-    for (int k = 0; k < getNumInhDecl(); k++) {
-      AttrDecl attr = getInhDecl(k);
-      cloneBody.append(attr.resetVisit("node."));
-      cloneBody.append(attr.resetCache("node."));
-    }
-
-    if (config().rewriteEnabled) {
-      cloneBody.append("node.in$Circle(false);\n");
-      if (config().stagedRewrites) {
-        cloneBody.append("node.is$Final(0);\n");
-      } else {
-        cloneBody.append("node.is$Final(false);\n");
-	  }
-    }
-
-    TemplateContext tt = templateContext();
-    tt.bind("CloneBody", cloneBody.toString());
-    tt.expand("ASTDecl.emitCloneNode", stream);
+    templateContext().expand("ASTDecl.emitCloneNode", stream);
   }
 
   public void ASTDecl.emitCopyNode(PrintWriter stream) {

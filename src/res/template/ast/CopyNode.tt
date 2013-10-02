@@ -98,7 +98,7 @@ ASTDecl.emitCloneNode = [[
   public #copyReturnType #name.clone() throws CloneNotSupportedException {
     $SynchBegin
     #name node = (#name) super.clone();
-    $CloneBody
+    node.flushCache();
     return node;
     $SynchEnd
   }
