@@ -89,50 +89,86 @@ if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
 $endif
 ]]
 
-# Not used yet
-AttrDecl.flushAttrCache = [[
-$if(IsCircular)
- $if(HasParameters)
+AttrDecl.resetAttrCache = [[
+$if(#isCircular)
+ $if(#isParameterized)
   $if(LazyMaps)
-   #(signature)_values = null;
+#(signature)_values = null;
   $else
-   #(signature)_values = $DefaultMap;
+#(signature)_values = $CreateDefaultMap;
   $endif
  $else
-  $if(IsPrimitive)
-   #(signature)_computed = false;
-   #(signature)_initialized = false;
+  $if(#isPrimitive)
+#(signature)_computed = false;
+#(signature)_initialized = false;
   $else
-   #(signature)_computed = false;
-   #(signature)_initialized = false;
-   #(signature)_value = null;
+#(signature)_computed = false;
+#(signature)_initialized = false;
+#(signature)_value = null;
   $endif
  $endif
 $else
- $if(isLazy)
-  $if(IsNTA)
-   $if(LazyMaps)
-    #(signature)_values = null;
-    #(signature)_list = null;
+ $if(#getLazy)
+  $if(#getNTA)
+   $if(#isParameterized)
+    $if(LazyMaps)
+#(signature)_values = null;
+#(signature)_list = null;
+    $else
+#(signature)_values = $CreateDefaultMap;
+#(signature)_list = null;
+    $endif
    $else
-    #(signature)_values = $DefaultMap;
-    #(signature)_list = null;
+#(signature)_computed = false;
+#(signature)_value = null; 
    $endif
   $else
-    $if(HasParameters)
+    $if(#isParameterized)
      $if(LazyMaps)
-      #(signature)_values = null;
+#(signature)_values = null;
      $else
-      #(signature)_values = $DefaultMap;
+#(signature)_values = $CreateDefaultMap;
      $endif
     $else
-     $if(IsPrimitive)
-      #(signature)_computed = false;
+     $if(#isPrimitive)
+#(signature)_computed = false;
      $else
-      #(signature)_computed = false;
-      #(signature)_value = null;
+#(signature)_computed = false;
+#(signature)_value = null;
      $endif    
     $endif  
+  $endif
+ $endif
+$endif
+]]
+
+AttrDecl.resetAttrVisit = [[
+$if(#isCircular)
+ $if(!#isParameterized)
+#(signature)_visited = -1;
+ $endif
+$else
+ $if(VisitCheckEnabled)
+  $if(RewriteEnabled)
+   $if(#isParameterized)
+    $if(LazyMaps)
+#(signature)_visited = null;
+    $else
+#(signature)_visited = $CreateDefaultMap;
+    $endif
+   $else
+#(signature)_visited = -1;
+   $endif
+  $else
+   $if(#isParameterized)
+    $if(LazyMaps)
+#(signature)_visited = null;
+    $else
+#(signature)_visited = $CreateDefaultSet;
+    $endif
+   $else
+#(signature)_visited = false;
+   $endif
   $endif
  $endif
 $endif

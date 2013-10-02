@@ -68,6 +68,7 @@ aspect Flush {
    */
   public String ASTDecl.emitFlushInhAttrCacheString() {
     StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
     for (int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
       if (attr == null) continue;
@@ -77,86 +78,9 @@ aspect Flush {
     return res.toString();
   }
 
-  syn String AttrDecl.resetCache() = resetCache("");
+  syn String AttrDecl.resetCache() = templateContext().expand("AttrDecl.resetAttrCache");
 
-  public String AttrDecl.resetCache(String prefix) {
-    if (!(getLazy() || isCircular()))
-      return "";
-    String signature = prefix + signature();
-    if (getNumParameter() == 0) {
-      if (isCircular()) {
-        if (isPrimitive())
-          return signature + "_computed = false;\n" +
-                 signature + "_initialized = false;\n";
-        else
-          return signature + "_computed = false;\n" +
-                 signature + "_initialized = false;\n" +
-                 signature + "_value = null;\n";
-      }
-      if (isPrimitive())
-        return signature + "_computed = false;\n";
-      else
-        return signature + "_computed = false;\n" +
-               signature + "_value = null;\n";
-    }
-    else if (isCircular()) {
-        if (config().lazyMaps) {
-          return signature + "_values = null;\n";
-        } else {
-          return signature + "_values = " + config().createDefaultMap + ";\n";
-        }
-    }
-    else {
-      if (getNTA()) {
-        if (config().lazyMaps) {
-          return signature + "_values = null;\n" +
-                 signature + "_list = null;";
-        } else {
-          return signature + "_values = " + config().createDefaultMap + ";\n" +
-                 signature + "_list = null;\n";
-        }
-      } else {
-        if (config().lazyMaps) {
-          return signature + "_values = null;\n";
-        } else {
-          return signature + "_values = " + config().createDefaultMap + ";\n";
-        }
-      }
-    }
-  }
-
-  syn String AttrDecl.resetVisit() = resetVisit("");
-
-  public String AttrDecl.resetVisit(String prefix) {
-    String signature = prefix + signature();
-    if (isCircular()) {
-      if (getNumParameter() == 0) {
-        return signature + "_visited = -1;\n";
-      } else {
-        // visited is handled in value object
-        return "";
-      }
-    }
-    if (!config().visitCheckEnabled) return "";
-    else if (config().rewriteEnabled) {
-      if (getNumParameter() == 0)
-        return signature + "_visited = -1;\n";
-      else {
-        if (config().lazyMaps)
-          return signature + "_visited = null;\n";
-        else
-          return signature + "_visited = " + config().createDefaultMap + ";\n";
-      }
-    }
-    if (getNumParameter() == 0)
-      return signature + "_visited = false;\n";
-    else {
-      if (config().lazyMaps)
-        return signature + "_visited = null;\n";
-      else
-        return signature + "_visited = " + config().createDefaultSet + ";\n";
-    }
-  }
+  syn String AttrDecl.resetVisit() = templateContext().expand("AttrDecl.resetAttrVisit");
 
 
   /**
