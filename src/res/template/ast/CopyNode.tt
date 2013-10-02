@@ -64,9 +64,23 @@ ASTDecl.emitFullCopy = [[
    * The copy is dangling, i.e. has no parent.
    * @return dangling copy of the subtree at this node
    * @apilevel low-level
+   * @deprecated Please use emitTreeCopy or emitTreeCopyNoTransform instead
    */
   #annotations
   public #copyReturnType #name.fullCopy() {
+    return treeCopyNoTransform();
+  }
+]]
+
+ASTDecl.emitTreeCopyNoTransform = [[
+  /**
+   * Create a deep copy of the AST subtree at this node.
+   * The copy is dangling, i.e. has no parent.
+   * @return dangling copy of the subtree at this node
+   * @apilevel low-level
+   */
+  #annotations
+  public #copyReturnType #name.treeCopyNoTransform() {
     $SynchBegin
     #name tree = (#name) copy();
     if (children != null) {
@@ -74,7 +88,7 @@ ASTDecl.emitFullCopy = [[
         $SkipNTAs
         $ASTNode child = ($ASTNode) children[i];
         if(child != null) {
-          child = child.fullCopy();
+          child = child.treeCopyNoTransform();
 $if(IncrementalEnabled)
           tree.children[i] = child;
           child.parent = tree;
@@ -85,6 +99,40 @@ $endif
       }
     }
     return tree;
+    $SynchEnd
+  }
+]]
+
+ASTNode.emitDoFullTraversal = [[
+$if(#isASTNodeDecl)
+  /**
+   * Performs a full traversal of the tree using getChild to trigger rewrites
+   * @apilevel low-level
+   */
+  #annotations
+  public void $ASTNode.doFullTraversal() {
+    $SynchBegin
+    for (int i = 0; i < getNumChild(); i++) {
+      getChild(i).doFullTraversal();
+    }
+    $SynchEnd
+  }
+$endif
+]]
+
+ASTDecl.emitTreeCopy = [[
+  /**
+   * Create a deep copy of the AST subtree at this node.
+   * The subtree of this node is traversed to trigger rewrites before copy.
+   * The copy is dangling, i.e. has no parent.
+   * @return dangling copy of the subtree at this node
+   * @apilevel low-level
+   */
+  #annotations
+  public #copyReturnType #name.treeCopy() {
+    $SynchBegin
+    doFullTraversal();
+    return treeCopyNoTransform();
     $SynchEnd
   }
 ]]

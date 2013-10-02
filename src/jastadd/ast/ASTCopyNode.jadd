@@ -123,6 +123,9 @@ aspect ASTCloneNode {
     TemplateContext tt = templateContext();
     tt.bind("SkipNTAs", skipNTAs);
     tt.expand("ASTDecl.emitFullCopy", stream);
+    tt.expand("ASTDecl.emitTreeCopyNoTransform", stream);
+    tt.expand("ASTNode.emitDoFullTraversal", stream);
+    tt.expand("ASTDecl.emitTreeCopy", stream);
   }
 
 }
