@@ -1075,6 +1075,7 @@ public class Configuration {
     @Override
     public void onMatch(String arg) {
       incremental = true;
+      flushRewrite = true; // assuming that flushing is enabled by default with 'attr' and 'coll'
       if (arg.equals("param")) {
         incrementalLevelParam = true;
       } else if (arg.equals("attr")) {

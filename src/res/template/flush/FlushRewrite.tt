@@ -36,12 +36,12 @@ $if(#isASTNodeDecl)
     $SynchBegin
     $if(FlushRewrite)
     for (int i = 0; i < getNumChildNoTransform(); i++) {
-      if (rewritten_children != null && rewritten_children[i]) {
-        if (init_children[i] != null) {
-          setChild(init_children[i], i);
-          init_children[i] = null;
+      if (children_computed != null && children_computed[i]) {
+        if (children_init[i] != null) {
+          setChild(children_init[i], i);
+          children_init[i] = null;
         }
-        rewritten_children[i] = false;
+        children_computed[i] = false;
       }
     }
     $else
@@ -62,27 +62,33 @@ $endif
 
 # State variables needed to handle flushing of rewrites
 # TODO: These should be protected, but are public now for debugging
-ASTNode.flushRewritesInitValue = [[
+ASTNode.getChild_initValue = [[
+$if(RewriteEnabled)
+$if(FlushRewrite)
 $if(#isASTNodeDecl)
   /**
    * @apilevel internal
    */
-  public $ASTNode[] $ASTNode.init_children;
+  public $ASTNode[] $ASTNode.children_init;
   /**
    * @apilevel internal
    */
-  public boolean[] $ASTNode.rewritten_children;
+  public boolean[] $ASTNode.children_computed;
+$endif
+$endif
 $endif
 ]]
 
 # Method needed for to handler flushing of rewrites.
 # Checks whether there is an enclosing rewritten node.
-ASTNode.flushRewritesHasEnclosingRewriteMethod = [[
+ASTNode.getChild_hasEnclosingInitValueMethod = [[
+$if(RewriteEnabled)
+$if(FlushRewrite)
 $if(#isASTNodeDecl)
   /**
     * @apilevel internal
     */
-  protected boolean $ASTNode.inc_hasEnclosingRewrittenNode() {
+  protected boolean $ASTNode.getChild_hasEnclosingInitValue() {
     $ASTNode child = this;
     $ASTNode parent = this.parent;
     while (parent != null) {
@@ -94,5 +100,7 @@ $if(#isASTNodeDecl)
     }
     return false;
   }
+$endif
+$endif
 $endif
 ]]

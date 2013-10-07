@@ -88,8 +88,7 @@ $if(FlushAttr)
     $if(!#isASTNodeDecl)
     super.flushAttrCache();
     $endif
-    $FlushSynAttrCache
-    $FlushInhAttrCache
+    $FlushAttrCacheBody
   }
 $endif
 ]]
@@ -116,6 +115,19 @@ if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
 }
 $endif
 ]]
+
+AttrDecl.resetMethod = [[
+$if(FlushAttr)
+/**
+ * @apilevel internal
+ */
+private void #(signature)_reset() {
+  $include(AttrDecl.resetAttrCache)
+  $include(AttrDecl.resetAttrVisit)
+}  
+$endif
+]]
+
 
 AttrDecl.resetAttrCache = [[
 $if(#isCircular)

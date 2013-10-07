@@ -706,6 +706,7 @@ aspect JragCodeGen {
       if (needsCacheDeclaration) {
         attr.emitVisitedDeclarations(out);
         attr.emitCacheDeclarations(out);
+        attr.emitResetMethod(out);
       }
     } else {
       if (attr.getNumParameter() == 0) {
@@ -717,6 +718,7 @@ aspect JragCodeGen {
         }
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
+          attr.emitResetMethod(out);
           out.println(ind + "/**");
           out.println(ind + " * @apilevel internal");
           out.println(ind + " */");
@@ -735,6 +737,7 @@ aspect JragCodeGen {
       else {
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
+          attr.emitResetMethod(out);
           if (config().lazyMaps) {
             out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values;");
             return;

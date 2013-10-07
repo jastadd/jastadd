@@ -120,7 +120,7 @@ if(this.init_children == null) {
   this.init_children = new $ASTNode[this.children.length];
   this.rewritten_children = new boolean[this.children.length];
 }
-if(!node.inc_hasEnclosingRewrittenNode()) {
+if(!node.getChild_hasEnclosingInitValue()) {
   this.init_children[i] = node.fullCopy();
   this.rewritten_children[i] = true;
 }
@@ -221,7 +221,7 @@ $endif
 ASTNode.incHookGetChild7 = [[
 $if(IncrementalEnabled)
 
-$ASTNode initial = this.init_children[i];
+//$ASTNode initial = this.init_children[i];
 
 $endif
 ]]
@@ -231,24 +231,24 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
 oldNode.inc_flush_subtree(this.getChild_handler[i]);
-this.init_children[i] = initial;
+//this.init_children[i] = initial;
 $endif
 
 $if(IncrementalLevelAttr)
 oldNode.inc_flush_subtree(this.getChild_handler);
-this.init_children[i] = initial;
+//this.init_children[i] = initial;
 $endif
 
 $if(IncrementalLevelNode)
 oldNode.inc_flush_subtree(node.handler());
-this.init_children[i] = initial;
+//this.init_children[i] = initial;
 $endif
 
 $if(IncrementalLevelRegion)
 if (node.isRegionRoot()) {
   oldNode.inc_flush_subtree(node.handler());
 }
-this.init_children[i] = initial;
+//this.init_children[i] = initial;
 $endif
 
 $endif

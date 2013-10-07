@@ -25,91 +25,72 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# TODO: Remove after incremental code has been refactored
+# Removing maintenance of initial rewrite values
+# These hooks are not included 
 ASTNode.flushHookSetChildCopyState = [[
 $if(FlushRewrite)
-
-if (init_children != null) {
+if (children_init != null) {
   $ASTNode d[] = new $ASTNode[i << 1];
-  System.arraycopy(init_children, 0, d, 0, init_children.length);
-  init_children = d;
+  System.arraycopy(children_init, 0, d, 0, children_init.length);
+  children_init = d;
 }
-if (rewritten_children != null) {
+if (children_computed != null) {
   boolean[] b = new boolean[i << 1];
-  System.arraycopy(rewritten_children, 0, b, 0, rewritten_children.length);
-  rewritten_children = b;
+  System.arraycopy(children_computed, 0, b, 0, children_computed.length);
+  children_computed = b;
 }
-
 $endif
 ]]
-
 ASTNode.flushHookSetChildInitState = [[
 $if(FlushRewrite)
-
-if (rewritten_children != null) {
-  rewritten_children[i] = false;
+if (children_computed != null) {
+  children_computed[i] = false;
 }
-
 $endif
 ]]
-
 ASTNode.flushHookInsertChildUpdateState = [[
 $if(FlushRewrite)
-
-if (init_children != null) {
-  $ASTNode d[] = new $ASTNode[init_children.length + 1];
-  System.arraycopy(init_children, 0, d, 0, init_children.length);
-  if (i < init_children.length) {
-    System.arraycopy(init_children, i, d, i+1, init_children.length - i);
+if (children_init != null) {
+  $ASTNode d[] = new $ASTNode[children_init.length + 1];
+  System.arraycopy(children_init, 0, d, 0, children_init.length);
+  if (i < children_init.length) {
+    System.arraycopy(children_init, i, d, i+1, children_init.length - i);
   }
-  init_children = d;
+  children_init = d;
 }
-if (rewritten_children != null) {
-  boolean b[] = new boolean[rewritten_children.length + 1];
-  System.arraycopy(rewritten_children, 0, b, 0, rewritten_children.length);
-  if (i < rewritten_children.length) {
-    System.arraycopy(rewritten_children, i, b, i+1, rewritten_children.length - i);
+if (children_computed != null) {
+  boolean b[] = new boolean[children_computed.length + 1];
+  System.arraycopy(children_computed, 0, b, 0, children_computed.length);
+  if (i < children_computed.length) {
+    System.arraycopy(children_computed, i, b, i+1, children_computed.length - i);
   }
-  rewritten_children = b;
+  children_computed = b;
 }
-
 $endif
 ]]
-
 ASTNode.flushHookRemoveChild = [[
 $if(FlushRewrite)
-
-if (init_children != null) {
-  System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);
+if (children_init != null) {
+  System.arraycopy(children_init, i+1, children_init, i, children_init.length-i-1);
 }
-if (rewritten_children != null) {
-  System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);
-}
-
-$endif
-]]
-
-ASTNode.flushHookGetChildInit = [[
-$if(FlushRewrite)
-if(this.init_children == null) {
-  this.init_children = new $ASTNode[this.children.length];
-  this.rewritten_children = new boolean[this.children.length];
+if (children_computed != null) {
+  System.arraycopy(children_computed, i+1, children_computed, i, children_computed.length-i-1);
 }
 $endif
 ]]
 
-ASTNode.flushHookGetChildCheckStoreInit = [[
-$if(FlushRewrite)
-if(!node.inc_hasEnclosingRewrittenNode() && this.init_children[i] == null) {
-  this.init_children[i] = node.fullCopy();
-  this.rewritten_children[i] = true;
-}
-$endif
-]]
 
-ASTNode.flushHookGetChildRewritten = [[
+# Stores initial value for outermost rewrites on entry to evaluation case 1
+ASTNode.flushHookRewriteEnterCircle = [[
 $if(FlushRewrite)
-if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
-  this.rewritten_children[i] = true;
+if (!node.getChild_hasEnclosingInitValue()) {
+  if(this.children_init == null) {
+    this.children_init = new $ASTNode[this.children.length];
+    this.children_computed = new boolean[this.children.length];
+  }
+  this.children_init[i] = node.treeCopyNoTransform();
+  this.children_computed[i] = true;
 }
 $endif
 ]]

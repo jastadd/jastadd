@@ -33,57 +33,35 @@ aspect Flush {
     tt.expand("ASTNode.flushTreeCacheMethod", out);
     tt.expand("ASTDecl.flushCacheMethod", out);
     
-    tt.bind("FlushSynAttrCache", emitFlushSynAttrCacheString());
-    tt.bind("FlushInhAttrCache", emitFlushInhAttrCacheString());
     // TODO: Figure out if flushing of NTAs are missing when this is excluded 
-    //tt.bind("FlushNTACache", emitFlushNTACacheString()); 
+    //tt.bind("FlushNTACache", emitFlushNTACacheString());
+
+    StringBuilder sb = new StringBuilder(); 
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl)itr.next();
+      sb.append(attr.signature() + "_reset();\n");
+    }
+    tt.bind("FlushAttrCacheBody", sb.toString());
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
     
     tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
     
-    tt.expand("ASTDecl.flushRewriteCacheMethod", out);
-    
-    if (config().flushRewrite) {
-      tt.expand("ASTNode.flushRewritesInitValue", out);
-      tt.expand("ASTNode.flushRewritesHasEnclosingRewriteMethod", out);
-    }
-  }
-
-  /**
-   * Creates string with code flush synthesized attributes in a node.
-   */
-  public String ASTDecl.emitFlushSynAttrCacheString() {
-    StringBuffer res = new StringBuffer();
-    for (int k = 0; k < getNumSynEq(); k++) {
-      AttrDecl attr = getSynEq(k).decl();
-      if (attr == null) continue;
-      res.append(attr.resetVisit());
-      res.append(attr.resetCache());
-    }
-    return res.toString();
-  }
-
-  /**
-   * Creates string with code flush inherited attributes in a node.
-   */
-  public String ASTDecl.emitFlushInhAttrCacheString() {
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    for (int k = 0; k < getNumInhDecl(); k++) {
-      AttrDecl attr = getInhDecl(k);
-      if (attr == null) continue;
-      res.append(attr.resetVisit());
-      res.append(attr.resetCache());
-    }
-    return res.toString();
+    tt.expand("ASTDecl.flushRewriteCacheMethod", out);    
+    tt.expand("ASTNode.getChild_initValue", out);
+    tt.expand("ASTNode.getChild_hasEnclosingInitValueMethod", out);
   }
 
   syn String AttrDecl.resetCache() = templateContext().expand("AttrDecl.resetAttrCache");
 
   syn String AttrDecl.resetVisit() = templateContext().expand("AttrDecl.resetAttrVisit");
 
-
+  public void AttrDecl.emitResetMethod(PrintStream out) {
+    if (getLazy() || isCircular()) {
+      templateContext().expand("AttrDecl.resetMethod", out);
+    }
+  }
+    
   /**
    * Creates string with code flushing NTAs in a node.
    */

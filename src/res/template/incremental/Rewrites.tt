@@ -27,7 +27,6 @@
 
 ASTNode.incFlushRewritesLocateEnclosingRewriteMethod = [[
 $if(IncrementalEnabled)
-$if(!FlushRewrite)
 $if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
@@ -95,13 +94,11 @@ $if(IncrementalLevelRegion)
 $endif
 $endif
 $endif
-$endif
 ]]
 
 ASTNode.incResetRewritesMethod = [[
 $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
-$if(!FlushRewrite)
   /**
    * @api internal
    */
@@ -119,7 +116,6 @@ $if(!FlushRewrite)
       }
     }
   }
-$endif
 $endif
 $endif
 ]]

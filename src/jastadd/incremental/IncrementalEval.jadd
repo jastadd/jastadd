@@ -58,7 +58,7 @@ aspect IncrementalEval {
     ArrayList list = new ArrayList();
     for (int k = 0; k < getNumSynEq(); k++) {
        AttrDecl attr = getSynEq(k).decl();
-       if (attr.getLazy() || attr.isCircular())
+       if (attr != null && (attr.getLazy() || attr.isCircular()))
         list.add(attr);
     }
     for (int k = 0; k < getNumInhDecl(); k++) {
