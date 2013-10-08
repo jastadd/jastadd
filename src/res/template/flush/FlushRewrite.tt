@@ -28,15 +28,16 @@
 # Method flushing rewrites in a node
 ASTDecl.flushRewriteCacheMethod = [[
 $if(RewriteEnabled)
-$if(#isASTNodeDecl)
   /**
    * @api internal
    */
-  public void $ASTNode.flushRewriteCache() {
+  public void #(name).flushRewriteCache() {
     $SynchBegin
-    $if(FlushRewrite)
+$if(#isASTNodeDecl)
+ $if(FlushRewrite)
     for (int i = 0; i < getNumChildNoTransform(); i++) {
       if (children_computed != null && children_computed[i]) {
+        $include(ASTNode.traceHookFlushRewrite)
         if (children_init[i] != null) {
           setChild(children_init[i], i);
           children_init[i] = null;
@@ -44,19 +45,21 @@ $if(#isASTNodeDecl)
         children_computed[i] = false;
       }
     }
-    $else
+ $else
     in$$Circle(false);
-    $if(!#isRootNode)
-    $if(StagedRewrites)
+  $if(!#isRootNode)
+   $if(StagedRewrites)
     is$$Final(0);
-    $else
+   $else
     is$$Final(false);
-    $endif
-    $endif
-    $endif
+   $endif
+  $endif
+ $endif
+$else
+    super.flushRewriteCache();
+$endif
     $SynchEnd
   }
-$endif
 $endif
 ]]
 

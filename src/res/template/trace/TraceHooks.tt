@@ -205,14 +205,14 @@ $endif
 
 ASTNode.traceHookRewriteEnterCase1 = [[
 $if (TraceRewrite)
-state().trace().addEnterRewriteCase1(this, "ASTNode.child", i, nodeToString(node));
+state().trace().addEnterRewriteCase1(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceHookRewriteChange = [[
 $if (TraceRewrite)
 if (this.state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
-  state().trace().addRewriteChange(this, "ASTNode.child", i,
+  state().trace().addRewriteChange(this, "ASTNode.getChild", i,
       nodeToString(oldNode) + "->" + nodeToString(node));
 }
 $endif
@@ -220,37 +220,59 @@ $endif
 
 ASTNode.traceHookRewriteCached = [[
 $if (TraceRewrite)
-state().trace().addCached(this, "ASTNode.child", i, nodeToString(node));
+state().trace().addCached(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceHookRewriteCacheAbort = [[
 $if (TraceRewrite)
-state().trace().addCacheAbort(this, "ASTNode.child", i, nodeToString(node));
+state().trace().addCacheAbort(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceHookRewriteExitCase1 = [[
 $if (TraceRewrite)
-state().trace().addExitRewriteCase1(this, "ASTNode.child", i, nodeToString(node));
+state().trace().addExitRewriteCase1(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceHookRewriteExitCase2 = [[
 $if (TraceRewrite)
-state().trace().addExitRewriteCase2(this, "ASTNode.child", i, nodeToString(node));
+state().trace().addExitRewriteCase2(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceHookRewriteExitCase3 = [[
 $if (TraceRewrite)
-state().trace().addExitRewriteCase3(this, "ASTNode.child", i, nodeToString(node));
+state().trace().addExitRewriteCase3(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTDecl.traceHookCopyNode = [[
 $if (TraceCopy)
 state().trace().addCopy(this, nodeToString(this));
+$endif
+]]
+
+AttrDecl.traceHookFlushAttr = [[
+$if (TraceFlush)
+    $if(#isParameterized)
+state().trace().addFlushAttr(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_values);
+    $else
+state().trace().addFlushAttr(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+    $endif
+$endif
+]]
+
+ASTNode.traceHookFlushRewrite = [[
+$if (TraceRewrite)
+state().trace().addFlushRewrite(this, "ASTNode.getChild", i, nodeToString(children[i]));
+$endif
+]]
+
+ASTNode.traceHookFlushRewriteInit = [[
+$if (TraceRewrite)
+state().trace().addFlushRewriteInit(this, "ASTNode.getChild", i, nodeToString(children[i]));
 $endif
 ]]
 

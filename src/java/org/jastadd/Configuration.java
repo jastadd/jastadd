@@ -313,6 +313,11 @@ public class Configuration {
   public boolean traceCopy = false;
 
   /**
+   * trace=flush
+   */
+  public boolean traceFlush = false;
+
+  /**
    * cache=all
    */
   public boolean cacheAll = false;
@@ -807,6 +812,7 @@ public class Configuration {
       addAcceptedValue("circular", "trace circular attribute evaluation");
       addAcceptedValue("circularNTA", "trace circular attribute evaluation");
       addAcceptedValue("copy", "trace node copy operations");
+      addAcceptedValue("flush", "trace flush operations");
       additionalDescription = "all events are collected by default\n"
           + "the result is available via the API in org.jastadd.Tracer";
     }
@@ -820,6 +826,7 @@ public class Configuration {
       traceCircularNTA = true;
       traceCircular = true;
       traceCopy = true;
+      traceFlush = true;
     }
 
     @Override
@@ -837,6 +844,8 @@ public class Configuration {
         traceCircular = true;
       } else if (arg.equals("copy")) {
         traceCopy = true;
+      } else if (arg.equals("flush")) {
+        traceFlush = true;
       }
     }
   };
@@ -1288,6 +1297,7 @@ public class Configuration {
     tt.bind("TraceCircularNTA", traceCircularNTA);
     tt.bind("TraceCircular", traceCircular);
     tt.bind("TraceCopy", traceCopy);
+    tt.bind("TraceFlush", traceFlush);
 
     // Cache
     tt.bind("CacheAnalyzeEnabled", cacheAnalyze);

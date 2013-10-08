@@ -113,7 +113,12 @@ public static class Trace {
     CIRCULAR_CASE3_RETURN,
 
     // Flag --tracing=copy
-    COPY_NODE
+    COPY_NODE,
+    
+    // Flag --tracing=flush
+    FLUSH_ATTR,
+    FLUSH_REWRITE,
+    FLUSH_REWRITE_INIT
   }
   
   /**
@@ -432,6 +437,39 @@ public static class Trace {
    */
   public void addCopy($ASTNode node, Object value) {
     add($ASTNode$$State.Trace.Event.COPY_NODE, node, "ASTNode.copy", "", value);
+  }
+
+  /**
+   * Trace that an attribute was flushed.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The value of the attribute.
+   */
+  public void addFlushAttr($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.FLUSH_ATTR, node, attr, params, value);
+  }
+
+  /**
+   * Trace that a rewrite was flushed.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The value of the attribute.
+   */
+  public void addFlushRewrite($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.FLUSH_REWRITE, node, attr, params, value);
+  }
+
+  /**
+   * Trace that the initial value of an enclosing rewrite was stored for flushing.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The value of the attribute.
+   */
+  public void addFlushRewriteInit($ASTNode node, String attr, Object params, Object value) {
+    add($ASTNode$$State.Trace.Event.FLUSH_REWRITE_INIT, node, attr, params, value);
   }
 
   /**

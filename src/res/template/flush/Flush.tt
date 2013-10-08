@@ -61,12 +61,8 @@ $if(FlushEnabled)
     */
   public void #name.flushCache() {
     $SynchBegin
-    $if(!#isASTNodeDecl)
-    super.flushCache();
-    $else
     $if(RewriteEnabled)
     flushRewriteCache();
-    $endif  
     $endif
     $if(FlushAttr)
     flushAttrCache();
@@ -122,6 +118,7 @@ $if(FlushAttr)
  * @apilevel internal
  */
 private void #(signature)_reset() {
+  $include(AttrDecl.traceHookFlushAttr)
   $include(AttrDecl.resetAttrCache)
   $include(AttrDecl.resetAttrVisit)
 }  
