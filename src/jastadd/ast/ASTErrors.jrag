@@ -46,12 +46,18 @@ aspect ASTErrors {
     with add;
 
   syn boolean TypeDecl.isRootNode() = false;
+
   eq ASTDecl.isRootNode() =
     !hasAbstract() &&
     !isASTNodeDecl() &&
     !isOptDecl() &&
     !isListDecl() &&
     parents().isEmpty();
+
+  Grammar contributes new Problem.Warning("there is no root node in the grammar!")
+    when roots().isEmpty()
+    to Grammar.problems()
+    for this;
 
   // TODO add filename, line, col
   TypeDecl contributes new Problem.Error(
