@@ -1,3 +1,18 @@
+2013-10-08  Emma Söderberg <emma.soderberg@cs.lth.se>
+
+   * JastAdd now supports a flush flag which allows for configuring of flushing.
+   The flag takes the following values 'attr','coll'.'rewrite','full'. Default is
+   'attr' and 'coll'. The 'rewrite' value makes flushing of outermost rewrites
+   possible by storing their initial values. The 'full' value includes all values. 
+   * The default flushing API provided by JastAdd has been extended with
+   a flushTreeCache method calling flushCache and traversing the tree. A call to this
+   method together with the use of the flush='full' will result in a full flush of 
+   an AST.
+   * Attributes are flushed via separate reset methods, one per cache attribute.
+   * All cached attributes in a node are flushed from a flushAttrCache method 
+   which is called from flushCache.
+   * Rewrites are flushed from a flushRewriteCache method which is called from flushCache.
+
 2013-10-02  Emma Söderberg <emma.soderberg@cs.lth.se>
 
    * Added treeCopyNoTransform to replace fullCopy
