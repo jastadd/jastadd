@@ -199,15 +199,23 @@ aspect BindSynEquations {
     return null;
   }
 
+  syn lazy boolean TypeDecl.hasInhEq(InhDecl decl, Components c) =
+    lookupInhEq(decl.signature(), c.name()) != null;
+
   syn lazy InhEq TypeDecl.lookupInhEq(String signature, String childName) {
-    for (int i = 0; i < getNumInhEq(); i++)
-      if (getInhEq(i).signature().equals(signature) && getInhEq(i).childName().equals(childName))
+    for (int i = 0; i < getNumInhEq(); i++) {
+      if (getInhEq(i).signature().equals(signature) && getInhEq(i).childName().equals(childName)) {
         return getInhEq(i);
-    for (int i = 0; i < getNumInhEq(); i++)
-      if (getInhEq(i).signature().equals(signature) && getInhEq(i).childName().equals("Child"))
+      }
+    }
+    for (int i = 0; i < getNumInhEq(); i++) {
+      if (getInhEq(i).signature().equals(signature) && getInhEq(i).childName().equals("Child")) {
         return getInhEq(i);
+      }
+    }
     return null;
   }
+
   eq ASTDecl.lookupInhEq(String signature, String childName) {
     InhEq equation = super.lookupInhEq(signature, childName);
     if (equation != null || superClass() == null)

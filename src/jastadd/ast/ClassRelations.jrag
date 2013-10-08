@@ -45,14 +45,28 @@ aspect Superclass {
     ASTDecl superClass = (ASTDecl) grammar().lookup(getSuperClassName());
     return superClass != null ? superClass.testCircular(name) : false;
   }
+
   syn boolean ASTDecl.isCircular() = testCircular(name());
 
   syn lazy ASTDecl ASTDecl.superClass() = hasSuperClass() && !isCircular() ?
     (ASTDecl) grammar().lookup(getSuperClassName()) : null;
 
-
   syn lazy String ASTDecl.getSuperClassName() = hasSuperClass() ?
     getSuperClass().name() : null;
+
+  /**
+   * @return all supertypes of this AST type
+   */
+  syn lazy Collection<ASTDecl> ASTDecl.supertypes() {
+    if (superClass() != null) {
+      Collection<ASTDecl> types = new LinkedList<ASTDecl>();
+      types.addAll(superClass().supertypes());
+      types.add(superClass());
+      return types;
+    } else {
+      return Collections.emptyList();
+    }
+  }
 }
 
 aspect InstanceOf {
@@ -92,17 +106,6 @@ aspect Subclasses {
 
   eq Grammar.getTypeDecl().findSubclasses(ASTDecl target) {
     return subclassMap().get(target);
-    /*
-    ArrayList list = new ArrayList();
-    for (int j = 0; j < getNumTypeDecl(); j++) {
-      if (getTypeDecl(j) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        if (target.equals(decl.superClass())) {
-          list.add(decl);
-        }
-      }
-    }
-    return list;*/
   }
 
   syn lazy Set<ASTDecl> ASTDecl.subclassesTransitive() {

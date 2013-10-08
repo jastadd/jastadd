@@ -29,15 +29,15 @@ import org.jastadd.ast.AST.*;
 import java.util.*;
 
 aspect ASTDecl {
-  syn lazy Collection ASTDecl.tempComponents() {
-    LinkedList list = new LinkedList();
+  syn lazy Collection<Components> ASTDecl.components() {
+    LinkedList<Components> list = new LinkedList<Components>();
     if (superClass() != null) {
-      list.addAll(superClass().tempComponents());
+      list.addAll(superClass().components());
     }
     for (int i = 0; i < getNumComponents(); i++) {
       boolean done = false;
-      for (ListIterator iter = list.listIterator(); !done && iter.hasNext(); ) {
-        Components c = (Components)iter.next();
+      for (ListIterator<Components> iter = list.listIterator(); !done && iter.hasNext(); ) {
+        Components c = iter.next();
         if (c.name().equals(getComponents(i).name()) && c.type().equals(getComponents(i).type())) {
           iter.remove();
           done = true;
@@ -55,7 +55,9 @@ aspect ASTDecl {
     }
     return list;
   }
-  syn Iterator ASTDecl.getComponents() = tempComponents().iterator();
+
+  syn Iterator<Components> ASTDecl.getComponents() =
+    components().iterator();
 
   syn boolean ASTDecl.redefinesTokenComponent(TokenComponent c) {
     if (c.hostClass() != this) // inherited component
@@ -72,10 +74,10 @@ aspect ASTDecl {
   }
 }
 aspect Comp {
-  public Iterator TypeDecl.getComponents() {
-    return tempComponents().iterator();
+  public Iterator<Components> TypeDecl.getComponents() {
+    return components().iterator();
   }
-  syn lazy Collection TypeDecl.tempComponents() {
+  syn lazy Collection<Components> TypeDecl.components() {
     LinkedList list = new LinkedList();
     for (int i = 0; i < getNumComponents(); i++) {
       list.add(getComponents(i));

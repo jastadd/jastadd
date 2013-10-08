@@ -45,11 +45,53 @@ aspect AttributeProblems {
    */
   syn Collection<Problem> Grammar.attributeProblems() {
     Collection<Problem> problems = new LinkedList<Problem>();
+    if (config().inhEqCheck && hasMissingInhEq()) {
+      problems.addAll(missingInhEqProblems());
+    }
     for (int i = 0; i < getNumTypeDecl(); i++) {
       problems.addAll(getTypeDecl(i).attributeProblems());
     }
     return problems;
   }
+
+  syn boolean Grammar.hasMissingInhEq() = !missingInhEqs().isEmpty();
+
+  syn Collection<Problem> Grammar.missingInhEqProblems() {
+    Collection<Problem> problems = new LinkedList<Problem>();
+
+    for (InhDecl inhDecl: missingInhEqs()) {
+
+      if (inhDecl.hostClass().isRootNode()) {
+        // this is reported as an error - skip the warning!
+        continue;
+      }
+
+      StringBuilder buf = new StringBuilder();
+      buf.append("missing inherited equation for attribute " + inhDecl.name() + " ");
+
+      boolean first1 = true;
+      for (Map.Entry<ASTDecl, Map<ASTDecl, String>> e: inhDecl.missingEqs().entrySet()) {
+        if (!first1) {
+          buf.append(", and ");
+        }
+        first1 = false;
+        buf.append("in class " + e.getKey().name() + " when being child of ");
+
+        boolean first2 = true;
+        for (Map.Entry<ASTDecl, String> parent: e.getValue().entrySet()) {
+          if (!first2) {
+            buf.append(", ");
+          }
+          first2 = false;
+          buf.append(parent.getKey().name());
+          buf.append(" (path: " + parent.getValue() + ")");
+        }
+      }
+      problems.add(inhDecl.warning(buf.toString()));
+    }
+    return problems;
+  }
+
 
   coll Collection<Problem> TypeDecl.attributeProblems()
     [new LinkedList<Problem>()]
@@ -284,40 +326,6 @@ aspect AttributeProblems {
     when hostClass().isRootNode()
     to TypeDecl.attributeProblems()
     for hostClass();
-
-  InhDecl contributes missingEqProblem()
-    when hasMissingEqProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
-
-  syn boolean InhDecl.hasMissingEqProblem() =
-    config().inhEqCheck && !missingEqs().isEmpty();
-
-  syn Problem InhDecl.missingEqProblem() {
-    StringBuilder buf = new StringBuilder();
-    buf.append("missing inherited equation for attribute " + name() + " ");
-
-    boolean first1 = true;
-    for (Map.Entry<ASTDecl, Map<ASTDecl, String>> e: missingEqs().entrySet()) {
-      if (!first1) {
-        buf.append(", and ");
-      }
-      first1 = false;
-      buf.append("in class " + e.getKey().name() + " when being child of ");
-
-      boolean first2 = true;
-      for (Map.Entry<ASTDecl, String> parent: e.getValue().entrySet()) {
-        if (!first2) {
-          buf.append(", ");
-        }
-        first2 = false;
-        buf.append(parent.getKey().name());
-        buf.append(" (path: " + parent.getValue() + ")");
-      }
-    }
-
-    return warning(buf.toString());
-  }
 
   syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
 

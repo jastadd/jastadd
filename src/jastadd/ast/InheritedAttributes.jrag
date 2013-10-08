@@ -52,6 +52,121 @@ aspect InheritedAttributes {
 }
 
 aspect FindInheritedEquations {
+  /**
+   * @return declarations of inherited attributes that lack an equation in the
+   * tree.
+   */
+  syn lazy Collection<InhDecl> Grammar.missingInhEqs() {
+    Collection<InhDecl> missing = new HashSet<InhDecl>();
+    for (ASTDecl root: roots()) {
+      missing.addAll(root.missingInhEqs());
+    }
+    return missing;
+  }
+
+  syn lazy Collection<String> ASTDecl.defaultInhEqs() {
+    Collection<String> defaultEqs = new HashSet<String>();
+    for (InhEq equ: getInhEqList()) {
+      String childName = equ.childName();
+      String signature = equ.signature();
+      if (childName.equals("Child")) {
+        defaultEqs.add(signature);
+      }
+    }
+    if (superClass() != null) {
+      defaultEqs.addAll(superClass().defaultInhEqs());
+    }
+    return defaultEqs;
+  }
+
+  syn lazy Map<String,Collection<String>> ASTDecl.componentInhEqs() {
+    Map<String,Collection<String>> componentEqs = new HashMap<String,Collection<String>>();
+    for (InhEq equ: getInhEqList()) {
+      String childName = equ.childName();
+      String signature = equ.signature();
+      if (!childName.equals("Child")) {
+        Collection<String> eqs = componentEqs.get(childName);
+        if (eqs == null) {
+          eqs = new HashSet<String>();
+          componentEqs.put(childName, eqs);
+        }
+        eqs.add(signature);
+      }
+    }
+    if (superClass() != null) {
+      componentEqs.putAll(superClass().componentInhEqs());
+    }
+    return componentEqs;
+  }
+
+  private Collection<InhDecl> ASTDecl.missingInhEqs = null;
+
+  /**
+   * Finds inherited attribute declarations that lack equations
+   * in subtrees rooted at this node.
+   *
+   * @return a collection of inherited declarations "visible" from
+   * AST nodes of this type
+   */
+  public Collection<InhDecl> ASTDecl.missingInhEqs() {
+    if (missingInhEqs != null) {
+      return missingInhEqs;
+    }
+
+    missingInhEqs = Collections.emptyList();
+
+    Collection<InhDecl> missing = new HashSet<InhDecl>();
+    for (Components c: components()) {
+      if (c instanceof TokenComponent) {
+        continue;
+      }
+      TypeDecl type = c.typeDecl();
+      if (type instanceof ASTDecl) {
+        ASTDecl decl = (ASTDecl) type;
+        String childName = c.name();
+
+        addMissingChildInhEqs(missing, childName, decl.missingInhEqs());
+
+        // any subtype of the component type can replace the component type
+        for (ASTDecl subtype: decl.subclassesTransitive()) {
+          addMissingChildInhEqs(missing, childName, subtype.missingInhEqs());
+        }
+      }
+    }
+
+    // add all inh attrs declared on this node
+    for (InhDecl decl: getInhDeclList()) {
+      missing.add(decl);
+    }
+
+    // add all missing equations from supertypes
+    for (ASTDecl supertype: supertypes()) {
+      for (InhDecl decl: supertype.getInhDeclList()) {
+        missing.add(decl);
+      }
+    }
+
+    missingInhEqs = missing;
+    return missingInhEqs;
+  }
+
+  private void ASTDecl.addMissingChildInhEqs(Collection<InhDecl> missing,
+      String childName, Collection<InhDecl> childMissing) {
+
+      for (InhDecl inhDecl: childMissing) {
+        if (!defaultInhEqs().contains(inhDecl.signature())) {
+          Collection<String> componentEqs = componentInhEqs().get(childName);
+          if (componentEqs == null || !componentEqs.contains(inhDecl.signature())) {
+            // we have no equation X.getY() = ...;
+            missing.add(inhDecl);
+          }
+        }
+      }
+  }
+
+  /**
+   * Check missing inherited equations.
+   */
   syn lazy Map<ASTDecl, Map<ASTDecl, String>> InhDecl.missingEqs() {
     Map<ASTDecl, Map<ASTDecl, String>> missing = new LinkedHashMap<ASTDecl, Map<ASTDecl, String>>();
 
@@ -137,8 +252,7 @@ aspect FindInheritedEquations {
   syn lazy TypeDecl Components.typeDecl() = grammar().lookup(type());
 
   protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
-    for (Iterator children = getComponents(); children.hasNext(); ) {
-      Components c = (Components)children.next();
+    for (Components c: components()) {
       if (child.instanceOf(c.typeDecl())) {
         if (lookupInhEq(signature, c.name()) == null) {
           return false;
