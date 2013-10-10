@@ -298,6 +298,11 @@ ASTDecl.genCircularEquationNoParams [[
     if (!#(signature)_initialized) {
       #(signature)_initialized = true;
       #(signature)_value = $BottomValue;
+$if(#getNTA)
+      if (#(signature)_value != null) {
+        #(signature)_value.setParent(this);
+      }
+$endif
     }
     if (!state.IN_CIRCLE) {
       $include(AttrDecl.traceHookCircularEnterCase1)
@@ -322,6 +327,11 @@ ASTDecl.genCircularEquationNoParams [[
           $include(AttrDecl.traceHookCircularCase1Change)
         }
         #(signature)_value = new_#(signature)_value;
+$if (#getNTA)
+        if (#(signature)_value != null) {
+          #(signature)_value.setParent(this);
+        }
+$endif
         state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
         #cycleLimitCheck
@@ -361,6 +371,11 @@ ASTDecl.genCircularEquationNoParams [[
         $include(AttrDecl.traceHookCircularCase2Change)
       }
       #(signature)_value = new_#(signature)_value;
+$if (#getNTA)
+      if (#(signature)_value != null) {
+        #(signature)_value.setParent(this);
+      }
+$endif
       $TracePrintReturnNewValue
       state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceHookCircularExitCase2)
@@ -385,6 +400,15 @@ ASTDecl.genCircularEquationWithParams [[
       _value = new $ASTNode$$State.CircularValue();
       #(signature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
+$if(#getNTA)
+      if (_value.value != null) { 
+        if (#(signature)_list == null) {
+          #(signature)_list = new $List();
+          #(signature)_list.setParent(this);
+        }
+        (($ASTNode)_value.value).setParent(#(signature)_list);
+      }
+$endif
     }
     $ASTNode$$State state = state();
     #addComponentCheck
@@ -415,6 +439,15 @@ $endif
           state.CHANGE = true;
           $include(AttrDecl.traceHookCircularCase1Change)
           _value.value = $ToRefType;
+$if(#getNTA)
+          if (_value.value != null) {
+            if (#(signature)_list == null) {
+              #(signature)_list = new $List();
+              #(signature)_list.setParent(this);
+            }
+            (($ASTNode)_value.value).setParent(#(signature)_list);
+          }
+$endif          
         }
         state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
@@ -465,6 +498,15 @@ $if (Java5)
 $else
         _value.value = $ToRefType;
 $endif
+$if(#getNTA)
+        if (_value.value != null) {
+          if (#(signature)_list == null) {
+            #(signature)_list = new $List();
+            #(signature)_list.setParent(this);
+          }
+          (($ASTNode)_value.value).setParent(#(signature)_list);
+        }
+$endif          
       }
       $TracePrintReturnNewValue
       state.INTERMEDIATE_VALUE = true;

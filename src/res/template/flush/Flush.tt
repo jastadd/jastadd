@@ -134,6 +134,9 @@ $if(#isCircular)
   $else
 #(signature)_values = $CreateDefaultMap;
   $endif
+  $if(#getNTA)
+#(signature)_list = null;
+  $endif
  $else
   $if(#isPrimitive)
 #(signature)_computed = false;
@@ -146,34 +149,22 @@ $if(#isCircular)
  $endif
 $else
  $if(#getLazy)
-  $if(#getNTA)
-   $if(#isParameterized)
-    $if(LazyMaps)
+  $if(#isParameterized)
+   $if(LazyMaps)
 #(signature)_values = null;
-#(signature)_list = null;
-    $else
-#(signature)_values = $CreateDefaultMap;
-#(signature)_list = null;
-    $endif
    $else
-#(signature)_computed = false;
-#(signature)_value = null; 
+#(signature)_values = $CreateDefaultMap;
+   $endif
+   $if(#getNTA)
+#(signature)_list = null;
    $endif
   $else
-    $if(#isParameterized)
-     $if(LazyMaps)
-#(signature)_values = null;
-     $else
-#(signature)_values = $CreateDefaultMap;
-     $endif
-    $else
-     $if(#isPrimitive)
+   $if(#isPrimitive)
 #(signature)_computed = false;
-     $else
+   $else
 #(signature)_computed = false;
 #(signature)_value = null;
-     $endif    
-    $endif  
+   $endif 
   $endif
  $endif
 $endif

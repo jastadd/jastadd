@@ -687,10 +687,13 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.differs(String s1, String s2) {
-    if (isPrimitive())
+    if (isPrimitive()) {
       return s1 + " != " + s2;
-    else
+    } else if (getNTA() && isCircular()) {
+      return "!is$Equal(" + s1 + "," + s2 + ")";
+    } else {
       return "(" + s1 + "==null && " + s2 + "!=null) || (" + s1 + "!=null && !" + s1 + ".equals(" + s2 + "))";
+    }
   }
 
   public void ASTDecl.emitCacheDeclarations(PrintStream out, AttrDecl attr) {
@@ -738,12 +741,16 @@ aspect JragCodeGen {
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
           attr.emitResetMethod(out);
-          if (config().lazyMaps) {
-            out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values;");
-            return;
+          if (attr.getNTA()) {
+            attr.emitCacheDeclarations(out);
           } else {
-            out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values = " + config().createDefaultMap + ";");
-            return;
+            if (config().lazyMaps) {
+              out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values;");
+              return;
+            } else {
+              out.println(ind + "protected " + config().typeDefaultMap + " " + attr.signature() + "_values = " + config().createDefaultMap + ";");
+              return;
+            }
           }
         }
       }
