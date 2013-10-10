@@ -52,7 +52,7 @@ $if(#isASTNodeDecl)
       if (children[i] == null && node.children[i] != null) {
         return false;
       }
-      if (!children[i].is$$Equal(node.children[i])) {
+      if (!(($ASTNode)children[i]).is$$Equal((($ASTNode)node.children[i]))) {
         return false;
       }
     }
