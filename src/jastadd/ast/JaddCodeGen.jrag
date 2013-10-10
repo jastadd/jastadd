@@ -586,6 +586,7 @@ aspect JaddCodeGen {
     emitCloneNode(out);
     emitCopyNode(out);
     emitFullCopy(out);
+    emitIsEqualMethods(out);
 
     genIncremental(out);
   }
