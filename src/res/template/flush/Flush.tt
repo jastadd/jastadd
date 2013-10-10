@@ -56,6 +56,7 @@ $endif
 
 ASTDecl.flushCacheMethod = [[
 $if(FlushEnabled)
+$if(#isASTNodeDecl)
   /**
     * @apilevel low-level
     */
@@ -72,6 +73,7 @@ $if(FlushEnabled)
     $endif
     $SynchEnd
   }
+$endif
 $endif
 ]]
 

@@ -472,6 +472,14 @@ $else
 $endif
 
 $if(RewriteEnabled)
+ $if(RewriteCircularNTA)
+    $ASTNode node = this.getChildNoTransform(i);
+    if (node.mayHaveRewrite()) {
+      node = rewritten(i);
+    }
+    node.is$$Final(true);
+    return $(ReturnTypeCast)node;
+ $else
     $SynchBegin
     $ASTNode node = this.getChildNoTransform(i);
     if(node == null) {
@@ -541,7 +549,7 @@ $if(RewriteEnabled)
     $include(ASTNode.incHookGetChild12)
     return $(ReturnTypeCast)node;
     $SynchEnd
-
+ $endif
 $else
     // No rewrites
     $ASTNode child = getChildNoTransform(i);

@@ -354,6 +354,7 @@ aspect JaddCodeGen {
     tt.bind("ReturnTypeCast", config().java5 ? "(T) " : "");
     tt.bind("PositiveRewriteLimit", config().rewriteLimit > 0);
     tt.expand("ASTNode.getChild", out);
+    tt.expand("ASTNode.rewrittenAttr", out);
 
     /* emit addChild */
     tt.expand("ASTNode.addChild", out);

@@ -183,13 +183,26 @@ aspect InheritedAttributeCodeGen {
 
         Components c = equ.getComponents();
         if (c instanceof ListComponents) {
-          out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
+          if (config().rewriteCircularNTA) {
+            out.print("if (caller == get" + equ.childName() + "ListNoTransform() || caller == rewritten_int_list)");
+          } else {
+            out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
+          }
         }
         else if (c instanceof OptionalComponent) {
-          out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
+          if (config().rewriteCircularNTA) {
+            out.print("if (caller == get" + equ.childName() + "OptNoTransform() || caller == rewritten_int_list)");
+          } else { 
+            out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
+          }
         }
         else if (c != null) {
-          out.print("if (caller == get" + equ.childName() + "NoTransform())");
+          if (config().rewriteCircularNTA) {
+            out.print("if (caller == get" + equ.childName() + "NoTransform() " + 
+              "|| (rewritten_int_values != null && child == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))))");
+          } else {
+            out.print("if (caller == get" + equ.childName() + "NoTransform())");
+          }
         }
         else if (equ.getChildName().equals("getChild")) {
           hasGetChildEq = true;
@@ -284,5 +297,9 @@ aspect InheritedAttributeCodeGen {
       }
       out.println(ind + "}");
     }
+  }
+  
+  public int Components.childIndex() {
+    return getParent().getIndexOfChild(this);
   }
 }

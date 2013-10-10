@@ -167,4 +167,5 @@ aspect Rewrites {
   syn lazy boolean ASTDecl.hasRewrites() =
     getNumRewrite() > 0 || (superClass() != null && superClass().hasRewrites());
 
+  syn lazy boolean AttrDecl.isRewriteCircularNtaAttr() = config().rewriteCircularNTA && name().equals("rewritten"); 
 }

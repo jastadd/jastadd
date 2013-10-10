@@ -109,6 +109,12 @@ public class Configuration {
    * Rewrite flag.
    */
   public boolean rewriteEnabled = false;
+  
+  /**
+   * Evaluate rewrites with circular NTAS
+   * --rewrite=circularNTA
+   */
+  public boolean rewriteCircularNTA = false;
 
   /**
    * Beaver symbol flag.
@@ -527,11 +533,24 @@ public class Configuration {
     }
   };
 
-  Option rewriteOption = new Option(
+  Option rewriteOption = new ValueOption(
       "rewrite", "enable rewrites (ReRAGs)") {
+    {
+      acceptsMultipleValues = false;
+      needsValue = false;
+      addAcceptedValue("circularNTA",
+        "evaluate rewrites with circular NTAs");
+    }
     @Override
     public void onMatch() {
       rewriteEnabled = true;
+    }
+    @Override
+    public void onMatch(String arg) {
+      rewriteEnabled = true;
+      if (arg.equals("circularNTA")) {
+        rewriteCircularNTA = true;
+      }
     }
   };
 
@@ -1255,15 +1274,18 @@ public class Configuration {
     tt.bind("Beaver", useBeaverSymbol);
     tt.bind("VisitCheckEnabled", visitCheckEnabled);
     tt.bind("TraceVisitCheck", traceVisitCheck);
-    tt.bind("RewriteLimit", "" + rewriteLimit);
-    tt.bind("HasRewriteLimit", rewriteLimit > 0);
-    tt.bind("StagedRewrites", stagedRewrites);
-    tt.bind("RewriteEnabled", rewriteEnabled);
     tt.bind("CreateDefaultMap", createDefaultMap);
     tt.bind("DefaultMapType", typeDefaultMap);
     tt.bind("CreateDefaultSet", createDefaultSet);
     tt.bind("DefaultSetType", typeDefaultSet);
     tt.bind("CreateContributorSet", createContributorSet);
+
+    // Rewrites
+    tt.bind("RewriteEnabled", rewriteEnabled);
+    tt.bind("RewriteLimit", "" + rewriteLimit);
+    tt.bind("HasRewriteLimit", rewriteLimit > 0);
+    tt.bind("StagedRewrites", stagedRewrites);
+    tt.bind("RewriteCircularNTA", rewriteCircularNTA);
 
     // JJTree
     tt.bind("JJTree", jjtree);

@@ -113,3 +113,12 @@ if(during$Name != 0) {
   during$Name = 0;
 }
 ]]
+
+ASTNode.rewrittenAttr = [[
+$if(RewriteCircularNTA)
+syn nta $ASTNode $ASTNode.rewritten(int i)
+    circular [getChildNoTransform(i).treeCopyNoTransform()] =
+  rewritten(i).rewriteTo();
+
+$endif
+]]

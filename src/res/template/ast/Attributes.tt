@@ -407,6 +407,9 @@ $if(#getNTA)
           #(signature)_list.setParent(this);
         }
         (($ASTNode)_value.value).setParent(#(signature)_list);
+$if(#isRewriteCircularNtaAttr)
+        (($ASTNode)_value.value).childIndex = i;
+$endif
       }
 $endif
     }
@@ -415,6 +418,9 @@ $endif
     if (!state.IN_CIRCLE) {
       $include(AttrDecl.traceHookCircularEnterCase1)
       state.IN_CIRCLE = true;
+$if(#isRewriteCircularNtaAttr)
+      int rewriteState;
+$endif
       #tracePrintCycleBeginString
       #cacheInitRewrite
       #addAddToComponent
@@ -430,11 +436,17 @@ $endif
         state.CHANGE = false;
         #inhDebugString
         #tracePrintBeginComputingValue
+$if(#isRewriteCircularNtaAttr)
+        state.push(ASTNode$$State.REWRITE_CHANGE);
+$endif
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
         new_#(signature)_value = #circularComputeCall;
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isRewriteCircularNtaAttr)
+        rewriteState = state.pop();
+$endif
         if ($Cond1) {
           state.CHANGE = true;
           $include(AttrDecl.traceHookCircularCase1Change)
@@ -483,11 +495,17 @@ $endif
       $include(AttrDecl.traceHookCircularEnterCase2)
       #inhDebugString
       #tracePrintBeginComputingValue
+$if(#isRewriteCircularNtaAttr)
+      state.push(ASTNode$$State.REWRITE_CHANGE);
+$endif
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
       #getType new_#(signature)_value = #circularComputeCall;
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isRewriteCircularNtaAttr)
+      int rewriteState = state.pop();
+$endif
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
       else if ($Cond1) {
@@ -524,8 +542,14 @@ $endif
 cacheCycleInit = [[
 $if(CacheCycle)
 state.LAST_CYCLE = true;
+$if(#isRewriteCircularNtaAttr)
+state.push(ASTNode$$State.REWRITE_CHANGE);
+$endif
 #inhDebugString
 #circularComputeCall;
+$if(#isRewriteCircularNtaAttr)
+state.pop();
+$endif
 state.LAST_CYCLE = false;
 $endif]]
 

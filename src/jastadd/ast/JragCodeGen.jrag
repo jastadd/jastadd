@@ -473,7 +473,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheStoreRewrite() {
-    if (config().rewriteEnabled) {
+    if (config().rewriteEnabled && !config().rewriteCircularNTA) {
       // TODO: Should final on attributes be allowed? 
       if (getFinal()) {
         return "(num == state().boundariesCrossed)";
@@ -690,6 +690,9 @@ aspect JragCodeGen {
     if (isPrimitive()) {
       return s1 + " != " + s2;
     } else if (getNTA() && isCircular()) {
+      if (isRewriteCircularNtaAttr()) {
+        return "rewriteState != ASTNode$State.REWRITE_NOCHANGE";
+      }
       return "!is$Equal(" + s1 + "," + s2 + ")";
     } else {
       return "(" + s1 + "==null && " + s2 + "!=null) || (" + s1 + "!=null && !" + s1 + ".equals(" + s2 + "))";

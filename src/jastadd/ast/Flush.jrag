@@ -41,6 +41,9 @@ aspect Flush {
       AttrDecl attr = (AttrDecl)itr.next();
       sb.append(attr.signature() + "_reset();\n");
     }
+    if (config().rewriteCircularNTA && isASTNodeDecl()) {
+      sb.append("rewritten_int_reset();\n");
+    }
     tt.bind("FlushAttrCacheBody", sb.toString());
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
     
