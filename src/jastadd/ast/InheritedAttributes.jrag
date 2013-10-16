@@ -312,8 +312,10 @@ aspect InheritedAttributeCodeGen {
         }
         else if (c != null) {
           if (config().rewriteCircularNTA) {
-            out.print("if (caller == get" + equ.childName() + "NoTransform() " + 
-              "|| (rewritten_int_values != null && child == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))))");
+            out.print("if (caller == get" + equ.childName() + "NoTransform() || " + 
+              "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) != null && ((child == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))) || " +
+              "(rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) instanceof ASTNode$State.CircularValue && child == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))).value))))");
+              
           } else {
             out.print("if (caller == get" + equ.childName() + "NoTransform())");
           }
