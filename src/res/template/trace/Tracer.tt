@@ -124,7 +124,19 @@ public static class Trace {
    */
   public static abstract class InputFilter implements Filter {
     public Entry createEntry($ASTNode$$State.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
-      return new Entry(evt, String.format("%08X", node.hashCode()), attr, String.valueOf(params), String.valueOf(value));
+      String paramsString;
+      if (params instanceof $ASTNode) {
+        paramsString = String.format("%08X", params.hashCode());
+      } else {
+        paramsString = String.valueOf(params);
+      }
+      String valueString;
+      if (value instanceof $ASTNode) {
+        valueString = String.format("%08X", value.hashCode());
+      } else {
+        valueString = String.valueOf(value);
+      }
+      return new Entry(evt, String.format("%08X", node.hashCode()), attr, paramsString, valueString);
     }
     public String desc() {
       return "Custom input filter";
