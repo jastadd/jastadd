@@ -37,8 +37,8 @@ public static class Trace {
     public boolean include($ASTNode$$State.Trace.Entry e);
     public String desc();
   }
-  
-  /** 
+
+  /**
    * Interface used to process collected trace objects.
    *
    * Use it together with the method $ASTNode$$State.Trace.process($ASTNode$$State.Trace.Processor).
@@ -53,12 +53,13 @@ public static class Trace {
   public static class Entry {
     public final $ASTNode$$State.Trace.Event event;
     public final String node;
+    public final String nodeType;
     public final String attr;
     public final String params;
     public final String value;
     public final long timeStamp;
-    public Entry($ASTNode$$State.Trace.Event e, String n, String a, String p, String v) {
-      event = e; node = n; attr = a; params = p; value = v;
+    public Entry($ASTNode$$State.Trace.Event e, String n, String t, String a, String p, String v) {
+      event = e; node = n; nodeType = t; attr = a; params = p; value = v;
       timeStamp = System.nanoTime();
     }
     public String toString() {
@@ -68,7 +69,7 @@ public static class Trace {
 
   /**
    * Trace events corresponding to where trace entries where collected.
-   * 
+   *
    * These events can be filtered statically using the flag --tracing to
    * JastAdd2. For example, the flag --tracing=compute,cache will only trace
    * compute events and cache events. The flag --tracing will enable all events.
@@ -112,13 +113,13 @@ public static class Trace {
 
     // Flag --tracing=copy
     COPY_NODE,
-    
+
     // Flag --tracing=flush
     FLUSH_ATTR,
     FLUSH_REWRITE,
     FLUSH_REWRITE_INIT
   }
-  
+
   /**
    * Class used to filter input
    */
@@ -136,13 +137,16 @@ public static class Trace {
       } else {
         valueString = String.valueOf(value);
       }
-      return new Entry(evt, String.format("%08X", node.hashCode()), attr, paramsString, valueString);
+      return new Entry(evt,
+          String.format("%08X", node.hashCode()),
+          node.getClass().getName(),
+          attr, paramsString, valueString);
     }
     public String desc() {
       return "Custom input filter";
     }
   }
-  
+
   // Default input filter accepting all events
   private final InputFilter defaultInputFilter = new InputFilter() {
     public boolean include(Entry e) {
@@ -152,17 +156,17 @@ public static class Trace {
       return "Default input filter accepting all events";
     }
   };
-  
+
   $if(CacheAnalyzeEnabled)
-  private final CacheAnalyzer cacheAnalyzer = new CacheAnalyzer(); 
+  private final CacheAnalyzer cacheAnalyzer = new CacheAnalyzer();
   public CacheAnalyzer cacheAnalyzer() {
     return cacheAnalyzer;
   }
   private Trace.InputFilter inputFilter = cacheAnalyzer;
   $else
   private Trace.InputFilter inputFilter = defaultInputFilter;
-  $endif 
-  
+  $endif
+
   /**
    * Registers an input filter to use during tracing.
    * @param filter The input filter to register.
@@ -172,23 +176,23 @@ public static class Trace {
       inputFilter = filter;
     }
   }
-  
+
   /**
    * Resets the input filter to the default input filter accepting all events.
    */
   public void unregisterInputFilter() {
     inputFilter = defaultInputFilter;
   }
-  
+
   private java.util.List<$ASTNode$$State.Trace.Entry> list = new java.util.ArrayList<$ASTNode$$State.Trace.Entry>();
-  
+
   private void add($ASTNode$$State.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    $ASTNode$$State.Trace.Entry e = inputFilter.createEntry(evt, node, attr, params, value); 
+    $ASTNode$$State.Trace.Entry e = inputFilter.createEntry(evt, node, attr, params, value);
     if (inputFilter.include(e)) {
       list.add(e);
     }
   }
-  
+
   public void clear() {
     list.clear();
   }
@@ -484,7 +488,7 @@ public static class Trace {
 
   /**
    * Process all trace entries given a trace processor
-   */ 
+   */
   public void process($ASTNode$$State.Trace.Processor processor) {
     for ($ASTNode$$State.Trace.Entry e: list) {
       processor.process(e);
