@@ -149,14 +149,13 @@ public class JastAdd {
       Grammar grammar = config.buildRoot();
       grammar.genDefaultNodeTypes();
 
-      Collection<Problem> problems = readASTFiles(grammar, config.getFiles());
-      if (checkErrors(problems, err)) {
+      if (checkErrors(readASTFiles(grammar, config.getFiles()), err)) {
         return 1;
       }
 
       long astParseTime = System.currentTimeMillis() - time;
 
-      problems = grammar.problems();
+      Collection<Problem> problems = grammar.problems();
 
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
 
@@ -172,15 +171,13 @@ public class JastAdd {
 
       genIncrementalDDGNode(grammar);
 
-      problems = readJRAGFiles(grammar, config.getFiles());
-      if (checkErrors(problems, err)) {
+      if (checkErrors(readJRAGFiles(grammar, config.getFiles()), err)) {
         return 1;
       }
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
-      problems = readCacheFiles(grammar);
-      if (checkErrors(problems, err)) {
+      if (checkErrors(readCacheFiles(grammar), err)) {
         return 1;
       }
 
@@ -193,15 +190,15 @@ public class JastAdd {
 
       weaveAspects(grammar);
 
-      grammar.processRefinements();
+      if (checkErrors(grammar.attributeProblems(), err)) {
+        return 1;
+      }
 
+      grammar.processRefinements();
 
       grammar.weaveCollectionAttributes();
 
-      problems = grammar.attributeProblems();
-      problems.addAll(grammar.weavingProblems());
-
-      if (checkErrors(problems, err)) {
+      if (checkErrors(grammar.weavingProblems(), err)) {
         return 1;
       }
 
