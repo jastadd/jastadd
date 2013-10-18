@@ -578,6 +578,10 @@ public aspect Attributes {
   public void TypeDecl.refineWith(SynEq equ, SynEq refinedEqu) {
     StringBuffer s = new StringBuffer();
     String newMethodName = "refined_" + equ.aspectName() + "_" + name() + "_" + equ.signature();
+    if (equ.decl() == null) {
+      throw new Error("Error: could not find declaration of refined synthesized equation " + equ.name() +
+          " (" + equ.getFileName() + ":" + equ.getStartLine() + ")");
+    }
     s.append("private " + equ.decl().getType() + " " + newMethodName + "(" +
       equ.parametersDecl() + ")\n");
     if (equ.getRHS() instanceof ASTBlock)
