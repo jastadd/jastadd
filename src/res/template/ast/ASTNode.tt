@@ -284,6 +284,11 @@ ASTNode.setParent = [[
     $SynchBegin
     $include(ASTNode.incHookSetParent)
     parent = node;
+$if(RewriteCircularNTA)
+    if (state().IN_CIRCLE) {
+      flushTreeCache();
+    }
+$endif
     $SynchEnd
   }
 ]]
@@ -295,9 +300,11 @@ ASTNode.getParent = [[
   public $ASTNode $ASTNode.getParent() {
     $SynchBegin
 $if(RewriteEnabled)
+$if(!RewriteCircularNTA)
     if(parent != null && (($ASTNode) parent).is$$Final() != is$$Final()) {
       state().boundariesCrossed++;
     }
+$endif
 $endif
     $include(ASTNode.incHookGetParent);
     return ($ASTNode) parent;
