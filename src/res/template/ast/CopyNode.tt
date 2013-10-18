@@ -147,7 +147,13 @@ ASTDecl.emitCloneNode = [[
     $SynchBegin
     #name node = (#name) super.clone();
     $if(#isASTNodeDecl)
+$if(RewriteEnabled)
+    if (node.is$$Final()) {
+      node.flushCache();
+    }
+$else
     node.flushCache();
+$endif
     $endif
     return node;
     $SynchEnd
