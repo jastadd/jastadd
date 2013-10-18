@@ -127,8 +127,13 @@ public class JastAddTask extends Task {
     setOption(config.lazyMapsOption, enable);
   }
 
-  public void setRewrite(boolean enable) {
-    setOption(config.rewriteOption, enable);
+  public void setRewrite(String arg) {
+    if (arg.equals("true")) {
+      setOption(config.rewriteOption, true);
+    } else if (arg.equals("false")) {
+      setOption(config.rewriteOption, false);
+    }
+    setOption(config.rewriteOption, arg);
   }
 
   public void setNovisitcheck(boolean enable) {
