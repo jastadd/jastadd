@@ -538,7 +538,7 @@ public class Configuration {
     {
       acceptsMultipleValues = false;
       needsValue = false;
-      addAcceptedValue("circularNTA",
+      addAcceptedValue("cnta",
         "evaluate rewrites with circular NTAs");
     }
     @Override
@@ -548,7 +548,7 @@ public class Configuration {
     @Override
     public void onMatch(String arg) {
       rewriteEnabled = true;
-      if (arg.equals("circularNTA")) {
+      if (arg.equals("cnta")) {
         rewriteCircularNTA = true;
       }
     }
