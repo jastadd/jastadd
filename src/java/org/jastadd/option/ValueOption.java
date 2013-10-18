@@ -71,7 +71,9 @@ public class ValueOption extends Option {
 
   @Override
   public void matchWithoutArg(PrintStream err) {
-    err.println("Warning: Missing value for option " + name);
+    if (needsValue) {
+      err.println("Warning: Missing value for option " + name);
+    }
     doMatch(err);
   }
 
