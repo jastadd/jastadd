@@ -299,8 +299,7 @@ aspect InheritedAttributeCodeGen {
         if (c instanceof ListComponents) {
           if (config().rewriteCircularNTA) {
             out.print("if (caller == get" + equ.childName() + "ListNoTransform() || " +
-              "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) != null && " +
-              "caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))))");
+              "(rewritten_int_values != null && caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition()))))");
           } else {
             out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
           }
@@ -308,17 +307,16 @@ aspect InheritedAttributeCodeGen {
         else if (c instanceof OptionalComponent) {
           if (config().rewriteCircularNTA) {
             out.print("if (caller == get" + equ.childName() + "OptNoTransform() || " +
-              "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) != null && " +
-              "caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))))");
+              "(rewritten_int_values != null && caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition()))))");
           } else { 
             out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
           }
         }
         else if (c != null) {
           if (config().rewriteCircularNTA) {
-            out.print("if (caller == get" + equ.childName() + "NoTransform() || " + 
-              "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) != null && ((caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))) || " +
-              "(rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))).value))))");
+            out.print("if (caller == get" + equ.childName() + "NoTransform() || " +
+              "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition()))) || " +
+              "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition()))).value))))");
               
           } else {
             out.print("if (caller == get" + equ.childName() + "NoTransform())");
@@ -417,9 +415,5 @@ aspect InheritedAttributeCodeGen {
       }
       out.println(ind + "}");
     }
-  }
-  
-  public int Components.childIndex() {
-    return getParent().getIndexOfChild(this);
   }
 }
