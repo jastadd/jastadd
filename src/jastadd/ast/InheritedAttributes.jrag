@@ -300,7 +300,7 @@ aspect InheritedAttributeCodeGen {
           if (config().rewriteCircularNTA) {
             out.print("if (caller == get" + equ.childName() + "ListNoTransform() || " +
               "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) != null && " +
-              "caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")))");
+              "caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))))");
           } else {
             out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
           }
@@ -309,7 +309,7 @@ aspect InheritedAttributeCodeGen {
           if (config().rewriteCircularNTA) {
             out.print("if (caller == get" + equ.childName() + "OptNoTransform() || " +
               "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")) != null && " +
-              "caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + ")))");
+              "caller == rewritten_int_values.get(Integer.valueOf(" + c.childIndex() + "))))");
           } else { 
             out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
           }
