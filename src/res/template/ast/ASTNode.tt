@@ -50,6 +50,16 @@ ASTNode.declarations = [[
         return i;
       }
     }
+$if(RewriteCircularNTA)
+    if (rewritten_int_values != null) {
+      for (Iterator itr = rewritten_int_values.entrySet().iterator(); itr.hasNext();) {
+        Map.Entry e = (Map.Entry)itr.next();
+        if (e.getValue() == node) {
+          return ((Integer)e.getKey()).intValue();
+        }
+      }
+    }
+$endif
     return -1;
   }
 
