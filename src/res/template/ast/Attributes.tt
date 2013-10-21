@@ -401,16 +401,21 @@ ASTDecl.genCircularEquationWithParams [[
       #(signature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
 $if(#getNTA)
-      if (_value.value != null) { 
-        if (#(signature)_list == null) {
-          #(signature)_list = new $List();
-          #(signature)_list.setParent(this);
-        }
-        (($ASTNode)_value.value).setParent(#(signature)_list);
-$if(#isRewriteCircularNtaAttr)
-        (($ASTNode)_value.value).childIndex = i;
-$endif
+ $if(#isRewriteCircularNtaAttr)
+       if (_value.value != null) {
+         (($ASTNode)_value.value).setParent(this);
+         (($ASTNode)_value.value).childIndex = i;
+       }
+ $else
+       if (_value.value != null) { 
+         if (#(signature)_list == null) {
+           #(signature)_list = new $List();
+           #(signature)_list.setParent(this);
+         }
+         (($ASTNode)_value.value).setParent(#(signature)_list);
       }
+
+ $endif
 $endif
     }
     $ASTNode$$State state = state();
@@ -452,6 +457,12 @@ $endif
           $include(AttrDecl.traceHookCircularCase1Change)
           _value.value = $ToRefType;
 $if(#getNTA)
+ $if(#isRewriteCircularNtaAttr)
+          if (_value.value != null) {
+            (($ASTNode)_value.value).setParent(this);
+            (($ASTNode)_value.value).childIndex = i;
+          }
+ $else
           if (_value.value != null) {
             if (#(signature)_list == null) {
               #(signature)_list = new $List();
@@ -459,6 +470,7 @@ $if(#getNTA)
             }
             (($ASTNode)_value.value).setParent(#(signature)_list);
           }
+ $endif
 $endif          
         }
         state.CIRCLE_INDEX++;
@@ -517,6 +529,12 @@ $else
         _value.value = $ToRefType;
 $endif
 $if(#getNTA)
+ $if(#isRewriteCircularNtaAttr)
+        if (_value.value != null) {
+          (($ASTNode)_value.value).setParent(this);
+          (($ASTNode)_value.value).childIndex = i;
+        }
+ $else
         if (_value.value != null) {
           if (#(signature)_list == null) {
             #(signature)_list = new $List();
@@ -524,6 +542,7 @@ $if(#getNTA)
           }
           (($ASTNode)_value.value).setParent(#(signature)_list);
         }
+ $endif
 $endif          
       }
       $TracePrintReturnNewValue
