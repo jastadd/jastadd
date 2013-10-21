@@ -59,6 +59,16 @@ $if(#isNTA)
     return $Index;
   }
 $else
+$if(RewriteCircularNTA)
+  /**
+   * Retrieves the child position of the optional child $Name.
+   * @return The the child position of the optional child $Name.
+   * @apilevel low-level
+   */
+  protected int $Host.get$(Name)ChildPosition() {
+    return $Index;
+  }
+$endif
   /**
    * Retrieves the $Name child.
    * @return The current node used as the $Name child.

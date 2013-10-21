@@ -146,6 +146,18 @@ $if(#isNTA)
     $SynchEnd
   }
 $else
+
+$if(RewriteCircularNTA)
+  /**
+   * Retrieves the child position of the $Name list.
+   * @return The the child position of the $Name list.
+   * @apilevel low-level
+   */
+  protected int $Host.get$(Name)ListChildPosition() {
+    return $Index;
+  }
+$endif
+
   /**
    * Retrieves the $Name list.
    * @return The node representing the $Name list.
