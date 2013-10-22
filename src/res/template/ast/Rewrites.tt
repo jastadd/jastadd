@@ -37,7 +37,13 @@ ASTDecl.emitRewrites.touch_list = [[
         getChild(i);
       }
       list$$touched = false;
+$if(RewriteCircularNTA)
+      if (state().CHANGE) {
+        return this;
+      }
+$else
       return this;
+$endif
     }]]
 
 ASTDecl.emitRewrites.end:ASTNode = [[
