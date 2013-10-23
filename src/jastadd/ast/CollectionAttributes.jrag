@@ -113,7 +113,7 @@ aspect CollectionAttributes {
   }
 
   // only used by circular collection attributes
-  public String CollDecl.circularComputeCall() {
+  eq CollDecl.circularComputeCall() {
     if (separateEvaluation()) {
       return "new_" + signature() + "_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
              "root." + name() + "_" + signature() + "_nextIteration(this)";

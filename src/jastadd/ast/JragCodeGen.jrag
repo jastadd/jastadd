@@ -622,11 +622,9 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.circularComputeCall() { return ""; }
-  public String SynDecl.circularComputeCall() { return name() + "_compute(" + parameters() + ")"; }
-  public String InhDecl.circularComputeCall() {
-    return "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
-  }
+  syn String AttrDecl.circularComputeCall() = "";
+  eq SynDecl.circularComputeCall() = computeRHS();
+  eq InhDecl.circularComputeCall() = computeRHS();
 
   syn boolean AttrDecl.isParameterized() =
     getNumParameter() != 0;
