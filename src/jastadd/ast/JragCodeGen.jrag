@@ -429,23 +429,28 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.callCompute() {
-    if (getLazy() && getNumParameter() == 0)
-      return signature() + "_value = " + name() + "_compute(" + parameters() + ");\n";
-    else
-      return getType() + " " + signature() + "_value = " + name() + "_compute(" + parameters() + ");\n";
-  }
+  syn String AttrDecl.computeRHS() = name() + "_compute(" + parameters() + ")";
 
-  // TODO: INH
-  public String InhDecl.callCompute() {
+  eq InhDecl.computeRHS() =
+    "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
+
+  syn String AttrDecl.computeLHS() {
     if (getLazy() && getNumParameter() == 0) {
-      return inhDebugString() +
-        signature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ");\n";
+      return signature() + "_value";
     } else {
-      return inhDebugString() +
-        getType() + " " + signature() + "_value = getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ");\n";
+      return getType() + " " + signature() + "_value";
     }
   }
+
+  eq InhDecl.computeLHS() {
+    if (getLazy() && getNumParameter() == 0) {
+      return inhDebugString() + signature() + "_value";
+    } else {
+      return inhDebugString() + getType() + " " + signature() + "_value";
+    }
+  }
+
+  syn String AttrDecl.callCompute() = computeLHS() + " = " + computeRHS() + ";\n";
 
   public String AttrDecl.cacheStoreCondition() {
     /* BEGIN INCORRECT legacy cache store condition */
