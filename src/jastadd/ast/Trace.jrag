@@ -49,7 +49,7 @@ aspect Trace {
       b.append("inh ");
     if (this instanceof CollDecl)
       b.append("coll ");
-    if (getLazy())
+    if (isLazy())
       b.append("lazy ");
     if (isCircular())
       b.append(" circular");

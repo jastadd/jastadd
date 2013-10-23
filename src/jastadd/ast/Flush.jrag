@@ -29,14 +29,14 @@ aspect Flush {
 
   public void ASTDecl.emitFlushCache(PrintWriter out) {
     TemplateContext tt = templateContext();
-    
+
     tt.expand("ASTNode.flushTreeCacheMethod", out);
     tt.expand("ASTDecl.flushCacheMethod", out);
-    
-    // TODO: Figure out if flushing of NTAs are missing when this is excluded 
+
+    // TODO: Figure out if flushing of NTAs are missing when this is excluded
     //tt.bind("FlushNTACache", emitFlushNTACacheString());
 
-    StringBuilder sb = new StringBuilder(); 
+    StringBuilder sb = new StringBuilder();
     for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
       AttrDecl attr = (AttrDecl)itr.next();
       sb.append(attr.signature() + "_reset();\n");
@@ -46,11 +46,11 @@ aspect Flush {
     }
     tt.bind("FlushAttrCacheBody", sb.toString());
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
-    
+
     tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
-    
-    tt.expand("ASTDecl.flushRewriteCacheMethod", out);    
+
+    tt.expand("ASTDecl.flushRewriteCacheMethod", out);
     tt.expand("ASTNode.getChild_initValue", out);
     tt.expand("ASTNode.getChild_hasEnclosingInitValueMethod", out);
   }
@@ -60,11 +60,11 @@ aspect Flush {
   syn String AttrDecl.resetVisit() = templateContext().expand("AttrDecl.resetAttrVisit");
 
   public void AttrDecl.emitResetMethod(PrintStream out) {
-    if (getLazy() || isCircular()) {
+    if (isLazy() || isCircular()) {
       templateContext().expand("AttrDecl.resetMethod", out);
     }
   }
-    
+
   /**
    * Creates string with code flushing NTAs in a node.
    */

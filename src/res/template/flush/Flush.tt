@@ -150,7 +150,7 @@ $if(#isCircular)
   $endif
  $endif
 $else
- $if(#getLazy)
+ $if(#isLazy)
   $if(#isParameterized)
    $if(LazyMaps)
 #(signature)_values = null;

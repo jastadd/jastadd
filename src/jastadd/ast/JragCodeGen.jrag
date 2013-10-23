@@ -76,40 +76,40 @@ aspect JragCodeGen {
   syn String RewriteList.declaredat() =
     ASTNode.declaredat(getFileName(), getStartLine());
 
-  refine  public boolean AttrDecl.getLazy() {
+  syn boolean AttrDecl.isLazy() {
     if (config().cacheAll)
       return true;
     else if (config().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined();
+      return declaredNTA() || getLazy();
   }
 
-  refine  public boolean SynDecl.getLazy() {
+  eq SynDecl.isLazy() {
     if (config().cacheAll)
       return true;
     else if (config().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined();
+      return declaredNTA() || getLazy();
   }
 
-  refine  public boolean InhDecl.getLazy() {
+  eq InhDecl.isLazy() {
     if (config().cacheAll)
       return true;
     else if (config().cacheNone)
       return declaredNTA();
     else
-      return declaredNTA() || refined();
+      return declaredNTA() || getLazy();
   }
 
-  refine  public boolean CollDecl.getLazy() {
+  eq CollDecl.isLazy() {
     if (config().cacheAll)
       return true;
     else if (config().cacheNone)
       return false;
     else
-      return declaredNTA() || refined();
+      return declaredNTA() || getLazy();
   }
 
   public String Grammar.genImportsList() {
@@ -234,7 +234,7 @@ aspect JragCodeGen {
           sb.append("if (" + signature() + "_visited == null) " + signature() + "_visited = " + config().createDefaultSet + ";\n");
         }
       }
-      if (getNumParameter() != 0 && (getLazy() || isCircular())) {
+      if (getNumParameter() != 0 && (isLazy() || isCircular())) {
         sb.append("if (" + signature() + "_values == null) " + signature() + "_values = " + config().createDefaultMap + ";\n");
       }
     }
@@ -320,7 +320,7 @@ aspect JragCodeGen {
   }
 
   public void AttrDecl.emitCacheDeclarations(PrintStream out) {
-    if (getLazy()) {
+    if (isLazy()) {
       templateContext().expand("AttrDecl.cacheDeclarations", out);
     }
   }
@@ -391,7 +391,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.parameterStructure() {
-    if (getNumParameter() == 0 || (!getLazy() && !isCircular() && !config().visitCheckEnabled)) {
+    if (getNumParameter() == 0 || (!isLazy() && !isCircular() && !config().visitCheckEnabled)) {
       return "";
     } else if (getNumParameter() == 1) {
       return "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
@@ -406,7 +406,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheInit() {
-    if (!getLazy())
+    if (!isLazy())
       return "";
     return cacheInitCircular() + cacheInitRewrite();
   }
@@ -435,7 +435,7 @@ aspect JragCodeGen {
     "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
 
   syn String AttrDecl.computeLHS() {
-    if (getLazy() && getNumParameter() == 0) {
+    if (isLazy() && getNumParameter() == 0) {
       return signature() + "_value";
     } else {
       return getType() + " " + signature() + "_value";
@@ -443,7 +443,7 @@ aspect JragCodeGen {
   }
 
   eq InhDecl.computeLHS() {
-    if (getLazy() && getNumParameter() == 0) {
+    if (isLazy() && getNumParameter() == 0) {
       return inhDebugString() + signature() + "_value";
     } else {
       return inhDebugString() + getType() + " " + signature() + "_value";
@@ -564,7 +564,7 @@ aspect JragCodeGen {
   public boolean TypeDecl.hasLazySynEqFor(AttrDecl attr) {
     if (attr instanceof SynDecl) {
       SynEq synEq = lookupSynEq(attr.signature());
-      return synEq != null && (synEq.decl().getLazy() || synEq.decl().isCircular()) ;
+      return synEq != null && (synEq.decl().isLazy() || synEq.decl().isCircular()) ;
     }
     return false;
   }
@@ -775,7 +775,7 @@ aspect JragCodeGen {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
-       if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
+       if (attr.isNTA() || attr.isLazy() || attr.isCircular()) {
          out.println(equ.docComment());
          attr.emitAttrEquation(out, equ);
        } else {
@@ -993,7 +993,7 @@ aspect JragCodeGen {
     }
   }
 
-  syn boolean AttrDecl.hasCache() = getLazy() || isCircular();
+  syn boolean AttrDecl.hasCache() = isLazy() || isCircular();
   syn boolean AttrDecl.isAttrNTA() = isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
 
 }

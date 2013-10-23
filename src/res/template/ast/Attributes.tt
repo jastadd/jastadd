@@ -257,7 +257,7 @@ $endif
     #callCompute
     $include(AttrDecl.traceHookAttrComputeEnd)
     #higherOrderAttributeCode
-$if(#getLazy)
+$if(#isLazy)
   $if(#isParameterized)
     if (#cacheStoreCondition) {
       $include(AttrDecl.incHookAttrCompBeforeStore)

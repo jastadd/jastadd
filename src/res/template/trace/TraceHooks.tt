@@ -40,7 +40,7 @@ $if (TraceCompute)
     $if(#isCircular)
 state().trace().addComputeBegin(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, "");
     $else
-      $if(!#getLazy)
+      $if(!#isLazy)
         $if(!VisitCheckEnabled)
           $if(#hasOneParameter)
 Object _parameters = #parameters;
@@ -83,7 +83,7 @@ $endif
 
 AttrDecl.traceHookAttrCacheRead = [[
 $if (TraceCache)
-  $if(#getLazy)
+  $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
 state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, $FromRefTypeParamCircular);
@@ -99,7 +99,7 @@ $endif
 
 AttrDecl.traceHookAttrCached = [[
 $if (TraceCache)
-  $if(#getLazy)
+  $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
 state().trace().addCached(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
@@ -115,7 +115,7 @@ $endif
 
 AttrDecl.traceHookAttrCacheAbort = [[
 $if (TraceCache)
-  $if(#getLazy)
+  $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
 state().trace().addCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);

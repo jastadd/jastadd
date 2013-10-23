@@ -65,12 +65,12 @@ aspect IncrementalDDG {
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr.getLazy() || attr.isCircular())
+        if (attr.isLazy() || attr.isCircular())
           list.add(attr);
       }
       for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr.getLazy() || attr.isCircular())
+        if (attr.isLazy() || attr.isCircular())
           list.add(attr);
       }
       for (int k = 0; k < getNumCollDecl(); k++) {
@@ -137,12 +137,12 @@ aspect IncrementalDDG {
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr != null && (attr.getLazy() || attr.isCircular()))
+        if (attr != null && (attr.isLazy() || attr.isCircular()))
           list.add(attr);
       }
       for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr != null && (attr.getLazy() || attr.isCircular()))
+        if (attr != null && (attr.isLazy() || attr.isCircular()))
           list.add(attr);
       }
       // Attribute code
