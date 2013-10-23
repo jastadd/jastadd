@@ -27,14 +27,15 @@ JastAdd2 requires a Java Runtime Environment (JRE) to run, and a JDK to build.
 The minimum required Java version for JastAdd2 is Java SE 6.
 
 JastAdd2 uses JavaCC, JJTree, and Apache Ant. JavaCC and JJTree are included in
-the source tree of JastAdd2, so the only external tools needed are Java
-and Ant. See licenses/ for the full license text for JavaCC (and JJTree). 
+the source tree of JastAdd2, so the only external tools needed are Java and
+Ant. See licenses/javacc-BSD for the full license text.
 
 The context-free grammar used in JastAdd is based on an example from JavaCC.
 
 The README file for the binary distribution (README-binary-dist.md) is written
-in the language Markdown. This file is then converted to HTML during the 
-release process with the tool Markdown.pl (see licenses/ for license text). 
+in the language Markdown. This file is then converted to HTML during the
+release process with the Markdown tool. See licenses/markdown-BSD for the full
+license text.
 
 Building
 --------
