@@ -93,7 +93,7 @@ AttrDecl.abstractSynDecl = [[
   public abstract #getType #name(#parametersDecl);
 ]]
 
-AttrDecl.emitInlineCompute = [[
+AttrDecl.emitInlineComputeWithTry = [[
 #docComment
   #annotations
   public #getType #name($ParamDecl) {
@@ -124,7 +124,13 @@ SynEq.emitComputeMethod = [[
   /**
    * @apilevel internal
    */
-  private #getType #(name)_compute(#parametersDecl) $ComputeBody
+$if(#hasComputeBlock)
+  private #getType #(name)_compute(#parametersDecl) #computeCode
+$else
+  private #getType #(name)_compute(#parametersDecl) {
+    return #computeCode;
+  }
+$endif
 ]]
 
 AttrDecl.visitedException = [[
@@ -254,7 +260,7 @@ $endif
     $include(addCheckInterruptedCircle)
     #cacheInit
     $include(AttrDecl.traceHookAttrComputeBegin)
-    #callCompute
+    $ComputeStmt
     $include(AttrDecl.traceHookAttrComputeEnd)
     #higherOrderAttributeCode
 $if(#isLazy)
@@ -294,6 +300,7 @@ ASTDecl.genCircularEquationNoParams [[
     #parameterStructure
     $include(AttrDecl.cacheCheck)
     $ASTNode$$State state = state();
+    #getType new_#(signature)_value;
     #addComponentCheck
     if (!#(signature)_initialized) {
       #(signature)_initialized = true;
@@ -317,7 +324,7 @@ $endif
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
-        #getType new_#(signature)_value = #circularComputeCall;
+        $CircularComputeStmt
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
@@ -361,7 +368,7 @@ $endif
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
-      #getType new_#(signature)_value = #circularComputeCall;
+      $CircularComputeStmt
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($Cond2) {
@@ -417,6 +424,7 @@ $if(#getNTA)
 $endif
     }
     $ASTNode$$State state = state();
+    #getType new_#(signature)_value;
     #addComponentCheck
     if (!state.IN_CIRCLE) {
       $include(AttrDecl.traceHookCircularEnterCase1)
@@ -429,7 +437,6 @@ $endif
       #addAddToComponent
       // TODO: fixme
       // state().CIRCLE_INDEX = 1;
-      #getType new_#(signature)_value;
       do {
 $if (Java5)
         _value.visited = new Integer(state.CIRCLE_INDEX);
@@ -444,7 +451,7 @@ $if(#isRewriteCircularNtaAttr)
 $endif
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
-        new_#(signature)_value = #circularComputeCall;
+        $CircularComputeStmt
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
 $if(#isRewriteCircularNtaAttr)
@@ -510,7 +517,7 @@ $if(#isRewriteCircularNtaAttr)
 $endif
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
-      #getType new_#(signature)_value = #circularComputeCall;
+      $CircularComputeStmt
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
 $if(#isRewriteCircularNtaAttr)
@@ -563,7 +570,7 @@ $if(#isRewriteCircularNtaAttr)
 state.push(ASTNode$$State.REWRITE_CHANGE);
 $endif
 #inhDebugString
-#circularComputeCall;
+#getType $$tmp = $CircularComputeRHS;
 $if(#isRewriteCircularNtaAttr)
 state.pop();
 $endif
@@ -595,7 +602,7 @@ $endif]]
 resetCycleInit = [[
 state.RESET_CYCLE = true;
 #inhDebugString
-#circularComputeCall;
+#getType $$tmp = $CircularComputeRHS;
 state.RESET_CYCLE = false;]]
 
 AttrDecl.cacheCheck = [[
@@ -642,7 +649,7 @@ $endif
 
 AttrDecl.cacheCycleCheck [[
 $if(CacheCycle)
-if (state().LAST_CYCLE) {
+if (state.LAST_CYCLE) {
 $if(#isParameterized)
   #inhDebugString
   #(signature)_values.put(_parameters, $CachedValue);
@@ -650,7 +657,7 @@ $else
   #(signature)_computed = true;
   #inhDebugString
   $include(AttrDecl.incHookAttrCompStartCircular)
-  #getType new_#(signature)_value = #circularComputeCall;
+  $CircularComputeStmt
   $include(AttrDecl.incHookAttrCompEndCircular)
   return new_#(signature)_value;
 $endif

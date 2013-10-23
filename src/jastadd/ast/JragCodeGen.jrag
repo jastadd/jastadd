@@ -429,29 +429,6 @@ aspect JragCodeGen {
     }
   }
 
-  syn String AttrDecl.computeRHS() = name() + "_compute(" + parameters() + ")";
-
-  eq InhDecl.computeRHS() =
-    "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
-
-  syn String AttrDecl.computeLHS() {
-    if (isLazy() && getNumParameter() == 0) {
-      return signature() + "_value";
-    } else {
-      return getType() + " " + signature() + "_value";
-    }
-  }
-
-  eq InhDecl.computeLHS() {
-    if (isLazy() && getNumParameter() == 0) {
-      return inhDebugString() + signature() + "_value";
-    } else {
-      return inhDebugString() + getType() + " " + signature() + "_value";
-    }
-  }
-
-  syn String AttrDecl.callCompute() = computeLHS() + " = " + computeRHS() + ";\n";
-
   public String AttrDecl.cacheStoreCondition() {
     /* BEGIN INCORRECT legacy cache store condition */
     /* TODO remove this */
@@ -522,35 +499,26 @@ aspect JragCodeGen {
   /**
    * @return Compute method without "_compute" suffix
    */
-  public void AttrDecl.emitInlineCompute(PrintStream out, AttrEq equ) {
+  public void AttrDecl.emitInlineComputeWithTry(PrintStream out, AttrEq equ) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", equ.parametersDecl());
-    tt.bind("ComputeBody", equ.computeMethodBody());
+    tt.bind("ComputeBody", equ.computeCode());
     tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
-    tt.expand("AttrDecl.emitInlineCompute", out);
+    tt.expand("AttrDecl.emitInlineComputeWithTry", out);
   }
 
-  public String AttrEq.computeMethodBody() {
-    return "{ }";
-  }
+  syn String AttrEq.computeCode() = "";
 
-  public String SynEq.computeMethodBody() {
-    if (hasComputeBlock())
-      return Unparser.unparse(getRHS());
-    else
-      return "{  return " + Unparser.unparse(getRHS()) + ";  }";
-  }
+  eq SynEq.computeCode() = Unparser.unparse(getRHS());
 
   /**
-   * @return Code for the method to compute this attribute
+   * Generate code for the method to compute this attribute
    */
   public void AttrEq.emitComputeMethod(PrintStream out) {
   }
 
   public void SynEq.emitComputeMethod(PrintStream out) {
-    TemplateContext tt = templateContext();
-    tt.bind("ComputeBody", computeMethodBody());
-    tt.expand("SynEq.emitComputeMethod", out);
+    templateContext().expand("SynEq.emitComputeMethod", out);
   }
 
   syn String AttrDecl.inhDebugString() {
@@ -605,20 +573,60 @@ aspect JragCodeGen {
   }
 
   /**
+   * @return {@code true} if this attribute equation can be inlined in the
+   * attribute method
+   */
+  syn boolean AttrEq.canInlineCompute(AttrDecl decl) = false;
+  eq SynEq.canInlineCompute(AttrDecl decl) = !hasComputeBlock();
+
+  /**
+   * @return {@code true} if this attribute equation can be inlined in the
+   * attribute method with a try statement
+   */
+  syn boolean AttrEq.canInlineComputeWithTry(AttrDecl decl) = false;
+  eq SynEq.canInlineComputeWithTry(AttrDecl decl) =
+    hasComputeBlock() && !decl.isLazy() && !decl.isNTA() && !decl.isCircular();
+
+  /**
    * Generates the method to compute an attribute with a specific equation
    * @param out
    * @param equ the equation to generate code for
    */
   public void AttrDecl.emitAttrEquation(PrintStream out, AttrEq equ) {
-    emitAttrEquation(out, equ.parametersDecl());
-    equ.emitComputeMethod(out);
+    if (equ.canInlineCompute(this)) {
+      if (!isCircular()) {
+        templateContext().bind("ComputeStmt",
+            computeLHS() + " = " + equ.computeCode() + ";");
+      } else {
+        templateContext().bind("CircularComputeRHS", equ.computeCode());
+      }
+      emitAttrEquation(out, equ.parametersDecl());
+    } else if (equ.canInlineComputeWithTry(this)) {
+      emitInlineComputeWithTry(out, equ);
+    } else {
+      if (!isCircular()) {
+        templateContext().bind("ComputeStmt",
+            computeLHS() + " = " + computeRHS() + ";");
+      } else {
+        templateContext().bind("CircularComputeRHS", circularComputeRHS());
+      }
+      emitAttrEquation(out, equ.parametersDecl());
+      equ.emitComputeMethod(out);
+    }
   }
 
   /**
    * Generates the method to compute an attribute
    * @param out
+   * @param paramDecl
    */
   public void AttrDecl.emitAttrEquation(PrintStream out) {
+    if (!isCircular()) {
+      templateContext().bind("ComputeStmt",
+          computeLHS() + " = " + computeRHS() + ";");
+    } else {
+      templateContext().bind("CircularComputeRHS", circularComputeRHS());
+    }
     emitAttrEquation(out, parametersDecl());
   }
 
@@ -631,6 +639,9 @@ aspect JragCodeGen {
     if (!isCircular()) {
       emitEquation(out, paramDecl);
     } else {
+      TemplateContext tt = templateContext();
+      String rhs = "" + tt.evalVariable("CircularComputeRHS");
+      tt.bind("CircularComputeStmt", circularComputeLHS() + " = " + rhs + ";");
       if (getNumParameter() == 0) {
         emitCircularEquationNoParams(out);
       } else {
@@ -638,10 +649,6 @@ aspect JragCodeGen {
       }
     }
   }
-
-  syn String AttrDecl.circularComputeCall() = "";
-  eq SynDecl.circularComputeCall() = computeRHS();
-  eq InhDecl.circularComputeCall() = computeRHS();
 
   syn boolean AttrDecl.isParameterized() =
     getNumParameter() != 0;
@@ -775,12 +782,7 @@ aspect JragCodeGen {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
-       if (attr.isNTA() || attr.isLazy() || attr.isCircular()) {
-         out.println(equ.docComment());
-         attr.emitAttrEquation(out, equ);
-       } else {
-         attr.emitInlineCompute(out, equ);
-       }
+       attr.emitAttrEquation(out, equ);
     }
   }
 
@@ -995,5 +997,50 @@ aspect JragCodeGen {
 
   syn boolean AttrDecl.hasCache() = isLazy() || isCircular();
   syn boolean AttrDecl.isAttrNTA() = isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
+
+}
+
+aspect Compute {
+  syn String AttrDecl.computeRHS() = name() + "_compute(" + parameters() + ")";
+
+  eq InhDecl.computeRHS() =
+    "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
+
+  syn String AttrDecl.computeLHS() {
+    if (isLazy() && getNumParameter() == 0) {
+      return signature() + "_value";
+    } else {
+      return getType() + " " + signature() + "_value";
+    }
+  }
+
+  eq InhDecl.computeLHS() {
+    if (isLazy() && getNumParameter() == 0) {
+      return inhDebugString() + signature() + "_value";
+    } else {
+      return inhDebugString() + getType() + " " + signature() + "_value";
+    }
+  }
+
+  syn String AttrDecl.circularComputeRHS() = computeRHS();
+
+  eq CollDecl.circularComputeRHS() {
+    if (separateEvaluation()) {
+      return Unparser.unparse(getBottomValue()) + ";\n" +
+             "root." + name() + "_" + signature() + "_nextIteration(this)";
+    } else {
+      return "combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
+    }
+  }
+
+  syn String AttrDecl.circularComputeLHS() = "new_" + signature() + "_value";
+
+  eq CollDecl.circularComputeLHS() {
+    if (separateEvaluation()) {
+      return "new_" + signature() + "_value";
+    } else {
+      return signature() + "_value";
+    }
+  }
 
 }

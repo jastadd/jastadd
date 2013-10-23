@@ -93,26 +93,6 @@ aspect CollectionAttributes {
     }
   }
 
-  syn String CollDecl.circularComputeRHS() {
-    if (separateEvaluation()) {
-      return Unparser.unparse(getBottomValue()) + ";\n" +
-             "root." + name() + "_" + signature() + "_nextIteration(this)";
-    } else {
-      return "combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
-    }
-  }
-
-  syn String CollDecl.circularComputeLHS() {
-    if (separateEvaluation()) {
-      return "new_" + signature() + "_value";
-    } else {
-      return signature() + "_value";
-    }
-  }
-
-  // only used by circular collection attributes
-  eq CollDecl.circularComputeCall() = circularComputeLHS() + " = " + circularComputeRHS();
-
   // only used by non-circular collection attributes
   public void CollDecl.emitComputeMethod(PrintStream out) {
     String rootType = root().name();

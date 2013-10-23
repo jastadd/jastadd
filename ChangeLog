@@ -1,3 +1,8 @@
+2013-10-30  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * JastAdd now inlines all equation compute methods where the equation
+    is a single Java expression.
+
 2013-10-18  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Fixed potential crash during refinement processing
@@ -16,13 +21,13 @@
    * JastAdd now supports a flush flag which allows for configuring of flushing.
    The flag takes the following values 'attr','coll'.'rewrite','full'. Default is
    'attr' and 'coll'. The 'rewrite' value makes flushing of outermost rewrites
-   possible by storing their initial values. The 'full' value includes all values. 
+   possible by storing their initial values. The 'full' value includes all values.
    * The default flushing API provided by JastAdd has been extended with
    a flushTreeCache method calling flushCache and traversing the tree. A call to this
-   method together with the use of the flush='full' will result in a full flush of 
+   method together with the use of the flush='full' will result in a full flush of
    an AST.
    * Attributes are flushed via separate reset methods, one per cache attribute.
-   * All cached attributes in a node are flushed from a flushAttrCache method 
+   * All cached attributes in a node are flushed from a flushAttrCache method
    which is called from flushCache.
    * Rewrites are flushed from a flushRewriteCache method which is called from flushCache.
 
@@ -30,16 +35,16 @@
 
    * Added treeCopyNoTransform to replace fullCopy
    * Deprecated fullCopy
-   * Added doFullTraversal method on ASTNode which uses 
+   * Added doFullTraversal method on ASTNode which uses
    getChild to traverse and trigger rewrites
-   * Added treeCopy which traverses using doFullTraversal 
+   * Added treeCopy which traverses using doFullTraversal
    before calling treeCopyNoTransform
 
 2013-10-01  Emma Söderberg <emma.soderberg@cs.lth.se>
 
     * JastAdd now generates the Tracer class for the --tracing option as a
     nested class in ASTNode$State and provides a trace access method called 'trace'
-    available via the state object. 
+    available via the state object.
 
 2013-09-20  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 

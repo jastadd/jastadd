@@ -291,16 +291,16 @@ ASTDecl.weaveCollectionAttributes.flush2 = [[
 
 CollDecl.cacheCycleCheck [[
 $if(CacheCycle)
-if (state().LAST_CYCLE) {
+if (state.LAST_CYCLE) {
 $if(#isParameterized)
   #setVisited
-  #circularComputeCall;
+  $CircularComputeStmt
   #clearVisited
   #(signature)_computed.add(_parameters);
   return $CachedValue;
 $else
   #setVisited
-  #circularComputeCall;
+  $CircularComputeStmt
   #clearVisited
   #(signature)_computed = true;
   return #(signature)_value;
