@@ -112,15 +112,25 @@ aspect CollectionAttributes {
     }
   }
 
-  // only used by circular collection attributes
-  eq CollDecl.circularComputeCall() {
+  syn String CollDecl.circularComputeRHS() {
     if (separateEvaluation()) {
-      return "new_" + signature() + "_value = " + Unparser.unparse(getBottomValue()) + ";\n" +
+      return Unparser.unparse(getBottomValue()) + ";\n" +
              "root." + name() + "_" + signature() + "_nextIteration(this)";
     } else {
-      return signature() + "_value = combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
+      return "combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
     }
   }
+
+  syn String CollDecl.circularComputeLHS() {
+    if (separateEvaluation()) {
+      return "new_" + signature() + "_value";
+    } else {
+      return signature() + "_value";
+    }
+  }
+
+  // only used by circular collection attributes
+  eq CollDecl.circularComputeCall() = circularComputeLHS() + " = " + circularComputeRHS();
 
   // only used by non-circular collection attributes
   public void CollDecl.emitComputeMethod(PrintStream out) {
