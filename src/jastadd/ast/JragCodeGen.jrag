@@ -522,7 +522,7 @@ aspect JragCodeGen {
   /**
    * @return Compute method without "_compute" suffix
    */
-  public void AttrDecl.emitInlineCompute(AttrEq equ, PrintStream out) {
+  public void AttrDecl.emitInlineCompute(PrintStream out, AttrEq equ) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", equ.parametersDecl());
     tt.bind("ComputeBody", equ.computeMethodBody());
@@ -573,7 +573,7 @@ aspect JragCodeGen {
    // TODO: fixme cycleLimit > 0 ?
    //    "if (state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
 
-  public void AttrDecl.emitEquation(String paramDecl, PrintStream out) {
+  public void AttrDecl.emitEquation(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
     tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
@@ -590,7 +590,7 @@ aspect JragCodeGen {
     tt.expand("ASTDecl.genCircularEquationNoParams", out);
   }
 
-  public void AttrDecl.emitCircularEquationWithParams(String paramDecl, PrintStream out) {
+  public void AttrDecl.emitCircularEquationWithParams(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
     tt.bind("Cond1", differs("new_" + signature() + "_value", fromReferenceType("_value.value", getType())));
@@ -605,18 +605,36 @@ aspect JragCodeGen {
   }
 
   /**
+   * Generates the method to compute an attribute with a specific equation
+   * @param out
+   * @param equ the equation to generate code for
+   */
+  public void AttrDecl.emitAttrEquation(PrintStream out, AttrEq equ) {
+    emitAttrEquation(out, equ.parametersDecl());
+    equ.emitComputeMethod(out);
+  }
+
+  /**
    * Generates the method to compute an attribute
-   * @param paramDecl
    * @param out
    */
-  public void AttrDecl.emitAttrEquation(String paramDecl, PrintStream out) {
+  public void AttrDecl.emitAttrEquation(PrintStream out) {
+    emitAttrEquation(out, parametersDecl());
+  }
+
+  /**
+   * Generates the method to compute an attribute
+   * @param out
+   * @param paramDecl
+   */
+  public void AttrDecl.emitAttrEquation(PrintStream out, String paramDecl) {
     if (!isCircular()) {
-      emitEquation(paramDecl, out);
+      emitEquation(out, paramDecl);
     } else {
       if (getNumParameter() == 0) {
         emitCircularEquationNoParams(out);
       } else {
-        emitCircularEquationWithParams(paramDecl, out);
+        emitCircularEquationWithParams(out, paramDecl);
       }
     }
   }
@@ -784,10 +802,9 @@ aspect JragCodeGen {
        emitCacheDeclarations(out, attr);
        if (attr.isNTA() || attr.getLazy() || attr.isCircular()) {
          out.println(equ.docComment());
-         attr.emitAttrEquation(equ.parametersDecl(), out);
-         equ.emitComputeMethod(out);
+         attr.emitAttrEquation(out, equ);
        } else {
-         attr.emitInlineCompute(equ, out);
+         attr.emitInlineCompute(out, equ);
        }
     }
   }
@@ -897,7 +914,7 @@ aspect JragCodeGen {
     for (int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
        out.println(attr.docComment());
-       attr.emitAttrEquation(attr.parametersDecl(), out);
+       attr.emitAttrEquation(out);
        emitCacheDeclarations(out, attr);
     }
   }
