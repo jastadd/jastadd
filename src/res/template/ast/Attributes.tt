@@ -639,3 +639,21 @@ $endif
 $endif
 $endif
 ]]
+
+AttrDecl.cacheCycleCheck [[
+$if(CacheCycle)
+if (state().LAST_CYCLE) {
+$if(#isParameterized)
+  #inhDebugString
+  #(signature)_values.put(_parameters, $CachedValue);
+$else
+  #(signature)_computed = true;
+  #inhDebugString
+  $include(AttrDecl.incHookAttrCompStartCircular)
+  #getType new_#(signature)_value = #circularComputeCall;
+  $include(AttrDecl.incHookAttrCompEndCircular)
+  return new_#(signature)_value;
+$endif
+}
+$endif
+]]

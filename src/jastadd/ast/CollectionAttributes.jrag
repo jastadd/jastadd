@@ -86,29 +86,10 @@ aspect CollectionAttributes {
   public String CollDecl.cacheCycleCheck() {
     if (!separateEvaluation()) {
       return super.cacheCycleCheck();
-    }
-    if (!config().cacheCycle) {
-      return "";
-    }
-    String ind = config().indent;
-    if (getNumParameter() == 0) {
-      return
-        "if (state().LAST_CYCLE) {\n" +
-        setVisited() +
-        circularComputeCall() + ";\n" +
-        clearVisited() +
-        ind + signature() + "_computed = true;\n" +
-        ind + "return " + signature() + "_value;\n" +
-        "}\n";
     } else {
-      return
-        "if (state().LAST_CYCLE) {\n" +
-        setVisited() +
-        circularComputeCall() + ";\n" +
-        clearVisited() +
-        ind + signature() + "_computed.add(_parameters);\n" +
-        ind + "return " + fromReferenceType(signature() + "_values.get(_parameters)" , getType()) + ";\n" +
-        "}\n";
+      templateContext().bind("CachedValue",
+          fromReferenceType(signature() + "_values.get(_parameters)" , getType()));
+      return templateContext().expand("CollDecl.cacheCycleCheck");
     }
   }
 

@@ -288,3 +288,23 @@ ASTDecl.weaveCollectionAttributes.flush1 = [[
 ASTDecl.weaveCollectionAttributes.flush2 = [[
     collect_contributors_#(collectingSignature) = false;
 ]]
+
+CollDecl.cacheCycleCheck [[
+$if(CacheCycle)
+if (state().LAST_CYCLE) {
+$if(#isParameterized)
+  #setVisited
+  #circularComputeCall;
+  #clearVisited
+  #(signature)_computed.add(_parameters);
+  return $CachedValue;
+$else
+  #setVisited
+  #circularComputeCall;
+  #clearVisited
+  #(signature)_computed = true;
+  return #(signature)_value;
+$endif
+}
+$endif
+]]

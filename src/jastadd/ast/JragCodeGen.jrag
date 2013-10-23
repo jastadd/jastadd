@@ -647,34 +647,9 @@ aspect JragCodeGen {
     getNumParameter() != 0;
 
   public String AttrDecl.cacheCycleCheck() {
-    if (!config().cacheCycle) return "";
-    TemplateContext tt = templateContext();
-    String ind = config().indent;
-    if (getNumParameter() == 0) {
-      return
-        "if (state.LAST_CYCLE) {\n" +
-        signature() + "_computed = true;\n" +
-        inhDebugString() +
-        tt.expand("AttrDecl.incHookAttrCompStartCircular") +
-        ind + getType() + " new_" + signature() + "_value = " + circularComputeCall() + ";\n" +
-        tt.expand("AttrDecl.incHookAttrCompEndCircular") +
-        ind + "return new_" + signature() + "_value;\n" +
-        "}\n";
-    } else {
-      if (config().java5) {
-        return
-          "if (state.LAST_CYCLE) {\n" +
-          inhDebugString() +
-          ind + signature() + "_values.put(_parameters, new_" + signature() + "_value);\n" +
-          "}\n";
-      } else {
-        return
-          "if (state.LAST_CYCLE) {\n" +
-          inhDebugString() +
-          ind + signature() + "_values.put(_parameters, " + toReferenceType("new_" + signature() + "_value", getType()) + ");\n" +
-          "}\n";
-      }
-    }
+    templateContext().bind("CachedValue",
+        toReferenceType("new_" + signature() + "_value", getType()));
+    return templateContext().expand("AttrDecl.cacheCycleCheck");
   }
 
   public String AttrDecl.addComponentCheck() {
