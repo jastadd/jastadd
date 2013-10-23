@@ -36,7 +36,7 @@ aspect CollectionAttributes {
         attr.emitCombineMethod(out);
       } else {
         out.println(attr.docComment());
-        emitEquation(attr, attr.parametersDecl(), out);
+        attr.emitAttrEquation(attr.parametersDecl(), out);
         attr.emitComputeMethod(out);
         emitCacheDeclarations(out, attr);
       }
