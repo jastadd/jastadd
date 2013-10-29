@@ -62,7 +62,7 @@ $if(#isASTNodeDecl)
     */
   public void #name.flushCache() {
     $SynchBegin
-    $if(RewriteEnabled)
+    $if(FlushRewrite)
     flushRewriteCache();
     $endif
     $if(FlushAttr)
