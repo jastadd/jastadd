@@ -259,7 +259,7 @@ $endif
     #higherOrderAttributeCode
 $if(#getLazy)
   $if(#isParameterized)
-    #cacheStore {
+    if (#cacheStoreCondition) {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(signature)_values.put(_parameters, #attributeValueReference);
       $include(AttrDecl.traceHookAttrCached)
@@ -268,7 +268,7 @@ $if(#getLazy)
       $include(AttrDecl.incHookAttrCompAfterStore)
     }
   $else
-    #cacheStore {
+    if (#cacheStoreCondition) {
       $include(AttrDecl.incHookAttrCompBeforeStore)
       #(signature)_computed = true;
       $include(AttrDecl.traceHookAttrCached)
@@ -336,7 +336,7 @@ $endif
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.CHANGE);
-      #cacheStore {
+      if (#cacheStoreCondition) {
         #(signature)_computed = true;
         $include(cacheCycleInit)
         $include(AttrDecl.traceHookAttrCached)
@@ -471,13 +471,13 @@ $if(#getNTA)
             (($ASTNode)_value.value).setParent(#(signature)_list);
           }
  $endif
-$endif          
+$endif
         }
         state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.CHANGE);
-      #cacheStore {
+      if (#cacheStoreCondition) {
 $if (Java5)
         #(signature)_values.put(_parameters, new_#(signature)_value);
 $else

@@ -410,16 +410,16 @@ aspect JragCodeGen {
       return "";
     return cacheInitCircular() + cacheInitRewrite();
   }
-  
+
   public String AttrDecl.cacheInitCircular() {
     if (!config().circularEnabled) {
       return "";
     } else {
-      return "boolean intermediate = state.INTERMEDIATE_VALUE;\n" + 
+      return "boolean intermediate = state.INTERMEDIATE_VALUE;\n" +
              "state.INTERMEDIATE_VALUE = false;\n";
     }
   }
-  
+
   public String AttrDecl.cacheInitRewrite() {
     if (!config().rewriteEnabled) {
       return "";
@@ -447,7 +447,7 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.cacheStore() {
+  public String AttrDecl.cacheStoreCondition() {
     StringBuilder cacheCond = new StringBuilder();
     cacheCond.append(cacheStoreRewrite());
     String circularCond = (!isCircular() ? cacheStoreCircular() : "");
@@ -458,7 +458,7 @@ aspect JragCodeGen {
     if (cacheCond.length() == 0) {
       cacheCond.append("true");
     }
-    return "if (" + cacheCond.toString() + ")";
+    return cacheCond;
   }
 
   public String AttrDecl.cacheStoreCircular() {
@@ -469,12 +469,12 @@ aspect JragCodeGen {
       return "!state.INTERMEDIATE_VALUE";
     } else {
       return "";
-    }  
+    }
   }
 
   public String AttrDecl.cacheStoreRewrite() {
     if (config().rewriteEnabled && !config().rewriteCircularNTA) {
-      // TODO: Should final on attributes be allowed? 
+      // TODO: Should final on attributes be allowed?
       if (getFinal()) {
         return "(num == state().boundariesCrossed)";
       }
@@ -483,7 +483,7 @@ aspect JragCodeGen {
       return "";
     }
   }
-  
+
   public String AttrDecl.cacheRestore() {
     if (config().circularEnabled) {
       return "state.INTERMEDIATE_VALUE |= intermediate;\n";
