@@ -448,6 +448,17 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheStoreCondition() {
+    /* BEGIN INCORRECT legacy cache store condition */
+    /* TODO remove this */
+    if (!config().rewriteEnabled || getFinal()) {
+      return "true";
+    } else {
+      return "isFinal && num == state().boundariesCrossed";
+    }
+    /* END INCORRECT legacy cache store condition */
+
+    /* BEGIN CORRECT cache store condition.
+     * TODO use this instead of above condition in 2.2.0!!
     StringBuilder cacheCond = new StringBuilder();
     cacheCond.append(cacheStoreRewrite());
     String circularCond = (!isCircular() ? cacheStoreCircular() : "");
@@ -459,6 +470,8 @@ aspect JragCodeGen {
       cacheCond.append("true");
     }
     return cacheCond;
+    END CORRECT cache store condition
+    */
   }
 
   public String AttrDecl.cacheStoreCircular() {
