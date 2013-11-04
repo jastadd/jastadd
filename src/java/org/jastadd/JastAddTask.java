@@ -128,12 +128,13 @@ public class JastAddTask extends Task {
   }
 
   public void setRewrite(String arg) {
-    if (arg.equals("true")) {
+    if (arg.equals("true") || arg.equals("yes") || arg.equals("on")) {
       setOption(config.rewriteOption, true);
-    } else if (arg.equals("false")) {
+    } else if (arg.equals("false") || arg.equals("yes") || arg.equals("on")) {
       setOption(config.rewriteOption, false);
+    } else {
+      setOption(config.rewriteOption, arg);
     }
-    setOption(config.rewriteOption, arg);
   }
 
   public void setNovisitcheck(boolean enable) {
@@ -142,7 +143,7 @@ public class JastAddTask extends Task {
 
   public void setVisitCheck(boolean enable) {
     setOption(config.visitCheckOption, enable);
-	// inverse to disable visit check (deprecated)
+    // inverse to disable visit check (deprecated)
     setOption(config.noVisitCheckOption, !enable);
   }
 
@@ -152,13 +153,13 @@ public class JastAddTask extends Task {
 
   public void setCacheCycle(boolean enable) {
     setOption(config.cacheCycleOption, enable);
-	// inverse to disable cache cycle (deprecated)
+    // inverse to disable cache cycle (deprecated)
     setOption(config.noCacheCycleOption, !enable);
   }
 
   public void setNoComponentCheck(boolean enable) {
     setOption(config.noComponentCheckOption, enable);
-	// inverse to enable component check (deprecated)
+    // inverse to enable component check (deprecated)
     setOption(config.componentCheckOption, !enable);
   }
 
@@ -249,7 +250,7 @@ public class JastAddTask extends Task {
   public void setFullFlush(boolean enable) {
     setOption(config.fullFlushOption, enable);
   }
-  
+
   public void setFlush(String arg) {
     setOption(config.flushOption, arg);
   }
