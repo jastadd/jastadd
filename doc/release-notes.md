@@ -1,6 +1,63 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.6 - 2013-11-29
+------------------
+
+### Performance
+
+* JastAdd now inlines all equation compute methods where the equation is a
+  single Java expression.
+
+* JastAdd uses a new inherited equation checking analysis that runs quicker on
+  grammars with many inherited attributes. This can reduce JastAdd compile
+times for large projects.
+
+### Stability
+
+* Fixed potential crash during refinement processing.
+
+### Command-Line Interface
+
+* JastAdd now reports a warning if multiple values are given to an option that
+  only accepts one value argument.
+
+### Code Generation
+
+* JastAdd now generates the trace class as the nested class
+  `ASTNode$State.Trace`. The global `Trace` instance is accessed using the
+method `ASTNode$State.trace()`.
+
+* Added the `ASTNode.treeCopyNoTransform()` method to replace
+  `ASTNode.fullCopy()`, deprecating `fullCopy`.
+
+* Added the `ASTNode.doFullTraversal()` method which uses `getChild()` to
+  traverse the subtree and trigger rewrites.
+
+* Added the `ASTNode.treeCopy()` method which uses `doFullTraversal()` to
+  trigger rewrites before copying the tree with `treeCopyNoTransform()`.
+
+### Flushing
+
+* JastAdd now supports a flush flag which allows for configuring of flushing.
+  The flag takes the following values: `attr`, `coll`, `rewrite`, `full`.
+Default is `attr` and `coll`. The `rewrite` value makes flushing of outermost
+rewrites possible by storing their initial values. The `full` value includes
+all values.
+
+* The default flushing API provided by JastAdd has been extended with a
+  `flushTreeCache()` method calling `flushCache()` and traversing the tree. A
+call to this method together with the use of the `flush=full` will result in a
+full flush of an AST.
+
+* Attributes are flushed via separate reset methods, one per cache attribute.
+
+* All cached attributes in a node are flushed from a `flushAttrCache()` method
+  which is called from `flushCache()`.
+
+* Rewrites are flushed from a `flushRewriteCache()` method which is called from
+  `flushCache()`.
+
 2.1.5 - 2013-09-17
 ------------------
 
