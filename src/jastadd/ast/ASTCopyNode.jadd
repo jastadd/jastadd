@@ -54,11 +54,6 @@ aspect ASTCloneNode {
   }
 
   public void ASTDecl.emitFullCopy(PrintWriter stream) {
-
-    if (hasAbstract())
-      // Don't generate copy methods for abstract node types
-      return;
-
     // We skip copying NTA children
     // Build list of NTA indices - these are skipped when copying the children
     LinkedList ntaAggregateIndices = new LinkedList();
@@ -122,10 +117,12 @@ aspect ASTCloneNode {
 
     TemplateContext tt = templateContext();
     tt.bind("SkipNTAs", skipNTAs);
+    
     tt.expand("ASTDecl.emitFullCopy", stream);
     tt.expand("ASTDecl.emitTreeCopyNoTransform", stream);
-    tt.expand("ASTNode.emitDoFullTraversal", stream);
     tt.expand("ASTDecl.emitTreeCopy", stream);
+    if (!hasAbstract()) {
+      tt.expand("ASTNode.emitDoFullTraversal", stream);
+    }
   }
-
 }

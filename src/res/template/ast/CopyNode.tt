@@ -67,9 +67,13 @@ ASTDecl.emitFullCopy = [[
    * @deprecated Please use emitTreeCopy or emitTreeCopyNoTransform instead
    */
   #annotations
+$if(#hasAbstract)
+  public abstract #copyReturnType #name.fullCopy();
+$else
   public #copyReturnType #name.fullCopy() {
     return treeCopyNoTransform();
   }
+$endif
 ]]
 
 ASTDecl.emitTreeCopyNoTransform = [[
@@ -80,6 +84,9 @@ ASTDecl.emitTreeCopyNoTransform = [[
    * @apilevel low-level
    */
   #annotations
+$if(#hasAbstract)
+  public abstract #copyReturnType #name.treeCopyNoTransform();
+$else
   public #copyReturnType #name.treeCopyNoTransform() {
     $SynchBegin
     #name tree = (#name) copy();
@@ -101,6 +108,7 @@ $endif
     return tree;
     $SynchEnd
   }
+$endif
 ]]
 
 ASTNode.emitDoFullTraversal = [[
@@ -129,12 +137,16 @@ ASTDecl.emitTreeCopy = [[
    * @apilevel low-level
    */
   #annotations
+$if(#hasAbstract) 
+  public abstract #copyReturnType #name.treeCopy();
+$else
   public #copyReturnType #name.treeCopy() {
     $SynchBegin
     doFullTraversal();
     return treeCopyNoTransform();
     $SynchEnd
   }
+$endif
 ]]
 
 # ASTNode.clone()
