@@ -29,7 +29,6 @@ package org.jastadd;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -154,11 +153,8 @@ public class JastAdd {
       }
 
       long astParseTime = System.currentTimeMillis() - time;
-
       Collection<Problem> problems = grammar.problems();
-
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;
-
       if (checkErrors(problems, err)) {
         return 1;
       }
@@ -167,9 +163,12 @@ public class JastAdd {
       // TODO do we really need to do this?!
       grammar.problems.clear();
 
-      genASTNode$State(grammar);
-
-      genIncrementalDDGNode(grammar);
+      if (checkErrors("genASTNode$State", genASTNode$State(grammar), err)) {
+        return 1;
+      }
+      if (checkErrors("genIncrementalDDGNode", genIncrementalDDGNode(grammar), err)) {
+        return 1;
+      }
 
       if (checkErrors(readJRAGFiles(grammar, config.getFiles()), err)) {
         return 1;
@@ -188,7 +187,9 @@ public class JastAdd {
       grammar.processInterfaceRefinements();
       grammar.weaveInterfaceIntroductions();
 
-      weaveAspects(grammar);
+      if (checkErrors("weaveAspects", weaveAspects(grammar), err)) {
+        return 1;
+      }
 
       if (checkErrors(grammar.attributeProblems(), err)) {
         return 1;
@@ -233,8 +234,24 @@ public class JastAdd {
    * @return <code>true</code> if any of the problems was an error
    */
   private boolean checkErrors(Collection<Problem> problems, PrintStream err) {
+    return checkErrors("",  problems, err);
+  }
+
+  /**
+   * Print problems with a description and check for errors
+   * @param description
+   * @param problems
+   * @param err error output stream
+   * @return <code>true</code> if any of the problems was an error
+   */
+  private boolean checkErrors(String description, Collection<Problem> problems, PrintStream err) {
     boolean hasError = false;
+    boolean first = true;
     for (Problem problem: problems) {
+      if (first && !description.isEmpty()) {
+        err.println("Problems in " + description + ":");
+      }
+      first = false;
       problem.print(err);
       hasError |= problem.isError();
     }
@@ -279,17 +296,19 @@ public class JastAdd {
     return problems;
   }
 
-  private void weaveAspects(Grammar grammar) {
+  private Collection<Problem> weaveAspects(Grammar grammar) {
     //out.println("weaving aspect and attribute definitions");
+    Collection<Problem> allProblems = new LinkedList<Problem>();
     for (int i = 0; i < grammar.getNumTypeDecl(); i++) {
       if (grammar.getTypeDecl(i) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)grammar.getTypeDecl(i);
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 
-        JastAddUtil.parseAspectBodyDeclarations(new java.io.StringReader(writer.toString()),
-            grammar.config().astNodeType, grammar);
-
+        Collection<Problem> problems = JastAddUtil.parseAspectBodyDeclarations(
+            new java.io.StringReader(writer.toString()),grammar.config().astNodeType, grammar);
+        allProblems.addAll(problems);
+        
         int j = 0;
         for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
           Components c = (Components) iter.next();
@@ -302,6 +321,7 @@ public class JastAdd {
         }
       }
     }
+    return allProblems;
   }
 
   private void genCacheAnalyzer(Grammar grammar)
@@ -312,20 +332,21 @@ public class JastAdd {
     writer.close();
   }
 
-  private void genIncrementalDDGNode(Grammar grammar) {
+  private Collection<Problem> genIncrementalDDGNode(Grammar grammar) {
     if (grammar.config().incremental) {
       java.io.StringWriter writer = new java.io.StringWriter();
       grammar.genIncrementalDDGNode(new PrintWriter(writer));
-      JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
+      return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
           grammar.config().astNodeType, grammar);
     }
+    return new LinkedList<Problem>();
   }
 
-  private void genASTNode$State(Grammar grammar) {
+  private Collection<Problem> genASTNode$State(Grammar grammar) {
     java.io.StringWriter writer = new java.io.StringWriter();
     grammar.emitASTNode$State(new PrintWriter(writer));
-    JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
-        grammar.config().astNodeType, grammar);
+    return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
+        grammar.config().astNodeType + "$State", grammar);
   }
 
   @SuppressWarnings("unused")

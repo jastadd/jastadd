@@ -39,7 +39,6 @@ import java.util.LinkedList;
 import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.List;
-import org.jastadd.ast.AST.ParseException;
 import org.jastadd.ast.AST.TypeDecl;
 import org.jastadd.jrag.AST.ASTCompilationUnit;
 import org.jastadd.jrag.AST.JragParser;
@@ -68,7 +67,7 @@ public class JastAddUtil {
     }
     catch (org.jastadd.ast.AST.TokenMgrError e) {
       problems.add(new Problem.Error(e.getMessage(), sourceName));
-    } catch (ParseException e) {
+    } catch (org.jastadd.ast.AST.ParseException e) {
       // ParseExceptions actually caught by error recovery in parser
     }
     return null;
@@ -237,10 +236,9 @@ public class JastAddUtil {
     jp.className = sourceName;
     jp.pushTopLevelOrAspect(true);
     try {
-      while(true)
-        jp.AspectBodyDeclaration();
-    } catch (Exception e) {
-      problems.add(new Problem.Error("Internal Error: " + e.getMessage()));
+      jp.AspectBodyDeclarationsEOF();
+    } catch (org.jastadd.jrag.AST.ParseException e) {
+      problems.add(new Problem.Error("Internal Error in " + sourceName + ": " + e.getMessage()));
     }
     jp.popTopLevelOrAspect();
     return problems;

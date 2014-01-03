@@ -691,13 +691,10 @@ aspect JaddCodeGen {
     //jp.enclosingAspect = "Ast";
 
     try {
-      while (true) {
-        jp.AspectBodyDeclaration();
-      }
+      jp.AspectBodyDeclarationsEOF();
     } catch (Exception e) {
-      // TODO: handle aspect parsing exception
-      //System.err.println("Aspect parsing error: " + e.getMessage());
-      //e.printStackTrace(System.err);
+      System.err.println("Aspect parsing error: " + e.getMessage());
+      e.printStackTrace(System.err);
     }
   }
 }
