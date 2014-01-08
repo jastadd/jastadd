@@ -502,23 +502,23 @@ see below.
 </TR>
 <TR>
 <TD>
-<PRE>ASTList</PRE>
+<PRE>List</PRE>
 </TD>
 <TD>
-<PRE>class ASTList extends ASTNode {
-  ASTList();
-  add(ASTNode); // Returns the same ASTList object
+<PRE>class List extends ASTNode {
+  List();
+  add(ASTNode); // Returns the same List object
 }</PRE>
 </TD>
 </TR>
 <TR>
 <TD>
-<PRE>ASTOpt</PRE>
+<PRE>Opt</PRE>
 </TD>
 <TD>
-<PRE>class ASTOpt extends ASTNode {
-  ASTOpt();
-  ASTOpt(ASTNode); // The argument may be null
+<PRE>class Opt extends ASTNode {
+  Opt();
+  Opt(ASTNode); // The argument may be null
 }</PRE>
 </TD>
 </TR>
