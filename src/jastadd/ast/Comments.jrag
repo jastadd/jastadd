@@ -39,13 +39,33 @@ aspect Comments {
         return "";
 
       int start = 0;
-      int end = -2;
-      while (true) {
-        int newStart = comments.indexOf("/**", end + 2);
+      int end = 0;
+outer: while (true) {
+        int lnStart = comments.indexOf("//", end);
+        int newStart = comments.indexOf("/**", end);
         if (newStart == -1) {
           break;
         }
-        int newEnd = comments.indexOf("*/", newStart + 3);
+        if (lnStart != -1 && lnStart < newStart) {
+          // skip to end of line
+          int len = comments.length();
+          for (int i = lnStart; i < len; ++i) {
+            char c = comments.charAt(i);
+            if (c == '\n') {
+              start = end = i;
+              continue outer;
+            } else if (c == '\r') {
+              start = end = i;
+              if (i < len-1 && comments.charAt(i+1) == '\n') {
+                start = end = end + 1;
+              }
+              continue outer;
+            }
+          }
+          start = end = comments.length();
+          break;
+        }
+        int newEnd = comments.indexOf("*/", newStart + 3) + 2;
         if (newEnd == -1) {
           break;
         }
@@ -53,10 +73,12 @@ aspect Comments {
         end = newEnd;
       }
 
-      if (end <= start+3)
+      if (end <= start+3) {
         return "";
+      }
 
-      javadoc = comments.substring(start+3, end).toCharArray();
+      // doc comment with /** and */ stripped:
+      javadoc = comments.substring(start+3, end-2).toCharArray();
       out = new StringBuilder(javadoc.length);
       i = 0;
 
