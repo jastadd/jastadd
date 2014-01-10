@@ -164,6 +164,7 @@ $endif
    * @apilevel high-level
    */
   #annotations
+  @ASTNodeAnnotation.ListChild(name="$Name")
   $Modifier $ListType $Host.get$(Name)List() {
     $SynchBegin
     $ListType list = ($ListType) getChild($Index);

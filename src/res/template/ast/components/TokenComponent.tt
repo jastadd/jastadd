@@ -76,6 +76,7 @@ $if(!#isNTA)
    * @return The value for the lexeme $Id.
    * @apilevel high-level
    */
+  @ASTNodeAnnotation.Token(name="$Id")
   $Modifier $Type $Host.get$Id() {
     $SynchBegin
     $include(TokenComponent.incHookGetToken)
@@ -88,6 +89,7 @@ $if(!#isNTA)
    * @return The value for the lexeme $Id.
    * @apilevel high-level
    */
+  @ASTNodeAnnotation.Token(name="$Id")
   $Modifier $Type $Host.get$Id() {
     $SynchBegin
     $include(TokenComponent.incHookGetToken)

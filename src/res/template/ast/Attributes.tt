@@ -84,18 +84,21 @@ $endif
 # attribute declarations
 AttrDecl.synDecl = AttrDecl.inhDecl = [[
   #annotations
+  @ASTNodeAnnotation.Attribute
   public #getType #name(#parametersDecl);
 ]]
 
 AttrDecl.abstractSynDecl = [[
 #docComment
   #annotations
+  @ASTNodeAnnotation.Attribute
   public abstract #getType #name(#parametersDecl);
 ]]
 
 AttrDecl.emitInlineComputeWithTry = [[
 #docComment
   #annotations
+  @ASTNodeAnnotation.Attribute
   public #getType #name($ParamDecl) {
     $SynchBegin
     #parameterStructure
@@ -245,6 +248,7 @@ $endif
 
 AttrDecl.emitEquation [[
   #annotations
+  @ASTNodeAnnotation.Attribute
   public #getType #name($ParamDecl) {
     $SynchBegin
     #parameterStructure
@@ -295,6 +299,7 @@ $endif
 
 ASTDecl.genCircularEquationNoParams [[
   #annotations
+  @ASTNodeAnnotation.Attribute
   public #getType #name() {
     $SynchBegin
     #parameterStructure
@@ -396,6 +401,7 @@ $endif
 
 ASTDecl.genCircularEquationWithParams [[
   #annotations
+  @ASTNodeAnnotation.Attribute
   public #getType #name($ParamDecl) {
     $SynchBegin
     #parameterStructure

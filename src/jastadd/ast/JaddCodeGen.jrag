@@ -378,6 +378,9 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.getParent", out);
     tt.expand("ASTNode.setParent", out);
 
+    /* emit annotation types */
+    tt.expand("ASTNodeAnnotation", out);
+
     /* emit debug declarations */
     tt.expand("ASTNode.debugDecls", out);
 

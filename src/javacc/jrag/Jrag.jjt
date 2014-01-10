@@ -1635,6 +1635,8 @@ SimpleNode ClassBodyDeclaration() :
   |
     UnmodifiedInterfaceDeclaration(modifiers)
   |
+    AnnotationTypeDeclaration(modifiers)
+  |
     EnumDeclaration(modifiers)
   |
     LOOKAHEAD( [TypeParameters() ] <IDENTIFIER> "(" )

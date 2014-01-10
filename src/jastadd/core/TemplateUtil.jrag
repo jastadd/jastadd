@@ -45,6 +45,7 @@ aspect TemplateUtil {
     tt.setIndentation(config().indent);
     tt.throwExceptions(true);
 
+    loadTemplates(tt, "ast/ASTNodeAnnotation");
     loadTemplates(tt, "ast/ASTNode");
     loadTemplates(tt, "ast/Attributes");
     loadTemplates(tt, "ast/Cache");
