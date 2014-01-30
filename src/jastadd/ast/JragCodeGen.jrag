@@ -594,21 +594,21 @@ aspect JragCodeGen {
    */
   public void AttrDecl.emitAttrEquation(PrintStream out, AttrEq equ) {
     if (equ.canInlineCompute(this)) {
-      if (!isCircular()) {
+      if (isCircular()) {
+        templateContext().bind("CircularComputeRHS", equ.computeCode());
+      } else {
         templateContext().bind("ComputeStmt",
             computeLHS() + " = " + equ.computeCode() + ";");
-      } else {
-        templateContext().bind("CircularComputeRHS", equ.computeCode());
       }
       emitAttrEquation(out, equ.parametersDecl());
     } else if (equ.canInlineComputeWithTry(this)) {
       emitInlineComputeWithTry(out, equ);
     } else {
-      if (!isCircular()) {
+      if (isCircular()) {
+        templateContext().bind("CircularComputeRHS", circularComputeRHS());
+      } else {
         templateContext().bind("ComputeStmt",
             computeLHS() + " = " + computeRHS() + ";");
-      } else {
-        templateContext().bind("CircularComputeRHS", circularComputeRHS());
       }
       emitAttrEquation(out, equ.parametersDecl());
       equ.emitComputeMethod(out);
@@ -621,11 +621,11 @@ aspect JragCodeGen {
    * @param paramDecl
    */
   public void AttrDecl.emitAttrEquation(PrintStream out) {
-    if (!isCircular()) {
+    if (isCircular()) {
+      templateContext().bind("CircularComputeRHS", circularComputeRHS());
+    } else {
       templateContext().bind("ComputeStmt",
           computeLHS() + " = " + computeRHS() + ";");
-    } else {
-      templateContext().bind("CircularComputeRHS", circularComputeRHS());
     }
     emitAttrEquation(out, parametersDecl());
   }
@@ -636,9 +636,7 @@ aspect JragCodeGen {
    * @param paramDecl
    */
   public void AttrDecl.emitAttrEquation(PrintStream out, String paramDecl) {
-    if (!isCircular()) {
-      emitEquation(out, paramDecl);
-    } else {
+    if (isCircular()) {
       TemplateContext tt = templateContext();
       String rhs = "" + tt.evalVariable("CircularComputeRHS");
       tt.bind("CircularComputeStmt", circularComputeLHS() + " = " + rhs + ";");
@@ -647,6 +645,8 @@ aspect JragCodeGen {
       } else {
         emitCircularEquationWithParams(out, paramDecl);
       }
+    } else {
+      emitEquation(out, paramDecl);
     }
   }
 
