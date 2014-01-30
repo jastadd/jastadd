@@ -32,7 +32,7 @@ aspect CollectionAttributes {
       CollDecl attr = getCollDecl(i);
       if (attr.circularCollection()) {
         attr.emitVisitedDeclarations(out);
-        attr.emitCircular(out);
+        attr.emitCircularCollectionEval(out);
         attr.emitCombineMethod(out);
       } else {
         out.println(attr.docComment());
@@ -68,7 +68,7 @@ aspect CollectionAttributes {
   }
 
   // only used by circular collection attributes
-  public void AttrDecl.emitCircular(PrintStream out) {
+  public void AttrDecl.emitCircularCollectionEval(PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("RootType", root().name());
@@ -80,16 +80,28 @@ aspect CollectionAttributes {
     tt.bind("FromRefType", fromReferenceType("" + signature() + "_values.get(_parameters)" , getType()));
     tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
     tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
+
+    String rhs;
+    if (separateEvaluation()) {
+      rhs = Unparser.unparse(getBottomValue()) + ";\n" + "root." + name() + "_" +
+        signature() + "_nextIteration(this)";
+    } else {
+      rhs = signature() + "_value = combine_" +
+        signature()+"_contributions("+Unparser.unparse(getBottomValue())+")";
+    }
+    tt.bind("CircularComputeRHS", rhs);
+    tt.bind("CircularComputeStmt", ""+getType() + " new_" + signature() + "_value = " + rhs + ";");
+
     tt.expand("AttrDecl.circularCollectionEval", out);
   }
 
   public String CollDecl.cacheCycleCheck() {
-    if (!separateEvaluation()) {
-      return super.cacheCycleCheck();
-    } else {
+    if (separateEvaluation()) {
       templateContext().bind("CachedValue",
           fromReferenceType(signature() + "_values.get(_parameters)" , getType()));
       return templateContext().expand("CollDecl.cacheCycleCheck");
+    } else {
+      return super.cacheCycleCheck();
     }
   }
 
@@ -116,9 +128,11 @@ aspect CollectionAttributes {
 
   syn boolean TypeDecl.hasCollEq(CollDecl decl) = false;
   eq ASTDecl.hasCollEq(CollDecl decl) {
-    for (int i = 0; i < getNumCollEq(); i++)
-      if (getCollEq(i).decl() == decl)
+    for (int i = 0; i < getNumCollEq(); i++) {
+      if (getCollEq(i).decl() == decl) {
         return true;
+      }
+    }
     return false;
   }
 
