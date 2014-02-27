@@ -190,8 +190,8 @@ ASTNode.incHookSetChild5 = [[
 $if(IncrementalEnabled)
 
 $if(!FlushRewrite)
-if (rewritten_children != null) {
-  rewritten_children[i] = false;
+if (children_computed != null) {
+  children_computed[i] = false;
 }
 $endif
 
@@ -373,9 +373,9 @@ if (init_children != null) {
   System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);
   init_children[init_children.length-1] = null;
 }
-if (rewritten_children != null) {
-  System.arraycopy(rewritten_children, i+1, rewritten_children, i, rewritten_children.length-i-1);
-  rewritten_children[rewritten_children.length-1] = false;
+if (children_computed != null) {
+  System.arraycopy(children_computed, i+1, children_computed, i, children_computed.length-i-1);
+  children_computed[children_computed.length-1] = false;
 }
 $endif
 

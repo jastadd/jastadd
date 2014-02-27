@@ -30,10 +30,10 @@
 # These hooks are not included 
 ASTNode.flushHookSetChildCopyState = [[
 $if(FlushRewrite)
-if (children_init != null) {
+if (init_children != null) {
   $ASTNode d[] = new $ASTNode[i << 1];
-  System.arraycopy(children_init, 0, d, 0, children_init.length);
-  children_init = d;
+  System.arraycopy(init_children, 0, d, 0, init_children.length);
+  init_children = d;
 }
 if (children_computed != null) {
   boolean[] b = new boolean[i << 1];
@@ -51,13 +51,13 @@ $endif
 ]]
 ASTNode.flushHookInsertChildUpdateState = [[
 $if(FlushRewrite)
-if (children_init != null) {
-  $ASTNode d[] = new $ASTNode[children_init.length + 1];
-  System.arraycopy(children_init, 0, d, 0, children_init.length);
-  if (i < children_init.length) {
-    System.arraycopy(children_init, i, d, i+1, children_init.length - i);
+if (init_children != null) {
+  $ASTNode d[] = new $ASTNode[init_children.length + 1];
+  System.arraycopy(init_children, 0, d, 0, init_children.length);
+  if (i < init_children.length) {
+    System.arraycopy(init_children, i, d, i+1, init_children.length - i);
   }
-  children_init = d;
+  init_children = d;
 }
 if (children_computed != null) {
   boolean b[] = new boolean[children_computed.length + 1];
@@ -71,8 +71,8 @@ $endif
 ]]
 ASTNode.flushHookRemoveChild = [[
 $if(FlushRewrite)
-if (children_init != null) {
-  System.arraycopy(children_init, i+1, children_init, i, children_init.length-i-1);
+if (init_children != null) {
+  System.arraycopy(init_children, i+1, init_children, i, init_children.length-i-1);
 }
 if (children_computed != null) {
   System.arraycopy(children_computed, i+1, children_computed, i, children_computed.length-i-1);
@@ -85,11 +85,11 @@ $endif
 ASTNode.flushHookRewriteEnterCircle = [[
 $if(FlushRewrite)
 if (!node.getChild_hasEnclosingInitValue()) {
-  if(this.children_init == null) {
-    this.children_init = new $ASTNode[this.children.length];
+  if(this.init_children == null) {
+    this.init_children = new $ASTNode[this.children.length];
     this.children_computed = new boolean[this.children.length];
   }
-  this.children_init[i] = node.treeCopyNoTransform();
+  this.init_children[i] = node.treeCopyNoTransform();
   this.children_computed[i] = true;
   $include(ASTNode.traceHookFlushRewriteInit)
 }

@@ -196,11 +196,11 @@ $if(IncrementalLevelParam)
 $if(#isASTNodeDecl)
 if (attrID.equals("getChild")) {
   int i = (Integer)_parameters;
-  if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
+  if (children_computed != null && i < children_computed.length && children_computed[i]) {
     // Make sure this condition is false before calling notify.
     // There may be a circular dependency resulting in a double flush otherwise.
     // A double flush will cause null to be moved in as the initial child.
-    rewritten_children[i] = false;
+    children_computed[i] = false;
     children[i].inc_resetRewrites();
     // outer rewrites
     if (init_children[i] != null) {
@@ -700,10 +700,10 @@ $if(#isASTNodeDecl)
    * @api internal
    */
   public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
-    for (int i = 0; children != null && rewritten_children != null && i < children.length && i < rewritten_children.length; i++) {
+    for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
       $ASTNode child = children[i];
       if (child != null && !child.isRegionRoot()) {
-        if (rewritten_children[i]) {
+        if (children_computed[i]) {
           if (init_children != null && i < init_children.length && init_children[i] == null) {
             return true;
           }
@@ -725,10 +725,10 @@ $if(#isASTNodeDecl)
    * @api internal
    */
   public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
-    for (int i = 0; children != null && rewritten_children != null && i < children.length && i < rewritten_children.length; i++) {
+    for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
       $ASTNode child = children[i];
       if (child != null && !child.isRegionRoot()) {
-        if (rewritten_children[i]) {
+        if (children_computed[i]) {
           if (init_children != null && i < init_children.length && init_children[i] == null) {
             return true;
           }
@@ -750,10 +750,10 @@ $if(#isASTNodeDecl)
    * @api internal
    */
   public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
-    for (int i = 0; children != null && rewritten_children != null && i < children.length && i < rewritten_children.length; i++) {
+    for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
       $ASTNode child = children[i];
       if (child != null) {
-        if (rewritten_children[i]) {
+        if (children_computed[i]) {
           if (init_children != null && i < init_children.length && init_children[i] == null) {
             return true;
           }
@@ -857,7 +857,7 @@ $if(#isASTNodeDecl)
         continue;
       }
       // rewritten child
-      if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
+      if (children_computed != null && i < children_computed.length && children_computed[i]) {
         if (!inc_restoreInitialForIndex(i, handler())) {
           return false;
         }
@@ -885,7 +885,7 @@ $if(#isASTNodeDecl)
         continue;
       }
       // rewritten child
-      if (rewritten_children != null && i < rewritten_children.length && rewritten_children[i]) {
+      if (children_computed != null && i < children_computed.length && children_computed[i]) {
         if (!inc_restoreInitialForIndex(i, getChild_handler)) {
           return false;
         }

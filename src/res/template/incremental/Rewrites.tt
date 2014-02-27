@@ -104,8 +104,8 @@ $if(#isASTNodeDecl)
    */
   protected void $ASTNode.inc_resetRewrites() {
     for (int i = 0; i < numChildren; i++) {
-      if (rewritten_children != null && i < rewritten_children.length) {
-        rewritten_children[i] = false;
+      if (children_computed != null && i < children_computed.length) {
+        children_computed[i] = false;
         if (init_children[i] != null) {
           init_children[i].inc_throwAway();
           init_children[i] = null;
@@ -165,7 +165,7 @@ $if(IncrementalLevelParam)
       state().exitConstruction();
       oldNode.inc_flush_subtree(h);
       init_children[index] = null;
-      rewritten_children[index] = false;
+      children_computed[index] = false;
       return true;
     }
     return false;
@@ -183,7 +183,7 @@ $if(IncrementalLevelAttr)
       state().exitConstruction();
       oldNode.inc_flush_subtree(h);
       init_children[index] = null;
-      rewritten_children[index] = false;
+      children_computed[index] = false;
       return true;
     }
     return false;

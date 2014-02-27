@@ -118,11 +118,11 @@ $if(IncrementalEnabled)
 $if (!FlushRewrite)
 if(this.init_children == null) {
   this.init_children = new $ASTNode[this.children.length];
-  this.rewritten_children = new boolean[this.children.length];
+  this.children_computed = new boolean[this.children.length];
 }
 if(!node.getChild_hasEnclosingInitValue()) {
   this.init_children[i] = node.fullCopy();
-  this.rewritten_children[i] = true;
+  this.children_computed[i] = true;
 }
 $endif
 
@@ -156,7 +156,7 @@ $if(IncrementalEnabled)
 
 $if(!FlushRewrite)
 if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
-  this.rewritten_children[i] = true;
+  this.children_computed[i] = true;
 }
 $endif
 

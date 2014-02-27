@@ -38,9 +38,9 @@ $if(#isASTNodeDecl)
     for (int i = 0; i < getNumChildNoTransform(); i++) {
       if (children_computed != null && children_computed[i]) {
         $include(ASTNode.traceHookFlushRewrite)
-        if (children_init[i] != null) {
-          setChild(children_init[i], i);
-          children_init[i] = null;
+        if (init_children[i] != null) {
+          setChild(init_children[i], i);
+          init_children[i] = null;
         }
         children_computed[i] = false;
       }
@@ -72,7 +72,7 @@ $if(#isASTNodeDecl)
   /**
    * @apilevel internal
    */
-  public $ASTNode[] $ASTNode.children_init;
+  public $ASTNode[] $ASTNode.init_children;
   /**
    * @apilevel internal
    */
