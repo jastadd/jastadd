@@ -27,7 +27,7 @@
 
 ASTNode.emitNodeToStringMethod = [[
 $if (TracingEnabled)
-public static String $ASTNode.nodeToString($ASTNode node) {
+public static String $ASTNode.nodeToString(Object node) {
   return (node != null ? node.getClass().getSimpleName() : "null");
 }
 $endif
