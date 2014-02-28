@@ -281,11 +281,17 @@ OPTIONS:
 	<target name="update-version-string" depends="-timestamp" unless="version">
 		<!-- get a new version string using git describe if possible -->
 		<echo message="Updating JastAdd version string..."/>
-		<exec executable="git" outputproperty="version"
-			failifexecutionfails="false">
+		<exec executable="git" outputproperty="gitoutput"
+			errorproperty="giterror" logError="false"
+			failifexecutionfails="false" resultproperty="gitresult">
 			<arg value="--git-dir=${jastadd2.basedir}/.git"/>
 			<arg value="describe"/>
 		</exec>
+		<property file="${jastadd2.res.dir}/Version.properties" prefix="old"/>
+		<condition property="version" value="${gitoutput}"
+			else="${old.version}">
+			<equals arg1="${gitresult}" arg2="0"/>
+		</condition>
 		<antcall target="-store-version-string"/>
 		<!-- ensure version is defined if git was not available -->
 		<property file="${jastadd2.res.dir}/Version.properties"/>
@@ -299,7 +305,7 @@ OPTIONS:
 			<entry key="timestamp" value="${timestamp}"/>
 			<entry key="build.date" value="${build.date}"/>
 		</propertyfile>
-		<exec executable="git">
+		<exec executable="git" errorproperty="giterror" logError="false">
 			<arg value="--git-dir=${jastadd2.basedir}/.git"/>
 			<arg value="--work-tree=${jastadd2.basedir}"/>
 			<arg value="update-index"/>
