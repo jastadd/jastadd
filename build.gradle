@@ -1,0 +1,33 @@
+apply plugin: 'maven'
+
+def getVersion() {
+	ant.property(file: file('src/res/Version.properties'))
+	ant.properties['version']
+}
+
+project.version = getVersion()
+project.group = 'org.jastadd'
+
+configurations {
+	deployerJars
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
+}
+
+artifacts {
+	archives file: file('jastadd2.jar'), name: 'jastadd2', type: 'jar'
+}
+
+uploadArchives {
+	repositories.mavenDeployer {
+		configuration = configurations.deployerJars
+		repository(url: "scp://login.cs.lth.se/cs/jastadd/mvn/")
+	}
+}
+
