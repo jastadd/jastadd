@@ -28,6 +28,25 @@ uploadArchives {
 	repositories.mavenDeployer {
 		configuration = configurations.deployerJars
 		repository(url: "scp://login.cs.lth.se/cs/jastadd/mvn/")
+
+		repositories.mavenDeployer {
+			pom.project {
+				url 'http://jastadd.org'
+					organization {
+						name 'The JastAdd Team'
+							url 'http://jastadd.org'
+					}
+				licenses {
+					license {
+						name 'Modified BSD License'
+							url 'http://opensource.org/licenses/BSD-3-Clause'
+							distribution 'repo'
+					}
+				}
+				scm {
+					url 'https://bitbucket.org/jastadd/jastadd2'
+				}
+			}
+		}
 	}
 }
-
