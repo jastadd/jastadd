@@ -347,16 +347,6 @@ public aspect Attributes {
     return compUnits.iterator();
   }
 
-  public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className, String fileName, String aspectName) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      c.classBodyDecls.add(new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName));
-    } else {
-      error("can not add member to unknown class " + className,
-          fileName, n.firstToken.beginLine);
-    }
-  }
-
   public void Grammar.addMethodDecl(org.jastadd.jrag.AST.SimpleNode n, String className,
       String fileName, String modifiers, String aspectName) {
     TypeDecl c = lookup(className);
@@ -369,21 +359,28 @@ public aspect Attributes {
     }
   }
 
+  public class InterTypeObject {
+    public String className;
+    public ClassBodyObject classBodyObject;
+
+    public InterTypeObject(String name, ClassBodyObject obj) {
+      this.className = name;
+      this.classBodyObject = obj;
+    }
+  }
+
+  public LinkedList<InterTypeObject> Grammar.interTypeObjects = new LinkedList<InterTypeObject>();
+
+  public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className, String fileName, String aspectName) {
+    interTypeObjects.add(new InterTypeObject(className, new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName)));
+  }
+
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className,
       String fileName, String modifiers, String aspectName) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      ClassBodyObject obj = new ClassBodyObject(n, fileName,
-          n.firstToken.beginLine, aspectName);
-      obj.modifiers = modifiers;
-      c.classBodyDecls.add(obj);
-    } else {
-      error("can not add member to unknown class " + className, fileName, n.firstToken.beginLine);
-    }
-    //else {
-      //TypeDecl t = findTypeDecl(className);
-      //t.classBodyDecls.add(new ClassBodyObject(n, fileName, n.firstToken.beginLine));
-    //}
+    ClassBodyObject obj = new ClassBodyObject(n, fileName,
+        n.firstToken.beginLine, aspectName);
+    obj.modifiers = modifiers;
+    interTypeObjects.add(new InterTypeObject(className, obj));
   }
 
   public void Grammar.addInterface(org.jastadd.jrag.AST.SimpleNode nameList, String className, String fileName) {

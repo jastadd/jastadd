@@ -40,7 +40,9 @@ import java.util.ResourceBundle;
 import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Components;
 import org.jastadd.ast.AST.Grammar;
+import org.jastadd.ast.AST.InterTypeObject;
 import org.jastadd.ast.AST.TokenComponent;
+import org.jastadd.ast.AST.TypeDecl;
 
 /**
  * JastAdd main class.
@@ -191,6 +193,10 @@ public class JastAdd {
         return 1;
       }
 
+      if (checkErrors(weaveInterTypeObjects(grammar), err)) {
+        return 1;
+      }
+
       if (checkErrors(grammar.attributeProblems(), err)) {
         return 1;
       }
@@ -280,6 +286,22 @@ public class JastAdd {
         JastAddUtil.parseJRAGSpec(source, grammar, problems);
       }
     }
+    problems.addAll(weaveInterTypeObjects(grammar));
+    return problems;
+  }
+
+  protected static Collection<Problem> weaveInterTypeObjects(Grammar grammar) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    for (InterTypeObject object: grammar.interTypeObjects) {
+      TypeDecl clazz = grammar.lookup(object.className);
+      if (clazz != null) {
+        clazz.classBodyDecls.add(object.classBodyObject);
+      } else {
+        problems.add(new Problem.Error("can not add member to unknown class " + object.className,
+            object.classBodyObject.fileName, object.classBodyObject.line));
+      }
+    }
+    grammar.interTypeObjects.clear();// reset to avoid double weaving (TODO remove this)
     return problems;
   }
 
@@ -308,7 +330,7 @@ public class JastAdd {
         Collection<Problem> problems = JastAddUtil.parseAspectBodyDeclarations(
             new java.io.StringReader(writer.toString()),grammar.config().astNodeType, grammar);
         allProblems.addAll(problems);
-        
+
         int j = 0;
         for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
           Components c = (Components) iter.next();

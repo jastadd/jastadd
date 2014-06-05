@@ -1,3 +1,9 @@
+2014-06-05  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Delay processing of inter-type declarations until after parsing all
+    Jrag specification files. This allows aspect-declared classes to be
+    parsed after inter-type declarations that weave objects into them.
+
 2014-02-28  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Build script now handles absence of git a bit better.

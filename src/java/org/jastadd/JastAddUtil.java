@@ -237,6 +237,7 @@ public class JastAddUtil {
     jp.pushTopLevelOrAspect(true);
     try {
       jp.AspectBodyDeclarationsEOF();
+      problems.addAll(JastAdd.weaveInterTypeObjects(grammar));
     } catch (org.jastadd.jrag.AST.ParseException e) {
       problems.add(new Problem.Error("Internal Error in " + sourceName + ": " + e.getMessage()));
     }
