@@ -3,6 +3,10 @@
     * Delay processing of inter-type declarations until after parsing all
     Jrag specification files. This allows aspect-declared classes to be
     parsed after inter-type declarations that weave objects into them.
+    * Removed obsolete aspect "sons" declaration
+    * JastAdd no longer strips modifiers from aspect interface declarations
+    * JastAdd no longer removes static or adds public modifier to aspect
+    class declarations
 
 2014-02-28  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
