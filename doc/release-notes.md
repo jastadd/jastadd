@@ -1,6 +1,32 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.7 - 2014-06-10
+------------------
+
+### Code Generation
+
+* JastAdd now generates annotations for children, tokens and attributes
+  (`@Child`, `@ListChild`, `@OptChild`, `@Token`, `@Attribute`).
+
+* Removed obsolete aspect "sons" declaration.
+
+* JastAdd no longer strips modifiers from aspect interface declarations.
+
+* JastAdd no longer removes static or adds public modifier to aspect class
+  declarations.
+
+### Bug Fixes
+
+* Fixed regression introduced in 2.1.6 which caused circular collection
+  attributes to crash JastAdd.
+
+* Fixed some cases where the order of parsing aspect files could produce
+  different results.
+
+### Miscellaneous
+
+
 2.1.6 - 2013-11-29
 ------------------
 
