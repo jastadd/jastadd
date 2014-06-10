@@ -33,7 +33,7 @@ public static class Trace {
   /**
    * Trace filter interface used to filter the list of collected trace class.
    */
-  public static interface Filter {
+  public interface Filter {
     public boolean include($ASTNode$$State.Trace.Entry e);
     public String desc();
   }
@@ -43,7 +43,7 @@ public static class Trace {
    *
    * Use it together with the method $ASTNode$$State.Trace.process($ASTNode$$State.Trace.Processor).
    */
-  public static interface Processor {
+  public interface Processor {
     public void process($ASTNode$$State.Trace.Entry e);
   }
 
