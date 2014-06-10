@@ -24,9 +24,6 @@ JastAdd2 Release Notes
 * Fixed some cases where the order of parsing aspect files could produce
   different results.
 
-### Miscellaneous
-
-
 2.1.6 - 2013-11-29
 ------------------
 
