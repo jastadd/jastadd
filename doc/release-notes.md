@@ -1,6 +1,14 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.8 - 2014-06-11
+------------------
+
+### Bug Fixes
+
+* Fixed regression introduced in 2.1.7 which made JastAdd generate faulty
+  Java code for some tracing interfaces
+
 2.1.7 - 2014-06-10
 ------------------
 
