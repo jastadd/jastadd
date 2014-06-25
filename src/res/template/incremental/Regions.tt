@@ -102,13 +102,13 @@ ASTDecl.trackGetChildForRegionMethod = [[
  * @apilevel low-level
  */
  // Overloading getChild for region leaf
-$if (Java5)
+$if(IsListOrOpt)
 public T #name.getChild(int i) {
   $ASTNode child = super.getChild(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
     child.handler().addDependant(handler());
   }
-  return (T)child;
+  return (T) child;
 }
 $else
 public $ASTNode #name.getChild(int i) {
@@ -127,13 +127,13 @@ ASTDecl.trackGetChildNoTranForRegionMethod = [[
  * @apilevel low-level
  */
  // Overloading getChildNoTransform for region leaf
-$if (Java5)
+$if(IsListOrOpt)
 public T #name.getChildNoTransform(int i) {
   $ASTNode child = super.getChildNoTransform(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
     child.handler().addDependant(handler());
   }
-  return (T)child;
+  return (T) child;
 }
 $else
 public $ASTNode #name.getChildNoTransform(int i) {
@@ -144,6 +144,4 @@ public $ASTNode #name.getChildNoTransform(int i) {
   return child;
 }
 $endif
-
-
 ]]

@@ -182,6 +182,7 @@ aspect IncrementalDDG {
       }
       if (isRegionLeaf()) {
         if (isListDecl() || isOptDecl() || !isASTNodeDecl()) {
+          tt.bind("IsListOrOpt", isListDecl() || isOptDecl());
           tt.expand("ASTDecl.trackGetChildForRegionMethod", out);
           tt.expand("ASTDecl.trackGetChildNoTranForRegionMethod", out);
         }
