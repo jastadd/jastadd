@@ -417,8 +417,9 @@ if (#(signature)_computed && #(signature)_value.isRegionRoot()) {
   state().addHandlerDepTo(#(signature)_value.handler());
 }
 $else
-if (#(signature)_values.containsKey(_parameters) && (($ASTNode) #(signature)_values.get(_parameters)).isRegionRoot()) {
-  state().addHandlerDepTo((($ASTNode) #(signature)_values.get(_parameters)).handler());
+$ASTNode node$$Value = ($ASTNode) #(signature)_values.get(_parameters);
+if (node$$Value != null && node$$Value.isRegionRoot()) {
+  state().addHandlerDepTo(node$$Value.handler());
 }
 $endif
 $endif
@@ -524,7 +525,7 @@ $endif
 $if(IncrementalLevelRegion)
 state().IN_COMPUTATION--;
 $if(#getNTA)
-if (#(signature)_value.isRegionRoot()) {
+if (#(signature)_value != null && #(signature)_value.isRegionRoot()) {
   $DDGNodeName nodeHandler = handler();
   nodeHandler.addDependant(#(signature)_value.handler());
   #(signature)_value.handler().addDependant(nodeHandler);
