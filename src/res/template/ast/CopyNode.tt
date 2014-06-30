@@ -64,7 +64,7 @@ ASTDecl.emitFullCopy = [[
    * The copy is dangling, i.e. has no parent.
    * @return dangling copy of the subtree at this node
    * @apilevel low-level
-   * @deprecated Please use emitTreeCopy or emitTreeCopyNoTransform instead
+   * @deprecated Please use treeCopy or treeCopyNoTransform instead
    */
   #annotations
 $if(#hasAbstract)
