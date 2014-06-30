@@ -452,7 +452,7 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
   $if (!IsStringToken)
   $if (!#isPrimitive)
   if (token$(TypeInSignature)_$Id instanceof $ASTNode && token$(TypeInSignature)_$(Id).isRegionRoot()) {
-    token$(TypeInSignature)_$(Id).handler.flushRegion();
+    token$(TypeInSignature)_$(Id).handler().flushRegion();
   }
   $endif
   $endif
