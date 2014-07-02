@@ -149,7 +149,12 @@ $else
 $endif
 ]]
 
+#
 # ASTNode.clone()
+#
+# NOTE: We should not invoke node.flushCache() since this methods can invoke
+#       flushRewriteCache(), which should not be called during cloning.
+#       This is tested in the test case flush/flushRewriteAndTreeCopy01.
 ASTDecl.emitCloneNode = [[
   /**
    * @apilevel internal
@@ -161,10 +166,10 @@ ASTDecl.emitCloneNode = [[
     $if(#isASTNodeDecl)
 $if(RewriteEnabled)
     if (node.is$$Final()) {
-      node.flushCache();
+      node.flushAttrAndCollectionCache();
     }
 $else
-    node.flushCache();
+    node.flushAttrAndCollectionCache();
 $endif
     $endif
     return node;

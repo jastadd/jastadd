@@ -32,6 +32,7 @@ aspect Flush {
 
     tt.expand("ASTNode.flushTreeCacheMethod", out);
     tt.expand("ASTDecl.flushCacheMethod", out);
+    tt.expand("ASTDecl.flushAttrAndCollectionCacheMethod", out);
 
     // TODO: Figure out if flushing of NTAs are missing when this is excluded
     //tt.bind("FlushNTACache", emitFlushNTACacheString());

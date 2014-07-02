@@ -65,6 +65,22 @@ $if(#isASTNodeDecl)
     $if(FlushRewrite)
     flushRewriteCache();
     $endif
+    flushAttrAndCollectionCache();
+    $SynchEnd
+  }
+$endif
+$endif
+]]
+
+
+ASTDecl.flushAttrAndCollectionCacheMethod = [[
+$if(FlushEnabled)
+$if(#isASTNodeDecl)
+  /**
+    * @apilevel internal
+    */
+  public void #name.flushAttrAndCollectionCache() {
+    $SynchBegin
     $if(FlushAttr)
     flushAttrCache();
     $endif
