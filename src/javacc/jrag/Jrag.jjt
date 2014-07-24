@@ -885,6 +885,7 @@ void AspectMethodDeclarationLookahead() :
 {}
 {
   Modifiers()
+  [ TypeParameters() ]
   ResultType() <IDENTIFIER> "." <IDENTIFIER> "("
 }
 
@@ -892,6 +893,7 @@ void AspectMethodDeclaration() :
 {Token t;}
 {
   Modifiers()
+  [ TypeArguments() ]
   ResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
   ( Block() | ";" ) {
     root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect);
@@ -2033,7 +2035,7 @@ void PrimarySuffix() :
   "." AllocationExpression()
 |
   LOOKAHEAD(3)
-  MemberSelector()
+  "." TypeArguments() <IDENTIFIER>
 |
   "[" Expression() "]"
 |

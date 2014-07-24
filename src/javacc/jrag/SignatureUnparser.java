@@ -75,8 +75,13 @@ public class SignatureUnparser implements JragParserVisitor {
     return "";
   }
   public Object visit(ASTAspectMethodDeclaration node, Object data) {
-    // AspectMethodDeclaration = ResultType MethodDeclarator() Block()
-    return node.jjtGetChild(1).jjtAccept(this, data);
+    // AspectMethodDeclaration = Modifiers() [ TypeArguments() ] ResultType() MethodDeclarator() [ Block() ]
+    for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
+      if (node.jjtGetChild(i) instanceof ASTMethodDeclarator) {
+        return node.jjtGetChild(i).jjtAccept(this, data);
+      }
+    }
+    return "";
   }
   public Object visit(ASTAspectRefineMethodDeclarationLookahead node, Object data) {
     return "";
