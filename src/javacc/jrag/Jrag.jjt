@@ -893,7 +893,7 @@ void AspectMethodDeclaration() :
 {Token t;}
 {
   Modifiers()
-  [ TypeArguments() ]
+  [ TypeParameters() ]
   ResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
   ( Block() | ";" ) {
     root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect);
