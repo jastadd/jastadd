@@ -225,12 +225,6 @@ public class Configuration {
   public boolean noStatic = false;
 
   /**
-   * Deterministic flag.
-   * TODO review this option!
-   */
-  public boolean deterministic = false;
-
-  /**
    * The package name for the generated AST classes.
    */
   public String packageName = "";
@@ -799,17 +793,6 @@ public class Configuration {
     }
   };
 
-  Option deterministicOption = new Option(
-      "deterministic", "") {
-    @Override
-    public void onMatch() {
-      deterministic = true;
-      // overrides values set by the defaultMap and defaultSet options
-      createDefaultMap = "new java.util.LinkedHashMap(4)";
-      createDefaultSet = "new java.util.LinkedHashSet(4)";
-    }
-  };
-
   ValueOption oOption = new ValueOption(
       "o", "optional base output directory, default is current directory") {
     @Override
@@ -1194,7 +1177,6 @@ public class Configuration {
     argParser.addOption(debugOption);
     argParser.addOption(synchOption);
     argParser.addOption(noStaticOption);
-    argParser.addOption(deterministicOption);
     argParser.addOption(oOption);
     argParser.addOption(tracingOption);
     argParser.addOption(flushOption);
@@ -1265,7 +1247,6 @@ public class Configuration {
     tt.bind("NoStatic", noStatic);
     tt.bind("DebugMode", debugMode);
     tt.bind("MinListSize", "" + minListSize);
-    tt.bind("Deterministic", deterministic);
     tt.bind("LazyMaps", lazyMaps);
     tt.bind("CircularEnabled", circularEnabled);
     tt.bind("ComponentCheck", componentCheck);

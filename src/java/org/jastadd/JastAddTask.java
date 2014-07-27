@@ -211,10 +211,6 @@ public class JastAddTask extends Task {
     setOption(config.stagedRewritesOption, enable);
   }
 
-  public void setDeterministic(boolean enable) {
-    setOption(config.deterministicOption, enable);
-  }
-
   public void setTracing(String arg) {
     setOption(config.tracingOption, arg);
   }
