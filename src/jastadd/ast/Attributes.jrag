@@ -78,7 +78,7 @@ public aspect Attributes {
       String childName,
       String aspectName) {
 
-    if (!config().rewriteEnabled) {
+    if (!config().rewriteEnabled()) {
       error("can not use rewrites while rewrites are disabled (enable with --rewrite=true)",
           fileName, startLine);
       return;
@@ -115,7 +115,7 @@ public aspect Attributes {
       int endLine,
       String aspectName) {
 
-    if (!config().rewriteEnabled) {
+    if (!config().rewriteEnabled()) {
       error("can not use rewrites while rewrites are disabled (enable with --rewrite=true)",
           fileName, startLine);
       return;
@@ -520,7 +520,7 @@ public aspect Attributes {
         SynEq refinedDecl = null;
         for (Iterator outerIter = replacedSynEqs.iterator(); outerIter.hasNext(); ) {
           SynEq refinedCandidate = (SynEq)outerIter.next();
-          boolean legacyCondition = config().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.replacesAspect) : false;
+          boolean legacyCondition = config().refineLegacy() ? decl.legacyAspectName().equals(refinedCandidate.replacesAspect) : false;
           if (decl.signature().equals(refinedCandidate.signature())
              && (decl.aspectName().equals(refinedCandidate.replacesAspect) || legacyCondition)) {
             change = true;
@@ -563,7 +563,7 @@ public aspect Attributes {
         SynEq refinedEqu = null;
         for (Iterator outerIter = refinedSynEqs.iterator(); outerIter.hasNext(); ) {
           SynEq refinedCandidate = (SynEq)outerIter.next();
-          boolean legacyCondition = config().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+          boolean legacyCondition = config().refineLegacy() ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
           if (equ.signature().equals(refinedCandidate.signature())
              && (equ.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
@@ -617,7 +617,7 @@ public aspect Attributes {
     refinedEqu.getRHS().jjtAccept(new ClassBodyDeclUnparser(), s);
 
     String pattern = "\\brefined\\b";
-    if (config().refineLegacy) {
+    if (config().refineLegacy()) {
       StringBuffer buf = new StringBuffer();
       buf.append("(");
       buf.append(pattern);
@@ -681,7 +681,7 @@ public aspect Attributes {
         InhEq refinedEqu = null;
         for (Iterator outerIter = refinedInhEqs.iterator(); outerIter.hasNext(); ) {
           InhEq refinedCandidate = (InhEq)outerIter.next();
-          boolean legacyCondition = config().refineLegacy ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+          boolean legacyCondition = config().refineLegacy() ? equ.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
           if (equ.signature().equals(refinedCandidate.signature()) &&
              equ.childName().equals(refinedCandidate.childName()) &&
              (equ.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
@@ -744,7 +744,7 @@ public aspect Attributes {
     refinedEqu.getRHS().jjtAccept(new ClassBodyDeclUnparser(), s);
 
     String pattern = "refined\\(";
-    if (config().refineLegacy)
+    if (config().refineLegacy())
       pattern = "(" + pattern + ")|("
       + equ.legacyAspectName() + "\\." + "[a-zA-Z0-9]+" + "\\.get"
       + equ.childName() + "\\([^\\)]*\\)\\." + equ.name() + "\\("
@@ -815,7 +815,7 @@ public aspect Attributes {
         for (Iterator outerIter = refinedClassBodyDecls.iterator(); outerIter.hasNext(); ) {
           ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
 
-          boolean legacyCondition = config().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
+          boolean legacyCondition = config().refineLegacy() ? decl.legacyAspectName().equals(refinedCandidate.refinesAspect) : false;
           if (decl.signature().equals(refinedCandidate.signature())
              && (decl.aspectName().equals(refinedCandidate.refinesAspect) || legacyCondition)) {
             change = true;
@@ -853,7 +853,7 @@ public aspect Attributes {
         ClassBodyObject refinedDecl = null;
         for (Iterator outerIter = replacements.iterator(); outerIter.hasNext(); ) {
           ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
-          boolean legacyCondition = config().refineLegacy ? decl.legacyAspectName().equals(refinedCandidate.replaceAspect) : false;
+          boolean legacyCondition = config().refineLegacy() ? decl.legacyAspectName().equals(refinedCandidate.replaceAspect) : false;
           if (decl.signature().equals(refinedCandidate.signature())
              && (decl.aspectName().equals(refinedCandidate.replaceAspect) || legacyCondition)) {
             change = true;
@@ -931,7 +931,7 @@ public aspect Attributes {
                 String s = buf.toString();
 
                 String pattern = "\\brefined\\b";
-                if (config().refineLegacy) {
+                if (config().refineLegacy()) {
                   buf = new StringBuffer();
                   buf.append("(");
                   buf.append(pattern);
@@ -1034,7 +1034,7 @@ public aspect Attributes {
             node.jjtAccept(new ClassBodyDeclUnparser(), buf);
             String s = buf.toString();
             String pattern = "\\brefined\\b";
-            if (config().refineLegacy) {
+            if (config().refineLegacy()) {
               buf = new StringBuffer();
               buf.append("(");
               buf.append(pattern);
@@ -1162,12 +1162,12 @@ public aspect Attributes {
     "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
 
   syn String AttrDecl.interfaceParametersDecl() =
-    config().astNodeType + " caller, " + config().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
+    config().astNodeType() + " caller, " + config().astNodeType() + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
 
   syn String AttrEq.interfaceParameters() = "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
 
   syn String AttrEq.interfaceParametersDecl() =
-    config().astNodeType + " caller, " + config().astNodeType + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
+    config().astNodeType() + " caller, " + config().astNodeType() + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
 
   public org.jastadd.jrag.AST.SimpleNode Rewrite.condition;
   public org.jastadd.jrag.AST.SimpleNode Rewrite.getCondition() {

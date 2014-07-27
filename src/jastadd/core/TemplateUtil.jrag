@@ -74,7 +74,7 @@ aspect TemplateUtil {
     loadTemplates(tt, "flush/FlushHooks");
     loadTemplates(tt, "flush/FlushRewrite");
 
-    if (config().incremental) {
+    if (config().incremental()) {
       loadTemplates(tt, "incremental/DDGNodeCopy");
       loadTemplates(tt, "incremental/Debug");
       loadTemplates(tt, "incremental/Notification");

@@ -32,7 +32,7 @@
 aspect IncrementalEval {
 
   public void ASTDecl.genIncremental(PrintWriter out) {
-    if (!config().incremental) return;
+    if (!config().incremental()) return;
 
     TemplateContext tt = templateContext();
 

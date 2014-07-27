@@ -776,7 +776,7 @@ void AspectInterfaceSynAttributeDeclaration() :
   ";" { last = token; }
   {
     root.addSynDecl(attrName.image, attrType, className,
-        (root.config().cacheImplicit || isLazy),
+        (root.config().cacheImplicit() || isLazy),
         fileName, first.beginLine, last.endLine, list,
         (ASTExpression) bottomValue, isFinal, false, jjtThis,
         enclosingAspect, annotations);
@@ -823,7 +823,7 @@ void AspectInterfaceInhAttributeDeclaration() :
   {
     last = token;
     root.addInhDecl(attrName.image, attrType, className,
-        (root.config().cacheImplicit || isLazy), fileName, first.beginLine,
+        (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
         last.endLine, list, (ASTExpression) bottomValue, isFinal,
         false, jjtThis, enclosingAspect, annotations);
   }
@@ -1037,7 +1037,7 @@ void AspectSynAttributeDeclaration() :
 
   {
     root.addSynDecl(attrName.image, attrType, targetName,
-        (root.config().cacheImplicit || isLazy), fileName, first.beginLine,
+        (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
         last.endLine, list, (ASTExpression) bottomValue, isFinal,
         isNTA, jjtThis, enclosingAspect, annotations);
 
@@ -1090,7 +1090,7 @@ void AspectInhAttributeDeclaration() :
   {
     last = token;
     root.addInhDecl(attrName.image, attrType, targetName,
-        (root.config().cacheImplicit || isLazy), fileName, first.beginLine,
+        (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
         last.endLine, list, (ASTExpression) bottomValue, isFinal, isNTA,
         jjtThis, enclosingAspect, annotations);
   }

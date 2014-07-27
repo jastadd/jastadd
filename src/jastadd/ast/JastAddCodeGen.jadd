@@ -214,8 +214,8 @@ aspect JastAddCodeGen {
       }
 
       // TODO move to template
-      if (!config().packageName.isEmpty()) {
-        stream.println("package " + config().packageName + ";\n");
+      if (!config().packageName().isEmpty()) {
+        stream.println("package " + config().packageName() + ";\n");
       }
 
       stream.print(grammar().genImportsList());
@@ -262,8 +262,8 @@ aspect JastAddCodeGen {
       }
 
       // TODO move to template
-      if (!config().packageName.isEmpty()) {
-        stream.println("package " + config().packageName + ";\n");
+      if (!config().packageName().isEmpty()) {
+        stream.println("package " + config().packageName() + ";\n");
       }
 
       stream.print(grammar().genImportsList());
@@ -287,8 +287,8 @@ aspect JastAddCodeGen {
       }
 
       // TODO move to template
-      if (!config().packageName.isEmpty()) {
-        stream.println("package " + config().packageName + ";\n");
+      if (!config().packageName().isEmpty()) {
+        stream.println("package " + config().packageName() + ";\n");
       }
 
       stream.print(grammar().genImportsList());
@@ -337,8 +337,8 @@ aspect JastAddCodeGen {
       }
 
       // TODO move to template
-      if (!config().packageName.isEmpty()) {
-        stream.println("package " + config().packageName + ";\n");
+      if (!config().packageName().isEmpty()) {
+        stream.println("package " + config().packageName() + ";\n");
       }
 
       stream.print(grammar().genImportsList());
@@ -349,21 +349,21 @@ aspect JastAddCodeGen {
         stream.print("abstract ");
       }
       stream.print("class " + name());
-      if (config().java5 && (isOptDecl() || isListDecl() || isASTNodeDecl())) {
-        stream.print("<T extends " + config().astNodeType + ">");
+      if (config().java5() && (isOptDecl() || isListDecl() || isASTNodeDecl())) {
+        stream.print("<T extends " + config().astNodeType() + ">");
       }
-      if (config().jjtree && isASTNodeDecl()) {
+      if (config().jjtree() && isASTNodeDecl()) {
         stream.print(" extends SimpleNode ");
-      } else if (config().useBeaverSymbol && isASTNodeDecl()) {
+      } else if (config().useBeaverSymbol() && isASTNodeDecl()) {
         stream.print(" extends beaver.Symbol ");
       } else if (hasSuperClass()) {
         stream.print(" extends ");
         String name = getSuperClass().name();
-        if (config().java5) {
+        if (config().java5()) {
           if (isListDecl() || isOptDecl()) {
             name = name + "<T>";
-          } else if (name.equals(config().astNodeType)) {
-            name = name + "<" + config().astNodeType + ">";
+          } else if (name.equals(config().astNodeType())) {
+            name = name + "<" + config().astNodeType() + ">";
           }
         }
         stream.print(name);
@@ -400,7 +400,7 @@ aspect JastAddCodeGen {
       buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
     }
 
-    if (isASTNodeDecl() && config().java5) {
+    if (isASTNodeDecl() && config().java5()) {
       buf.append(", Iterable<T>");
     }
     return buf.toString();
@@ -424,7 +424,7 @@ aspect JastAddCodeGen {
     emitSynEquations(out);
     emitInhDeclarations(out);
     emitInhEquations(out);
-    if (config().rewriteEnabled) {
+    if (config().rewriteEnabled()) {
       emitRewrites(out);
     }
     emitCollDecls(out);

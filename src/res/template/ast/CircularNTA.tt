@@ -26,7 +26,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ASTDecl.emitIsEqualMethods = [[
-$if(CircularEnabled)
 $if(#isASTNodeDecl)
   /**
    * @apilevel internal
@@ -61,5 +60,4 @@ $else
     return super.is$$Equal(node) $IsEqualBody;    
 $endif
   }
-$endif
 ]]

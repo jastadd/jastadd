@@ -30,8 +30,8 @@ package org.jastadd.option;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Parses command-line arguments based on a set of options.
@@ -41,16 +41,27 @@ import java.util.HashMap;
  */
 public class ArgumentParser {
 
-  private final Map<String,Option> options = new HashMap<String,Option>();
+  private final Map<String,Option<?>> options = new HashMap<String,Option<?>>();
   private final Collection<String> filenames = new ArrayList<String>();
 
   /**
    * Add a command-line option.
    * @param option
    */
-  public void addOption(Option option) {
+  public void addOption(Option<?> option) {
     String name = (Option.PREFIX + option.name).toLowerCase();
     options.put(name, option);
+  }
+
+  /**
+   * Add a collection of command-line options.
+   * @param additionalOptions
+   */
+  public void addOptions(Collection<Option<?>> additionalOptions) {
+    for (Option<?> option: additionalOptions) {
+      String name = (Option.PREFIX + option.name).toLowerCase();
+      options.put(name, option);
+    }
   }
 
   /**
@@ -63,7 +74,7 @@ public class ArgumentParser {
     while (i < args.length) {
       String arg = args[i].toLowerCase();
       if (arg.startsWith(Option.PREFIX)) {
-        Option option = null;
+        Option<?> option = null;
         int sep = args[i].indexOf(Option.VALUE_SEPARATOR);
         if (sep != -1) {
           String namePart = arg.substring(0, sep);
@@ -98,7 +109,7 @@ public class ArgumentParser {
    * @param out The output stream to print descriptions to.
    */
   public void printHelp(PrintStream out) {
-    for (Option option: options.values()) {
+    for (Option<?> option: options.values()) {
       if (!option.isNonStandard && !option.isDeprecated) {
         option.printHelp(out);
       }
@@ -110,7 +121,7 @@ public class ArgumentParser {
    * @param out The output stream to print descriptions to.
    */
   public void printNonStandardOptions(PrintStream out) {
-    for (Option option: options.values()) {
+    for (Option<?> option: options.values()) {
       if (option.isNonStandard) {
         option.printHelp(out);
       }

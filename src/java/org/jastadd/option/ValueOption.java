@@ -39,7 +39,7 @@ import java.util.StringTokenizer;
  *
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
  */
-public class ValueOption extends Option {
+public class ValueOption extends Option<String> {
 
   /**
    * Additional description to be printed after the value descriptions.
@@ -56,8 +56,19 @@ public class ValueOption extends Option {
    */
   protected boolean needsValue = true;
 
-  private Set<String> acceptedValues = new LinkedHashSet<String>();
-  private Collection<String[]> valueDescriptions = new LinkedList<String[]>();
+  /**
+   * The user must input one of the allowed values, other values not
+   * permitted. If restricted is {@code false}, then any value is
+   * permitted.
+   */
+  protected boolean restricted = true;
+
+  private final Set<String> acceptedValues = new LinkedHashSet<String>();
+  private final Collection<String[]> valueDescriptions = new LinkedList<String[]>();
+
+  private final Collection<String> values = new LinkedList<String>();
+
+  private final Collection<String> defaultValues = new LinkedList<String>();
 
   /**
    * Create a new option.
@@ -69,34 +80,86 @@ public class ValueOption extends Option {
     super(optionName, description);
   }
 
+  public ValueOption defaultValue(String defaultValue) {
+    addDefaultValue(defaultValue, "");
+    return this;
+  }
+
+  /**
+   * @param needsValue
+   * @return self
+   */
+  public ValueOption needsValue(boolean needsValue) {
+    this.needsValue = needsValue;
+    return this;
+  }
+
+  /**
+   * @return self
+   */
+  public ValueOption unrestricted() {
+    restricted = false;
+    return this;
+  }
+
+  /**
+   * @param multipleValues
+   * @return self
+   */
+  public ValueOption acceptMultipleValues(boolean multipleValues) {
+    this.acceptsMultipleValues = multipleValues;
+    return this;
+  }
+
   @Override
   public void matchWithoutArg(PrintStream err) {
     if (needsValue) {
       err.println("Warning: Missing value for option " + name);
     }
-    doMatch(err);
+    onMatch(err);
   }
 
   @Override
   public void matchWithArg(PrintStream err, String arg) {
-    doMatch(err, arg);
+    onMatch(err, arg);
   }
 
   @Override
   public int matchWithSeparateArg(PrintStream err, String arg) {
-    doMatch(err, arg);
+    onMatch(err, arg);
     return 1;
+  }
+
+  @Override
+  protected String description() {
+    if (defaultValues.isEmpty()) {
+      return description;
+    } else {
+      StringBuilder desc = new StringBuilder();
+      desc.append(description);
+      desc.append(" (default=\'");
+      boolean first = true;
+      for (String value: defaultValues) {
+        if (!first) {
+          desc.append(",");
+        }
+        first = false;
+        desc.append(value);
+      }
+      desc.append("\')");
+      return desc.toString();
+    }
   }
 
   @Override
   protected void printDescription(PrintStream out) {
     super.printDescription(out);
-    if (!acceptedValues.isEmpty()) {
+    if (restricted && !acceptedValues.isEmpty()) {
       printIndent(out, TAB_2);
       out.println(
           (needsValue ? "requires " : "accepts ") +
           (acceptsMultipleValues ? "some" : "one" ) +
-           " of the following" + (needsValue ? " " : " optional") + " values:");
+           " of the following" + (needsValue ? "" : " optional") + " values:");
       for (String[] s : valueDescriptions) {
         printIndent(out, TAB_3);
         String value = "'" + s[0] + "'";
@@ -107,7 +170,7 @@ public class ValueOption extends Option {
     }
     if (!additionalDescription.isEmpty()) {
       printIndent(out, TAB_2);
-      printDescription(out, additionalDescription, TAB_2);      
+      printDescription(out, additionalDescription, TAB_2);
     }
   }
 
@@ -118,33 +181,75 @@ public class ValueOption extends Option {
    *
    * @param value The name of the value
    * @param desc The description of the value
+   * @return self
    */
-  public void addAcceptedValue(String value, String desc) {
+  public ValueOption addDefaultValue(String value, String desc) {
     acceptedValues.add(value);
     valueDescriptions.add(new String[]{value, desc});
+    values.add(value);
+    defaultValues.add(value);
+    return this;
+  }
+
+  /**
+   * Adds an accepted value.
+   *
+   * For options which support a set of values.
+   *
+   * @param value The name of the value
+   * @param desc The description of the value
+   * @return self
+   */
+  public ValueOption addAcceptedValue(String value, String desc) {
+    acceptedValues.add(value);
+    valueDescriptions.add(new String[]{value, desc});
+    return this;
+  }
+
+  /**
+   * Set an additional description text for this option.
+   * @param desc additional description text
+   * @return self
+   */
+  public ValueOption additionalDescription(String desc) {
+    additionalDescription = desc;
+    return this;
+  }
+
+  @Override
+  protected void onMatch(PrintStream out) {
+    reportWarnings(out);
+    values.clear();
+    isMatched = true;
   }
 
   /**
    * Match the option with argument.
    */
-  protected final void doMatch(PrintStream out, String arg) {
+  protected final void onMatch(PrintStream out, String arg) {
     reportWarnings(out);
 
-    StringTokenizer tokenizer = new StringTokenizer(arg, ",");
-    boolean first = true;
-    while (tokenizer.hasMoreTokens()) {
-      if (!first && !acceptsMultipleValues) {
-        out.println("Warning: too many values given to option '" + name +
-            "'. The extraneous values will be ignored!");
-        break;
+    values.clear();
+
+    if (restricted) {
+      StringTokenizer tokenizer = new StringTokenizer(arg, ",");
+      boolean first = true;
+      while (tokenizer.hasMoreTokens()) {
+        if (!first && !acceptsMultipleValues) {
+          out.println("Warning: too many values given to option '" + name +
+              "'. The extraneous values will be ignored!");
+          break;
+        }
+        first = false;
+        String value = tokenizer.nextToken();
+        reportWarnings(out, value);
+        values.add(value);
       }
-      first = false;
-      String value = tokenizer.nextToken();
-      reportWarnings(out, value);
-      onMatch(value);
+    } else {
+      values.add(arg);
     }
 
-    alreadyMatched = true;
+    isMatched = true;
   }
 
   /**
@@ -164,12 +269,34 @@ public class ValueOption extends Option {
   }
 
   /**
-   * Called when this option is matched with argument.
-   *
-   * Override this method to handle the option.
-   *
-   * @param arg The argument given for the option.
+   * Returns only the first value if there are multiple values.
    */
-  public void onMatch(String arg) {
+  @Override
+  public String value() {
+    if (!values.isEmpty()) {
+      return values.iterator().next();
+    } else {
+      return "";
+    }
+  }
+
+  /**
+   * @param query
+   * @return {@code true} if the given value was set
+   */
+  public boolean hasValue(String query) {
+    for (String value: values) {
+      if (query.equals(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @return Number of values for this option
+   */
+  public int numValues() {
+    return values.size();
   }
 }

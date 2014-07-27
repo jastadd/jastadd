@@ -33,7 +33,7 @@ aspect IncrementalDebug {
    * dumping cached values and dummping of DDG dependencies.
    */
   public void ASTDecl.genIncrementalDebug(PrintWriter out) {
-    if (!config().incrementalDebug) return;
+    if (!config().incrementalDebug()) return;
     TemplateContext tt = templateContext();
     tt.expand("ASTDecl.relativeNodeIDMethod", out);
     tt.expand("ASTDecl.printParamListMethod", out);
@@ -89,7 +89,7 @@ aspect IncrementalDebug {
   public String ASTDecl.genDumpTokenDepsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    if (config().incrementalLevelParam || config().incrementalLevelAttr) {
+    if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       for (Iterator iter = getComponents(); iter.hasNext(); ) {
         Components c = (Components)iter.next();
         if (c instanceof TokenComponent && !c.isNTA()) {

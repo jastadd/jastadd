@@ -307,7 +307,7 @@ public class JastAdd {
 
   private Collection<Problem> readCacheFiles(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    if (!(grammar.config().cacheConfig || grammar.config().cacheImplicit)) {
+    if (!(grammar.config().cacheConfig() || grammar.config().cacheImplicit())) {
       return problems;
     }
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
@@ -328,7 +328,7 @@ public class JastAdd {
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 
         Collection<Problem> problems = JastAddUtil.parseAspectBodyDeclarations(
-            new java.io.StringReader(writer.toString()),grammar.config().astNodeType, grammar);
+            new java.io.StringReader(writer.toString()),grammar.config().astNodeType(), grammar);
         allProblems.addAll(problems);
 
         int j = 0;
@@ -355,11 +355,11 @@ public class JastAdd {
   }
 
   private Collection<Problem> genIncrementalDDGNode(Grammar grammar) {
-    if (grammar.config().incremental) {
+    if (grammar.config().incremental()) {
       java.io.StringWriter writer = new java.io.StringWriter();
       grammar.genIncrementalDDGNode(new PrintWriter(writer));
       return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
-          grammar.config().astNodeType, grammar);
+          grammar.config().astNodeType(), grammar);
     }
     return new LinkedList<Problem>();
   }
@@ -368,7 +368,7 @@ public class JastAdd {
     java.io.StringWriter writer = new java.io.StringWriter();
     grammar.emitASTNode$State(new PrintWriter(writer));
     return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
-        grammar.config().astNodeType + "$State", grammar);
+        grammar.config().astNodeType() + "$State", grammar);
   }
 
   @SuppressWarnings("unused")

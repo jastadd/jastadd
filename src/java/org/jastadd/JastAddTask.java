@@ -31,6 +31,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
+import org.jastadd.option.FlagOption;
 import org.jastadd.option.Option;
 
 import java.io.*;
@@ -43,21 +44,19 @@ public class JastAddTask extends Task {
 
   private final Configuration config = new Configuration();
 
-  private void setOption(Option option, boolean enable) {
-    if (option.isDeprecated()) {
-      System.err.println("Warning: the option " + option.name() +
-          " is deprecated!");
-    }
-    if (enable) {
-      option.matchWithoutArg(System.err);
+  private void setOption(Option<?> option, boolean value) {
+    if (option instanceof FlagOption) {
+      if (value) {
+        option.matchWithoutArg(System.err);
+      } else {
+        option.reportWarnings(System.err);
+      }
+    } else {
+      option.matchWithArg(System.err, ""+value);
     }
   }
 
-  private void setOption(Option option, String value) {
-    if (option.isDeprecated()) {
-      System.err.println("Warning: the option " + option.name() +
-          " is deprecated!");
-    }
+  private void setOption(Option<?> option, String value) {
     option.matchWithArg(System.err, value);
   }
 
@@ -108,11 +107,11 @@ public class JastAddTask extends Task {
   }
 
   public void setPackage(String arg) {
-    setOption(config.packageOption, arg);
+    setOption(config.packageNameOption, arg);
   }
 
   public void setOutdir(String arg) {
-    setOption(config.oOption, arg);
+    setOption(config.outputDirOption, arg);
   }
 
   public void setDefaultMap(String arg) {
@@ -127,44 +126,36 @@ public class JastAddTask extends Task {
     setOption(config.lazyMapsOption, enable);
   }
 
+  public void setNoLazyMaps(boolean enable) {
+    setOption(config.noLazyMapsOption, enable);
+  }
+
   public void setRewrite(String arg) {
-    if (arg.equals("true") || arg.equals("yes") || arg.equals("on")) {
-      setOption(config.rewriteOption, true);
-    } else if (arg.equals("false") || arg.equals("yes") || arg.equals("on")) {
-      setOption(config.rewriteOption, false);
-    } else {
-      setOption(config.rewriteOption, arg);
-    }
+    setOption(config.rewriteOption, arg);
+  }
+
+  public void setVisitCheck(boolean enable) {
+    setOption(config.visitCheckOption, enable);
   }
 
   public void setNovisitcheck(boolean enable) {
     setOption(config.noVisitCheckOption, enable);
   }
 
-  public void setVisitCheck(boolean enable) {
-    setOption(config.visitCheckOption, enable);
-    // inverse to disable visit check (deprecated)
-    setOption(config.noVisitCheckOption, !enable);
+  public void setCacheCycle(boolean enable) {
+    setOption(config.cacheCycleOption, enable);
   }
 
   public void setNoCacheCycle(boolean enable) {
     setOption(config.noCacheCycleOption, enable);
   }
 
-  public void setCacheCycle(boolean enable) {
-    setOption(config.cacheCycleOption, enable);
-    // inverse to disable cache cycle (deprecated)
-    setOption(config.noCacheCycleOption, !enable);
+  public void setComponentCheck(boolean enable) {
+    setOption(config.componentCheckOption, enable);
   }
 
   public void setNoComponentCheck(boolean enable) {
     setOption(config.noComponentCheckOption, enable);
-    // inverse to enable component check (deprecated)
-    setOption(config.componentCheckOption, !enable);
-  }
-
-  public void setComponentCheck(boolean enable) {
-    setOption(config.componentCheckOption, enable);
   }
 
   public void setNoInhEqCheck(boolean enable) {
@@ -199,12 +190,20 @@ public class JastAddTask extends Task {
     setOption(config.synchOption, enable);
   }
 
+  public void setStaticState(boolean enable) {
+    setOption(config.staticStateOption, enable);
+  }
+
   public void setNoStatic(boolean enable) {
     setOption(config.noStaticOption, enable);
   }
 
   public void setRefineLegacy(boolean enable) {
     setOption(config.refineLegacyOption, enable);
+  }
+
+  public void setNoRefineLegacy(boolean enable) {
+    setOption(config.noRefineLegacyOption, enable);
   }
 
   public void setStagedRewrites(boolean enable) {

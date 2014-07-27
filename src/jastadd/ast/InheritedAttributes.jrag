@@ -352,7 +352,7 @@ aspect InheritedAttributeCodeGen {
 
         Components c = equ.getComponents();
         if (c instanceof ListComponents) {
-          if (config().rewriteCircularNTA) {
+          if (config().rewriteCircularNTA()) {
             out.print("if (caller == get" + equ.childName() + "ListNoTransform() || " +
             "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition()))) || " +
               "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition()))).value))))");              
@@ -361,7 +361,7 @@ aspect InheritedAttributeCodeGen {
           }
         }
         else if (c instanceof OptionalComponent) {
-          if (config().rewriteCircularNTA) {
+          if (config().rewriteCircularNTA()) {
             out.print("if (caller == get" + equ.childName() + "OptNoTransform() || " +
             "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition()))) || " +
               "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition()))).value))))");
@@ -370,7 +370,7 @@ aspect InheritedAttributeCodeGen {
           }
         }
         else if (c != null) {
-          if (config().rewriteCircularNTA) {
+          if (config().rewriteCircularNTA()) {
             out.print("if (caller == get" + equ.childName() + "NoTransform() || " +
               "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition()))) || " +
               "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition()))).value))))");

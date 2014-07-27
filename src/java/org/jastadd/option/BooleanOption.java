@@ -34,7 +34,10 @@ import java.io.PrintStream;
  *
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
  */
-public class BooleanOption extends Option {
+public class BooleanOption extends Option<Boolean> {
+
+  private boolean defaultValue = false;
+  private boolean value;
 
   /**
    * Create a new boolean option.
@@ -44,60 +47,69 @@ public class BooleanOption extends Option {
    */
   public BooleanOption(String optionName, String description) {
     super(optionName, description);
+    value = defaultValue;
+  }
+
+  public BooleanOption defaultValue(boolean newDefault) {
+    defaultValue = newDefault;
+    this.value = defaultValue;
+    return this;
   }
 
   @Override
   public void matchWithoutArg(PrintStream err) {
-    doMatch(err);
+    onMatch(err);
   }
 
   @Override
   public void matchWithArg(PrintStream err, String arg) {
-    doMatch(err, arg);
+    onMatch(err, arg);
   }
 
   @Override
   public int matchWithSeparateArg(PrintStream err, String arg) {
-    doMatch(err, arg);
+    onMatch(err, arg);
     return 1;
   }
 
   @Override
-  protected void doMatch(PrintStream out) {
+  protected void onMatch(PrintStream out) {
     reportWarnings(out);
-    onMatch(true);// no argument -> match to true
-
-    alreadyMatched = true;
+    isMatched = true;
+    value = true;// no argument -> match to true
   }
 
   /**
    * Match the option with argument.
    */
-  protected final void doMatch(PrintStream out, String arg) {
+  protected final void onMatch(PrintStream out, String arg) {
     reportWarnings(out);
 
     String lc = arg.toLowerCase();
     if (lc.equals("true") || lc.equals("on") || lc.equals("yes") ||
         lc.equals("enable") || lc.equals("enabled")) {
-      onMatch(true);
+      value = true;
     } else if (lc.equals("false") || lc.equals("off") || lc.equals("no") ||
         lc.equals("disable") || lc.equals("disabled")) {
-      onMatch(false);
+      value = false;
     } else {
       out.println("Warning: unknown value for option '" + name +
           "' - the argument '" + arg + "' is not a boolean value.");
     }
 
-    alreadyMatched = true;
+    isMatched = true;
+  }
+
+  @Override
+  protected String description() {
+    return description + " (default='" + defaultValue + "')";
   }
 
   /**
-   * Called when this option is matched with argument.
-   *
-   * Override this method to handle the option.
-   *
-   * @param value The boolean value given for the option.
+   * @return the current boolean value of this option
    */
-  public void onMatch(boolean value) {
+  @Override
+  public Boolean value() {
+    return value;
   }
 }

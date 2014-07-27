@@ -28,7 +28,7 @@
  aspect IncrementalNotification {
 
   public void ASTDecl.genIncrementalNotification(PrintWriter out) {
-    if (!config().incremental) return;
+    if (!config().incremental()) return;
 
     TemplateContext tt = templateContext();
 
@@ -189,7 +189,7 @@
    * name and parameters, should be flushed and dependencies notified.
    */
   public String ASTDecl.emitAttrFlushChecksString() {
-    if (config().incrementalLevelNode || config().incrementalLevelRegion) {
+    if (config().incrementalLevelNode() || config().incrementalLevelRegion()) {
       return "";
     }
     StringBuffer res = new StringBuffer();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+/* Copyright (c) 2012, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,37 +25,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+package org.jastadd.option;
 
-aspect OutputDestination {
+import java.io.PrintStream;
+
+/**
+ * Handles matching and parsing of a command-line option.
+ *
+ * This kind of option does not take an argument.
+ *
+ * A warning is printed whenever a deprecated option is
+ * matched.
+ *
+ * A warning is printed if an option occurs more than once.
+ *
+ * Options are not case sensitive.
+ *
+ * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
+ */
+public class FlagOption extends Option<Boolean> {
+
   /**
-   * If needed create the directory, and parent directories, where the AST
-   * classes Java source code is generated.
+   * Create a new option.
+   *
+   * @param optionName The name of the option
+   * @param description The description that will be printed in the help line
    */
-  public void Grammar.createPackageOutputDirectory() {
-
-    File packageDir = packageDirectory();
-    if (!packageDir.isDirectory()) {
-      packageDir.mkdirs();
-    }
+  public FlagOption(String optionName, String description) {
+    super(optionName, description);
   }
 
   /**
-   * @param typeName the name of the generated type
-   * @return the target java file for a generated type
+   * Match the option, without argument.
    */
-  syn File Grammar.targetJavaFile(String typeName) =
-    new File(packageDirectory(), typeName + ".java");
+  @Override
+  protected void onMatch(PrintStream out) {
+    reportWarnings(out);
+    isMatched = true;
+  }
 
   /**
-   * @return The output directory for the AST package.
+   * @return {@code true} if this option has been matched, {@code false} otherwise
    */
-  syn lazy File Grammar.packageDirectory() {
-    String packageName = config().packageName();
-    if (packageName.isEmpty()) {
-      return config().outputDir();
-    } else {
-      String packagePath = packageName.replace('.', File.separatorChar);
-      return new File(config().outputDir(), packagePath);
-    }
+  @Override
+  public Boolean value() {
+    return isMatched;
   }
 }

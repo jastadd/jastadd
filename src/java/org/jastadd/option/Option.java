@@ -1,4 +1,4 @@
-/* Copyright (c) 2012, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+/* Copyright (c) 2012-2014, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@ package org.jastadd.option;
 
 import java.io.PrintStream;
 
+import org.jastadd.tinytemplate.TemplateContext;
+
 /**
  * Handles matching and parsing of a command-line option.
  *
@@ -42,8 +44,9 @@ import java.io.PrintStream;
  * Options are not case sensitive.
  *
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
+ * @param <ValueType>
  */
-public class Option {
+abstract public class Option<ValueType> {
 
   /**
    * The prefix string used for all command-line
@@ -76,11 +79,18 @@ public class Option {
    */
   protected static final int TAB_4 = 33;
 
-  protected String desc = "";
+  protected String description = "";
   protected String name;
+  private String templateVariable = "";
   protected boolean isNonStandard = false;
   protected boolean isDeprecated = false;
-  protected boolean alreadyMatched = false;
+  protected String deprecationMessage = "";
+  protected String deprecatedSince = "";
+
+  /**
+   * True if this option has been matched.
+   */
+  protected boolean isMatched = false;
 
   /**
    * Create a new option.
@@ -89,8 +99,49 @@ public class Option {
    * @param description The description that will be printed in the help line
    */
   public Option(String optionName, String description) {
-    name = optionName;
-    desc = description;
+    this.name = optionName;
+    this.description = description;
+  }
+
+  /**
+   * Set the name of the corresponding template variable which this option
+   * binds to.
+   * @param templateName
+   * @return self
+   */
+  public final Option<ValueType> templateName(String templateName) {
+    templateVariable = templateName;
+    return this;
+  }
+
+  /**
+   * Make this a non-standard option
+   * @return self
+   */
+  public final Option<ValueType> nonStandard() {
+    isNonStandard = true;
+    return this;
+  }
+
+  /**
+   * Make this a option deprecated
+   * @param since the version in which this option was deprecated
+   * @return self
+   */
+  public final Option<ValueType> deprecated(String since) {
+    isDeprecated = true;
+    deprecatedSince = since;
+    return this;
+  }
+
+  /**
+   * Make this a option deprecated
+   * @param since the version in which this option was deprecated
+   * @return self
+   */
+  public final Option<ValueType> deprecated(String since, String message) {
+    deprecationMessage = message;
+    return deprecated(since);
   }
 
   /**
@@ -109,7 +160,14 @@ public class Option {
    * Print option description.
    */
   protected void printDescription(PrintStream out) {
-    printDescription(out, desc, TAB_2);
+    printDescription(out, description(), TAB_2);
+  }
+
+  protected String description() {
+    if (isDeprecated && !deprecationMessage.isEmpty()) {
+      return deprecationMessage;
+    }
+    return description;
   }
 
   protected void printDescription(PrintStream out, String desc, int col) {
@@ -135,7 +193,7 @@ public class Option {
    * @param err Error output stream
    */
   public void matchWithoutArg(PrintStream err) {
-    doMatch(err);
+    onMatch(err);
   }
 
   /**
@@ -148,7 +206,7 @@ public class Option {
   public void matchWithArg(PrintStream err, String arg) {
     err.println("Warning: the option '" + name + "' does not take an argument. " +
         "The argument value '" + arg + "' will be ignored!");
-    doMatch(err);
+    onMatch(err);
   }
 
   /**
@@ -160,18 +218,23 @@ public class Option {
    * @return 1 if the separate argument is used by this option
    */
   public int matchWithSeparateArg(PrintStream err, String arg) {
-    doMatch(err);
+    onMatch(err);
     return 0;
   }
 
   /**
    * Match the option, without argument.
    */
-  protected void doMatch(PrintStream out) {
+  protected void onMatch(PrintStream out) {
     reportWarnings(out);
-    onMatch();
+    isMatched = true;
+  }
 
-    alreadyMatched = true;
+  /**
+   * @return {@code true} if the option has been matched
+   */
+  public boolean isMatched() {
+    return isMatched;
   }
 
   /**
@@ -183,21 +246,20 @@ public class Option {
    * @param out Output stream to print warnings to.
    */
   public void reportWarnings(PrintStream out) {
-    if (alreadyMatched) {
+    if (isMatched) {
       out.println("Warning: the option " + name
           + " occurs more than once in the argument list!");
     } else if (isDeprecated) {
-      out.println("Warning: the option " + name
-          + " has been deprecated! Use of this option is discouraged!");
+      out.print("Warning: the option " + name +
+          " has been deprecated since version " +
+          deprecatedSince);
+      if (!deprecationMessage.isEmpty()) {
+        out.print(" (");
+        out.print(deprecationMessage);
+        out.print(")");
+      }
+      out.println(". Use of this option is discouraged!");
     }
-  }
-
-  /**
-   * Called when this option is matched without argument.
-   *
-   * Override this method to handle the option.
-   */
-  public void onMatch() {
   }
 
   @Override
@@ -218,4 +280,20 @@ public class Option {
   public String name() {
     return name;
   }
+
+  /**
+   * Bind the current value of this option to a template variable in the
+   * provided context. Only binds if this option has a templateName assigned.
+   * @param context
+   */
+  public void bind(TemplateContext context) {
+    if (!templateVariable.isEmpty()) {
+      context.bind(templateVariable, value());
+    }
+  }
+
+  /**
+   * @return the current value of this option
+   */
+  abstract public ValueType value();
 }

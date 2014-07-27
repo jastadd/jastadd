@@ -30,7 +30,6 @@ ASTNode$State = [[
  * @apilevel internal
  */
 public class $ASTNode$$State {
-$if(CircularEnabled)
   $if(CacheCycle)
   /**
    * @apilevel internal
@@ -137,7 +136,6 @@ $if(CircularEnabled)
     CHANGE = c.changeValue;
   }
   $endif
-$endif
 $if(RewriteEnabled)
   $if(HasRewriteLimit)
   /**
@@ -217,7 +215,6 @@ ASTNode$State.reset = [[
    */
   public void $ASTNode$$State.reset() {
     $SynchBegin
-$if(CircularEnabled)
     IN_CIRCLE = false;
     CIRCLE_INDEX = 1;
     CHANGE = false;
@@ -228,7 +225,6 @@ $if(CircularEnabled)
     circularEvalSet = $CreateDefaultSet;
     circularEvalStack = new java.util.Stack();
   $endif
-$endif
 $if(RewriteEnabled)
     boundariesCrossed = 0;
     #genResetDuringCounters

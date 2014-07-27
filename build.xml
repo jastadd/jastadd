@@ -1,5 +1,6 @@
 <project name="JastAdd2" default="build">
-	<description>
+	<description>Build script for JastAdd2
+
 OPTIONS:
 -Ddebug=true          enable debug build
 
@@ -22,8 +23,6 @@ OPTIONS:
 		else="${jastadd2.tools.dir}/jastadd2.jar">
 		<isset property="jastadd.jar"/>
 	</condition>
-
-	<description>Build script for JastAdd2</description>
 
 	<taskdef name="jastadd" classname="org.jastadd.JastAddTask"
 		classpath="${jastadd-jar}"/>

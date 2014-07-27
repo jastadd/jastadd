@@ -66,10 +66,6 @@ $endif
   /**
    * @apilevel internal
    */
-  public static final boolean $ASTNode.generatedWithCircularEnabled = $CircularEnabled;
-  /**
-   * @apilevel internal
-   */
   public static final boolean $ASTNode.generatedWithCacheCycle = $CacheCycle;
   /**
    * @apilevel internal
@@ -96,7 +92,19 @@ $if(TracingEnabled)
   } 
 $endif
 
-$if(NoStatic)
+$if(StaticState)
+  /**
+   * @apilevel internal
+   */
+  protected static $ASTNode$$State $ASTNode.state = new $ASTNode$$State();
+
+  /**
+   * @apilevel internal
+   */
+  public final $ASTNode$$State $ASTNode.state() {
+    return state;
+  }
+$else
   /**
    * @apilevel internal
    */
@@ -114,18 +122,6 @@ $if(NoStatic)
         state = parent.state();
       }
     }
-    return state;
-  }
-$else
-  /**
-   * @apilevel internal
-   */
-  protected static $ASTNode$$State $ASTNode.state = new $ASTNode$$State();
-
-  /**
-   * @apilevel internal
-   */
-  public final $ASTNode$$State $ASTNode.state() {
     return state;
   }
 $endif
@@ -547,7 +543,7 @@ $if(RewriteEnabled)
         node.is$$Final(true);
   $endif
         this.state().boundariesCrossed = num;
-  $if(PositiveRewriteLimit)
+  $if(HasRewriteLimit)
         node.debugRewriteRemove();
   $endif
         $include(ASTNode.traceHookRewriteCached)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+/* Copyright (c) 2013-2014, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,17 +28,19 @@
 package org.jastadd;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.jastadd.ast.AST.Grammar;
 import org.jastadd.option.ArgumentParser;
 import org.jastadd.option.BooleanOption;
+import org.jastadd.option.FlagOption;
 import org.jastadd.option.Option;
 import org.jastadd.option.ValueOption;
 import org.jastadd.tinytemplate.TemplateContext;
-import org.jastadd.ast.AST.Grammar;
 
 /**
  * Tracks JastAdd configuration options.
@@ -50,198 +52,9 @@ public class Configuration {
   private final ArgumentParser argParser;
 
   /**
-   * The name of the ASTNode type.
+   * Indentation level cache.
    */
-  public String astNodeType = "ASTNode";
-
-  /**
-   * The name of the List type.
-   */
-  public String listType = "List";
-
-  /**
-   * The name of the Opt type.
-   */
-  public String optType = "Opt";
-
-  /**
-   * JJTree mode flag.
-   */
-  public boolean jjtree = false;
-
-  /**
-   * Parser/grammar name. Used in JJTree mode.
-   */
-  public String parserName = "";
-
-  /**
-   * Code to create default maps.
-   */
-  public String createDefaultMap = "new java.util.HashMap(4)";
-
-  /**
-   * Code to create default sets.
-   */
-  public String createDefaultSet = "new java.util.HashSet(4)";
-
-  /**
-   * Default map type.
-   */
-  public String typeDefaultMap = "java.util.Map";
-
-  /**
-   * Default set type.
-   */
-  public String typeDefaultSet = "java.util.Set";
-
-  /**
-   * Lazy maps flag.
-   */
-  public boolean lazyMaps = true;
-
-  /**
-   * Public modifier flag.
-   * TODO make deprecated!
-   */
-  public boolean publicModifier = true;
-
-  /**
-   * Rewrite flag.
-   */
-  public boolean rewriteEnabled = false;
-  
-  /**
-   * Evaluate rewrites with circular NTAS
-   * --rewrite=circularNTA
-   */
-  public boolean rewriteCircularNTA = false;
-
-  /**
-   * Beaver symbol flag.
-   * TODO make deprecated!
-   */
-  public boolean useBeaverSymbol = false;
-
-  /**
-   * Generate getter/setters for line and column numbers.
-   */
-  public boolean lineColumnNumbers = false;
-
-  /**
-   * Visit check flag.
-   */
-  public boolean visitCheckEnabled = true;
-
-  /**
-   * Cache cycle check flag.
-   */
-  public boolean cacheCycle = true;
-
-  /**
-   * Component check flag.
-   */
-  public boolean componentCheck = false;
-
-  /**
-   * Inh eq check flag.
-   */
-  public boolean inhEqCheck = true;
-
-  /**
-   * Lega refine syntax flag.
-   * TODO make deprecated!
-   */
-  public boolean refineLegacy = true;
-
-  /**
-   * Staged rewrites flag.
-   */
-  public boolean stagedRewrites = false;
-
-  /**
-   * Documentation flag.
-   * TODO review this option!
-   */
-  public boolean doc = false;
-
-  /**
-   * License header.
-   */
-  public String license = "";
-
-  /**
-   * Java 5 flag.
-   * TODO make deprecated!
-   */
-  public boolean java5 = true;
-
-  /**
-   * Debug mode flag.
-   */
-  public boolean debugMode = false;
-
-  /**
-   * Cycle limit.
-   */
-  public int cycleLimit = 0;
-
-  /**
-   * Rewrite limit.
-   */
-  public int rewriteLimit = 0;
-
-  /**
-   * The relative path to the base output directory for generated code.
-   */
-  public String outputDir = System.getProperty("user.dir");
-
-  /**
-   * Use syncronized blocks flag.
-   */
-  public boolean block = false;
-
-  /**
-   * Synchronized block begin template.
-   * TODO make non-null!
-   */
-  public String blockBegin = null;
-
-  /**
-   * Synchronized block end template.
-   * TODO make non-null!
-   */
-  public String blockEnd = null;
-
-  /**
-   * Code to create contributor set.
-   */
-  public String createContributorSet = "";
-
-  /**
-   * No-static flag.
-   * TODO review this option!
-   */
-  public boolean noStatic = false;
-
-  /**
-   * The package name for the generated AST classes.
-   */
-  public String packageName = "";
-
-  /**
-   * If version name should be printed.
-   */
-  public boolean printVersion = false;
-
-  /**
-   * If help should be printed.
-   */
-  public boolean printHelp = false;
-
-  /**
-   * If non-standard option help should be printed.
-   */
-  public boolean printNonStandardOptions = false;
+  protected java.util.List<String> indList = new ArrayList<String>(32);
 
   /**
    * One level of indentation.
@@ -249,9 +62,9 @@ public class Configuration {
   public String indent = "  ";
 
   /**
-   * Indentation level cache.
+   * License to include at start of each source file.
    */
-  protected java.util.List<String> indList = new ArrayList<String>(32);
+  public String license = "";
 
   /**
    * Builds an indentation string equal to a certain level of
@@ -271,452 +84,177 @@ public class Configuration {
     return indList.get(level);
   }
 
-  /**
-   * The minimum list size (above zero)
-   */
-  public int minListSize = 4;
-
-  /**
-   * Tracing flag.
-   */
-  public boolean tracing = false;
-
-  /**
-   * trace=compute
-   */
-  public boolean traceCompute = false;
-
-  /**
-   * trace=cache
-   */
-  public boolean traceCache = false;
-
-  /**
-   * trace=rewrite
-   */
-  public boolean traceRewrite = false;
-
-  /**
-   * trace=circularNTA
-   */
-  public boolean traceCircularNTA = false;
-
-  /**
-   * trace=circular
-   */
-  public boolean traceCircular = false;
-
-  /**
-   * trace=copy
-   */
-  public boolean traceCopy = false;
-
-  /**
-   * trace=flush
-   */
-  public boolean traceFlush = false;
-
-  /**
-   * cache=all
-   */
-  public boolean cacheAll = false;
-
-  /**
-   * cache=none
-   */
-  public boolean cacheNone = false;
-
-  /**
-   * cache=config
-   */
-  public boolean cacheConfig = false;
-
-  /**
-   * cache=implicit
-   */
-  public boolean cacheImplicit = false;
-
-  /**
-   * cache=analyze
-   */
-  public boolean cacheAnalyze = false;
-
-  /**
-   * Incremental flag.
-   */
-  public boolean incremental = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalLevelParam = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalLevelAttr = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalLevelNode = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalLevelRegion = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalChangeFlush = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalChangeMark = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalPropFull = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalPropLimit = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalDebug = false;
-
-  /**
-   * incremental...
-   */
-  public boolean incrementalTrack = false;
-
-  /**
-   * Use of --flush 
-   */
-  // TODO: Make the default behavior false by deprecating default generation of flush methods
-  public boolean flushEnabled = true;
-  
-  /**
-   * --flush=attr
-   */
-  public boolean flushAttr = true;
-  
-  /**
-   * --flush=rewrite
-   */
-  public boolean flushRewrite = false;
-  
-  /**
-   * --flush=coll
-   */
-  public boolean flushColl = true;
-  
-  /**
-   * TODO unused?
-   */
-  public boolean traceVisitCheck = false;
-
-  /**
-   * TODO unused?
-   */
-  public boolean circularEnabled = true;
-
-  ValueOption ASTNodeOption = new ValueOption(
-      "ASTNode", "set the name of the ASTNode type") {
-    @Override
-    public void onMatch(String arg) {
-      astNodeType = arg;
-    }
-  };
-
-  ValueOption ListOption = new ValueOption(
-      "List", "set the name of the List type") {
-    @Override
-    public void onMatch(String arg) {
-      listType = arg;
-    }
-  };
-
-  ValueOption OptOption = new ValueOption(
-      "Opt", "set the name of the Opt type") {
-    @Override
-    public void onMatch(String arg) {
-      optType = arg;
-    }
-  };
-
-  Option jjtreeOption = new Option(
-      "jjtree", "use jjtree base node, this requires --grammar to be set") {
-    @Override
-    public void onMatch() {
-      jjtree = true;
-    }
-  };
-
-  ValueOption grammarOption = new ValueOption(
-      "grammar", "the name of the grammar's parser, required when using --jjtree") {
-    @Override
-    public void onMatch(String arg) {
-      parserName = arg;
-    }
-  };
-
-  ValueOption defaultMapOption = new ValueOption(
-      "defaultMap", "use this expression to construct maps for attribute caches") {
-    {
-      isNonStandard = true;
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      createDefaultMap = arg;
-    }
-  };
-
-  ValueOption defaultSetOption = new ValueOption(
-      "defaultSet", "use this expression to construct sets for attribute caches") {
-    {
-      isNonStandard = true;
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      createDefaultSet = arg;
-    }
-  };
-
-  BooleanOption lazyMapsOption = new BooleanOption(
-      "lazyMaps", "use lazy maps (default=on)") {
-    @Override
-    public void onMatch(boolean value) {
-      lazyMaps = value;
-    }
-  };
-
-  Option noLazyMapsOption = new Option(
-      "noLazyMaps", "don't use lazy maps") {
-    {
-      // TODO make deprecated - replace with lazyMaps={true|false}
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      lazyMaps = false;
-    }
-  };
-
-  Option privateOption = new Option(
-      "private", "") {
-    {
-      // TODO make deprecated
-      // isDeprecated = true;
-      isNonStandard = true;
-    }
-
-    @Override
-    public void onMatch() {
-      publicModifier = false;
-    }
-  };
-
-  Option rewriteOption = new ValueOption(
-      "rewrite", "enable rewrites (ReRAGs)") {
-    {
-      acceptsMultipleValues = false;
-      needsValue = false;
-      addAcceptedValue("cnta",
-        "evaluate rewrites with circular NTAs");
-    }
-    @Override
-    public void onMatch() {
-      rewriteEnabled = true;
-    }
-    @Override
-    public void onMatch(String arg) {
-      rewriteEnabled = true;
-      if (arg.equals("cnta")) {
-        rewriteCircularNTA = true;
-      }
-    }
-  };
-
-  Option beaverOption = new Option(
-      "beaver", "use beaver.Symbol base node") {
-    @Override
-    public void onMatch() {
-      useBeaverSymbol = true;
-    }
-  };
-
-  Option lineColumnNumbersOption = new Option(
-      "lineColumnNumbers", "interface for storing line and column numbers") {
-    @Override
-    public void onMatch() {
-      lineColumnNumbers = true;
-    }
-  };
-
-  Option noVisitCheckOption = new Option(
-      "noVisitCheck", "disable circularity check for attributes") {
-    {
-      // TODO make deprecated - replace with visitCheck={true|false}
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      visitCheckEnabled = false;
-    }
-  };
-
-  // TODO add boolean value
-  Option visitCheckOption = new Option(
-      "visitCheck", "enable circularity check for attributes") {
-    @Override
-    public void onMatch() {
-      visitCheckEnabled = true;
-    }
-  };
-
-  Option noCacheCycleOption = new Option(
-      "noCacheCycle", "disable cache cycle optimization for circular attributes") {
-    {
-      // TODO make deprecated - replace with cacheCycle={true|false}
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      cacheCycle = false;
-    }
-  };
-
-  // TODO add boolean value
-  Option cacheCycleOption = new Option(
-      "cacheCycle", "enable cache cycle optimization for circular attributes") {
-    @Override
-    public void onMatch() {
-      cacheCycle = true;
-    }
-  };
-
-  Option noComponentCheckOption = new Option(
-      "noComponentCheck", "enable strongly connected component optimization for circular attributes") {
-    {
-      // TODO make deprecated - replace with componentCheck={true|false}
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      componentCheck = false;
-    }
-  };
-
-  // TODO add boolean value
-  Option componentCheckOption = new Option(
-      "componentCheck", "disable strongly connected component optimization for circular attributes") {
-    @Override
-    public void onMatch() {
-      componentCheck = true;
-    }
-  };
-
-  Option noInhEqCheckOption = new Option(
-      "noInhEqCheck", "disable check for inherited equations") {
-    {
-      // TODO make deprecated - replace with inhEqCheck={true|false}
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      inhEqCheck = false;
-    }
-  };
-
-  Option suppressWarningsOption = new Option(
-      "suppressWarnings", "suppress warnings when using Java 5") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  Option refineLegacyOption = new Option(
-      "refineLegacy", "enable the legacy refine syntax") {
-    {
-      // TODO
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      refineLegacy = true;
-    }
-  };
-
-  Option noRefineLegacyOption = new Option(
-      "noRefineLegacy", "disable the legacy refine syntax") {
-    {
-      // TODO make deprecated - replace with refineLegacy={true|false}
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      refineLegacy = false;
-    }
-  };
-
-  Option stagedRewritesOption = new Option(
-      "stagedRewrites", "") {
-    {
-      isNonStandard = true;
-    }
-
-    @Override
-    public void onMatch() {
-      stagedRewrites = true;
-    }
-  };
-
-  Option docOption = new Option(
-      "doc", "generate javadoc like .html pages from sources") {
-    {
-      // TODO make deprecated
-      // isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      doc = true;
-    }
-  };
-
-  Option doxygenOption = new Option(
-      "doxygen", "") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  ValueOption licenseOption = new ValueOption(
-      "license", "include the given file in each generated file") {
+  Option<String> ASTNodeOption = new ValueOption("ASTNode",
+      "set the name of the ASTNode type")
+      .unrestricted()
+      .defaultValue("ASTNode")
+      .templateName("ASTNode");
+
+  Option<String> ListOption = new ValueOption("List",
+      "set the name of the List type")
+      .unrestricted()
+      .defaultValue("List")
+      .templateName("List");
+
+  Option<String> OptOption = new ValueOption("Opt",
+      "set the name of the Opt type")
+      .unrestricted()
+      .defaultValue("Opt")
+      .templateName("Opt");
+
+  Option<Boolean> jjtreeOption = new FlagOption("jjtree",
+      "use jjtree base node, this requires --grammar to be set")
+      .templateName("JJTree");
+
+  Option<String> grammarOption = new ValueOption("grammar",
+      "the name of the grammar's parser, required when using --jjtree")
+      .templateName("ParserName");
+
+  Option<String> defaultMapOption = new ValueOption(
+      "defaultMap", "use this expression to construct maps for attribute caches")
+      .unrestricted()
+      .defaultValue("new java.util.HashMap(4)")
+      .nonStandard()
+      .templateName("CreateDefaultMap");
+
+  Option<String> defaultSetOption = new ValueOption(
+      "defaultSet", "use this expression to construct sets for attribute caches")
+      .unrestricted()
+      .defaultValue("new java.util.HashSet(4)")
+      .nonStandard()
+      .templateName("CreateDefaultSet");
+
+  Option<Boolean> lazyMapsOption = new BooleanOption("lazyMaps", "use lazy maps")
+      .defaultValue(true)
+      .templateName("LazyMaps");
+
+  Option<Boolean> privateOption = new FlagOption("private",
+      "generated methods will use the private modifier")
+      .templateName("PrivateModifier")
+      .nonStandard();
+
+  ValueOption rewriteOption = new ValueOption("rewrite",
+      "enable and select rewrite mode (ReRAGs)")
+      .needsValue(false)
+      .acceptMultipleValues(false)
+      .addDefaultValue("none", "rewrites are disabled")
+      .addAcceptedValue("regular", "rewrites do not use NTAs")
+      .addAcceptedValue("cnta", "evaluate rewrites with circular NTAs");
+
+  Option<Boolean> beaverOption = new FlagOption("beaver",
+      "use beaver.Symbol base node")
+      .templateName("Beaver");
+
+  Option<Boolean> lineColumnNumbersOption = new FlagOption("lineColumnNumbers",
+      "generate interface for storing line and column numbers");
+
+  Option<Boolean> visitCheckOption = new BooleanOption("visitCheck",
+      "enable circularity check for attributes")
+      .defaultValue(true)
+      .templateName("VisitCheckEnabled");
+
+  Option<Boolean> traceVisitCheckOption = new BooleanOption("traceVisitCheck",
+      "just print an error rather than throwing a circularity check exception")
+      .nonStandard()
+      .templateName("TraceVisitCheck");
+
+  Option<Boolean> cacheCycleOption = new BooleanOption("cacheCycle",
+      "enable cache cycle optimization for circular attributes")
+      .defaultValue(true)
+      .templateName("CacheCycle");
+
+  Option<Boolean> componentCheckOption = new BooleanOption("componentCheck",
+      "strongly connected component checking for circular attributes")
+      .templateName("ComponentCheck");
+
+  Option<Boolean> inhEqCheckOption = new BooleanOption("inhEqCheck",
+      "enalbe check for inherited equations")
+      .defaultValue(true);
+
+  Option<Boolean> suppressWarningsOption = new FlagOption(
+      "suppressWarnings", "attempt to suppress Java warnings")
+      .deprecated("2.1.2");
+
+  Option<Boolean> refineLegacyOption = new BooleanOption("refineLegacy",
+      "enable the legacy refine syntax")
+      .defaultValue(true);
+
+  Option<Boolean> stagedRewritesOption = new FlagOption("stagedRewrites",
+      "")// TODO description
+      .templateName("StagedRewrites")
+      .nonStandard();
+
+  Option<Boolean> doxygenOption = new FlagOption("doxygen",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> cacheAllOption = new FlagOption("cacheAll",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> noCachingOption = new FlagOption("noCaching",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> cacheNoneOption = new FlagOption("cacheNone",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> cacheImplicitOption = new FlagOption("cacheImplicit",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> ignoreLazyOption = new FlagOption("ignoreLazy",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> fullFlushOption = new FlagOption("fullFlush",
+      "")
+      .deprecated("2.1.5", "this option currently does nothing");
+
+  Option<Boolean> docOption = new FlagOption("doc",
+      "generate javadoc like .html pages from sources")
+      .deprecated("2.1.9", "this option currently does nothing");
+
+  Option<Boolean> java1_4Option = new FlagOption("java1.4",
+      "generate for Java 1.4")
+      .deprecated("2.1.9");
+
+  Option<Boolean> noLazyMapsOption = new FlagOption("noLazyMaps",
+      "")
+      .deprecated("2.1.9", "replaced by --lazyMaps=false");
+
+  Option<Boolean> noVisitCheckOption = new FlagOption("noVisitCheck",
+      "")
+      .deprecated("2.1.9", "replaced by --visitCheck=false");
+
+  Option<Boolean> noCacheCycleOption = new FlagOption("noCacheCycle",
+      "")
+      .deprecated("2.1.9", "replaced by --cacheCycle=false");
+
+  Option<Boolean> noRefineLegacyOption = new FlagOption("noRefineLegacy",
+      "")
+      .deprecated("2.1.9", "replaced by --refineLegacy=false");
+
+  Option<Boolean> noComponentCheckOption = new FlagOption("noComponentCheck",
+      "")
+      .deprecated("2.1.9", "currently has no effect");
+
+  Option<Boolean> noInhEqCheckOption = new FlagOption("noInhEqCheck",
+      "")
+      .deprecated("2.1.9", "replaced by --inhEqCheck=false");
+
+  Option<Boolean> noStaticOption = new FlagOption(
+      "noStatic", "the generated state field is non-static")
+      .deprecated("2.1.9", "replaced by --staticState=false")
+      .nonStandard();
+
+  Option<Boolean> deterministicOption = new FlagOption("deterministic",
+      "ensure deterministic collection attribute iteration order")
+      .deprecated("2.1.9");
+
+  Option<String> licenseOption = new ValueOption("license",
+      "include the given file as a header in each generated file") {
     @Override
     public void reportWarnings(PrintStream out, String filename) {
       super.reportWarnings(out, filename);
@@ -730,409 +268,117 @@ public class Configuration {
         }
       }
     }
-
-    @Override
-    public void onMatch(String filename) {
-      if (!filename.isEmpty()) {
-        try {
-          license = readFile(filename);
-        } catch (java.io.IOException e) {
-        }
-      }
-    }
   };
 
-  Option java1_4Option = new Option(
-      "java1.4", "generate for Java 1.4") {
+  Option<Boolean> debugOption = new FlagOption("debug",
+      "generate run-time checks for debugging")
+      .templateName("DebugMode");
+
+  Option<Boolean> synchOption = new FlagOption("synch",
+      "generate synchronized blocks around all AST-accessing methods")
+      .nonStandard();
+
+  Option<Boolean> staticStateOption = new BooleanOption("staticState",
+      "the generated state field is static")
+      .defaultValue(true)
+      .templateName("StaticState")
+      .nonStandard();
+
+  ValueOption outputDirOption = new ValueOption("o",
+      "optional base output directory, default is current directory")
+      .unrestricted()
+      .defaultValue(System.getProperty("user.dir"));
+
+  ValueOption tracingOption = new ValueOption("tracing",
+      "weaves in code collecting evaluation events")
+      .acceptMultipleValues(true)
+      .needsValue(false)
+      .addDefaultValue("none", "tracing is disabled")
+      .addAcceptedValue("all", "trace all events")
+      .addAcceptedValue("compute", "trace begin and end of attribute computation")
+      .addAcceptedValue("cache", "trace value cached, read cache, and cache aborted")
+      .addAcceptedValue("rewrite", "trace rewrite evaluation")
+      .addAcceptedValue("circular", "trace circular attribute evaluation")
+      .addAcceptedValue("circularNTA", "trace circular attribute evaluation")
+      .addAcceptedValue("copy", "trace node copy operations")
+      .addAcceptedValue("flush", "trace flush operations")
+      .additionalDescription("all events are collected by default\n"
+          + "the result is available via the API in org.jastadd.Tracer");
+
+  ValueOption flushOption = new ValueOption("flush",
+      "adds flushing of cached values")
+      .acceptMultipleValues(true)
+      .needsValue(false)
+      .addAcceptedValue("full", "flushing of all computed values (combines attr, coll, and rewrite)")
+      .addDefaultValue("attr", "adds flushing of attributes (syn,inh)")
+      .addDefaultValue("coll", "adds flushing of collection attributes")
+      .addAcceptedValue("rewrite", "adds flushing of rewrites");
+
+  ValueOption packageNameOption = new ValueOption("package",
+      "optional package name for generated classes");
+
+  FlagOption versionOption = new FlagOption("version",
+      "print version string and halt");
+
+  FlagOption helpOption = new FlagOption("help",
+      "prints a short help output and halts");
+
+  FlagOption printNonStandardOptionsOption = new FlagOption("X",
+      "print list of non-standard options and halt");
+
+  ValueOption indentOption = new ValueOption("indent",
+      "type of indentation to use")
+      .addDefaultValue("2space", "two spaces")
+      .addAcceptedValue("4space", "four spaces")
+      .addAcceptedValue("8space", "eight spaces")
+      .addAcceptedValue("tab", "use tabs");
+
+  ValueOption minListSizeOption = new ValueOption("minListSize",
+      "minimum (non-empty) list size") {
     {
-      // TODO make deprecated
-      // isDeprecated = true;
+      unrestricted();
+      defaultValue("4");
+      templateName("MinListSize");
+      nonStandard();
     }
-
-    @Override
-    public void onMatch() {
-      java5 = false;
-    }
-  };
-
-  Option debugOption = new Option(
-      "debug", "generate run-time checks for debugging") {
-    @Override
-    public void onMatch() {
-      debugMode = true;
-      cycleLimit = 100;
-      rewriteLimit = 100;
-      visitCheckEnabled = true;
-    }
-  };
-
-  Option synchOption = new Option(
-      "synch", "") {
-    {
-      isNonStandard = true;
-    }
-
-    @Override
-    public void onMatch() {
-      block = true;
-    }
-  };
-
-  Option noStaticOption = new Option(
-      "noStatic", "the generated state field is non-static") {
-    {
-      // TODO make deprecated - replace with staticStateField={true|false}
-      // isDeprecated = true;
-      isNonStandard = true;
-    }
-
-    @Override
-    public void onMatch() {
-      noStatic = true;
-    }
-  };
-
-  Option deterministicOption = new Option(
-      "deterministic", "") {
-    {
-      isDeprecated = true;
-    }
-  };
-
-  ValueOption oOption = new ValueOption(
-      "o", "optional base output directory, default is current directory") {
-    @Override
-    public void onMatch(String dir) {
-      outputDir = dir;
-    }
-  };
-
-  ValueOption tracingOption = new ValueOption(
-      "tracing", "weaves in code collecting evaluation events") {
-    {
-      acceptsMultipleValues = true;
-      needsValue = false;
-      addAcceptedValue("compute",
-          "trace begin and end of attribute computation");
-      addAcceptedValue("cache",
-          "trace value cached, read cache, and cache aborted");
-      addAcceptedValue("rewrite", "trace rewrite evaluation");
-      addAcceptedValue("circular", "trace circular attribute evaluation");
-      addAcceptedValue("circularNTA", "trace circular attribute evaluation");
-      addAcceptedValue("copy", "trace node copy operations");
-      addAcceptedValue("flush", "trace flush operations");
-      additionalDescription = "all events are collected by default\n"
-          + "the result is available via the API in org.jastadd.Tracer";
-    }
-
-    @Override
-    public void onMatch() {
-      tracing = true;
-      traceCompute = true;
-      traceCache = true;
-      traceRewrite = true;
-      traceCircularNTA = true;
-      traceCircular = true;
-      traceCopy = true;
-      traceFlush = true;
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      tracing = true;
-      if (arg.equals("compute")) {
-        traceCompute = true;
-      } else if (arg.equals("cache")) {
-        traceCache = true;
-      } else if (arg.equals("rewrite")) {
-        traceRewrite = true;
-      } else if (arg.equals("circularNTA")) {
-        traceCircularNTA = true;
-      } else if (arg.equals("circular")) {
-        traceCircular = true;
-      } else if (arg.equals("copy")) {
-        traceCopy = true;
-      } else if (arg.equals("flush")) {
-        traceFlush = true;
-      }
-    }
-  };
-  
-  ValueOption flushOption = new ValueOption(
-      "flush", "adds flushing of cached values") {
-    {
-      acceptsMultipleValues = true;
-      needsValue = false;
-      addAcceptedValue("full", "flushing of all computed values (combines attr, coll, and rewrite)");
-      addAcceptedValue("attr", "adds flushing of attributes (syn,inh)");
-      addAcceptedValue("coll", "adds flushing of collection attributes");
-      addAcceptedValue("rewrite", "adds flushing of rewrites");
-      additionalDescription = "default is 'attr' and 'coll'";
-    }
-
-    @Override
-    public void onMatch() {
-      flushEnabled = true;
-      flushAttr = true;
-      flushColl = true;
-      flushRewrite = false;
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      flushEnabled = true;
-      if (arg.equals("full")) {
-        flushAttr = true;
-        flushColl = true;
-        flushRewrite = true;
-      } else if (arg.equals("attr")) {
-        flushAttr = true;
-      } else if (arg.equals("coll")) {
-        flushColl = true;
-      } else if (arg.equals("rewrite")) {
-        flushRewrite = true;
-      } 
-    }
-  };
-  
-  ValueOption packageOption = new ValueOption(
-      "package", "optional package name for generated classes") {
-    @Override
-    public void onMatch(String name) {
-      packageName = name;
-    }
-  };
-
-  Option versionOption = new Option(
-      "version", "print version string and halts") {
-    @Override
-    public void onMatch() {
-      printVersion = true;
-    }
-  };
-
-  Option helpOption = new Option(
-      "help", "prints a short help output and halts") {
-    @Override
-    public void onMatch() {
-      printHelp = true;
-    }
-  };
-
-  Option XOption = new Option(
-      "X", "print list of non-standard options and halt") {
-    @Override
-    public void onMatch() {
-      printNonStandardOptions = true;
-    }
-  };
-
-  ValueOption indentOption = new ValueOption(
-      "indent", "type of indentation to use (default=2space)") {
-    {
-      addAcceptedValue("2space", "two spaces");
-      addAcceptedValue("4space", "four spaces");
-      addAcceptedValue("8space", "eight spaces");
-      addAcceptedValue("tab", "use tabs");
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      if (arg.equals("2space")) {
-        // Use 2 spaces for indentation
-        indent = "  ";
-      } else if (arg.equals("4space")) {
-        // Use 4 spaces for indentation
-        indent = "    ";
-      } else if (arg.equals("8space")) {
-        // Use 8 spaces for indentation
-        indent = "        ";
-      } else if (arg.equals("tab")) {
-        // Use tabs for indentation
-        indent = "\t";
-      }
-    }
-  };
-
-  ValueOption minListSizeOption = new ValueOption(
-      "minListSize", "Minimum (non-empty) list size (default=4)") {
     @Override
     public void reportWarnings(PrintStream out, String arg) {
       super.reportWarnings(out, arg);
       try {
-        Integer.parseInt(arg);
-      } catch (NumberFormatException e) {
-        out.println("Warning: failed to parse minimum list size option!");
-      }
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      try {
         int size = Integer.parseInt(arg);
-        minListSize = size;
+        if (size < 0) {
+          out.println("Warning: minimum list size option must have a positive integer value!");
+        }
       } catch (NumberFormatException e) {
+        out.println("Warning: minimum list size option must be an integer!");
       }
     }
   };
 
-  ValueOption cacheOption = new ValueOption(
-      "cache", "global cache configuration overriding 'lazy'") {
-    {
-      acceptsMultipleValues = false;
-      addAcceptedValue("all", "cache all attributes");
-      addAcceptedValue("none", "disable attribute caching");
-      addAcceptedValue("config",
-          "cache attributes according to a given .config file");
-      addAcceptedValue("implicit",
-          "cache all attribute but also read a .config file that takes precedence");
-      addAcceptedValue(
-          "analyze",
-          "analyze the cache use during evaluation (when all attributes are cached)\n"
-              + "the result is available via the API in org.jastadd.CacheAnalyzer");
-      additionalDescription = ".config files have the following format:\n"
-          + " ((cache|uncache) NodeType.AttrName((ParamType(,ParamType)*)?);)*";
-    }
+  ValueOption cacheOption = new ValueOption("cache",
+      "global cache configuration overriding 'lazy' keyword")
+      .acceptMultipleValues(false)
+      .addAcceptedValue("none", "disable attribute caching")
+      .addAcceptedValue("all", "cache all attributes")
+      .addAcceptedValue("config", "cache attributes according to a given .config file")
+      .addAcceptedValue("implicit", "cache all attribute but also read a .config file that takes precedence")
+      .addAcceptedValue( "analyze", "analyze the cache use during evaluation (when all attributes are cached)\n"
+              + "the result is available via the API in org.jastadd.CacheAnalyzer")
+      .additionalDescription(".config files have the following format:\n"
+          + " ((cache|uncache) NodeType.AttrName((ParamType(,ParamType)*)?);)*");
 
-    @Override
-    public void onMatch() {
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      // Cache flag
-      if (arg.equals("all")) {
-        cacheAll = true;
-      } else if (arg.equals("none")) {
-        cacheNone = true;
-      } else if (arg.equals("config")) {
-        cacheConfig = true;
-      } else if (arg.equals("implicit")) {
-        cacheImplicit = true;
-      } else if (arg.equals("analyze")) {
-        cacheAnalyze = true;
-        // analysis requires full caching and tracing of cache usage
-        cacheAll = true;
-        tracing = true;
-        traceCache = true;
-      }
-    }
-  };
-
-  Option cacheAllOption = new Option(
-      "cacheAll", "Replaced by --cache=all") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  Option noCachingOption = new Option(
-      "noCaching", "Replaced by --cache=none") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  Option cacheNoneOption = new Option(
-      "cacheNone", "Replaced by --cache=none") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  Option cacheImplicitOption = new Option(
-      "cacheImplicit", "Replaced by --cache=implicit") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  Option ignoreLazyOption = new Option(
-      "ignoreLazy", "ignores the \"lazy\" keyword") {
-    {
-      isDeprecated = true;
-    }
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-    }
-  };
-
-  ValueOption incrementalOption = new ValueOption(
-      "incremental", "turns on incremental evaluation with the given configuration") {
-    {
-      acceptsMultipleValues = true;
-      addAcceptedValue("param", "dependency tracking on parameter level");
-      addAcceptedValue("region", "dependency tracking on region level");
-      addAcceptedValue("flush", "invalidate with flush (default)");// Default on? Any way to disable??
-      addAcceptedValue("full", "full change propagation (default)");// Default on? Any way to disable??
-      addAcceptedValue("debug",
-          "generate code for debugging and dumping of dependencies");
-    }
-
-    @Override
-    public void onMatch(String arg) {
-      incremental = true;
-      flushRewrite = true; // assuming that flushing is enabled by default with 'attr' and 'coll'
-      if (arg.equals("param")) {
-        incrementalLevelParam = true;
-      } else if (arg.equals("attr")) {
-        incrementalLevelAttr = true;
-      } else if (arg.equals("node")) {
-        incrementalLevelNode = true;
-      } else if (arg.equals("region")) {
-        incrementalLevelRegion = true;
-      } else if (arg.equals("flush")) {
-        incrementalChangeFlush = true;
-      } else if (arg.equals("mark")) {
-        incrementalChangeMark = true;
-      } else if (arg.equals("full")) {
-        incrementalPropFull = true;
-      } else if (arg.equals("limit")) {
-        incrementalPropLimit = true;
-      } else if (arg.equals("debug")) {
-        incrementalDebug = true;
-      } else if (arg.equals("track")) {
-        incrementalTrack = true;
-      }
-    }
-  };
-
-  Option fullFlushOption = new Option(
-      "fullFlush", "Replaced by --flush=full") {
-    {
-      isDeprecated = true;
-    }
-
-    @Override
-    public void onMatch() {
-      flushEnabled = true;
-      flushAttr = true;
-      flushColl = true;
-      flushRewrite = true;
-    }
-  };
+  ValueOption incrementalOption = new ValueOption("incremental",
+      "incremental evaluation")
+      .acceptMultipleValues(true)
+      .addDefaultValue("none", "incremental evaluation disabled")
+      .addAcceptedValue("param", "dependency tracking on parameter level")
+      .addAcceptedValue("region", "dependency tracking on region level")
+      .addAcceptedValue("flush", "invalidate with flush (default)")// Default on. Disable with incremental=none
+      .addAcceptedValue("full", "full change propagation (default)")// Default on. Disable with incremental=none
+      .addAcceptedValue("debug", "generate code for debugging and dumping of dependencies");
 
   Collection<String> filenames = new LinkedList<String>();
+  Collection<Option<?>> allOptions = new LinkedList<Option<?>>();
 
   /**
    * Constructor to parse options from argument list.
@@ -1151,64 +397,72 @@ public class Configuration {
    * Constructor - sets up available options.
    */
   public Configuration() {
+    allOptions.add(ASTNodeOption);
+    allOptions.add(ListOption);
+    allOptions.add(OptOption);
+    allOptions.add(jjtreeOption);
+    allOptions.add(grammarOption);
+    allOptions.add(defaultMapOption);
+    allOptions.add(defaultSetOption);
+    allOptions.add(lazyMapsOption);
+    allOptions.add(privateOption);
+    allOptions.add(rewriteOption);
+    allOptions.add(beaverOption);
+    allOptions.add(lineColumnNumbersOption);
+    allOptions.add(visitCheckOption);
+    allOptions.add(traceVisitCheckOption);
+    allOptions.add(cacheCycleOption);
+    allOptions.add(componentCheckOption);
+    allOptions.add(inhEqCheckOption);
+    allOptions.add(suppressWarningsOption);
+    allOptions.add(refineLegacyOption);
+    allOptions.add(licenseOption);
+    allOptions.add(debugOption);
+    allOptions.add(synchOption);
+    allOptions.add(outputDirOption);
+    allOptions.add(staticStateOption);
+    allOptions.add(tracingOption);
+    allOptions.add(flushOption);
+    allOptions.add(packageNameOption);
+    allOptions.add(versionOption);
+    allOptions.add(helpOption);
+    allOptions.add(printNonStandardOptionsOption);
+    allOptions.add(indentOption);
+    allOptions.add(minListSizeOption);
+    allOptions.add(cacheOption);
+    allOptions.add(incrementalOption);
+
+    // deprecated in 2.1.5
+    allOptions.add(doxygenOption);
+    allOptions.add(cacheAllOption);
+    allOptions.add(noCachingOption);
+    allOptions.add(cacheNoneOption);
+    allOptions.add(cacheImplicitOption);
+    allOptions.add(ignoreLazyOption);
+    allOptions.add(fullFlushOption);
+
+    // deprecated in 2.1.9
+    allOptions.add(docOption);
+    allOptions.add(java1_4Option);
+    allOptions.add(noLazyMapsOption);
+    allOptions.add(noVisitCheckOption);
+    allOptions.add(noCacheCycleOption);
+    allOptions.add(noRefineLegacyOption);
+    allOptions.add(noComponentCheckOption);
+    allOptions.add(noInhEqCheckOption);
+    allOptions.add(noStaticOption);
+    allOptions.add(deterministicOption);
+
     argParser = new ArgumentParser();
-    argParser.addOption(ASTNodeOption);
-    argParser.addOption(ListOption);
-    argParser.addOption(OptOption);
-    argParser.addOption(jjtreeOption);
-    argParser.addOption(grammarOption);
-    argParser.addOption(defaultMapOption);
-    argParser.addOption(defaultSetOption);
-    argParser.addOption(lazyMapsOption);
-    argParser.addOption(noLazyMapsOption);
-    argParser.addOption(privateOption);
-    argParser.addOption(rewriteOption);
-    argParser.addOption(beaverOption);
-    argParser.addOption(lineColumnNumbersOption);
-    argParser.addOption(noVisitCheckOption);
-    argParser.addOption(visitCheckOption);
-    argParser.addOption(noCacheCycleOption);
-    argParser.addOption(cacheCycleOption);
-    argParser.addOption(noComponentCheckOption);
-    argParser.addOption(componentCheckOption);
-    argParser.addOption(noInhEqCheckOption);
-    argParser.addOption(suppressWarningsOption);
-    argParser.addOption(refineLegacyOption);
-    argParser.addOption(noRefineLegacyOption);
-    argParser.addOption(stagedRewritesOption);
-    argParser.addOption(docOption);
-    argParser.addOption(doxygenOption);
-    argParser.addOption(licenseOption);
-    argParser.addOption(java1_4Option);
-    argParser.addOption(debugOption);
-    argParser.addOption(synchOption);
-    argParser.addOption(noStaticOption);
-    argParser.addOption(deterministicOption);
-    argParser.addOption(oOption);
-    argParser.addOption(tracingOption);
-    argParser.addOption(flushOption);
-    argParser.addOption(packageOption);
-    argParser.addOption(versionOption);
-    argParser.addOption(helpOption);
-    argParser.addOption(XOption);
-    argParser.addOption(indentOption);
-    argParser.addOption(minListSizeOption);
-    argParser.addOption(cacheOption);
-    argParser.addOption(cacheAllOption);
-    argParser.addOption(noCachingOption);
-    argParser.addOption(cacheNoneOption);
-    argParser.addOption(cacheImplicitOption);
-    argParser.addOption(ignoreLazyOption);
-    argParser.addOption(incrementalOption);
-    argParser.addOption(fullFlushOption);
+    argParser.addOptions(allOptions);
   }
 
   /**
    * Output directory to write generated AST node types in.
    * @return The configured output directory
    */
-  private File getOutputDir() {
-    return new File(outputDir);
+  public File outputDir() {
+    return new File(outputDirOption.value());
 
   }
 
@@ -1216,7 +470,7 @@ public class Configuration {
    * @return <code>true</code> if public modifier option is enabled
    */
   public boolean getPublicModifier() {
-    return publicModifier;
+    return !privateOption.value();
   }
 
   /**
@@ -1227,91 +481,82 @@ public class Configuration {
     Grammar root = new Grammar();
     root.setConfiguration(this);
 
-    // TODO handle this in a nicer way!
-    blockBegin = "synchronized(" + astNodeType + ".class) {\n";
-    blockEnd =   "}\n";
-    createContributorSet = "new java.util.LinkedList()";
+    indent = indent();
+    license = license();
 
     // Configuration object must be set before creating root template context!
     TemplateContext tt = root.templateContext();
-    if (block) {
-      tt.bindExpansion("SynchBegin", "SynchronizedBlockBegin");
-      tt.bindExpansion("SynchEnd", "SynchronizedBlockEnd");
-    } else {
-      tt.bind("SynchBegin", "");
-      tt.bind("SynchEnd", "");
+
+    // Global locking
+    tt.bind("SynchBegin", synchronizedBlockBegin(tt));
+    tt.bind("SynchEnd", synchronizedBlockEnd(tt));
+
+    for (Option<?> option: allOptions) {
+      option.bind(tt);
     }
 
     // Bind global template variables:
+    String packageName = packageName();
     if (packageName.isEmpty()) {
       tt.bind("PackageDecl", "");
     } else {
       tt.bind("PackageDecl", "package " + packageName + ";");
     }
-    tt.bind("ASTNode", astNodeType);
-    tt.bind("List", listType);
-    tt.bind("Opt", optType);
-    tt.bind("NoStatic", noStatic);
-    tt.bind("DebugMode", debugMode);
-    tt.bind("MinListSize", "" + minListSize);
-    tt.bind("LazyMaps", lazyMaps);
-    tt.bind("CircularEnabled", circularEnabled);
-    tt.bind("ComponentCheck", componentCheck);
-    tt.bind("CacheCycle", cacheCycle);
-    tt.bind("Java5", java5);
-    tt.bind("Beaver", useBeaverSymbol);
-    tt.bind("VisitCheckEnabled", visitCheckEnabled);
-    tt.bind("TraceVisitCheck", traceVisitCheck);
-    tt.bind("CreateDefaultMap", createDefaultMap);
-    tt.bind("DefaultMapType", typeDefaultMap);
-    tt.bind("CreateDefaultSet", createDefaultSet);
-    tt.bind("DefaultSetType", typeDefaultSet);
-    tt.bind("CreateContributorSet", createContributorSet);
-    tt.bind("ContributorSetType", "java.util.List");
+    
+    // Default attribute cache sets/maps
+    tt.bind("DefaultMapType", typeDefaultMap());
+    tt.bind("DefaultSetType", typeDefaultSet());
+    tt.bind("ContributorSetType", "java.util.Collection");
+    tt.bind("CreateContributorSet", createContributorSet());
 
     // Rewrites
-    tt.bind("RewriteEnabled", rewriteEnabled);
-    tt.bind("RewriteLimit", "" + rewriteLimit);
-    tt.bind("HasRewriteLimit", rewriteLimit > 0);
-    tt.bind("StagedRewrites", stagedRewrites);
-    tt.bind("RewriteCircularNTA", rewriteCircularNTA);
-
-    // JJTree
-    tt.bind("JJTree", jjtree);
-    tt.bind("ParserName", parserName);
+    tt.bind("RewriteEnabled", rewriteEnabled());
+    tt.bind("RewriteLimit", rewriteLimit());
+    tt.bind("HasRewriteLimit", rewriteLimit() > 0);
+    tt.bind("RewriteCircularNTA", rewriteCircularNTA());
 
     // Flush
-    tt.bind("FlushEnabled", flushEnabled);
-    tt.bind("FlushAttr", flushAttr);
-    tt.bind("FlushColl", flushColl);
-    tt.bind("FlushRewrite", flushRewrite);
+    tt.bind("FlushEnabled", flushEnabled());
+    tt.bind("FlushAttr", flushAttr());
+    tt.bind("FlushColl", flushColl());
+    tt.bind("FlushRewrite", flushRewrite());
 
     // Incremental
-    tt.bind("IncrementalEnabled", incremental);
-    tt.bind("IncrementalLevelParam", incrementalLevelParam);
-    tt.bind("IncrementalLevelAttr", incrementalLevelAttr);
-    tt.bind("IncrementalLevelNode", incrementalLevelNode);
-    tt.bind("IncrementalLevelRegion", incrementalLevelRegion);
-    tt.bind("IncrementalChangeFlush", incrementalChangeFlush);
-    tt.bind("IncrementalChangeMark", incrementalChangeMark);
-    tt.bind("IncrementalPropFull", incrementalPropFull);
-    tt.bind("IncrementalPropLimit", incrementalPropLimit);
-    tt.bind("IncrementalDebug", incrementalDebug);
-    tt.bind("IncrementalTrack", incrementalTrack);
-    tt.bind("DDGNodeName", astNodeType + "$DepGraphNode");
+    tt.bind("IncrementalEnabled", incremental());
+    tt.bind("IncrementalLevelParam", incrementalLevelParam());
+    tt.bind("IncrementalLevelAttr", incrementalLevelAttr());
+    tt.bind("IncrementalLevelNode", incrementalLevelNode());
+    tt.bind("IncrementalLevelRegion", incrementalLevelRegion());
+    tt.bind("IncrementalChangeFlush", incrementalChangeFlush());
+    tt.bind("IncrementalChangeMark", incrementalChangeMark());
+    tt.bind("IncrementalPropFull", incrementalPropFull());
+    tt.bind("IncrementalPropLimit", incrementalPropLimit());
+    tt.bind("IncrementalDebug", incrementalDebug());
+    tt.bind("IncrementalTrack", incrementalTrack());
+    tt.bind("DDGNodeName", astNodeType() + "$DepGraphNode");
 
     // Tracing
-    tt.bind("TracingEnabled", tracing);
-    tt.bind("TraceCompute", traceCompute);
-    tt.bind("TraceCache", traceCache);
-    tt.bind("TraceRewrite", traceRewrite);
-    tt.bind("TraceCircularNTA", traceCircularNTA);
-    tt.bind("TraceCircular", traceCircular);
-    tt.bind("TraceCopy", traceCopy);
-    tt.bind("TraceFlush", traceFlush);
+    tt.bind("TracingEnabled", tracingEnabled());
+
+    tt.bind("TraceCompute", traceCompute());
+    tt.bind("TraceCache", traceCache());
+    tt.bind("TraceRewrite", traceRewrite());
+    tt.bind("TraceCircularNTA", traceCircularNTA());
+    tt.bind("TraceCircular", traceCircular());
+    tt.bind("TraceCopy", traceCopy());
+    tt.bind("TraceFlush", traceFlush());
 
     // Cache
-    tt.bind("CacheAnalyzeEnabled", cacheAnalyze);
+    tt.bind("CacheAnalyzeEnabled", cacheAnalyzeEnabled());
+
+    // Set template variables to accomodate deprecated options
+    // (the deprecated options may alter the value of the template variable)
+    tt.bind("VisitCheckEnabled", visitCheckEnabled());
+    tt.bind("CacheCycle", cacheCycle());
+    tt.bind("StaticState", staticState());
+    tt.bind("StagedRewrites", stagedRewrites());
+    tt.bind("Java5", !java1_4Option.value());
+    tt.bind("LazyMaps", lazyMaps());
 
     return root;
   }
@@ -1322,7 +567,7 @@ public class Configuration {
    */
   public boolean checkProblems(PrintStream out) {
 
-    if (jjtree && parserName.isEmpty()) {
+    if (jjtreeOption.value() && grammarOption.value().isEmpty()) {
       out.println("Error: No grammar name given. A grammar name is required in JJTree-mode!");
       return true;
     }
@@ -1348,7 +593,7 @@ public class Configuration {
       }
     }
 
-    File outputDir = getOutputDir();
+    File outputDir = outputDir();
     if (!outputDir.exists()) {
       out.println("Error: Output directory " + outputDir.getAbsolutePath() +
         " does not exist");
@@ -1382,10 +627,8 @@ public class Configuration {
    * @return true if no errors
    */
   private boolean checkCacheConfig(PrintStream out) {
-    int num = (cacheAll?1:0) + (cacheNone?1:0) + (cacheImplicit?1:0);
-    if (num > 1) {
-      out.println("error: Conflict in cache configuration. " +
-        "Only one of --cacheAll, --cacheNone, and --cacheImplicit can be enabled.");
+    if (cacheOption.numValues() > 1) {
+      out.println("Error: only one cache option may be enabled");
       return false;
     }
     return true;
@@ -1398,46 +641,33 @@ public class Configuration {
    */
   private boolean checkIncrementalConfig(PrintStream out) {
     // check level: only one level at a time
-    if (incrementalLevelAttr && incrementalLevelNode ||
-        incrementalLevelAttr && incrementalLevelParam ||
-        incrementalLevelNode && incrementalLevelParam ||
-        incrementalLevelParam && incrementalLevelRegion ||
-        incrementalLevelAttr && incrementalLevelRegion ||
-        incrementalLevelNode && incrementalLevelRegion) {
+    if (incrementalLevelAttr() && incrementalLevelNode() ||
+        incrementalLevelAttr() && incrementalLevelParam() ||
+        incrementalLevelNode() && incrementalLevelParam() ||
+        incrementalLevelParam() && incrementalLevelRegion() ||
+        incrementalLevelAttr() && incrementalLevelRegion() ||
+        incrementalLevelNode() && incrementalLevelRegion()) {
       out.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"param\", \"attr\", \"node\" and \"region\".");
       return false;
     }
-    // check level: no chosen level means default -- "attr"
-    if (!incrementalLevelAttr && !incrementalLevelNode &&
-        !incrementalLevelParam && !incrementalLevelRegion) {
-      incrementalLevelAttr = true;
-    }
     // check invalidate: only one strategy at a time
-    if (incrementalChangeFlush && incrementalChangeMark) {
+    if (incrementalChangeFlush() && incrementalChangeMark()) {
       out.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"flush\" and \"mark\".");
       return false;
     }
-    // check invalidate: no chosen strategy means default -- "flush"
-    if (!incrementalChangeFlush && !incrementalChangeMark) {
-      incrementalChangeFlush = true;
-    }
     // check invalidate: currently not supporting mark strategy -- "mark"
-    if (incrementalChangeMark) {
+    if (incrementalChangeMark()) {
       out.println("error: Unsupported incremental evaluation configuration: " +
           "\"mark\".");
       return false;
     }
     // check propagation: only one strategy at a time
-    if (incrementalPropFull && incrementalPropLimit) {
+    if (incrementalPropFull() && incrementalPropLimit()) {
       out.println("error: Conflict in incremental evaluation configuration. " +
           "Cannot combine \"full\" and \"limit\".");
       return false;
-    }
-    // check propagation: no chosen strategy means default -- "full"
-    if (!incrementalPropFull && !incrementalPropLimit) {
-      incrementalPropFull = true;
     }
     // check propagation: currently not supporting limit strategy -- "limit" - we do now
     //if (root.incrementalPropLimit) {
@@ -1532,35 +762,330 @@ public class Configuration {
    * @return <code>true</code> if the version string should be printed
    */
   public boolean shouldPrintVersion() {
-    return printVersion;
+    return versionOption.value();
   }
 
   /**
    * @return <code>true</code> if the help message should be printed
    */
   public boolean shouldPrintHelp() {
-    return printHelp;
+    return helpOption.value();
   }
 
   /**
    * @return <code>true</code> if non-standard options should be printed
    */
   public boolean shouldPrintNonStandardOptions() {
-    return printNonStandardOptions;
+    return printNonStandardOptionsOption.value();
   }
 
   /**
    * @return <code>true</code> if the --tracing option is enabled
    */
   public boolean tracingEnabled() {
-    return tracing;
+    return !tracingOption.hasValue("none") ||
+      cacheAnalyzeEnabled();
+  }
+  public boolean traceAll() {
+    return tracingOption.hasValue("all") || tracingOption.value().isEmpty();
+  }
+  public boolean traceCompute() {
+    return traceAll() || tracingOption.hasValue("compute");
+  }
+  public boolean traceCache() {
+    return traceAll() || tracingOption.hasValue("cache") ||
+        // cache analysis requires full caching and tracing of cache usage
+        cacheAnalyzeEnabled();
+  }
+  public boolean traceRewrite() {
+    return traceAll() || tracingOption.hasValue("rewrite");
+  }
+  public boolean traceCircularNTA() {
+    return traceAll() || tracingOption.hasValue("circularNTA");
+  }
+  public boolean traceCircular() {
+    return traceAll() || tracingOption.hasValue("circular");
+  }
+  public boolean traceCopy() {
+    return traceAll() || tracingOption.hasValue("copy");
+  }
+  public boolean traceFlush() {
+    return traceAll() || tracingOption.hasValue("flush");
   }
 
   /**
    * @return <code>true</code> if the --cache=analyze option is enabled
    */
   public boolean cacheAnalyzeEnabled() {
-    return cacheAnalyze;
+    return cacheOption.hasValue("analyze");
   }
 
+  /**
+   * @return ASTNode type name
+   */
+  public String astNodeType() {
+    return ASTNodeOption.value();
+  }
+
+  /**
+   * @return List type name
+   */
+  public String listType() {
+    return ListOption.value();
+  }
+
+  /**
+   * @return Opt type name
+   */
+  public String optType() {
+    return OptOption.value();
+  }
+
+  public String indent() {
+    String arg = indentOption.value();
+    if (arg.equals("2space")) {
+      // Use 2 spaces for indentation
+      return "  ";
+    } else if (arg.equals("4space")) {
+      // Use 4 spaces for indentation
+      return "    ";
+    } else if (arg.equals("8space")) {
+      // Use 8 spaces for indentation
+      return "        ";
+    } else if (arg.equals("tab")) {
+      // Use tabs for indentation
+      return "\t";
+    }
+    return "  ";
+  }
+
+  public String license() {
+    String filename = licenseOption.value();
+    if (!filename.isEmpty()) {
+      try {
+        return readFile(filename);
+      } catch (IOException e) {
+      }
+    }
+    return "";
+  }
+
+  public String synchronizedBlockBegin(TemplateContext tc) {
+    return synchOption.value() ? tc.expand("SynchronizedBlockBegin") : "";
+  }
+
+  public String synchronizedBlockEnd(TemplateContext tc) {
+    return synchOption.value() ? tc.expand("SynchronizedBlockEnd") : "";
+  }
+
+  public boolean visitCheckEnabled() {
+    if (debugOption.value()) {
+      return true;
+    }
+    if (visitCheckOption.isMatched()) {
+      return visitCheckOption.value();
+    }
+    // fallback on deprecated option
+    return !noVisitCheckOption.value();
+  }
+
+  public boolean cacheAll() {
+    return cacheOption.hasValue("all") ||
+        // cache analysis requires full caching and tracing of cache usage
+        cacheAnalyzeEnabled();
+  }
+
+  public boolean cacheNone() {
+    return cacheOption.hasValue("none");
+  }
+
+  public boolean cacheConfig() {
+    return cacheOption.hasValue("config");
+  }
+
+  public boolean cacheImplicit() {
+    return cacheOption.hasValue("implicit");
+  }
+
+  public boolean incremental() {
+    return !incrementalOption.hasValue("none");
+  }
+
+  public boolean incrementalLevelParam() {
+    return incrementalOption.hasValue("param");
+  }
+  public boolean incrementalLevelAttr() {
+    return incrementalOption.hasValue("attr") ||
+        // no chosen level means default -- "attr"
+        (!incrementalLevelNode()
+            && !incrementalLevelParam()
+            && !incrementalLevelRegion());
+  }
+  public boolean incrementalLevelNode() {
+    return incrementalOption.hasValue("node");
+  }
+  public boolean incrementalLevelRegion() {
+    return incrementalOption.hasValue("region");
+  }
+  public boolean incrementalChangeFlush() {
+    return incrementalOption.hasValue("flush") ||
+        // no chosen strategy means default -- "flush"
+        !incrementalChangeMark();
+  }
+  public boolean incrementalChangeMark() {
+    return incrementalOption.hasValue("mark");
+  }
+  public boolean incrementalPropFull() {
+    return incrementalOption.hasValue("full") ||
+        // no chosen strategy means default -- "full"
+       !incrementalPropLimit();
+  }
+  public boolean incrementalPropLimit() {
+    return incrementalOption.hasValue("limit");
+  }
+  public boolean incrementalDebug() {
+    return incrementalOption.hasValue("debug");
+  }
+  public boolean incrementalTrack() {
+    return incrementalOption.hasValue("track");
+  }
+
+  public boolean lazyMaps() {
+    if (lazyMapsOption.isMatched()) {
+      return lazyMapsOption.value();
+    }
+    // fallback on deprecated option
+    return !noLazyMapsOption.value();
+  }
+
+  public String packageName() {
+    return packageNameOption.value();
+  }
+
+  public boolean refineLegacy() {
+    if (refineLegacyOption.isMatched()) {
+      return refineLegacyOption.value();
+    }
+    // fallback on deprecated option
+    return !noRefineLegacyOption.value();
+  }
+
+  public boolean rewriteCircularNTA() {
+    return rewriteOption.hasValue("cnta");
+  }
+
+  public boolean rewriteEnabled() {
+    return !rewriteOption.hasValue("none");
+  }
+
+  public boolean stagedRewrites() {
+    return stagedRewritesOption.value();
+  }
+
+  public String typeDefaultMap() {
+    return "java.util.Map";
+  }
+
+  public String typeDefaultSet() {
+    return "java.util.Set";
+  }
+
+  public boolean debugMode() {
+    return debugOption.value();
+  }
+
+  public boolean jjtree() {
+    return jjtreeOption.value();
+  }
+
+  public boolean flushEnabled() {
+    return !flushOption.hasValue("none");
+  }
+
+  public boolean flushAttr() {
+    return flushOption.hasValue("attr")
+      || flushOption.value().isEmpty()
+      || flushOption.hasValue("full");
+  }
+
+  public boolean flushColl() {
+    return flushOption.hasValue("coll")
+      || flushOption.value().isEmpty()
+      || flushOption.hasValue("full");
+  }
+
+  public boolean flushRewrite() {
+    return flushOption.hasValue("rewrite")
+      || incremental()
+      || flushOption.hasValue("full");
+  }
+
+  public String createDefaultMap() {
+    return defaultMapOption.value();
+  }
+
+  public String createDefaultSet() {
+    return defaultSetOption.value();
+  }
+
+  public String createContributorSet() {
+    return "new java.util.LinkedList()";
+  }
+
+  public boolean inhEqCheck() {
+    if (inhEqCheckOption.isMatched()) {
+      return inhEqCheckOption.value();
+    }
+    // fallback on deprecated option
+    return !noInhEqCheckOption.value();
+  }
+
+  public int rewriteLimit() {
+    return debugMode() ? 100 : 0;
+  }
+
+  public boolean useBeaverSymbol() {
+    return beaverOption.value();
+  }
+
+  public boolean componentCheck() {
+    return componentCheckOption.value();
+  }
+
+  public boolean lineColumnNumbers() {
+    return lineColumnNumbersOption.value();
+  }
+
+  public boolean cacheCycle() {
+    if (cacheCycleOption.isMatched()) {
+      return cacheCycleOption.value();
+    }
+    // fallback on deprecated option
+    return !noCacheCycleOption.value();
+  }
+
+  public boolean staticState() {
+    if (staticStateOption.isMatched()) {
+      return staticStateOption.value();
+    }
+    // fallback on deprecated option
+    return !noStaticOption.value();
+  }
+
+  public boolean java5() {
+    return !java1_4Option.value();
+  }
+
+  public int minListSize() {
+      try {
+        int size = Integer.parseInt(minListSizeOption.value());
+        if (size < 0) {
+          return 0;
+        } else {
+          return size;
+        }
+      } catch (NumberFormatException e) {
+        return 4;
+      }
+  }
 }

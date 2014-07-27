@@ -42,7 +42,7 @@ aspect Flush {
       AttrDecl attr = (AttrDecl)itr.next();
       sb.append(attr.signature() + "_reset();\n");
     }
-    if (config().rewriteCircularNTA && isASTNodeDecl()) {
+    if (config().rewriteCircularNTA() && isASTNodeDecl()) {
       sb.append("rewritten_int_reset();\n");
     }
     tt.bind("FlushAttrCacheBody", sb.toString());
@@ -97,7 +97,7 @@ aspect Flush {
       res.append(attr.resetVisit());
       res.append(attr.resetCache());
       if (!attr.separateEvaluation() && !attr.onePhase()) {
-        res.append(config().ind(2) + attr.signature() + "_contributors = " + (config().lazyMaps ? "null" : config().createContributorSet) + ";\n");
+        res.append(config().ind(2) + attr.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
       }
     }
     res.append(collectionReset());

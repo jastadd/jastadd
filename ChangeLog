@@ -1,3 +1,36 @@
+2014-09-01  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Deprecated options:
+
+        - doc (unused)
+        - java1.4 (not tested)
+        - noLazyMaps (equivalent to lazyMaps=false)
+        - noVisitCheck (equivalent to visitCheck=flase)
+        - noCacheCycle (equivalent to cacheCycle=false)
+        - noRefineLegacy (equivalent to refineLegacy=false)
+        - noComponentCheck (componentCheck was already off by default)
+        - noInhEqCheck (equivalent to inhEqCheck=false)
+        - noStatic (the name was misleading, renamed to staticState)
+        - deterministic (collection attributes are now always deterministic)
+
+    * New or updated options:
+
+        + staticState (replaces noStatic)
+        + incremental: added 'all' option
+
+    * Code generation changes
+
+        - Don't generate ASTNode$State.IdentityHashSet
+
+    * Template variable chnages:
+
+        * removed Deterministic (no longer relevant)
+        * removed CircularEnabled (was always enabled)
+        * removed NoStatic
+        * added StaticState (replaces NoStatic)
+
+    * Improved JastAddTask. Should now be closer to the command-line interface.
+
 2014-08-28  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Missing inherited equations are no longer reported for inherited

@@ -51,7 +51,7 @@ aspect CollectionAttributes {
         out.println(ind + "/**");
         out.println(ind + " * @apilevel internal");
         out.println(ind + " */");
-        out.println(ind + "public " + config().typeDefaultSet + " " + attr.signature() + "_contributors();");
+        out.println(ind + "public " + config().typeDefaultSet() + " " + attr.signature() + "_contributors();");
       }
     }
   }
@@ -60,7 +60,7 @@ aspect CollectionAttributes {
   eq CollDecl.root() = root != null ? grammar().lookup(root) : super.root();
 
   syn String AttrDecl.collDebugString() {
-    if (!config().debugMode) {
+    if (!config().debugMode()) {
       return "";
     } else {
       return "if (node == null) throw new RuntimeException(\"Trying to evaluate collection attribute in subtree not attached to main tree\");";
@@ -393,7 +393,7 @@ aspect CollectionAttributes {
       TemplateContext tt = attr.templateContext();
 
       boolean separateEvaluation = attr.separateEvaluation();
-      TypeDecl astDecl = grammar().lookup(config().astNodeType);
+      TypeDecl astDecl = grammar().lookup(config().astNodeType());
       TypeDecl rootDecl = attr.root();
       if (astDecl != null && rootDecl != null) {
         boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());

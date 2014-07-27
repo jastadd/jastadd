@@ -32,7 +32,7 @@ aspect Superclass {
   rewrite ASTDecl {
     when(!hasSuperClass() && !isASTNodeDecl())
     to ASTDecl {
-      setSuperClass(new IdUse(config().astNodeType));
+      setSuperClass(new IdUse(config().astNodeType()));
       return this;
     }
   }
