@@ -82,7 +82,7 @@ aspect ASTCloneNode {
     // the NTA children from the full copy, but for Opt and List NTAs
     // we still need to create a placeholder Opt/List node
     String skipNTAs = "";
-	String ind = config().indent;
+    String ind = config().indent;
     if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||
       !ntaListIndices.isEmpty()) {
 
