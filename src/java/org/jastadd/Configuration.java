@@ -214,9 +214,8 @@ public class Configuration {
 
   /**
    * Code to create contributor set.
-   * TODO make non-null!
    */
-  public String createContributorSet = null;
+  public String createContributorSet = "";
 
   /**
    * No-static flag.
@@ -793,6 +792,13 @@ public class Configuration {
     }
   };
 
+  Option deterministicOption = new Option(
+      "deterministic", "") {
+    {
+      isDeprecated = true;
+    }
+  };
+
   ValueOption oOption = new ValueOption(
       "o", "optional base output directory, default is current directory") {
     @Override
@@ -1177,6 +1183,7 @@ public class Configuration {
     argParser.addOption(debugOption);
     argParser.addOption(synchOption);
     argParser.addOption(noStaticOption);
+    argParser.addOption(deterministicOption);
     argParser.addOption(oOption);
     argParser.addOption(tracingOption);
     argParser.addOption(flushOption);
@@ -1223,7 +1230,7 @@ public class Configuration {
     // TODO handle this in a nicer way!
     blockBegin = "synchronized(" + astNodeType + ".class) {\n";
     blockEnd =   "}\n";
-    createContributorSet = "new " + astNodeType + "$State.IdentityHashSet(4)";
+    createContributorSet = "new java.util.LinkedList()";
 
     // Configuration object must be set before creating root template context!
     TemplateContext tt = root.templateContext();
@@ -1260,6 +1267,7 @@ public class Configuration {
     tt.bind("CreateDefaultSet", createDefaultSet);
     tt.bind("DefaultSetType", typeDefaultSet);
     tt.bind("CreateContributorSet", createContributorSet);
+    tt.bind("ContributorSetType", "java.util.List");
 
     // Rewrites
     tt.bind("RewriteEnabled", rewriteEnabled);

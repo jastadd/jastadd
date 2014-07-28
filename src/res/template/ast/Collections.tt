@@ -62,13 +62,13 @@ CollDecl.computeMethod:onePhase = [[
 ]]
 
 CollDecl.computeMethod = [[
-  $DefaultSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
+  $ContributorSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
 
   /**
    * @apilevel internal
    * @return the contributor set for #name
    */
-  public $DefaultSetType #(signature)_contributors() {
+  public $ContributorSetType #(signature)_contributors() {
 $if(LazyMaps)
     if(#(signature)_contributors == null)
       #(signature)_contributors  = $CreateContributorSet;
@@ -102,13 +102,13 @@ $endif
 ]]
 
 CollDecl.combineMethod = [[
-  $DefaultSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
+  $ContributorSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
 
   /**
    * @apilevel internal
    * @return the contributor set for #name
    */
-  public $DefaultSetType #(signature)_contributors() {
+  public $ContributorSetType #(signature)_contributors() {
 $if(LazyMaps)
     if(#(signature)_contributors == null)
       #(signature)_contributors  = $CreateContributorSet;
