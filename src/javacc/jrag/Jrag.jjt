@@ -1575,24 +1575,18 @@ void InterfaceDeclaration(String modifiers) :
 void UnmodifiedInterfaceDeclaration(String modifiers) :
 {
   Token t;
-  Token first;
+  SimpleNode nameList;
   String outerClassName;
-  SimpleNode nameList = null;
-  String typeParameters;
-  org.jastadd.ast.AST.TypeDecl typeDecl = null;
 }
 {
-  first = "interface"
+  "interface"
   t = <IDENTIFIER> {
     pushTopLevelOrAspect(false);
     outerClassName = className;
     className = t.image;
-    typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
-        fileName, first.beginLine, enclosingAspect);
-    typeDecl.modifiers = modifiers;
   }
-  [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
-  [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
+  [ TypeParameters() ]
+  [ "extends" nameList = TypeNameList() ]
   "{" ( InterfaceMemberDeclaration() )* "}" { className = outerClassName; popTopLevelOrAspect(); }
   { if(inTopLevelOrAspect()) root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect); }
 }
