@@ -146,7 +146,10 @@ public class SignatureUnparser implements JragParserVisitor {
   public Object visit(ASTUnmodifiedClassDeclaration node, Object data) {
     return "";
   }
-  public Object visit(ASTEnumDeclaration node, Object data) {
+  public Object visit(ASTAspectEnumDeclaration node, Object data) {
+    return "";
+  }
+  public Object visit(ASTUnmodifiedEnumDeclaration node, Object data) {
     return "";
   }
   public Object visit(ASTEnumBody node, Object data) {

@@ -354,7 +354,10 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
   public Object visit(ASTUnmodifiedClassDeclaration self, Object data) {
     return unparseSimple(self, (StringBuffer) data);
   }
-  public Object visit(ASTEnumDeclaration self, Object data) {
+  public Object visit(ASTAspectEnumDeclaration self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
+  public Object visit(ASTUnmodifiedEnumDeclaration self, Object data) {
     return unparseSimple(self, (StringBuffer) data);
   }
   public Object visit(ASTEnumBody self, Object data) {

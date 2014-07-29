@@ -163,6 +163,7 @@ outer: while (true) {
   syn String TypeDecl.typeDeclKind();
   eq ClassDecl.typeDeclKind() = "class";
   eq InterfaceDecl.typeDeclKind() = "interface";
+  eq EnumDecl.typeDeclKind() = "enum";
   eq ASTDecl.typeDeclKind() = "node";
 
   public String TypeDecl.extraDocCommentLines() {

@@ -536,7 +536,7 @@ void TypeDeclaration() :
    |
      InterfaceDeclaration(modifiers)
    |
-     EnumDeclaration(modifiers)
+     UnmodifiedEnumDeclaration(modifiers)
    |
      AnnotationTypeDeclaration(modifiers)
    |
@@ -582,6 +582,9 @@ void AspectBodyDeclaration() :
 |
   LOOKAHEAD( Modifiers() "interface" )
   AspectInterfaceDeclaration()
+|
+  LOOKAHEAD( Modifiers() "enum" )
+  AspectEnumDeclaration()
 |
   LOOKAHEAD( ( Annotation() )* "syn" )
   AspectSynAttributeDeclaration()
@@ -630,12 +633,12 @@ void AspectBodyDeclarationsEOF() :
   ( AspectBodyDeclaration() )* <EOF>
 }
 
-
 void AspectClassDeclaration() :
-{ Token t;
+{
+  Token t;
   Token first;
   String outerClassName;
-  StringBuffer name = new StringBuffer();
+  String name = "";
   SimpleNode nameList = null;
   String modifiers;
   SimpleNode node;
@@ -653,17 +656,19 @@ void AspectClassDeclaration() :
         fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers;
   }
-   [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
-  [
-  "extends"
-  node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
-  { if(!name.toString().equals("") &&  typeDecl instanceof org.jastadd.ast.AST.ClassDecl)
-      ((org.jastadd.ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
-  }
+  [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
+  [ "extends"
+    node = ClassOrInterfaceType() {
+      name = Unparser.unparse(node);
+      if (!name.equals("") &&  typeDecl instanceof org.jastadd.ast.AST.ClassDecl) {
+        ((org.jastadd.ast.AST.ClassDecl)typeDecl).extendsName = name;
+      }
+    }
   ]
   [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
   AspectClassBody() { className = outerClassName; popTopLevelOrAspect(); }
 }
+
 void AspectClassBody() :
 {
   SimpleNode n;
@@ -1474,23 +1479,48 @@ void UnmodifiedClassDeclaration(String modifiers) :
 }
 
 
-void EnumDeclaration(String modifiers):
+void AspectEnumDeclaration():
+{
+  Token t;
+  Token first;
+  String outerClassName;
+  String modifiers;
+  SimpleNode node;
+  org.jastadd.ast.AST.EnumDecl typeDecl = null;
+}
+{
+  modifiers = Modifiers()
+  first = "enum"
+  t = <IDENTIFIER> {
+    pushTopLevelOrAspect(true);
+    outerClassName = className;
+    className = t.image;
+    typeDecl = (org.jastadd.ast.AST.EnumDecl) root.findEnumDecl(className, Unparser.unparseComment(jjtThis),
+        fileName, first.beginLine, enclosingAspect);
+    typeDecl.modifiers = modifiers;
+    typeDecl.simpleNode = jjtThis;
+  }
+  [ "implements" TypeNameList() ]
+  EnumBody() { className = outerClassName; popTopLevelOrAspect(); }
+}
+
+void UnmodifiedEnumDeclaration(String modifiers):
 {}
 {
   "enum" { pushTopLevelOrAspect(false); } <IDENTIFIER>
   [ "implements" TypeNameList() ]
-  EnumBody()
-  { popTopLevelOrAspect();
-    if(inTopLevelOrAspect()) root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect); }
+  EnumBody() { popTopLevelOrAspect(); }
 }
 
 void EnumBody():
-{}
 {
-   "{"
-   EnumConstant() ( "," EnumConstant() )*
-   [ ";" ( ClassBodyDeclaration() )* ]
-   "}"
+  SimpleNode n;
+}
+{
+  "{"
+  EnumConstant() ( "," EnumConstant() )*
+  [ ";" ( ClassBodyDeclaration() )* ]
+  "}"
 }
 
 void EnumConstant():
@@ -1548,7 +1578,7 @@ SimpleNode ClassBodyDeclaration() :
   |
     AnnotationTypeDeclaration(modifiers)
   |
-    EnumDeclaration(modifiers)
+    UnmodifiedEnumDeclaration(modifiers)
   |
     LOOKAHEAD( [TypeParameters() ] <IDENTIFIER> "(" )
     ConstructorDeclaration(modifiers)
@@ -2461,7 +2491,7 @@ void AnnotationTypeMemberDeclaration():
   |
    UnmodifiedInterfaceDeclaration(modifiers)
   |
-   EnumDeclaration(modifiers)
+   UnmodifiedEnumDeclaration(modifiers)
   |
    AnnotationTypeDeclaration(modifiers)
   |

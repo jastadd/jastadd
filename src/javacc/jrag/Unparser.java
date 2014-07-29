@@ -332,7 +332,11 @@ public class Unparser implements JragParserVisitor {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTEnumDeclaration self, Object data) {
+  public Object visit(ASTAspectEnumDeclaration self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
+    return null;
+  }
+  public Object visit(ASTUnmodifiedEnumDeclaration self, Object data) {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }

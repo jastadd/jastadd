@@ -143,6 +143,7 @@ aspect JastAddCodeGen {
   public String TypeDecl.typeDeclarationString() {
     return "";
   }
+
   public String ClassDecl.typeDeclarationString() {
     String s = interfacesString();
     if (s.equals(""))
@@ -151,12 +152,21 @@ aspect JastAddCodeGen {
       return modifiers() + "class " + getIdDecl().getID() + typeParameters + " extends " + extendsName + " implements " +
         s + " {";
   }
+
   public String InterfaceDecl.typeDeclarationString() {
     String s = interfacesString();
     if (s.equals(""))
       return modifiers() + "interface " + getIdDecl().getID() + typeParameters + " {";
     else
       return modifiers() + "interface " + getIdDecl().getID() + typeParameters + " extends " + s + " {";
+  }
+
+  public String EnumDecl.typeDeclarationString() {
+    String s = interfacesString();
+    if (s.isEmpty())
+      return modifiers() + "enum " + getIdDecl().getID() + typeParameters + " {";
+    else
+      return modifiers() + "enum " + getIdDecl().getID() + typeParameters + " implements " + s + " {";
   }
 
   public String ASTDecl.componentString() {
@@ -235,6 +245,32 @@ aspect JastAddCodeGen {
       emitInterfaceCollections(stream);
 
       stream.println("}");
+      stream.close();
+    } catch (FileNotFoundException f) {
+      System.err.println("Could not create file " + file.getName() + " in " + file.getParent());
+      System.exit(1);
+    }
+  }
+
+  public org.jastadd.jrag.AST.SimpleNode EnumDecl.simpleNode = null;
+  public void EnumDecl.jastAddGen(boolean publicModifier) {
+    File file = grammar().targetJavaFile(name());
+    try {
+      PrintStream stream = new PrintStream(new FileOutputStream(file));
+      if (!config().license.isEmpty()) {
+        stream.println(config().license);
+      }
+
+      // TODO move to template
+      if (!config().packageName.isEmpty()) {
+        stream.println("package " + config().packageName + ";\n");
+      }
+
+      stream.print(grammar().genImportsList());
+      stream.println(docComment());
+
+      stream.println(Unparser.unparse(simpleNode));
+
       stream.close();
     } catch (FileNotFoundException f) {
       System.err.println("Could not create file " + file.getName() + " in " + file.getParent());

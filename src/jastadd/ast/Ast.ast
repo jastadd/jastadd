@@ -10,6 +10,7 @@ abstract TypeDecl ::= IdDecl ClassBodyDecl* SynDecl* SynEq* InhDecl* InhEq*
 
 ClassDecl : TypeDecl ::= ;
 InterfaceDecl : TypeDecl ::= ;
+EnumDecl : TypeDecl ::= ;
 
 ASTDecl : TypeDecl ::= [Abstract] IdDecl [SuperClass:IdUse] Components*
   SynDecl* SynEq* InhDecl* InhEq* ClassBodyDecl* Rewrite* CollDecl* CollEq*

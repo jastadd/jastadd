@@ -371,19 +371,22 @@ public aspect Attributes {
 
   public LinkedList<InterTypeObject> Grammar.interTypeObjects = new LinkedList<InterTypeObject>();
 
-  public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className, String fileName, String aspectName) {
-    interTypeObjects.add(new InterTypeObject(className, new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName)));
+  public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
+      String className, String fileName, String aspectName) {
+    interTypeObjects.add(new InterTypeObject(className, new ClassBodyObject(n,
+            fileName, n.firstToken.beginLine, aspectName)));
   }
 
-  public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n, String className,
-      String fileName, String modifiers, String aspectName) {
+  public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
+      String className, String fileName, String modifiers, String aspectName) {
     ClassBodyObject obj = new ClassBodyObject(n, fileName,
         n.firstToken.beginLine, aspectName);
     obj.modifiers = modifiers;
     interTypeObjects.add(new InterTypeObject(className, obj));
   }
 
-  public void Grammar.addInterface(org.jastadd.jrag.AST.SimpleNode nameList, String className, String fileName) {
+  public void Grammar.addInterface(org.jastadd.jrag.AST.SimpleNode nameList,
+      String className, String fileName) {
     if (nameList == null) {
       System.err.println("Panic");
     } else {

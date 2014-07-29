@@ -40,9 +40,9 @@ aspect Lookup {
   public TypeDecl Grammar.findClassDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if (!comment.startsWith("/"))
+    if (!comment.startsWith("//") || !comment.startsWith("/*")) {
       comment = "";
-
+    }
     TypeDecl t = lookup(name);
     if (t == null) {
       t = new ClassDecl(new IdDecl(name), new List(), new List(), new List(),
@@ -57,11 +57,28 @@ aspect Lookup {
   public TypeDecl Grammar.findInterfaceDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if (!comment.startsWith("/"))
+    if (!comment.startsWith("//") || !comment.startsWith("/*")) {
       comment = "";
+    }
     TypeDecl t = lookup(name);
     if (t == null) {
       t = new InterfaceDecl(new IdDecl(name), new List(), new List(),
+          new List(), new List(), new List(), new List(), new List(),
+          fileName, beginLine, -1, comment, enclosingAspect);
+      addTypeDecl(t);
+    }
+    return t;
+  }
+
+  public TypeDecl Grammar.findEnumDecl(String name, String comment,
+      String fileName, int beginLine, String enclosingAspect) {
+    comment = comment.trim();
+    if (!comment.startsWith("//") || !comment.startsWith("/*")) {
+      comment = "";
+    }
+    TypeDecl t = lookup(name);
+    if (t == null) {
+      t = new EnumDecl(new IdDecl(name), new List(), new List(),
           new List(), new List(), new List(), new List(), new List(),
           fileName, beginLine, -1, comment, enclosingAspect);
       addTypeDecl(t);
