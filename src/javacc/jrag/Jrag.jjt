@@ -552,8 +552,8 @@ void AspectDeclaration(String modifiers) :
     enclosingAspect = t.image;
     root.registerAspect(enclosingAspect, Unparser.unparseComment(jjtThis));
   }
-    [ "extends" ClassOrInterfaceType() ] [ "implements" TypeNameList() ] AspectBody()
-   { popTopLevelOrAspect(); enclosingAspect = ""; }
+  AspectBody()
+  { popTopLevelOrAspect(); enclosingAspect = ""; }
 }
 
 void AspectBody() :
