@@ -234,7 +234,7 @@ public class JastAddUtil {
     jp.root = grammar;
     jp.setFileName(sourceName);
     jp.className = sourceName;
-    jp.pushTopLevelOrAspect(true);
+    jp.pushTopLevelOrAspect("aspect");
     try {
       jp.AspectBodyDeclarationsEOF();
       problems.addAll(JastAdd.weaveInterTypeObjects(grammar));
