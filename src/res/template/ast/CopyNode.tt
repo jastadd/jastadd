@@ -168,6 +168,13 @@ $if(RewriteEnabled)
     if (node.is$$Final()) {
       node.flushAttrAndCollectionCache();
     }
+    node.in$$Circle(false);
+    // flush rewrites
+  $if(StagedRewrites)
+    node.is$$Final(0);
+  $else
+    node.is$$Final(false);
+  $endif
 $else
     node.flushAttrAndCollectionCache();
 $endif
