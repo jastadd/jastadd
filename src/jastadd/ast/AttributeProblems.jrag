@@ -271,8 +271,8 @@ aspect AttributeProblems {
     return error(buf.toString());
   }
 
-  InhEq contributes multiDeclProblem()
-    when hasMultiDeclProblem()
+  InhEq contributes multiEqProblem()
+    when hasMultiEqProblem()
     to TypeDecl.attributeProblems()
     for hostClass();
 
@@ -281,12 +281,12 @@ aspect AttributeProblems {
    */
   syn InhEq InhEq.prevEq() = hostClass().lookupInhEq(signature(), childName());
 
-  syn boolean InhEq.hasMultiDeclProblem() =
+  syn boolean InhEq.hasMultiEqProblem() =
     prevEq() != null && prevEq() != this;
 
-  syn Problem InhEq.multiDeclProblem() {
+  syn Problem InhEq.multiEqProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("multiple equation for inherited attribute " +
+    buf.append("multiple equations for inherited attribute " +
         childName() + "." + name() + " in class " + hostClass().name());
     buf.append(" and " + prevEq().name() + " in class " + prevEq().hostClass().name() +
         " in " + prevEq().getFileName() + ":" + prevEq().getStartLine());
@@ -316,7 +316,7 @@ aspect AttributeProblems {
 
   syn Problem InhDecl.multiDeclProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("multiple declaration of inherited attribute " + hostClass().name() + "." + name());
+    buf.append("multiple declarations of inherited attribute " + hostClass().name() + "." + name());
     buf.append(", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine());
     return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
   }
@@ -326,12 +326,6 @@ aspect AttributeProblems {
     when hostClass().isRootNode()
     to TypeDecl.attributeProblems()
     for hostClass();
-
-  syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
-
-  syn boolean AttrDecl.isDuplicateInhDecl() = false;
-
-  eq InhDecl.isDuplicateInhDecl() = prevDecl() != this;
 
   AttrDecl contributes unsupportedAnnotationProblem()
     when hasUnsupportedAnnotation()

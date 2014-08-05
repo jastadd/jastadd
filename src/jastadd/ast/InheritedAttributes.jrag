@@ -27,6 +27,7 @@
  */
 
 aspect InheritedAttributes {
+
   /**
    * Ensure no duplicate inherited declarations.
    * Warnings are reported for duplicate inherited declarations.
@@ -49,6 +50,47 @@ aspect InheritedAttributes {
       }
     }
   }
+
+  syn boolean AttrDecl.isDuplicateInhDecl() = false;
+  eq InhDecl.isDuplicateInhDecl() = prevDecl() != this;
+
+  syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
+
+  syn lazy InhDecl TypeDecl.lookupInhDecl(String signature) {
+    for (int i = 0; i < getNumInhDecl(); i++) {
+      if (getInhDecl(i).signature().equals(signature)) {
+        return getInhDecl(i);
+      }
+    }
+    return null;
+  }
+
+  eq ASTDecl.lookupInhDecl(String signature) {
+    InhDecl decl = super.lookupInhDecl(signature);
+    if (decl != null || superClass() == null) {
+      return decl;
+    }
+    return superClass().lookupInhDecl(signature);
+  }
+
+  /**
+   * Find all inherited attribute declarations in the grammar. Used for
+   * semantic analysis and error checkin of inherited attributes.
+   *
+   * @return map containing all inherited attribute declarations in
+   * the grammar
+   */
+  Map<String,InhDecl> Grammar.inhDecls() {
+    Map<String,InhDecl> decls = new HashMap<String,InhDecl>();
+    for (TypeDecl type: getTypeDecls()) {
+      for (int i = 0; i < type.getNumInhDecl(); ++i) {
+        InhDecl decl = type.getInhDecl(i);
+        decls.put(decl.signature(), decl);
+      }
+    }
+    return decls;
+  }
+
 }
 
 aspect FindInheritedEquations {
@@ -153,15 +195,26 @@ aspect FindInheritedEquations {
   private void ASTDecl.addMissingChildInhEqs(Collection<InhDecl> missing,
       String childName, Collection<InhDecl> childMissing) {
 
-      for (InhDecl inhDecl: childMissing) {
-        if (!defaultInhEqs().contains(inhDecl.signature())) {
-          Collection<String> componentEqs = componentInhEqs().get(childName);
-          if (componentEqs == null || !componentEqs.contains(inhDecl.signature())) {
-            // we have no equation X.getY() = ...;
-            missing.add(inhDecl);
-          }
+      for (InhDecl decl: childMissing) {
+        if (!hasInhEqForDecl(childName, decl.signature())) {
+          // we have no equation X.getY() = ...;
+          missing.add(decl);
         }
       }
+  }
+
+  /**
+   * Lookup matching equation for an inherited attribute declaration.
+   * @param childName name of child component containing declaration
+   * @param signature signature of the declaration
+   * @return {@code true} if there is an equation matching the declaration
+   */
+  syn boolean ASTDecl.hasInhEqForDecl(String childName, String signature) {
+    if (defaultInhEqs().contains(signature)) {
+      return true;
+    }
+    Collection<String> componentEqs = componentInhEqs().get(childName);
+    return componentEqs != null && componentEqs.contains(signature);
   }
 
   /**

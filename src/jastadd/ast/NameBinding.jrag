@@ -173,23 +173,6 @@ aspect BindSynEquations {
     return superClass().lookupSynEq(signature);
   }
 
-  syn lazy InhDecl TypeDecl.lookupInhDecl(String signature) {
-    for (int i = 0; i < getNumInhDecl(); i++) {
-      if (getInhDecl(i).signature().equals(signature)) {
-        return getInhDecl(i);
-      }
-    }
-    return null;
-  }
-
-  eq ASTDecl.lookupInhDecl(String signature) {
-    InhDecl decl = super.lookupInhDecl(signature);
-    if (decl != null || superClass() == null) {
-      return decl;
-    }
-    return superClass().lookupInhDecl(signature);
-  }
-
   syn lazy boolean TypeDecl.hasInhEq(InhDecl decl, Components c) =
     lookupInhEq(decl.signature(), c.name()) != null;
 
@@ -218,44 +201,8 @@ aspect BindSynEquations {
 
 aspect LookupDecls {
   syn lazy AttrDecl AttrEq.decl();
-  eq InhEq.decl() = hostClass().getInhDeclFor(signature(), new LinkedHashSet());
+  eq InhEq.decl() = grammar().inhDecls().get(signature());
   eq SynEq.decl() = hostClass().lookupSynDecl(signature());
-
-  syn InhDecl TypeDecl.getInhDeclFor(String signature, Collection visited) {
-    visited.add(this);
-    InhDecl inhDecl = lookupInhDecl(signature);
-    if (inhDecl != null) {
-      return inhDecl;
-    }
-    for (Iterator children = getComponents(); children.hasNext(); ) {
-      Components c = (Components)children.next();
-      if (!(c instanceof TokenComponent)) {
-        TypeDecl decl = (ASTDecl) grammar().lookup(c.type());
-        if (decl != null && !visited.contains(decl)) {
-          InhDecl d = decl.getInhDeclFor(signature, visited);
-          if (d != null) return d;
-        }
-      }
-    }
-    return null;
-  }
-
-  eq ASTDecl.getInhDeclFor(String signature, Collection visited) {
-    InhDecl decl = super.getInhDeclFor(signature, visited);
-
-    if (decl != null) {
-      return decl;
-    }
-
-    for (Iterator iter = subclasses().iterator(); iter.hasNext(); ) {
-      ASTDecl subclass = (ASTDecl)iter.next();
-      if (!visited.contains(subclass)) {
-        InhDecl d = subclass.getInhDeclFor(signature, visited);
-        if (d != null) return d;
-      }
-    }
-    return null;
-  }
 }
 
 aspect ASTDecl {
