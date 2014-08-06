@@ -45,7 +45,7 @@ aspect AttributeProblems {
    */
   syn Collection<Problem> Grammar.attributeProblems() {
     Collection<Problem> problems = new LinkedList<Problem>();
-    if (config().inhEqCheck && hasMissingInhEq()) {
+    if (config().inhEqCheck) {
       problems.addAll(missingInhEqProblems());
     }
     for (int i = 0; i < getNumTypeDecl(); i++) {
@@ -53,8 +53,6 @@ aspect AttributeProblems {
     }
     return problems;
   }
-
-  syn boolean Grammar.hasMissingInhEq() = !missingInhEqs().isEmpty();
 
   syn Collection<Problem> Grammar.missingInhEqProblems() {
     Collection<Problem> problems = new LinkedList<Problem>();

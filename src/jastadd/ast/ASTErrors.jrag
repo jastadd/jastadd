@@ -50,8 +50,8 @@ aspect ASTErrors {
   eq ASTDecl.isRootNode() =
     !hasAbstract() &&
     !isASTNodeDecl() &&
-    !isOptDecl() &&
-    !isListDecl() &&
+    !isOptSubtype() &&
+    !isListSubtype() &&
     parents().isEmpty();
 
   Grammar contributes new Problem.Warning("there is no root node in the grammar!")
