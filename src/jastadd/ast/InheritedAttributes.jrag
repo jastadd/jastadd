@@ -176,15 +176,17 @@ aspect FindInheritedEquations {
       }
     }
 
-    // add all inh attrs declared on this node
-    for (InhDecl decl: getInhDeclList()) {
-      missing.add(decl);
-    }
-
-    // add all missing equations from supertypes
-    for (ASTDecl supertype: supertypes()) {
-      for (InhDecl decl: supertype.getInhDeclList()) {
+    if (!isRootNode()) {
+      // add all inh attrs declared on this node
+      for (InhDecl decl: getInhDeclList()) {
         missing.add(decl);
+      }
+
+      // add all missing equations from supertypes
+      for (ASTDecl supertype: supertypes()) {
+        for (InhDecl decl: supertype.getInhDeclList()) {
+          missing.add(decl);
+        }
       }
     }
 
