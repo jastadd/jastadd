@@ -50,6 +50,11 @@ public class BooleanOption extends Option<Boolean> {
     value = defaultValue;
   }
 
+  /**
+   * Set a default value for this option.
+   * @param newDefault
+   * @return this option object
+   */
   public BooleanOption defaultValue(boolean newDefault) {
     defaultValue = newDefault;
     this.value = defaultValue;

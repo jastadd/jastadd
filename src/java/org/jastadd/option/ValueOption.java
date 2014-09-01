@@ -80,6 +80,11 @@ public class ValueOption extends Option<String> {
     super(optionName, description);
   }
 
+  /**
+   * Add a default value for this option
+   * @param defaultValue
+   * @return this option object
+   */
   public ValueOption defaultValue(String defaultValue) {
     addDefaultValue(defaultValue, "");
     return this;

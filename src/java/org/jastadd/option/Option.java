@@ -138,6 +138,7 @@ abstract public class Option<ValueType> {
    * Make this a option deprecated
    * @param since the version in which this option was deprecated
    * @return self
+   * @param message deprecation message
    */
   public final Option<ValueType> deprecated(String since, String message) {
     deprecationMessage = message;
