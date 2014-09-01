@@ -1,6 +1,54 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.9 - 2014-09-01
+------------------
+
+### Bug Fixes
+
+* Allow inherited attributes to be declared on List and Opt, even if not
+  declared on other nodes.
+* Fixed error where a cloned node would not be able to be rewritten if the node
+  it cloned was already rewritten once.
+* Interface declarations nested in a class declaration should no longer cause
+  JastAdd to generate a top-level interface with the same name.
+* Removed aspect extends and implements constructs that were never used (these
+  were parsed by JastAdd but then ignored).
+* Removed indirect call to flushRewriteCache from clone.  This caused a bug
+  when rewrites, flush, and treeCopy were used together.
+
+### Code Generation
+
+* Aspect top-level enum declarations are now supported.
+* JastAdd2 can now weave generic method inter-type declarations such
+  as `public <T> void A.m()`
+
+### Command-line Interface
+
+* Deprecated some command-line options:
+        - doc (unused)
+        - java1.4 (not tested)
+        - noLazyMaps (equivalent to lazyMaps=false)
+        - noVisitCheck (equivalent to visitCheck=flase)
+        - noCacheCycle (equivalent to cacheCycle=false)
+        - noRefineLegacy (equivalent to refineLegacy=false)
+        - noComponentCheck (componentCheck was already off by default)
+        - noInhEqCheck (equivalent to inhEqCheck=false)
+        - noStatic (the name was misleading, renamed to staticState)
+        - deterministic (collection attributes are now always deterministic)
+* Added or updated some options:
+        + staticState (replaces noStatic)
+        + incremental: added 'none' option (this is the default value)
+* More information is printed when using deprecated options (added "deprecated
+  since" and optional deprecation description)
+* The JastAdd Ant task now behaves more like the command-line interface. The
+  same warnings are printed for deprecated options and some options that were
+not available in the Ant task have been added.
+* JastAdd no longer warns about missing inherited equations for inherited
+  attributes declared on ASTNode.
+* Subtypes of List and Opt are no longer considered root nodes for the missing
+  inherited equation warnings.
+
 2.1.8 - 2014-06-11
 ------------------
 
