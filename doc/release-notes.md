@@ -26,19 +26,19 @@ JastAdd2 Release Notes
 ### Command-line Interface
 
 * Deprecated some command-line options:
-        - doc (unused)
-        - java1.4 (not tested)
-        - noLazyMaps (equivalent to lazyMaps=false)
-        - noVisitCheck (equivalent to visitCheck=flase)
-        - noCacheCycle (equivalent to cacheCycle=false)
-        - noRefineLegacy (equivalent to refineLegacy=false)
-        - noComponentCheck (componentCheck was already off by default)
-        - noInhEqCheck (equivalent to inhEqCheck=false)
-        - noStatic (the name was misleading, renamed to staticState)
-        - deterministic (collection attributes are now always deterministic)
+    - doc (unused)
+    - java1.4 (not tested)
+    - noLazyMaps (equivalent to lazyMaps=false)
+    - noVisitCheck (equivalent to visitCheck=flase)
+    - noCacheCycle (equivalent to cacheCycle=false)
+    - noRefineLegacy (equivalent to refineLegacy=false)
+    - noComponentCheck (componentCheck was already off by default)
+    - noInhEqCheck (equivalent to inhEqCheck=false)
+    - noStatic (the name was misleading, renamed to staticState)
+    - deterministic (collection attributes are now always deterministic)
 * Added or updated some options:
-        + staticState (replaces noStatic)
-        + incremental: added 'none' option (this is the default value)
+    + staticState (replaces noStatic)
+    + incremental: added 'none' option (this is the default value)
 * More information is printed when using deprecated options (added "deprecated
   since" and optional deprecation description)
 * The JastAdd Ant task now behaves more like the command-line interface. The
