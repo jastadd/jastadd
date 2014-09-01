@@ -373,8 +373,8 @@ public class Configuration {
       .addDefaultValue("none", "incremental evaluation disabled")
       .addAcceptedValue("param", "dependency tracking on parameter level")
       .addAcceptedValue("region", "dependency tracking on region level")
-      .addAcceptedValue("flush", "invalidate with flush (default)")// Default on. Disable with incremental=none
-      .addAcceptedValue("full", "full change propagation (default)")// Default on. Disable with incremental=none
+      .addAcceptedValue("flush", "invalidate with flush")
+      .addAcceptedValue("full", "full change propagation")
       .addAcceptedValue("debug", "generate code for debugging and dumping of dependencies");
 
   Collection<String> filenames = new LinkedList<String>();
@@ -502,7 +502,7 @@ public class Configuration {
     } else {
       tt.bind("PackageDecl", "package " + packageName + ";");
     }
-    
+
     // Default attribute cache sets/maps
     tt.bind("DefaultMapType", typeDefaultMap());
     tt.bind("DefaultSetType", typeDefaultSet());
