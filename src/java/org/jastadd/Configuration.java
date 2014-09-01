@@ -549,7 +549,7 @@ public class Configuration {
     // Cache
     tt.bind("CacheAnalyzeEnabled", cacheAnalyzeEnabled());
 
-    // Set template variables to accomodate deprecated options
+    // Set template variables to accommodate deprecated options
     // (the deprecated options may alter the value of the template variable)
     tt.bind("VisitCheckEnabled", visitCheckEnabled());
     tt.bind("CacheCycle", cacheCycle());
