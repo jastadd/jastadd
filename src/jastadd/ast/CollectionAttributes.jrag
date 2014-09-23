@@ -51,7 +51,7 @@ aspect CollectionAttributes {
         out.println(ind + "/**");
         out.println(ind + " * @apilevel internal");
         out.println(ind + " */");
-        out.println(ind + "public " + config().typeDefaultSet() + " " + attr.signature() + "_contributors();");
+        out.println(ind + "public " + config().typeDefaultContributorSet() + " " + attr.signature() + "_contributors();");
       }
     }
   }

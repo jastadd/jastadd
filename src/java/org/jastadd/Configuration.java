@@ -506,7 +506,7 @@ public class Configuration {
     // Default attribute cache sets/maps
     tt.bind("DefaultMapType", typeDefaultMap());
     tt.bind("DefaultSetType", typeDefaultSet());
-    tt.bind("ContributorSetType", "java.util.Collection");
+    tt.bind("ContributorSetType", typeDefaultContributorSet());
     tt.bind("CreateContributorSet", createContributorSet());
 
     // Rewrites
@@ -988,6 +988,10 @@ public class Configuration {
 
   public String typeDefaultSet() {
     return "java.util.Set";
+  }
+
+  public String typeDefaultContributorSet() {
+    return "java.util.Collection";
   }
 
   public boolean debugMode() {
