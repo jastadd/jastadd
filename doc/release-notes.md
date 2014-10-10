@@ -1,6 +1,15 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.9 - 2014-10-10
+------------------
+
+### Bug Fixes
+
+* Fixed regression since version 2.1.9 causing collection attributes on
+  interfaces to generate illegal code (incorrect return type on interface
+method).
+
 2.1.9 - 2014-09-01
 ------------------
 
