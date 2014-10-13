@@ -154,6 +154,12 @@ public class JastAdd {
         return 1;
       }
 
+      if (config.shouldGenerateDotGraph()) {
+        // generate Dot graph for the grammar, then exit
+        grammar.genDotGraph(out);
+        return 0;
+      }
+
       long astParseTime = System.currentTimeMillis() - time;
       Collection<Problem> problems = grammar.problems();
       long astErrorTime = System.currentTimeMillis() - time - astParseTime;

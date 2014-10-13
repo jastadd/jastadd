@@ -377,6 +377,10 @@ public class Configuration {
       .addAcceptedValue("full", "full change propagation")
       .addAcceptedValue("debug", "generate code for debugging and dumping of dependencies");
 
+  Option<Boolean> dotOption = new FlagOption("dot",
+      "generate a Dot graph from the grammar")
+      .nonStandard();
+
   Collection<String> filenames = new LinkedList<String>();
   Collection<Option<?>> allOptions = new LinkedList<Option<?>>();
 
@@ -431,6 +435,9 @@ public class Configuration {
     allOptions.add(minListSizeOption);
     allOptions.add(cacheOption);
     allOptions.add(incrementalOption);
+
+    // new since 2.1.11
+    allOptions.add(dotOption);
 
     // deprecated in 2.1.5
     allOptions.add(doxygenOption);
@@ -1080,6 +1087,9 @@ public class Configuration {
     return !java1_4Option.value();
   }
 
+  /**
+   * @return minimum number of list items in a non-empty List node
+   */
   public int minListSize() {
       try {
         int size = Integer.parseInt(minListSizeOption.value());
@@ -1091,5 +1101,12 @@ public class Configuration {
       } catch (NumberFormatException e) {
         return 4;
       }
+  }
+
+  /**
+   * @return {@code true} if a Dot graph should be generated from the grammar
+   */
+  public boolean shouldGenerateDotGraph() {
+    return dotOption.value();
   }
 }
