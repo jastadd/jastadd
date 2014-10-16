@@ -78,4 +78,6 @@ echo "5. Tag the jastadd-test repository with the new JastAdd2 version"
 echo "    cd ../jastadd-test"
 echo "    git tag -a ${VERSION} -m \"Tests for JastAdd2 ${VERSION}\""
 echo "    git push origin ${VERSION}"
+echo "6. Upload artifacts to JastAdd Maven repository"
+echo "    gradle uploadArchives"
 
