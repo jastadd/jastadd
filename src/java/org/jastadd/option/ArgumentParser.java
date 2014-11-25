@@ -68,9 +68,11 @@ public class ArgumentParser {
    * Parse command-line arguments.
    * @param args Command-line arguments
    * @param err output stream to print warnings to
+   * @return {@code true} if there were no unknown options, {@code false} otherwise
    */
-  public void parseArgs(String[] args, PrintStream err) {
+  public boolean parseArgs(String[] args, PrintStream err) {
     int i = 0;
+    boolean haveUnknown = false;
     while (i < args.length) {
       String arg = args[i].toLowerCase();
       if (arg.startsWith(Option.PREFIX)) {
@@ -90,7 +92,8 @@ public class ArgumentParser {
           }
         }
         if (option == null) {
-          err.println("Warning: unknown option '" + arg + "' will be ignored");
+          err.println("Error: unknown option '" + arg + "' will be ignored");
+          haveUnknown = true;
         }
       } else {
         // not an option - add to filename list
@@ -98,6 +101,7 @@ public class ArgumentParser {
       }
       i += 1;
     }
+    return !haveUnknown;
   }
 
   /**

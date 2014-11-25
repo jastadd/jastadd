@@ -49,8 +49,6 @@ import org.jastadd.tinytemplate.TemplateContext;
  */
 public class Configuration {
 
-  private final ArgumentParser argParser;
-
   /**
    * Indentation level cache.
    */
@@ -382,25 +380,38 @@ public class Configuration {
       .nonStandard();
 
   Collection<String> filenames = new LinkedList<String>();
-  Collection<Option<?>> allOptions = new LinkedList<Option<?>>();
 
   /**
-   * Constructor to parse options from argument list.
+   * Indicates if there were unknown command-line options
+   */
+  final boolean unknownOptions;
+
+  /**
+   * Parse options from an argument list.
    * @param args Command-line arguments to build configuration from
    * @param err output stream to print configuration warnings to
    */
   public Configuration(String[] args, PrintStream err) {
-    this();
-
-    // parse the argument list
-    argParser.parseArgs(args, err);
+    ArgumentParser argParser = argParser();
+    unknownOptions = !argParser.parseArgs(args, err);
     filenames  = argParser.getFilenames();
   }
 
   /**
-   * Constructor - sets up available options.
+   * Create an uninitialized configuration.
    */
   public Configuration() {
+    unknownOptions = false;
+  }
+
+  private ArgumentParser argParser() {
+    ArgumentParser parser = new ArgumentParser();
+    parser.addOptions(allOptions());
+    return parser;
+  }
+
+  private Collection<Option<?>> allOptions() {
+    Collection<Option<?>> allOptions = new LinkedList<Option<?>>();
     allOptions.add(ASTNodeOption);
     allOptions.add(ListOption);
     allOptions.add(OptOption);
@@ -459,9 +470,7 @@ public class Configuration {
     allOptions.add(noInhEqCheckOption);
     allOptions.add(noStaticOption);
     allOptions.add(deterministicOption);
-
-    argParser = new ArgumentParser();
-    argParser.addOptions(allOptions);
+    return allOptions;
   }
 
   /**
@@ -498,7 +507,7 @@ public class Configuration {
     tt.bind("SynchBegin", synchronizedBlockBegin(tt));
     tt.bind("SynchEnd", synchronizedBlockEnd(tt));
 
-    for (Option<?> option: allOptions) {
+    for (Option<?> option: allOptions()) {
       option.bind(tt);
     }
 
@@ -573,6 +582,10 @@ public class Configuration {
    * @return {@code true} if configuration has fatal errors
    */
   public boolean checkProblems(PrintStream out) {
+
+    if (unknownOptions) {
+      return true;
+    }
 
     if (jjtreeOption.value() && grammarOption.value().isEmpty()) {
       out.println("Error: No grammar name given. A grammar name is required in JJTree-mode!");
@@ -742,7 +755,7 @@ public class Configuration {
     out.println("Source file syntax can be found at http://jastadd.org");
     out.println();
     out.println("Options:");
-    argParser.printHelp(out);
+    argParser().printHelp(out);
     out.println();
     out.println("Arguments:");
     out.println("Names of .ast, .jrag, .jadd and .config source files");
@@ -762,7 +775,7 @@ public class Configuration {
    */
   public void printNonStandardOptions(PrintStream out) {
     out.println("Non-standard options:");
-    argParser.printNonStandardOptions(out);
+    argParser().printNonStandardOptions(out);
   }
 
   /**
