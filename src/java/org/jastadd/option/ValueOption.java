@@ -130,12 +130,6 @@ public class ValueOption extends Option<String> {
   }
 
   @Override
-  public int matchWithSeparateArg(PrintStream err, String arg) {
-    onMatch(err, arg);
-    return 1;
-  }
-
-  @Override
   protected String description() {
     if (defaultValues.isEmpty()) {
       return description;

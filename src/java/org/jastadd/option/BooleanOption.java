@@ -72,12 +72,6 @@ public class BooleanOption extends Option<Boolean> {
   }
 
   @Override
-  public int matchWithSeparateArg(PrintStream err, String arg) {
-    onMatch(err, arg);
-    return 1;
-  }
-
-  @Override
   protected void onMatch(PrintStream out) {
     reportWarnings(out);
     isMatched = true;

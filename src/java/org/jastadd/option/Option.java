@@ -211,19 +211,6 @@ abstract public class Option<ValueType> {
   }
 
   /**
-   * Called when the option was matched against an argument list, with a
-   * separate argument for the option.
-   *
-   * @param err Error output stream
-   * @param arg The argument
-   * @return 1 if the separate argument is used by this option
-   */
-  public int matchWithSeparateArg(PrintStream err, String arg) {
-    onMatch(err);
-    return 0;
-  }
-
-  /**
    * Match the option, without argument.
    */
   protected void onMatch(PrintStream out) {

@@ -86,11 +86,7 @@ public class ArgumentParser {
         } else {
           option = options.get(arg);
           if (option != null) {
-            if (i+1 < args.length && !args[i+1].startsWith(Option.PREFIX)) {
-              i += option.matchWithSeparateArg(err, args[i+1]);
-            } else {
-              option.matchWithoutArg(err);
-            }
+            option.matchWithoutArg(err);
           }
         }
         if (option == null) {
