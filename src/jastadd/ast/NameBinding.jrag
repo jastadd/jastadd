@@ -47,6 +47,7 @@ aspect AttributeNamesAndTypes {
     s = s.replace('<', '_');
     s = s.replace('>', '_');
     s = s.replace('[', '_');
+    s = s.replace('?', '_');
     s = s.replace(']', 'a');
     return s;
   }
