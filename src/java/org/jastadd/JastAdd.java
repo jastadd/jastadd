@@ -296,6 +296,7 @@ public class JastAdd {
     return problems;
   }
 
+  @SuppressWarnings("unchecked")
   protected static Collection<Problem> weaveInterTypeObjects(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (InterTypeObject object: grammar.interTypeObjects) {

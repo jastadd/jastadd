@@ -806,29 +806,61 @@ public class Configuration {
     return !tracingOption.hasValue("none") ||
       cacheAnalyzeEnabled();
   }
+
+  /**
+   * @return {@code true} if everything should be traced
+   */
   public boolean traceAll() {
     return tracingOption.hasValue("all") || tracingOption.value().isEmpty();
   }
+
+  /**
+   * @return {@code true} if attribute computes should be traced
+   */
   public boolean traceCompute() {
     return traceAll() || tracingOption.hasValue("compute");
   }
+
+  /**
+   * @return {@code true} if cache events should be traced
+   */
   public boolean traceCache() {
     return traceAll() || tracingOption.hasValue("cache") ||
         // cache analysis requires full caching and tracing of cache usage
         cacheAnalyzeEnabled();
   }
+
+  /**
+   * @return {@code true} if rewrite events should be traced
+   */
   public boolean traceRewrite() {
     return traceAll() || tracingOption.hasValue("rewrite");
   }
+
+  /**
+   * @return {@code true} if circular NTAs should be traced
+   */
   public boolean traceCircularNTA() {
     return traceAll() || tracingOption.hasValue("circularNTA");
   }
+
+  /**
+   * @return {@code true} if circular evaluation should be traced
+   */
   public boolean traceCircular() {
     return traceAll() || tracingOption.hasValue("circular");
   }
+
+  /**
+   * @return {@code true} if copy events should be traced
+   */
   public boolean traceCopy() {
     return traceAll() || tracingOption.hasValue("copy");
   }
+
+  /**
+   * @return {@code true} if flush events should be traced
+   */
   public boolean traceFlush() {
     return traceAll() || tracingOption.hasValue("flush");
   }
@@ -861,6 +893,9 @@ public class Configuration {
     return OptOption.value();
   }
 
+  /**
+   * @return configured indentation
+   */
   public String indent() {
     String arg = indentOption.value();
     if (arg.equals("2space")) {
@@ -879,6 +914,9 @@ public class Configuration {
     return "  ";
   }
 
+  /**
+   * @return license string
+   */
   public String license() {
     String filename = licenseOption.value();
     if (!filename.isEmpty()) {
@@ -890,14 +928,25 @@ public class Configuration {
     return "";
   }
 
+  /**
+   * @param tc
+   * @return the start of the synchronized block in attribute evaluator
+   */
   public String synchronizedBlockBegin(TemplateContext tc) {
     return synchOption.value() ? tc.expand("SynchronizedBlockBegin") : "";
   }
 
+  /**
+   * @param tc
+   * @return the end of the synchronized block in attribute evaluator
+   */
   public String synchronizedBlockEnd(TemplateContext tc) {
     return synchOption.value() ? tc.expand("SynchronizedBlockEnd") : "";
   }
 
+  /**
+   * @return {@code true} if visit checks are enabled
+   */
   public boolean visitCheckEnabled() {
     if (debugOption.value()) {
       return true;
@@ -909,31 +958,53 @@ public class Configuration {
     return !noVisitCheckOption.value();
   }
 
+  /**
+   * @return {@code true} if everything should be cached
+   */
   public boolean cacheAll() {
     return cacheOption.hasValue("all") ||
         // cache analysis requires full caching and tracing of cache usage
         cacheAnalyzeEnabled();
   }
 
+  /**
+   * @return {@code true} if nothing should be cached
+   */
   public boolean cacheNone() {
     return cacheOption.hasValue("none");
   }
 
+  /**
+   * @return {@code true} if cache configuration should be used
+   */
   public boolean cacheConfig() {
     return cacheOption.hasValue("config");
   }
 
+  /**
+   * @return {@code true} if implicit caching is used
+   */
   public boolean cacheImplicit() {
     return cacheOption.hasValue("implicit");
   }
 
+  /**
+   * @return {@code true} if incremental evaluation is enabled
+   */
   public boolean incremental() {
     return !incrementalOption.hasValue("none");
   }
 
+  /**
+   * @return {@code true} if --incremental=param
+   */
   public boolean incrementalLevelParam() {
     return incrementalOption.hasValue("param");
   }
+
+  /**
+   * @return {@code true} if --incremental=attr
+   */
   public boolean incrementalLevelAttr() {
     return incrementalOption.hasValue("attr") ||
         // no chosen level means default -- "attr"
@@ -941,35 +1012,70 @@ public class Configuration {
             && !incrementalLevelParam()
             && !incrementalLevelRegion());
   }
+
+  /**
+   * @return {@code true} if --incremental=node
+   */
   public boolean incrementalLevelNode() {
     return incrementalOption.hasValue("node");
   }
+
+  /**
+   * @return {@code true} if --incremental=region
+   */
   public boolean incrementalLevelRegion() {
     return incrementalOption.hasValue("region");
   }
+
+  /**
+   * @return {@code true} if --incremental=flush
+   */
   public boolean incrementalChangeFlush() {
     return incrementalOption.hasValue("flush") ||
         // no chosen strategy means default -- "flush"
         !incrementalChangeMark();
   }
+
+  /**
+   * @return {@code true} if --incremental=mark
+   */
   public boolean incrementalChangeMark() {
     return incrementalOption.hasValue("mark");
   }
+
+  /**
+   * @return {@code true} if --incremental=full
+   */
   public boolean incrementalPropFull() {
     return incrementalOption.hasValue("full") ||
         // no chosen strategy means default -- "full"
        !incrementalPropLimit();
   }
+
+  /**
+   * @return {@code true} if --incremental=limit
+   */
   public boolean incrementalPropLimit() {
     return incrementalOption.hasValue("limit");
   }
+
+  /**
+   * @return {@code true} if --incremental=debug
+   */
   public boolean incrementalDebug() {
     return incrementalOption.hasValue("debug");
   }
+
+  /**
+   * @return {@code true} if --incremental=track
+   */
   public boolean incrementalTrack() {
     return incrementalOption.hasValue("track");
   }
 
+  /**
+   * @return {@code true} if --lazyMaps=true
+   */
   public boolean lazyMaps() {
     if (lazyMapsOption.isMatched()) {
       return lazyMapsOption.value();
@@ -978,10 +1084,16 @@ public class Configuration {
     return !noLazyMapsOption.value();
   }
 
+  /**
+   * @return the AST package name
+   */
   public String packageName() {
     return packageNameOption.value();
   }
 
+  /**
+   * @return {@code true} if --refineLegacy
+   */
   public boolean refineLegacy() {
     if (refineLegacyOption.isMatched()) {
       return refineLegacyOption.value();
@@ -990,72 +1102,120 @@ public class Configuration {
     return !noRefineLegacyOption.value();
   }
 
+  /**
+   * @return {@code true} if --rewrite=cnta
+   */
   public boolean rewriteCircularNTA() {
     return rewriteOption.hasValue("cnta");
   }
 
+  /**
+   * @return {@code true} if --rewrite=none
+   */
   public boolean rewriteEnabled() {
     return !rewriteOption.hasValue("none");
   }
 
+  /**
+   * @return {@code true} if --stagedRewrites=true
+   */
   public boolean stagedRewrites() {
     return stagedRewritesOption.value();
   }
 
+  /**
+   * @return default map type
+   */
   public String typeDefaultMap() {
     return "java.util.Map";
   }
 
+  /**
+   * @return default set type
+   */
   public String typeDefaultSet() {
     return "java.util.Set";
   }
 
+  /**
+   * @return default contributor collection type
+   */
   public String typeDefaultContributorSet() {
     return "java.util.Collection";
   }
 
+  /**
+   * @return {@code true} if --debug
+   */
   public boolean debugMode() {
     return debugOption.value();
   }
 
+  /**
+   * @return {@code true} if --jjtree
+   */
   public boolean jjtree() {
     return jjtreeOption.value();
   }
 
+  /**
+   * @return {@code true} if --flush=none
+   */
   public boolean flushEnabled() {
     return !flushOption.hasValue("none");
   }
 
+  /**
+   * @return {@code true} if --flush=attr || --flush=full
+   */
   public boolean flushAttr() {
     return flushOption.hasValue("attr")
       || flushOption.value().isEmpty()
       || flushOption.hasValue("full");
   }
 
+  /**
+   * @return {@code true} if --flush=coll || --flush=full
+   */
   public boolean flushColl() {
     return flushOption.hasValue("coll")
       || flushOption.value().isEmpty()
       || flushOption.hasValue("full");
   }
 
+  /**
+   * @return {@code true} if --flush=rewrite || --flush=full
+   */
   public boolean flushRewrite() {
     return flushOption.hasValue("rewrite")
       || incremental()
       || flushOption.hasValue("full");
   }
 
+  /**
+   * @return default map initialization
+   */
   public String createDefaultMap() {
     return defaultMapOption.value();
   }
 
+  /**
+   * @return default set initialization
+   */
   public String createDefaultSet() {
     return defaultSetOption.value();
   }
 
+  /**
+   * @return default ontributor collection initialization
+   */
   public String createContributorSet() {
     return "new java.util.LinkedList()";
   }
 
+  /**
+   * @return {@code true} if --inhEqCheck=true
+   */
   public boolean inhEqCheck() {
     if (inhEqCheckOption.isMatched()) {
       return inhEqCheckOption.value();
@@ -1064,22 +1224,37 @@ public class Configuration {
     return !noInhEqCheckOption.value();
   }
 
+  /**
+   * @return rewrite limit (0 if disabled)
+   */
   public int rewriteLimit() {
     return debugMode() ? 100 : 0;
   }
 
+  /**
+   * @return {@code true} if --beaver
+   */
   public boolean useBeaverSymbol() {
     return beaverOption.value();
   }
 
+  /**
+   * @return {@code true} if --componentCheck=true
+   */
   public boolean componentCheck() {
     return componentCheckOption.value();
   }
 
+  /**
+   * @return {@code true} if --lineColumnNumbers
+   */
   public boolean lineColumnNumbers() {
     return lineColumnNumbersOption.value();
   }
 
+  /**
+   * @return {@code true} if --cacheCycle
+   */
   public boolean cacheCycle() {
     if (cacheCycleOption.isMatched()) {
       return cacheCycleOption.value();
@@ -1088,6 +1263,9 @@ public class Configuration {
     return !noCacheCycleOption.value();
   }
 
+  /**
+   * @return {@code true} if the AST state should be stored static
+   */
   public boolean staticState() {
     if (staticStateOption.isMatched()) {
       return staticStateOption.value();
@@ -1096,6 +1274,9 @@ public class Configuration {
     return !noStaticOption.value();
   }
 
+  /**
+   * @return {@code true} if Java 5 mode is enabled
+   */
   public boolean java5() {
     return !java1_4Option.value();
   }
