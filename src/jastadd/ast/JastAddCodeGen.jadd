@@ -352,10 +352,11 @@ aspect JastAddCodeGen {
       if (config().java5() && (isOptDecl() || isListDecl() || isASTNodeDecl())) {
         stream.print("<T extends " + config().astNodeType() + ">");
       }
-      if (config().jjtree() && isASTNodeDecl()) {
-        stream.print(" extends SimpleNode ");
-      } else if (config().useBeaverSymbol() && isASTNodeDecl()) {
-        stream.print(" extends beaver.Symbol ");
+      if (isASTNodeDecl()) {
+        String superType = config().astNodeSuperType();
+        if (!superType.equals("")) {
+          stream.print(" extends " + superType);
+        }
       } else if (hasSuperClass()) {
         stream.print(" extends ");
         String name = getSuperClass().name();

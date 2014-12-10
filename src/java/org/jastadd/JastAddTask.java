@@ -90,6 +90,10 @@ public class JastAddTask extends Task {
     setOption(config.OptOption, arg);
   }
 
+  public void setASTNodeSuper(String arg) {
+    setOption(config.ASTNodeSuperOption, arg);
+  }
+    
   public void setJjtree(boolean enable) {
     setOption(config.jjtreeOption, enable);
   }

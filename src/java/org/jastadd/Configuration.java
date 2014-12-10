@@ -100,6 +100,12 @@ public class Configuration {
       .defaultValue("Opt")
       .templateName("Opt");
 
+  Option<String> ASTNodeSuperOption = new ValueOption("ASTNodeSuper",
+      "set the name of the ASTNode supertype")
+      .unrestricted()
+      //.defaultValue("Object")
+      .templateName("ASTNodeSuper");
+    
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
       "use jjtree base node, this requires --grammar to be set")
       .templateName("JJTree");
@@ -449,6 +455,7 @@ public class Configuration {
 
     // new since 2.1.11
     allOptions.add(dotOption);
+    allOptions.add(ASTNodeSuperOption);
 
     // deprecated in 2.1.5
     allOptions.add(doxygenOption);
@@ -470,6 +477,7 @@ public class Configuration {
     allOptions.add(noInhEqCheckOption);
     allOptions.add(noStaticOption);
     allOptions.add(deterministicOption);
+
     return allOptions;
   }
 
@@ -635,6 +643,21 @@ public class Configuration {
     }
 
     if (!checkCacheConfig(out)) {
+      return true;
+    }
+
+    if (jjtreeOption.value() && !ASTNodeSuperOption.value().isEmpty()) {
+      out.println("Error: Cannot use --jjtree and --ASTNodeSuper at the same time!");
+      return true;
+    }
+
+    if (beaverOption.value() && !ASTNodeSuperOption.value().isEmpty()) {
+      out.println("Error: Cannot use --beaver and --ASTNodeSuper at the same time!");
+      return true;
+    }
+
+    if (beaverOption.value() && jjtreeOption.value()) {
+      out.println("Error: Cannot use --beaver and --jjtree at the same time!");
       return true;
     }
 
@@ -891,6 +914,18 @@ public class Configuration {
    */
   public String optType() {
     return OptOption.value();
+  }
+
+  /**
+   * @return ASTNodeSuper type name
+   */
+  public String astNodeSuperType() {
+    if (ASTNodeSuperOption.value().isEmpty()) {
+      if (beaverOption.value()) return "beaver.Symbol";
+      if (jjtree()) return "SimpleNode";
+      return "";
+    }
+    return ASTNodeSuperOption.value();
   }
 
   /**
