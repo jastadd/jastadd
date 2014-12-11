@@ -452,4 +452,11 @@ aspect AttributeProblems {
     when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
+
+  CollDecl contributes error(
+      "Unknown collection root: \"" + root + "\"")
+    when root != null && root() == null
+    to TypeDecl.attributeProblems()
+    for hostClass();
+
 }
