@@ -30,7 +30,9 @@ package org.jastadd.option;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -109,7 +111,9 @@ public class ArgumentParser {
    * @param out The output stream to print descriptions to.
    */
   public void printHelp(PrintStream out) {
-    for (Option<?> option: options.values()) {
+    List<Option<?>> theOptions = new ArrayList<Option<?>>(options.values());
+    Collections.sort(theOptions);
+    for (Option<?> option: theOptions) {
       if (!option.isNonStandard && !option.isDeprecated) {
         option.printHelp(out);
       }
@@ -121,7 +125,9 @@ public class ArgumentParser {
    * @param out The output stream to print descriptions to.
    */
   public void printNonStandardOptions(PrintStream out) {
-    for (Option<?> option: options.values()) {
+    List<Option<?>> theOptions = new ArrayList<Option<?>>(options.values());
+    Collections.sort(theOptions);
+    for (Option<?> option: theOptions) {
       if (option.isNonStandard) {
         option.printHelp(out);
       }

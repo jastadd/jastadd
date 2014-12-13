@@ -46,7 +46,7 @@ import org.jastadd.tinytemplate.TemplateContext;
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * @param <ValueType>
  */
-abstract public class Option<ValueType> {
+abstract public class Option<ValueType> implements Comparable<Option<?>> {
 
   /**
    * The prefix string used for all command-line
@@ -284,4 +284,9 @@ abstract public class Option<ValueType> {
    * @return the current value of this option
    */
   abstract public ValueType value();
+
+  @Override
+  public int compareTo(Option other) {
+    return name.compareTo(other.name);
+  }
 }
