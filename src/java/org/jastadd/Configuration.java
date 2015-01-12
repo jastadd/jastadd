@@ -105,7 +105,7 @@ public class Configuration {
       .unrestricted()
       //.defaultValue("Object")
       .templateName("ASTNodeSuper");
-    
+
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
       "use jjtree base node, this requires --grammar to be set")
       .templateName("JJTree");
@@ -142,7 +142,8 @@ public class Configuration {
       .needsValue(false)
       .acceptMultipleValues(false)
       .addDefaultValue("none", "rewrites are disabled")
-      .addAcceptedValue("regular", "rewrites do not use NTAs")
+      .addAcceptedValue("true", "enable rewrites")
+      .addAcceptedValue("regular", "enable rewrites using the default implementation (not using CNTAs)")
       .addAcceptedValue("cnta", "evaluate rewrites with circular NTAs");
 
   Option<Boolean> beaverOption = new FlagOption("beaver",
