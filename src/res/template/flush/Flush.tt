@@ -132,17 +132,16 @@ $endif
 
 AttrDecl.resetMethod = [[
 $if(FlushAttr)
-/**
- * @apilevel internal
- */
-private void #(signature)_reset() {
-  $include(AttrDecl.traceHookFlushAttr)
-  $include(AttrDecl.resetAttrCache)
-  $include(AttrDecl.resetAttrVisit)
-}  
+  /**
+   * @apilevel internal
+   */
+  private void #(signature)_reset() {
+    $include(AttrDecl.traceHookFlushAttr)
+    $include(AttrDecl.resetAttrCache)
+    $include(AttrDecl.resetAttrVisit)
+  }
 $endif
 ]]
-
 
 AttrDecl.resetAttrCache = [[
 $if(#isCircular)

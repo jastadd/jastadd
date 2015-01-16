@@ -843,7 +843,7 @@ aspect JragCodeGen {
               comp instanceof OptionalComponentNTA
               || comp instanceof TokenComponentNTA
               || comp instanceof AggregateComponentsNTA )) {
-          result.append(config().indent + "set" + attrName + "(" + signature() + "_value);\n");
+          result.append("set" + attrName + "(" + signature() + "_value);\n");
         }
         if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
           result.append("set" + attrName + "(" + signature() + "_value);\n");
