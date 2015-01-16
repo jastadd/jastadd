@@ -313,6 +313,9 @@ aspect JragCodeGen {
     }
   }
 
+  /**
+   * @return {@code true} if the attribute is declared as NTA in the aspect file
+   */
   syn boolean AttrDecl.declaredNTA() = false;
   eq SynDecl.declaredNTA() = getNTA();
   eq InhDecl.declaredNTA() = getNTA();
@@ -682,7 +685,7 @@ aspect JragCodeGen {
   public String AttrDecl.differs(String s1, String s2) {
     if (isPrimitive()) {
       return s1 + " != " + s2;
-    } else if (getNTA() && isCircular()) {
+    } else if (declaredNTA() && isCircular()) {
       if (isRewriteCircularNtaAttr()) {
         return "rewriteState != ASTNode$State.REWRITE_NOCHANGE";
       }
@@ -737,7 +740,7 @@ aspect JragCodeGen {
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
           attr.emitResetMethod(out);
-          if (attr.getNTA()) {
+          if (attr.declaredNTA()) {
             attr.emitCacheDeclarations(out);
           } else {
             if (config().lazyMaps()) {
@@ -764,6 +767,10 @@ aspect JragCodeGen {
     }
   }
 
+  /**
+   * @return {@code true} if this attribute matches an NTA component declared
+   * in the grammar
+   */
   public boolean AttrDecl.isNTA() {
     return false;
   }
@@ -820,7 +827,24 @@ aspect JragCodeGen {
   }
 
   public String SynDecl.higherOrderAttributeCode() {
-    if (getNTA()) {
+    Components comp = findCorrespondingNTA();
+    if (comp != null) {// check for component NTA
+      StringBuilder result = new StringBuilder();
+      String attrName = getName().substring(3); // remove get
+      if (comp.name().equals(attrName) && (
+            comp instanceof OptionalComponentNTA
+            || comp instanceof TokenComponentNTA
+            || comp instanceof AggregateComponentsNTA )) {
+        result.append("set" + attrName + "(" + signature() + "_value);\n");
+      }
+      if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
+        result.append("set" + attrName + "(" + signature() + "_value);\n");
+      }
+      if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+        result.append("set" + attrName + "(" + signature() + "_value);\n");
+      }
+      return result.toString();
+    } else if (declaredNTA()) {// check if attribute equation declared NTA
       if (config().rewriteEnabled()) {
         if (config().stagedRewrites()) {
           return templateContext().expand("SynDecl.higherOrderAttributeCode:stagedrewrites");
@@ -830,27 +854,8 @@ aspect JragCodeGen {
       } else {
         return templateContext().expand("SynDecl.higherOrderAttributeCode:norewrite");
       }
-    } else {
-      // non-NTA
-      StringBuilder result = new StringBuilder();
-      Components comp = findCorrespondingNTA();
-      if (comp != null) {
-        String attrName = getName().substring(3); // remove get
-        if (comp.name().equals(attrName) && (
-              comp instanceof OptionalComponentNTA
-              || comp instanceof TokenComponentNTA
-              || comp instanceof AggregateComponentsNTA )) {
-          result.append("set" + attrName + "(" + signature() + "_value);\n");
-        }
-        if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-          result.append("set" + attrName + "(" + signature() + "_value);\n");
-        }
-        if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-          result.append("set" + attrName + "(" + signature() + "_value);\n");
-        }
-      }
-      return result.toString();
     }
+    return "";
   }
 
   public void TypeDecl.emitInhDeclarations(PrintStream out) {

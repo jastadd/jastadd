@@ -175,7 +175,7 @@ aspect AttributeProblems {
     for hostClass();
 
   SynDecl contributes error("return type of NTA must be an AST node")
-    when getNTA() && !(grammar().lookup(type().split("<")[0]) instanceof ASTDecl)
+    when declaredNTA() && !(grammar().lookup(type().split("<")[0]) instanceof ASTDecl)
     to TypeDecl.attributeProblems()
     for hostClass();
 
@@ -254,7 +254,7 @@ aspect AttributeProblems {
 
   syn boolean InhEq.hasUnknownNTAProblem() =
     !hasUnknownChildProblem() &&
-    (getChildAttrDecl() == null || !getChildAttrDecl().getNTA()) &&
+    (getChildAttrDecl() == null || !getChildAttrDecl().declaredNTA()) &&
     (getComponents() == null && !getChildName().equals("getChild"));
 
   syn Problem InhEq.unknownNTAProblem() {
@@ -263,7 +263,7 @@ aspect AttributeProblems {
     if (decl == null) {
       buf.append("inherited equation for unknown NTA " + childName()
            + " in class " + hostClass().name());
-    } else if (!decl.getNTA()) {
+    } else if (!decl.declaredNTA()) {
       buf.append("inherited equation for attribute " + childName() + " which is not a NTA");
     }
     return error(buf.toString());
