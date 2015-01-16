@@ -26,7 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 AttrDecl.returnStmt = [[
-$if(#isNTAToken)
+$if(#isAttrNTA)
 #(getType) node = (#getType) this.getChild(#(signature)ChildPosition());
 $include(AttrDecl.incHookAttrCompEnd)
 return node;
@@ -614,26 +614,26 @@ state.RESET_CYCLE = false;]]
 AttrDecl.cacheCheck = [[
 $if(#hasCache)
 $include(AttrDecl.incHookAttrRead)
-$if(#isAttrNTA)
-$if(!#isParameterized)
+  $if(#isAttrNTA)
+    $if(!#isParameterized)
 if(#(signature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return (#getType) getChild(#(signature)ChildPosition());
 }
-$else
+    $else
 if(#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return (#getType) getChild(#(signature)ChildPosition()));
 }
-$endif
-$endif
-$if(!#isParameterized)
+    $endif
+  $else
+    $if(!#isParameterized)
 if(#(signature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return #(signature)_value;
 }
-$else
-$if(#isCircular)
+    $else
+      $if(#isCircular)
 if(#(signature)_values.containsKey(_parameters)) {
   Object _o = #(signature)_values.get(_parameters);
   if(!(_o instanceof $ASTNode$$State.CircularValue)) {
@@ -643,13 +643,14 @@ if(#(signature)_values.containsKey(_parameters)) {
     _value = ($ASTNode$$State.CircularValue) _o;
   }
 }
-$else
+      $else
 if(#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return $FromRefTypeParam;
 }
-$endif
-$endif
+      $endif
+    $endif
+  $endif
 $endif
 ]]
 

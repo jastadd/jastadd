@@ -470,9 +470,6 @@ aspect JragCodeGen {
   syn String AttrDecl.attributeValueReference() =
         toReferenceType(signature() + "_value", getType());
 
-  syn boolean AttrDecl.isNTAToken() =
-    isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
-
   syn boolean AttrEq.hasComputeBlock() = true;
   eq SynEq.hasComputeBlock() = getRHS() instanceof ASTBlock;
 
@@ -977,6 +974,11 @@ aspect JragCodeGen {
   }
 
   syn boolean AttrDecl.hasCache() = isLazy() || isCircular();
+
+  /**
+   * @return {@code true} if the attribute declaration corresponds to a
+   * non-token NTA component
+   */
   syn boolean AttrDecl.isAttrNTA() = isNTA() && !(findCorrespondingNTA() instanceof TokenComponent);
 
 }
