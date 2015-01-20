@@ -431,15 +431,6 @@ R20121112
   correctly. This bug sometimes caused NullPointerExceptions or faulty
 behaviour in generated code.
 
-R20121112
----------
-
-### Bugfix Release
-
-* Fixed error in fullCopy causing some non-NTA children to not be copied
-  correctly. This bug sometimes caused NullPointerExceptions or faulty
-behaviour in generated code.
-
 R20121026
 ---------
 
