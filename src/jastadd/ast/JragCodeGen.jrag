@@ -832,21 +832,14 @@ aspect JragCodeGen {
       if (declaredNTA()) {
         System.err.println("Warning: the NTA equation " + name() + " was affected by a bug causing the equation value to be discarded! (fixed since version 2.1.11)");
       }
-      StringBuilder result = new StringBuilder();
       String attrName = getName().substring(3); // remove get
-      if (comp.name().equals(attrName) && (
-            comp instanceof OptionalComponentNTA
-            || comp instanceof TokenComponentNTA
-            || comp instanceof AggregateComponentsNTA )) {
-        result.append("set" + attrName + "(" + signature() + "_value);\n");
+      if (comp.name().equals(attrName) && comp instanceof AggregateComponentsNTA
+          || attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA
+          || attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+        return "setChild(" + signature() + "_value, get" + attrName + "ChildPosition());\n";
       }
-      if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
-        result.append("set" + attrName + "(" + signature() + "_value);\n");
-      }
-      if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
-        result.append("set" + attrName + "(" + signature() + "_value);\n");
-      }
-      return result.toString();
+      // token components are not stored in child vector
+      return "";
     } else if (declaredNTA()) {// check if attribute equation declared NTA
       if (config().rewriteEnabled()) {
         if (config().stagedRewrites()) {

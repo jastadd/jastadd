@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 OptionalComponent = [[
+$if(!#isNTA)
   /**
    * Replaces the optional node for the $Name child. This is the <code>Opt</code>
    * node containing the child $Name, not the actual child!
@@ -40,6 +41,7 @@ OptionalComponent = [[
     $SynchEnd
   }
 
+$endif
   /**
    * Replaces the (optional) $Name child.
    * @param node The new node to be used as the $Name child.

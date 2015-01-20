@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 AggregateComponent = [[
+$if(!#isNTA)
   /**
    * Replaces the $Name child.
    * @param node The new node to replace the $Name child.
@@ -38,6 +39,8 @@ AggregateComponent = [[
     $include(State.incHookConstructionEnd)
     $SynchEnd
   }
+
+$endif
 $if(#isNTA)
   /**
    * Retrieves the $Name child.
@@ -59,7 +62,7 @@ $if(#isNTA)
     return $Index;
   }
 $else
-$if(RewriteCircularNTA)
+  $if(RewriteCircularNTA)
   /**
    * Retrieves the child position of the optional child $Name.
    * @return The the child position of the optional child $Name.
@@ -68,7 +71,7 @@ $if(RewriteCircularNTA)
   protected int $Host.get$(Name)ChildPosition() {
     return $Index;
   }
-$endif
+  $endif
   /**
    * Retrieves the $Name child.
    * @return The current node used as the $Name child.

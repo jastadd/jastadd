@@ -28,6 +28,7 @@
 # List component boilerplate code for accessing children etc.
 
 ListComponent = [[
+$if(!#isNTA)
   /**
    * Replaces the $Name list.
    * @param list The new list node to be used as the $Name list.
@@ -41,6 +42,7 @@ ListComponent = [[
     $SynchEnd
   }
 
+$endif
   /**
    * Retrieves the number of children in the $Name list.
    * @return Number of children in the $Name list.

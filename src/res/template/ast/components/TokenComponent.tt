@@ -29,6 +29,7 @@ TokenComponent = [[
 
   $include(TokenComponent.incHookTokenHandler)
 
+$if(!#isNTA)
   /**
    * Replaces the lexeme $Id.
    * @param value The new value for the lexeme $Id.
@@ -41,6 +42,7 @@ TokenComponent = [[
     $SynchEnd
   }
 
+$endif
 $if(IsRedefined)
   /**
    * @apilevel internal
