@@ -36,12 +36,12 @@ public class $ASTNode$$State {
    */
   public boolean LAST_CYCLE = false;
   $endif
-    
+
   /**
    * @apilevel internal
    */
-  public boolean INTERMEDIATE_VALUE = false; 
-  
+  public boolean INTERMEDIATE_VALUE = false;
+
   /**
    * @apilevel internal
    */
@@ -204,7 +204,7 @@ $if(TracingEnabled)
     }
     return trace;
   }
-  $include(TraceClass)   
+  $include(TraceClass)
 $endif
 }
 ]]

@@ -302,6 +302,7 @@ aspect JastAddCodeGen {
         //buf.append("    // Declared in " + obj.fileName + " at line " + obj.line + "\n");
         //if (!obj.comments.equals(""))
           //buf.append(obj.comments + " ");
+        buf.append(config().indent);
         buf.append(obj.modifiers());
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
         buf.append("\n\n");
