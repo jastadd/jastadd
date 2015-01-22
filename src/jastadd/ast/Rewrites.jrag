@@ -118,6 +118,7 @@ aspect Rewrites {
     String ind2 = config().ind(2);
     if (getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
       templateContext().expand("Rewrite.javaDoc:internal", out);
+      out.println();
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
       if (config().rewriteLimit() > 0)
         out.println(ind2 +
