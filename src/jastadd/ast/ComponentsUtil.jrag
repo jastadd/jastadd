@@ -84,6 +84,31 @@ aspect Comp {
     }
     return list;
   }
+
+  /**
+   * @return {@code true} if this attribute is an NTA shadowing a non-NTA child
+   * of a supertype
+   */
+  syn boolean Components.ntaShadowingNonNTA() {
+    if (!isNTA()) {
+      return false;
+    }
+    String name = name();
+    TypeDecl hostClass = hostClass();
+    while (true) {
+      hostClass = hostClass instanceof ASTDecl ? ((ASTDecl) hostClass).superClass() : null;
+      if (hostClass == null) {
+        return false;
+      }
+      for (Iterator iter = hostClass.getComponents(); iter.hasNext(); ) {
+        Components comp = (Components) iter.next();
+        if (!comp.isNTA() && name.equals(comp.name())) {
+          return true;
+        }
+      }
+    }
+  }
+
 }
 
 aspect NTADetector {

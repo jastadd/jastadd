@@ -779,6 +779,9 @@ aspect JragCodeGen {
     return findCorrespondingNTA() != null;
   }
 
+  /**
+   * @return the index of the NTA in the child array
+   */
   public int AttrDecl.indexNTAchild() {
     Components comp = findCorrespondingNTA();
     TypeDecl c = hostClass();

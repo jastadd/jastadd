@@ -43,6 +43,18 @@ $if(!#isNTA)
   }
 
 $endif
+$if(#ntaShadowingNonNTA)
+  /**
+   * This method should not be called. This method throws an exception due to
+   * the corresponding child being an NTA shadowing a non-NTA child.
+   * @param node
+   * @apilevel internal
+   */
+  public void $Host.set$(Name)List($ListType node) {
+    throw new Error("Can not replace NTA child $(Name)List in $Host!");
+  }
+
+$endif
   /**
    * Retrieves the number of children in the $Name list.
    * @return Number of children in the $Name list.

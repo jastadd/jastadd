@@ -42,6 +42,18 @@ $if(!#isNTA)
   }
 
 $endif
+$if(#ntaShadowingNonNTA)
+  /**
+   * This method should not be called. This method throws an exception due to
+   * the corresponding child being an NTA shadowing a non-NTA child.
+   * @param node
+   * @apilevel internal
+   */
+  public void $Host.set$(Name)Opt($OptType node) {
+    throw new Error("Can not replace NTA child $(Name)Opt in $Host!");
+  }
+
+$endif
   /**
    * Replaces the (optional) $Name child.
    * @param node The new node to be used as the $Name child.
