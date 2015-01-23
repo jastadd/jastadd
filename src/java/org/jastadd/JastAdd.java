@@ -43,6 +43,8 @@ import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.InterTypeObject;
 import org.jastadd.ast.AST.TokenComponent;
 import org.jastadd.ast.AST.TypeDecl;
+import org.jastadd.ast.AST.SynDecl;
+import org.jastadd.ast.AST.SynEq;
 
 /**
  * JastAdd main class.
@@ -171,20 +173,24 @@ public class JastAdd {
       // TODO do we really need to do this?!
       grammar.problems.clear();
 
-      if (checkErrors("genASTNode$State", genASTNode$State(grammar), err)) {
+      if (checkErrors("ASTNode$State generation", genASTNode$State(grammar), err)) {
         return 1;
       }
-      if (checkErrors("genIncrementalDDGNode", genIncrementalDDGNode(grammar), err)) {
+      if (checkErrors("incremental DDG node generation", genIncrementalDDGNode(grammar), err)) {
         return 1;
       }
 
-      if (checkErrors(readJRAGFiles(grammar, config.getFiles()), err)) {
+      if (checkErrors("JRAG parsing", readJRAGFiles(grammar, config.getFiles()), err)) {
+        return 1;
+      }
+
+      if (checkErrors("attribute weaving", weaveAttributes(grammar), err)) {
         return 1;
       }
 
       long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
-      if (checkErrors(readCacheFiles(grammar), err)) {
+      if (checkErrors("reading cache files", readCacheFiles(grammar), err)) {
         return 1;
       }
 
@@ -199,7 +205,11 @@ public class JastAdd {
         return 1;
       }
 
-      if (checkErrors(weaveInterTypeObjects(grammar), err)) {
+      if (checkErrors("inter-type object weaving", weaveInterTypeObjects(grammar), err)) {
+        return 1;
+      }
+
+      if (checkErrors("attribute weaving", weaveAttributes(grammar), err)) {
         return 1;
       }
 
@@ -261,7 +271,7 @@ public class JastAdd {
     boolean first = true;
     for (Problem problem: problems) {
       if (first && !description.isEmpty()) {
-        err.println("Problems in " + description + ":");
+        err.println("Problems during " + description + ":");
       }
       first = false;
       problem.print(err);
@@ -312,6 +322,34 @@ public class JastAdd {
     return problems;
   }
 
+  @SuppressWarnings("unchecked")
+  protected static Collection<Problem> weaveAttributes(Grammar grammar) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    for (SynDecl decl: grammar.synDecls) {
+      String className = decl.hostName;
+      TypeDecl clazz = grammar.lookup(className);
+      if (clazz != null) {
+        clazz.addSynDecl(decl);
+      } else {
+        problems.add(new Problem.Error("can not add synthesized attribute " + decl.getType() + " " + decl.getName() + " to unknown class " + className,
+          decl.getFileName(), decl.getStartLine()));
+      }
+    }
+    grammar.synDecls.clear();
+    for (SynEq equ: grammar.synEqs) {
+      String className = equ.hostName;
+      TypeDecl clazz = grammar.lookup(className);
+      if (clazz != null) {
+        clazz.addSynEq(equ);
+      } else {
+        problems.add(new Problem.Error("can not add equation for synthesized attribute " + equ.getName() + " to unknown class " + className,
+            equ.getFileName(), equ.getStartLine()));
+      }
+    }
+    grammar.synEqs.clear();
+    return problems;
+  }
+
   private Collection<Problem> readCacheFiles(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     if (!(grammar.config().cacheConfig() || grammar.config().cacheImplicit())) {
@@ -325,8 +363,10 @@ public class JastAdd {
     return problems;
   }
 
+  /**
+   * Inject aspect and attribute definitions.
+   */
   private Collection<Problem> weaveAspects(Grammar grammar) {
-    //out.println("weaving aspect and attribute definitions");
     Collection<Problem> allProblems = new LinkedList<Problem>();
     for (int i = 0; i < grammar.getNumTypeDecl(); i++) {
       if (grammar.getTypeDecl(i) instanceof ASTDecl) {

@@ -181,6 +181,12 @@ public aspect Attributes {
     }
   }
 
+  public LinkedList<SynDecl> Grammar.synDecls = new LinkedList<SynDecl>();
+  public LinkedList<SynEq> Grammar.synEqs = new LinkedList<SynEq>();
+
+  public String SynDecl.hostName = "";
+  public String SynEq.hostName = "";
+
   public void Grammar.addSynDecl(
       String name,
       String type,
@@ -196,31 +202,26 @@ public aspect Attributes {
       org.jastadd.jrag.AST.SimpleNode node,
       String aspectName,
       ArrayList<String> annotations) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      SynDecl decl = new SynDecl(
-        parameterList,
-        name,
-        type,
-        isLazy | isNTA,
-        fileName,
-        startLine,
-        endLine,
-        isFinal | isNTA,
-        isNTA,
-        Unparser.unparseComment(node),
-        aspectName,
-        new List()
-      );
-      for (String annotation: annotations) {
-        decl.addAnnotation(new Annotation(annotation));
-      }
-      decl.setBottomValue(bottomValue);
-      c.addSynDecl(decl);
-    } else {
-      error("can not add synthesized attribute " + type + " " + name + " to unknown class " + className,
-          fileName, startLine);
+    SynDecl decl = new SynDecl(
+      parameterList,
+      name,
+      type,
+      isLazy | isNTA,
+      fileName,
+      startLine,
+      endLine,
+      isFinal | isNTA,
+      isNTA,
+      Unparser.unparseComment(node),
+      aspectName,
+      new List()
+    );
+    for (String annotation: annotations) {
+      decl.addAnnotation(new Annotation(annotation));
     }
+    decl.setBottomValue(bottomValue);
+    decl.hostName = className;
+    synDecls.add(decl);
   }
 
   public void Grammar.addSynEq(
@@ -234,24 +235,20 @@ public aspect Attributes {
       org.jastadd.jrag.AST.SimpleNode node,
       String aspectName,
       ArrayList<String> annotations) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      SynEq equ = new SynEq();
-      equ.setName(name);
-      equ.setFileName(fileName);
-      equ.setStartLine(startLine);
-      equ.setEndLine(endLine);
-      equ.setRHS(rhs);
-      equ.setParameterList(list);
-      equ.setComment(Unparser.unparseComment(node));
-      equ.setAspectName(aspectName);
-      for (String annotation: annotations) {
-        equ.addAnnotation(new Annotation(annotation));
-      }
-      c.addSynEq(equ);
-    } else {
-      error("can not add equation for synthesized attribute " + name + " to unknown class " + className, fileName, startLine);
+    SynEq equ = new SynEq();
+    equ.setName(name);
+    equ.setFileName(fileName);
+    equ.setStartLine(startLine);
+    equ.setEndLine(endLine);
+    equ.setRHS(rhs);
+    equ.setParameterList(list);
+    equ.setComment(Unparser.unparseComment(node));
+    equ.setAspectName(aspectName);
+    for (String annotation: annotations) {
+      equ.addAnnotation(new Annotation(annotation));
     }
+    equ.hostName = className;
+    synEqs.add(equ);
   }
 
   public void Grammar.addInhDecl(String name, String type, String className,
