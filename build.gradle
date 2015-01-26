@@ -1,12 +1,38 @@
+apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'maven'
 
 def getVersion() {
-	ant.property(file: file('src/res/Version.properties'))
-	ant.properties['version']
+	def out = new StringBuilder()
+	def err = new StringBuilder()
+	def command = ['git', 'describe']
+	def proc = command.execute()
+	proc.waitForProcessOutput(out, err)
+	if (proc.exitValue()) {
+		println "Warning: could not run GIT to update version name"
+		println "${err}"
+
+		// read the previous version string instead
+		ant.property(file: file('src/res/Version.properties'))
+		ant.properties['version']
+	} else {
+		if (err) println "${err}"
+
+		// git describe output
+		out.toString().readLines()[0]
+	}
 }
 
 project.version = getVersion()
 project.group = 'org.jastadd'
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
+mainClassName = 'org.jastadd.JastAdd'
+jar.manifest.attributes 'Main-Class': mainClassName
+jar.destinationDir = projectDir
+jar.archiveName = 'jastadd2.jar'
 
 configurations {
 	deployerJars
@@ -18,6 +44,124 @@ repositories {
 
 dependencies {
 	deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
+	compile group: 'org.apache.ant', name: 'ant', version: '1.9.4'
+}
+
+processResources.dependsOn 'storeVersionString'
+
+task('storeVersionString') {
+	description 'store the version string in src/res/Version.properties'
+
+	doLast {
+		def date = new Date()
+		def outputFile = file('src/res/Version.properties')
+		ant.propertyfile(file: outputFile) {
+			entry(key: 'version', value: project.version)
+			entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
+			entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
+		}
+		// make GIT treat the Version.properties file as if it is unchanged
+		// in order to avoid committing the updated file in every commit
+		def command = ['git', 'update-index', '--assume-unchanged', outputFile.path]
+		def out = new StringBuilder()
+		def err = new StringBuilder()
+		def proc = command.execute()
+		proc.waitForProcessOutput(out, err)
+		if (proc.exitValue()) {
+			println 'Warning: git update-index failed'
+			println "${err}"
+		}
+	}
+}
+
+task('parser') {
+	description 'generate the Jrag parser and AST types'
+
+	inputs.dir 'src/javacc'
+	outputs.dir 'src/gen'
+
+	doLast {
+		file('src/gen/org/jastadd/ast/AST').mkdirs()
+		file('src/gen/org/jastadd/jrag/AST').mkdirs()
+
+		ant {
+			copy(todir: 'src/gen/org/jastadd/jrag') {
+				fileset(dir: 'src/javacc/jrag') {
+					include(name: '**/*.java')
+				}
+			}
+
+			// Ast.jjt must be touched, or Ant will not run jjtree
+			touch(file: 'src/javacc/ast/Ast.jjt')
+			java(classpath: 'tools/javacc.jar', classname: 'org.javacc.jjtree.Main') {
+				arg(value: '-OUTPUT_DIRECTORY=src/gen/org/jastadd/ast/AST')
+				arg(value: '-NODE_PREFIX=""')
+				arg(value: 'src/javacc/ast/Ast.jjt')
+			}
+			javacc(javacchome: 'tools',
+				jdkversion: '1.4',
+				outputdirectory: 'src/gen/org/jastadd/ast/AST',
+				target: 'src/gen/org/jastadd/ast/AST/Ast.jj')
+			// Jrag.jjt must be touched, or Ant will not run jjtree
+			touch(file: 'src/javacc/jrag/Jrag.jjt')
+			jjtree(
+				javacchome: 'tools',
+				outputdirectory: 'src/gen/org/jastadd/jrag/AST',
+				target: 'src/javacc/jrag/Jrag.jjt')
+			javacc(
+				javacchome: 'tools',
+				jdkversion: '1.4',
+				outputdirectory: 'src/gen/org/jastadd/jrag/AST',
+				target: 'src/gen/org/jastadd/jrag/AST/Jrag.jj')
+		}
+	}
+}
+
+compileJava.dependsOn 'generateJava'
+
+task('generateJava', dependsOn: [ 'parser' ]) {
+	description 'generate Java sources from JastAdd aspects'
+
+	inputs.dir 'src/jastadd'
+	outputs.dir 'src/gen'
+
+	doLast {
+		ant {
+			taskdef(name: 'jastadd', classname: 'org.jastadd.JastAddTask',
+				classpath: 'tools/jastadd2.jar')
+			jastadd(jjtree: true, rewrite: true,
+				grammar: 'Ast',
+				package: 'org.jastadd.ast.AST',
+				outdir: 'src/gen',
+				lazyMaps: false) {
+				fileset(dir: 'src/jastadd') {
+					include(name: '**/*.ast')
+					include(name: '**/*.jadd')
+					include(name: '**/*.jrag')
+				}
+			}
+		}
+	}
+}
+
+clean.dependsOn 'cleanGen'
+
+task('cleanGen', type: Delete) {
+	description 'remove generated source files'
+	delete 'src/gen/org'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/gen'
+			srcDir 'src/java'
+			srcDir 'tinytemplate/src/java'
+		}
+		resources {
+			srcDir 'src/res'
+		}
+	}
 }
 
 artifacts {
