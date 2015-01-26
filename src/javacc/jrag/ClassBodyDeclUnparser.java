@@ -503,6 +503,24 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
   public Object visit(ASTNameList self, Object data) {
     return unparseSimple(self, (StringBuffer) data);
   }
+  public Object visit(ASTAttributeName self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
+  public Object visit(ASTJavaIdentifier self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
+  public Object visit(ASTAspectType self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
+  public Object visit(ASTAspectReferenceType self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
+  public Object visit(ASTAspectResultType self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
+  public Object visit(ASTAspectClassOrInterfaceType self, Object data) {
+    return unparseSimple(self, (StringBuffer) data);
+  }
   public Object visit(ASTExpression self, Object data) {
     return unparseSimple(self, (StringBuffer) data);
   }

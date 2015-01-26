@@ -98,7 +98,7 @@ public class SignatureUnparser implements JragParserVisitor {
     // AspectRefineConstructorDeclaration = FormalParameters
     return "#constructor#" + node.jjtGetChild(0).jjtAccept(this, data);
   }
-  public Object visit(ASTAspectFieldDeclarationLookahead self, Object data) {
+  public Object visit(ASTAspectFieldDeclarationLookahead node, Object data) {
     return "";
   }
   public Object visit(ASTAspectFieldDeclaration node, Object data) {
@@ -201,8 +201,8 @@ public class SignatureUnparser implements JragParserVisitor {
     return "";
   }
   public Object visit(ASTMethodDeclarator node, Object data) {
-    return node.firstToken.image.trim() +
-      node.jjtGetChild(0).jjtAccept(this, data);
+    return ((String) node.jjtGetChild(0).jjtAccept(this, data)) +
+      ((String) node.jjtGetChild(1).jjtAccept(this, data));
   }
   public Object visit(ASTFormalParameters node, Object data) {
     StringBuffer s = new StringBuffer();
@@ -251,6 +251,24 @@ public class SignatureUnparser implements JragParserVisitor {
     return "";
   }
   public Object visit(ASTNameList node, Object data) {
+    return "";
+  }
+  public Object visit(ASTAttributeName node, Object data) {
+    return "";
+  }
+  public Object visit(ASTJavaIdentifier node, Object data) {
+    return node.firstToken.image.trim();
+  }
+  public Object visit(ASTAspectType node, Object data) {
+    return "";
+  }
+  public Object visit(ASTAspectReferenceType node, Object data) {
+    return "";
+  }
+  public Object visit(ASTAspectResultType node, Object data) {
+    return "";
+  }
+  public Object visit(ASTAspectClassOrInterfaceType node, Object data) {
     return "";
   }
   public Object visit(ASTExpression node, Object data) {
