@@ -8,7 +8,6 @@ OPTIONS:
 
 	<dirname property="jastadd2.basedir" file="${ant.file.JastAdd2}"/>
 
-	<property name="jastadd2.build.dir" location="${jastadd2.basedir}/build"/>
 	<property name="jastadd2.src.dir" location="${jastadd2.basedir}/src"/>
 	<property name="jastadd2.gen.dir" location="${jastadd2.src.dir}/gen"/>
 	<property name="jastadd2.res.dir" location="${jastadd2.src.dir}/res"/>
@@ -110,11 +109,6 @@ OPTIONS:
 		</condition>
 	</target>
 
-	<target name="clean-dist" depends="clean"
-		description="remove distribution files">
-		<delete dir="${jastadd2.build.dir}"/>
-	</target>
-
 	<target name="clean">
 		<mkdir dir="${jastadd2.gen.dir}"/>
 		<delete file="jastadd2.jar"/>
@@ -130,8 +124,7 @@ OPTIONS:
 
 	<target name="jar" depends="build"
 		description="package binary distribution">
-		<mkdir dir="${jastadd2.build.dir}"/>
-		<jar destfile="${jastadd2.build.dir}/jastadd2-${version}.jar">
+		<jar destfile="${basedir}/jastadd2.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.jastadd.JastAdd"/>
 				<attribute name="Implementation-Title" value="JastAdd II"/>
@@ -149,10 +142,6 @@ OPTIONS:
 				<include name="**/*"/>
 			</fileset>
 		</jar>
-		<!-- symlink to latest jar -->
-		<symlink overwrite="true"
-			link="${jastadd2.basedir}/jastadd2.jar"
-			resource="${jastadd2.build.dir}/jastadd2-${version}.jar"/>
 	</target>
 
 	<target name="source-zip" depends="jar,build-doc">
