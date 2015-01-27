@@ -22,7 +22,7 @@ while true; do
         EDITOR=vim
       fi
       $EDITOR doc/release-notes.md
-      ant build-doc
+      gradle buildDocs
       echo "Generated doc/release-notes.html - check that the markup looks OK"
       break
       ;;
@@ -47,8 +47,8 @@ while true; do
   esac
 done
 
-echo "Building release $VERSION..."
-ant release -Dversion=$VERSION
+echo "Building release ${VERSION}..."
+gradle clean release "-PnewVersion=${VERSION}"
 
 echo "Uploading files to jastadd.org..."
 # --chmod=g+w sets group write permission
@@ -63,21 +63,28 @@ rsync -av --chmod=g+w \
   login.cs.lth.se:/cs/jastadd/releases/jastadd2/${VERSION}
 
 echo
-echo "Check that it works!"
-echo "--------------------"
-echo "1. Update the web pages to include links to the new release."
+echo "Release Checklist"
+echo "-----------------"
+echo "1. Update web pages with links to the new release:"
 echo "   * update index.md"
 echo "   * update download.md"
 echo "   * update documentation/reference-manual.php"
-echo "2. Browse to the website and check that everything looks okay."
-echo "3. Push the release commit"
+echo "2. Publish the web pages to the test website:"
+echo "    ./testpublish.sh"
+echo "3. Browse to http://jastadd.org/testweb and check that everything looks okay"
+echo "4. Publish to the production website:"
+echo "    ./publish.sh"
+echo "    git commit -am \"Release ${VERSION}\""
 echo "    git push origin master"
-echo "4. Push the release tag"
-echo "    git push origin ${VERSION}"
-echo "5. Tag the jastadd-test repository with the new JastAdd2 version"
+echo "5. Commit and push the website changes:"
+echo "6. Tag the jastadd-test repository with the new JastAdd2 version:"
 echo "    cd ../jastadd-test"
 echo "    git tag -a ${VERSION} -m \"Tests for JastAdd2 ${VERSION}\""
 echo "    git push origin ${VERSION}"
-echo "6. Upload artifacts to JastAdd Maven repository"
+echo "7. Push the JastAdd2 release commit:"
+echo "    git push origin master"
+echo "8. Push the release tag:"
+echo "    git push origin ${VERSION}"
+echo "9. Upload artifacts to JastAdd Maven repository:"
 echo "    gradle uploadArchives"
 

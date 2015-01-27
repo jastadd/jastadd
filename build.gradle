@@ -2,24 +2,39 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven'
 
-def getVersion() {
+/* returns the command output if the command succeeded */
+def tryCommand(List command, boolean failOnError = false) {
 	def out = new StringBuilder()
 	def err = new StringBuilder()
-	def command = ['git', 'describe']
 	def proc = command.execute()
 	proc.waitForProcessOutput(out, err)
 	if (proc.exitValue()) {
-		println "Warning: could not run GIT to update version name"
-		println "${err}"
+		def msg = "failed to run '${command[0]}' command (args: ${command.tail()})\n$err"
+		if (failOnError) {
+			throw new GradleException(msg)
+		} else {
+			print 'Warning: '
+			println msg
+		}
+		""
+	} else {
+		if (err) println "${err}"
+		out.toString()
+	}
+}
 
+def getVersion() {
+	if (hasProperty('newVersion')) {
+		return newVersion
+	}
+	def output = tryCommand(['git', 'describe'])
+	if (output) {
+		// git describe output
+		output.readLines()[0]
+	} else {
 		// read the previous version string instead
 		ant.property(file: file('src/res/Version.properties'))
 		ant.properties['version']
-	} else {
-		if (err) println "${err}"
-
-		// git describe output
-		out.toString().readLines()[0]
 	}
 }
 
@@ -36,41 +51,141 @@ jar.archiveName = 'jastadd2.jar'
 
 configurations {
 	deployerJars
+	jastadd2
 }
 
 repositories {
 	mavenCentral()
+	mavenLocal()
+	maven {
+		url 'http://jastadd.org/mvn/'
+	}
 }
 
 dependencies {
-	deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
-	compile group: 'org.apache.ant', name: 'ant', version: '1.9.4'
+	deployerJars 'org.apache.maven.wagon:wagon-ssh:2.2'
+	compile 'org.apache.ant:ant:1.9.4'
+	jastadd2('org.jastadd:jastadd2:2.1.10') { force = true }
 }
 
 processResources.dependsOn 'storeVersionString'
 
+task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) {
+	doLast {
+		if (!project.hasProperty('newVersion')) {
+			throw new GradleException('You must set -PnewVersion=<VERSION> when running the release task!')
+		}
+		assert version.equals(newVersion)
+		def versionFile = file('src/res/Version.properties')
+		tryCommand(['git', 'update-index', '--no-assume-unchanged', versionFile.path], true)
+		tryCommand(['git', 'add', versionFile.path], true)
+		tryCommand(['git', 'commit', '-m', "Release $version"], true)
+		tryCommand(['git', 'tag', '-a', "$version", '-m', "Version $version"], true)
+	}
+}
+
+task('sourceZip', dependsOn: [ 'generateJava', 'parser', 'buildDocs' ]) {
+	doLast {
+		ant.zip(destfile: 'jastadd2-src.zip') {
+			zipfileset(dir: '.', prefix: 'jastadd2-src') {
+				include(name: 'src/java/**/*.java')
+				include(name: 'src/jastadd/**/*')
+				include(name: 'src/javacc/**/*')
+				include(name: 'src/res/**/*')
+				include(name: 'tools/Markdown.pl')
+				include(name: 'tools/*.jar')
+				include(name: 'tinytemplate/src/**/*')
+				include(name: 'tinytemplate/LICENSE.txt')
+				include(name: 'tinytemplate/README.md')
+				include(name: 'doc/index.md.in')
+				include(name: 'doc/index.html')
+				include(name: 'doc/reference-manual.md')
+				include(name: 'doc/reference-manual.html')
+				include(name: 'doc/release-notes.md')
+				include(name: 'doc/release-notes.html')
+				include(name: 'LICENSE')
+				include(name: 'README.md')
+				include(name: 'README-binary-dist.md')
+				include(name: 'ChangeLog')
+				include(name: 'build.xml')
+				include(name: 'licenses/*')
+				exclude(name: '**/.git/**/*')
+				exclude(name: '**/.gitignore')
+				exclude(name: '**/.gitmodules')
+			}
+		}
+	}
+}
+
+task('binaryZip', dependsOn: [ 'jar', 'buildDocs' ]) {
+	doLast {
+		ant.exec(executable: 'perl', output: 'README-binary-dist.html') {
+			arg(value: 'tools/Markdown.pl')
+			arg(value: 'README-binary-dist.md')
+		}
+		ant.zip(destfile: 'jastadd2-bin.zip') {
+			zipfileset(dir: '.', prefix: 'jastadd2-bin') {
+				include(name: 'LICENSE')
+				include(name: 'ChangeLog')
+				include(name: 'jastadd2.jar')
+				include(name: 'doc/index.html')
+				include(name: 'doc/reference-manual.html')
+				include(name: 'doc/release-notes.html')
+				include(name: 'licenses/*')
+			}
+			zipfileset(dir: '.',
+				includes: 'README-binary-dist.html',
+				fullpath: 'jastadd2-bin/README.html')
+		}
+	}
+}
+
+task('buildDocs', dependsOn: [ 'storeVersionString' ]) {
+	doLast {
+		println 'Processing Markdown files'
+		ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {
+			filterset() {
+				filter(token: 'VERSION', value: version)
+			}
+		}
+		ant.chainedmapper(id: 'mdmapper') {
+			flattenmapper()
+			globmapper(from: '*.md', to: "doc${File.separator}*.html")
+		}
+		ant.apply(executable: 'perl', dest: 'doc') {
+			arg(value: 'tools/Markdown.pl')
+			srcfile()
+			fileset(dir: 'doc', includes: '*.md')
+			mapper(refid: 'mdmapper')
+			redirector() {
+				outputmapper(refid: 'mdmapper')
+			}
+		}
+	}
+}
+
 task('storeVersionString') {
 	description 'store the version string in src/res/Version.properties'
 
+	outputs.upToDateWhen {
+		def props = new Properties()
+		new File('src/res/Version.properties').withInputStream {
+			stream -> props.load(stream)
+		}
+		props['version'] == project.version
+	}
+
 	doLast {
 		def date = new Date()
-		def outputFile = file('src/res/Version.properties')
-		ant.propertyfile(file: outputFile) {
+		def versionFile = file('src/res/Version.properties')
+		ant.propertyfile(file: versionFile) {
 			entry(key: 'version', value: project.version)
 			entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
 			entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
 		}
 		// make GIT treat the Version.properties file as if it is unchanged
 		// in order to avoid committing the updated file in every commit
-		def command = ['git', 'update-index', '--assume-unchanged', outputFile.path]
-		def out = new StringBuilder()
-		def err = new StringBuilder()
-		def proc = command.execute()
-		proc.waitForProcessOutput(out, err)
-		if (proc.exitValue()) {
-			println 'Warning: git update-index failed'
-			println "${err}"
-		}
+		tryCommand(['git', 'update-index', '--assume-unchanged', versionFile.path])
 	}
 }
 
@@ -126,29 +241,38 @@ task('generateJava', dependsOn: [ 'parser' ]) {
 	outputs.dir 'src/gen'
 
 	doLast {
-		ant {
-			taskdef(name: 'jastadd', classname: 'org.jastadd.JastAddTask',
-				classpath: 'tools/jastadd2.jar')
-			jastadd(jjtree: true, rewrite: true,
-				grammar: 'Ast',
-				package: 'org.jastadd.ast.AST',
-				outdir: 'src/gen',
-				lazyMaps: false) {
-				fileset(dir: 'src/jastadd') {
-					include(name: '**/*.ast')
-					include(name: '**/*.jadd')
-					include(name: '**/*.jrag')
-				}
+		println configurations.jastadd2.asPath
+		ant.taskdef(name: 'jastadd',
+			classname: 'org.jastadd.JastAddTask',
+			classpath: configurations.jastadd2.asPath)
+		ant.jastadd(jjtree: true, rewrite: true,
+			grammar: 'Ast',
+			package: 'org.jastadd.ast.AST',
+			outdir: 'src/gen',
+			lazyMaps: false) {
+			fileset(dir: 'src/jastadd') {
+				include(name: '**/*.ast')
+				include(name: '**/*.jadd')
+				include(name: '**/*.jrag')
 			}
 		}
 	}
 }
 
+clean.dependsOn 'cleanJar'
 clean.dependsOn 'cleanGen'
+clean.dependsOn 'cleanArtifacts'
 
 task('cleanGen', type: Delete) {
 	description 'remove generated source files'
 	delete 'src/gen/org'
+}
+
+task('cleanArtifacts', type: Delete) {
+	description 'remove generated Zip and Jar files'
+	delete 'jastadd2-src.zip'
+	delete 'jastadd2-bin.zip'
+	delete 'README-binary-dist.html'
 }
 
 sourceSets {
@@ -162,10 +286,6 @@ sourceSets {
 			srcDir 'src/res'
 		}
 	}
-}
-
-artifacts {
-	archives file: file('jastadd2.jar'), name: 'jastadd2', type: 'jar'
 }
 
 uploadArchives {
