@@ -286,7 +286,7 @@ abstract public class Option<ValueType> implements Comparable<Option<?>> {
   abstract public ValueType value();
 
   @Override
-  public int compareTo(Option other) {
-    return name.compareTo(other.name);
+  public int compareTo(Option<?> other) {
+    return name.compareToIgnoreCase(other.name);
   }
 }
