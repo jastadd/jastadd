@@ -100,6 +100,7 @@ public class ValueOption extends Option<String> {
   }
 
   /**
+   * Allow the option to have any value.
    * @return self
    */
   public ValueOption unrestricted() {

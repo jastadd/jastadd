@@ -112,7 +112,6 @@ $endif
 ]]
 
 ASTNode.emitDoFullTraversal = [[
-$if(#isASTNodeDecl)
   /**
    * Performs a full traversal of the tree using getChild to trigger rewrites
    * @apilevel low-level
@@ -125,7 +124,6 @@ $if(#isASTNodeDecl)
     }
     $SynchEnd
   }
-$endif
 ]]
 
 ASTDecl.emitTreeCopy = [[

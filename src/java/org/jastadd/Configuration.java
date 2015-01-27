@@ -106,6 +106,10 @@ public class Configuration {
       //.defaultValue("Object")
       .templateName("ASTNodeSuper");
 
+  Option<Boolean> generateImplicitsOption = new BooleanOption("generateImplicits", "generate implicit node types")
+      .defaultValue(true)
+      .nonStandard();
+
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
       "use jjtree base node, this requires --grammar to be set")
       .templateName("JJTree");
@@ -457,6 +461,7 @@ public class Configuration {
     // new since 2.1.11
     allOptions.add(dotOption);
     allOptions.add(ASTNodeSuperOption);
+    allOptions.add(generateImplicitsOption);
 
     // deprecated in 2.1.5
     allOptions.add(doxygenOption);
@@ -1338,5 +1343,12 @@ public class Configuration {
    */
   public boolean shouldGenerateDotGraph() {
     return dotOption.value();
+  }
+
+  /**
+   * @return {@code true} if implicit node types should be generated
+   */
+  public boolean generateImplicits() {
+    return generateImplicitsOption.value();
   }
 }

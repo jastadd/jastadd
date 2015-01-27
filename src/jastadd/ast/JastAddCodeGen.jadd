@@ -353,12 +353,7 @@ aspect JastAddCodeGen {
       if (config().java5() && (isOptDecl() || isListDecl() || isASTNodeDecl())) {
         stream.print("<T extends " + config().astNodeType() + ">");
       }
-      if (isASTNodeDecl()) {
-        String superType = config().astNodeSuperType();
-        if (!superType.equals("")) {
-          stream.print(" extends " + superType);
-        }
-      } else if (hasSuperClass()) {
+      if (hasSuperClass()) {
         stream.print(" extends ");
         String name = getSuperClass().name();
         if (config().java5()) {
@@ -369,22 +364,15 @@ aspect JastAddCodeGen {
           }
         }
         stream.print(name);
+      } else if (isASTNodeDecl()) {
+        String superType = config().astNodeSuperType();
+        if (!superType.equals("")) {
+          stream.print(" extends " + superType);
+        }
       }
       stream.print(jastAddImplementsList());
       stream.println(" {");
 
-      /*
-       // Now done before refinements
-      emitImplicitDeclarations(new java.io.PrintWriter(stream));
-      int j = 0;
-      for (Iterator iter = getComponents(); iter.hasNext(); ) {
-        Components c = (Components)iter.next();
-        c.jaddGen(j, publicModifier, name());
-        if (!(c instanceof TokenComponent)) {
-          j++;
-        }
-      }
-      */
       jastAddAttributes(stream);
       stream.println("}");
       stream.close();

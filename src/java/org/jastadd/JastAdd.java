@@ -150,7 +150,10 @@ public class JastAdd {
       long time = System.currentTimeMillis();
 
       Grammar grammar = config.buildRoot();
-      grammar.genDefaultNodeTypes();
+
+      if (config.generateImplicits()) {
+        grammar.addImplicitNodeTypes();
+      }
 
       if (checkErrors(readASTFiles(grammar, config.getFiles()), err)) {
         return 1;
@@ -322,7 +325,6 @@ public class JastAdd {
     return problems;
   }
 
-  @SuppressWarnings("unchecked")
   protected static Collection<Problem> weaveAttributes(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (SynDecl decl: grammar.synDecls) {

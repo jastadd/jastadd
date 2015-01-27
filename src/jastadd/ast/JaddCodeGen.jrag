@@ -37,7 +37,7 @@ aspect JaddCodeGen {
    * Build the default AST node types (ASTNode, List, Opt)
    * and insert them into the grammar.
    */
-  public void Grammar.genDefaultNodeTypes() {
+  public void Grammar.addImplicitNodeTypes() {
     ASTDecl cl;
     IdDecl name;
 

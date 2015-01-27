@@ -121,7 +121,7 @@ aspect ASTCloneNode {
     tt.expand("ASTDecl.emitFullCopy", stream);
     tt.expand("ASTDecl.emitTreeCopyNoTransform", stream);
     tt.expand("ASTDecl.emitTreeCopy", stream);
-    if (!hasAbstract()) {
+    if (isASTNodeDecl()) {
       tt.expand("ASTNode.emitDoFullTraversal", stream);
     }
   }

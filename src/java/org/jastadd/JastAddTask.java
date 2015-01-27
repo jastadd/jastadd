@@ -93,7 +93,11 @@ public class JastAddTask extends Task {
   public void setASTNodeSuper(String arg) {
     setOption(config.ASTNodeSuperOption, arg);
   }
-    
+
+  public void setGenerateImplicits(boolean enable) {
+    setOption(config.generateImplicitsOption, enable);
+  }
+
   public void setJjtree(boolean enable) {
     setOption(config.jjtreeOption, enable);
   }

@@ -27,11 +27,12 @@
  */
 
 aspect ASTEqual {
-    public void ASTDecl.emitIsEqualMethods(PrintWriter stream) {
+  public void ASTDecl.emitIsEqualMethods(PrintWriter stream) {
 
-    if (hasAbstract())
+    if (hasAbstract() && !isASTNodeDecl()) {
       // Don't generate isEqual methods for abstract node types
       return;
+    }
 
     TemplateContext tt = templateContext();
     StringBuilder sb = new StringBuilder();
@@ -46,7 +47,7 @@ aspect ASTEqual {
     tt.bind("IsEqualBody", sb.toString());
     tt.expand("ASTDecl.emitIsEqualMethods", stream);
   }
-  
+
   syn lazy boolean Components.isTokenComponent() = false;
   eq TokenComponent.isTokenComponent() = true;
 }
