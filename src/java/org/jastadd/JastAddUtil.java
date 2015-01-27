@@ -39,6 +39,7 @@ import java.util.LinkedList;
 import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.List;
+import org.jastadd.ast.AST.TokenMgrError;
 import org.jastadd.ast.AST.TypeDecl;
 import org.jastadd.jrag.AST.ASTCompilationUnit;
 import org.jastadd.jrag.AST.JragParser;
@@ -64,8 +65,7 @@ public class JastAddUtil {
       Grammar astGrammar = parser.Grammar();
       problems.addAll(parser.parseProblems());
       return astGrammar;
-    }
-    catch (org.jastadd.ast.AST.TokenMgrError e) {
+    } catch (org.jastadd.ast.AST.TokenMgrError e) {
       problems.add(new Problem.Error(e.getMessage(), sourceName));
     } catch (org.jastadd.ast.AST.ParseException e) {
       // ParseExceptions actually caught by error recovery in parser
@@ -155,8 +155,10 @@ public class JastAddUtil {
     } catch (org.jastadd.jrag.AST.ParseException e) {
       problems.add(new Problem.Error("syntax error", sourceName,
           e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
+    } catch (TokenMgrError e) {
+      problems.add(new Problem.Error(e.getMessage()));
     } catch (Throwable e) {
-      problems.add(new Problem.Error("exception occurred while parsing",
+      problems.add(new Problem.Error("exception occurred while parsing: " + e.getMessage(),
           sourceName));
     }
     return null;
@@ -192,10 +194,9 @@ public class JastAddUtil {
     try {
       inStream = new FileReader(source);
       parseJRAGSpec(inStream, fileName, grammar, problems);
-     } catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       problems.add(new Problem.Error("could not find aspect file '" + fileName + "'"));
-    }
-    finally {
+    } finally {
       if (inStream != null)
         try {
           inStream.close();
@@ -292,11 +293,9 @@ public class JastAddUtil {
     try {
       inStream = new FileReader(source);
       parseCacheDeclarations(inStream, fileName, grammar, problems);
-    }
-    catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       problems.add(new Problem.Error("could not find cache file '" + fileName + "'"));
-    }
-    finally {
+    } finally {
       if (inStream != null)
         try {
           inStream.close();
