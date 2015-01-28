@@ -16,7 +16,7 @@ echo
 
 while true; do
   read -p "Do you wish to edit doc/release-notes.md now? (yes/no) " yn
-  case $yn in 
+  case $yn in
     [Yy]* )
       if [[ -z "$EDITOR" ]]; then
         EDITOR=vim
@@ -40,7 +40,7 @@ echo "See the above status message for changes that will be committed."
 
 while true; do
   read -p "Proceed? (yes/no) " yn
-  case $yn in 
+  case $yn in
     [Yy]* ) break;;
     [Nn]* ) exit;;
     * ) echo "Please answer yes or no.";;
@@ -49,6 +49,20 @@ done
 
 echo "Building release ${VERSION}..."
 gradle clean release "-PnewVersion=${VERSION}"
+
+if [ "$?" -ne "0" ]; then
+	exit $?
+fi
+
+echo "Ready to upload artifacts to jastadd.org..."
+while true; do
+  read -p "Proceed? (yes/no) " yn
+  case $yn in
+    [Yy]* ) break;;
+    [Nn]* ) exit;;
+    * ) echo "Please answer yes or no.";;
+  esac
+done
 
 echo "Uploading files to jastadd.org..."
 # --chmod=g+w sets group write permission

@@ -73,9 +73,11 @@ aspect IncrementalDDG {
         if (attr.isLazy() || attr.isCircular())
           list.add(attr);
       }
-      for (int k = 0; k < getNumCollDecl(); k++) {
-        CollDecl attr = getCollDecl(k);
-        list.add(attr);
+      for (CollDecl decl: interfaceCollDecls()) {
+        list.add(decl);
+      }
+      for (CollDecl decl: getCollDeclList()) {
+        list.add(decl);
       }
       // attribute code
       for (Iterator itr = list.iterator(); itr.hasNext();) {

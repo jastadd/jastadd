@@ -9,7 +9,7 @@ def tryCommand(List command, boolean failOnError = false) {
 	def proc = command.execute()
 	proc.waitForProcessOutput(out, err)
 	if (proc.exitValue()) {
-		def msg = "failed to run '${command[0]}' command (args: ${command.tail()})\n$err"
+		def msg = "failed to run '${command[0]}' command (args: ${command.tail()})\n$err$out"
 		if (failOnError) {
 			throw new GradleException(msg)
 		} else {
@@ -65,7 +65,7 @@ repositories {
 dependencies {
 	deployerJars 'org.apache.maven.wagon:wagon-ssh:2.2'
 	compile 'org.apache.ant:ant:1.9.4'
-	jastadd2('org.jastadd:jastadd2:2.1.10') { force = true }
+	jastadd2('org.jastadd:jastadd2:2.1.10') { force = true /* avoid conflict with local artifact */ }
 }
 
 processResources.dependsOn 'storeVersionString'
@@ -241,7 +241,6 @@ task('generateJava', dependsOn: [ 'parser' ]) {
 	outputs.dir 'src/gen'
 
 	doLast {
-		println configurations.jastadd2.asPath
 		ant.taskdef(name: 'jastadd',
 			classname: 'org.jastadd.JastAddTask',
 			classpath: configurations.jastadd2.asPath)

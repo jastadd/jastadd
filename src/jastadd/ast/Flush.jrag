@@ -92,12 +92,18 @@ aspect Flush {
    */
   public String ASTDecl.emitFlushCollectionCacheString() {
     StringBuffer res = new StringBuffer();
-    for (int i = 0; i < getNumCollDecl(); i++) {
-      CollDecl attr = getCollDecl(i);
-      res.append(attr.resetVisit());
-      res.append(attr.resetCache());
-      if (!attr.separateEvaluation() && !attr.onePhase()) {
-        res.append(config().ind(2) + attr.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
+    for (CollDecl decl: interfaceCollDecls()) {
+      res.append(decl.resetVisit());
+      res.append(decl.resetCache());
+      if (!decl.separateEvaluation() && !decl.onePhase()) {
+        res.append(decl.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
+      }
+    }
+    for (CollDecl decl: getCollDeclList()) {
+      res.append(decl.resetVisit());
+      res.append(decl.resetCache());
+      if (!decl.separateEvaluation() && !decl.onePhase()) {
+        res.append(decl.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
       }
     }
     res.append(collectionReset());

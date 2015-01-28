@@ -101,9 +101,6 @@ aspect JastAddCodeGen {
                 //System.out.println("    adding inheq " + d.getInhEq(k).signature());
                 dest.addInhEq((InhEq)d.getInhEq(k).fullCopy());
               }
-              for (int k = 0; k < d.getNumCollDecl(); k++) {
-                dest.addCollDecl((CollDecl)d.getCollDecl(k).fullCopy());
-              }
             }
           }
         }

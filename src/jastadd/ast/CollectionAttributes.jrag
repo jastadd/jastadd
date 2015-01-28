@@ -27,19 +27,46 @@
  */
 aspect CollectionAttributes {
 
-  public void ASTDecl.emitCollDecls(PrintStream out) {
-    for (int i = 0; i < getNumCollDecl(); i++) {
-      CollDecl attr = getCollDecl(i);
-      if (attr.circularCollection()) {
-        attr.emitVisitedDeclarations(out);
-        attr.emitCircularCollectionEval(out);
-        attr.emitCombineMethod(out);
-      } else {
-        out.println(attr.docComment());
-        attr.emitAttrEquation(out);
-        attr.emitComputeMethod(out);
-        emitCacheDeclarations(out, attr);
+  /**
+   * Find interface coll decl introductions.
+   */
+  public Collection<CollDecl> TypeDecl.interfaceCollDecls() {
+    LinkedList<CollDecl> list = new LinkedList<CollDecl>();
+    for (Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
+      String typename = Unparser.unparse((org.jastadd.jrag.AST.SimpleNode) iter.next());
+      int index = typename.indexOf('<');
+      if (index != -1) {
+        typename = typename.substring(0, index);
       }
+      TypeDecl type = grammar().lookup(typename);
+      if (type instanceof InterfaceDecl) {
+        for (CollDecl decl: type.getCollDeclList()) {
+          list.add(decl);
+        }
+      }
+    }
+    return list;
+  }
+
+  public void ASTDecl.emitCollDecls(PrintStream out) {
+    for (CollDecl decl: interfaceCollDecls()) {
+      emitCollDecl(out, decl);
+    }
+    for (CollDecl decl: getCollDeclList()) {
+      emitCollDecl(out, decl);
+    }
+  }
+
+  public void ASTDecl.emitCollDecl(PrintStream out, CollDecl attr) {
+    if (attr.circularCollection()) {
+      attr.emitVisitedDeclarations(out);
+      attr.emitCircularCollectionEval(out);
+      attr.emitCombineMethod(out);
+    } else {
+      out.println(attr.docComment());
+      attr.emitAttrEquation(out);
+      attr.emitComputeMethod(out);
+      emitCacheDeclarations(out, attr);
     }
   }
 
@@ -372,6 +399,16 @@ aspect CollectionAttributes {
     StringBuffer res = new StringBuffer();
     for (int k = 0; k < grammar().getNumTypeDecl(); k++) {
       TypeDecl typeDecl = grammar().getTypeDecl(k);
+      for (CollDecl decl: typeDecl.interfaceCollDecls()) {
+        TemplateContext tt = decl.templateContext();
+        if (decl.root() == this && !decl.separateEvaluation()) {
+          if (decl.circularCollection()) {
+            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush1"));
+          } else {
+            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush2"));
+          }
+        }
+      }
       for (int i = 0; i < typeDecl.getNumCollDecl(); i++) {
         CollDecl attr = typeDecl.getCollDecl(i);
         TemplateContext tt = attr.templateContext();
@@ -388,44 +425,50 @@ aspect CollectionAttributes {
   }
 
   public void ASTDecl.weaveCollectionAttributes() {
-    for (int i = 0; i < getNumCollDecl(); i++) {
-      CollDecl attr = getCollDecl(i);
-      TemplateContext tt = attr.templateContext();
+    for (CollDecl decl: interfaceCollDecls()) {
+      weaveCollectionAttribute(decl);
+    }
+    for (CollDecl decl: getCollDeclList()) {
+      weaveCollectionAttribute(decl);
+    }
+  }
 
-      boolean separateEvaluation = attr.separateEvaluation();
-      TypeDecl astDecl = grammar().lookup(config().astNodeType());
-      TypeDecl rootDecl = attr.root();
-      if (astDecl != null && rootDecl != null) {
-        boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());
-        if (!astDecl.hasCollEq(attr) && process) {
-          String s = "";
-          if (separateEvaluation) {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
-          }
+  public void ASTDecl.weaveCollectionAttribute(CollDecl attr) {
+    TemplateContext tt = attr.templateContext();
 
-          if (process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) {
-            s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
-          }
-
-          if (!separateEvaluation && (attr.isCircular() || !attr.onePhase())) {
-            s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
-          }
-
-          astDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
+    boolean separateEvaluation = attr.separateEvaluation();
+    TypeDecl astDecl = grammar().lookup(config().astNodeType());
+    TypeDecl rootDecl = attr.root();
+    if (astDecl != null && rootDecl != null) {
+      boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());
+      if (!astDecl.hasCollEq(attr) && process) {
+        String s = "";
+        if (separateEvaluation) {
+          s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
         }
-        if (process) {
-          String s = "";
-          if (attr.circularCollection() && !separateEvaluation) {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
-          } else if (!attr.circularCollection() && !attr.separateEvaluation()) {
-            if (!rootDecl.hasCollEq(attr)) {
-              s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
-            } else {
-              s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
-            }
-          }
-          rootDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
+
+        if (process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) {
+          s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
         }
+
+        if (!separateEvaluation && (attr.isCircular() || !attr.onePhase())) {
+          s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
+        }
+
+        astDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
+      }
+      if (process) {
+        String s = "";
+        if (attr.circularCollection() && !separateEvaluation) {
+          s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
+        } else if (!attr.circularCollection() && !attr.separateEvaluation()) {
+          if (!rootDecl.hasCollEq(attr)) {
+            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
+          } else {
+            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
+          }
+        }
+        rootDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
       }
     }
   }
