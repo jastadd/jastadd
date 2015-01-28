@@ -443,7 +443,7 @@ aspect AttributeProblems {
   syn boolean CollDecl.hasNoRootProblem() =
     root == null && grammar().roots().isEmpty();
 
-  CollDecl contributes error("no contributions for this collection attribute")
+  CollDecl contributes warning("no contributions for this collection attribute")
     when uses().isEmpty()
     to TypeDecl.attributeProblems()
     for hostClass();
