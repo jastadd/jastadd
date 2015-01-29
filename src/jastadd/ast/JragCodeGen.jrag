@@ -326,19 +326,19 @@ aspect JragCodeGen {
 
   public String ASTNode.toReferenceType(String value, String type) {
     if (type.equals("int")) {
-      return config().java5() ? "Integer.valueOf(" + value + ")" : "new Integer(" + value + ")";
+      return "Integer.valueOf(" + value + ")";
     } else if (type.equals("short")) {
-      return config().java5() ? "Short.valueOf(" + value + ")" : "new Short(" + value + ")";
+      return "Short.valueOf(" + value + ")";
     } else if (type.equals("long")) {
-      return config().java5() ? "Long.valueOf(" + value + ")" : "new Long(" + value + ")";
+      return "Long.valueOf(" + value + ")";
     } else if (type.equals("float")) {
-      return config().java5() ? "Float.valueOf(" + value + ")" : "new Float(" + value + ")";
+      return "Float.valueOf(" + value + ")";
     } else if (type.equals("double")) {
-      return config().java5() ? "Double.valueOf(" + value + ")" : "new Double(" + value + ")";
+      return "Double.valueOf(" + value + ")";
     } else if (type.equals("boolean")) {
       return "Boolean.valueOf(" + value + ")";
     } else if (type.equals("char")) {
-      return config().java5() ? "Character.valueOf(" + value + ")" : "new Character(" + value + ")";
+      return "Character.valueOf(" + value + ")";
     } else {
       return value;
     }
@@ -655,15 +655,9 @@ aspect JragCodeGen {
     }
     else {
       if (config().rewriteEnabled()) {
-        if (config().java5()) {
-          return
-            "if (new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
-            ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-        } else {
-          return
-            "if (new Integer(state.boundariesCrossed).equals(Integer.valueOf(_value.visited)) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
-            ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-        }
+        return
+          "if (new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
+          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       } else
         return
           "if (_value.visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +

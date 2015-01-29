@@ -227,7 +227,7 @@ public class Configuration {
 
   Option<Boolean> java1_4Option = new FlagOption("java1.4",
       "generate for Java 1.4")
-      .deprecated("2.1.9");
+      .deprecated("2.1.9", "this option has no effect - Java 5 code generation can not be disabled");
 
   Option<Boolean> noLazyMapsOption = new FlagOption("noLazyMaps",
       "")
@@ -474,7 +474,7 @@ public class Configuration {
 
     // deprecated in 2.1.9
     allOptions.add(docOption);
-    allOptions.add(java1_4Option);
+    allOptions.add(java1_4Option);// disabled in 2.1.10
     allOptions.add(noLazyMapsOption);
     allOptions.add(noVisitCheckOption);
     allOptions.add(noCacheCycleOption);
@@ -1313,13 +1313,6 @@ public class Configuration {
     }
     // fallback on deprecated option
     return !noStaticOption.value();
-  }
-
-  /**
-   * @return {@code true} if Java 5 mode is enabled
-   */
-  public boolean java5() {
-    return !java1_4Option.value();
   }
 
   /**

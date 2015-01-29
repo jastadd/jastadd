@@ -349,7 +349,6 @@ aspect JaddCodeGen {
     tt.expand("ASTNode.declarations", out);
 
     /* emit getChild */
-    tt.bind("ReturnTypeCast", config().java5() ? "(T) " : "");
     tt.expand("ASTNode.getChild", out);
     tt.expand("ASTNode.rewrittenAttr", out);
 
@@ -573,9 +572,7 @@ aspect JaddCodeGen {
       emitImplicitASTNodeDecls(out);
       grammar().genRewriteOrderChecks(out);
       grammar().genReset(out);
-      if (config().java5()) {
-        templateContext().expand("ASTNode.iterator", out);
-      }
+      templateContext().expand("ASTNode.iterator", out);
     } else if (isListDecl()) {
       emitImplicitListDecls(out);
     } else if (isOptDecl()) {
@@ -631,7 +628,7 @@ aspect JaddCodeGen {
 
   public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("ListType", config().java5() ? config().listType() + "<" + getId().type() + ">" : config().listType());
+    tt.bind("ListType", config().listType() + "<" + getId().type() + ">");
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
     tt.bind("Index", String.valueOf(index));
@@ -643,7 +640,7 @@ aspect JaddCodeGen {
 
   public void OptionalComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("OptType", config().java5() ? config().optType() + "<" + getId().type() + ">" : config().optType());
+    tt.bind("OptType", config().optType() + "<" + getId().type() + ">");
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
     tt.bind("Index", String.valueOf(index));

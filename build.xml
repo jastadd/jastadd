@@ -35,7 +35,7 @@ OPTIONS:
 				<include name="**/*.java"/>
 			</fileset>
 		</copy>
-		<jastadd jjtree="true" rewrite="true"
+		<jastadd jjtree="true" rewrite="regular"
 			grammar="Ast" package="org.jastadd.ast.AST" outdir="${jastadd2.gen.dir}"
 			lazyMaps="false">
 			<fileset dir="${jastadd2.src.dir}/jastadd">

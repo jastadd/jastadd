@@ -29,14 +29,10 @@
 aspect ASTCloneNode {
 
   syn String ASTDecl.copyReturnType() {
-    if (config().java5()) {
-      if (isOptDecl() || isListDecl() || isASTNodeDecl()) {
-        return name() + "<T>";
-      } else {
-        return name();
-      }
+    if (isOptDecl() || isListDecl() || isASTNodeDecl()) {
+      return name() + "<T>";
     } else {
-      return config().astNodeType();
+      return name();
     }
   }
 

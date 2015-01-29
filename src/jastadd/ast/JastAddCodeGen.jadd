@@ -347,18 +347,16 @@ aspect JastAddCodeGen {
         stream.print("abstract ");
       }
       stream.print("class " + name());
-      if (config().java5() && (isOptDecl() || isListDecl() || isASTNodeDecl())) {
+      if (isOptDecl() || isListDecl() || isASTNodeDecl()) {
         stream.print("<T extends " + config().astNodeType() + ">");
       }
       if (hasSuperClass()) {
         stream.print(" extends ");
         String name = getSuperClass().name();
-        if (config().java5()) {
-          if (isListDecl() || isOptDecl()) {
-            name = name + "<T>";
-          } else if (name.equals(config().astNodeType())) {
-            name = name + "<" + config().astNodeType() + ">";
-          }
+        if (isListDecl() || isOptDecl()) {
+          name = name + "<T>";
+        } else if (name.equals(config().astNodeType())) {
+          name = name + "<" + config().astNodeType() + ">";
         }
         stream.print(name);
       } else if (isASTNodeDecl()) {
@@ -387,7 +385,7 @@ aspect JastAddCodeGen {
       buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
     }
 
-    if (isASTNodeDecl() && config().java5()) {
+    if (isASTNodeDecl()) {
       buf.append(", Iterable<T>");
     }
     return buf.toString();

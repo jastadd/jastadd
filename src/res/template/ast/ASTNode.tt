@@ -491,7 +491,7 @@ $if(RewriteEnabled)
       node = rewritten(i);
     }
     node.is$$Final(true);
-    return $(ReturnTypeCast)node;
+    return (T) node;
  $else
     $SynchBegin
     $ASTNode node = this.getChildNoTransform(i);
@@ -501,7 +501,7 @@ $if(RewriteEnabled)
     if(node.is$$Final()) {
       $include(ASTNode.incHookGetChild4)
       $include(ASTNode.incHookGetChild12)
-      return $(ReturnTypeCast)node;
+      return (T) node;
     }
     if(!node.mayHaveRewrite()) {
   $if(StagedRewrites)
@@ -511,7 +511,7 @@ $if(RewriteEnabled)
   $endif
       $include(ASTNode.incHookGetChild4)
       $include(ASTNode.incHookGetChild12)
-      return $(ReturnTypeCast)node;
+      return (T) node;
     }
     if(!node.in$$Circle()) {
       $include(ASTNode.traceHookRewriteEnterCase1)
@@ -560,14 +560,14 @@ $if(RewriteEnabled)
     }
     $include(ASTNode.incHookGetChild11)
     $include(ASTNode.incHookGetChild12)
-    return $(ReturnTypeCast)node;
+    return (T) node;
     $SynchEnd
  $endif
 $else
     // No rewrites
     $ASTNode child = getChildNoTransform(i);
     $include(ASTNode.incHookGetChildNT)
-    return $(ReturnTypeCast)child;
+    return (T) child;
 $endif
 
   }

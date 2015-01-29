@@ -131,8 +131,8 @@ aspect NTADetector {
 
 aspect ConstructorParameterTypes {
   syn String Components.constrParmType();
-  eq ListComponents.constrParmType() = config().java5() ? config().listType() + "<" + getId().type() + ">" : config().listType();
-  eq OptionalComponent.constrParmType() = config().java5() ? config().optType() + "<" + getId().type() + ">" : config().optType();
+  eq ListComponents.constrParmType() = config().listType() + "<" + getId().type() + ">";
+  eq OptionalComponent.constrParmType() = config().optType() + "<" + getId().type() + ">";
   eq TokenComponent.constrParmType() = getTokenId().getTYPE();
   eq AggregateComponents.constrParmType() = getId().type();
 }
@@ -147,18 +147,18 @@ aspect ComponentsHostClass {
 // ES_2011-12-05: Checks for regions in coarse incremental evaluation
 aspect CoarseIncremental {
 
-	syn lazy boolean ASTDecl.isRegionRoot() = isRootNode() || lookupRegionDecl(name()) != null;
+  syn lazy boolean ASTDecl.isRegionRoot() = isRootNode() || lookupRegionDecl(name()) != null;
 
-	inh RegionDecl ASTDecl.lookupRegionDecl(String name);
-	eq Grammar.getTypeDecl().lookupRegionDecl(String name) {
-		for (int i = 0; i < getNumRegionDecl(); i++) {
-			RegionDecl decl = getRegionDecl(i);
-			if (decl.name().equals(name)) {
-				return decl;
-			}
-		}
-		return null;
-	}
+  inh RegionDecl ASTDecl.lookupRegionDecl(String name);
+  eq Grammar.getTypeDecl().lookupRegionDecl(String name) {
+    for (int i = 0; i < getNumRegionDecl(); i++) {
+      RegionDecl decl = getRegionDecl(i);
+      if (decl.name().equals(name)) {
+        return decl;
+      }
+    }
+    return null;
+  }
 
   syn lazy boolean ASTDecl.hasRegionRootAsSuperClass() {
     ASTDecl superDecl = superClass();
@@ -171,25 +171,25 @@ aspect CoarseIncremental {
     return false;
   }
 
-	syn lazy boolean ASTDecl.isRegionLeaf() {
+  syn lazy boolean ASTDecl.isRegionLeaf() {
 
     if (name().equals(config().listType()) || name().equals(config().optType())) {
       TypeDecl type = grammar().lookup(config().astNodeType());
       if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
-	  			return false;
-	  	}
+          return false;
+      }
       return true;
     }
 
-		for (int i = 0; i < getNumComponents(); i++) {
-			Components comp = getComponents(i);
-			TypeDecl type = grammar().lookup(comp.type());
-			if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
-				return true;
-			}
-		}
-		return false;
-	}
+    for (int i = 0; i < getNumComponents(); i++) {
+      Components comp = getComponents(i);
+      TypeDecl type = grammar().lookup(comp.type());
+      if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 
 }

@@ -241,10 +241,13 @@ task('generateJava', dependsOn: [ 'parser' ]) {
 	outputs.dir 'src/gen'
 
 	doLast {
-		ant.taskdef(name: 'jastadd',
+		ant.taskdef(
+			name: 'jastadd',
 			classname: 'org.jastadd.JastAddTask',
 			classpath: configurations.jastadd2.asPath)
-		ant.jastadd(jjtree: true, rewrite: true,
+		ant.jastadd(
+			jjtree: true,
+			rewrite: 'regular',
 			grammar: 'Ast',
 			package: 'org.jastadd.ast.AST',
 			outdir: 'src/gen',
