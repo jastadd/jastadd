@@ -38,8 +38,8 @@ aspect AttributeNamesAndTypes {
   syn String AttrDecl.name() = getName();
   syn String AttrDecl.type() = getType();
 
-  syn String AttrDecl.getTypeInSignature() = convTypeNameToSignature(type());
   syn String Parameter.getTypeInSignature() = convTypeNameToSignature(getType());
+
   public static String ASTNode.convTypeNameToSignature(String s) {
     s = s.replace('.', '_');
     s = s.replace(' ', '_');
@@ -50,12 +50,6 @@ aspect AttributeNamesAndTypes {
     s = s.replace('?', '_');
     s = s.replace(']', 'a');
     return s;
-  }
-  syn String AttrEq.getTypeInSignature() {
-    if (decl() != null) return decl().getTypeInSignature();
-    throw new Error(getFileName() + ":" + getStartLine() +
-        " could not find decl for AttrEq " + signature() + " in " +
-        hostClass().name());
   }
 
   syn String AttrEq.name() = getName();

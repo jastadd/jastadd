@@ -985,7 +985,7 @@ aspect Compute {
   syn String AttrDecl.computeRHS() = name() + "_compute(" + parameters() + ")";
 
   eq InhDecl.computeRHS() =
-    "getParent().Define_" + getTypeInSignature() + "_" + name() + "(" + interfaceParametersStart() + ")";
+    "getParent().Define_" + name() + "(" + interfaceParametersStart() + ")";
 
   syn String AttrDecl.computeLHS() {
     if (isLazy() && getNumParameter() == 0) {
