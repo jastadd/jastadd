@@ -25,7 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AttrEq.emitInhEqSignature = [[
+AttrEq.emitInhEqSignature [[
   /**
    * @apilevel internal
    */
@@ -33,5 +33,125 @@ AttrEq.emitInhEqSignature = [[
     #inhDebugString
     return getParent().Define_#name(#interfaceParametersContinue);
   }
+]]
+
+# the shell for the Define_NAME method
+InhDecl.DefineInhMethod [[
+  /**
+   * #declaredat
+   * @apilevel internal
+   */
+  public #getType Define_#(name)(#interfaceParametersDecl) {
+    $InhEqClauses
+  }
+]]
+
+# list child equation clause
+InhEq.emitListClause [[
+$if(RewriteCircularNTA)
+if (caller == get#(childName)ListNoTransform() ||
+  (rewritten_int_values != null &&
+    rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) != null &&
+    ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))) ||
+      (rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) instanceof $ASTNode$$State.CircularValue &&
+      caller == (($ASTNode$$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))).value)))) {
+  int $ChildIndexVar = caller.getIndexOfChild(child);
+  $EvalStmt
+}
+$else
+if (caller == get#(childName)ListNoTransform()) {
+  int $ChildIndexVar = caller.getIndexOfChild(child);
+  $EvalStmt
+}
+$endif
+]]
+
+# optional child equation clause
+InhEq.emitOptClause [[
+$if(RewriteCircularNTA)
+if (caller == get#(childName)OptNoTransform() ||
+  (rewritten_int_values != null &&
+    rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) != null &&
+    ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))) ||
+      (rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) instanceof $ASTNode$$State.CircularValue &&
+        caller == (($ASTNode$$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))).value)))) {
+  $EvalStmt
+}
+$else
+if (caller == get#(childName)OptNoTransform()) {
+  $EvalStmt
+}
+$endif
+]]
+
+# regular child equation clause
+InhEq.emitChildClause [[
+$if(RewriteCircularNTA)
+if (caller == get#(childName)NoTransform() ||
+  (rewritten_int_values != null &&
+    rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) != null &&
+    ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))) ||
+      (rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) instanceof $ASTNode$$State.CircularValue &&
+        caller == (($ASTNode$$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))).value)))) {
+  $EvalStmt
+}
+$else
+if (caller == get#(childName)NoTransform()) {
+  $EvalStmt
+}
+$endif
+]]
+
+# getChild equation clause
+InhEq.emitDefaultClause [[
+$if(HasComponentEq)
+{
+  $include(InhEq.defaultEval)
+}
+$else
+$include(InhEq.defaultEval)
+$endif
+]]
+
+InhEq.defaultEval [[
+int $ChildIndexVar = this.getIndexOfChild(caller);
+$EvalStmt
+]]
+
+# non-terminal child equation clause
+InhEq.emitNTAClause [[
+$if(IsParameterized)
+if (caller == $(AttrSignature)_list) {
+  int $ChildIndexVar = caller.getIndexOfChild(child);
+  $EvalStmt
+}
+$else
+if (caller == #(childName)_value) {
+  $EvalStmt
+}
+$endif
+]]
+
+InhDecl.fallthrough [[
+$if(HasComponentEq)
+else {
+  $include(InhDecl.tailCall)
+}
+$else
+$include(InhDecl.tailCall)
+$endif
+]]
+
+InhDecl.tailCall [[
+$if(HasEqInSupertype)
+return super.Define_#(name)(#interfaceParameters);
+$else
+  $if(DebugMode)
+if (getParent() == null) {
+  throw new RuntimeException("Trying to evaluate inherited attribute in detached subtree (parent == null)");
+}
+  $endif
+return getParent().Define_#(name)(#interfaceParametersContinue);
+$endif
 ]]
 

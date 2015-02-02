@@ -1134,6 +1134,7 @@ public aspect Attributes {
     }
     return s.toString();
   }
+
   syn String AttrDecl.parametersDecl() {
     StringBuffer s = new StringBuffer();
     for (int i = 0; i < getNumParameter(); i++) {

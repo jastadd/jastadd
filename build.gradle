@@ -84,7 +84,7 @@ task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) {
 	}
 }
 
-task('sourceZip', dependsOn: [ 'generateJava', 'parser', 'buildDocs' ]) {
+task('sourceZip', dependsOn: [ 'generateJava', 'buildDocs' ]) {
 	doLast {
 		ant.zip(destfile: 'jastadd2-src.zip') {
 			zipfileset(dir: '.', prefix: 'jastadd2-src') {
@@ -189,8 +189,8 @@ task('storeVersionString') {
 	}
 }
 
-task('parser') {
-	description 'generate the Jrag parser and AST types'
+task('jjtree') {
+	description 'build parser ASTs with JJTree'
 
 	inputs.dir 'src/javacc'
 	outputs.dir 'src/gen'
@@ -200,12 +200,6 @@ task('parser') {
 		file('src/gen/org/jastadd/jrag/AST').mkdirs()
 
 		ant {
-			copy(todir: 'src/gen/org/jastadd/jrag') {
-				fileset(dir: 'src/javacc/jrag') {
-					include(name: '**/*.java')
-				}
-			}
-
 			// Ast.jjt must be touched, or Ant will not run jjtree
 			touch(file: 'src/javacc/ast/Ast.jjt')
 			java(classpath: 'tools/javacc.jar', classname: 'org.javacc.jjtree.Main') {
@@ -213,16 +207,29 @@ task('parser') {
 				arg(value: '-NODE_PREFIX=""')
 				arg(value: 'src/javacc/ast/Ast.jjt')
 			}
-			javacc(javacchome: 'tools',
-				jdkversion: '1.4',
-				outputdirectory: 'src/gen/org/jastadd/ast/AST',
-				target: 'src/gen/org/jastadd/ast/AST/Ast.jj')
 			// Jrag.jjt must be touched, or Ant will not run jjtree
 			touch(file: 'src/javacc/jrag/Jrag.jjt')
 			jjtree(
 				javacchome: 'tools',
 				outputdirectory: 'src/gen/org/jastadd/jrag/AST',
 				target: 'src/javacc/jrag/Jrag.jjt')
+		}
+	}
+}
+
+task('javacc', dependsOn: [ 'jjtree' ]) {
+	description 'build aspect and grammar parsers with JavaCC'
+
+	inputs.file 'src/gen/org/jastadd/ast/AST/Ast.jj'
+	inputs.file 'src/gen/org/jastadd/jrag/AST/Jrag.jj'
+	outputs.dir 'src/gen'
+
+	doLast {
+		ant {
+			javacc(javacchome: 'tools',
+				jdkversion: '1.4',
+				outputdirectory: 'src/gen/org/jastadd/ast/AST',
+				target: 'src/gen/org/jastadd/ast/AST/Ast.jj')
 			javacc(
 				javacchome: 'tools',
 				jdkversion: '1.4',
@@ -232,9 +239,18 @@ task('parser') {
 	}
 }
 
+task('additionalParserSources', type: Copy, dependsOn: [ 'javacc' ]) {
+	description 'copy additional parser sources'
+
+	from('src/javacc/jrag') {
+		include '**/*.java'
+	}
+	into 'src/gen/org/jastadd/jrag'
+}
+
 compileJava.dependsOn 'generateJava'
 
-task('generateJava', dependsOn: [ 'parser' ]) {
+task('generateJava', dependsOn: [ 'javacc', 'additionalParserSources' ]) {
 	description 'generate Java sources from JastAdd aspects'
 
 	inputs.dir 'src/jastadd'

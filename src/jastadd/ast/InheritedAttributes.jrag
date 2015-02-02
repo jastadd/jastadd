@@ -324,153 +324,83 @@ aspect InheritedAttributeCodeGen {
    * @param out
    */
   public void ASTDecl.emitInhEquations(PrintStream out) {
-    String ind = config().indent;
-    String ind2 = config().ind(2);
-    String ind3 = config().ind(3);
-    for (Iterator idIter = inhAttrSet(); idIter.hasNext(); ) {
-      String attrId = (String)idIter.next();
-      Iterator iter = inhAttrEqs(attrId);
-      InhEq equ = (InhEq)iter.next();
-      InhDecl decl = (InhDecl)equ.decl();
-
-      out.println(ind + "/**");
-      out.println(ind + " * " + equ.declaredat());
-      out.println(ind + " * @apilevel internal");
-      out.println(ind + " */");
-      out.println(ind + "public " + decl.getType() + " Define_" + decl.name() + "(" + decl.interfaceParametersDecl() + ") {");
-
-      // have we already generated a component equation?
-      boolean hasComponentEq = false;
-      boolean hasGetChildEq = false;
-
-      do {
-        out.print(ind2);
-        if (hasComponentEq) {
-          out.print("else ");
-        }
-        hasComponentEq = true;
-
-        Components c = equ.getComponents();
-        if (c instanceof ListComponents) {
-          if (config().rewriteCircularNTA()) {
-            out.print("if (caller == get" + equ.childName() + "ListNoTransform() || " +
-            "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition()))) || " +
-              "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ListChildPosition()))).value))))");              
-          } else {
-            out.print("if (caller == get" + equ.childName() + "ListNoTransform())");
-          }
-        }
-        else if (c instanceof OptionalComponent) {
-          if (config().rewriteCircularNTA()) {
-            out.print("if (caller == get" + equ.childName() + "OptNoTransform() || " +
-            "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition()))) || " +
-              "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "OptChildPosition()))).value))))");
-          } else { 
-            out.print("if (caller == get" + equ.childName() + "OptNoTransform())");
-          }
-        }
-        else if (c != null) {
-          if (config().rewriteCircularNTA()) {
-            out.print("if (caller == get" + equ.childName() + "NoTransform() || " +
-              "(rewritten_int_values != null && rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition())) != null && ((caller == rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition()))) || " +
-              "(rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition())) instanceof ASTNode$State.CircularValue && caller == ((ASTNode$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get" + equ.childName() + "ChildPosition()))).value))))");
-              
-          } else {
-            out.print("if (caller == get" + equ.childName() + "NoTransform())");
-          }
-        }
-        else if (equ.getChildName().equals("getChild")) {
-          hasGetChildEq = true;
-        }
-        else {
-          AttrDecl attrDecl = equ.getChildAttrDecl();
-          if (attrDecl.getNumParameter() == 0)
-            out.print("if (caller == " + equ.childName() + "_value)");
-          else
-            out.print("if (caller == " + attrDecl.signature() + "_list)");
-        }
-
-        if (c instanceof ListComponents) {
-          String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-          if (equ.getRHS() instanceof ASTBlock) { // Block
-            out.println(" {");
-            out.println(ind3 + "int " + childIndex + " = caller.getIndexOfChild(child);");
-            out.println(ind3 + Unparser.unparse(equ.getRHS()));
-            out.println(ind2 + "}");
-          }
-          else { // Expr
-            out.println(" {");
-            out.println(ind3 + "int " + childIndex + " = caller.getIndexOfChild(child);");
-            out.println(ind3 + "return " + Unparser.unparse(equ.getRHS()) + ";");
-            out.println(ind2 + "}");
-          }
-
-        }
-        else if (c != null) {
-          if (equ.getRHS() instanceof ASTBlock) { // Block
-            out.println(Unparser.unparse(equ.getRHS()));
-          }
-          else { // Expr
-            out.println(" {");
-            out.println(ind3 + "return " + Unparser.unparse(equ.getRHS()) + ";");
-            out.println(ind2 + "}");
-          }
-        }
-        else if (equ.getChildName().equals("getChild")) {
-          String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-          if (equ.getRHS() instanceof ASTBlock) { // Block
-            out.println(" {");
-            out.println(ind3 + "int " + childIndex + " = this.getIndexOfChild(caller);");
-            out.println(Unparser.unparse(equ.getRHS()));
-            out.println(ind2 + "}");
-          }
-          else { // Expr
-            out.println(" {");
-            out.println(ind3 + "int " + childIndex + " = this.getIndexOfChild(caller);");
-            out.println(ind3 + "return " + Unparser.unparse(equ.getRHS()) + ";");
-            out.println(ind2 + "}");
-          }
-        }
-        else {
-          AttrDecl attrDecl = equ.getChildAttrDecl();
-          out.println(" {");
-          if (attrDecl.getNumParameter() != 0) {
-            String childIndex = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
-            out.println(ind3 + "int " + childIndex + " = caller.getIndexOfChild(child);");
-          }
-          if (equ.getRHS() instanceof ASTBlock) { // Block
-            out.println(Unparser.unparse(equ.getRHS()));
-          } else { // Expr
-            out.println(ind3 + "return " + Unparser.unparse(equ.getRHS()) + ";");
-          }
-          out.println(ind2 + "}");
-        }
-
-        if (iter.hasNext()) {
-          equ = (InhEq)iter.next();
-        }
-        else {
-          equ = null;
-        }
-      } while (equ != null);
-
-      if (!hasGetChildEq) {
-        out.print(ind2);
-        if (hasComponentEq) {
-          out.println("else {");
-        }
-        if (superClass() != null && superClass().hasInhEq(decl.name())) {
-          out.println(ind3 + "return super.Define_" + decl.name() + "(" + decl.interfaceParameters() + ");");
-          out.println(ind2 + "}");
-        }
-        else {
-          // TODO: INH
-          out.print(decl.inhDebugString());
-          out.println(ind3 +   "return getParent().Define_" + decl.name() + "(" + decl.interfaceParametersContinue() + ");");
-          out.println(ind2 + "}");
-        }
-      }
-      out.println(ind + "}");
+    for (String attrId: inhAttrSet()) {
+      emitDefineInhMethod(out, attrId);
+      //emitInhDefinesMethod(out, attrId);
     }
   }
+
+  public void ASTDecl.emitDefineInhMethod(PrintStream out, String attrId) {
+    Collection<InhEq> inhEqs = inhAttrEqs(attrId);
+    assert(inhEqs.iterator().hasNext());
+
+    InhDecl decl = (InhDecl) inhEqs.iterator().next().decl();
+
+    TemplateContext tc = decl.templateContext();
+    tc.bind("InhEqClauses", inhEqClauses(decl, inhEqs));
+    tc.expand("InhDecl.DefineInhMethod", out);
+  }
+
+  private String ASTDecl.inhEqClauses(InhDecl decl, Collection<InhEq> inhEqs) {
+    StringBuffer sb = new StringBuffer();
+
+    // have we already generated a component equation?
+    boolean hasComponentEq = false;
+
+    for (InhEq equ: inhEqs) {
+      if (hasComponentEq) {
+        sb.append("else ");
+      }
+
+      String rhs = Unparser.unparse(equ.getRHS());
+
+      TemplateContext tc = equ.templateContext();
+
+      if (equ.getRHS() instanceof ASTBlock) {
+        // Block
+        tc.bind("EvalStmt", rhs);
+      } else {
+        // Expr
+        tc.bind("EvalStmt", "return " + rhs + ";");
+      }
+
+      Components c = equ.getComponents();
+      if (c != null) {
+        if (c instanceof ListComponents) {
+          tc.bind("ChildIndexVar", equ.hasIndex() ? equ.getIndex().getName() : "childIndex");
+          tc.expand("InhEq.emitListClause", sb);
+        } else if (c instanceof OptionalComponent) {
+          tc.expand("InhEq.emitOptClause", sb);
+        } else {
+          tc.expand("InhEq.emitChildClause", sb);
+        }
+      } else if (equ.getChildName().equals("getChild")) {
+        tc.bind("ChildIndexVar", equ.hasIndex() ? equ.getIndex().getName() : "childIndex");
+        tc.bind("HasComponentEq", hasComponentEq);
+        tc.expand("InhEq.emitDefaultClause", sb);
+        // the getChild equation, if present, is always last in the equation list, so we are done now
+        return sb.toString();
+      } else {
+        // NTA child equation
+        AttrDecl attrDecl = equ.getChildAttrDecl();
+        tc.bind("IsParameterized", attrDecl.isParameterized());
+        if (attrDecl.isParameterized()) {
+          tc.bind("ChildIndexVar", equ.hasIndex() ? equ.getIndex().getName() : "childIndex");
+          tc.bind("AttrSignature", attrDecl.signature());
+        }
+        tc.expand("InhEq.emitNTAClause", sb);
+      }
+
+      hasComponentEq = true;
+    }
+
+    // there was no default (getChild) equation
+    TemplateContext tc = decl.templateContext();
+    tc.bind("HasComponentEq", hasComponentEq);
+    tc.bind("HasEqInSupertype", superClass() != null && superClass().hasInhEq(decl.name()));
+    tc.expand("InhDecl.fallthrough", sb);
+    return sb.toString();
+  }
+
 }
+

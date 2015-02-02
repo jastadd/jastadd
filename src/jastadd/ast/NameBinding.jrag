@@ -195,20 +195,25 @@ aspect BindSynEquations {
 }
 
 aspect LookupDecls {
-  syn lazy AttrDecl AttrEq.decl();
+  // this can not be lazy because we remove duplicate InhDecls,
+  // so if this were lazy it could point to removed nodes!
+  syn AttrDecl AttrEq.decl();
+
   eq InhEq.decl() = grammar().inhDecls().get(signature());
-  eq SynEq.decl() = hostClass().lookupSynDecl(signature());
+
+  // SynDecls are not removed, so this can be lazy
+  syn lazy SynDecl SynEq.decl() = hostClass().lookupSynDecl(signature());
 }
 
 aspect ASTDecl {
-  syn lazy HashMap TypeDecl.inhEqMap() {
-    HashMap map = new LinkedHashMap();
+  syn lazy HashMap<String, LinkedList<InhEq>> TypeDecl.inhEqMap() {
+    HashMap<String, LinkedList<InhEq>> map = new LinkedHashMap<String, LinkedList<InhEq>>();
     for (int i = 0; i < getNumInhEq(); i++) {
       InhEq equ = getInhEq(i);
       String id = equ.type() + "_" + equ.signature();
-      LinkedList list = (LinkedList)map.get(id);
+      LinkedList list = (LinkedList<InhEq>) map.get(id);
       if (list == null) {
-        list = new LinkedList();
+        list = new LinkedList<InhEq>();
         map.put(id, list);
       }
       if (equ.getChildName().equals("getChild")) {
@@ -224,12 +229,21 @@ aspect ASTDecl {
     return map;
   }
 
-  public Iterator TypeDecl.inhAttrSet() {
-    return inhEqMap().keySet().iterator();
+  /**
+   * @return list of inherited attributes with equations at this node
+   */
+  public Collection<String> TypeDecl.inhAttrSet() {
+    return inhEqMap().keySet();
   }
 
-  public Iterator TypeDecl.inhAttrEqs(String id) {
-    LinkedList list = (LinkedList)inhEqMap().get(id);
-    return list != null ? list.iterator() : null;
+  /**
+   * List of equations at this node for an inherited attribute.
+   * The getChild equation, if present, is always last.
+   * @param id inherited attribute name
+   * @return list of equations for attribute
+   */
+  public Collection<InhEq> TypeDecl.inhAttrEqs(String id) {
+    LinkedList<InhEq> list = inhEqMap().get(id);
+    return list != null ? list : Collections.<InhEq>emptyList();
   }
 }
