@@ -43,6 +43,7 @@ aspect CollectionAttributes {
         for (CollDecl decl: type.getCollDeclList()) {
           list.add(decl);
         }
+        list.addAll(type.interfaceCollDecls());
       }
     }
     return list;
