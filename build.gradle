@@ -84,7 +84,7 @@ task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) {
 	}
 }
 
-task('sourceZip', dependsOn: [ 'generateJava', 'buildDocs' ]) {
+task('sourceZip', dependsOn: [ 'documentation' ]) {
 	doLast {
 		ant.zip(destfile: 'jastadd2-src.zip') {
 			zipfileset(dir: '.', prefix: 'jastadd2-src') {
@@ -117,7 +117,7 @@ task('sourceZip', dependsOn: [ 'generateJava', 'buildDocs' ]) {
 	}
 }
 
-task('binaryZip', dependsOn: [ 'jar', 'buildDocs' ]) {
+task('binaryZip', dependsOn: [ 'jar', 'documentation' ]) {
 	doLast {
 		ant.exec(executable: 'perl', output: 'README-binary-dist.html') {
 			arg(value: 'tools/Markdown.pl')
@@ -140,7 +140,7 @@ task('binaryZip', dependsOn: [ 'jar', 'buildDocs' ]) {
 	}
 }
 
-task('buildDocs', dependsOn: [ 'storeVersionString' ]) {
+task('documentation', dependsOn: [ 'storeVersionString' ]) {
 	doLast {
 		println 'Processing Markdown files'
 		ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {

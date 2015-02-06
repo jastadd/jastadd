@@ -1,6 +1,61 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.11 - 2015-02-06
+-------------------
+
+### Bug Fixes
+
+* NTAs using the `nta` keyword on the equation and simultaneously having the
+  corresponding child declared using the `/NTA/` syntax in the grammar now
+store their value in the child array.  This fixes a long-standing issue where
+such NTAs effectively discarded their equation value. A new warning message is
+generated to warn about NTAs that were affected by this issue. The warning can
+be silenced by removing the `nta` keyword from the NTA equation. [More
+info](https://bitbucket.org/jastadd/jastadd2/issue/198/component-declared-nta-in-both-ast-and)
+* Removed a declaration order dependency between interface declarations and
+  synthesized attributes. [More
+info](https://bitbucket.org/jastadd/jastadd2/issue/194/declaration-order-dependency-for)
+
+### Code Generation
+
+* It is now possible to use JastAdd keywords like `syn`, `eq`, and `inh` as
+  regular Java identifiers in certain Java code contexts such as attribute
+equations or method bodies. [More
+info](https://bitbucket.org/jastadd/jastadd2/issue/195/jastadd-keywords-in-java-code)
+* Removed redundant and incorrect cache checks for some types of NTAs. [More
+  info](https://bitbucket.org/jastadd/jastadd2/issue/182/nta-double-cache-check)
+* Setter methods are no longer generated for NTA children and in the case where
+  a setter method is inherited from a non-NTA child in a superclass the set
+method will throw an exception if it is called attempting to set the NTA child.
+[More
+info](https://bitbucket.org/jastadd/jastadd2/issue/200/do-not-generate-set-methods-for-nta)
+* Removed inherited attribute return type from `Define_XXX` method names.
+* Missing contributions for a collection attribute now result in a warning
+  rather than an error. [More
+info](https://bitbucket.org/jastadd/jastadd2/issue/203/missing-contributions-for-collection)
+* Fixed multi-level inheritance of collection attribute declaration through
+  interface inheritance. [More
+info](https://bitbucket.org/jastadd/jastadd2/issue/204/multi-level-interface-inheritance-of)
+* Many fixes to the indentation of generated code.
+
+### Command-line Interface
+
+* Options are now sorted by name in the `--help` output.
+* Added the `--ASTNodeSuper` option to set a custom superclass for ASTNode.
+  [More
+info](https://bitbucket.org/jastadd/jastadd2/issue/107/custom-superclass-for-astnode)
+* Added the `--dot` option to generate a class diagram for the input grammar in
+  the Dot format.
+* Added the `--generateImplicits` option. Setting this to `false` means that
+  ASTNode, List, and Opt must be declared in the grammar. This makes it
+possible to declare ASTNode abstract.
+* The `--rewrite` option accepts the `true` value again. The `true` value was
+  unintentionally removed in version 2.1.9.
+* The `--java1.4` option has been disabled. If Java 1.4 support is required
+  then a third-party translator can be used, such as Retrotranslator
+(http://retrotranslator.sourceforge.net/)
+
 2.1.10 - 2014-10-10
 -------------------
 

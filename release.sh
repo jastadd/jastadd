@@ -22,7 +22,7 @@ while true; do
         EDITOR=vim
       fi
       $EDITOR doc/release-notes.md
-      gradle buildDocs
+      gradle documentation
       echo "Generated doc/release-notes.html - check that the markup looks OK"
       break
       ;;
