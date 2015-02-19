@@ -153,7 +153,7 @@ if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_
   #visitedException
 }
       $else
-if (new Integer(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
+if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
   #visitedException
 }
       $endif
@@ -182,7 +182,7 @@ $if (RewriteEnabled)
     $if (Java5)
 #(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
     $else
-#(signature)_visited.put(_parameters, new Integer(state().boundariesCrossed));
+#(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
     $endif
   $else
 #(signature)_visited = state().boundariesCrossed;
@@ -445,7 +445,7 @@ $endif
       // state().CIRCLE_INDEX = 1;
       do {
 $if (Java5)
-        _value.visited = new Integer(state.CIRCLE_INDEX);
+        _value.visited = Integer.valueOf(state.CIRCLE_INDEX);
 $else
         _value.visited = state.CIRCLE_INDEX;
 $endif
@@ -509,10 +509,10 @@ $endif
       return new_#(signature)_value;
     }
 $if (Java5)
-    if (!new Integer(state.CIRCLE_INDEX).equals(_value.visited)) {
-      _value.visited = new Integer(state.CIRCLE_INDEX);
+    if (!Integer.valueOf(state.CIRCLE_INDEX).equals(_value.visited)) {
+      _value.visited = Integer.valueOf(state.CIRCLE_INDEX);
 $else
-    if (!new Integer(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {
+    if (!Integer.valueOf(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {
       _value.visited = state.CIRCLE_INDEX;
 $endif
       $include(AttrDecl.traceHookCircularEnterCase2)

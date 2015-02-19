@@ -656,7 +656,7 @@ aspect JragCodeGen {
     else {
       if (config().rewriteEnabled()) {
         return
-          "if (new Integer(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
+          "if (Integer.valueOf(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
           ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
       } else
         return

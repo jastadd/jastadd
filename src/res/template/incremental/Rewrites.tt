@@ -240,7 +240,7 @@ $if(#isASTNodeDecl)
     java.util.LinkedList indexList = new java.util.LinkedList();
     while (parent != null) {
       int index = child.childIndex;
-      indexList.addFirst(new Integer(index));
+      indexList.addFirst(Integer.valueOf(index));
       if (parent.init_children != null && index >= 0 && index < parent.init_children.length && parent.init_children[index] != null) {
         break;
       }

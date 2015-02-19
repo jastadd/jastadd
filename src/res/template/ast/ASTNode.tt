@@ -154,7 +154,7 @@ $if(HasRewriteLimit)
     if(!parent.is$$Final()) return;
       java.util.ArrayList key = new java.util.ArrayList(2);
       key.add(getParent());
-      key.add(new Integer(getParent().getIndexOfChild(this)));
+      key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
       java.util.ArrayList list;
       if(state().debugRewrite.containsKey(key))
         list = (java.util.ArrayList)state().debugRewrite.get(key);
@@ -177,7 +177,7 @@ $if(HasRewriteLimit)
   public void $ASTNode.debugRewriteRemove() {
     java.util.ArrayList key = new java.util.ArrayList(2);
     key.add(getParent());
-    key.add(new Integer(getParent().getIndexOfChild(this)));
+    key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
     state().debugRewrite.remove(key);
   }
 $endif

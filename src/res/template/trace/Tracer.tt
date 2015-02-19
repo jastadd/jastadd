@@ -515,10 +515,10 @@ public static class Trace {
         }
         java.util.Map<String,Integer> nodeMap = paramMap.get(e.params);
         if (!nodeMap.containsKey(e.node)) {
-          nodeMap.put(e.node, new Integer(0));
+          nodeMap.put(e.node, Integer.valueOf(0));
         }
         Integer nodeCount = nodeMap.get(e.node);
-        nodeMap.put(e.node, new Integer(nodeCount + 1));
+        nodeMap.put(e.node, Integer.valueOf(nodeCount + 1));
       }
     }
     // Create result string

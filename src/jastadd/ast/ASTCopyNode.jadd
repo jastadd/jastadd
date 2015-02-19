@@ -60,11 +60,11 @@ aspect ASTCloneNode {
       Components c = (Components)iter.next();
       if (c.isNTA()) {
         if (c instanceof ListComponentsNTA) {
-          ntaListIndices.add(new Integer(i));
+          ntaListIndices.add(Integer.valueOf(i));
         } else if (c instanceof OptionalComponentNTA) {
-          ntaOptIndices.add(new Integer(i));
+          ntaOptIndices.add(Integer.valueOf(i));
         } else if (c instanceof AggregateComponentsNTA) {
-          ntaAggregateIndices.add(new Integer(i));
+          ntaAggregateIndices.add(Integer.valueOf(i));
         }
       }
 

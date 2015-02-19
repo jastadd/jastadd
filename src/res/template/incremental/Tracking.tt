@@ -59,9 +59,9 @@ $if(IncrementalLevelParam)
 int i = getNumChildNoTransform() - 1;
 if (getChild_handler[i] == null) {
 $if(IncrementalPropLimit)
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !node.mayHaveRewrite());
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
 $else
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
 $endif
 }
 state().addHandlerDepTo(getChild_handler[i]);
@@ -169,9 +169,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (this.getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !node.mayHaveRewrite());
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
   $else
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
   $endif
 }
 this.state().addHandlerDepTo(this.getChild_handler[i]);
@@ -260,9 +260,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (this.getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !node.mayHaveRewrite());
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
   $else
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
   $endif
 }
 this.state().addHandlerDepTo(this.getChild_handler[i]);
@@ -309,9 +309,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i), !child.mayHaveRewrite());
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !child.mayHaveRewrite());
   $else
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", new Integer(i));
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
   $endif
 }
 state().addHandlerDepTo(getChild_handler[i]);
