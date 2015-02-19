@@ -37,7 +37,7 @@ ASTDecl.emitCopyNode = [[
       $include(ASTDecl.traceHookCopyNode)
       #name node = (#name) clone();
       node.parent = null;
-      if(children != null) {
+      if (children != null) {
         node.children = ($ASTNode[]) children.clone();
       }
 $if(IncrementalEnabled)
@@ -94,7 +94,7 @@ $else
       for (int i = 0; i < children.length; ++i) {
         $SkipNTAs
         $ASTNode child = ($ASTNode) children[i];
-        if(child != null) {
+        if (child != null) {
           child = child.treeCopyNoTransform();
 $if(IncrementalEnabled)
           tree.children[i] = child;

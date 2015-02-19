@@ -54,7 +54,7 @@ $if(#isParameterized)
     #addComponentCheck
     if (!#(signature)_initialized.contains(_parameters)) {
       #(signature)_initialized.add(_parameters);
-      #(signature)_values.put(_parameters, $RefType1);
+      #(signature)_values.put(_parameters, $BottomValue);
     }
     if (!state().IN_CIRCLE) {
       state().IN_CIRCLE = true;
@@ -70,7 +70,7 @@ $if(#isParameterized)
         if ($Cond2) {
           state().CHANGE = true;
         }
-        #(signature)_values.put(_parameters, $RefType2);
+        #(signature)_values.put(_parameters, new_#(signature)_value);
         state().CIRCLE_INDEX++;
         #cycleLimitCheck
       } while (state().CHANGE);
@@ -86,7 +86,7 @@ $if(#isParameterized)
       state().IN_CIRCLE = false;
       return new_#(signature)_value;
     }
-    if(!new Interger(state().CIRCLE_INDEX).equals(#(signature)_visited.get(_parameters))) {
+    if (!new Interger(state().CIRCLE_INDEX).equals(#(signature)_visited.get(_parameters))) {
       #(signature)_visited.put(_paramters, Integer.valueOf(state().CIRCLE_INDEX));
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
@@ -95,10 +95,10 @@ $if(#isParameterized)
       if ($Cond2) {
         state().CHANGE = true;
       }
-      #(signature)_values.put(_parameters, $RefType2);
+      #(signature)_values.put(_parameters, new_#(signature)_value);
       return new_#(signature)_value;
     }
-    return $FromRefType;
+    return #(signature)_values.get(_parameters);
     $SynchEnd
   }
 $else
@@ -135,7 +135,7 @@ $endif
     $RootType root = ($RootType) node;
 
 $if(!SeparateEvaluation)
-    if(root.collecting_contributors_#collectingSignature)
+    if (root.collecting_contributors_#collectingSignature)
       throw new RuntimeException("Circularity during phase 1");
 $endif
     #addComponentCheck
@@ -183,7 +183,7 @@ $endif
       state().IN_CIRCLE = false;
       $include(AttrDecl.returnStmt)
     }
-    if(#(signature)_visited != state().CIRCLE_INDEX) {
+    if (#(signature)_visited != state().CIRCLE_INDEX) {
       #(signature)_visited = state().CIRCLE_INDEX;
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)

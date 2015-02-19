@@ -45,7 +45,7 @@ ASTNode.declarations = [[
       return node.childIndex;
     }
     for(int i = 0; children != null && i < children.length; i++) {
-      if(children[i] == node) {
+      if (children[i] == node) {
         node.childIndex = i;
         return i;
       }
@@ -114,8 +114,8 @@ $else
    * @apilevel internal
    */
   public final $ASTNode$$State $ASTNode.state() {
-    if(state == null) {
-      if(parent == null) {
+    if (state == null) {
+      if (parent == null) {
         state = new $ASTNode$$State();
         #debugASTNodeState
       } else {
@@ -151,19 +151,19 @@ $if(HasRewriteLimit)
    * @apilevel internal
    */
   public void $ASTNode.debugRewrite(String info) {
-    if(!parent.is$$Final()) return;
+    if (!parent.is$$Final()) return;
       java.util.ArrayList key = new java.util.ArrayList(2);
       key.add(getParent());
       key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
       java.util.ArrayList list;
-      if(state().debugRewrite.containsKey(key))
+      if (state().debugRewrite.containsKey(key))
         list = (java.util.ArrayList)state().debugRewrite.get(key);
     else {
       list = new java.util.ArrayList();
       state().debugRewrite.put(key, list);
     }
     list.add(info);
-    if(list.size() > $RewriteLimit) {
+    if (list.size() > $RewriteLimit) {
       StringBuffer buf = new StringBuffer("Iteration count exceeded for rewrite:");
       for(java.util.Iterator iter = list.iterator(); iter.hasNext(); )
         buf.append("\n" + iter.next());
@@ -234,23 +234,23 @@ $if(DebugMode)
    * @apilevel internal
    */
   private static void $ASTNode.debugNodeAttachment($ASTNode node) {
-    if(node == null) {
+    if (node == null) {
       throw new RuntimeException("Trying to assign null to a tree child node");
     }
 
     while(node != null && !node.debugNodeAttachmentIsRoot()) {
 $if(RewriteEnabled)
-      if(node.in$$Circle())
+      if (node.in$$Circle())
         return;
 $endif
       $ASTNode parent = ($ASTNode) node.parent;
-      if(parent != null && parent.getIndexOfChild(node) == -1) {
+      if (parent != null && parent.getIndexOfChild(node) == -1) {
         return;
       }
       node = parent;
     }
 
-    if(node != null) {
+    if (node != null) {
       throw new RuntimeException("Trying to insert the same tree at multiple tree locations");
     }
   }
@@ -269,7 +269,7 @@ ASTNode.iterator = [[
         return counter < getNumChild();
       }
       public T next() {
-        if(hasNext())
+        if (hasNext())
           return (T)getChild(counter++);
         else
           return null;
@@ -307,7 +307,7 @@ ASTNode.getParent = [[
     $SynchBegin
 $if(RewriteEnabled)
 $if(!RewriteCircularNTA)
-    if(parent != null && (($ASTNode) parent).is$$Final() != is$$Final()) {
+    if (parent != null && (($ASTNode) parent).is$$Final() != is$$Final()) {
       state().boundariesCrossed++;
     }
 $endif
@@ -372,7 +372,7 @@ $if(DebugMode)
     debugNodeAttachment(node);
 $endif
     $include(ASTNode.incHookSetChild1)
-    if(children == null) {
+    if (children == null) {
       children = new $ASTNode[#initialChildArraySize];
       $include(ASTNode.incHookSetChild2)
     } else if (i >= children.length) {
@@ -383,10 +383,10 @@ $endif
     }
     $include(ASTNode.incHookSetChild4)
     children[i] = node;
-    if(i >= numChildren) {
+    if (i >= numChildren) {
       numChildren = i+1;
     }
-    if(node != null) {
+    if (node != null) {
       node.setParent(this);
       node.childIndex = i;
     }
@@ -405,7 +405,7 @@ $if(DebugMode)
     debugNodeAttachment(node);
 $endif
     $include(ASTNode.incHookInsertChild1)
-    if(children == null) {
+    if (children == null) {
       children = new $ASTNode[#initialChildArraySize];
       children[i] = node;
       $include(ASTNode.incHookInsertChild2)
@@ -413,10 +413,10 @@ $endif
       $ASTNode c[] = new $ASTNode[children.length + 1];
       System.arraycopy(children, 0, c, 0, i);
       c[i] = node;
-      if(i < children.length) {
+      if (i < children.length) {
         System.arraycopy(children, i, c, i+1, children.length-i);
         for(int j = i+1; j < c.length; ++j) {
-          if(c[j] != null) {
+          if (c[j] != null) {
             c[j].childIndex = j;
           }
         }
@@ -425,7 +425,7 @@ $endif
       $include(ASTNode.incHookInsertChild3)
     }
     numChildren++;
-    if(node != null) {
+    if (node != null) {
       node.setParent(this);
       node.childIndex = i;
     }
@@ -439,10 +439,10 @@ ASTNode.removeChild = [[
     */
   public void $ASTNode.removeChild(int i) {
     $SynchBegin
-    if(children != null) {
+    if (children != null) {
       $include(ASTNode.incHookRemoveChild1)
       $ASTNode child = ($ASTNode) children[i];
-      if(child != null) {
+      if (child != null) {
         $include(ASTNode.incHookRemoveChild2)
         child.parent = null;
         child.childIndex = -1;
@@ -456,7 +456,7 @@ ASTNode.removeChild = [[
         numChildren--;
         // fix child indices
         for(int j = i; j < numChildren; ++j) {
-          if(children[j] != null) {
+          if (children[j] != null) {
             child = ($ASTNode) children[j];
             child.childIndex = j;
           }
@@ -487,15 +487,15 @@ $if(RewriteEnabled)
  $else
     $SynchBegin
     $ASTNode node = this.getChildNoTransform(i);
-    if(node == null) {
+    if (node == null) {
       return null;
     }
-    if(node.is$$Final()) {
+    if (node.is$$Final()) {
       $include(ASTNode.incHookGetChild4)
       $include(ASTNode.incHookGetChild12)
       return (T) node;
     }
-    if(!node.mayHaveRewrite()) {
+    if (!node.mayHaveRewrite()) {
   $if(StagedRewrites)
       node.is$$Final(this.is$$Final);
   $else
@@ -505,7 +505,7 @@ $if(RewriteEnabled)
       $include(ASTNode.incHookGetChild12)
       return (T) node;
     }
-    if(!node.in$$Circle()) {
+    if (!node.in$$Circle()) {
       $include(ASTNode.traceHookRewriteEnterCase1)
       $include(ASTNode.flushHookRewriteEnterCircle)
       $include(ASTNode.incHookGetChild1)
@@ -518,7 +518,7 @@ $if(RewriteEnabled)
         $include(ASTNode.incHookGetChild5)
         node = node.rewriteTo();
         $include(ASTNode.traceHookRewriteChange)
-        if(node != oldNode) {
+        if (node != oldNode) {
           $include(ASTNode.incHookGetChild7)
           this.setChild(node, i);
           $include(ASTNode.incHookGetChild8)
@@ -528,7 +528,7 @@ $if(RewriteEnabled)
         $include(ASTNode.incHookGetChild3)
         $include(ASTNode.incHookGetChild6)
       } while(rewriteState == $ASTNode$$State.REWRITE_CHANGE);
-      if(rewriteState == $ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
+      if (rewriteState == $ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
   $if(StagedRewrites)
         node.is$$Final(this.state().rewritePhase);
   $else
@@ -544,7 +544,7 @@ $if(RewriteEnabled)
       }
       $include(ASTNode.incHookGetChild2)
       $include(ASTNode.traceHookRewriteExitCase1)
-    } else if(this.is$$Final() != node.is$$Final()) {
+    } else if (this.is$$Final() != node.is$$Final()) {
       this.state().boundariesCrossed++;
       $include(ASTNode.traceHookRewriteExitCase2)
     } else {

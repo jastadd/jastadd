@@ -74,8 +74,8 @@ $endif$endif
 ]]
 
 ListComponents.checkComponentStructure = [[
-  if(i == $ChildIndex) {
-    if(!(n instanceof $List)) {
+  if (i == $ChildIndex) {
+    if (!(n instanceof $List)) {
       throw new Error("Child number $ChildIndex of $HostClassName has the type " +
         n.getClass().getName() + " which is not an instance of $List");
     }

@@ -100,14 +100,9 @@ aspect CollectionAttributes {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("RootType", root().name());
-    tt.bind("SeparateEvaluation", "" + separateEvaluation());
+    tt.bind("SeparateEvaluation", separateEvaluation());
     tt.bind("Cond1", differs("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("Cond2", differs("new_" + signature() + "_value", fromReferenceType(signature() + "_values.get(_parameters)", getType())));
-    tt.bind("RefType1", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
-    tt.bind("RefType2", toReferenceType("new_" + signature() + "_value", getType()));
-    tt.bind("FromRefType", fromReferenceType("" + signature() + "_values.get(_parameters)" , getType()));
-    tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
-    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
 
     String rhs;
     if (separateEvaluation()) {
@@ -125,8 +120,6 @@ aspect CollectionAttributes {
 
   public String CollDecl.cacheCycleCheck() {
     if (separateEvaluation()) {
-      templateContext().bind("CachedValue",
-          fromReferenceType(signature() + "_values.get(_parameters)" , getType()));
       return templateContext().expand("CollDecl.cacheCycleCheck");
     } else {
       return super.cacheCycleCheck();

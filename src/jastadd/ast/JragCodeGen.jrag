@@ -320,47 +320,43 @@ aspect JragCodeGen {
   eq SynDecl.declaredNTA() = getNTA();
   eq InhDecl.declaredNTA() = getNTA();
 
-  public String Parameter.toReferenceType() {
-    return toReferenceType(getName(), getType());
-  }
-
-  public String ASTNode.toReferenceType(String value, String type) {
-    if (type.equals("int")) {
-      return "Integer.valueOf(" + value + ")";
-    } else if (type.equals("short")) {
-      return "Short.valueOf(" + value + ")";
-    } else if (type.equals("long")) {
-      return "Long.valueOf(" + value + ")";
-    } else if (type.equals("float")) {
-      return "Float.valueOf(" + value + ")";
-    } else if (type.equals("double")) {
-      return "Double.valueOf(" + value + ")";
-    } else if (type.equals("boolean")) {
-      return "Boolean.valueOf(" + value + ")";
-    } else if (type.equals("char")) {
-      return "Character.valueOf(" + value + ")";
-    } else {
-      return value;
-    }
-  }
-
   public String ASTNode.fromReferenceType(String value, String type) {
     if (type.equals("int"))
-      return "((Integer)" + value + ").intValue()";
+      return "((Integer)" + value + ")";
     else if (type.equals("short"))
-      return "((Short)" + value + ").shortValue()";
+      return "((Short)" + value + ")";
     else if (type.equals("long"))
-      return "((Long)" + value + ").longValue()";
+      return "((Long)" + value + ")";
     else if (type.equals("float"))
-      return "((Float)" + value + ").floatValue()";
+      return "((Float)" + value + ")";
     else if (type.equals("double"))
-      return "((Double)" + value + ").doubleValue()";
+      return "((Double)" + value + ")";
     else if (type.equals("boolean"))
-      return "((Boolean)" + value + ").booleanValue()";
+      return "((Boolean)" + value + ")";
     else if (type.equals("char"))
-      return "((Character)" + value + ").charValue()";
+      return "((Character)" + value + ")";
     else
       return "(" + type + ")" + value;
+  }
+
+  public String AttrDecl.boxedType() {
+    String type = getType();
+    if (type.equals("int"))
+      return "Integer";
+    else if (type.equals("short"))
+      return "Short";
+    else if (type.equals("long"))
+      return "Long";
+    else if (type.equals("float"))
+      return "Float";
+    else if (type.equals("double"))
+      return "Double";
+    else if (type.equals("boolean"))
+      return "Boolean";
+    else if (type.equals("char"))
+      return "Character";
+    else
+      return type;
   }
 
   public boolean AttrDecl.isPrimitive() {
@@ -387,12 +383,12 @@ aspect JragCodeGen {
     if (getNumParameter() == 0 || (!isLazy() && !isCircular() && !config().visitCheckEnabled())) {
       return "";
     } else if (getNumParameter() == 1) {
-      return "Object _parameters = " + getParameter(0).toReferenceType() + ";\n";
+      return "Object _parameters = " + getParameter(0).getName() + ";\n";
     } else {
       StringBuilder sb = new StringBuilder();
       sb.append("java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
       for (int i = 0; i < getNumParameter(); i++) {
-        sb.append("_parameters.add(" + getParameter(i).toReferenceType() + ");\n");
+        sb.append("_parameters.add(" + getParameter(i).getName() + ");\n");
       }
       return sb.toString();
     }
@@ -470,9 +466,6 @@ aspect JragCodeGen {
     return "state.INTERMEDIATE_VALUE |= intermediate;\n";
   }
 
-  syn String AttrDecl.attributeValueReference() =
-        toReferenceType(signature() + "_value", getType());
-
   syn boolean AttrEq.hasComputeBlock() = true;
   eq SynEq.hasComputeBlock() = getRHS() instanceof ASTBlock;
 
@@ -483,7 +476,6 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", equ.parametersDecl());
     tt.bind("ComputeBody", equ.computeCode());
-    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.emitInlineComputeWithTry", out);
   }
 
@@ -524,7 +516,6 @@ aspect JragCodeGen {
   public void AttrDecl.emitEquation(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
     tt.bind("ParamDecl", paramDecl);
-    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
     tt.expand("AttrDecl.emitEquation", out);
   }
 
@@ -540,12 +531,8 @@ aspect JragCodeGen {
 
   public void AttrDecl.emitCircularEquationWithParams(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
-    tt.bind("BottomValue", toReferenceType(Unparser.unparse(getBottomValue()), getType()));
+    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("Cond1", differs("new_" + signature() + "_value", fromReferenceType("_value.value", getType())));
-    tt.bind("ToRefType", toReferenceType("new_" + signature() + "_value", getType()));
-    tt.bind("FromRefType", fromReferenceType("_value.value", getType()));
-    tt.bind("FromRefTypeParamCircular", fromReferenceType("_o", getType()));
-    tt.bind("FromRefTypeParam", fromReferenceType(signature() + "_values.get(_parameters)", getType()));
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(signature() + "_values.get(_parameters)" , getType())));
@@ -634,8 +621,6 @@ aspect JragCodeGen {
     getNumParameter() != 0;
 
   public String AttrDecl.cacheCycleCheck() {
-    templateContext().bind("CachedValue",
-        toReferenceType("new_" + signature() + "_value", getType()));
     return templateContext().expand("AttrDecl.cacheCycleCheck");
   }
 

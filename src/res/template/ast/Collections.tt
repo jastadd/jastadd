@@ -54,7 +54,7 @@ CollDecl.computeMethod:onePhase = [[
     #collDebugString
     $RootType root = ($RootType) node;
     root.collect_contributors_#collectingSignature();
-    if(#(signature)_value == null) {
+    if (#(signature)_value == null) {
       #(signature)_value = $BottomValue;
     }
     return #(signature)_value;
@@ -70,7 +70,7 @@ CollDecl.computeMethod = [[
    */
   public $ContributorSetType #(signature)_contributors() {
 $if(LazyMaps)
-    if(#(signature)_contributors == null)
+    if (#(signature)_contributors == null)
       #(signature)_contributors  = $CreateContributorSet;
 $endif
     return #(signature)_contributors;
@@ -89,7 +89,7 @@ $endif
     root.collect_contributors_#collectingSignature();
     #(signature)_value = $BottomValue;
 $if(LazyMaps)
-    if(#(signature)_contributors != null)
+    if (#(signature)_contributors != null)
 $endif
     for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
       $ASTNode contributor = ($ASTNode) iter.next();
@@ -110,7 +110,7 @@ CollDecl.combineMethod = [[
    */
   public $ContributorSetType #(signature)_contributors() {
 $if(LazyMaps)
-    if(#(signature)_contributors == null)
+    if (#(signature)_contributors == null)
       #(signature)_contributors  = $CreateContributorSet;
 $endif
     return #(signature)_contributors;
@@ -118,7 +118,7 @@ $endif
 
   private #getType combine_#(signature)_contributions(#getType h) {
 $if(LazyMaps)
-    if(#(signature)_contributors != null)
+    if (#(signature)_contributors != null)
 $endif
     for(java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
       $ASTNode contributor = ($ASTNode) iter.next();
@@ -190,7 +190,7 @@ $if(#lazyCondition)
 $if(#getRefSet)
     for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
       #getTargetName ref = (#getTargetName) iter.next();
-      if(ref == n && ($Condition)) {
+      if (ref == n && ($Condition)) {
         $(ValueAccess)#(signature)_value.$CombOp($Value);
       }
     }
@@ -270,7 +270,7 @@ ASTDecl.weaveCollectionAttributes.collectContributors2 = [[
 ASTDecl.weaveCollectionAttributes.collectContributors3 = [[
   private boolean collect_contributors_#(collectingSignature) = false;
   protected void collect_contributors_#(collectingSignature)() {
-    if(collect_contributors_#(collectingSignature)) return;
+    if (collect_contributors_#(collectingSignature)) return;
     super.collect_contributors_#(collectingSignature)();
     collect_contributors_#(collectingSignature) = true;
   }
@@ -297,7 +297,7 @@ $if(#isParameterized)
   $CircularComputeStmt
   #clearVisited
   #(signature)_computed.add(_parameters);
-  return $CachedValue;
+  return (#boxedType) #(signature)_values.get(_parameters);
 $else
   #setVisited
   $CircularComputeStmt
@@ -308,3 +308,4 @@ $endif
 }
 $endif
 ]]
+

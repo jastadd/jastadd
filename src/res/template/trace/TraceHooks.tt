@@ -86,9 +86,9 @@ $if (TraceCache)
   $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, $FromRefTypeParamCircular);
+state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _o);
       $else
-state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, $FromRefTypeParam);
+state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, #(signature)_values.get(_parameters));
       $endif
     $else
 state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);

@@ -76,7 +76,7 @@ $if(!#isNTA)
    */
   $Modifier void $Host.set$Id(beaver.Symbol symbol) {
     $SynchBegin
-    if(symbol.value != null && !(symbol.value instanceof String))
+    if (symbol.value != null && !(symbol.value instanceof String))
     throw new UnsupportedOperationException("set$Id is only valid for String lexemes");
     token$(TypeInSignature)_$Id = (String)symbol.value;
     $(Id)start = symbol.getStart();

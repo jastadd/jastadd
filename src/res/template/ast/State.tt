@@ -171,7 +171,7 @@ $if(RewriteEnabled)
   }
 
   private void ensureSize(int size) {
-    if(size < stack.length)
+    if (size < stack.length)
       return;
     int[] newStack = new int[stack.length * 2];
     System.arraycopy(stack, 0, newStack, 0, stack.length);

@@ -33,7 +33,7 @@ ASTDecl.emitRewrites.begin = [[
 ]]
 
 ASTDecl.emitRewrites.touch_list = [[
-    if(list$$touched) {
+    if (list$$touched) {
       for(int i = 0 ; i < getNumChildNoTransform(); i++) {
         getChild(i);
       }
@@ -49,7 +49,7 @@ $endif
 ]]
 
 ASTDecl.emitRewrites.end:ASTNode = [[
-    if(state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
+    if (state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
       state().pop();
       state().push($ASTNode$$State.REWRITE_NOCHANGE);
     }
@@ -107,7 +107,7 @@ RewriteList.genRewrite [[
 Grammar.genRewriteOrderChecks = [[
 protected int $ASTNode$$State.during$RewriteName = 0;
 protected boolean $ASTNode.during$RewriteName() {
-  if(state().during$RewriteName == 0) {
+  if (state().during$RewriteName == 0) {
     return false;
   } else {
     state().pop();
@@ -124,7 +124,7 @@ Rewrite.javaDoc:internal [[
    */]]
 
 Grammar.genResetDuringCounters = [[
-if(during$Name != 0) {
+if (during$Name != 0) {
   System.out.println("Warning: resetting during$Name");
   during$Name = 0;
 }

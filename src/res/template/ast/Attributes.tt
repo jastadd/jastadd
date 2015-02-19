@@ -27,7 +27,7 @@
 
 AttrDecl.returnStmt = [[
 $if(#isAttrNTA)
-#(getType) node = (#getType) this.getChild(#(signature)ChildPosition());
+#(getType) node = (#boxedType) this.getChild(#(signature)ChildPosition());
 $include(AttrDecl.incHookAttrCompEnd)
 return node;
 $else
@@ -161,7 +161,7 @@ $endif
 ]]
 
 AttrDecl.setVisited = [[
-$if (RewriteEnabled)
+$if(RewriteEnabled)
   $if(#isParameterized)
 #(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
   $else
@@ -178,7 +178,7 @@ $endif
 
 SynDecl.higherOrderAttributeCode:norewrite = [[
 $if(#isParameterized)
-if(#(signature)_list == null) {
+if (#(signature)_list == null) {
   #(signature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
   #(signature)_list.setParent(this);
@@ -191,15 +191,15 @@ $endif
 
 SynDecl.higherOrderAttributeCode:nostagedrewrites = [[
 $if(#isParameterized)
-if(#(signature)_list == null) {
+if (#(signature)_list == null) {
   #(signature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
   #(signature)_list.is$$Final = true;
   #(signature)_list.setParent(this);
 }
 #(signature)_list.add(#(signature)_value);
-if(#(signature)_value != null) {
-  #(signature)_value = (#getType) #(signature)_list.getChild(#(signature)_list.numChildren-1);
+if (#(signature)_value != null) {
+  #(signature)_value = (#boxedType) #(signature)_list.getChild(#(signature)_list.numChildren-1);
   #(signature)_value.is$$Final = true;
 }
 $else
@@ -210,13 +210,13 @@ $endif
 
 SynDecl.higherOrderAttributeCode:stagedrewrites = [[
 $if(#isParameterized)
-if(#(signature)_list == null) {
+if (#(signature)_list == null) {
   #(signature)_list = new $List();
   $include(AttrDecl.incHookCreateNtaList)
   #(signature)_list.is$$Final = java.lang.Integer.MAX_VALUE;
   #(signature)_list.setParent(this);
 }
-if(#(signature)_value != null) {
+if (#(signature)_value != null) {
   #(signature)_list.add(#(signature)_value);
   #(signature)_value.is$$Final = java.lang.Integer.MAX_VALUE;
 }
@@ -251,7 +251,7 @@ $if(#isLazy)
   $if(#isParameterized)
     if (#cacheStoreCondition) {
       $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(signature)_values.put(_parameters, #attributeValueReference);
+      #(signature)_values.put(_parameters, #(signature)_value);
       $include(AttrDecl.traceHookAttrCached)
     } else {
       $include(AttrDecl.traceHookAttrCacheAbort)
@@ -343,7 +343,7 @@ $endif
       $include(AttrDecl.traceHookCircularExitCase1)
       $include(AttrDecl.returnStmt)
     }
-    if(#(signature)_visited != state.CIRCLE_INDEX) {
+    if (#(signature)_visited != state.CIRCLE_INDEX) {
       $include(AttrDecl.traceHookCircularEnterCase2)
       #(signature)_visited = state.CIRCLE_INDEX;
       #cacheCycleCheck
@@ -442,7 +442,7 @@ $endif
         if ($Cond1) {
           state.CHANGE = true;
           $include(AttrDecl.traceHookCircularCase1Change)
-          _value.value = $ToRefType;
+          _value.value = new_#(signature)_value;
 $if(#getNTA)
  $if(#isRewriteCircularNtaAttr)
           if (_value.value != null) {
@@ -527,7 +527,7 @@ $endif
     $TracePrintReturnPreviousValue
     state.INTERMEDIATE_VALUE = true;
     $include(AttrDecl.traceHookCircularExitCase3)
-    return $FromRefType;
+    return (#boxedType) _value.value;
     $SynchEnd
   }
 ]]
@@ -548,7 +548,7 @@ $endif]]
 
 addClearInterruptedCircle = [[
 $if(ComponentCheck)
-if(interruptedCircle) {
+if (interruptedCircle) {
   state.IN_CIRCLE = true;
   state.popEvalStack();
 }
@@ -556,7 +556,7 @@ $endif]]
 
 addCheckInterruptedCircle = [[
 $if(ComponentCheck)
-if(state.IN_CIRCLE) {
+if (state.IN_CIRCLE) {
   interruptedCircle = true;
   state.IN_CIRCLE = false;
   state.pushEvalStack();
@@ -579,37 +579,37 @@ $if(#hasCache)
 $include(AttrDecl.incHookAttrRead)
   $if(#isAttrNTA)
     $if(!#isParameterized)
-if(#(signature)_computed) {
+if (#(signature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
-  return (#getType) getChild(#(signature)ChildPosition());
+  return (#boxedType) getChild(#(signature)ChildPosition());
 }
     $else
-if(#(signature)_values.containsKey(_parameters)) {
+if (#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceHookAttrCacheRead)
-  return (#getType) getChild(#(signature)ChildPosition()));
+  return (#boxedType) getChild(#(signature)ChildPosition()));
 }
     $endif
   $else
     $if(!#isParameterized)
-if(#(signature)_computed) {
+if (#(signature)_computed) {
   $include(AttrDecl.traceHookAttrCacheRead)
   return #(signature)_value;
 }
     $else
       $if(#isCircular)
-if(#(signature)_values.containsKey(_parameters)) {
+if (#(signature)_values.containsKey(_parameters)) {
   Object _o = #(signature)_values.get(_parameters);
-  if(!(_o instanceof $ASTNode$$State.CircularValue)) {
+  if (!(_o instanceof $ASTNode$$State.CircularValue)) {
     $include(AttrDecl.traceHookAttrCacheRead)
-    return $FromRefTypeParamCircular;
+    return (#boxedType) _o;
   } else {
     _value = ($ASTNode$$State.CircularValue) _o;
   }
 }
       $else
-if(#(signature)_values.containsKey(_parameters)) {
+if (#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceHookAttrCacheRead)
-  return $FromRefTypeParam;
+  return (#boxedType) #(signature)_values.get(_parameters);
 }
       $endif
     $endif
@@ -622,7 +622,7 @@ $if(CacheCycle)
 if (state.LAST_CYCLE) {
 $if(#isParameterized)
   #inhDebugString
-  #(signature)_values.put(_parameters, $CachedValue);
+  #(signature)_values.put(_parameters, new_#(signature)_value);
 $else
   #(signature)_computed = true;
   #inhDebugString
@@ -634,3 +634,4 @@ $endif
 }
 $endif
 ]]
+
