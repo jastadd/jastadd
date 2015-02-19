@@ -94,9 +94,6 @@ AttrDecl.emitInlineComputeWithTry = [[
     #parameterStructure
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
-$if(RewriteEnabled)
-    $ASTNode$$State state = state();
-$endif
     $include(addInterruptedCircleDeclaration)
     #visitedCheck
     #setVisited
@@ -122,9 +119,6 @@ AttrDecl.emitInlineComputeWithoutTry = [[
     #parameterStructure
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
-$if(RewriteEnabled)
-    $ASTNode$$State state = state();
-$endif
     $include(addInterruptedCircleDeclaration)
     #visitedCheck
     #setVisited
@@ -257,9 +251,6 @@ AttrDecl.emitEquation [[
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
     $include(AttrDecl.incHookAttrCompStart)
-$if (RewriteEnabled)
-    $ASTNode$$State state = state();
-$endif
     $include(addInterruptedCircleDeclaration)
     #visitedCheck
     #setVisited
