@@ -553,15 +553,15 @@ aspect JragCodeGen {
    * @return {@code true} if this attribute equation can be inlined in the
    * attribute method
    */
-  syn boolean AttrEq.canInlineCompute(AttrDecl decl) = false;
-  eq SynEq.canInlineCompute(AttrDecl decl) = !hasComputeBlock();
+  syn boolean AttrEq.canInlineExpression(AttrDecl decl) = false;
+  eq SynEq.canInlineExpression(AttrDecl decl) = !hasComputeBlock();
 
   /**
-   * @return {@code true} if this attribute equation can be inlined in the
-   * attribute method with a try statement
+   * @return {@code true} if this attribute code block can be inlined in the
+   * attribute method
    */
-  syn boolean AttrEq.canInlineComputeWithTry(AttrDecl decl) = false;
-  eq SynEq.canInlineComputeWithTry(AttrDecl decl) =
+  syn boolean AttrEq.canInlineBlock(AttrDecl decl) = false;
+  eq SynEq.canInlineBlock(AttrDecl decl) =
     hasComputeBlock() && !decl.isLazy() && !decl.isNTA() && !decl.isCircular();
 
   /**
@@ -570,7 +570,7 @@ aspect JragCodeGen {
    * @param equ the equation to generate code for
    */
   public void AttrDecl.emitAttrEquation(PrintStream out, AttrEq equ) {
-    if (equ.canInlineCompute(this)) {
+    if (equ.canInlineExpression(this)) {
       if (isCircular()) {
         templateContext().bind("CircularComputeRHS", equ.computeCode());
       } else {
@@ -578,7 +578,7 @@ aspect JragCodeGen {
             computeLHS() + " = " + equ.computeCode() + ";");
       }
       emitAttrEquation(out, equ.parametersDecl());
-    } else if (equ.canInlineComputeWithTry(this)) {
+    } else if (equ.canInlineBlock(this)) {
       if (!declaredNTA() &&
           !config().componentCheck() && !config().traceCompute() &&
           !config().visitCheckEnabled()) {
