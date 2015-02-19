@@ -585,7 +585,6 @@ public class Configuration {
     tt.bind("CacheCycle", cacheCycle());
     tt.bind("StaticState", staticState());
     tt.bind("StagedRewrites", stagedRewrites());
-    tt.bind("Java5", !java1_4Option.value());
     tt.bind("LazyMaps", lazyMaps());
 
     return root;

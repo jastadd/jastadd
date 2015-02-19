@@ -68,11 +68,7 @@ ASTDecl.emitChildInitMethod = [[
 ]]
 
 OptDecl.constructor = [[
-$if(Java5)
   public $Opt.$Opt(T opt) {
-$else
-  public $Opt.$Opt($ASTNode opt) {
-$endif
     $include(State.incHookConstructionStart)
     setChild(opt, 0);
     $include(State.incHookConstructionEnd)
@@ -81,7 +77,6 @@ $endif
 
 # A list constructor that builds a list with all arguments
 ListDecl.constructor = [[
-$if(Java5)
   public $List.$List(T... initialChildren) {
     children = new $ASTNode[initialChildren.length];
     #genIncrementalInitChildHandlers
@@ -89,6 +84,5 @@ $if(Java5)
       addChild(initialChildren[i]);
     }
   }
-$endif
 ]]
 

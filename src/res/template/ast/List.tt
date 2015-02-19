@@ -34,11 +34,7 @@ $if(#needsListTouched)
   private boolean $List.list$$touched = true;
 $endif
 
-$if(Java5)
   public $List<T> $List.add(T node) {
-$else
-  public $List $List.add($ASTNode node) {
-$endif
     $SynchBegin
 $if(DebugMode)
     if (node instanceof $List)
@@ -51,7 +47,6 @@ $endif
     $SynchEnd
   }
 
-$if(Java5)
   public $List<T> $List.addAll(java.util.Collection<? extends T> c) {
     $SynchBegin
 $if(DebugMode)
@@ -68,7 +63,6 @@ $endif
     return this;
     $SynchEnd
   }
-$endif
 
   public void $List.insertChild($ASTNode node, int i) {
     $SynchBegin
@@ -81,11 +75,7 @@ $endif
     $SynchEnd
   }
 
-$if(Java5)
   public void $List.addChild(T node) {
-$else
-  public void $List.addChild($ASTNode node) {
-$endif
     $SynchBegin
 
 $if(#needsListTouched)

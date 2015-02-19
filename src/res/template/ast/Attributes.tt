@@ -148,15 +148,9 @@ AttrDecl.visitedCheck = [[
 $if (VisitCheckEnabled)
   $if (RewriteEnabled)
     $if(#isParameterized)
-      $if (Java5)
 if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
   #visitedException
 }
-      $else
-if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
-  #visitedException
-}
-      $endif
     $else
 if (#(signature)_visited == state().boundariesCrossed) {
   #visitedException
@@ -179,11 +173,7 @@ $endif
 AttrDecl.setVisited = [[
 $if (RewriteEnabled)
   $if(#isParameterized)
-    $if (Java5)
 #(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
-    $else
-#(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
-    $endif
   $else
 #(signature)_visited = state().boundariesCrossed;
   $endif
@@ -444,11 +434,7 @@ $endif
       // TODO: fixme
       // state().CIRCLE_INDEX = 1;
       do {
-$if (Java5)
-        _value.visited = Integer.valueOf(state.CIRCLE_INDEX);
-$else
         _value.visited = state.CIRCLE_INDEX;
-$endif
         state.CHANGE = false;
         #inhDebugString
         #tracePrintBeginComputingValue
@@ -489,11 +475,7 @@ $endif
         #cycleLimitCheck
       } while (state.CHANGE);
       if (#cacheStoreCondition) {
-$if (Java5)
         #(signature)_values.put(_parameters, new_#(signature)_value);
-$else
-        #(signature)_values.put(_parameters, $ToRefType);
-$endif
         $include(cacheCycleInit)
         $include(AttrDecl.traceHookAttrCached)
       } else {
@@ -508,13 +490,8 @@ $endif
       $include(AttrDecl.traceHookCircularExitCase1)
       return new_#(signature)_value;
     }
-$if (Java5)
-    if (!Integer.valueOf(state.CIRCLE_INDEX).equals(_value.visited)) {
-      _value.visited = Integer.valueOf(state.CIRCLE_INDEX);
-$else
-    if (!Integer.valueOf(state.CIRCLE_INDEX).equals(Integer.valueOf(_value.visited))) {
+    if (state.CIRCLE_INDEX != _value.visited) {
       _value.visited = state.CIRCLE_INDEX;
-$endif
       $include(AttrDecl.traceHookCircularEnterCase2)
       #inhDebugString
       #tracePrintBeginComputingValue
@@ -534,11 +511,7 @@ $endif
       else if ($Cond1) {
         state.CHANGE = true;
         $include(AttrDecl.traceHookCircularCase2Change)
-$if (Java5)
         _value.value = new_#(signature)_value;
-$else
-        _value.value = $ToRefType;
-$endif
 $if(#getNTA)
  $if(#isRewriteCircularNtaAttr)
         if (_value.value != null) {

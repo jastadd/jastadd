@@ -200,7 +200,6 @@ $endif
     $SynchEnd
   }
 $endif
-$if(Java5)
   /**
    * Retrieves the $Name list.
    * @return The node representing the $Name list.
@@ -223,6 +222,5 @@ $if(Java5)
     return get$(Name)ListNoTransform();
     $SynchEnd
   }
-$endif
 ]]
 

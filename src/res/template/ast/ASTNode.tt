@@ -322,11 +322,7 @@ ASTNode.addChild = [[
   /**
     * @apilevel low-level
     */
-$if(Java5)
   public void $ASTNode.addChild(T node) {
-$else
-  public void $ASTNode.addChild($ASTNode node) {
-$endif
     setChild(node, getNumChildNoTransform());
     $include(ASTNode.incHookAddChild)
   }
@@ -478,11 +474,7 @@ ASTNode.getChild = [[
   /**
     * @apilevel low-level
     */
-$if(Java5)
   public T $ASTNode.getChild(int i) {
-$else
-  public $ASTNode $ASTNode.getChild(int i) {
-$endif
 
 $if(RewriteEnabled)
  $if(RewriteCircularNTA)
@@ -578,7 +570,6 @@ ASTNode.getChildNoTransform = [[
     * <p><em>This method does not invoke AST transformations.</em></p>
     * @apilevel low-level
     */
-$if(Java5)
   $if(IncrementalEnabled)
   public T $ASTNode.getChildNoTransform(int i) {
   // Must be able to override get child methods for incremental evaluation
@@ -594,23 +585,6 @@ $if(Java5)
     return child;
     $SynchEnd
   }
-$else
-  $if(IncrementalEnabled)
-  public final $ASTNode $ASTNode.getChildNoTransform(int i) {
-  // Must be able to override get child methods for incremental evaluation
-  $else
-  public final $ASTNode $ASTNode.getChildNoTransform(int i) {
-  $endif
-    $SynchBegin
-    if (children == null) {
-      return null;
-    }
-    $ASTNode child = ($ASTNode) children[i];
-    $include(ASTNode.incHookGetChildNT)
-    return child;
-    $SynchEnd
-  }
-$endif
 ]]
 
 ASTNode.lineColumnNumbers = [[
