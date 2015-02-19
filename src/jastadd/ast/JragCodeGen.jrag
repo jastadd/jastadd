@@ -479,6 +479,16 @@ aspect JragCodeGen {
     tt.expand("AttrDecl.emitInlineComputeWithTry", out);
   }
 
+  /**
+   * @return Compute method without "_compute" suffix
+   */
+  public void AttrDecl.emitInlineComputeWithoutTry(PrintStream out, AttrEq equ) {
+    TemplateContext tt = templateContext();
+    tt.bind("ParamDecl", equ.parametersDecl());
+    tt.bind("ComputeBody", equ.computeCode());
+    tt.expand("AttrDecl.emitInlineComputeWithoutTry", out);
+  }
+
   syn String AttrEq.computeCode() = "";
 
   eq SynEq.computeCode() = Unparser.unparse(getRHS());
@@ -569,7 +579,13 @@ aspect JragCodeGen {
       }
       emitAttrEquation(out, equ.parametersDecl());
     } else if (equ.canInlineComputeWithTry(this)) {
-      emitInlineComputeWithTry(out, equ);
+      if (!declaredNTA() &&
+          !config().componentCheck() && !config().traceCompute() &&
+          !config().visitCheckEnabled()) {
+        emitInlineComputeWithoutTry(out, equ);
+      } else {
+        emitInlineComputeWithTry(out, equ);
+      }
     } else {
       if (isCircular()) {
         templateContext().bind("CircularComputeRHS", circularComputeRHS());

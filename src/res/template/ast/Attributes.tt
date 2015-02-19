@@ -113,6 +113,28 @@ $endif
   }
 ]]
 
+AttrDecl.emitInlineComputeWithoutTry = [[
+#docComment
+  #annotations
+  @ASTNodeAnnotation.Attribute
+  public #getType #name($ParamDecl) {
+    $SynchBegin
+    #parameterStructure
+    #initLazyMaps
+    $include(AttrDecl.cacheCheck)
+$if(RewriteEnabled)
+    $ASTNode$$State state = state();
+$endif
+    $include(addInterruptedCircleDeclaration)
+    #visitedCheck
+    #setVisited
+    $include(addCheckInterruptedCircle)
+    $include(AttrDecl.traceHookAttrComputeBegin)
+    $ComputeBody
+    $SynchEnd
+  }
+]]
+
 SynEq.emitComputeMethod = [[
   /**
    * @apilevel internal
