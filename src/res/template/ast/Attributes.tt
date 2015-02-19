@@ -52,31 +52,21 @@ $if(!#isParameterized)
   protected #getType #(signature)_value;
 $else
 $if(#declaredNTA)
-$if(LazyMaps)
-  /**
-   * @apilevel internal
-   */
-  protected $DefaultMapType #(signature)_values;
-  /**
-   * @apilevel internal
-   */
-  protected $List #(signature)_list;
-$else
-  /**
-   * @apilevel internal
-   */
-  protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
   /**
    * @apilevel internal
    */
   protected $List #(signature)_list;
 $endif
-$else
 $if(LazyMaps)
+  /**
+   * @apilevel internal
+   */
   protected $DefaultMapType #(signature)_values;
 $else
+  /**
+   * @apilevel internal
+   */
   protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
-$endif
 $endif
 $endif
 ]]
