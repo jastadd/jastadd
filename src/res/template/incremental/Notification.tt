@@ -125,7 +125,7 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.reactToDependencyChange(String attrID, Object _parameters) {
     $if(IncrementalChangeFlush)
@@ -139,7 +139,7 @@ $endif
 
 $if(IncrementalLevelAttr)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.reactToDependencyChange(String attrID) {
     $if(IncrementalChangeFlush)
@@ -154,7 +154,7 @@ $endif
 $if(IncrementalLevelNode)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.reactToDependencyChange() {
     $if(IncrementalChangeFlush)
@@ -167,7 +167,7 @@ $endif
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.reactToDependencyChange() {
     $if(IncrementalChangeFlush)
@@ -177,7 +177,7 @@ $if(#isRegionRoot)
 $else
   $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.reactToDependencyChange() {
   }
@@ -348,7 +348,7 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 $if(IncrementalLevelNode)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.inc_flush() {
     $FlushAttrs
@@ -359,7 +359,7 @@ $endif
 $endif
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.inc_flush() {
     $FlushAttrs
@@ -397,7 +397,7 @@ $if(#isASTNodeDecl)
 
 $if(IncrementalLevelNode)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_flush_child($ASTNode node) {
     for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {
@@ -411,7 +411,7 @@ $endif
 
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_flush_child($ASTNode node) {
     for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {
@@ -434,7 +434,7 @@ $if(IncrementalChangeFlush)
 
 $if(IncrementalLevelNode)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean #name.inc_flush_NTA($ASTNode node) {
   $if(#isListDecl)
@@ -493,7 +493,7 @@ $endif
 
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean #name.inc_flush_NTA($ASTNode node) {
   $if(#isListDecl)
@@ -573,7 +573,7 @@ $if(IncrementalChangeFlush)
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean #name.inc_flushRegionRoot() {
     // Check for rewrites
@@ -615,7 +615,7 @@ $if(#isRegionRoot)
 $else
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean #name.inc_flushRegionRoot() {
     // Check for rewrites
@@ -661,7 +661,7 @@ $endif
 $if(IncrementalLevelNode)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_flushRegionRoot() {
     inc_flush();
@@ -697,7 +697,7 @@ $if(IncrementalChangeFlush)
 $if(IncrementalLevelRegion)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
     for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
@@ -722,7 +722,7 @@ $endif
 $if(IncrementalLevelNode)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
     for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
@@ -747,7 +747,7 @@ $endif
 $if(IncrementalLevelAttr)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
     for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
@@ -774,7 +774,7 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #name.inc_flushRegion() {
   $if(#isASTNodeDecl)
@@ -848,7 +848,7 @@ $if(IncrementalChangeFlush)
 $if(IncrementalLevelRegion)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_flushRegion_rewrites() {
     for (int i = 0; children != null && i < children.length; i++) {
@@ -876,7 +876,7 @@ $endif
 $if(IncrementalLevelAttr)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public boolean $ASTNode.inc_flushRegion_rewrites() {
     for (int i = 0; children != null && i < children.length; i++) {
@@ -906,7 +906,7 @@ $if(IncrementalChangeFlush)
 
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected void #name.inc_flush_subtree($DDGNodeName h) {
     inc_state = inc_GARBAGE;
@@ -931,7 +931,7 @@ $endif
 
 $if(IncrementalLevelNode)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected void #name.inc_flush_subtree($DDGNodeName h) {
     inc_state = inc_GARBAGE;
@@ -954,7 +954,7 @@ $endif
 
 $if(IncrementalLevelAttr)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected void #name.inc_flush_subtree($DDGNodeName h) {
     inc_state = inc_GARBAGE;
@@ -979,7 +979,7 @@ $endif
 
 $if(IncrementalLevelParam)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected void #name.inc_flush_subtree($DDGNodeName h) {
     inc_state = inc_GARBAGE;
@@ -1069,7 +1069,7 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelRegion)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void $ASTNode.inc_notifyForRemove() {
     handler().flushRegion();
@@ -1080,7 +1080,7 @@ $endif
 $if(IncrementalLevelNode)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void $ASTNode.inc_notifyForRemove() {
     handler.flushRegion();
@@ -1091,7 +1091,7 @@ $endif
 $if(IncrementalLevelAttr)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void $ASTNode.inc_notifyForRemove() {
     getParent_handler.notifyDependencies();
@@ -1102,7 +1102,7 @@ $endif
 $if(IncrementalLevelParam)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void $ASTNode.inc_notifyForRemove() {
     getParent_handler.notifyDependencies();

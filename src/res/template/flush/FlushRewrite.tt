@@ -29,7 +29,7 @@
 ASTDecl.flushRewriteCacheMethod = [[
 $if(RewriteEnabled)
   /**
-   * @api internal
+   * @apilevel internal
    */
   public void #(name).flushRewriteCache() {
     $SynchBegin

@@ -30,7 +30,7 @@ $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
-   * @api internal
+   * @apilevel internal
    */
    protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
      $ASTNode child = this;
@@ -47,7 +47,7 @@ $if(IncrementalLevelParam)
 $endif
 $if(IncrementalLevelAttr)
   /**
-   * @api internal
+   * @apilevel internal
    */
    protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
      $ASTNode child = this;
@@ -64,7 +64,7 @@ $if(IncrementalLevelAttr)
 $endif
 $if(IncrementalLevelNode)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
     $ASTNode node = parent;
@@ -79,7 +79,7 @@ $if(IncrementalLevelNode)
 $endif
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected $ASTNode $ASTNode.inc_locateEnclosingRewrittenNode() {
     $ASTNode node = parent;
@@ -100,7 +100,7 @@ ASTNode.incResetRewritesMethod = [[
 $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected void $ASTNode.inc_resetRewrites() {
     for (int i = 0; i < numChildren; i++) {
@@ -125,7 +125,7 @@ $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected void $ASTNode.inc_restoreEnclosingRewrite() {
     $ASTNode child = this;
@@ -155,7 +155,7 @@ $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
 $if(IncrementalLevelParam)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
@@ -173,7 +173,7 @@ $if(IncrementalLevelParam)
 $endif
 $if(IncrementalLevelAttr)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
@@ -191,7 +191,7 @@ $if(IncrementalLevelAttr)
 $endif
 $if(IncrementalLevelNode)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
@@ -208,7 +208,7 @@ $if(IncrementalLevelNode)
 $endif
 $if(IncrementalLevelRegion)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected boolean $ASTNode.inc_restoreInitialForIndex(int index, $DDGNodeName h) {
     if (init_children != null && index < init_children.length && init_children[index] != null) {
@@ -231,7 +231,7 @@ ASTNode.incLocateInitialCopyMethod = [[
 $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
   /**
-   * @api internal
+   * @apilevel internal
    */
   protected $ASTNode $ASTNode.inc_locateInitialCopy() {
     // locate enclosing rewrite
