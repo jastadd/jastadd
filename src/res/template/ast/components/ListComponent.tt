@@ -109,7 +109,7 @@ $endif
    */
   $Modifier void $Host.add$Name($Type node) {
     $SynchBegin
-    $ListType list = (parent == null || state == null) ? get$(Name)ListNoTransform() : get$(Name)List();
+    $ListType list = (parent == null) ? get$(Name)ListNoTransform() : get$(Name)List();
     list.addChild(node);
     $SynchEnd
   }
