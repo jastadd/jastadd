@@ -1618,9 +1618,8 @@ collection value.
   --jjtree <I>(use jjtree base node, this requires --grammar to be set)</I>
   --grammar=GGG <I>(the parser for the grammar is called GGG, required when using jjtree)</I>
   --rewrite <I>(enable ReRAGs support)</I>
-  --novisitcheck <I>(disable circularity check for attributes)</I>
-  --noCacheCycle <I>(disable cache cyle optimization for circular attributes)</I>
-  --java1.4 <I>(generate Java 1.4 source code, rather than Java 5)</I>
+  --visitCheck=false <I>(disable circularity check for attributes)</I>
+  --cacheCycle=false <I>(disable cache cyle optimization for circular attributes)</I>
 </PRE>
 
 ### Arguments
