@@ -152,13 +152,13 @@ $if(HasRewriteLimit)
    */
   public void $ASTNode.debugRewrite(String info) {
     if (!parent.is$$Final()) return;
-      java.util.ArrayList key = new java.util.ArrayList(2);
-      key.add(getParent());
-      key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
-      java.util.ArrayList list;
-      if (state().debugRewrite.containsKey(key))
-        list = (java.util.ArrayList)state().debugRewrite.get(key);
-    else {
+    java.util.ArrayList key = new java.util.ArrayList(2);
+    key.add(getParent());
+    key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
+    java.util.ArrayList list;
+    if (state().debugRewrite.containsKey(key)) {
+      list = (java.util.ArrayList)state().debugRewrite.get(key);
+    } else {
       list = new java.util.ArrayList();
       state().debugRewrite.put(key, list);
     }
