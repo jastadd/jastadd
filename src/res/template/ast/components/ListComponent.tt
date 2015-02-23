@@ -182,7 +182,6 @@ $endif
   $Modifier $ListType $Host.get$(Name)List() {
     $SynchBegin
     $ListType list = ($ListType) getChild($Index);
-    list.getNumChild();
     return list;
     $SynchEnd
   }
