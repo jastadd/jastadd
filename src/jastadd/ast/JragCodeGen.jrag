@@ -402,6 +402,17 @@ aspect JragCodeGen {
     }
   }
 
+  /**
+   * Generate the state variable if needed.
+   */
+  public String AttrDecl.lazyState() {
+    if (config().componentCheck() || isLazy()) {
+      return config().astNodeType() + "$State state = state();";
+    } else {
+      return "";
+    }
+  }
+
   public String AttrDecl.cacheInitCircular() {
     return "boolean intermediate = state.INTERMEDIATE_VALUE;\n" +
            "state.INTERMEDIATE_VALUE = false;\n";

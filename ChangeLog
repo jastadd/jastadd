@@ -1,3 +1,10 @@
+2015-02-25  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Made ASTNode.state private. This field is used internally in generated
+    code for attribute circularity checks and other purposes and should not be
+    accessed by non-generated code. Making this field private reduces the
+    risk of inadvertently using it.
+
 2015-02-19  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Removed remaining Java 1.4 support. Some code generation templates were

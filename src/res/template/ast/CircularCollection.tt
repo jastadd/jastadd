@@ -50,30 +50,31 @@ $if(#isParameterized)
     $SynchBegin
     #parameterStructure
     #initLazyMaps
+    $ASTNode$$State state = state();
     $include(AttrDecl.cacheCheck)
     #addComponentCheck
     if (!#(signature)_initialized.contains(_parameters)) {
       #(signature)_initialized.add(_parameters);
       #(signature)_values.put(_parameters, $BottomValue);
     }
-    if (!state().IN_CIRCLE) {
-      state().IN_CIRCLE = true;
+    if (!state.IN_CIRCLE) {
+      state.IN_CIRCLE = true;
       #cacheInitRewrite
       #addAddToComponent
-      state().CIRCLE_INDEX = 1;
+      state.CIRCLE_INDEX = 1;
       #getType new_#(signature)_value;
       do {
-        #(signature)_visited.put(_parameters, Integer.valueOf(state().CIRCLE_INDEX));
-        state().CHANGE = false;
+        #(signature)_visited.put(_parameters, Integer.valueOf(state.CIRCLE_INDEX));
+        state.CHANGE = false;
         new_#(signature)_value = $BottomValue;
         combine_#(signature)_contributions(new_#(signature)_value);
         if ($Cond2) {
-          state().CHANGE = true;
+          state.CHANGE = true;
         }
         #(signature)_values.put(_parameters, new_#(signature)_value);
-        state().CIRCLE_INDEX++;
+        state.CIRCLE_INDEX++;
         #cycleLimitCheck
-      } while (state().CHANGE);
+      } while (state.CHANGE);
 
       if (#cacheStoreCondition) {
         #(signature)_computed.add(_parameters);
@@ -83,17 +84,17 @@ $if(#isParameterized)
         #(signature)_computed.remove(_parameters);
         #(signature)_initialized.remove(_parameters);
       }
-      state().IN_CIRCLE = false;
+      state.IN_CIRCLE = false;
       return new_#(signature)_value;
     }
-    if (!new Interger(state().CIRCLE_INDEX).equals(#(signature)_visited.get(_parameters))) {
-      #(signature)_visited.put(_paramters, Integer.valueOf(state().CIRCLE_INDEX));
+    if (!new Interger(state.CIRCLE_INDEX).equals(#(signature)_visited.get(_parameters))) {
+      #(signature)_visited.put(_paramters, Integer.valueOf(state.CIRCLE_INDEX));
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
       #getType new_#(signature)_value = $BottomValue;
       combine_#(signature)_contributions(new_#(signature)_value);
       if ($Cond2) {
-        state().CHANGE = true;
+        state.CHANGE = true;
       }
       #(signature)_values.put(_parameters, new_#(signature)_value);
       return new_#(signature)_value;
@@ -127,6 +128,7 @@ $endif
   public #getType #name(#parametersDecl) {
     $SynchBegin
     #parameterStructure
+    $ASTNode$$State state = state();
     $include(AttrDecl.cacheCheck)
     $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType))
@@ -148,14 +150,14 @@ $endif
       #(signature)_value = $BottomValue;
     }
 
-    if (!state().IN_CIRCLE) {
-      state().IN_CIRCLE = true;
+    if (!state.IN_CIRCLE) {
+      state.IN_CIRCLE = true;
       #addAddToComponent
       #cacheInitRewrite
-      state().CIRCLE_INDEX = 1;
+      state.CIRCLE_INDEX = 1;
       do {
-        #(signature)_visited = state().CIRCLE_INDEX;
-        state().CHANGE = false;
+        #(signature)_visited = state.CIRCLE_INDEX;
+        state.CHANGE = false;
 
 $if(SeparateEvaluation)
         new_#(signature)_value = $BottomValue;
@@ -165,12 +167,12 @@ $else
         combine_#(signature)_contributions(new_#(signature)_value);
 $endif
         if ($Cond1) {
-          state().CHANGE = true;
+          state.CHANGE = true;
         }
         #(signature)_value = new_#(signature)_value;
-        state().CIRCLE_INDEX++;
+        state.CIRCLE_INDEX++;
         #cycleLimitCheck
-      } while (state().CHANGE);
+      } while (state.CHANGE);
 
       if (#cacheStoreCondition) {
         #(signature)_computed = true;
@@ -180,11 +182,11 @@ $endif
         #(signature)_computed = false;
         #(signature)_initialized = false;
       }
-      state().IN_CIRCLE = false;
+      state.IN_CIRCLE = false;
       $include(AttrDecl.returnStmt)
     }
-    if (#(signature)_visited != state().CIRCLE_INDEX) {
-      #(signature)_visited = state().CIRCLE_INDEX;
+    if (#(signature)_visited != state.CIRCLE_INDEX) {
+      #(signature)_visited = state.CIRCLE_INDEX;
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
@@ -196,7 +198,7 @@ $else
       combine_#(signature)_contributions(new_#(signature)_value);
 $endif
       if ($Cond1) {
-        state().CHANGE = true;
+        state.CHANGE = true;
       }
       #(signature)_value = new_#(signature)_value;
       $include(AttrDecl.returnStmt)

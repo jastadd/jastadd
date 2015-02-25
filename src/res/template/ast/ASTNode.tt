@@ -96,7 +96,7 @@ $if(StaticState)
   /**
    * @apilevel internal
    */
-  protected static $ASTNode$$State $ASTNode.state = new $ASTNode$$State();
+  private static $ASTNode$$State $ASTNode.state = new $ASTNode$$State();
 
   /**
    * @apilevel internal
@@ -108,7 +108,7 @@ $else
   /**
    * @apilevel internal
    */
-  protected $ASTNode$$State $ASTNode.state = null;
+  private $ASTNode$$State $ASTNode.state = null;
 
   /**
    * @apilevel internal
@@ -157,7 +157,7 @@ $if(HasRewriteLimit)
     key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
     java.util.ArrayList list;
     if (state().debugRewrite.containsKey(key)) {
-      list = (java.util.ArrayList)state().debugRewrite.get(key);
+      list = (java.util.ArrayList) state().debugRewrite.get(key);
     } else {
       list = new java.util.ArrayList();
       state().debugRewrite.put(key, list);
@@ -510,9 +510,9 @@ $if(RewriteEnabled)
       $include(ASTNode.flushHookRewriteEnterCircle)
       $include(ASTNode.incHookGetChild1)
       int rewriteState;
-      int num = this.state().boundariesCrossed;
+      int num = state().boundariesCrossed;
       do {
-        this.state().push($ASTNode$$State.REWRITE_CHANGE);
+        state().push($ASTNode$$State.REWRITE_CHANGE);
         $ASTNode oldNode = node;
         oldNode.in$$Circle(true);
         $include(ASTNode.incHookGetChild5)
@@ -524,17 +524,17 @@ $if(RewriteEnabled)
           $include(ASTNode.incHookGetChild8)
         }
         oldNode.in$$Circle(false);
-        rewriteState = this.state().pop();
+        rewriteState = state().pop();
         $include(ASTNode.incHookGetChild3)
         $include(ASTNode.incHookGetChild6)
       } while(rewriteState == $ASTNode$$State.REWRITE_CHANGE);
       if (rewriteState == $ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
   $if(StagedRewrites)
-        node.is$$Final(this.state().rewritePhase);
+        node.is$$Final(state().rewritePhase);
   $else
         node.is$$Final(true);
   $endif
-        this.state().boundariesCrossed = num;
+        state().boundariesCrossed = num;
   $if(HasRewriteLimit)
         node.debugRewriteRemove();
   $endif
@@ -545,7 +545,7 @@ $if(RewriteEnabled)
       $include(ASTNode.incHookGetChild2)
       $include(ASTNode.traceHookRewriteExitCase1)
     } else if (this.is$$Final() != node.is$$Final()) {
-      this.state().boundariesCrossed++;
+      state().boundariesCrossed++;
       $include(ASTNode.traceHookRewriteExitCase2)
     } else {
       $include(ASTNode.traceHookRewriteExitCase3)
