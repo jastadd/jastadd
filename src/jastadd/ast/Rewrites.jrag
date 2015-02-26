@@ -45,14 +45,6 @@ aspect Rewrites {
     return set;
   }
 
-  public void Grammar.genRewriteOrderChecks(PrintWriter out) {
-    TemplateContext tt = templateContext();
-    for (Iterator iter = rewriteAspects().iterator(); iter.hasNext(); ) {
-      tt.bind("RewriteName", (String) iter.next());
-      tt.expand("Grammar.genRewriteOrderChecks", out);
-    }
-  }
-
   public void ASTDecl.emitRewrites(PrintStream out) {
     TemplateContext tt = templateContext();
     boolean unconditional = false;

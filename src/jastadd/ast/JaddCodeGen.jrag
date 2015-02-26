@@ -570,7 +570,6 @@ aspect JaddCodeGen {
     // Generate code common for all nodes by adding them to ASTNode
     if (isASTNodeDecl()) {
       emitImplicitASTNodeDecls(out);
-      grammar().genRewriteOrderChecks(out);
       grammar().genReset(out);
       templateContext().expand("ASTNode.iterator", out);
     } else if (isListDecl()) {
