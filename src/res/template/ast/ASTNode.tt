@@ -312,7 +312,7 @@ $if(!RewriteCircularNTA)
     }
 $endif
 $endif
-    $include(ASTNode.incHookGetParent);
+    $include(ASTNode.incHookGetParent)
     return ($ASTNode) parent;
     $SynchEnd
   }
