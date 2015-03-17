@@ -55,11 +55,13 @@ if (caller == get#(childName)ListNoTransform() ||
     ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))) ||
       (rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) instanceof $ASTNode$$State.CircularValue &&
       caller == (($ASTNode$$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))).value)))) {
+  // #declaredat
   int $ChildIndexVar = caller.getIndexOfChild(child);
   $EvalStmt
 }
 $else
 if (caller == get#(childName)ListNoTransform()) {
+  // #declaredat
   int $ChildIndexVar = caller.getIndexOfChild(child);
   $EvalStmt
 }
@@ -75,10 +77,12 @@ if (caller == get#(childName)OptNoTransform() ||
     ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))) ||
       (rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) instanceof $ASTNode$$State.CircularValue &&
         caller == (($ASTNode$$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))).value)))) {
+  // #declaredat
   $EvalStmt
 }
 $else
 if (caller == get#(childName)OptNoTransform()) {
+  // #declaredat
   $EvalStmt
 }
 $endif
@@ -93,10 +97,12 @@ if (caller == get#(childName)NoTransform() ||
     ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))) ||
       (rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) instanceof $ASTNode$$State.CircularValue &&
         caller == (($ASTNode$$State.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))).value)))) {
+  // #declaredat
   $EvalStmt
 }
 $else
 if (caller == get#(childName)NoTransform()) {
+  // #declaredat
   $EvalStmt
 }
 $endif
@@ -122,11 +128,13 @@ $EvalStmt
 InhEq.emitNTAClause [[
 $if(IsParameterized)
 if (caller == $(AttrSignature)_list) {
+  // #declaredat
   int $ChildIndexVar = caller.getIndexOfChild(child);
   $EvalStmt
 }
 $else
 if (caller == #(childName)_value) {
+  // #declaredat
   $EvalStmt
 }
 $endif
