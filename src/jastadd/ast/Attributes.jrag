@@ -1155,18 +1155,6 @@ public aspect Attributes {
     return s.toString();
   }
 
-
-  syn String AttrDecl.interfaceParameters() =
-    "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
-
-  syn String AttrDecl.interfaceParametersDecl() =
-    config().astNodeType() + " caller, " + config().astNodeType() + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
-
-  syn String AttrEq.interfaceParameters() = "caller, child" + (parameters().equals("") ? "" : (", " + parameters()));
-
-  syn String AttrEq.interfaceParametersDecl() =
-    config().astNodeType() + " caller, " + config().astNodeType() + " child" + (parametersDecl().equals("") ? "" : (", " + parametersDecl()));
-
   public org.jastadd.jrag.AST.SimpleNode Rewrite.condition;
   public org.jastadd.jrag.AST.SimpleNode Rewrite.getCondition() {
     return condition;
@@ -1205,10 +1193,4 @@ public aspect Attributes {
   public void RewriteList.setChildName(String name) {
     childName = name;
   }
-
-  // TODO: INH
-  syn String AttrDecl.interfaceParametersStart() = "this, null" + (parameters().equals("") ? "" : (", " + parameters()));
-  syn String AttrDecl.interfaceParametersContinue() = "this, caller" + (parameters().equals("") ? "" : (", " + parameters()));
-  syn String AttrEq.interfaceParametersStart() = "this, null" + (parameters().equals("") ? "" : (", " + parameters()));
-  syn String AttrEq.interfaceParametersContinue() = "this, caller" + (parameters().equals("") ? "" : (", " + parameters()));
 }

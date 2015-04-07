@@ -29,6 +29,30 @@
 aspect InheritedAttributes {
 
   /**
+   * The tail of the list of inherited attribute parameters after removing caller and child.
+   */
+  syn String InhDecl.inhParametersTail() =
+    parameters().equals("") ? "" : (", " + parameters());
+
+  /**
+   * The tail of the list of inherited attribute parameters after removing caller and child.
+   */
+  syn String InhEq.inhParametersTail() =
+    parameters().equals("") ? "" : (", " + parameters());
+
+  /**
+   * The tail of the list of inherited attribute parameter declarations after removing caller and child.
+   */
+  syn String InhDecl.inhParametersDeclTail() =
+    parametersDecl().equals("") ? "" : (", " + parametersDecl());
+
+  /**
+   * The tail of the list of inherited attribute parameter declarations after removing caller and child.
+   */
+  syn String InhEq.inhParametersDeclTail() =
+    parametersDecl().equals("") ? "" : (", " + parametersDecl());
+
+  /**
    * Ensure no duplicate inherited declarations.
    * Warnings are reported for duplicate inherited declarations.
    * See AttributeProblems.jrag
@@ -326,7 +350,6 @@ aspect InheritedAttributeCodeGen {
   public void ASTDecl.emitInhEquations(PrintStream out) {
     for (String attrId: inhAttrSet()) {
       emitDefineInhMethod(out, attrId);
-      //emitInhDefinesMethod(out, attrId);
     }
   }
 

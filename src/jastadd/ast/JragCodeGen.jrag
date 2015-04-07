@@ -514,14 +514,6 @@ aspect JragCodeGen {
     templateContext().expand("SynEq.emitComputeMethod", out);
   }
 
-  syn String AttrDecl.inhDebugString() {
-    if (!config().debugMode()) {
-      return "";
-    } else {
-      return config().ind(2) + "if (getParent() == null) throw new RuntimeException(\"Trying to evaluate attribute in subtree not attached to main tree\");\n";
-    }
-  }
-
   public boolean TypeDecl.hasLazySynEqFor(AttrDecl attr) {
     if (attr instanceof SynDecl) {
       SynEq synEq = lookupSynEq(attr.signature());
@@ -958,10 +950,8 @@ aspect JragCodeGen {
   syn lazy String Rewrite.aspectName() =
     getAspectName();
 
-  syn String AttrEq.inhDebugString() = decl().inhDebugString();
-
-  public void AttrEq.emitInhEqSignature(PrintStream out) {
-    templateContext().expand("AttrEq.emitInhEqSignature", out);
+  public void AttrEq.emitDefaultInhMethod(PrintStream out) {
+    templateContext().expand("InhEq.defaultInhDefineMethod", out);
   }
 
   //  TODO: INH
@@ -972,7 +962,7 @@ aspect JragCodeGen {
         String attrId = (String)entry.getKey();
         AttrEq attr = (AttrEq)((LinkedList)entry.getValue()).get(0);
         if (!hasInhEq(attr.decl().name())) {
-          attr.emitInhEqSignature(out);
+          attr.emitDefaultInhMethod(out);
         }
       }
     }
@@ -992,21 +982,13 @@ aspect Compute {
   syn String AttrDecl.computeRHS() = name() + "_compute(" + parameters() + ")";
 
   eq InhDecl.computeRHS() =
-    "getParent().Define_" + name() + "(" + interfaceParametersStart() + ")";
+    "getParent().Define_" + name() + "(this, null" + inhParametersTail() + ")";
 
   syn String AttrDecl.computeLHS() {
     if (isLazy() && getNumParameter() == 0) {
       return signature() + "_value";
     } else {
       return getType() + " " + signature() + "_value";
-    }
-  }
-
-  eq InhDecl.computeLHS() {
-    if (isLazy() && getNumParameter() == 0) {
-      return inhDebugString() + signature() + "_value";
-    } else {
-      return inhDebugString() + getType() + " " + signature() + "_value";
     }
   }
 

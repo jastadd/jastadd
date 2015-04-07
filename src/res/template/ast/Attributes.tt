@@ -321,7 +321,6 @@ $endif
       do {
         #(signature)_visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
-        #inhDebugString
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
@@ -365,7 +364,6 @@ $endif
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
-      #inhDebugString
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
@@ -442,7 +440,6 @@ $endif
       do {
         _value.visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
-        #inhDebugString
         #tracePrintBeginComputingValue
 $if(#isRewriteCircularNtaAttr)
         state.push(ASTNode$$State.REWRITE_CHANGE);
@@ -499,7 +496,6 @@ $endif
     if (state.CIRCLE_INDEX != _value.visited) {
       _value.visited = state.CIRCLE_INDEX;
       $include(AttrDecl.traceHookCircularEnterCase2)
-      #inhDebugString
       #tracePrintBeginComputingValue
 $if(#isRewriteCircularNtaAttr)
       state.push(ASTNode$$State.REWRITE_CHANGE);
@@ -554,7 +550,6 @@ state.LAST_CYCLE = true;
 $if(#isRewriteCircularNtaAttr)
 state.push(ASTNode$$State.REWRITE_CHANGE);
 $endif
-#inhDebugString
 #getType $$tmp = $CircularComputeRHS;
 $if(#isRewriteCircularNtaAttr)
 state.pop();
@@ -586,7 +581,6 @@ $endif]]
 
 resetCycleInit = [[
 state.RESET_CYCLE = true;
-#inhDebugString
 #getType $$tmp = $CircularComputeRHS;
 state.RESET_CYCLE = false;]]
 
@@ -637,11 +631,9 @@ AttrDecl.cacheCycleCheck [[
 $if(CacheCycle)
 if (state.LAST_CYCLE) {
 $if(#isParameterized)
-  #inhDebugString
   #(signature)_values.put(_parameters, new_#(signature)_value);
 $else
   #(signature)_computed = true;
-  #inhDebugString
   $include(AttrDecl.incHookAttrCompStartCircular)
   $CircularComputeStmt
   $include(AttrDecl.incHookAttrCompEndCircular)
