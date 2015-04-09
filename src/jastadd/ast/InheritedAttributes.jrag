@@ -372,6 +372,7 @@ aspect InheritedAttributeCodeGen {
   public void ASTDecl.emitInhEquations(PrintStream out) {
     for (String attrId: inhAttrSet()) {
       emitDefineInhMethod(out, attrId);
+      emitCanDefineInhMethod(out, attrId);
     }
   }
 
@@ -445,6 +446,16 @@ aspect InheritedAttributeCodeGen {
     tc.bind("HasEqInSupertype", superClass() != null && superClass().hasInhEq(decl.name()));
     tc.expand("InhDecl.fallthrough", sb);
     return sb.toString();
+  }
+
+  public void ASTDecl.emitCanDefineInhMethod(PrintStream out, String attrId) {
+    Collection<InhEq> inhEqs = inhAttrEqs(attrId);
+    assert(inhEqs.iterator().hasNext());
+
+    InhDecl decl = (InhDecl) inhEqs.iterator().next().decl();
+
+    TemplateContext tc = decl.templateContext();
+    tc.expand("InhDecl.canDefineMethod", out);
   }
 
 }
