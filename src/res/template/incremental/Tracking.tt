@@ -155,7 +155,7 @@ ASTNode.incHookGetChild3 = [[
 $if(IncrementalEnabled)
 
 $if(!FlushRewrite)
-if (rewriteState == $ASTNode$$State.REWRITE_CHANGE) {
+if (rewriteState == $StateClass.REWRITE_CHANGE) {
   this.children_computed[i] = true;
 }
 $endif

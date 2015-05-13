@@ -29,7 +29,7 @@ ASTNode$State = [[
 /**
  * @apilevel internal
  */
-public class $ASTNode$$State {
+public class $StateClass {
   $if(CacheCycle)
   /**
    * @apilevel internal
@@ -165,7 +165,7 @@ $if(RewriteEnabled)
 
   private int pos;
 
-  public $ASTNode$$State() {
+  public $StateClass() {
     stack = new int[64];
     pos = 0;
   }
@@ -213,7 +213,7 @@ ASTNode$State.reset = [[
   /**
    * @apilevel internal
    */
-  public void $ASTNode$$State.reset() {
+  public void $StateClass.reset() {
     $SynchBegin
     IN_CIRCLE = false;
     CIRCLE_INDEX = 1;

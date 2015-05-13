@@ -49,9 +49,9 @@ $endif
 ]]
 
 ASTDecl.emitRewrites.end:ASTNode = [[
-    if (state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
+    if (state().peek() == $StateClass.REWRITE_CHANGE) {
       state().pop();
-      state().push($ASTNode$$State.REWRITE_NOCHANGE);
+      state().push($StateClass.REWRITE_NOCHANGE);
     }
     return this;
   }

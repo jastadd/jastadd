@@ -266,11 +266,11 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Generate ASTNode$State aspect declarations.
+   * Generate state class aspect declarations.
    *
    * @param out Aspect output stream
    */
-  public void Grammar.emitASTNode$State(PrintWriter out) {
+  public void Grammar.emitStateClass(PrintWriter out) {
     templateContext().expand("ASTNode$State", out);
   }
 

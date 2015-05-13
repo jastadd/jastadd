@@ -271,7 +271,7 @@ $endif
 
 ASTNode.traceHookRewriteChange = [[
 $if (TraceRewrite)
-if (this.state().peek() == $ASTNode$$State.REWRITE_CHANGE) {
+if (this.state().peek() == $StateClass.REWRITE_CHANGE) {
   state().trace().addRewriteChange(this, "ASTNode.getChild", i,
       nodeToString(oldNode) + "->" + nodeToString(node));
 }

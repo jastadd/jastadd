@@ -37,13 +37,13 @@ CacheAnalyzer = [[
  *   <i>Dept. of Computer Science, Lund University</i>
  *
  */
-public class CacheAnalyzer extends ASTNode$$State.Trace.InputFilter {
+public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
   
   private final String[] ATTRIBUTES = { $AttrNameList };
   private java.util.Map<String,java.util.Map<String,Integer>> attrMap = null;
 
-  public $ASTNode$$State.Trace.Entry createEntry($ASTNode$$State.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    if (evt == $ASTNode$$State.Trace.Event.CACHED || evt == $ASTNode$$State.Trace.Event.CACHE_READ) {
+  public $StateClass.Trace.Entry createEntry($StateClass.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
+    if (evt == $StateClass.Trace.Event.CACHED || evt == $StateClass.Trace.Event.CACHE_READ) {
       if (attrMap == null) {
         createAttrMap();
       }
@@ -59,7 +59,7 @@ public class CacheAnalyzer extends ASTNode$$State.Trace.InputFilter {
     return super.createEntry(evt, node, attr, params, value);
   }
 
-  public boolean include($ASTNode$$State.Trace.Entry e) {
+  public boolean include($StateClass.Trace.Entry e) {
     return false;
   }
 

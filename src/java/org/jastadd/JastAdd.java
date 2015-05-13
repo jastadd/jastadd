@@ -176,7 +176,7 @@ public class JastAdd {
       // TODO do we really need to do this?!
       grammar.problems.clear();
 
-      if (checkErrors("ASTNode$State generation", genASTNode$State(grammar), err)) {
+      if (checkErrors("State class generation", genStateClass(grammar), err)) {
         return 1;
       }
       if (checkErrors("incremental DDG node generation", genIncrementalDDGNode(grammar), err)) {
@@ -413,11 +413,11 @@ public class JastAdd {
     return new LinkedList<Problem>();
   }
 
-  private Collection<Problem> genASTNode$State(Grammar grammar) {
+  private Collection<Problem> genStateClass(Grammar grammar) {
     java.io.StringWriter writer = new java.io.StringWriter();
-    grammar.emitASTNode$State(new PrintWriter(writer));
+    grammar.emitStateClass(new PrintWriter(writer));
     return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
-        config.astNodeType() + "$State", grammar);
+        config.stateClassName(), grammar);
   }
 
   @SuppressWarnings("unused")

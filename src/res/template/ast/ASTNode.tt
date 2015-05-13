@@ -87,7 +87,7 @@ $if(!JJTree)
 $endif
 
 $if(TracingEnabled)
-  public final $ASTNode$$State.Trace $ASTNode.trace() {
+  public final $StateClass.Trace $ASTNode.trace() {
     return state().trace();
   } 
 $endif
@@ -96,27 +96,27 @@ $if(StaticState)
   /**
    * @apilevel internal
    */
-  private static $ASTNode$$State $ASTNode.state = new $ASTNode$$State();
+  private static $StateClass $ASTNode.state = new $StateClass();
 
   /**
    * @apilevel internal
    */
-  public final $ASTNode$$State $ASTNode.state() {
+  public final $StateClass $ASTNode.state() {
     return state;
   }
 $else
   /**
    * @apilevel internal
    */
-  private $ASTNode$$State $ASTNode.state = null;
+  private $StateClass $ASTNode.state = null;
 
   /**
    * @apilevel internal
    */
-  public final $ASTNode$$State $ASTNode.state() {
+  public final $StateClass $ASTNode.state() {
     if (state == null) {
       if (parent == null) {
-        state = new $ASTNode$$State();
+        state = new $StateClass();
         #debugASTNodeState
       } else {
         state = parent.state();
@@ -512,7 +512,7 @@ $if(RewriteEnabled)
       int rewriteState;
       int num = state().boundariesCrossed;
       do {
-        state().push($ASTNode$$State.REWRITE_CHANGE);
+        state().push($StateClass.REWRITE_CHANGE);
         $ASTNode oldNode = node;
         oldNode.in$$Circle(true);
         $include(ASTNode.incHookGetChild5)
@@ -527,8 +527,8 @@ $if(RewriteEnabled)
         rewriteState = state().pop();
         $include(ASTNode.incHookGetChild3)
         $include(ASTNode.incHookGetChild6)
-      } while(rewriteState == $ASTNode$$State.REWRITE_CHANGE);
-      if (rewriteState == $ASTNode$$State.REWRITE_NOCHANGE && this.is$$Final()) {
+      } while(rewriteState == $StateClass.REWRITE_CHANGE);
+      if (rewriteState == $StateClass.REWRITE_NOCHANGE && this.is$$Final()) {
   $if(StagedRewrites)
         node.is$$Final(state().rewritePhase);
   $else

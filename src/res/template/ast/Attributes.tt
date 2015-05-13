@@ -300,7 +300,7 @@ ASTDecl.genCircularEquationNoParams [[
     $SynchBegin
     #parameterStructure
     $include(AttrDecl.cacheCheck)
-    $ASTNode$$State state = state();
+    $StateClass state = state();
     #getType new_#(signature)_value;
     #addComponentCheck
     if (!#(signature)_initialized) {
@@ -400,9 +400,9 @@ ASTDecl.genCircularEquationWithParams [[
     $SynchBegin
     #parameterStructure
     #initLazyMaps
-    $ASTNode$$State.CircularValue _value;
+    $StateClass.CircularValue _value;
     $include(AttrDecl.cacheCheck) else {
-      _value = new $ASTNode$$State.CircularValue();
+      _value = new $StateClass.CircularValue();
       #(signature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
 $if(#getNTA)
@@ -423,7 +423,7 @@ $if(#getNTA)
  $endif
 $endif
     }
-    $ASTNode$$State state = state();
+    $StateClass state = state();
     #getType new_#(signature)_value;
     #addComponentCheck
     if (!state.IN_CIRCLE) {
@@ -442,7 +442,7 @@ $endif
         state.CHANGE = false;
         #tracePrintBeginComputingValue
 $if(#isRewriteCircularNtaAttr)
-        state.push(ASTNode$$State.REWRITE_CHANGE);
+        state.push($StateClass.REWRITE_CHANGE);
 $endif
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
@@ -498,7 +498,7 @@ $endif
       $include(AttrDecl.traceHookCircularEnterCase2)
       #tracePrintBeginComputingValue
 $if(#isRewriteCircularNtaAttr)
-      state.push(ASTNode$$State.REWRITE_CHANGE);
+      state.push($StateClass.REWRITE_CHANGE);
 $endif
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
@@ -548,7 +548,7 @@ cacheCycleInit = [[
 $if(CacheCycle)
 state.LAST_CYCLE = true;
 $if(#isRewriteCircularNtaAttr)
-state.push(ASTNode$$State.REWRITE_CHANGE);
+state.push($StateClass.REWRITE_CHANGE);
 $endif
 #getType $$tmp = $CircularComputeRHS;
 $if(#isRewriteCircularNtaAttr)
@@ -609,11 +609,11 @@ if (#(signature)_computed) {
       $if(#isCircular)
 if (#(signature)_values.containsKey(_parameters)) {
   Object _o = #(signature)_values.get(_parameters);
-  if (!(_o instanceof $ASTNode$$State.CircularValue)) {
+  if (!(_o instanceof $StateClass.CircularValue)) {
     $include(AttrDecl.traceHookAttrCacheRead)
     return (#boxedType) _o;
   } else {
-    _value = ($ASTNode$$State.CircularValue) _o;
+    _value = ($StateClass.CircularValue) _o;
   }
 }
       $else

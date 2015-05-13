@@ -100,6 +100,12 @@ public class Configuration {
       .defaultValue("Opt")
       .templateName("Opt");
 
+  Option<String> stateClassNameOption = new ValueOption("stateClassName",
+      "set the name of the AST state class")
+      .unrestricted()
+      .defaultValue("ASTNode$State")
+      .templateName("StateClass");
+
   Option<String> ASTNodeSuperOption = new ValueOption("ASTNodeSuper",
       "set the name of the ASTNode supertype")
       .unrestricted()
@@ -462,6 +468,9 @@ public class Configuration {
     allOptions.add(dotOption);
     allOptions.add(ASTNodeSuperOption);
     allOptions.add(generateImplicitsOption);
+
+    // new since 2.1.12
+    allOptions.add(stateClassNameOption);
 
     // deprecated in 2.1.5
     allOptions.add(doxygenOption);
@@ -919,6 +928,13 @@ public class Configuration {
    */
   public String optType() {
     return OptOption.value();
+  }
+
+  /**
+   * @return State class name
+   */
+  public String stateClassName() {
+    return stateClassNameOption.value();
   }
 
   /**

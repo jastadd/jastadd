@@ -407,7 +407,7 @@ aspect JragCodeGen {
    */
   public String AttrDecl.lazyState() {
     if (config().componentCheck() || isLazy()) {
-      return config().astNodeType() + "$State state = state();";
+      return config().stateClassName() + " state = state();";
     } else {
       return "";
     }
@@ -685,7 +685,7 @@ aspect JragCodeGen {
       return s1 + " != " + s2;
     } else if (declaredNTA() && isCircular()) {
       if (isRewriteCircularNtaAttr()) {
-        return "rewriteState != ASTNode$State.REWRITE_NOCHANGE";
+        return "rewriteState != " + config().stateClassName() + ".REWRITE_NOCHANGE";
       }
       return "!is$Equal(" + s1 + "," + s2 + ")";
     } else {
