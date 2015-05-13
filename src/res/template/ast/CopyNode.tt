@@ -67,6 +67,7 @@ ASTDecl.emitFullCopy = [[
    * @deprecated Please use treeCopy or treeCopyNoTransform instead
    */
   #annotations
+  @Deprecated
 $if(#hasAbstract)
   public abstract #copyReturnType #name.fullCopy();
 $else
