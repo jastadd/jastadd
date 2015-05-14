@@ -112,6 +112,7 @@ OPTIONS:
 	<target name="clean">
 		<mkdir dir="${jastadd2.gen.dir}"/>
 		<delete file="jastadd2.jar"/>
+		<delete file="jastadd2-src.jar"/>
 		<delete file="jastadd2-src.zip"/>
 		<delete file="jastadd2-bin.zip"/>
 		<delete includeEmptyDirs="true">
@@ -173,6 +174,23 @@ OPTIONS:
 				<exclude name="**/.gitmodules"/>
 			</zipfileset>
 		</zip>
+	</target>
+
+	<target name="source-jar" depends="build">
+		<jar destfile="jastadd2-src.jar">
+			<fileset dir="src/java">
+				<include name="**/*.java"/>
+			</fileset>
+			<fileset dir="src/gen">
+				<include name="**/*.java"/>
+			</fileset>
+			<fileset dir="tinytemplate/src/java">
+				<include name="**/*.java"/>
+			</fileset>
+			<fileset dir="src/res">
+				<include name="**/*"/>
+			</fileset>
+		</jar>
 	</target>
 
 	<target name="bin-zip" depends="jar,build-doc">
