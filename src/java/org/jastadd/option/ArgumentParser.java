@@ -94,7 +94,7 @@ public class ArgumentParser {
           }
         }
         if (option == null) {
-          err.println("Error: unknown option '" + arg + "'");
+          err.println("Error: unknown option '" + args[i] + "'");
           haveUnknown = true;
         }
       } else {
