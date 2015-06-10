@@ -321,7 +321,7 @@ aspect AttributeProblems {
 
   InhDecl contributes
       error("inherited attribute " + name() + " defined on root node " + hostClass().name())
-    when hostClass().isRootNode()
+    when hostClass().isRootNode() && !hostClass().isSynNta()
     to TypeDecl.attributeProblems()
     for hostClass();
 

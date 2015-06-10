@@ -773,6 +773,11 @@ aspect JragCodeGen {
     return false;
   }
 
+  /**
+   * @return {@code true} if there is a corresponding NTA component.
+   * Note: does not return true if the attribute is declared only with the
+   * nta keyword! Use getNTA to check for the nta keyword.
+   */
   public boolean SynDecl.isNTA() {
     return findCorrespondingNTA() != null;
   }
