@@ -41,6 +41,8 @@ def getVersion() {
 project.version = getVersion()
 project.group = 'org.jastadd'
 
+println("Building version: ${project.version}")
+
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
