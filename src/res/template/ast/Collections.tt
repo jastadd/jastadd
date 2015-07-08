@@ -89,16 +89,23 @@ $endif
     root.collect_contributors_#collectingSignature();
     #(signature)_value = $BottomValue;
 $if(LazyMaps)
-    if (#(signature)_contributors != null)
-$endif
-    for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
-      $ASTNode contributor = ($ASTNode) iter.next();
-      contributor.contributeTo_#(getTarget)_#(signature)(#(signature)_value);
+    if (#(signature)_contributors != null) {
+      $include(CollDecl.collectContributions)
     }
+$else
+    $include(CollDecl.collectContributions)
+$endif
     // TODO: disabled temporarily since collections may not be cached
     //$if(LazyMaps)#(signature)_contributors = null;$endif
     return #(signature)_value;
   }
+]]
+
+CollDecl.collectContributions = [[
+for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
+  $ASTNode contributor = ($ASTNode) iter.next();
+  contributor.contributeTo_#(getTarget)_#(signature)(#(signature)_value);
+}
 ]]
 
 CollDecl.combineMethod = [[
