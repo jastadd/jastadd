@@ -168,10 +168,10 @@ aspect JastAddCodeGen {
 
   public String ASTDecl.componentString() {
     StringBuffer buf = new StringBuffer();
-    for (int i = 0; i < getNumComponents(); ++i) {
+    for (int i = 0; i < getNumComponent(); ++i) {
       buf.append(" ");
       buf.append("<span class=\"component\">");
-      buf.append(getComponents(i).componentString());
+      buf.append(getComponent(i).componentString());
       buf.append("</span>");
     }
     return buf.toString();
@@ -185,8 +185,8 @@ aspect JastAddCodeGen {
   public String TokenId.componentString() {
     return getID()+":"+getTYPE();
   }
-  public abstract String Components.componentString();
-  public String ListComponents.componentString() {
+  public abstract String Component.componentString();
+  public String ListComponent.componentString() {
     return getId().componentString()+"*";
   }
   public String OptionalComponent.componentString() {
@@ -195,7 +195,7 @@ aspect JastAddCodeGen {
   public String TokenComponent.componentString() {
     return "&lt;"+getTokenId().componentString()+"&gt;";
   }
-  public String AggregateComponents.componentString() {
+  public String AggregateComponent.componentString() {
     return getId().componentString();
   }
 

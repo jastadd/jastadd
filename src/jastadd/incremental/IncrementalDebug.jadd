@@ -90,8 +90,7 @@ aspect IncrementalDebug {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
-      for (Iterator iter = getComponents(); iter.hasNext(); ) {
-        Components c = (Components)iter.next();
+      for (Component c : components()) {
         if (c instanceof TokenComponent && !c.isNTA()) {
           tt.bind("Id",  ((TokenComponent)c).getTokenId().getID());
           res.append(tt.expand("ASTDecl.checkAndDumpTokenDeps"));

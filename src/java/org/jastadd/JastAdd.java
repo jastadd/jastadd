@@ -38,7 +38,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.jastadd.ast.AST.ASTDecl;
-import org.jastadd.ast.AST.Components;
+import org.jastadd.ast.AST.Component;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.InterTypeObject;
 import org.jastadd.ast.AST.TokenComponent;
@@ -381,8 +381,7 @@ public class JastAdd {
         allProblems.addAll(problems);
 
         int j = 0;
-        for (Iterator<?> iter = decl.getComponents(); iter.hasNext();) {
-          Components c = (Components) iter.next();
+        for (Component c : decl.components()) {
           if (c instanceof TokenComponent) {
             c.jaddGen(j, config.getPublicModifier(), decl);
           } else {

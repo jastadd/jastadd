@@ -56,14 +56,13 @@ aspect ASTCloneNode {
     LinkedList ntaOptIndices = new LinkedList();
     LinkedList ntaListIndices = new LinkedList();
     int i = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (c.isNTA()) {
-        if (c instanceof ListComponentsNTA) {
+        if (c instanceof ListComponentNTA) {
           ntaListIndices.add(Integer.valueOf(i));
         } else if (c instanceof OptionalComponentNTA) {
           ntaOptIndices.add(Integer.valueOf(i));
-        } else if (c instanceof AggregateComponentsNTA) {
+        } else if (c instanceof AggregateComponentNTA) {
           ntaAggregateIndices.add(Integer.valueOf(i));
         }
       }

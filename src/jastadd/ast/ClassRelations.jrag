@@ -131,12 +131,11 @@ aspect Parents {
     for (int j = 0; j < getNumTypeDecl(); j++) {
       if (getTypeDecl(j) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        for (Iterator iter = decl.getComponents(); iter.hasNext(); ) {
-          Components c = (Components)iter.next();
+        for (Component c : decl.components()) {
           if (!(c instanceof TokenComponent)) {
             TypeDecl t = lookup(c.type());
             if (t != null) {
-              ((HashSet)map.get(t)).add(decl);
+              ((HashSet) map.get(t)).add(decl);
             }
           }
         }
@@ -158,6 +157,6 @@ aspect Parents {
 
   // Do not include parents of super classes (as parents() does)
   inh lazy Collection<ASTDecl> TypeDecl.parentsIntransitive();
-  eq Grammar.getTypeDecl(int i).parentsIntransitive()
-    = new LinkedHashSet<ASTDecl>((Collection) parentMap().get(getTypeDecl(i)));
+  eq Grammar.getTypeDecl(int i).parentsIntransitive() =
+      new LinkedHashSet<ASTDecl>((Collection) parentMap().get(getTypeDecl(i)));
 }

@@ -69,10 +69,9 @@ aspect JaddCodeGen {
     addTypeDecl(cl);
   }
 
-  syn int ASTDecl.numNonNTAComponents() {
+  syn int ASTDecl.numNonNTAComponent() {
     int num = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (!c.isNTA()) {
         num++;
       }
@@ -85,8 +84,7 @@ aspect JaddCodeGen {
    */
   syn int ASTDecl.childCount() {
     int i = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (!(c instanceof TokenComponent)) {
         i++;
       }
@@ -99,8 +97,7 @@ aspect JaddCodeGen {
    */
   syn int ASTDecl.numRegularChildren() {
     int i = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (!c.isNTA() && !(c instanceof TokenComponent)) {
         i++;
       }
@@ -147,15 +144,14 @@ aspect JaddCodeGen {
     StringBuffer childInit = new StringBuffer();
     childInit.append(tt.expand("State.incHookConstructionStart"));
     int i = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if (c instanceof ListComponents) {
+    for (Component c : components()) {
+      if (c instanceof ListComponent) {
         childInit.append("setChild(new " + config().listType() + "(), " + i + ");\n");
         i++;
       } else if (c instanceof OptionalComponent) {
         childInit.append("setChild(new " + config().optType() + "(), " + i + ");\n");
         i++;
-      } else if (c instanceof AggregateComponents) {
+      } else if (c instanceof AggregateComponent) {
         i++;
       }
     }
@@ -175,8 +171,7 @@ aspect JaddCodeGen {
 
     int param = 0;
     int childIndex = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (!c.isNTA()) {
         if (c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
@@ -189,9 +184,9 @@ aspect JaddCodeGen {
         }
         param += 1;
       } else {
-        if (c instanceof ListComponents ||
+        if (c instanceof ListComponent ||
           c instanceof OptionalComponent ||
-          c instanceof AggregateComponents) {
+          c instanceof AggregateComponent) {
         childIndex++;
         }
       }
@@ -212,13 +207,13 @@ aspect JaddCodeGen {
    * Constructor to build trees bottom up
    */
   public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
-    // we only build constructors if there are components
-    if (!getComponents().hasNext())
+    if (components().isEmpty()) {
+      // We only build constructors if there are components.
       return;
+    }
     out.print(config().indent + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (!c.isNTA()) {
         if (i != 0) out.print(", ");
         out.print(c.constrParmType() + " p" + i);
@@ -231,28 +226,31 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.emitSymbolConstructor(PrintWriter out) {
-    // we only build constructors if there are components ...
-    if (!getComponents().hasNext())
+    if (components().isEmpty()) {
+      // We only build constructors if there are components.
       return;
-    // ... and one of these components is a string token component
+    }
+    // ... and if one of these components is a string token component
     boolean stringArg = false;
-    for (Iterator iter = getComponents(); !stringArg && iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if (!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
+    for (Component c : components()) {
+      if (!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String")
+          || c.constrParmType().equals("java.lang.String")) {
         stringArg = true;
+      }
     }
     if (!stringArg) return;
 
     out.print(config().indent + "public " + name() + "." + name() + "(");
     int i = 0; // parameter index
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (!c.isNTA()) {
         if (i != 0) out.print(", ");
-        if (c instanceof TokenComponent && c.constrParmType().equals("String") || c.constrParmType().equals("java.lang.String"))
+        if (c instanceof TokenComponent && c.constrParmType().equals("String")
+            || c.constrParmType().equals("java.lang.String")) {
           out.print("beaver.Symbol p" + i);
-        else
+        } else {
           out.print(c.constrParmType() + " p" + i);
+        }
         i++;
       }
     }
@@ -454,8 +452,7 @@ aspect JaddCodeGen {
   syn String ASTDecl.checkRegularNodeStructure() {
     StringBuilder buf = new StringBuilder();
     int j = 0;
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       buf.append(c.checkComponentStructure(j));
       if (!(c instanceof TokenComponent)) {
         j++;
@@ -467,13 +464,13 @@ aspect JaddCodeGen {
   /**
    * Check the structure of a single JJTree component.
    */
-  syn String Components.checkComponentStructure(int childIndex) = "";
+  syn String Component.checkComponentStructure(int childIndex) = "";
 
-  eq ListComponents.checkComponentStructure(int childIndex) {
+  eq ListComponent.checkComponentStructure(int childIndex) {
     TemplateContext tt = templateContext();
     tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    return tt.expand("ListComponents.checkComponentStructure");
+    return tt.expand("ListComponent.checkComponentStructure");
   }
 
   eq OptionalComponent.checkComponentStructure(int childIndex) {
@@ -483,17 +480,16 @@ aspect JaddCodeGen {
     return tt.expand("OptionalComponent.checkComponentStructure");
   }
 
-  eq AggregateComponents.checkComponentStructure(int childIndex) {
+  eq AggregateComponent.checkComponentStructure(int childIndex) {
     TemplateContext tt = templateContext();
     tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    return tt.expand("AggregateComponents.checkComponentStructure");
+    return tt.expand("AggregateComponent.checkComponentStructure");
   }
 
   syn String ASTDecl.jjtGenPrintChildren() {
     StringBuilder buf = new StringBuilder();
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : components()) {
       if (c instanceof TokenComponent) {
         TokenComponent t = (TokenComponent)c;
         String id = t.getTokenId().getID();
@@ -509,10 +505,11 @@ aspect JaddCodeGen {
 
     emitChildInitMethod(out);
 
-    if (numNonNTAComponents() != 0) {
+    if (numNonNTAComponent() != 0) {
       emitBuildingConstructor(out);
-      if (config().useBeaverSymbol())
+      if (config().useBeaverSymbol()) {
         emitSymbolConstructor(out);
+      }
     }
 
     if (isOptDecl()) {
@@ -644,9 +641,9 @@ aspect JaddCodeGen {
     return set;
   }
 
-  public abstract void Components.jaddGen(int index, boolean publicModifier, ASTDecl decl);
+  public abstract void Component.jaddGen(int index, boolean publicModifier, ASTDecl decl);
 
-  public void ListComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
+  public void ListComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
     tt.bind("ListType", config().listType() + "<" + getId().type() + ">");
     tt.bind("Type", getId().type());
@@ -688,7 +685,7 @@ aspect JaddCodeGen {
     parse(tt.expand("TokenComponent"));
   }
 
-  public void AggregateComponents.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
+  public void AggregateComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
     tt.bind("Type", getId().type());
     tt.bind("Name", getId().name());
@@ -699,7 +696,7 @@ aspect JaddCodeGen {
     parse(tt.expand("AggregateComponent"));
   }
 
-  protected void Components.parse(String s) {
+  protected void Component.parse(String s) {
     org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(s));
     jp.root = grammar();
 

@@ -87,21 +87,21 @@ aspect ASTErrors {
     to Grammar.problems()
     for grammar();
 
-  Components contributes new Problem.Error(
+  Component contributes new Problem.Error(
       "Component name " + name() + " is not unique in production rule for " + hostClass().name(),
                                         hostClass().getFileName(), hostClass().getStartLine())
-    when hostClass().lookupComponents(name()) != this
+    when hostClass().lookupComponent(name()) != this
     to Grammar.problems()
     for grammar();
 
-  Components contributes new Problem.Error(
+  Component contributes new Problem.Error(
       "Type " + type() + " of component " + name() + " in production " + hostClass().name() + " is not declared",
                                         hostClass().getFileName(), hostClass().getStartLine())
     when !declared()
     to Grammar.problems()
     for grammar();
 
-  public boolean Components.declared() {
+  public boolean Component.declared() {
     return grammar().lookup(type()) != null;
   }
 

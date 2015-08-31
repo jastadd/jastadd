@@ -79,8 +79,8 @@
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParameterized", attr.isParameterized());
-      Components comp = attr.findCorrespondingNTA();
-      tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA));
+      Component comp = attr.findCorrespondingNTA();
+      tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA));
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.flushNtaSubtree"));
     }
@@ -99,8 +99,8 @@
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.transferSetsFromAttributeHandler"));
     }
-    for (int c = 0; c < getNumComponents(); c++) {
-      Components comp = getComponents(c);
+    for (int c = 0; c < getNumComponent(); c++) {
+      Component comp = getComponent(c);
       if (comp instanceof TokenComponent) {
         tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
         res.append(tt.expand("ASTDecl.transferSetsFromTokenHandler"));
@@ -121,8 +121,8 @@
             && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.signature());
-      Components comp = attr.findCorrespondingNTA();
-      tt.bind("IsNtaWithTree", comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA);
+      Component comp = attr.findCorrespondingNTA();
+      tt.bind("IsNtaWithTree", comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA);
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
       res.append(tt.expand("ASTDecl.flushNTAsInRegion"));
@@ -141,8 +141,8 @@
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
       		!(attr.type().equals("String") || attr.type().equals("java.lang.String")) &&
       		attr.getNumParameter() == 0) {
-        Components comp = attr.findCorrespondingNTA();
-        if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentsNTA) {
+        Component comp = attr.findCorrespondingNTA();
+        if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA) {
           tt.bind("AttrSign", attr.signature());
           tt.bind("AttrResetVisit", attr.resetVisit());
           tt.bind("AttrResetCache", attr.resetCache());

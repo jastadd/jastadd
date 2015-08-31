@@ -72,8 +72,8 @@ aspect Flush {
   public String ASTDecl.emitFlushNTACacheString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (int c = 0; c < getNumComponents(); c++) {
-      Components comp = getComponents(c);
+    for (int c = 0; c < getNumComponent(); c++) {
+      Component comp = getComponent(c);
       if (comp instanceof TokenComponent) {
         TokenComponent tokenComp = (TokenComponent)comp;
         String type = tokenComp.getTokenId().getTYPE();

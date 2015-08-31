@@ -323,15 +323,16 @@ public aspect Attributes {
   public void Grammar.addComponents(String className, org.jastadd.ast.AST.List componentsList) {
     TypeDecl d = lookup(className);
     if (d != null) {
-      d.setComponentsList(componentsList);
+      d.setComponentList(componentsList);
     }
   }
 
-  syn lazy Components TypeDecl.components(String name) {
-    for (Iterator iter = getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
-      if (c.name().equals(name))
+  /** Find the component with the given name. */
+  syn lazy Component TypeDecl.component(String name) {
+    for (Component c : components()) {
+      if (c.name().equals(name)) {
         return c;
+      }
     }
     return null;
   }
@@ -711,7 +712,7 @@ public aspect Attributes {
 
     String indexName = "";
     String indexDecl = "";
-    boolean isList = equ.getComponents() instanceof ListComponents;
+    boolean isList = equ.getComponent() instanceof ListComponent;
     if (isList) {
       indexName = equ.hasIndex() ? equ.getIndex().getName() : "childIndex";
       indexDecl = "int " + indexName;

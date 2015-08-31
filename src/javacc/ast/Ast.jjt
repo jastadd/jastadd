@@ -205,7 +205,7 @@ void Class() #ASTDecl : { Token first = null, last; }
     ((Abstract() { first = token; } #Opt(1)) | ({} #Opt(0)))
 //  [Abstract() { first = token; }] #Opt
     IdDecl() { if(first == null)  first = token; }
-    OptSuperClass() ComponentsList() Attributes()
+    OptSuperClass() ComponentList() Attributes()
     <SEMICOLON> {
       last = token;
       jjtThis.setFileName(fileName);
@@ -246,32 +246,32 @@ void OptSuperClass() #Opt: {}
 { [":" IdUse()]
 }
 
-void ComponentsList() #List: {}
-{ [ "::=" (Components())* ]
+void ComponentList() #List: {}
+{ [ "::=" (Component())* ]
 }
 
-void Components(): {}
+void Component(): {}
 {
   
   LOOKAHEAD(OptName() IdUse() "*")
-  ListComponents()
+  ListComponent()
 | OptionalComponent()
 | TokenComponent()
-| AggregateComponents()
+| AggregateComponent()
 | LOOKAHEAD("/" OptName() IdUse() "*")
-  ListComponentsNTA()
+  ListComponentNTA()
 | LOOKAHEAD("/" "[")
   OptionalComponentNTA()
 | LOOKAHEAD("/" "<")
   TokenComponentNTA()
-| AggregateComponentsNTA()
+| AggregateComponentNTA()
 }
 
-void ListComponents() #ListComponents: {}
+void ListComponent() #ListComponent: {}
 { Id() "*"
 }
 
-void ListComponentsNTA() #ListComponentsNTA: {}
+void ListComponentNTA() #ListComponentNTA: {}
 { "/" Id() "*" "/"
 }
 
@@ -291,11 +291,11 @@ void TokenComponentNTA() #TokenComponentNTA:{}
 { "/" "<" TokenId() ">" "/"
 }
 
-void AggregateComponents() #AggregateComponents:{}
+void AggregateComponent() #AggregateComponent:{}
 { Id()
 }
 
-void AggregateComponentsNTA() #AggregateComponentsNTA:{}
+void AggregateComponentNTA() #AggregateComponentNTA:{}
 { "/" Id() "/"
 }
 

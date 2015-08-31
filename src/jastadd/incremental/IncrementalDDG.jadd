@@ -118,8 +118,8 @@ aspect IncrementalDDG {
     StringBuffer res = new StringBuffer();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       TemplateContext tt = templateContext();
-      for (int c = 0; c < getNumComponents(); c++) {
-        Components comp = getComponents(c);
+      for (int c = 0; c < getNumComponent(); c++) {
+        Component comp = getComponent(c);
         if (comp instanceof TokenComponent) {
           tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
           res.append(tt.expand("TokenComponent.copyTokenHandler"));

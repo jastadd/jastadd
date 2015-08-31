@@ -36,8 +36,7 @@ aspect ASTEqual {
 
     TemplateContext tt = templateContext();
     StringBuilder sb = new StringBuilder();
-    for (Iterator itr = getComponents(); itr.hasNext();) {
-      Components c = (Components)itr.next();
+    for (Component c : components()) {
       if (c.isTokenComponent() && !c.isNTA()) {
         TokenId token = ((TokenComponent)c).getTokenId();
         String tokenVar = "token" + ASTNode.convTypeNameToSignature(token.getTYPE()) + "_" + token.getID();
@@ -48,6 +47,6 @@ aspect ASTEqual {
     tt.expand("ASTDecl.emitIsEqualMethods", stream);
   }
 
-  syn lazy boolean Components.isTokenComponent() = false;
+  syn lazy boolean Component.isTokenComponent() = false;
   eq TokenComponent.isTokenComponent() = true;
 }

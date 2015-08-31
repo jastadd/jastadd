@@ -174,7 +174,7 @@ outer: while (true) {
     if (hasSuperClass())
       superclass = " : {@link "+getSuperClass().getID()+"}";
     String components = "";
-    if (getNumComponents() > 0)
+    if (getNumComponent() > 0)
       components = " ::=" + componentString();
     return " * @production " + getIdDecl().getID() + superclass + components + ";\n";
   }

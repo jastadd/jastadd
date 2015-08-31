@@ -182,7 +182,7 @@ aspect FindInheritedEquations {
     missingInhEqs = Collections.emptyList();
 
     Collection<InhDecl> missing = new HashSet<InhDecl>();
-    for (Components c: components()) {
+    for (Component c: components()) {
       if (c instanceof TokenComponent) {
         continue;
       }
@@ -328,10 +328,10 @@ aspect FindInheritedEquations {
     return null;
   }
 
-  syn lazy TypeDecl Components.typeDecl() = grammar().lookup(type());
+  syn lazy TypeDecl Component.typeDecl() = grammar().lookup(type());
 
   protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
-    for (Components c: components()) {
+    for (Component c: components()) {
       if (child.instanceOf(c.typeDecl())) {
         if (lookupInhEq(signature, c.name()) == null) {
           return false;
@@ -387,9 +387,9 @@ aspect InheritedAttributeCodeGen {
         tc.bind("EvalStmt", "return " + rhs + ";");
       }
 
-      Components c = equ.getComponents();
+      Component c = equ.getComponent();
       if (c != null) {
-        if (c instanceof ListComponents) {
+        if (c instanceof ListComponent) {
           tc.bind("ChildIndexVar", equ.hasIndex() ? equ.getIndex().getName() : "childIndex");
           tc.expand("InhEq.emitListClause", sb);
         } else if (c instanceof OptionalComponent) {

@@ -29,43 +29,39 @@ import org.jastadd.ast.AST.*;
 import java.util.*;
 
 aspect ASTDecl {
-  syn lazy Collection<Components> ASTDecl.components() {
-    LinkedList<Components> list = new LinkedList<Components>();
+  syn lazy Collection<Component> ASTDecl.components() {
+    LinkedList<Component> list = new LinkedList<Component>();
     if (superClass() != null) {
       list.addAll(superClass().components());
     }
-    for (int i = 0; i < getNumComponents(); i++) {
+    for (int i = 0; i < getNumComponent(); i++) {
       boolean done = false;
-      for (ListIterator<Components> iter = list.listIterator(); !done && iter.hasNext(); ) {
-        Components c = iter.next();
-        if (c.name().equals(getComponents(i).name()) && c.type().equals(getComponents(i).type())) {
+      for (ListIterator<Component> iter = list.listIterator(); !done && iter.hasNext(); ) {
+        Component c = iter.next();
+        if (c.name().equals(getComponent(i).name()) && c.type().equals(getComponent(i).type())) {
           iter.remove();
           done = true;
         }
       }
-      if (getComponents(i).isNTA()) {
-        list.add(getComponents(i));
+      if (getComponent(i).isNTA()) {
+        list.add(getComponent(i));
       }
       else {
         int j = 0;
-        while (j < list.size() && !((Components)list.get(j)).isNTA())
+        while (j < list.size() && !((Component)list.get(j)).isNTA())
           j++;
-        list.add(j, getComponents(i));
+        list.add(j, getComponent(i));
       }
     }
     return list;
   }
-
-  syn Iterator<Components> ASTDecl.getComponents() =
-    components().iterator();
 
   syn boolean ASTDecl.redefinesTokenComponent(TokenComponent c) {
     if (c.hostClass() != this) // inherited component
       return false;
     if (superClass() == null) // no definition in superclass
       return true;
-    for (Iterator iter = superClass().getComponents(); iter.hasNext(); ) {
-      Components d = (Components)iter.next();
+    for (Component d : superClass().components()) {
       if (d.name().equals(c.name()) && d instanceof TokenComponent && c.isNTA() == d.isNTA()) {
         return false;
       }
@@ -73,14 +69,12 @@ aspect ASTDecl {
     return true; // no equal definition in superclass
   }
 }
+
 aspect Comp {
-  public Iterator<Components> TypeDecl.getComponents() {
-    return components().iterator();
-  }
-  syn lazy Collection<Components> TypeDecl.components() {
+  syn lazy Collection<Component> TypeDecl.components() {
     LinkedList list = new LinkedList();
-    for (int i = 0; i < getNumComponents(); i++) {
-      list.add(getComponents(i));
+    for (int i = 0; i < getNumComponent(); i++) {
+      list.add(getComponent(i));
     }
     return list;
   }
@@ -89,7 +83,7 @@ aspect Comp {
    * @return {@code true} if this attribute is an NTA shadowing a non-NTA child
    * of a supertype
    */
-  syn boolean Components.ntaShadowingNonNTA() {
+  syn boolean Component.ntaShadowingNonNTA() {
     if (!isNTA()) {
       return false;
     }
@@ -100,8 +94,7 @@ aspect Comp {
       if (hostClass == null) {
         return false;
       }
-      for (Iterator iter = hostClass.getComponents(); iter.hasNext(); ) {
-        Components comp = (Components) iter.next();
+      for (Component comp : hostClass.components()) {
         if (!comp.isNTA() && name.equals(comp.name())) {
           return true;
         }
@@ -112,10 +105,10 @@ aspect Comp {
 }
 
 aspect NTADetector {
-  public boolean Components.isNTA() {
+  public boolean Component.isNTA() {
     return false;
   }
-  public boolean ListComponentsNTA.isNTA() {
+  public boolean ListComponentNTA.isNTA() {
     return true;
   }
   public boolean OptionalComponentNTA.isNTA() {
@@ -124,21 +117,21 @@ aspect NTADetector {
   public boolean TokenComponentNTA.isNTA() {
     return true;
   }
-  public boolean AggregateComponentsNTA.isNTA() {
+  public boolean AggregateComponentNTA.isNTA() {
     return true;
   }
 }
 
 aspect ConstructorParameterTypes {
-  syn String Components.constrParmType();
-  eq ListComponents.constrParmType() = config().listType() + "<" + getId().type() + ">";
+  syn String Component.constrParmType();
+  eq ListComponent.constrParmType() = config().listType() + "<" + getId().type() + ">";
   eq OptionalComponent.constrParmType() = config().optType() + "<" + getId().type() + ">";
   eq TokenComponent.constrParmType() = getTokenId().getTYPE();
-  eq AggregateComponents.constrParmType() = getId().type();
+  eq AggregateComponent.constrParmType() = getId().type();
 }
 
-aspect ComponentsHostClass {
-  inh TypeDecl Components.hostClass();
+aspect ComponentHostClass {
+  inh TypeDecl Component.hostClass();
 
   public String ClassDecl.extendsName = "java.lang.Object";
 }
@@ -181,8 +174,8 @@ aspect CoarseIncremental {
       return true;
     }
 
-    for (int i = 0; i < getNumComponents(); i++) {
-      Components comp = getComponents(i);
+    for (int i = 0; i < getNumComponent(); i++) {
+      Component comp = getComponent(i);
       TypeDecl type = grammar().lookup(comp.type());
       if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
         return true;

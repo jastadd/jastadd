@@ -73,7 +73,7 @@ $endif$endif
   }
 ]]
 
-ListComponents.checkComponentStructure = [[
+ListComponent.checkComponentStructure = [[
   if (i == $ChildIndex) {
     if (!(n instanceof $List)) {
       throw new Error("Child number $ChildIndex of $HostClassName has the type " +
@@ -102,7 +102,7 @@ if (i == $ChildIndex) {
 }
 ]]
 
-AggregateComponents.checkComponentStructure = [[
+AggregateComponent.checkComponentStructure = [[
 if (i == $ChildIndex && !(n instanceof #type)) {
  throw new Error("Child number $ChildIndex of $HostClassName has the type " +
    n.getClass().getName() + " which is not an instance of #type");

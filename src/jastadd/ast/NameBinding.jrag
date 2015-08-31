@@ -168,7 +168,7 @@ aspect BindSynEquations {
     return superClass().lookupSynEq(signature);
   }
 
-  syn lazy boolean TypeDecl.hasInhEq(InhDecl decl, Components c) =
+  syn lazy boolean TypeDecl.hasInhEq(InhDecl decl, Component c) =
     lookupInhEq(decl.signature(), c.name()) != null;
 
   syn lazy InhEq TypeDecl.lookupInhEq(String signature, String childName) {
@@ -219,7 +219,7 @@ aspect ASTDecl {
       if (equ.getChildName().equals("getChild")) {
         list.add(equ); // insert last
       }
-      else if (equ.getComponents() != null && equ.getComponents().isNTA()) {
+      else if (equ.getComponent() != null && equ.getComponent().isNTA()) {
         list.add(0, equ); // insert first
       }
       else {

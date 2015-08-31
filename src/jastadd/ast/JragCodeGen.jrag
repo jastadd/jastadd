@@ -786,40 +786,40 @@ aspect JragCodeGen {
    * @return the index of the NTA in the child array
    */
   public int AttrDecl.indexNTAchild() {
-    Components comp = findCorrespondingNTA();
+    Component comp = findCorrespondingNTA();
     TypeDecl c = hostClass();
     while (c != null) {
       int index = 0;
-      for (Iterator iter = c.getComponents(); iter.hasNext(); ) {
-        Components next = (Components)iter.next();
-        if (next == comp)
+      for (Component next : c.components()) {
+        if (next == comp) {
           return index;
-        if (!(next instanceof TokenComponent))
+        }
+        if (!(next instanceof TokenComponent)) {
           index++;
+        }
       }
       c = c instanceof ASTDecl ? ((ASTDecl)c).superClass() : null;
     }
     return -1;
   }
 
-  public Components AttrDecl.findCorrespondingNTA() {
+  public Component AttrDecl.findCorrespondingNTA() {
     if (!getName().startsWith("get"))
       return null;
     String attrName = getName().substring(3);
     TypeDecl c = hostClass();
     while (c != null) {
-      for (Iterator iter = c.getComponents(); iter.hasNext(); ) {
-        Components comp = (Components)iter.next();
+      for (Component comp : c.components()) {
         if (comp.name().equals(attrName) && (
             comp instanceof OptionalComponentNTA
             || comp instanceof TokenComponentNTA
-            || comp instanceof AggregateComponentsNTA )) {
+            || comp instanceof AggregateComponentNTA )) {
           return comp;
         }
         if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
           return comp;
         }
-        if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+        if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentNTA) {
           return comp;
         }
       }
@@ -833,15 +833,15 @@ aspect JragCodeGen {
   }
 
   public String SynDecl.higherOrderAttributeCode() {
-    Components comp = findCorrespondingNTA();
+    Component comp = findCorrespondingNTA();
     if (comp != null) {// check for component NTA
       if (declaredNTA()) {
         System.err.println("Warning: the NTA equation " + name() + " was affected by a bug causing the equation value to be discarded! (fixed since version 2.1.11)");
       }
       String attrName = getName().substring(3); // remove get
-      if (comp.name().equals(attrName) && comp instanceof AggregateComponentsNTA
+      if (comp.name().equals(attrName) && comp instanceof AggregateComponentNTA
           || attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA
-          || attrName.equals(comp.name() + "List") && comp instanceof ListComponentsNTA) {
+          || attrName.equals(comp.name() + "List") && comp instanceof ListComponentNTA) {
         return "setChild(" + signature() + "_value, get" + attrName + "ChildPosition());\n";
       }
       // token components are not stored in child vector
@@ -893,12 +893,14 @@ aspect JragCodeGen {
   eq ASTDecl.hasInhEq(String attrName) =
     super.hasInhEq(attrName) || superClass() != null && superClass().hasInhEq(attrName);
 
-  syn Components InhEq.getComponents() {
+  syn Component InhEq.getComponent() {
     TypeDecl c = hostClass();
-    if (c != null)
-      return c.components(childName());
+    if (c != null) {
+      return c.component(childName());
+    }
     return  null;
   }
+
   syn String InhEq.childName() = getChildName().startsWith("get") ? getChildName().substring(3) : getChildName();
 
   /**

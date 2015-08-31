@@ -46,14 +46,14 @@ aspect IncrementalState {
   public String ASTDecl.emitChangeStateTokensString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (int c = 0; c < getNumComponents(); c++) {
-      Components comp = getComponents(c);
+    for (int c = 0; c < getNumComponent(); c++) {
+      Component comp = getComponent(c);
       if (comp instanceof TokenComponent) {
         tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
         res.append(tt.expand("ASTDecl.changeStateTokenHandler"));
       }
     }
- 	return res.toString();
+ 	  return res.toString();
   }
 
   public String ASTDecl.emitChangeStateAttributesString() {
@@ -73,8 +73,8 @@ aspect IncrementalState {
   public String ASTDecl.emitThrowAwayTokensString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (int c = 0; c < getNumComponents(); c++) {
-      Components comp = getComponents(c);
+    for (int c = 0; c < getNumComponent(); c++) {
+      Component comp = getComponent(c);
       if (comp instanceof TokenComponent) {
         tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
         res.append(tt.expand("ASTDecl.throwAwayTokenHandler"));

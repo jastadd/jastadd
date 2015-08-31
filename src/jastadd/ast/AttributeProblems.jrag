@@ -233,15 +233,14 @@ aspect AttributeProblems {
     for hostClass();
 
   syn boolean InhEq.hasUnknownChildProblem() =
-    getComponents() == null &&
+    getComponent() == null &&
     getChildName().startsWith("get") &&
     !getChildName().equals("getChild");
 
   syn Problem InhEq.unknownChildProblem() {
     StringBuilder buf = new StringBuilder();
     buf.append("inherited equation for unknown child " + childName() + " in class " + hostClass().name());
-    for (Iterator iter = hostClass().getComponents(); iter.hasNext(); ) {
-      Components c = (Components)iter.next();
+    for (Component c : hostClass().components()) {
       buf.append("\n    " + c.type() + " " + c.name());
     }
     return error(buf.toString());
@@ -255,7 +254,7 @@ aspect AttributeProblems {
   syn boolean InhEq.hasUnknownNTAProblem() =
     !hasUnknownChildProblem() &&
     (getChildAttrDecl() == null || !getChildAttrDecl().declaredNTA()) &&
-    (getComponents() == null && !getChildName().equals("getChild"));
+    (getComponent() == null && !getChildName().equals("getChild"));
 
   syn Problem InhEq.unknownNTAProblem() {
     StringBuilder buf = new StringBuilder();
@@ -298,8 +297,8 @@ aspect AttributeProblems {
 
   syn boolean InhEq.hasBadIndexProblem() =
     hasIndex() &&
-    getComponents() != null &&
-    !(getComponents() instanceof ListComponents) &&
+    getComponent() != null &&
+    !(getComponent() instanceof ListComponent) &&
     !getChildName().equals("getChild");
 
   syn Problem InhEq.badIndexProblem() {
