@@ -98,7 +98,7 @@ public class JastAdd {
   }
 
   /**
-   * Entry point. Does System.exit when finished.
+   * Entry point. Calls System.exit when finished if something went wrong.
    * @param args
    */
   public static void main(String[] args) {
