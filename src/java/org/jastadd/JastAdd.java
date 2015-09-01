@@ -345,10 +345,12 @@ public class JastAdd {
   private Collection<Problem> addNtaComponents(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (TypeDecl typeDecl : grammar.getTypeDecls()) {
-      for (SynDecl synDecl : typeDecl.getSynDecls()) {
-        if (synDecl.getNTA()) {
-          ((ASTDecl) grammar.lookup(synDecl.hostName))
-              .addSynthesizedNta(new SynthesizedNta(synDecl.getName(), synDecl.getType()));
+      if (typeDecl instanceof ASTDecl) {
+        ASTDecl host = (ASTDecl) typeDecl;
+        for (SynDecl synDecl : typeDecl.getSynDecls()) {
+          if (synDecl.getNTA()) {
+            host.addSynthesizedNta(new SynthesizedNta(synDecl.getName(), synDecl.getType()));
+          }
         }
       }
     }
