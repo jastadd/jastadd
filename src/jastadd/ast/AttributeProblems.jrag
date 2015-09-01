@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, The JastAdd Team
+/* Copyright (c) 2005-2015, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package jrag;
-
 import org.jastadd.ast.AST.*;
 
 import java.util.*;
@@ -101,20 +99,17 @@ aspect AttributeProblems {
    * ClassDecl or InterfaceDecl.
    */
   syn Collection<Problem> ClassDecl.attributeProblems() =
-    // don't collect problems for attributes in ClassDecls
-    Collections.emptyList();
+    Collections.emptyList(); // Don't collect problems for attributes in ClassDecls.
 
   /**
    * Hack to make collection only on ASTdecls that are not
    * ClassDecl or InterfaceDecl.
    */
   syn Collection<Problem> InterfaceDecl.attributeProblems() =
-    // don't collect problems for attributes in InterfaceDecls
-    Collections.emptyList();
+    Collections.emptyList(); // Don't collect problems for attributes in InterfaceDecls.
 
-  SynEq contributes new Problem.Error(
-      "synthesized attribute " + name() + " assigned in class " + hostClass().name() + " is not declared",
-      getFileName(), getStartLine())
+  SynEq contributes errorf("synthesized attribute %s assigned in class %s is not declared",
+      name(), hostClass().name())
     when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
@@ -123,48 +118,67 @@ aspect AttributeProblems {
    * Create a new error object with relevant file name and line number.
    */
   syn Problem AttrEq.error(String message) =
-    new Problem.Error(message, getFileName(), getStartLine());
+      new Problem.Error(message, getFileName(), getStartLine());
+
+  /**
+   * Create a new error object with relevant file name and line number.
+   */
+  public Problem AttrEq.errorf(String messagefmt, Object... args) {
+    return error(String.format(messagefmt, args));
+  }
 
   /**
    * Create a new error object with relevant file name and line number.
    */
   syn Problem AttrDecl.error(String message) =
-    new Problem.Error(message, getFileName(), getStartLine());
+      new Problem.Error(message, getFileName(), getStartLine());
 
+  /**
+   * Create a new error object with relevant file name and line number.
+   */
+  public Problem AttrDecl.errorf(String messagefmt, Object... args) {
+    return error(String.format(messagefmt, args));
+  }
+
+  /** Create a new warning with the relevant file name and line number. */
   syn Problem AttrDecl.warning(String message) =
-    new Problem.Warning(message, getFileName(), getStartLine());
+      new Problem.Warning(message, getFileName(), getStartLine());
+
+  /** Create a new warning with the relevant file name and line number. */
+  public Problem AttrDecl.warningf(String messagefmt, Object... args) {
+    return warning(String.format(messagefmt, args));
+  }
 
   /**
    * @return Previous equation for same synthesized attribute
    */
   syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
 
-  SynEq contributes error(
-      "multiple equations for synthesized attribute " + hostClass().name() + "." + name() +
-              ", previously defined in " + prevEq().getFileName() + ":" + prevEq().getStartLine())
+  SynEq contributes errorf("multiple equations for synthesized attribute %s.%s, previously defined in %s:%d",
+      hostClass().name(), name(), prevEq().getFileName(), prevEq().getStartLine())
     when decl() != null && prevEq() != null && prevEq() != this
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  SynEq contributes error(
-      "equation must have the same parameter names as attribute declaration in " +
-              decl().getFileName() + ":" + decl().getStartLine())
+  SynEq contributes errorf(
+      "equation must have the same parameter names as attribute declaration in %s:%d",
+      decl().getFileName(), decl().getStartLine())
     when decl() != null && !decl().parametersDecl().equals(parametersDecl())
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  InhEq contributes error(
-      "equation must have the same parameter names as attribute declaration in " +
-              decl().getFileName() + ":" + decl().getStartLine())
+  InhEq contributes errorf(
+      "equation must have the same parameter names as attribute declaration in %s:%d",
+      decl().getFileName(), decl().getStartLine())
     when decl() != null && !decl().parametersDecl().equals(parametersDecl())
     to TypeDecl.attributeProblems()
     for hostClass();
 
   syn SynDecl SynDecl.prevDecl() = hostClass().lookupSynDecl(signature());
 
-  SynDecl contributes error(
-      "multiple declaration of attribute " + hostClass().name() + "." + name() +
-              ", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine())
+  SynDecl contributes errorf(
+      "multiple declaration of attribute %s.%s, previously declared in %s:%d",
+      hostClass().name(), name(), prevDecl().getFileName(), prevDecl().getStartLine())
     when prevDecl() != null && prevDecl() != this
     to TypeDecl.attributeProblems()
     for hostClass();
@@ -196,12 +210,10 @@ aspect AttributeProblems {
    * @return the subclasses of this AST class that are missing an
    * equation for for the synthesized attribute
    */
-  syn Collection<? extends TypeDecl> TypeDecl.missingSynEqs(String signature) {
-    if (lookupSynEq(signature) == null)
-      return Collections.singletonList(this);
-    else
-      return Collections.emptyList();
-  }
+  syn Collection<? extends TypeDecl> TypeDecl.missingSynEqs(String signature) =
+      lookupSynEq(signature) == null
+      ? Collections.singleton(this)
+      : Collections.<TypeDecl>emptyList();
 
   eq InterfaceDecl.missingSynEqs(String signature) = Collections.emptyList();
 
@@ -239,7 +251,8 @@ aspect AttributeProblems {
 
   syn Problem InhEq.unknownChildProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("inherited equation for unknown child " + childName() + " in class " + hostClass().name());
+    buf.append(String.format("inherited equation for unknown child %s in class %s",
+        childName(), hostClass().name()));
     for (Component c : hostClass().components()) {
       buf.append("\n    " + c.type() + " " + c.name());
     }
@@ -260,8 +273,8 @@ aspect AttributeProblems {
     StringBuilder buf = new StringBuilder();
     AttrDecl decl = getChildAttrDecl();
     if (decl == null) {
-      buf.append("inherited equation for unknown NTA " + childName()
-           + " in class " + hostClass().name());
+      buf.append(String.format("inherited equation for unknown NTA %s in class %s",
+          childName(), hostClass().name()));
     } else if (!decl.declaredNTA()) {
       buf.append("inherited equation for attribute " + childName() + " which is not a NTA");
     }
@@ -278,17 +291,14 @@ aspect AttributeProblems {
    */
   syn InhEq InhEq.prevEq() = hostClass().lookupInhEq(signature(), childName());
 
-  syn boolean InhEq.hasMultiEqProblem() =
-    prevEq() != null && prevEq() != this;
+  syn boolean InhEq.hasMultiEqProblem() = prevEq() != null && prevEq() != this;
 
-  syn Problem InhEq.multiEqProblem() {
-    StringBuilder buf = new StringBuilder();
-    buf.append("multiple equations for inherited attribute " +
-        childName() + "." + name() + " in class " + hostClass().name());
-    buf.append(" and " + prevEq().name() + " in class " + prevEq().hostClass().name() +
-        " in " + prevEq().getFileName() + ":" + prevEq().getStartLine());
-    return error(buf.toString());
-  }
+  syn Problem InhEq.multiEqProblem() =
+      error(String.format(
+          "multiple equations for inherited attribute %s.%s"
+          + " in class %s and %s in class %s in %s:%d",
+          childName(), name(), hostClass().name(), prevEq().name(), prevEq().hostClass().name(),
+          prevEq().getFileName(), prevEq().getStartLine()));
 
   InhEq contributes badIndexProblem()
     when hasBadIndexProblem()
@@ -301,25 +311,21 @@ aspect AttributeProblems {
     !(getComponent() instanceof ListComponent) &&
     !getChildName().equals("getChild");
 
-  syn Problem InhEq.badIndexProblem() {
-    return error("may not supply index for non list child " + childName() +
-        " in class " + hostClass().name());
-  }
+  syn Problem InhEq.badIndexProblem() =
+      errorf("may not supply index for non list child %s in class %s",
+          childName(), hostClass().name());
 
   InhDecl contributes multiDeclProblem()
     when isDuplicateInhDecl()
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  syn Problem InhDecl.multiDeclProblem() {
-    StringBuilder buf = new StringBuilder();
-    buf.append("multiple declarations of inherited attribute " + hostClass().name() + "." + name());
-    buf.append(", previously declared in " + prevDecl().getFileName() + ":" + prevDecl().getStartLine());
-    return new Problem.Warning(buf.toString(), getFileName(), getStartLine());
-  }
+  syn Problem InhDecl.multiDeclProblem() =
+      warningf("multiple declarations of inherited attribute %s.%s, previously declared in %s:%d",
+          hostClass().name(), name(), prevDecl().getFileName(), prevDecl().getStartLine());
 
-  InhDecl contributes
-      error("inherited attribute " + name() + " defined on root node " + hostClass().name())
+  InhDecl contributes errorf("inherited attribute %s defined on root node %s",
+      name(), hostClass().name())
     when hostClass().isRootNode() && !hostClass().isSynNta()
     to TypeDecl.attributeProblems()
     for hostClass();
@@ -419,8 +425,7 @@ aspect AttributeProblems {
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  syn boolean CollDecl.hasMultipleRootsProblem() =
-    root == null && grammar().roots().size() > 1;
+  syn boolean CollDecl.hasMultipleRootsProblem() = root == null && grammar().roots().size() > 1;
 
   syn Problem CollDecl.multipleRootsProblem() {
     StringBuilder buf = new StringBuilder();
@@ -432,9 +437,8 @@ aspect AttributeProblems {
     return error(buf.toString());
   }
 
-  CollDecl contributes error(
-      "No tree roots to search for contributions. " +
-      "Please declare an explicit root node.")
+  CollDecl contributes error("No tree roots to search for contributions. "
+      + "Please declare an explicit root node.")
     when hasNoRootProblem()
     to TypeDecl.attributeProblems()
     for hostClass();
@@ -447,13 +451,12 @@ aspect AttributeProblems {
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  CollEq contributes error("undeclared collection attribute '" + name() + "'")
+  CollEq contributes errorf("undeclared collection attribute '%s'", name())
     when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  CollDecl contributes error(
-      "Unknown collection root: \"" + root + "\"")
+  CollDecl contributes errorf("Unknown collection root: \"%s\"", root)
     when root != null && root() == null
     to TypeDecl.attributeProblems()
     for hostClass();
