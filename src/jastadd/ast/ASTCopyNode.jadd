@@ -41,17 +41,14 @@ aspect ASTCloneNode {
   }
 
   public void ASTDecl.emitCopyNode(PrintWriter stream) {
-
-    if (hasAbstract())
-      // Don't generate copy methods for abstract node types
-      return;
-
-    templateContext().expand("ASTDecl.emitCopyNode", stream);
+    if (!hasAbstract()) {
+      // We don't generate copy methods for abstract node types.
+      templateContext().expand("ASTDecl.emitCopyNode", stream);
+    }
   }
 
   public void ASTDecl.emitFullCopy(PrintWriter stream) {
-    // We skip copying NTA children
-    // Build list of NTA indices - these are skipped when copying the children
+    // Build list of NTA indices - these are skipped when copying the children of this node.
     LinkedList ntaAggregateIndices = new LinkedList();
     LinkedList ntaOptIndices = new LinkedList();
     LinkedList ntaListIndices = new LinkedList();
@@ -68,14 +65,14 @@ aspect ASTCloneNode {
       }
 
       if (!(c instanceof TokenComponent)) {
-        // tokens are not stored in child array
+        // Tokens are not stored in the child array.
         i += 1;
       }
     }
 
     // The skipNTAs string will include a switch statement that excludes
     // the NTA children from the full copy, but for Opt and List NTAs
-    // we still need to create a placeholder Opt/List node
+    // we still need to create a placeholder Opt/List node.
     String skipNTAs = "";
     String ind = config().indent;
     if (!ntaAggregateIndices.isEmpty() || !ntaOptIndices.isEmpty() ||

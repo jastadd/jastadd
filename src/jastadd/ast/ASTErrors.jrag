@@ -45,12 +45,12 @@ aspect ASTErrors {
 
   syn boolean TypeDecl.isRootNode() = false;
 
-  eq ASTDecl.isRootNode() =
-    !hasAbstract() &&
-    !isASTNodeDecl() &&
-    !isOptSubtype() &&
-    !isListSubtype() &&
-    parents().isEmpty();
+  eq ASTDecl.isRootNode() = isPotentialRootNode() && parents().isEmpty();
+
+  syn boolean TypeDecl.isPotentialRootNode() = false;
+
+  eq ASTDecl.isPotentialRootNode() =
+      !hasAbstract() && !isASTNodeDecl() && !isOptSubtype() && !isListSubtype();
 
   Grammar contributes new Problem.Warning("there is no root node in the grammar!")
     when roots().isEmpty()
@@ -66,35 +66,37 @@ aspect ASTErrors {
 
   ASTDecl contributes new Problem.Error(
       "multiple production rule for non-terminal " + name(),
-                                        getFileName(), getStartLine())
+      getFileName(), getStartLine())
     when grammar().lookup(name()) != this
     to Grammar.problems()
     for grammar();
 
   ASTDecl contributes new Problem.Error(
       name() + " causes circular inheritance",
-                                        getFileName(), getStartLine())
+      getFileName(), getStartLine())
     when isCircular()
     to Grammar.problems()
     for grammar();
 
   ASTDecl contributes new Problem.Error(
       name() + " inherits from undeclared class " + getSuperClass().name(),
-                                        getFileName(), getStartLine())
+      getFileName(), getStartLine())
     when hasSuperClass() && superClass() == null
     to Grammar.problems()
     for grammar();
 
   Component contributes new Problem.Error(
-      "Component name " + name() + " is not unique in production rule for " + hostClass().name(),
-                                        hostClass().getFileName(), hostClass().getStartLine())
+      String.format("Component name %s is not unique in production rule for %s (%s)",
+        name(), hostClass().name(), hostClass().lookupComponent(name())),
+      hostClass().getFileName(), hostClass().getStartLine())
     when hostClass().lookupComponent(name()) != this
     to Grammar.problems()
     for grammar();
 
   Component contributes new Problem.Error(
-      "Type " + type() + " of component " + name() + " in production " + hostClass().name() + " is not declared",
-                                        hostClass().getFileName(), hostClass().getStartLine())
+      String.format("Type %s of component %s in production %s is not declared",
+        type(), name(), hostClass().name()),
+      hostClass().getFileName(), hostClass().getStartLine())
     when !declared()
     to Grammar.problems()
     for grammar();

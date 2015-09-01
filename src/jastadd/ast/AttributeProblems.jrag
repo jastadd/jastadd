@@ -58,7 +58,7 @@ aspect AttributeProblems {
     for (InhDecl inhDecl: missingInhEqs()) {
 
       if (inhDecl.hostClass().isRootNode()) {
-        // this is reported as an error - skip the warning!
+        // This is reported as an error - skip the warning!
         continue;
       }
 
@@ -326,7 +326,7 @@ aspect AttributeProblems {
 
   InhDecl contributes errorf("inherited attribute %s defined on root node %s",
       name(), hostClass().name())
-    when hostClass().isRootNode() && !hostClass().isSynNta()
+    when hostClass().isRootNode()
     to TypeDecl.attributeProblems()
     for hostClass();
 
@@ -430,8 +430,7 @@ aspect AttributeProblems {
   syn Problem CollDecl.multipleRootsProblem() {
     StringBuilder buf = new StringBuilder();
     buf.append("multiple tree roots to search for contributions. Please explicitly select one of");
-    for (Iterator iter = grammar().roots().iterator(); iter.hasNext(); ) {
-      ASTDecl decl = (ASTDecl)iter.next();
+    for (ASTDecl decl : grammar().roots()) {
       buf.append(" " + decl.name());
     }
     return error(buf.toString());
@@ -443,8 +442,7 @@ aspect AttributeProblems {
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  syn boolean CollDecl.hasNoRootProblem() =
-    root == null && grammar().roots().isEmpty();
+  syn boolean CollDecl.hasNoRootProblem() = root == null && grammar().roots().isEmpty();
 
   CollDecl contributes warning("no contributions for this collection attribute")
     when uses().isEmpty()

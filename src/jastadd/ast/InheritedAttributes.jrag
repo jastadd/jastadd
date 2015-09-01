@@ -182,18 +182,33 @@ aspect FindInheritedEquations {
     missingInhEqs = Collections.emptyList();
 
     Collection<InhDecl> missing = new HashSet<InhDecl>();
-    for (Component c: components()) {
-      if (c instanceof TokenComponent) {
+    for (Component component : components()) {
+      if (component instanceof TokenComponent) {
         continue;
       }
-      TypeDecl type = c.typeDecl();
+      TypeDecl type = component.typeDecl();
       if (type instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl) type;
-        String childName = c.name();
+        String childName = component.name();
 
         addMissingChildInhEqs(missing, childName, decl.missingInhEqs());
 
-        // any subtype of the component type can replace the component type
+        // Any subtype of the component type can replace the component type.
+        for (ASTDecl subtype: decl.subclassesTransitive()) {
+          addMissingChildInhEqs(missing, childName, subtype.missingInhEqs());
+        }
+      }
+    }
+
+    for (SynthesizedNta component : getSynthesizedNtaList()) {
+      TypeDecl type = grammar().lookup(component.getType());
+      if (type instanceof ASTDecl) {
+        ASTDecl decl = (ASTDecl) type;
+        String childName = component.getName();
+
+        addMissingChildInhEqs(missing, childName, decl.missingInhEqs());
+
+        // Any subtype of the component type can replace the component type.
         for (ASTDecl subtype: decl.subclassesTransitive()) {
           addMissingChildInhEqs(missing, childName, subtype.missingInhEqs());
         }
@@ -331,9 +346,16 @@ aspect FindInheritedEquations {
   syn lazy TypeDecl Component.typeDecl() = grammar().lookup(type());
 
   protected boolean ASTDecl.hasInhEq(ASTDecl child, String signature) {
-    for (Component c: components()) {
-      if (child.instanceOf(c.typeDecl())) {
-        if (lookupInhEq(signature, c.name()) == null) {
+    for (Component component : components()) {
+      if (child.instanceOf(component.typeDecl())) {
+        if (lookupInhEq(signature, component.name()) == null) {
+          return false;
+        }
+      }
+    }
+    for (SynthesizedNta component : getSynthesizedNtaList()) {
+      if (child.instanceOf(grammar().lookup(component.getType()))) {
+        if (lookupInhEq(signature, component.getName()) == null) {
           return false;
         }
       }

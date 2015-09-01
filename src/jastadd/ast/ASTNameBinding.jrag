@@ -87,6 +87,7 @@ aspect Lookup {
   }
 
   syn lazy Component TypeDecl.lookupComponent(String name) = null;
+
   eq ASTDecl.lookupComponent(String name) {
     for (Component c : components()) {
       if (c.name().equals(name)) {

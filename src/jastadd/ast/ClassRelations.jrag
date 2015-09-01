@@ -119,24 +119,28 @@ aspect Subclasses {
 }
 
 aspect Parents {
-  syn lazy HashMap Grammar.parentMap() {
-    HashMap map = new LinkedHashMap();
+  syn lazy HashMap<TypeDecl, Collection<ASTDecl>> Grammar.parentMap() {
+    HashMap<TypeDecl, Collection<ASTDecl>> map = new LinkedHashMap<TypeDecl, Collection<ASTDecl>>();
     for (int j = 0; j < getNumTypeDecl(); j++) {
       if (getTypeDecl(j) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        map.put(decl, new LinkedHashSet());
+        map.put(getTypeDecl(j), new LinkedHashSet<ASTDecl>());
       }
     }
-
     for (int j = 0; j < getNumTypeDecl(); j++) {
       if (getTypeDecl(j) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(j);
-        for (Component c : decl.components()) {
-          if (!(c instanceof TokenComponent)) {
-            TypeDecl t = lookup(c.type());
+        ASTDecl decl = (ASTDecl) getTypeDecl(j);
+        for (Component component : decl.components()) {
+          if (!(component instanceof TokenComponent)) {
+            TypeDecl t = lookup(component.type());
             if (t != null) {
-              ((HashSet) map.get(t)).add(decl);
+              map.get(t).add(decl);
             }
+          }
+        }
+        for (SynthesizedNta component : decl.getSynthesizedNtaList()) {
+          TypeDecl t = lookup(component.getType());
+          if (t != null) {
+            map.get(t).add(decl);
           }
         }
       }
@@ -146,17 +150,20 @@ aspect Parents {
 
   eq Grammar.getTypeDecl().findParents(ASTDecl node) {
     Set<ASTDecl> set = new LinkedHashSet<ASTDecl>();
-    set.addAll((Collection) parentMap().get(node));
-    if (node.superClass() != null)
+    set.addAll(parentMap().get(node));
+    if (node.superClass() != null) {
       set.addAll(node.superClass().parents());
+    }
     return set;
   }
 
   inh Collection<ASTDecl> TypeDecl.findParents(ASTDecl node);
+
   syn lazy Collection<ASTDecl> ASTDecl.parents() = findParents(this);
 
-  // Do not include parents of super classes (as parents() does)
+  // Do not include parents of super classes (as parents() does).
   inh lazy Collection<ASTDecl> TypeDecl.parentsIntransitive();
+
   eq Grammar.getTypeDecl(int i).parentsIntransitive() =
-      new LinkedHashSet<ASTDecl>((Collection) parentMap().get(getTypeDecl(i)));
+      new LinkedHashSet<ASTDecl>(parentMap().get(getTypeDecl(i)));
 }

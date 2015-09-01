@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, The JastAdd Team
+/* Copyright (c) 2005-2015, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,10 +41,11 @@ import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Component;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.InterTypeObject;
-import org.jastadd.ast.AST.TokenComponent;
-import org.jastadd.ast.AST.TypeDecl;
 import org.jastadd.ast.AST.SynDecl;
 import org.jastadd.ast.AST.SynEq;
+import org.jastadd.ast.AST.SynthesizedNta;
+import org.jastadd.ast.AST.TokenComponent;
+import org.jastadd.ast.AST.TypeDecl;
 
 /**
  * JastAdd main class.
@@ -129,7 +130,7 @@ public class JastAdd {
     if (config.shouldPrintVersion()) {
       out.println(getVersionString());
       out.println(getBuildTimestamp());
-      out.println("Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.");
+      out.println("Copyright (c) 2005-2015, The JastAdd Team. All rights reserved.");
       out.println("This software is covered by the modified BSD license.");
       return 0;
     } else if (config.shouldPrintHelp()) {
@@ -147,34 +148,21 @@ public class JastAdd {
     }
 
     try {
-      long time = System.currentTimeMillis();
-
       Grammar grammar = config.buildRoot();
 
       if (config.generateImplicits()) {
         grammar.addImplicitNodeTypes();
       }
 
-      if (checkErrors(readASTFiles(grammar, config.getFiles()), err)) {
+      if (checkErrors(readAstFiles(grammar, config.getFiles()), err)) {
         return 1;
       }
 
       if (config.shouldGenerateDotGraph()) {
-        // generate Dot graph for the grammar, then exit
+        // Generate Dot graph for the grammar, then exit.
         grammar.genDotGraph(out);
         return 0;
       }
-
-      long astParseTime = System.currentTimeMillis() - time;
-      Collection<Problem> problems = grammar.problems();
-      long astErrorTime = System.currentTimeMillis() - time - astParseTime;
-      if (checkErrors(problems, err)) {
-        return 1;
-      }
-
-      // reset weaving errors
-      // TODO do we really need to do this?!
-      grammar.problems.clear();
 
       if (checkErrors("State class generation", genStateClass(grammar), err)) {
         return 1;
@@ -183,15 +171,13 @@ public class JastAdd {
         return 1;
       }
 
-      if (checkErrors("JRAG parsing", readJRAGFiles(grammar, config.getFiles()), err)) {
+      if (checkErrors("JRAG parsing", readJragFiles(grammar, config.getFiles()), err)) {
         return 1;
       }
 
       if (checkErrors("attribute weaving", weaveAttributes(grammar), err)) {
         return 1;
       }
-
-      long jragParseTime = System.currentTimeMillis() - time - astErrorTime;
 
       if (checkErrors("reading cache files", readCacheFiles(grammar), err)) {
         return 1;
@@ -216,6 +202,14 @@ public class JastAdd {
         return 1;
       }
 
+      if (checkErrors("attribute weaving", addNtaComponents(grammar), err)) {
+        return 1;
+      }
+
+      if (checkErrors(grammar.problems(), err)) {
+        return 1;
+      }
+
       if (checkErrors(grammar.attributeProblems(), err)) {
         return 1;
       }
@@ -230,15 +224,8 @@ public class JastAdd {
 
       grammar.removeDuplicateInhDecls();
 
-      long jragErrorTime = System.currentTimeMillis() - time - jragParseTime;
-
       grammar.jastAddGen(config.getPublicModifier());
 
-      @SuppressWarnings("unused")
-      long codegenTime = System.currentTimeMillis() - time - jragErrorTime;
-
-      //out.println("AST parse time: " + astParseTime + ", AST error check: " + astErrorTime + ", JRAG parse time: " +
-      //    jragParseTime + ", JRAG error time: " + jragErrorTime + ", Code generation: " + codegenTime);
     } catch(NullPointerException e) {
       e.printStackTrace();
       throw e;
@@ -283,7 +270,7 @@ public class JastAdd {
     return hasError;
   }
 
-  private static Collection<Problem> readASTFiles(Grammar grammar, Collection<String> fileNames) {
+  private static Collection<Problem> readAstFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
     // out.println("parsing grammars");
     for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
@@ -296,7 +283,7 @@ public class JastAdd {
     return problems;
   }
 
-  private static Collection<Problem> readJRAGFiles(Grammar grammar, Collection<String> fileNames) {
+  private static Collection<Problem> readJragFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
       String fileName = iter.next();
@@ -333,22 +320,38 @@ public class JastAdd {
       if (clazz != null) {
         clazz.addSynDecl(decl);
       } else {
-        problems.add(new Problem.Error("can not add synthesized attribute " + decl.getType() + " " + decl.getName() + " to unknown class " + className,
-          decl.getFileName(), decl.getStartLine()));
+        problems.add(decl.errorf("can not add synthesized attribute %s %s to unknown class %s",
+            decl.getType(), decl.getName(), className));
       }
     }
     grammar.synDecls.clear();
+
     for (SynEq equ: grammar.synEqs) {
       String className = equ.hostName;
       TypeDecl clazz = grammar.lookup(className);
       if (clazz != null) {
         clazz.addSynEq(equ);
       } else {
-        problems.add(new Problem.Error("can not add equation for synthesized attribute " + equ.getName() + " to unknown class " + className,
-            equ.getFileName(), equ.getStartLine()));
+        problems.add(
+            equ.errorf("can not add equation for synthesized attribute %s to unknown class %s",
+                equ.getName(), className));
       }
     }
     grammar.synEqs.clear();
+    return problems;
+  }
+
+  /** Add synthesized NTAs as components in their host types. */
+  private Collection<Problem> addNtaComponents(Grammar grammar) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    for (TypeDecl typeDecl : grammar.getTypeDecls()) {
+      for (SynDecl synDecl : typeDecl.getSynDecls()) {
+        if (synDecl.getNTA()) {
+          ((ASTDecl) grammar.lookup(synDecl.hostName))
+              .addSynthesizedNta(new SynthesizedNta(synDecl.getName(), synDecl.getType()));
+        }
+      }
+    }
     return problems;
   }
 
@@ -372,7 +375,7 @@ public class JastAdd {
     Collection<Problem> allProblems = new LinkedList<Problem>();
     for (int i = 0; i < grammar.getNumTypeDecl(); i++) {
       if (grammar.getTypeDecl(i) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)grammar.getTypeDecl(i);
+        ASTDecl decl = (ASTDecl) grammar.getTypeDecl(i);
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 

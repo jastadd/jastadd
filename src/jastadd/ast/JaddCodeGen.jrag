@@ -426,26 +426,6 @@ aspect JaddCodeGen {
     isListDecl() || (hasSuperClass() && superClass().isListSubtype());
 
   /**
-   * This only checks pure attribute NTAs, not NTAs declared in the grammar
-   * like regular children.
-   *
-   * @return {@code true} if this type occurs as the return type of a
-   * synthesized NTA.
-   */
-  syn boolean TypeDecl.isSynNta() = false;
-
-  syn lazy boolean ASTDecl.isSynNta() {
-    for (TypeDecl typeDecl : grammar().getTypeDecls()) {
-      for (SynDecl synDecl : typeDecl.getSynDecls()) {
-        if (synDecl.getNTA() && synDecl.getType().equals(name())) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
    * Check the node structure of a regular (non-Opt, non-List)
    * JJTree node.
    */

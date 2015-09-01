@@ -29,7 +29,7 @@ import org.jastadd.ast.AST.*;
 import java.util.*;
 
 aspect ASTDecl {
-  syn lazy Collection<Component> ASTDecl.components() {
+  syn Collection<Component> ASTDecl.components() {
     LinkedList<Component> list = new LinkedList<Component>();
     if (superClass() != null) {
       list.addAll(superClass().components());
@@ -45,11 +45,11 @@ aspect ASTDecl {
       }
       if (getComponent(i).isNTA()) {
         list.add(getComponent(i));
-      }
-      else {
+      } else {
         int j = 0;
-        while (j < list.size() && !((Component)list.get(j)).isNTA())
+        while (j < list.size() && !((Component) list.get(j)).isNTA()) {
           j++;
+        }
         list.add(j, getComponent(i));
       }
     }
@@ -57,10 +57,14 @@ aspect ASTDecl {
   }
 
   syn boolean ASTDecl.redefinesTokenComponent(TokenComponent c) {
-    if (c.hostClass() != this) // inherited component
+    if (c.hostClass() != this) {
+      // Inherited component.
       return false;
-    if (superClass() == null) // no definition in superclass
+    }
+    if (superClass() == null) {
+      // No definition in superclass.
       return true;
+    }
     for (Component d : superClass().components()) {
       if (d.name().equals(c.name()) && d instanceof TokenComponent && c.isNTA() == d.isNTA()) {
         return false;
@@ -105,21 +109,11 @@ aspect Comp {
 }
 
 aspect NTADetector {
-  public boolean Component.isNTA() {
-    return false;
-  }
-  public boolean ListComponentNTA.isNTA() {
-    return true;
-  }
-  public boolean OptionalComponentNTA.isNTA() {
-    return true;
-  }
-  public boolean TokenComponentNTA.isNTA() {
-    return true;
-  }
-  public boolean AggregateComponentNTA.isNTA() {
-    return true;
-  }
+  syn boolean Component.isNTA() = false;
+  eq ListComponentNTA.isNTA() = true;
+  eq OptionalComponentNTA.isNTA() = true;
+  eq TokenComponentNTA.isNTA() = true;
+  eq AggregateComponentNTA.isNTA() = true;
 }
 
 aspect ConstructorParameterTypes {

@@ -343,6 +343,7 @@ aspect CollectionAttributes {
   }
 
   syn String CollEq.signature() = decl().signature();
+
   syn lazy String CollDecl.signature() {
     StringBuffer s = new StringBuffer();
     s.append(getTarget());
@@ -354,21 +355,17 @@ aspect CollectionAttributes {
     return s.toString();
   }
 
-  syn ArrayList<ASTDecl> Grammar.roots() {
-    ArrayList<ASTDecl> l = new ArrayList<ASTDecl>();
-    for (int i = 0; i < getNumTypeDecl(); i++) {
-      if (getTypeDecl(i) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(i);
-        if (decl.isRootNode()) {
-          l.add(decl);
-        }
+  syn lazy Collection<ASTDecl> Grammar.roots() {
+    Collection<ASTDecl> roots = new HashSet<ASTDecl>();
+    for (TypeDecl decl : getTypeDeclList()) {
+      if (decl.isRootNode()) {
+        roots.add((ASTDecl) decl);
       }
     }
-    return l;
+    return roots;
   }
 
-  syn ASTDecl Grammar.root() =
-    roots().isEmpty() ? null : (ASTDecl) roots().iterator().next();
+  syn ASTDecl Grammar.root() = roots().isEmpty() ? null : roots().iterator().next();
 
   eq ASTDecl.getCollDecl().hostClass() = this;
   eq ASTDecl.getCollEq().hostClass() = this;
