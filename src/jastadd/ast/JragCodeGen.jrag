@@ -102,10 +102,8 @@ aspect JragCodeGen {
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
-    for (Iterator iter = getCompUnits(); iter.hasNext(); ) {
-        org.jastadd.jrag.AST.ASTCompilationUnit u =
-          (org.jastadd.jrag.AST.ASTCompilationUnit) iter.next();
-        imports.addAll(Unparser.getImports(u));
+    for (org.jastadd.jrag.AST.ASTCompilationUnit u : compilationUnits) {
+      imports.addAll(Unparser.getImports(u));
     }
     StringBuilder buf = new StringBuilder();
     for (Iterator iter = imports.iterator(); iter.hasNext(); ) {
@@ -116,36 +114,34 @@ aspect JragCodeGen {
   }
 
   public void InterfaceDecl.emitMembers(PrintStream out) {
-    for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-      ClassBodyObject obj = (ClassBodyObject)iter.next();
+    for (ClassBodyObject obj : classBodyDecls) {
       org.jastadd.jrag.AST.SimpleNode n = obj.node;
       //out.println(ind + "// Declared in " + obj.fileName + " at line " + obj.line);
       if (n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
-          org.jastadd.jrag.AST.ASTAspectMethodDeclaration decl = (org.jastadd.jrag.AST.ASTAspectMethodDeclaration)n;
+          org.jastadd.jrag.AST.ASTAspectMethodDeclaration decl =
+              (org.jastadd.jrag.AST.ASTAspectMethodDeclaration) n;
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
           System.err.println("Error generating " + obj.signature() + " in " + name());
           e.printStackTrace();
         }
-      }
-      else if (n instanceof org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) {
+      } else if (n instanceof org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
-          org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration decl = (org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration)n;
+          org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration decl =
+              (org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration) n;
           ClassBodyDeclUnparser.unparseAbstract(decl, buf);
           out.print(buf);
         } catch (Exception e) {
           System.err.println("Error generating " + obj.signature() + " in " + name());
           e.printStackTrace();
         }
-      }
-      else if (n instanceof org.jastadd.jrag.AST.ASTBlock) {
+      } else if (n instanceof org.jastadd.jrag.AST.ASTBlock) {
         // do not emit refined implementations
-      }
-      else {
+      } else {
         if (!obj.comments.equals("")) {
           out.print(obj.comments + " ");
         }
@@ -161,8 +157,7 @@ aspect JragCodeGen {
   public void TypeDecl.emitMembers(PrintStream out) { }
 
   public void ASTDecl.emitMembers(PrintStream out) {
-    for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-      ClassBodyObject obj = (ClassBodyObject)iter.next();
+    for (ClassBodyObject obj : classBodyDecls) {
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
       out.print(obj.modifiers());
       out.println(docComment(obj));
@@ -296,10 +291,11 @@ aspect JragCodeGen {
     if (!config().visitCheckEnabled() && !isCircular()) {
       return "";
     } else if (config().rewriteEnabled()) {
-      if (getNumParameter() == 0)
+      if (getNumParameter() == 0) {
         return signature() + "_visited = -1;\n";
-      else
+      } else {
         return signature() + "_visited.remove(_parameters);\n";
+      }
     } else if (getNumParameter() == 0) {
       return signature() + "_visited = false;\n";
     } else {
@@ -361,22 +357,22 @@ aspect JragCodeGen {
 
   public boolean AttrDecl.isPrimitive() {
     String type = getType();
-    return type.equals("int") || type.equals("short") || type.equals("long") ||
-      type.equals("float") || type.equals("double") || type.equals("boolean") ||
-      type.equals("char") || type.equals("byte");
+    return type.equals("int") || type.equals("short") || type.equals("long")
+        || type.equals("float") || type.equals("double") || type.equals("boolean")
+        || type.equals("char") || type.equals("byte");
   }
 
   public boolean AttrDecl.isPrimitive(String type) {
-    return type.equals("int") || type.equals("short") || type.equals("long") ||
-      type.equals("float") || type.equals("double") || type.equals("boolean") ||
-      type.equals("char") || type.equals("byte");
+    return type.equals("int") || type.equals("short") || type.equals("long")
+        || type.equals("float") || type.equals("double") || type.equals("boolean")
+        || type.equals("char") || type.equals("byte");
   }
 
   public boolean TokenComponent.isPrimitive() {
     String type = getTokenId().getTYPE();
-    return type.equals("int") || type.equals("short") || type.equals("long") ||
-      type.equals("float") || type.equals("double") || type.equals("boolean") ||
-      type.equals("char") || type.equals("byte");
+    return type.equals("int") || type.equals("short") || type.equals("long")
+        || type.equals("float") || type.equals("double") || type.equals("boolean")
+        || type.equals("char") || type.equals("byte");
   }
 
   public String AttrDecl.parameterStructure() {

@@ -51,8 +51,7 @@ aspect JastAddCodeGen {
             ASTDecl dest = (ASTDecl)getTypeDecl(j);
             if (dest.implementsInterface(name)) {
               //System.out.println("  implemented by " + dest.name());
-              for (Iterator iter = d.getClassBodyDeclsItr(); iter.hasNext(); ) {
-                ClassBodyObject o = (ClassBodyObject)iter.next();
+              for (ClassBodyObject o : d.classBodyDecls) {
                 if (o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
                   if (!dest.hasClassBodyDecl(o.signature()))
                     dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
@@ -66,8 +65,7 @@ aspect JastAddCodeGen {
                   dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
                 }
               }
-              for (Iterator iter = d.refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
-                  ClassBodyObject o = (ClassBodyObject)iter.next();
+              for (ClassBodyObject o : d.refinedClassBodyDecls) {
                   if (o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
                     if (!dest.hasClassBodyDecl(o.signature()))
                       dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
@@ -109,10 +107,10 @@ aspect JastAddCodeGen {
   }
 
   public boolean ASTDecl.hasClassBodyDecl(String signature) {
-    for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-      ClassBodyObject o = (ClassBodyObject)iter.next();
-      if (o.signature().equals(signature))
+    for (ClassBodyObject o : classBodyDecls) {
+      if (o.signature().equals(signature)) {
         return true;
+      }
     }
     return false;
   }
@@ -219,26 +217,9 @@ aspect JastAddCodeGen {
       stream.println(docComment());
       stream.println(typeDeclarationString());
 
-      /*
-      StringBuffer buf = new StringBuffer();
-      for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-        ClassBodyObject o = (ClassBodyObject)iter.next();
-        jrag.AST.SimpleNode n = o.node;
-
-        if (!(n instanceof ASTAspectMethodDeclaration) && !(n instanceof ASTAspectFieldDeclaration)) {
-          buf.append("    // Declared in " + o.fileName + " at line " + o.line + "\n");
-          n.jjtAccept(new ClassBodyDeclUnparser(), buf);
-          buf.append("\n\n");
-        }
-      }
-      stream.println(buf.toString());
-      */
-
       emitMembers(stream);
       emitAbstractSyns(stream);
-      //emitSynEquations(stream);
       emitInhDeclarations(stream);
-      //emitInhEquations(stream);
       emitInterfaceCollections(stream);
 
       stream.println("}");
@@ -292,8 +273,7 @@ aspect JastAddCodeGen {
       stream.println(docComment());
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
-      for (Iterator iter = getClassBodyDeclsItr(); iter.hasNext(); ) {
-        ClassBodyObject obj = (ClassBodyObject)iter.next();
+      for (ClassBodyObject obj : classBodyDecls) {
         org.jastadd.jrag.AST.SimpleNode n = obj.node;
 
         //buf.append("    // Declared in " + obj.fileName + " at line " + obj.line + "\n");
