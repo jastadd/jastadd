@@ -1838,7 +1838,7 @@ SimpleNode ClassOrInterfaceType():
 void TypeArguments():
 {}
 {
-   "<" TypeArgument() ( "," TypeArgument() )* ">"
+   "<" [ TypeArgument() ( "," TypeArgument() )* ] ">"
 }
 
 void TypeArgument():
