@@ -110,9 +110,6 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
   public Object visit(ASTCompilationUnit self, Object data) {
     return unparseSimple(self, (StringBuffer) data);
   }
-  public Object visit(ASTPackageDeclaration self, Object data) {
-    return unparseSimple(self, (StringBuffer) data);
-  }
   public Object visit(ASTImportDeclaration self, Object data) {
     return unparseSimple(self, (StringBuffer) data);
   }

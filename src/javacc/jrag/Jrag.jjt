@@ -428,19 +428,12 @@ TOKEN :
 ASTCompilationUnit CompilationUnit() :
 {}
 {
-  [ PackageDeclaration() ]
   ( ImportDeclaration() )*
   ( TypeDeclaration() )*
   <EOF>
   {
     return jjtThis;
   }
-}
-
-void PackageDeclaration() :
-{}
-{
-  "package" Name() ";"
 }
 
 void ImportDeclaration() :

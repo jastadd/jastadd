@@ -14,9 +14,6 @@ public class SignatureUnparser implements JragParserVisitor {
   public Object visit(ASTCompilationUnit node, Object data) {
     return "";
   }
-  public Object visit(ASTPackageDeclaration node, Object data) {
-    return "";
-  }
   public Object visit(ASTImportDeclaration node, Object data) {
     return "";
   }
