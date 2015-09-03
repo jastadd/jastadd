@@ -311,7 +311,11 @@ sourceSets {
 uploadArchives {
 	repositories.mavenDeployer {
 		configuration = configurations.deployerJars
-		repository(url: "scp://login.cs.lth.se/cs/jastadd/mvn/")
+		repository(url: "scp://web.cs.lth.se/Websites/jastadd/mvn/") {
+			if (hasProperty('sshUser')) {
+				authentication(userName: sshUser)
+			}
+		}
 
 		pom.project {
 			url 'http://jastadd.org'
