@@ -1,6 +1,41 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.12 - 2015-09-03
+-------------------
+
+### Bug Fixes
+
+* Fixed problems causing inherited attributes to not work for nodes types only
+  occuring as synthesized attributes.
+[bug1](https://bitbucket.org/jastadd/jastadd2/issues/217/report-missing-inherited-equations-for)
+[bug2](https://bitbucket.org/jastadd/jastadd2/issues/224/node-type-only-used-as-nta-treated-as-root)
+* Added support for the [Java 7 diamond
+  feature](https://docs.oracle.com/javase/7/docs/technotes/guides/language/type-inference-generic-instance-creation.html).
+[More info](https://bitbucket.org/jastadd/jastadd2/issues/218/java-7-diamond-is-not-parsed-by-jastadd)
+
+### Parsing
+
+* Removed support for package declarations in aspect files. Package
+  declarations did not affect code generation in any way, but this change can
+cause old JastAdd code to fail to compile because package declarations now
+cause a syntax error in the JastAdd parser. Removing the package declaration
+should resolve this.  [More
+info](https://bitbucket.org/jastadd/jastadd2/issues/227/remove-support-for-package-declaration-in)
+
+### Code Generation
+
+* Code generation was improved to remove some redundant generated code.
+* Improved indentation problems.
+* Declared-at comments are now generated in inherited attribute methods. [More
+  info](https://bitbucket.org/jastadd/jastadd2/issues/211/generate-declared-at-comments-in-inherited)
+* `ASTNode.state` is now private.
+
+### Command-line Interface
+
+* Added `--stateClassName` option, which can be used to customize the name of
+  the generated class `ASTNode$State`.
+
 2.1.11 - 2015-02-06
 -------------------
 
