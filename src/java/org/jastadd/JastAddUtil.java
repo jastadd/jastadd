@@ -28,13 +28,16 @@
 package org.jastadd;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Scanner;
 
 import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Grammar;
@@ -153,8 +156,31 @@ public class JastAddUtil {
       ASTCompilationUnit cu = parser.CompilationUnit();
       return cu;
     } catch (org.jastadd.jrag.AST.ParseException e) {
-      problems.add(new Problem.Error("syntax error", sourceName,
-          e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
+      int startLine = e.currentToken.next.beginLine;
+      int startColumn = e.currentToken.next.beginColumn;
+      int endColumn = e.currentToken.next.endColumn;
+      StringBuilder errorMessage = new StringBuilder();
+      errorMessage.append("unexpected token \"" + e.currentToken.next.image + "\":\n");
+      try {
+        InputStream sourceInput = new FileInputStream(sourceName);
+        Scanner scanner = new Scanner(sourceInput);
+        for (int i = 1; i < startLine && scanner.hasNextLine(); ++i) {
+          scanner.nextLine();
+        }
+        if (scanner.hasNextLine()) {
+          errorMessage.append(scanner.nextLine() + "\n");
+          for (int i = 1; i < startColumn; ++i) {
+            errorMessage.append(" ");
+          }
+          for (int i = startColumn; i <= endColumn; ++i) {
+            errorMessage.append("^");
+          }
+        }
+      } catch (IOException _) {
+        // Failed to unparse the offending line, so we skip the context part of the error message.
+      }
+      problems.add(new Problem.Error(errorMessage.toString(),
+          sourceName, startLine, startColumn));
     } catch (TokenMgrError e) {
       problems.add(new Problem.Error(e.getMessage()));
     } catch (Throwable e) {
