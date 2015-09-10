@@ -420,10 +420,10 @@ aspect JaddCodeGen {
   syn boolean ASTDecl.isListDecl() = name().equals(config().listType());
 
   syn boolean ASTDecl.isOptSubtype() =
-    isOptDecl() || (hasSuperClass() && superClass().isOptSubtype());
+      isOptDecl() || (superClass() != null && superClass().isOptSubtype());
 
   syn boolean ASTDecl.isListSubtype() =
-    isListDecl() || (hasSuperClass() && superClass().isListSubtype());
+      isListDecl() || (superClass() != null && superClass().isListSubtype());
 
   /**
    * Check the node structure of a regular (non-Opt, non-List)
