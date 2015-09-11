@@ -1,6 +1,21 @@
 JastAdd2 Release Notes
 ======================
 
+2.1.13 - 2015-09-11
+-------------------
+
+### Bug Fixes
+
+* Fixed a regression from version 2.1.8 that caused a NullPointerException to
+  be thrown when an AST type inherits from an undeclared type instead of
+reporting a error message. [More
+info](https://bitbucket.org/jastadd/jastadd2/issues/230/include-single-line-context-in-syntax)
+
+### Parsing
+
+* Improved error messages for syntax errors in aspect files. The unexpected
+  token and the line where it occurred are now included in the error message.
+
 2.1.12 - 2015-09-03
 -------------------
 

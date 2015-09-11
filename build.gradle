@@ -195,7 +195,8 @@ task('jjtree') {
 	description 'build parser ASTs with JJTree'
 
 	inputs.dir 'src/javacc'
-	outputs.dir 'src/gen'
+	outputs.dir 'src/gen/org/jastadd/ast/AST'
+	outputs.dir 'src/gen/org/jastadd/jrag/AST'
 
 	doLast {
 		file('src/gen/org/jastadd/ast/AST').mkdirs()
@@ -224,7 +225,8 @@ task('javacc', dependsOn: [ 'jjtree' ]) {
 
 	inputs.file 'src/gen/org/jastadd/ast/AST/Ast.jj'
 	inputs.file 'src/gen/org/jastadd/jrag/AST/Jrag.jj'
-	outputs.dir 'src/gen'
+	outputs.dir 'src/gen/org/jastadd/jrag/AST'
+	outputs.dir 'src/gen/org/jastadd/ast/AST'
 
 	doLast {
 		ant {
@@ -241,13 +243,19 @@ task('javacc', dependsOn: [ 'jjtree' ]) {
 	}
 }
 
-task('additionalParserSources', type: Copy, dependsOn: [ 'javacc' ]) {
+task('additionalParserSources', dependsOn: [ 'javacc' ]) {
 	description 'copy additional parser sources'
 
-	from('src/javacc/jrag') {
-		include '**/*.java'
+	inputs.dir 'src/javacc/jrag'
+	outputs.dir 'src/gen/org/jastadd/jrag'
+
+	doLast {
+		ant.copy(todir: 'src/gen/org/jastadd/jrag', overwrite: true) {
+			fileset(dir: 'src/javacc/jrag') {
+				include(name: '**/*.java')
+			}
+		}
 	}
-	into 'src/gen/org/jastadd/jrag'
 }
 
 compileJava.dependsOn 'generateJava'
@@ -256,7 +264,7 @@ task('generateJava', dependsOn: [ 'javacc', 'additionalParserSources' ]) {
 	description 'generate Java sources from JastAdd aspects'
 
 	inputs.dir 'src/jastadd'
-	outputs.dir 'src/gen'
+	outputs.dir 'src/gen/org/jastadd/ast/AST'
 
 	doLast {
 		ant.taskdef(
