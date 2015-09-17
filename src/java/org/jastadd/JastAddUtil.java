@@ -56,12 +56,13 @@ public class JastAddUtil {
   /**
    * Parses a given AST specification from a given Reader and returns it as a fresh grammar object.
    *
-   * @param source - the stream-based source
-   * @param sourceName - the source's name
-   * @param problems - a collection where problems should be added for later error handling
-   * @return fresh grammar, but null if problems occur
+   * @param source the stream-based source
+   * @param sourceName the source's name
+   * @param problems a collection where problems should be added for later error handling
+   * @return fresh grammar, or {@code null} if problems occur.
    */
-  public static Grammar parseASTSpec(Reader source, String sourceName, Collection<Problem> problems){
+  public static Grammar parseASTSpec(Reader source, String sourceName,
+      Collection<Problem> problems) {
     Ast parser = new Ast(source);
     parser.fileName = sourceName;
     try {
@@ -71,20 +72,24 @@ public class JastAddUtil {
     } catch (org.jastadd.ast.AST.TokenMgrError e) {
       problems.add(new Problem.Error(e.getMessage(), sourceName));
     } catch (org.jastadd.ast.AST.ParseException e) {
-      // ParseExceptions actually caught by error recovery in parser
+      // ParseExceptions should be caught by error recovery in the parser, but
+      // in case we catch it here we should add an error anyway.
+      problems.add(new Problem.Error(e.getMessage(), sourceName));
     }
     return null;
   }
 
   /**
-   * Parses a given AST specification from a given Reader and adds its content to a given grammar object.
+   * Parses a given AST specification from a given Reader and adds its content
+   * to a given grammar object.
    *
-   * @param source - the stream-based source
-   * @param resourceName - the source's name
-   * @param problems - a collection where problems should be added for later error handling
-   * @param grammar - the grammar object where the AST specifications contents should be added
+   * @param source the stream-based source
+   * @param resourceName the source's name
+   * @param problems a collection where problems should be added for later error handling
+   * @param grammar the grammar object where the AST specifications contents should be added
    */
-  public static void parseASTSpec(Reader source, String resourceName, Grammar grammar, Collection<Problem> problems){
+  public static void parseASTSpec(Reader source, String resourceName, Grammar grammar,
+      Collection<Problem> problems) {
     Grammar astGrammar = parseASTSpec(source, resourceName, problems);
     if (astGrammar != null) {
       List<TypeDecl> typeDecls = astGrammar.getTypeDeclListNoTransform();
@@ -98,13 +103,14 @@ public class JastAddUtil {
   }
 
   /**
-   * Parses a given AST specification in a given File and adds its content to a given grammar object.
+   * Parses a given AST specification in a given File and adds its content to a
+   * given grammar object.
    *
-   * @param source - the file based source
-   * @param problems - a collection where problems should be added for later error handling
-   * @param grammar - the grammar object where the AST specifications contents should be added
+   * @param source the file based source
+   * @param problems a collection where problems should be added for later error handling
+   * @param grammar the grammar object where the AST specifications contents should be added
    */
-  public static void parseASTSpec(File source, Grammar grammar, Collection<Problem> problems){
+  public static void parseASTSpec(File source, Grammar grammar, Collection<Problem> problems) {
     Reader inStream = null;
     String fileName = source.getPath();
     try {
@@ -125,14 +131,16 @@ public class JastAddUtil {
   }
 
   /**
-   * Parses a given AST specification from a given string and adds its content to a given grammar object.
+   * Parses a given AST specification from a given string and adds its content
+   * to a given grammar object.
    *
-   * @param source - the string-based source
-   * @param sourceName - the name of the source
-   * @param problems - a collection where problems should be added for later error handling
-   * @param grammar - the grammar object where the AST specifications contents should be added
+   * @param source the string-based source
+   * @param sourceName the name of the source
+   * @param problems a collection where problems should be added for later error handling
+   * @param grammar the grammar object where the AST specifications contents should be added
    */
-  public static void parseASTSpec(String source, String sourceName, Grammar grammar, Collection<Problem> problems){
+  public static void parseASTSpec(String source, String sourceName, Grammar grammar,
+      Collection<Problem> problems) {
     Reader inStream = new StringReader(source);
     parseASTSpec(inStream,sourceName,grammar,problems);
   }
@@ -140,15 +148,15 @@ public class JastAddUtil {
   /**
    * Parses a JRAG or JADD specification from a given stream.
    *
-   * @param source - the stream-based source
-   * @param sourceName - the name of the source
-   * @param problems - the collection where new objects can be added
-   * @param grammar - the grammar object to parameterize the parser
-   *        (TODO: check why this parameter is actually needed!)
+   * @param source the stream-based source
+   * @param sourceName the name of the source
+   * @param problems the collection where new objects can be added
+   * @param grammar the grammar object to parameterize the parser
    * @return the corresponding compilation unit object
    */
   public static ASTCompilationUnit parseJRAGSpec(Reader source,
       String sourceName, Collection<Problem> problems, Grammar grammar) {
+    // TODO(jesper): Check if the grammar parameter is actually needed.
     try {
       JragParser parser = new JragParser(source);
       parser.setFileName(sourceName);
@@ -191,12 +199,13 @@ public class JastAddUtil {
   }
 
   /**
-   * Parses a JRAG or JADD specification from a given stream and adds the resulting contents to the given grammar object.
+   * Parses a JRAG or JADD specification from a given stream and adds the
+   * resulting contents to the given grammar object.
    *
-   * @param source - the stream-based source
-   * @param sourceName - the name of the source
-   * @param grammar - the grammar object to parameterize the parser
-   * @param problems - the collection where new objects can be added
+   * @param source the stream-based source
+   * @param sourceName the name of the source
+   * @param grammar the grammar object to parameterize the parser
+   * @param problems the collection where new objects can be added
    */
   public static void parseJRAGSpec(Reader source,
       String sourceName, Grammar grammar, Collection<Problem> problems) {
@@ -209,9 +218,9 @@ public class JastAddUtil {
   /**
    * Parses a JRAG or JADD specification from a given file and adds it to the given grammar object.
    *
-   * @param source - the file-based source
-   * @param grammar - the grammar where the content should be added
-   * @param problems - the collection where new objects can be added
+   * @param source the file-based source
+   * @param grammar the grammar where the content should be added
+   * @param problems the collection where new objects can be added
    *
    */
   public static void parseJRAGSpec(File source, Grammar grammar, Collection<Problem> problems) {
@@ -233,15 +242,17 @@ public class JastAddUtil {
   }
 
   /**
-   * Parses a JRAG or JADD specification from a given string and adds it to the given grammar object.
+   * Parses a JRAG or JADD specification from a given string and adds it to the
+   * given grammar object.
    *
-   * @param source - the string-based source
-   * @param sourceName - the source name
-   * @param grammar - the grammar where the content should be added
-   * @param problems - the collection where new objects can be added
+   * @param source the string-based source
+   * @param sourceName the source name
+   * @param grammar the grammar where the content should be added
+   * @param problems the collection where new objects can be added
    *
    */
-  public static void parseJRAGSpec(String source, String sourceName, Grammar grammar, Collection<Problem> problems) {
+  public static void parseJRAGSpec(String source, String sourceName, Grammar grammar,
+      Collection<Problem> problems) {
     Reader inStream = new StringReader(source);
     parseJRAGSpec(inStream, sourceName, grammar, problems);
   }
@@ -250,12 +261,10 @@ public class JastAddUtil {
    * Sequentially parses all inner aspect body declarations that may occur in the
    * given input stream and adds them to the given Grammar.
    *
-   * @param source
-   * @param sourceName
-   * @param grammar
    * @return A list of problems that may only contain internal errors.
    */
-  public static Collection<Problem> parseAspectBodyDeclarations(Reader source, String sourceName, Grammar grammar){
+  public static Collection<Problem> parseAspectBodyDeclarations(Reader source, String sourceName,
+      Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     JragParser jp = new JragParser(source);
     jp.root = grammar;
@@ -276,12 +285,10 @@ public class JastAddUtil {
    * Sequentially parses all inner aspect body declarations that may occur in the
    * given string and adds them to the given Grammar.
    *
-   * @param source
-   * @param sourceName
-   * @param grammar
    * @return A list of problems that may only contain internal errors.
    */
-  public static Collection<Problem> parseAspectBodyDeclarations(String source, String sourceName, Grammar grammar){
+  public static Collection<Problem> parseAspectBodyDeclarations(String source, String sourceName,
+      Grammar grammar) {
     StringReader inStream = new StringReader(source);
     return parseAspectBodyDeclarations(inStream, sourceName, grammar);
   }
@@ -290,10 +297,10 @@ public class JastAddUtil {
    * Parses cache declaration objects from a given source and adds them to
    * the given grammar object
    *
-   * @param source - the source stream
-   * @param sourceName - the name of the source
-   * @param grammar - the root grammar object
-   * @param problems - the collection problems should be added to
+   * @param source the source stream
+   * @param sourceName the name of the source
+   * @param grammar the root grammar object
+   * @param problems the collection problems should be added to
    */
   public static void parseCacheDeclarations(Reader source,
     String sourceName, Grammar grammar, Collection<Problem> problems) {
@@ -309,11 +316,10 @@ public class JastAddUtil {
   }
 
   /**
-   * @param source
-   * @param grammar
-   * @param problems
+   * Read the cache declarations from a cache config file.
    */
-  public static void parseCacheDeclarations(File source, Grammar grammar, Collection<Problem> problems){
+  public static void parseCacheDeclarations(File source, Grammar grammar,
+      Collection<Problem> problems) {
     Reader inStream = null;
     String fileName = source.getName();
     try {
@@ -326,7 +332,7 @@ public class JastAddUtil {
         try {
           inStream.close();
         } catch (IOException e) {
-          // do nothing
+          // Do nothing.
         }
     }
 

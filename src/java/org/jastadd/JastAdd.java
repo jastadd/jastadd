@@ -243,7 +243,7 @@ public class JastAdd {
    * Print problems and check for errors
    * @param problems
    * @param err error output stream
-   * @return <code>true</code> if any of the problems was an error
+   * @return {@code true} if any of the problems was an error
    */
   private boolean checkErrors(Collection<Problem> problems, PrintStream err) {
     return checkErrors("",  problems, err);
@@ -254,7 +254,7 @@ public class JastAdd {
    * @param description
    * @param problems
    * @param err error output stream
-   * @return <code>true</code> if any of the problems was an error
+   * @return {@code true} if any of the problems was an error
    */
   private boolean checkErrors(String description, Collection<Problem> problems, PrintStream err) {
     boolean hasError = false;
@@ -272,7 +272,6 @@ public class JastAdd {
 
   private static Collection<Problem> readAstFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    // out.println("parsing grammars");
     for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
       String fileName = iter.next();
       if (fileName.endsWith(".ast")) {
@@ -308,7 +307,8 @@ public class JastAdd {
             object.classBodyObject.fileName, object.classBodyObject.line));
       }
     }
-    grammar.interTypeObjects.clear();// reset to avoid double weaving (TODO remove this)
+    // TODO(jesper): Remove the below line.
+    grammar.interTypeObjects.clear();// Reset to avoid double weaving.
     return problems;
   }
 
