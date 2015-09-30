@@ -58,23 +58,19 @@ aspect JragCodeGen {
     if (fileName.length() == 0) {
       return "";
     } else {
-      // replace backslashes in the file path with slashes in order to avoid
-      // unintentional (and possibly illegal) unicode escape sequences
+      // Replace backslashes in the file path with slashes in order to avoid
+      // unintentional (and possibly illegal) unicode escape sequences.
       return "@declaredat " + escapedFileName(fileName) + ":" + line;
     }
   }
 
-  syn String AttrDecl.declaredat() =
-    ASTNode.declaredat(getFileName(), getStartLine());
+  syn String AttrDecl.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
 
-  syn String AttrEq.declaredat() =
-    ASTNode.declaredat(getFileName(), getStartLine());
+  syn String AttrEq.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
 
-  syn String Rewrite.declaredat() =
-    ASTNode.declaredat(getFileName(), getStartLine());
+  syn String Rewrite.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
 
-  syn String RewriteList.declaredat() =
-    ASTNode.declaredat(getFileName(), getStartLine());
+  syn String RewriteList.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
 
   syn boolean AttrDecl.isLazy() {
     return config().cacheAll() ||

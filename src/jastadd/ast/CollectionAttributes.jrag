@@ -211,12 +211,11 @@ aspect CollectionAttributes {
 
       String bottomValue = Unparser.unparse(decl.getBottomValue());
 
-      for (CollEq attr: equations) {
+      for (CollEq attr : equations) {
         TemplateContext tt = attr.templateContext();
         tt.bind("BottomValue", bottomValue);
         tt.bind("CombOp", decl.getCombOp());
 
-        out.println(attr.docComment());
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
           tt.bind("Condition", c.getCondition().trim());

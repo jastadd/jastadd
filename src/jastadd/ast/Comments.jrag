@@ -193,4 +193,11 @@ outer: while (true) {
     return tt.expand("AttrEq.docComment");
   }
 
+  public String CollEq.docComment() {
+    JavaDocParser parser = new JavaDocParser();
+    TemplateContext tt = templateContext();
+    tt.bind("SourceComment", parser.parse(getComment()));
+    return tt.expand("CollEq.docComment");
+  }
+
 }

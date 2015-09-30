@@ -138,6 +138,7 @@ $endif
 ]]
 
 ASTDecl.collectContributors:alt1 = [[
+    #docComment
 $if(HasCondition)
     if ($Condition) {
 $endif
@@ -168,6 +169,7 @@ $endif
 ]]
 
 ASTDecl.collectContributors:alt2 = [[
+    #docComment
 $if(HasCondition)
     if ($Condition) {
 $endif
@@ -277,7 +279,9 @@ ASTDecl.weaveCollectionAttributes.collectContributors2 = [[
 ASTDecl.weaveCollectionAttributes.collectContributors3 = [[
   private boolean collect_contributors_#(collectingSignature) = false;
   protected void collect_contributors_#(collectingSignature)() {
-    if (collect_contributors_#(collectingSignature)) return;
+    if (collect_contributors_#(collectingSignature)) {
+      return;
+    }
     super.collect_contributors_#(collectingSignature)();
     collect_contributors_#(collectingSignature) = true;
   }
