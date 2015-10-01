@@ -52,14 +52,14 @@ aspect Annotations {
 
   eq SynDecl.supportedAnnotation(Annotation a) = true;
 
-  syn boolean CollDecl.supportedCollectionAnnotation(Annotation a) {
+  syn boolean CollDecl.supportedAnnotation(Annotation a) {
     // TODO: document these annotations!
-    return a.isAnnotation("@OnePhase") ||
-      a.isAnnotation("@SeparateEvaluation") ||
-      a.isAnnotation("@LazyCondition") ||
-      a.isAnnotation("@Circular") ||
-      a.isAnnotation("@CollectionGroup") ||
-      a.isAnnotation("@Naive");
+    return a.isAnnotation("@OnePhase")
+        || a.isAnnotation("@SeparateEvaluation")
+        || a.isAnnotation("@LazyCondition")
+        || a.isAnnotation("@Circular")
+        || a.isAnnotation("@CollectionGroup")
+        || a.isAnnotation("@Naive");
   }
 
   /**
@@ -91,13 +91,16 @@ aspect Annotations {
    */
   syn String AttrDecl.annotations() {
     StringBuilder sb = new StringBuilder();
-    for (Annotation annotation: getAnnotationList()) {
-      if (sb.length() > 0)
+    for (Annotation annotation : getAnnotationList()) {
+      if (sb.length() > 0) {
         sb.append("\n");
+      }
       sb.append(annotation.getAnnotation());
     }
     return sb.toString();
   }
+
+  eq CollDecl.annotations() = "";
 
   syn String ListComponent.annotations() = "";
 

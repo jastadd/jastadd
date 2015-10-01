@@ -159,8 +159,17 @@ aspect CollectionAttributes {
 
   syn lazy String CollEq.contributionSignature() = ((CollDecl)decl()).getTarget() + "_" + signature();
 
+  /**
+   * Separate evaluation means that the collection contribution is evaluated during
+   * the contributing phase in two-phase collection evaluation.
+   */
   syn boolean AttrDecl.separateEvaluation() = hasAnnotation("@SeparateEvaluation") || naive();
   syn boolean AttrEq.separateEvaluation() = decl().separateEvaluation();
+
+  /**
+   * Lazy condition means that the condition is evaluated during the
+   * contributing phase in two-phase collection evaluation.
+   */
   syn boolean AttrDecl.lazyCondition() = hasAnnotation("@LazyCondition");
   syn boolean AttrEq.lazyCondition() = decl().lazyCondition();
 

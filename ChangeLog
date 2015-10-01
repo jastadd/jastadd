@@ -2,6 +2,9 @@
 
     * Inherited attributes are now evaluated iteratively. This reduces the
     stack height when evaluating inherited attributes in large trees.
+    * Re-enabled collection attribute annotations @OnePhase,
+    @SeparateEvaluation, @LazyCondition, @Circular, @CollectionGroup, and
+    @Naive.
 
 2015-09-02  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
