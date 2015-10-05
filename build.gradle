@@ -319,9 +319,15 @@ sourceSets {
 uploadArchives {
 	repositories.mavenDeployer {
 		configuration = configurations.deployerJars
-		repository(url: 'scp://web.cs.lth.se/Websites/jastadd/mvn/') {
+		def sshServer = 'scp://web.cs.lth.se/Websites/jastadd/mvn/'
+		repository(url: sshServer) {
 			if (project.hasProperty('sshUser')) {
 				authentication(userName: project.sshUser)
+				println "Connecting to ${sshServer} using user=${project.sshUser}."
+				println "If this times out you may need to manually ssh to the server first."
+			} else {
+				println "Warning: ssh username not set. Artifact upload may fail."
+				println "To set the ssh username, run gradle with -PsshUser=username."
 			}
 		}
 
