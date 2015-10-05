@@ -58,10 +58,18 @@ aspect JragCodeGen {
     if (fileName.length() == 0) {
       return "";
     } else {
-      // Replace backslashes in the file path with slashes in order to avoid
-      // unintentional (and possibly illegal) unicode escape sequences.
-      return "@declaredat " + escapedFileName(fileName) + ":" + line;
+      return "@declaredat " + sourceLocation(fileName, line);
     }
+  }
+  
+  /**
+   * @return a formatted source location with escaped filename suitable to be
+   * used in documentation comments.
+   */
+  protected static String ASTNode.sourceLocation(String fileName, int line) {
+    // Replace backslashes in the file path with slashes in order to avoid
+    // unintentional (and possibly illegal) unicode escape sequences.
+    return String.format("%s:%d", escapedFileName(fileName), line);
   }
 
   syn String AttrDecl.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
@@ -71,6 +79,8 @@ aspect JragCodeGen {
   syn String Rewrite.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
 
   syn String RewriteList.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
+
+  syn String Rewrite.sourceLocation() = ASTNode.sourceLocation(getFileName(), getStartLine());
 
   syn boolean AttrDecl.isLazy() {
     return config().cacheAll() ||

@@ -67,7 +67,7 @@ ASTDecl.emitRewrites.end = [[
 ]]
 
 Rewrite.genRewrite.declaredat = [[
-    // Declared at #declaredat
+    // Declared at #sourceLocation
 ]]
 
 Rewrite.genRewrite:conditional [[
@@ -83,22 +83,20 @@ Rewrite.genRewrite:unconditional [[
 RewriteList.genRewrite [[
     if (getParent().getParent() instanceof #getParentName &&
         ((#getParentName)getParent().getParent()).#(getChildName)ListNoTransform() == getParent()$Condition) {
-
       $List list = ($List) getParent();
       int i = list.getIndexOfChild(this);
       $List newList = rewrite#(getParentName)_#getChildName();
-      // the first child is set by the normal rewrite loop
-      //list.setChild(newList.getChildNoTransform(0), i);
-      for(int j = 1; j < newList.getNumChildNoTransform(); j++)
+      // The first child is set by the normal rewrite loop.
+      for(int j = 1; j < newList.getNumChildNoTransform(); j++) {
         list.insertChild(newList.getChildNoTransform(j), ++i);
-
+      }
       return newList.getChildNoTransform(0);
     }
 ]]
 
 Rewrite.javaDoc:internal [[
   /**
-   * @declaredat #declaredat
+   * #declaredat
    * @apilevel internal
    */]]
 
