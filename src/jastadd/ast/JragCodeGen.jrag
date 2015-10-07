@@ -178,7 +178,6 @@ aspect JragCodeGen {
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
     for (int i = 0; i < getNumSynDecl(); i++) {
       AttrDecl attr = getSynDecl(i);
-      out.println(attr.docComment());
       attr.emitSynDecl(out);
     }
   }
@@ -865,7 +864,6 @@ aspect JragCodeGen {
   public void TypeDecl.emitInhDeclarations(PrintStream out) {
     for (int i = 0; i < getNumInhDecl(); i++) {
        AttrDecl attr = getInhDecl(i);
-       out.println(attr.docComment());
        attr.emitInhDecl(out);
     }
   }

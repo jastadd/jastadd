@@ -73,6 +73,7 @@ $endif
 
 # attribute declarations
 AttrDecl.synDecl = AttrDecl.inhDecl = [[
+#docComment
   #annotations
   @ASTNodeAnnotation.Attribute
   public #getType #name(#parametersDecl);
@@ -245,6 +246,7 @@ $endif
 ]]
 
 AttrDecl.emitEquation [[
+#docComment
   #annotations
   @ASTNodeAnnotation.Attribute
   public #getType #name($ParamDecl) {
