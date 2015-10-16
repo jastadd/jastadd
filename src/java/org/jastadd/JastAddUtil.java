@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, The JastAdd Team
+/* Copyright (c) 2005-2015, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ import org.jastadd.jrag.AST.JragParser;
  *  A convenient place for utility functions like for parsing.
  */
 public class JastAddUtil {
-
 
   /**
    * Parses a given AST specification from a given Reader and returns it as a fresh grammar object.
@@ -125,7 +124,7 @@ public class JastAddUtil {
         try {
           inStream.close();
         } catch (IOException e) {
-          // do nothing
+          // Failed to close input. Not a problem.
         }
     }
   }
@@ -184,7 +183,7 @@ public class JastAddUtil {
             errorMessage.append("^");
           }
         }
-      } catch (IOException _) {
+      } catch (IOException e2) {
         // Failed to unparse the offending line, so we skip the context part of the error message.
       }
       problems.add(new Problem.Error(errorMessage.toString(),
@@ -236,7 +235,7 @@ public class JastAddUtil {
         try {
           inStream.close();
         } catch (IOException e) {
-          // do nothing
+          // Failed to close input. Not a problem.
         }
     }
   }
@@ -332,10 +331,9 @@ public class JastAddUtil {
         try {
           inStream.close();
         } catch (IOException e) {
-          // Do nothing.
+          // Failed to close input. Not a problem.
         }
     }
-
   }
 
 }
