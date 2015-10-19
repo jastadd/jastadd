@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 /* returns the command output if the command succeeded */
 def tryCommand(List command, boolean failOnError = false) {
@@ -40,6 +41,7 @@ def getVersion() {
 
 project.version = getVersion()
 project.group = 'org.jastadd'
+project.archivesBaseName = 'jastadd'
 
 println("Building version: ${project.version}")
 
@@ -303,6 +305,26 @@ task('cleanArtifacts', type: Delete) {
 	delete 'README-binary-dist.html'
 }
 
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+signing {
+	sign configurations.archives
+}
+
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
 sourceSets {
 	main {
 		java {
@@ -318,33 +340,58 @@ sourceSets {
 
 uploadArchives {
 	repositories.mavenDeployer {
-		configuration = configurations.deployerJars
-		def sshServer = 'scp://web.cs.lth.se/Websites/jastadd/mvn/'
-		repository(url: sshServer) {
-			if (project.hasProperty('sshUser')) {
-				authentication(userName: project.sshUser)
-				println "Connecting to ${sshServer} using user=${project.sshUser}."
-				println "If this times out you may need to manually ssh to the server first."
-			} else {
-				println "Warning: ssh username not set. Artifact upload may fail."
-				println "To set the ssh username, run gradle with -PsshUser=username."
-			}
+		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+		repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+
+		snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
 		}
 
 		pom.project {
+			name 'JastAdd2'
+			packaging 'jar'
+			description 'A metacompilation framework for Java using attribute grammars.'
 			url 'http://jastadd.org'
-				organization {
-					name 'The JastAdd Team'
-						url 'http://jastadd.org'
-				}
+			organization {
+				name 'The JastAdd Team'
+				url 'http://jastadd.org'
+			}
 			licenses {
 				license {
 					name 'Modified BSD License'
-						url 'http://opensource.org/licenses/BSD-3-Clause'
-						distribution 'repo'
+					url 'http://opensource.org/licenses/BSD-3-Clause'
+					distribution 'repo'
+				}
+			}
+			developers {
+				developer {
+					name 'Görel Hedin'
+					email 'gorel.hedin@cs.lth.se'
+				}
+				developer {
+					name 'Eva Magnusson'
+				}
+				developer {
+					name 'Torbjörn Ekman'
+				}
+				developer {
+					name 'Emma Söderberg'
+					email 'emso@google.com'
+				}
+				developer {
+					name 'Jesper Öqvist'
+					email 'jesper.oqvist@cs.lth.se'
+				}
+				developer {
+					name 'Niklas Fors'
+					email 'niklas.fors@cs.lth.se'
 				}
 			}
 			scm {
+				connection 'scm:git:https://bitbucket.org/jastadd/jastadd2.git'
 				url 'https://bitbucket.org/jastadd/jastadd2'
 			}
 		}
