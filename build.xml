@@ -11,6 +11,7 @@ OPTIONS:
 	<property name="jastadd2.src.dir" location="${jastadd2.basedir}/src"/>
 	<property name="jastadd2.gen.dir" location="${jastadd2.src.dir}/gen"/>
 	<property name="jastadd2.res.dir" location="${jastadd2.src.dir}/res"/>
+	<property name="jastadd2.genres.dir" location="${jastadd2.src.dir}/gen-res"/>
 	<property name="jastadd2.bin.dir" location="${jastadd2.basedir}/ant-bin"/>
 	<property name="jastadd2.tools.dir" value="${jastadd2.basedir}/tools"/>
 	<property name="tt.src.dir" value="${jastadd2.basedir}/tinytemplate/src/java"/>
@@ -85,8 +86,15 @@ OPTIONS:
 			<src path="${jastadd2.gen.dir}"/>
 			<src path="${tt.src.dir}"/>
 		</javac>
+		<!-- Copy templates. -->
 		<copy todir="${jastadd2.bin.dir}">
 			<fileset dir="${jastadd2.res.dir}">
+				<include name="**/*.tt"/>
+			</fileset>
+		</copy>
+		<!-- Copy version resource. -->
+		<copy todir="${jastadd2.bin.dir}">
+			<fileset dir="${jastadd2.genres.dir}">
 				<include name="**/*"/>
 			</fileset>
 		</copy>
@@ -129,12 +137,9 @@ OPTIONS:
 			<manifest>
 				<attribute name="Main-Class" value="org.jastadd.JastAdd"/>
 				<attribute name="Implementation-Title" value="JastAdd II"/>
-				<attribute name="Implementation-Version"
-					value="${version.name}"/>
-				<attribute name="Implementation-Vendor"
-					value="The JastAdd Team"/>
-				<attribute name="Implementation-URL"
-					value="http://jastadd.org"/>
+				<attribute name="Implementation-Version" value="${version.name}"/>
+				<attribute name="Implementation-Vendor" value="The JastAdd Team"/>
+				<attribute name="Implementation-URL" value="http://jastadd.org"/>
 			</manifest>
 			<fileset dir=".">
 				<include name="LICENSE"/>
@@ -212,17 +217,16 @@ OPTIONS:
 		</zip>
 	</target>
 
-	<target name="release" if="version"
+	<target name="release" if="version" depends="-timestamp"
 		description="tag and commit new JastAdd2 release">
 		<!-- NB: update release-notes.md before release! -->
 		<!-- NB: all staged changes in this git repository will be committed! -->
-		<echo message="Bumping version string and tagging release ${version}"/>
-		<antcall target="-store-version-string"/>
-		<exec executable="git">
-			<arg value="update-index"/>
-			<arg value="--no-assume-unchanged"/>
-			<arg value="${jastadd2.res.dir}/Version.properties"/>
-		</exec>
+		<echo message="Storing version string and tagging release ${version}"/>
+		<propertyfile file="${jastadd2.res.dir}/Version.properties">
+			<entry key="version" value="${version}"/>
+			<entry key="timestamp" value="${timestamp}"/>
+			<entry key="build.date" value="${build.date}"/>
+		</propertyfile>
 		<exec executable="git">
 			<arg value="add"/>
 			<arg value="${jastadd2.res.dir}/Version.properties"/>
@@ -283,9 +287,9 @@ OPTIONS:
 		</tstamp>
 	</target>
 
-	<!-- this target is only run if the 'version' property is undefined -->
-	<target name="update-version-string" depends="-timestamp" unless="version">
-		<!-- get a new version string using git describe if possible -->
+	<!-- This target is only run if the 'version' property is undefined. -->
+	<target name="-get-current-version" unless="version">
+		<!-- Get a new version string using git describe if possible. -->
 		<echo message="Updating JastAdd version string..."/>
 		<exec executable="git" outputproperty="gitoutput"
 			errorproperty="giterror" logError="false"
@@ -294,30 +298,19 @@ OPTIONS:
 			<arg value="describe"/>
 		</exec>
 		<property file="${jastadd2.res.dir}/Version.properties" prefix="old"/>
-		<condition property="version" value="${gitoutput}"
-			else="${old.version}">
+		<condition property="version" value="${gitoutput}" else="${old.version}">
 			<equals arg1="${gitresult}" arg2="0"/>
 		</condition>
-		<antcall target="-store-version-string"/>
-		<!-- ensure version is defined if git was not available -->
-		<property file="${jastadd2.res.dir}/Version.properties"/>
 	</target>
 
-	<target name="-store-version-string" depends="-timestamp" if="version">
-		<!-- store the new  version string in the correct property file -->
+	<target name="update-version-string" depends="-timestamp,-get-current-version">
+		<!-- Store the new  version string in the generated version property file. -->
 		<echo message="version=${version}"/>
-		<propertyfile file="${jastadd2.res.dir}/Version.properties">
+		<mkdir dir="${jastadd2.genres.dir}"/>
+		<propertyfile file="${jastadd2.genres.dir}/Version.properties">
 			<entry key="version" value="${version}"/>
 			<entry key="timestamp" value="${timestamp}"/>
 			<entry key="build.date" value="${build.date}"/>
 		</propertyfile>
-		<exec executable="git" errorproperty="giterror" logError="false">
-			<arg value="--git-dir=${jastadd2.basedir}/.git"/>
-			<arg value="--work-tree=${jastadd2.basedir}"/>
-			<arg value="update-index"/>
-			<arg value="--assume-unchanged"/>
-			<arg value="${jastadd2.res.dir}/Version.properties"/>
-		</exec>
 	</target>
-
 </project>

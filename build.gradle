@@ -3,7 +3,7 @@ apply plugin: 'application'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-/* returns the command output if the command succeeded */
+/** Helper function to run a command. Returns the command output if the command succeeded. */
 def tryCommand(List command, boolean failOnError = false) {
 	def out = new StringBuilder()
 	def err = new StringBuilder()
@@ -24,18 +24,28 @@ def tryCommand(List command, boolean failOnError = false) {
 	}
 }
 
+/** Helper function to retrieve the current version string. */
 def getVersion() {
 	if (hasProperty('newVersion')) {
+		// A new version string should be saved.
+		def date = new Date()
+		def versionFile = file('src/res/Version.properties')
+		ant.propertyfile(file: versionFile) {
+			entry(key: 'version', value: newVersion)
+			entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
+			entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
+		}
 		return newVersion
-	}
-	def output = tryCommand(['git', 'describe'])
-	if (output) {
-		// git describe output
-		output.readLines()[0]
 	} else {
-		// read the previous version string instead
-		ant.property(file: file('src/res/Version.properties'))
-		ant.properties['version']
+		def output = tryCommand(['git', 'describe'])
+		if (output) {
+			// Use Git describe output.
+			output.readLines()[0]
+		} else {
+			// Git command failed. Read the previous version string instead.
+			ant.property(file: file('src/res/Version.properties'))
+			ant.properties['version']
+		}
 	}
 }
 
@@ -72,20 +82,17 @@ dependencies {
 	jastadd2('org.jastadd:jastadd2:2.1.10') { force = true /* avoid conflict with local artifact */ }
 }
 
-processResources.dependsOn 'storeVersionString'
+processResources.dependsOn 'updateVersionString'
 
-task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) {
-	doLast {
-		if (!project.hasProperty('newVersion')) {
-			throw new GradleException('You must set -PnewVersion=<VERSION> when running the release task!')
-		}
-		assert version.equals(newVersion)
-		def versionFile = file('src/res/Version.properties')
-		tryCommand(['git', 'update-index', '--no-assume-unchanged', versionFile.path], true)
-		tryCommand(['git', 'add', versionFile.path], true)
-		tryCommand(['git', 'commit', '-m', "Release $version"], true)
-		tryCommand(['git', 'tag', '-a', "$version", '-m', "Version $version"], true)
+task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
+	if (!project.hasProperty('newVersion')) {
+		throw new GradleException('You must set -PnewVersion=<VERSION> when running the release task!')
 	}
+	assert version.equals(newVersion)
+	def versionFile = file('src/res/Version.properties')
+	tryCommand(['git', 'add', versionFile.path], true)
+	tryCommand(['git', 'commit', '-m', "Release $version"], true)
+	tryCommand(['git', 'tag', '-a', "$version", '-m', "Version $version"], true)
 }
 
 task('sourceZip', dependsOn: [ 'documentation' ]) {
@@ -168,28 +175,27 @@ task('documentation', dependsOn: [ 'storeVersionString' ]) {
 	}
 }
 
-task('storeVersionString') {
-	description 'store the version string in src/res/Version.properties'
+task updateVersionString {
+	description 'Store the current version string in src/gen-res/Version.properties'
 
 	outputs.upToDateWhen {
 		def props = new Properties()
-		new File('src/res/Version.properties').withInputStream {
-			stream -> props.load(stream)
+		def output = file('src/gen-res/Version.properties')
+		if (output.isFile()) {
+			output.withInputStream { stream -> props.load(stream) }
 		}
 		props['version'] == project.version
 	}
 
 	doLast {
+		file('src/gen-res').mkdirs()
 		def date = new Date()
-		def versionFile = file('src/res/Version.properties')
+		def versionFile = file('src/gen-res/Version.properties')
 		ant.propertyfile(file: versionFile) {
 			entry(key: 'version', value: project.version)
 			entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
 			entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
 		}
-		// make GIT treat the Version.properties file as if it is unchanged
-		// in order to avoid committing the updated file in every commit
-		tryCommand(['git', 'update-index', '--assume-unchanged', versionFile.path])
 	}
 }
 
@@ -333,7 +339,7 @@ sourceSets {
 			srcDir 'tinytemplate/src/java'
 		}
 		resources {
-			srcDir 'src/res'
+			srcDir 'src/gen-res'
 		}
 	}
 }
