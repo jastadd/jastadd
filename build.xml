@@ -2,7 +2,7 @@
 	<description>Build script for JastAdd2
 
 OPTIONS:
--Ddebug=true          enable debug build
+-Ddebug=true          enable debug build (passes -debug to javac)
 
 </description>
 
@@ -13,10 +13,10 @@ OPTIONS:
 	<property name="jastadd2.res.dir" location="${jastadd2.src.dir}/res"/>
 	<property name="jastadd2.genres.dir" location="${jastadd2.src.dir}/gen-res"/>
 	<property name="jastadd2.bin.dir" location="${jastadd2.basedir}/ant-bin"/>
-	<property name="jastadd2.tools.dir" value="${jastadd2.basedir}/tools"/>
-	<property name="tt.src.dir" value="${jastadd2.basedir}/tinytemplate/src/java"/>
+	<property name="jastadd2.tools.dir" location="${jastadd2.basedir}/tools"/>
+	<property name="tt.src.dir" location="${jastadd2.basedir}/tinytemplate/src/java"/>
 
-	<!-- set to "true" to compile in debug mode -->
+	<!-- Set to "true" to compile in debug mode. -->
 	<property name="debug" value="false"/>
 
 	<condition property="jastadd-jar" value="${jastadd.jar}"
@@ -95,7 +95,7 @@ OPTIONS:
 		<!-- Copy version resource. -->
 		<copy todir="${jastadd2.bin.dir}">
 			<fileset dir="${jastadd2.genres.dir}">
-				<include name="**/*"/>
+				<include name="Version.properties"/>
 			</fileset>
 		</copy>
 	</target>
@@ -213,7 +213,8 @@ OPTIONS:
 				<include name="doc/release-notes.html"/>
 				<include name="licenses/*" />
 			</zipfileset>
-			<zipfileset dir="." includes="README-binary-dist.html" fullpath="jastadd2-bin/README.html"/>
+			<zipfileset dir="." includes="README-binary-dist.html"
+				fullpath="jastadd2-bin/README.html"/>
 		</zip>
 	</target>
 

@@ -65,26 +65,30 @@ jar.archiveName = 'jastadd2.jar'
 
 configurations {
 	deployerJars
-	jastadd2
+	jastadd
 }
 
 repositories {
 	mavenCentral()
 	mavenLocal()
-	maven {
-		url 'http://jastadd.org/mvn/'
-	}
 }
 
 dependencies {
-	deployerJars 'org.apache.maven.wagon:wagon-ssh:2.4'
 	compile 'org.apache.ant:ant:1.9.4'
-	jastadd2('org.jastadd:jastadd2:2.1.10') { force = true /* avoid conflict with local artifact */ }
+	jastadd('org.jastadd:jastadd:2.1.13') { force = true /* avoid conflict with local artifact */ }
 }
 
 processResources.dependsOn 'updateVersionString'
+processResources.dependsOn 'copyResources'
 
-task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
+task copyResources(type: Copy) {
+	from('src/res') {
+		exclude 'Version.properties'
+	}
+	into 'src/gen-res'
+}
+
+task release(dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
 	if (!project.hasProperty('newVersion')) {
 		throw new GradleException('You must set -PnewVersion=<VERSION> when running the release task!')
 	}
@@ -95,82 +99,81 @@ task('release', dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
 	tryCommand(['git', 'tag', '-a', "$version", '-m', "Version $version"], true)
 }
 
-task('sourceZip', dependsOn: [ 'documentation' ]) {
-	doLast {
-		ant.zip(destfile: 'jastadd2-src.zip') {
-			zipfileset(dir: '.', prefix: 'jastadd2-src') {
-				include(name: 'src/java/**/*.java')
-				include(name: 'src/jastadd/**/*')
-				include(name: 'src/javacc/**/*')
-				include(name: 'src/res/**/*')
-				include(name: 'tools/Markdown.pl')
-				include(name: 'tools/*.jar')
-				include(name: 'tinytemplate/src/**/*')
-				include(name: 'tinytemplate/LICENSE.txt')
-				include(name: 'tinytemplate/README.md')
-				include(name: 'doc/index.md.in')
-				include(name: 'doc/index.html')
-				include(name: 'doc/reference-manual.md')
-				include(name: 'doc/reference-manual.html')
-				include(name: 'doc/release-notes.md')
-				include(name: 'doc/release-notes.html')
-				include(name: 'LICENSE')
-				include(name: 'README.md')
-				include(name: 'README-binary-dist.md')
-				include(name: 'ChangeLog')
-				include(name: 'build.xml')
-				include(name: 'licenses/*')
-				exclude(name: '**/.git/**/*')
-				exclude(name: '**/.gitignore')
-				exclude(name: '**/.gitmodules')
-			}
-		}
+task sourceZip(type: Zip, dependsOn: 'documentation') {
+	destinationDir = project.rootDir
+	archiveName = 'jastadd2-src.zip'
+
+	from('.') {
+		include 'src/java/**/*.java'
+		include 'src/jastadd/**/*'
+		include 'src/javacc/**/*'
+		include 'src/res/**/*'
+		include 'tools/Markdown.pl'
+		include 'tools/*.jar'
+		include 'tinytemplate/src/**/*'
+		include 'tinytemplate/LICENSE.txt'
+		include 'tinytemplate/README.md'
+		include 'doc/index.md.in'
+		include 'doc/index.html'
+		include 'doc/reference-manual.md'
+		include 'doc/reference-manual.html'
+		include 'doc/release-notes.md'
+		include 'doc/release-notes.html'
+		include 'LICENSE'
+		include 'README.md'
+		include 'README-binary-dist.md'
+		include 'ChangeLog'
+		include 'build.xml'
+		include 'licenses/*'
+		exclude '**/.git/**/*'
+		exclude '**/.gitignore'
+		exclude '**/.gitmodules'
+	}
+	into 'jastadd2-src'
+}
+
+task binaryDistReadme << {
+	ant.exec(executable: 'perl', output: 'README.html') {
+		arg(value: 'tools/Markdown.pl')
+		arg(value: 'README-binary-dist.md')
 	}
 }
 
-task('binaryZip', dependsOn: [ 'jar', 'documentation' ]) {
-	doLast {
-		ant.exec(executable: 'perl', output: 'README-binary-dist.html') {
-			arg(value: 'tools/Markdown.pl')
-			arg(value: 'README-binary-dist.md')
-		}
-		ant.zip(destfile: 'jastadd2-bin.zip') {
-			zipfileset(dir: '.', prefix: 'jastadd2-bin') {
-				include(name: 'LICENSE')
-				include(name: 'ChangeLog')
-				include(name: 'jastadd2.jar')
-				include(name: 'doc/index.html')
-				include(name: 'doc/reference-manual.html')
-				include(name: 'doc/release-notes.html')
-				include(name: 'licenses/*')
-			}
-			zipfileset(dir: '.',
-				includes: 'README-binary-dist.html',
-				fullpath: 'jastadd2-bin/README.html')
-		}
+task binaryZip(type: Zip, dependsOn: [ 'jar', 'documentation', 'binaryDistReadme' ]) {
+	destinationDir = project.rootDir
+	archiveName = 'jastadd2-bin.zip'
+
+	from('.') {
+		include 'README.html'
+		include 'LICENSE'
+		include 'ChangeLog'
+		include 'jastadd2.jar'
+		include 'doc/index.html'
+		include 'doc/reference-manual.html'
+		include 'doc/release-notes.html'
+		include 'licenses/*'
 	}
+	into 'jastadd2-bin'
 }
 
-task('documentation', dependsOn: [ 'storeVersionString' ]) {
-	doLast {
-		println 'Processing Markdown files'
-		ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {
-			filterset() {
-				filter(token: 'VERSION', value: version)
-			}
+task documentation << {
+	println 'Processing Markdown files'
+	ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {
+		filterset {
+			filter(token: 'VERSION', value: version)
 		}
-		ant.chainedmapper(id: 'mdmapper') {
-			flattenmapper()
-			globmapper(from: '*.md', to: "doc${File.separator}*.html")
-		}
-		ant.apply(executable: 'perl', dest: 'doc') {
-			arg(value: 'tools/Markdown.pl')
-			srcfile()
-			fileset(dir: 'doc', includes: '*.md')
-			mapper(refid: 'mdmapper')
-			redirector() {
-				outputmapper(refid: 'mdmapper')
-			}
+	}
+	ant.chainedmapper(id: 'mdmapper') {
+		flattenmapper()
+		globmapper(from: '*.md', to: "doc${File.separator}*.html")
+	}
+	ant.apply(executable: 'perl', dest: 'doc') {
+		arg(value: 'tools/Markdown.pl')
+		srcfile()
+		fileset(dir: 'doc', includes: '*.md')
+		mapper(refid: 'mdmapper')
+		redirector {
+			outputmapper(refid: 'mdmapper')
 		}
 	}
 }
@@ -199,7 +202,7 @@ task updateVersionString {
 	}
 }
 
-task('jjtree') {
+task jjtree {
 	description 'build parser ASTs with JJTree'
 
 	inputs.dir 'src/javacc'
@@ -228,7 +231,7 @@ task('jjtree') {
 	}
 }
 
-task('javacc', dependsOn: [ 'jjtree' ]) {
+task javacc(dependsOn: 'jjtree') {
 	description 'build aspect and grammar parsers with JavaCC'
 
 	inputs.file 'src/gen/org/jastadd/ast/AST/Ast.jj'
@@ -251,24 +254,18 @@ task('javacc', dependsOn: [ 'jjtree' ]) {
 	}
 }
 
-task('additionalParserSources', dependsOn: [ 'javacc' ]) {
+task additionalParserSources(type: Copy, dependsOn: 'javacc') {
 	description 'copy additional parser sources'
 
-	inputs.dir 'src/javacc/jrag'
-	outputs.dir 'src/gen/org/jastadd/jrag'
-
-	doLast {
-		ant.copy(todir: 'src/gen/org/jastadd/jrag', overwrite: true) {
-			fileset(dir: 'src/javacc/jrag') {
-				include(name: '**/*.java')
-			}
-		}
+	from('src/javacc/jrag') {
+		include '**/*.java'
 	}
+	into 'src/gen/org/jastadd/jrag'
 }
 
 compileJava.dependsOn 'generateJava'
 
-task('generateJava', dependsOn: [ 'javacc', 'additionalParserSources' ]) {
+task generateJava(dependsOn: [ 'javacc', 'additionalParserSources' ]) {
 	description 'generate Java sources from JastAdd aspects'
 
 	inputs.dir 'src/jastadd'
@@ -278,7 +275,7 @@ task('generateJava', dependsOn: [ 'javacc', 'additionalParserSources' ]) {
 		ant.taskdef(
 			name: 'jastadd',
 			classname: 'org.jastadd.JastAddTask',
-			classpath: configurations.jastadd2.asPath)
+			classpath: configurations.jastadd.asPath)
 		ant.jastadd(
 			jjtree: true,
 			rewrite: 'regular',
@@ -299,12 +296,12 @@ clean.dependsOn 'cleanJar'
 clean.dependsOn 'cleanGen'
 clean.dependsOn 'cleanArtifacts'
 
-task('cleanGen', type: Delete) {
+task cleanGen(type: Delete) {
 	description 'remove generated source files'
 	delete 'src/gen/org'
 }
 
-task('cleanArtifacts', type: Delete) {
+task cleanArtifacts(type: Delete) {
 	description 'remove generated Zip and Jar files'
 	delete 'jastadd2-src.zip'
 	delete 'jastadd2-bin.zip'
