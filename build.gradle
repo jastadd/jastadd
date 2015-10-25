@@ -29,12 +29,11 @@ def getVersion() {
 	if (hasProperty('newVersion')) {
 		// A new version string should be saved.
 		def date = new Date()
-		def versionFile = file('src/res/Version.properties')
-		ant.propertyfile(file: versionFile) {
-			entry(key: 'version', value: newVersion)
-			entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
-			entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
-		}
+		Properties version = new Properties()
+		version['version'] = newVersion
+		version['timestamp'] = date.format("yyyy-MM-dd'T'HH:mm'Z'")
+		version['build.date'] = date.format('yyyy-MM-dd')
+		version.store(file('src/res/Version.properties').newWriter(), null)
 		return newVersion
 	} else {
 		def output = tryCommand(['git', 'describe'])
@@ -43,8 +42,9 @@ def getVersion() {
 			output.readLines()[0]
 		} else {
 			// Git command failed. Read the previous version string instead.
-			ant.property(file: file('src/res/Version.properties'))
-			ant.properties['version']
+			Properties version = new Properties()
+			version.load(new FileInputStream(file('src/res/Version.properties')))
+			version['version']
 		}
 	}
 }
@@ -346,11 +346,15 @@ uploadArchives {
 		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
 		repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-			authentication(userName: ossrhUsername, password: ossrhPassword)
+			if (hasProperty('ossrhUsername')) {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
 		}
 
 		snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
-			authentication(userName: ossrhUsername, password: ossrhPassword)
+			if (hasProperty('ossrhUsername')) {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
 		}
 
 		pom.project {
