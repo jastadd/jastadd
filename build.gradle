@@ -136,14 +136,23 @@ task sourceZip(type: Zip, dependsOn: 'documentation') {
 	into 'jastadd2-src'
 }
 
-task binaryDistReadme << {
-	ant.exec(executable: 'perl', output: 'README.html') {
-		arg(value: 'tools/Markdown.pl')
-		arg(value: 'README-binary-dist.md')
+task binaryDistReadme(type: Exec) {
+	description 'Generate the README for binary distributions'
+	commandLine 'perl', file('tools/Markdown.pl').path, 'README-binary-dist.md'
+
+	inputs.file 'tools/Markdown.pl'
+	inputs.file 'README-binary-dist.md'
+	outputs.file 'README.html'
+
+	doFirst {
+		standardOutput = new FileOutputStream(file('README.html'))
 	}
 }
 
-task binaryZip(type: Zip, dependsOn: [ 'jar', 'documentation', 'binaryDistReadme' ]) {
+task binaryZip(type: Zip) {
+	description 'build the binary Zip'
+	dependsOn 'jar', 'documentation', 'binaryDistReadme'
+
 	destinationDir = project.rootDir
 	archiveName = 'jastadd2-bin.zip'
 
@@ -197,12 +206,11 @@ task updateVersionString {
 	doLast {
 		file('src/gen-res').mkdirs()
 		def date = new Date()
-		def versionFile = file('src/gen-res/Version.properties')
-		ant.propertyfile(file: versionFile) {
-			entry(key: 'version', value: project.version)
-			entry(key: 'timestamp', value: date.format("yyyy-MM-dd'T'HH:mm'Z'"))
-			entry(key: 'build.date', value: date.format('yyyy-MM-dd'))
-		}
+		Properties version = new Properties()
+		version['version'] = project.version
+		version['timestamp'] = date.format("yyyy-MM-dd'T'HH:mm'Z'")
+		version['build.date'] = date.format('yyyy-MM-dd')
+		version.store(file('src/gen-res/Version.properties').newWriter(), null)
 	}
 }
 
@@ -241,31 +249,37 @@ task aspectAst(type: JavaExec) {
 	}
 }
 
-task javacc(dependsOn: [ 'aspectAst', 'grammarAst' ]) {
+task grammarParser(type: JavaExec) {
 	description 'build aspect and grammar parsers with JavaCC'
+	dependsOn 'grammarAst'
+
+	classpath = configurations.javacc
+	main = 'org.javacc.parser.Main'
+	args '-JDK_VERSION=1.4',
+		"-OUTPUT_DIRECTORY=${file('src/gen/org/jastadd/ast/AST').path}",
+		file('src/gen/org/jastadd/ast/AST/Ast.jj').path
 
 	inputs.file 'src/gen/org/jastadd/ast/AST/Ast.jj'
-	inputs.file 'src/gen/org/jastadd/jrag/AST/Jrag.jj'
-	outputs.dir 'src/gen/org/jastadd/jrag/AST'
 	outputs.dir 'src/gen/org/jastadd/ast/AST'
-
-	doLast {
-		ant {
-			javacc(javacchome: 'tools',
-				jdkversion: '1.4',
-				outputdirectory: 'src/gen/org/jastadd/ast/AST',
-				target: 'src/gen/org/jastadd/ast/AST/Ast.jj')
-			javacc(
-				javacchome: 'tools',
-				jdkversion: '1.4',
-				outputdirectory: 'src/gen/org/jastadd/jrag/AST',
-				target: 'src/gen/org/jastadd/jrag/AST/Jrag.jj')
-		}
-	}
 }
 
-task additionalParserSources(type: Copy, dependsOn: 'javacc') {
+task aspectParser(type: JavaExec) {
+	description 'build aspect and grammar parsers with JavaCC'
+	dependsOn 'aspectAst'
+
+	classpath = configurations.javacc
+	main = 'org.javacc.parser.Main'
+	args '-JDK_VERSION=1.4',
+		"-OUTPUT_DIRECTORY=${file('src/gen/org/jastadd/jrag/AST').path}",
+		file('src/gen/org/jastadd/jrag/AST/Jrag.jj').path
+
+	inputs.file 'src/gen/org/jastadd/jrag/AST/Jrag.jj'
+	outputs.dir 'src/gen/org/jastadd/jrag/AST'
+}
+
+task additionalParserSources(type: Copy) {
 	description 'copy additional parser sources'
+	dependsOn 'grammarParser', 'aspectParser'
 
 	from('src/javacc/jrag') {
 		include '**/*.java'
@@ -277,7 +291,7 @@ compileJava.dependsOn 'generateJava'
 
 task generateJava(type: JavaExec) {
 	description 'Generate the Abstract Grammar sources from JastAdd aspects'
-	dependsOn 'javacc', 'additionalParserSources'
+	dependsOn 'additionalParserSources'
 
 	classpath = configurations.jastadd
 	main = 'org.jastadd.JastAdd'
@@ -301,13 +315,15 @@ clean.dependsOn 'cleanArtifacts'
 task cleanGen(type: Delete) {
 	description 'remove generated source files'
 	delete 'src/gen/org'
+	delete 'src/gen-res'
 }
 
 task cleanArtifacts(type: Delete) {
 	description 'remove generated Zip and Jar files'
 	delete 'jastadd2-src.zip'
 	delete 'jastadd2-bin.zip'
-	delete 'README-binary-dist.html'
+	delete 'README.html'
+	delete 'README-binary-dist.html' // Old README.html name.
 }
 
 task javadocJar(type: Jar) {
