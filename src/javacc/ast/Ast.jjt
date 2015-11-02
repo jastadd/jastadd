@@ -65,6 +65,7 @@ MORE :
 |
   "/*" : IN_MULTI_LINE_COMMENT
 }
+
 <IN_SINGLE_LINE_COMMENT>
 SPECIAL_TOKEN :
 {
@@ -89,17 +90,6 @@ MORE :
   < ~[] >
 }
 
-/*
-SKIP :
-{
-  " "
-| "\t"
-| "\n"
-| "\r"
-| <"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
-}
-*/
-
 TOKEN : /* Reserved words */
 {
   < ABSTRACT: "abstract" >
@@ -114,9 +104,8 @@ TOKEN : /* Reserved words */
   | < DOUBLE: "double" >
   | < SUPER: "super" >
   | < EXTENDS: "extends" >
-  // EMMA_2011-12-05: Adding words "region" for grammar annotations for coarse dependency tracking
+  /* Keyword "region" is for grammar annotations for coarse dependency tracking. */
   | < REGION: "region" >
-  //
 }
 
 TOKEN : /* Literals */

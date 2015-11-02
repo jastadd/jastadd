@@ -28,24 +28,36 @@
 package org.jastadd;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 
 import org.jastadd.ast.AST.ASTDecl;
+import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Component;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.InterTypeObject;
+import org.jastadd.ast.AST.List;
 import org.jastadd.ast.AST.SynDecl;
 import org.jastadd.ast.AST.SynEq;
 import org.jastadd.ast.AST.SynthesizedNta;
 import org.jastadd.ast.AST.TokenComponent;
 import org.jastadd.ast.AST.TypeDecl;
+import org.jastadd.jrag.AST.ASTCompilationUnit;
+import org.jastadd.jrag.AST.JragParser;
+import org.jastadd.jrag.AST.TokenMgrError;
 
 /**
  * JastAdd main class.
@@ -276,7 +288,7 @@ public class JastAdd {
       String fileName = iter.next();
       if (fileName.endsWith(".ast")) {
         File source = new File(fileName);
-        JastAddUtil.parseASTSpec(source, grammar, problems);
+        parseAbstractGrammar(source, grammar, problems);
       }
     }
     return problems;
@@ -288,14 +300,13 @@ public class JastAdd {
       String fileName = iter.next();
       if (fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
         File source = new File(fileName);
-        JastAddUtil.parseJRAGSpec(source, grammar, problems);
+        parseAspect(source, grammar, problems);
       }
     }
     problems.addAll(weaveInterTypeObjects(grammar));
     return problems;
   }
 
-  @SuppressWarnings("unchecked")
   protected static Collection<Problem> weaveInterTypeObjects(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
     for (InterTypeObject object: grammar.interTypeObjects) {
@@ -308,7 +319,7 @@ public class JastAdd {
       }
     }
     // TODO(jesper): Remove the below line.
-    grammar.interTypeObjects.clear();// Reset to avoid double weaving.
+    grammar.interTypeObjects.clear(); // Reset to avoid double weaving.
     return problems;
   }
 
@@ -365,7 +376,7 @@ public class JastAdd {
     for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
       String fileName = iter.next();
       File cacheFile = new File(fileName);
-      JastAddUtil.parseCacheDeclarations(cacheFile, grammar, problems);
+      parseCacheDeclarations(cacheFile, grammar, problems);
     }
     return problems;
   }
@@ -381,8 +392,8 @@ public class JastAdd {
         java.io.StringWriter writer = new java.io.StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 
-        Collection<Problem> problems = JastAddUtil.parseAspectBodyDeclarations(
-            new java.io.StringReader(writer.toString()), config.astNodeType(), grammar);
+        Collection<Problem> problems = parseAspectBodyDeclarations(
+            writer.toString(), config.astNodeType(), grammar);
         allProblems.addAll(problems);
 
         int j = 0;
@@ -411,8 +422,7 @@ public class JastAdd {
     if (config.incremental()) {
       java.io.StringWriter writer = new java.io.StringWriter();
       grammar.genIncrementalDDGNode(new PrintWriter(writer));
-      return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
-          config.astNodeType(), grammar);
+      return parseAspectBodyDeclarations(writer.toString(), config.astNodeType(), grammar);
     }
     return new LinkedList<Problem>();
   }
@@ -420,8 +430,7 @@ public class JastAdd {
   private Collection<Problem> genStateClass(Grammar grammar) {
     java.io.StringWriter writer = new java.io.StringWriter();
     grammar.emitStateClass(new PrintWriter(writer));
-    return JastAddUtil.parseAspectBodyDeclarations(writer.toString(),
-        config.stateClassName(), grammar);
+    return parseAspectBodyDeclarations(writer.toString(), config.stateClassName(), grammar);
   }
 
   @SuppressWarnings("unused")
@@ -437,4 +446,163 @@ public class JastAdd {
     use = total-free;
     out.println("After GC: Total " + total + ", use " + use);
   }
+
+  /**
+   * Parses a given AST specification in a given File and adds its content to a
+   * given grammar object.
+   *
+   * @param source the file based source
+   * @param problems a collection where problems should be added for later error handling
+   * @param grammar the grammar object where the AST specifications contents should be added
+   */
+  protected static void parseAbstractGrammar(File source, Grammar grammar,
+      Collection<Problem> problems) {
+    Reader inStream = null;
+    String fileName = source.getPath();
+    try {
+      inStream = new FileReader(source);
+      Ast parser = new Ast(inStream);
+      parser.fileName = fileName;
+      Grammar astGrammar = parser.Grammar();
+      problems.addAll(parser.parseProblems());
+      if (astGrammar != null) {
+        List<TypeDecl> typeDecls = astGrammar.getTypeDeclListNoTransform();
+        for (int i = 0; i < typeDecls.getNumChildNoTransform(); i++) {
+          grammar.addTypeDecl(typeDecls.getChildNoTransform(i));
+        }
+        for (int i = 0; i < astGrammar.getNumRegionDecl(); i++) {
+          grammar.addRegionDecl(astGrammar.getRegionDecl(i));
+        }
+      }
+    } catch (org.jastadd.ast.AST.TokenMgrError e) {
+      problems.add(new Problem.Error(e.getMessage(), fileName));
+    } catch (org.jastadd.ast.AST.ParseException e) {
+      // ParseExceptions should be caught by error recovery in the parser, but
+      // in case we catch it here we should add an error anyway.
+      problems.add(new Problem.Error(e.getMessage(), fileName));
+    } catch (FileNotFoundException e) {
+      problems.add(new Problem.Error("could not find abstract syntax file '" + fileName + "'"));
+    } finally {
+      if (inStream != null)
+        try {
+          inStream.close();
+        } catch (IOException e) {
+          // Failed to close input. Not a problem.
+        }
+    }
+  }
+
+  /**
+   * Parses a JRAG or JADD specification from a given file and adds it to the given grammar object.
+   *
+   * @param source the file-based source
+   * @param grammar the grammar where the parsed attributes/inter-type declarations should be added
+   * @param problems the collection where new objects can be added
+   *
+   */
+  protected static void parseAspect(File source, Grammar grammar, Collection<Problem> problems) {
+    Reader inStream = null;
+    String fileName = source.getPath();
+    try {
+      inStream = new FileReader(source);
+      JragParser parser = new JragParser(inStream);
+      parser.setFileName(fileName);
+      parser.root = grammar;
+      ASTCompilationUnit cu = parser.CompilationUnit();
+      grammar.addCompUnit(cu);
+    } catch (org.jastadd.jrag.AST.ParseException e) {
+      int startLine = e.currentToken.next.beginLine;
+      int startColumn = e.currentToken.next.beginColumn;
+      int endColumn = e.currentToken.next.endColumn;
+      StringBuilder errorMessage = new StringBuilder();
+      errorMessage.append("unexpected token \"" + e.currentToken.next.image + "\":\n");
+      try {
+        InputStream sourceInput = new FileInputStream(fileName);
+        Scanner scanner = new Scanner(sourceInput);
+        for (int i = 1; i < startLine && scanner.hasNextLine(); ++i) {
+          scanner.nextLine();
+        }
+        if (scanner.hasNextLine()) {
+          errorMessage.append(scanner.nextLine() + "\n");
+          for (int i = 1; i < startColumn; ++i) {
+            errorMessage.append(" ");
+          }
+          for (int i = startColumn; i <= endColumn; ++i) {
+            errorMessage.append("^");
+          }
+        }
+      } catch (IOException e2) {
+        // Failed to unparse the offending line, so we skip the context part of the error message.
+      }
+      problems.add(new Problem.Error(errorMessage.toString(),
+              fileName, startLine, startColumn));
+    } catch (TokenMgrError e) {
+      problems.add(new Problem.Error(e.getMessage()));
+    } catch (FileNotFoundException e) {
+      problems.add(new Problem.Error("could not find aspect file '" + fileName + "'"));
+    } catch (Throwable e) {
+      problems.add(new Problem.Error("exception occurred while parsing: " + e.getMessage(),
+              fileName));
+    } finally {
+      if (inStream != null)
+        try {
+          inStream.close();
+        } catch (IOException e) {
+          // Failed to close input. Not a problem.
+        }
+    }
+  }
+
+  /**
+   * Sequentially parses all inner aspect body declarations that may occur in the
+   * given input stream and adds them to the given Grammar.
+   *
+   * @return A list of problems that may only contain internal errors.
+   */
+  protected static Collection<Problem> parseAspectBodyDeclarations(String source, String sourceName,
+      Grammar grammar) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    JragParser jp = new JragParser(new StringReader(source));
+    jp.root = grammar;
+    jp.setFileName(sourceName);
+    jp.className = sourceName;
+    jp.pushTopLevelOrAspect("aspect");
+    try {
+      jp.AspectBodyDeclarationsEOF();
+      problems.addAll(JastAdd.weaveInterTypeObjects(grammar));
+    } catch (org.jastadd.jrag.AST.ParseException e) {
+      problems.add(new Problem.Error("Internal Error in " + sourceName + ": " + e.getMessage()));
+    }
+    jp.popTopLevelOrAspect();
+    return problems;
+  }
+
+  /**
+   * Read the cache declarations from a cache config file.
+   */
+  protected static void parseCacheDeclarations(File source, Grammar grammar,
+      Collection<Problem> problems) {
+    Reader inStream = null;
+    String fileName = source.getName();
+    try {
+      inStream = new FileReader(source);
+      JragParser jp = new JragParser(inStream);
+      jp.root = grammar;
+      jp.setFileName(fileName);
+      jp.CacheDeclarations();
+    } catch (org.jastadd.jrag.AST.ParseException e) {
+      problems.add(new Problem.Error("syntax error", fileName,
+            e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
+    } catch (FileNotFoundException e) {
+      problems.add(new Problem.Error("could not find cache file '" + fileName + "'"));
+    } finally {
+      if (inStream != null)
+        try {
+          inStream.close();
+        } catch (IOException e) {
+          // Failed to close input. Not a problem.
+        }
+    }
+  }
+
 }
