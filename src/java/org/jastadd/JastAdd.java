@@ -537,7 +537,7 @@ public class JastAdd {
       problems.add(new Problem.Error(errorMessage.toString(),
               fileName, startLine, startColumn));
     } catch (TokenMgrError e) {
-      problems.add(new Problem.Error(e.getMessage()));
+      problems.add(new Problem.Error(e.getMessage(), fileName));
     } catch (FileNotFoundException e) {
       problems.add(new Problem.Error("could not find aspect file '" + fileName + "'"));
     } catch (Throwable e) {

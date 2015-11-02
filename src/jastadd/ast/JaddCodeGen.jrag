@@ -552,16 +552,16 @@ aspect JaddCodeGen {
     if (config().jjtree()) {
       TemplateContext tt = templateContext();
 
-      // emit the dumpTree method
+      // Emit the dumpTree method.
       tt.expand("JJTree.dumpTree", out);
 
-      // emit the jjtAccept method
+      // Emit the jjtAccept method.
       tt.expand("JJTree.jjtAccept", out);
 
-      // emit the jjtAddChild method
+      // Emit the jjtAddChild method.
       tt.expand("JJTree.jjtAddChild", out);
 
-      // emit method to check the structure of a JJTree node
+      // Emit method to check the structure of a JJTree node.
       tt.expand("JJTree.checkChild", out);
     }
 

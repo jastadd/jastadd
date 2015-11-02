@@ -209,10 +209,12 @@ task jjtree {
 	outputs.dir 'src/gen/org/jastadd/ast/AST'
 	outputs.dir 'src/gen/org/jastadd/jrag/AST'
 
-	doLast {
+	doFirst {
 		file('src/gen/org/jastadd/ast/AST').mkdirs()
 		file('src/gen/org/jastadd/jrag/AST').mkdirs()
+	}
 
+	doLast {
 		ant {
 			// Ast.jjt must be touched, or Ant will not run jjtree
 			touch(file: 'src/javacc/ast/Ast.jjt')
@@ -265,31 +267,23 @@ task additionalParserSources(type: Copy, dependsOn: 'javacc') {
 
 compileJava.dependsOn 'generateJava'
 
-task generateJava(dependsOn: [ 'javacc', 'additionalParserSources' ]) {
-	description 'generate Java sources from JastAdd aspects'
+task generateJava(type: JavaExec) {
+	description 'Generate the Abstract Grammar sources from JastAdd aspects'
+	dependsOn 'javacc', 'additionalParserSources'
+
+	classpath = configurations.jastadd
+	main = 'org.jastadd.JastAdd'
+	args ([ '--rewrite=regular', '--grammar=Ast', '--jjtree',
+		'--package=org.jastadd.ast.AST',
+		'--lazyMaps=false', "--o=${file('src/gen').path}" ] +
+		fileTree('src/jastadd')
+			.include('**/*.ast')
+			.include('**/*.jadd')
+			.include('**/*.jrag')
+			.files)
 
 	inputs.dir 'src/jastadd'
 	outputs.dir 'src/gen/org/jastadd/ast/AST'
-
-	doLast {
-		ant.taskdef(
-			name: 'jastadd',
-			classname: 'org.jastadd.JastAddTask',
-			classpath: configurations.jastadd.asPath)
-		ant.jastadd(
-			jjtree: true,
-			rewrite: 'regular',
-			grammar: 'Ast',
-			package: 'org.jastadd.ast.AST',
-			outdir: 'src/gen',
-			lazyMaps: false) {
-			fileset(dir: 'src/jastadd') {
-				include(name: '**/*.ast')
-				include(name: '**/*.jadd')
-				include(name: '**/*.jrag')
-			}
-		}
-	}
 }
 
 clean.dependsOn 'cleanJar'
