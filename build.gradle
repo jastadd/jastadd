@@ -66,6 +66,7 @@ jar.archiveName = 'jastadd2.jar'
 configurations {
 	deployerJars
 	jastadd
+	javacc
 }
 
 repositories {
@@ -76,6 +77,7 @@ repositories {
 dependencies {
 	compile 'org.apache.ant:ant:1.9.4'
 	jastadd('org.jastadd:jastadd:2.1.13') { force = true /* avoid conflict with local artifact */ }
+	javacc 'net.java.dev.javacc:javacc:4.0'
 }
 
 processResources.dependsOn 'updateVersionString'
@@ -202,38 +204,42 @@ task updateVersionString {
 	}
 }
 
-task jjtree {
-	description 'build parser ASTs with JJTree'
+task grammarAst(type: JavaExec) {
+	description 'build abstract syntax parser AST with JJTree'
 
-	inputs.dir 'src/javacc'
+	classpath = configurations.javacc
+	main = 'org.javacc.jjtree.Main'
+	args "-OUTPUT_DIRECTORY=${file('src/gen/org/jastadd/ast/AST').path}",
+		'-NODE_PREFIX=""',
+		file('src/javacc/ast/Ast.jjt').path
+
+
+	inputs.file 'src/javacc/ast/Ast.jjt'
 	outputs.dir 'src/gen/org/jastadd/ast/AST'
-	outputs.dir 'src/gen/org/jastadd/jrag/AST'
 
 	doFirst {
 		file('src/gen/org/jastadd/ast/AST').mkdirs()
-		file('src/gen/org/jastadd/jrag/AST').mkdirs()
-	}
-
-	doLast {
-		ant {
-			// Ast.jjt must be touched, or Ant will not run jjtree
-			touch(file: 'src/javacc/ast/Ast.jjt')
-			java(classpath: 'tools/javacc.jar', classname: 'org.javacc.jjtree.Main') {
-				arg(value: '-OUTPUT_DIRECTORY=src/gen/org/jastadd/ast/AST')
-				arg(value: '-NODE_PREFIX=""')
-				arg(value: 'src/javacc/ast/Ast.jjt')
-			}
-			// Jrag.jjt must be touched, or Ant will not run jjtree
-			touch(file: 'src/javacc/jrag/Jrag.jjt')
-			jjtree(
-				javacchome: 'tools',
-				outputdirectory: 'src/gen/org/jastadd/jrag/AST',
-				target: 'src/javacc/jrag/Jrag.jjt')
-		}
 	}
 }
 
-task javacc(dependsOn: 'jjtree') {
+task aspectAst(type: JavaExec) {
+	description 'build aspect parser AST with JJTree'
+
+	classpath = configurations.javacc
+	main = 'org.javacc.jjtree.Main'
+	args "-OUTPUT_DIRECTORY=${file('src/gen/org/jastadd/jrag/AST').path}",
+		file('src/javacc/jrag/Jrag.jjt').path
+
+
+	inputs.file 'src/javacc/jrag/Jrag.jjt'
+	outputs.dir 'src/gen/org/jastadd/jrag/AST'
+
+	doFirst {
+		file('src/gen/org/jastadd/jrag/AST').mkdirs()
+	}
+}
+
+task javacc(dependsOn: [ 'aspectAst', 'grammarAst' ]) {
 	description 'build aspect and grammar parsers with JavaCC'
 
 	inputs.file 'src/gen/org/jastadd/ast/AST/Ast.jj'

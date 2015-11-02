@@ -464,6 +464,7 @@ public class JastAdd {
       Ast parser = new Ast(inStream);
       parser.fileName = fileName;
       Grammar astGrammar = parser.Grammar();
+      astGrammar.dump("");
       problems.addAll(parser.parseProblems());
       if (astGrammar != null) {
         List<TypeDecl> typeDecls = astGrammar.getTypeDeclListNoTransform();
