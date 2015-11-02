@@ -118,6 +118,7 @@ Grammar Grammar() #Grammar: {}
 {
   ClassList()
   RegionList()
+  <EOF>
   { return jjtThis; }
 }
 

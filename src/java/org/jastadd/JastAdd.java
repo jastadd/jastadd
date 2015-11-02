@@ -478,9 +478,14 @@ public class JastAdd {
     } catch (org.jastadd.ast.AST.TokenMgrError e) {
       problems.add(new Problem.Error(e.getMessage(), fileName));
     } catch (org.jastadd.ast.AST.ParseException e) {
-      // ParseExceptions should be caught by error recovery in the parser, but
-      // in case we catch it here we should add an error anyway.
-      problems.add(new Problem.Error(e.getMessage(), fileName));
+      int startLine = e.currentToken.next.beginLine;
+      int startColumn = e.currentToken.next.beginColumn;
+      int endColumn = e.currentToken.next.endColumn;
+      String offendingToken = e.currentToken.next.image;
+      String context = syntaxErrorContext(fileName, startLine, startColumn, endColumn);
+      problems.add(new Problem.Error(
+          String.format("unexpected token \"%s\":\n%s", offendingToken, context),
+          fileName, startLine, startColumn));
     } catch (FileNotFoundException e) {
       problems.add(new Problem.Error("could not find abstract syntax file '" + fileName + "'"));
     } finally {
@@ -515,28 +520,11 @@ public class JastAdd {
       int startLine = e.currentToken.next.beginLine;
       int startColumn = e.currentToken.next.beginColumn;
       int endColumn = e.currentToken.next.endColumn;
-      StringBuilder errorMessage = new StringBuilder();
-      errorMessage.append("unexpected token \"" + e.currentToken.next.image + "\":\n");
-      try {
-        InputStream sourceInput = new FileInputStream(fileName);
-        Scanner scanner = new Scanner(sourceInput);
-        for (int i = 1; i < startLine && scanner.hasNextLine(); ++i) {
-          scanner.nextLine();
-        }
-        if (scanner.hasNextLine()) {
-          errorMessage.append(scanner.nextLine() + "\n");
-          for (int i = 1; i < startColumn; ++i) {
-            errorMessage.append(" ");
-          }
-          for (int i = startColumn; i <= endColumn; ++i) {
-            errorMessage.append("^");
-          }
-        }
-      } catch (IOException e2) {
-        // Failed to unparse the offending line, so we skip the context part of the error message.
-      }
-      problems.add(new Problem.Error(errorMessage.toString(),
-              fileName, startLine, startColumn));
+      String offendingToken = e.currentToken.next.image;
+      String context = syntaxErrorContext(fileName, startLine, startColumn, endColumn);
+      problems.add(new Problem.Error(
+          String.format("unexpected token \"%s\":\n%s", offendingToken, context),
+          fileName, startLine, startColumn));
     } catch (TokenMgrError e) {
       problems.add(new Problem.Error(e.getMessage(), fileName));
     } catch (FileNotFoundException e) {
@@ -606,4 +594,31 @@ public class JastAdd {
     }
   }
 
+  /**
+   * Reads the line containing a syntax error, and adds highlighting characters under the line.
+   */
+  private static String syntaxErrorContext(String fileName, int startLine,
+      int startColumn, int endColumn) {
+    try {
+      StringBuilder buf = new StringBuilder();
+      InputStream sourceInput = new FileInputStream(fileName);
+      Scanner scanner = new Scanner(sourceInput);
+      for (int i = 1; i < startLine && scanner.hasNextLine(); ++i) {
+        scanner.nextLine();
+      }
+      if (scanner.hasNextLine()) {
+        buf.append(scanner.nextLine() + "\n");
+        for (int i = 1; i < startColumn; ++i) {
+          buf.append(" ");
+        }
+        for (int i = startColumn; i <= endColumn; ++i) {
+          buf.append("^");
+        }
+      }
+      return buf.toString();
+    } catch (IOException e) {
+      // Failed to unparse the offending line, so we skip the context part of the error message.
+      return "";
+    }
+  }
 }
