@@ -41,12 +41,25 @@ public aspect Attributes {
 
   public Collection<Problem> Grammar.problems = new LinkedList<Problem>();
 
+  /**
+   * Add an error to the grammar.
+   */
   public void Grammar.error(String msg, String file, int line) {
     problems.add(new Problem.Error(msg, file, line));
   }
 
+  /**
+   * Add an error to the grammar.
+   */
   public void Grammar.error(String msg) {
     problems.add(new Problem.Error(msg));
+  }
+
+  /**
+   * Add an error to the grammar.
+   */
+  public void Grammar.errorf(String messagefmt, Object... args) {
+    error(String.format(messagefmt, args));
   }
 
   public Collection<Problem> Grammar.weavingProblems() {
