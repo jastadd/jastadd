@@ -1316,7 +1316,7 @@ void CollectionAttribute():
   String attrType;
   String targetName;
   Token attrName;
-  String combOp;
+  String combOp = "add";
   String rootName = null;
   SimpleNode startValue;
   boolean isCircular = false;
@@ -1330,7 +1330,7 @@ void CollectionAttribute():
   attrType = AspectType() t = <IDENTIFIER> "." { targetName = t.image; } attrName = AttributeName() "(" ")"
   [ <CIRCULAR> { isCircular = true; } ]
   <LBRACKET> startValue = Expression() <RBRACKET>
-  <WITH> t = <IDENTIFIER> { combOp = t.image; }
+  [ <WITH> t = <IDENTIFIER> { combOp = t.image; } ]
   [ <ROOT> t = <IDENTIFIER> { rootName = t.image; } ]
   ";"
   {
