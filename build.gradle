@@ -86,10 +86,8 @@ processResources.dependsOn 'updateVersionString'
 processResources.dependsOn 'copyResources'
 
 task copyResources(type: Copy) {
-	from('src/res') {
-		exclude 'Version.properties'
-	}
-	into 'src/gen-res'
+	from 'src/template'
+	into 'src/gen-res/template'
 }
 
 task release(dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
@@ -112,6 +110,7 @@ task sourceZip(type: Zip, dependsOn: 'documentation') {
 		include 'src/jastadd/**/*'
 		include 'src/javacc/**/*'
 		include 'src/res/**/*'
+		include 'src/template/**/*'
 		include 'tools/Markdown.pl'
 		include 'tools/*.jar'
 		include 'tinytemplate/src/**/*'

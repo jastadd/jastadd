@@ -10,7 +10,6 @@ OPTIONS:
 
 	<property name="jastadd2.src.dir" location="${jastadd2.basedir}/src"/>
 	<property name="jastadd2.gen.dir" location="${jastadd2.src.dir}/gen"/>
-	<property name="jastadd2.res.dir" location="${jastadd2.src.dir}/res"/>
 	<property name="jastadd2.genres.dir" location="${jastadd2.src.dir}/gen-res"/>
 	<property name="jastadd2.bin.dir" location="${jastadd2.basedir}/ant-bin"/>
 	<property name="jastadd2.tools.dir" location="${jastadd2.basedir}/tools"/>
@@ -87,8 +86,9 @@ OPTIONS:
 			<src path="${tt.src.dir}"/>
 		</javac>
 		<!-- Copy templates. -->
-		<copy todir="${jastadd2.bin.dir}">
-			<fileset dir="${jastadd2.res.dir}">
+		<mkdir dir="${jastadd2.bin.dir}/tempalte"/>
+		<copy todir="${jastadd2.bin.dir}/template">
+			<fileset dir="${jastadd2.src.dir}/template">
 				<include name="**/*.tt"/>
 			</fileset>
 		</copy>
@@ -136,7 +136,7 @@ OPTIONS:
 		<jar destfile="${basedir}/jastadd2.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.jastadd.JastAdd"/>
-				<attribute name="Implementation-Title" value="JastAdd II"/>
+				<attribute name="Implementation-Title" value="JastAdd2"/>
 				<attribute name="Implementation-Version" value="${version.name}"/>
 				<attribute name="Implementation-Vendor" value="The JastAdd Team"/>
 				<attribute name="Implementation-URL" value="http://jastadd.org"/>
@@ -157,6 +157,7 @@ OPTIONS:
 				<include name="src/jastadd/**/*"/>
 				<include name="src/javacc/**/*"/>
 				<include name="src/res/**/*"/>
+				<include name="src/template/**/*"/>
 				<include name="tools/Markdown.pl"/>
 				<include name="tools/*.jar"/>
 				<include name="tinytemplate/src/**/*"/>
@@ -195,6 +196,12 @@ OPTIONS:
 			<fileset dir="src/res">
 				<include name="**/*"/>
 			</fileset>
+			<fileset dir="src">
+				<include name="template/**/*"/>
+			</fileset>
+			<fileset dir="src/template">
+				<include name="**/*"/>
+			</fileset>
 		</jar>
 	</target>
 
@@ -223,14 +230,14 @@ OPTIONS:
 		<!-- NB: update release-notes.md before release! -->
 		<!-- NB: all staged changes in this git repository will be committed! -->
 		<echo message="Storing version string and tagging release ${version}"/>
-		<propertyfile file="${jastadd2.res.dir}/Version.properties">
+		<propertyfile file="${jastadd2.src.dir}/res/Version.properties">
 			<entry key="version" value="${version}"/>
 			<entry key="timestamp" value="${timestamp}"/>
 			<entry key="build.date" value="${build.date}"/>
 		</propertyfile>
 		<exec executable="git">
 			<arg value="add"/>
-			<arg value="${jastadd2.res.dir}/Version.properties"/>
+			<arg value="${jastadd2.src.dir}/res/Version.properties"/>
 			<arg value="doc/release-notes.md"/>
 		</exec>
 		<exec executable="git">
@@ -298,7 +305,7 @@ OPTIONS:
 			<arg value="--git-dir=${jastadd2.basedir}/.git"/>
 			<arg value="describe"/>
 		</exec>
-		<property file="${jastadd2.res.dir}/Version.properties" prefix="old"/>
+		<property file="${jastadd2.src.dir}/res/Version.properties" prefix="old"/>
 		<condition property="version" value="${gitoutput}" else="${old.version}">
 			<equals arg1="${gitresult}" arg2="0"/>
 		</condition>
