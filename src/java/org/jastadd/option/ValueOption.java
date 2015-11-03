@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+/* Copyright (c) 2013-2015, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,7 @@ public class ValueOption extends Option<String> {
 
   private final Set<String> acceptedValues = new LinkedHashSet<String>();
   private final Collection<String[]> valueDescriptions = new LinkedList<String[]>();
-
   private final Collection<String> values = new LinkedList<String>();
-
   private final Collection<String> defaultValues = new LinkedList<String>();
 
   /**
@@ -103,7 +101,7 @@ public class ValueOption extends Option<String> {
    * Allow the option to have any value.
    * @return self
    */
-  public ValueOption unrestricted() {
+  public ValueOption acceptAnyValue() {
     restricted = false;
     return this;
   }
@@ -156,10 +154,11 @@ public class ValueOption extends Option<String> {
     super.printDescription(out);
     if (restricted && !acceptedValues.isEmpty()) {
       printIndent(out, TAB_2);
-      out.println(
-          (needsValue ? "requires " : "accepts ") +
-          (acceptsMultipleValues ? "some" : "one" ) +
-           " of the following" + (needsValue ? "" : " optional") + " values:");
+      out.format("%s %s of the following%s values:",
+          needsValue ? "requires " : "accepts ",
+          acceptsMultipleValues ? "some" : "one",
+          needsValue ? "" : " optional");
+      out.println();
       for (String[] s : valueDescriptions) {
         printIndent(out, TAB_3);
         String value = "'" + s[0] + "'";
@@ -263,8 +262,8 @@ public class ValueOption extends Option<String> {
    */
   public void reportWarnings(PrintStream out, String arg) {
     if (!acceptedValues.isEmpty() && !acceptedValues.contains(arg)) {
-      out.println("Warning: the option '" + name +
-          "' does not accept the value '" + arg + "'");
+      out.format("Warning: the option '%s' does not accept the value '%s'", name, arg);
+      out.println();
     }
   }
 

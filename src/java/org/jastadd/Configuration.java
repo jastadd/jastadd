@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+/* Copyright (c) 2013-2015, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,12 @@
  */
 package org.jastadd;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -82,37 +85,33 @@ public class Configuration {
     return indList.get(level);
   }
 
-  Option<String> ASTNodeOption = new ValueOption("ASTNode",
-      "set the name of the ASTNode type")
-      .unrestricted()
+  Option<String> ASTNodeOption = new ValueOption("ASTNode", "set the name of the ASTNode type")
+      .acceptAnyValue()
       .defaultValue("ASTNode")
       .templateName("ASTNode");
 
-  Option<String> ListOption = new ValueOption("List",
-      "set the name of the List type")
-      .unrestricted()
+  Option<String> ListOption = new ValueOption("List", "set the name of the List type")
+      .acceptAnyValue()
       .defaultValue("List")
       .templateName("List");
 
-  Option<String> OptOption = new ValueOption("Opt",
-      "set the name of the Opt type")
-      .unrestricted()
+  Option<String> OptOption = new ValueOption("Opt", "set the name of the Opt type")
+      .acceptAnyValue()
       .defaultValue("Opt")
       .templateName("Opt");
 
   Option<String> stateClassNameOption = new ValueOption("stateClassName",
       "set the name of the AST state class")
-      .unrestricted()
+      .acceptAnyValue()
       .defaultValue("ASTNode$State")
       .templateName("StateClass");
 
-  Option<String> ASTNodeSuperOption = new ValueOption("ASTNodeSuper",
-      "set the name of the ASTNode supertype")
-      .unrestricted()
-      //.defaultValue("Object")
+  Option<String> ASTNodeSuperOption = new ValueOption("ASTNodeSuper", "set the ASTNode supertype")
+      .acceptAnyValue()
       .templateName("ASTNodeSuper");
 
-  Option<Boolean> generateImplicitsOption = new BooleanOption("generateImplicits", "generate implicit node types")
+  Option<Boolean> generateImplicitsOption = new BooleanOption("generateImplicits",
+      "generate implicit node types")
       .defaultValue(true)
       .nonStandard();
 
@@ -126,21 +125,22 @@ public class Configuration {
 
   Option<String> defaultMapOption = new ValueOption(
       "defaultMap", "use this expression to construct maps for attribute caches")
-      .unrestricted()
+      .acceptAnyValue()
       .defaultValue("new java.util.HashMap(4)")
       .nonStandard()
       .templateName("CreateDefaultMap");
 
   Option<String> defaultSetOption = new ValueOption(
       "defaultSet", "use this expression to construct sets for attribute caches")
-      .unrestricted()
+      .acceptAnyValue()
       .defaultValue("new java.util.HashSet(4)")
       .nonStandard()
       .templateName("CreateDefaultSet");
 
   Option<Boolean> lazyMapsOption = new BooleanOption("lazyMaps", "use lazy maps")
       .defaultValue(true)
-      .templateName("LazyMaps");
+      .templateName("LazyMaps")
+      .nonStandard();
 
   Option<Boolean> privateOption = new FlagOption("private",
       "generated methods will use the private modifier")
@@ -156,8 +156,7 @@ public class Configuration {
       .addAcceptedValue("regular", "enable rewrites using the default implementation (not using CNTAs)")
       .addAcceptedValue("cnta", "evaluate rewrites with circular NTAs");
 
-  Option<Boolean> beaverOption = new FlagOption("beaver",
-      "use beaver.Symbol base node")
+  Option<Boolean> beaverOption = new FlagOption("beaver", "use beaver.Symbol as ASTNode supertype")
       .templateName("Beaver");
 
   Option<Boolean> lineColumnNumbersOption = new FlagOption("lineColumnNumbers",
@@ -176,87 +175,77 @@ public class Configuration {
   Option<Boolean> cacheCycleOption = new BooleanOption("cacheCycle",
       "enable cache cycle optimization for circular attributes")
       .defaultValue(true)
-      .templateName("CacheCycle");
+      .templateName("CacheCycle")
+      .nonStandard();
 
   Option<Boolean> componentCheckOption = new BooleanOption("componentCheck",
       "strongly connected component checking for circular attributes")
       .templateName("ComponentCheck");
 
+  // TODO(jesper): make this deprecated.
   Option<Boolean> inhEqCheckOption = new BooleanOption("inhEqCheck",
       "enalbe check for inherited equations")
-      .defaultValue(true);
+      .defaultValue(true)
+      .nonStandard();
 
-  Option<Boolean> suppressWarningsOption = new FlagOption(
-      "suppressWarnings", "attempt to suppress Java warnings")
-      .deprecated("2.1.2");
+  // TODO(jesper): make this deprecated.
+  Option<Boolean> suppressWarningsOption = new FlagOption("suppressWarnings",
+      "attempt to suppress Java warnings")
+      .deprecated("2.1.2")
+      .nonStandard();
 
   Option<Boolean> refineLegacyOption = new BooleanOption("refineLegacy",
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  Option<Boolean> stagedRewritesOption = new FlagOption("stagedRewrites",
-      "")// TODO description
+  // TODO(jesper): add description for --stagedRewrites option.
+  Option<Boolean> stagedRewritesOption = new FlagOption("stagedRewrites", "")
       .templateName("StagedRewrites")
       .nonStandard();
 
-  Option<Boolean> doxygenOption = new FlagOption("doxygen",
-      "")
+  Option<Boolean> doxygenOption = new FlagOption("doxygen", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> cacheAllOption = new FlagOption("cacheAll",
-      "")
+  Option<Boolean> cacheAllOption = new FlagOption("cacheAll", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> noCachingOption = new FlagOption("noCaching",
-      "")
+  Option<Boolean> noCachingOption = new FlagOption("noCaching", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> cacheNoneOption = new FlagOption("cacheNone",
-      "")
+  Option<Boolean> cacheNoneOption = new FlagOption("cacheNone", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> cacheImplicitOption = new FlagOption("cacheImplicit",
-      "")
+  Option<Boolean> cacheImplicitOption = new FlagOption("cacheImplicit", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> ignoreLazyOption = new FlagOption("ignoreLazy",
-      "")
+  Option<Boolean> ignoreLazyOption = new FlagOption("ignoreLazy", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> fullFlushOption = new FlagOption("fullFlush",
-      "")
+  Option<Boolean> fullFlushOption = new FlagOption("fullFlush", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
-  Option<Boolean> docOption = new FlagOption("doc",
-      "generate javadoc like .html pages from sources")
+  Option<Boolean> docOption = new FlagOption("doc", "")
       .deprecated("2.1.9", "this option currently does nothing");
 
-  Option<Boolean> java1_4Option = new FlagOption("java1.4",
-      "generate for Java 1.4")
-      .deprecated("2.1.9", "this option has no effect - Java 5 code generation can not be disabled");
+  Option<Boolean> java1_4Option = new FlagOption("java1.4", "")
+      .deprecated("2.1.9", "this option currently does nothing");
 
-  Option<Boolean> noLazyMapsOption = new FlagOption("noLazyMaps",
-      "")
+  Option<Boolean> noLazyMapsOption = new FlagOption("noLazyMaps", "")
       .deprecated("2.1.9", "replaced by --lazyMaps=false");
 
-  Option<Boolean> noVisitCheckOption = new FlagOption("noVisitCheck",
-      "")
+  Option<Boolean> noVisitCheckOption = new FlagOption("noVisitCheck", "")
       .deprecated("2.1.9", "replaced by --visitCheck=false");
 
-  Option<Boolean> noCacheCycleOption = new FlagOption("noCacheCycle",
-      "")
+  Option<Boolean> noCacheCycleOption = new FlagOption("noCacheCycle", "")
       .deprecated("2.1.9", "replaced by --cacheCycle=false");
 
-  Option<Boolean> noRefineLegacyOption = new FlagOption("noRefineLegacy",
-      "")
+  Option<Boolean> noRefineLegacyOption = new FlagOption("noRefineLegacy", "")
       .deprecated("2.1.9", "replaced by --refineLegacy=false");
 
-  Option<Boolean> noComponentCheckOption = new FlagOption("noComponentCheck",
-      "")
+  Option<Boolean> noComponentCheckOption = new FlagOption("noComponentCheck", "")
       .deprecated("2.1.9", "currently has no effect");
 
-  Option<Boolean> noInhEqCheckOption = new FlagOption("noInhEqCheck",
-      "")
+  Option<Boolean> noInhEqCheckOption = new FlagOption("noInhEqCheck", "")
       .deprecated("2.1.9", "replaced by --inhEqCheck=false");
 
   Option<Boolean> noStaticOption = new FlagOption(
@@ -285,8 +274,7 @@ public class Configuration {
     }
   };
 
-  Option<Boolean> debugOption = new FlagOption("debug",
-      "generate run-time checks for debugging")
+  Option<Boolean> debugOption = new FlagOption("debug", "generate run-time checks for debugging")
       .templateName("DebugMode");
 
   Option<Boolean> synchOption = new FlagOption("synch",
@@ -301,7 +289,7 @@ public class Configuration {
 
   ValueOption outputDirOption = new ValueOption("o",
       "optional base output directory, default is current directory")
-      .unrestricted()
+      .acceptAnyValue()
       .defaultValue(System.getProperty("user.dir"));
 
   ValueOption tracingOption = new ValueOption("tracing",
@@ -332,26 +320,22 @@ public class Configuration {
   ValueOption packageNameOption = new ValueOption("package",
       "optional package name for generated classes");
 
-  FlagOption versionOption = new FlagOption("version",
-      "print version string and halt");
+  FlagOption versionOption = new FlagOption("version", "print version info");
 
-  FlagOption helpOption = new FlagOption("help",
-      "prints a short help output and halts");
+  FlagOption helpOption = new FlagOption("help", "print command-line usage info");
 
   FlagOption printNonStandardOptionsOption = new FlagOption("X",
       "print list of non-standard options and halt");
 
-  ValueOption indentOption = new ValueOption("indent",
-      "type of indentation to use")
+  ValueOption indentOption = new ValueOption("indent", "indentation used in generated code")
       .addDefaultValue("2space", "two spaces")
       .addAcceptedValue("4space", "four spaces")
       .addAcceptedValue("8space", "eight spaces")
       .addAcceptedValue("tab", "use tabs");
 
-  ValueOption minListSizeOption = new ValueOption("minListSize",
-      "minimum (non-empty) list size") {
+  ValueOption minListSizeOption = new ValueOption("minListSize", "minimum (non-empty) list size") {
     {
-      unrestricted();
+      acceptAnyValue();
       defaultValue("4");
       templateName("MinListSize");
       nonStandard();
@@ -378,12 +362,11 @@ public class Configuration {
       .addAcceptedValue("config", "cache attributes according to a given .config file")
       .addAcceptedValue("implicit", "cache all attribute but also read a .config file that takes precedence")
       .addAcceptedValue( "analyze", "analyze the cache use during evaluation (when all attributes are cached)\n"
-              + "the result is available via the API in org.jastadd.CacheAnalyzer")
+          + "the result is available via the API in org.jastadd.CacheAnalyzer")
       .additionalDescription(".config files have the following format:\n"
           + " ((cache|uncache) NodeType.AttrName((ParamType(,ParamType)*)?);)*");
 
-  ValueOption incrementalOption = new ValueOption("incremental",
-      "incremental evaluation")
+  ValueOption incrementalOption = new ValueOption("incremental", "incremental evaluation")
       .acceptMultipleValues(true)
       .addDefaultValue("none", "incremental evaluation disabled")
       .addAcceptedValue("param", "dependency tracking on parameter level")
@@ -392,8 +375,7 @@ public class Configuration {
       .addAcceptedValue("full", "full change propagation")
       .addAcceptedValue("debug", "generate code for debugging and dumping of dependencies");
 
-  Option<Boolean> dotOption = new FlagOption("dot",
-      "generate a Dot graph from the grammar")
+  Option<Boolean> dotOption = new FlagOption("dot", "generate a Dot graph from the grammar")
       .nonStandard();
 
   Collection<String> filenames = new LinkedList<String>();
@@ -464,15 +446,15 @@ public class Configuration {
     allOptions.add(cacheOption);
     allOptions.add(incrementalOption);
 
-    // new since 2.1.11
+    // New since 2.1.11.
     allOptions.add(dotOption);
     allOptions.add(ASTNodeSuperOption);
     allOptions.add(generateImplicitsOption);
 
-    // new since 2.1.12
+    // New since 2.1.12.
     allOptions.add(stateClassNameOption);
 
-    // deprecated in 2.1.5
+    // Deprecated in 2.1.5.
     allOptions.add(doxygenOption);
     allOptions.add(cacheAllOption);
     allOptions.add(noCachingOption);
@@ -481,9 +463,9 @@ public class Configuration {
     allOptions.add(ignoreLazyOption);
     allOptions.add(fullFlushOption);
 
-    // deprecated in 2.1.9
+    // Deprecated in 2.1.9.
     allOptions.add(docOption);
-    allOptions.add(java1_4Option);// disabled in 2.1.10
+    allOptions.add(java1_4Option); // Disabled in 2.1.10.
     allOptions.add(noLazyMapsOption);
     allOptions.add(noVisitCheckOption);
     allOptions.add(noCacheCycleOption);
@@ -548,19 +530,19 @@ public class Configuration {
     tt.bind("ContributorSetType", typeDefaultContributorSet());
     tt.bind("CreateContributorSet", createContributorSet());
 
-    // Rewrites
+    // Rewrite options.
     tt.bind("RewriteEnabled", rewriteEnabled());
     tt.bind("RewriteLimit", rewriteLimit());
     tt.bind("HasRewriteLimit", rewriteLimit() > 0);
     tt.bind("RewriteCircularNTA", rewriteCircularNTA());
 
-    // Flush
+    // Flush options.
     tt.bind("FlushEnabled", flushEnabled());
     tt.bind("FlushAttr", flushAttr());
     tt.bind("FlushColl", flushColl());
     tt.bind("FlushRewrite", flushRewrite());
 
-    // Incremental
+    // Incremental options.
     tt.bind("IncrementalEnabled", incremental());
     tt.bind("IncrementalLevelParam", incrementalLevelParam());
     tt.bind("IncrementalLevelAttr", incrementalLevelAttr());
@@ -574,9 +556,8 @@ public class Configuration {
     tt.bind("IncrementalTrack", incrementalTrack());
     tt.bind("DDGNodeName", astNodeType() + "$DepGraphNode");
 
-    // Tracing
+    // Tracing options.
     tt.bind("TracingEnabled", tracingEnabled());
-
     tt.bind("TraceCompute", traceCompute());
     tt.bind("TraceCache", traceCache());
     tt.bind("TraceRewrite", traceRewrite());
@@ -585,11 +566,11 @@ public class Configuration {
     tt.bind("TraceCopy", traceCopy());
     tt.bind("TraceFlush", traceFlush());
 
-    // Cache
+    // Cache options.
     tt.bind("CacheAnalyzeEnabled", cacheAnalyzeEnabled());
 
     // Set template variables to accommodate deprecated options
-    // (the deprecated options may alter the value of the template variable)
+    // (the deprecated options may alter the value of the template variable).
     tt.bind("VisitCheckEnabled", visitCheckEnabled());
     tt.bind("CacheCycle", cacheCycle());
     tt.bind("StaticState", staticState());
@@ -620,6 +601,7 @@ public class Configuration {
         grammarFiles.add(filename);
       }
     }
+
     if (grammarFiles.isEmpty()) {
       out.println("Error: No grammar files specified.");
       return true;
@@ -641,11 +623,13 @@ public class Configuration {
         " does not exist");
       return true;
     }
+
     if (!outputDir.isDirectory()) {
       out.println("Error: Output directory " + outputDir.getAbsolutePath() +
         " is not a directory");
       return true;
     }
+
     if (!outputDir.canWrite()) {
       out.println("Error: Output directory " + outputDir.getAbsolutePath() +
         " is write protected");
@@ -697,51 +681,45 @@ public class Configuration {
    * @return true if no errors
    */
   private boolean checkIncrementalConfig(PrintStream out) {
-    // check level: only one level at a time
-    if (incrementalLevelAttr() && incrementalLevelNode() ||
-        incrementalLevelAttr() && incrementalLevelParam() ||
-        incrementalLevelNode() && incrementalLevelParam() ||
-        incrementalLevelParam() && incrementalLevelRegion() ||
-        incrementalLevelAttr() && incrementalLevelRegion() ||
-        incrementalLevelNode() && incrementalLevelRegion()) {
-      out.println("error: Conflict in incremental evaluation configuration. " +
-          "Cannot combine \"param\", \"attr\", \"node\" and \"region\".");
+    // Check level: only one level at a time.
+    if (incrementalLevelAttr() && incrementalLevelNode()
+        || incrementalLevelAttr() && incrementalLevelParam()
+        || incrementalLevelNode() && incrementalLevelParam()
+        || incrementalLevelParam() && incrementalLevelRegion()
+        || incrementalLevelAttr() && incrementalLevelRegion()
+        || incrementalLevelNode() && incrementalLevelRegion()) {
+      out.println("error: Conflict in incremental evaluation configuration. "
+          + "Cannot combine \"param\", \"attr\", \"node\" and \"region\".");
       return false;
     }
-    // check invalidate: only one strategy at a time
+    // Check invalidate: only one strategy at a time.
     if (incrementalChangeFlush() && incrementalChangeMark()) {
-      out.println("error: Conflict in incremental evaluation configuration. " +
-          "Cannot combine \"flush\" and \"mark\".");
+      out.println("error: Conflict in incremental evaluation configuration. "
+          + "Cannot combine \"flush\" and \"mark\".");
       return false;
     }
-    // check invalidate: currently not supporting mark strategy -- "mark"
+    // Check invalidate: currently not supporting mark strategy -- "mark".
     if (incrementalChangeMark()) {
-      out.println("error: Unsupported incremental evaluation configuration: " +
-          "\"mark\".");
+      out.println("error: Unsupported incremental evaluation configuration: \"mark\".");
       return false;
     }
-    // check propagation: only one strategy at a time
+    // Check propagation: only one strategy at a time.
     if (incrementalPropFull() && incrementalPropLimit()) {
-      out.println("error: Conflict in incremental evaluation configuration. " +
-          "Cannot combine \"full\" and \"limit\".");
+      out.println("error: Conflict in incremental evaluation configuration. "
+          + "Cannot combine \"full\" and \"limit\".");
       return false;
     }
-    // check propagation: currently not supporting limit strategy -- "limit" - we do now
-    //if (root.incrementalPropLimit) {
-    //    out.println("error: Unsupported incremental evaluation configuration: " +
-    //        "\"limit\".");
-    //    return false;
-    //}
     return true;
   }
 
-  private static final String readFile(String name) throws java.io.IOException {
+  private static final String readFile(String name) throws IOException {
     StringBuilder buf = new StringBuilder();
-    java.io.Reader reader = new java.io.BufferedReader(new java.io.FileReader(name));
+    Reader reader = new BufferedReader(new FileReader(name));
     char[] cbuf = new char[1024];
     int i = 0;
-    while((i = reader.read(cbuf)) != -1)
+    while((i = reader.read(cbuf)) != -1) {
       buf.append(String.valueOf(cbuf, 0, i));
+    }
     reader.close();
     return buf.toString();
   }
@@ -753,8 +731,7 @@ public class Configuration {
     Collection<String> files = new ArrayList<String>();
 
     for (String filename: filenames) {
-      if (filename.endsWith(".ast") || filename.endsWith(".jrag")
-          || filename.endsWith(".jadd")) {
+      if (filename.endsWith(".ast") || filename.endsWith(".jrag") || filename.endsWith(".jadd")) {
         files.add(filename);
       }
     }
@@ -862,9 +839,8 @@ public class Configuration {
    * @return {@code true} if cache events should be traced
    */
   public boolean traceCache() {
-    return traceAll() || tracingOption.hasValue("cache") ||
-        // cache analysis requires full caching and tracing of cache usage
-        cacheAnalyzeEnabled();
+    // Cache analysis requires full caching and tracing of cache usage>
+    return traceAll() || tracingOption.hasValue("cache") || cacheAnalyzeEnabled();
   }
 
   /**
@@ -955,16 +931,16 @@ public class Configuration {
   public String indent() {
     String arg = indentOption.value();
     if (arg.equals("2space")) {
-      // Use 2 spaces for indentation
+      // Use 2 spaces for indentation.
       return "  ";
     } else if (arg.equals("4space")) {
-      // Use 4 spaces for indentation
+      // Use 4 spaces for indentation.
       return "    ";
     } else if (arg.equals("8space")) {
-      // Use 8 spaces for indentation
+      // Use 8 spaces for indentation.
       return "        ";
     } else if (arg.equals("tab")) {
-      // Use tabs for indentation
+      // Use tabs for indentation.
       return "\t";
     }
     return "  ";
@@ -1062,9 +1038,9 @@ public class Configuration {
    * @return {@code true} if --incremental=attr
    */
   public boolean incrementalLevelAttr() {
-    return incrementalOption.hasValue("attr") ||
-        // no chosen level means default -- "attr"
-        (!incrementalLevelNode()
+    // No chosen level means default -- "attr".
+    return incrementalOption.hasValue("attr")
+        || (!incrementalLevelNode()
             && !incrementalLevelParam()
             && !incrementalLevelRegion());
   }
@@ -1103,9 +1079,8 @@ public class Configuration {
    * @return {@code true} if --incremental=full
    */
   public boolean incrementalPropFull() {
-    return incrementalOption.hasValue("full") ||
-        // no chosen strategy means default -- "full"
-       !incrementalPropLimit();
+    // No chosen strategy means default -- "full".
+    return incrementalOption.hasValue("full") || !incrementalPropLimit();
   }
 
   /**
@@ -1136,7 +1111,7 @@ public class Configuration {
     if (lazyMapsOption.isMatched()) {
       return lazyMapsOption.value();
     }
-    // fallback on deprecated option
+    // Fallback on deprecated option.
     return !noLazyMapsOption.value();
   }
 
@@ -1226,8 +1201,8 @@ public class Configuration {
    */
   public boolean flushAttr() {
     return flushOption.hasValue("attr")
-      || flushOption.value().isEmpty()
-      || flushOption.hasValue("full");
+        || flushOption.value().isEmpty()
+        || flushOption.hasValue("full");
   }
 
   /**
@@ -1235,8 +1210,8 @@ public class Configuration {
    */
   public boolean flushColl() {
     return flushOption.hasValue("coll")
-      || flushOption.value().isEmpty()
-      || flushOption.hasValue("full");
+        || flushOption.value().isEmpty()
+        || flushOption.hasValue("full");
   }
 
   /**
@@ -1244,8 +1219,8 @@ public class Configuration {
    */
   public boolean flushRewrite() {
     return flushOption.hasValue("rewrite")
-      || incremental()
-      || flushOption.hasValue("full");
+        || incremental()
+        || flushOption.hasValue("full");
   }
 
   /**
@@ -1276,7 +1251,7 @@ public class Configuration {
     if (inhEqCheckOption.isMatched()) {
       return inhEqCheckOption.value();
     }
-    // fallback on deprecated option
+    // Fallback on deprecated option.
     return !noInhEqCheckOption.value();
   }
 
