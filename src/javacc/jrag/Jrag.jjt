@@ -122,6 +122,7 @@ PARSER_END(JragParser)
 
 /* WHITE SPACE */
 
+<DEFAULT,COLLECTION_DECL>
 SPECIAL_TOKEN :
 {
   " "
@@ -133,6 +134,7 @@ SPECIAL_TOKEN :
 
 /* COMMENTS */
 
+<DEFAULT,COLLECTION_DECL>
 MORE :
 {
   "//" : IN_SINGLE_LINE_COMMENT
@@ -169,6 +171,7 @@ MORE :
 
 /* RESERVED WORDS AND LITERALS */
 
+<DEFAULT,COLLECTION_DECL>
 TOKEN :
 {
   < ABSTRACT: "abstract" >
@@ -236,17 +239,28 @@ TOKEN :
 | < EQUATION: "eq">
 | < CIRCULAR: "circular">
 | < REFINE: "refine">
-| < COLL: "coll">
 | < CONTRIBUTES: "contributes">
 | < EACH: "each">
 | < NTA: "nta">
 | < CACHE: "cache">
 | < UNCACHE: "uncache">
+}
 
+TOKEN :
+{
+  < COLL: "coll"> : COLLECTION_DECL
+}
+
+<COLLECTION_DECL>
+TOKEN :
+{
+  < WITH: "with">
+| < ROOT: "root">
 }
 
 /* LITERALS */
 
+<DEFAULT,COLLECTION_DECL>
 TOKEN :
 {
   < INTEGER_LITERAL:
@@ -299,6 +313,7 @@ TOKEN :
 
 /* IDENTIFIERS */
 
+<DEFAULT,COLLECTION_DECL>
 TOKEN :
 {
   < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
@@ -344,6 +359,7 @@ TOKEN :
 
 /* SEPARATORS */
 
+<DEFAULT,COLLECTION_DECL>
 TOKEN :
 {
   < LPAREN: "(" >
@@ -360,6 +376,7 @@ TOKEN :
 
 /* OPERATORS */
 
+<DEFAULT,COLLECTION_DECL>
 TOKEN :
 {
   < ASSIGN: "=" >
@@ -400,6 +417,7 @@ TOKEN :
 }
 
 /* >'s need special attention due to generics syntax. */
+<DEFAULT,COLLECTION_DECL>
 TOKEN :
 {
   < RUNSIGNEDSHIFT: ">>>" >
@@ -1308,20 +1326,20 @@ void CollectionAttribute():
 }
 {
   ( annotation = Annotation() { annotations.add(annotation); } )*
-
   "coll" { first = token; }
   attrType = AspectType() t = <IDENTIFIER> "." { targetName = t.image; } attrName = AttributeName() "(" ")"
   [ <CIRCULAR> { isCircular = true; } ]
   <LBRACKET> startValue = Expression() <RBRACKET>
-  <IDENTIFIER> t = <IDENTIFIER> { combOp = t.image; }
-  [ <IDENTIFIER> t = <IDENTIFIER> { rootName = t.image; } ]
-  ";" { last = token; }
+  <WITH> t = <IDENTIFIER> { combOp = t.image; }
+  [ <ROOT> t = <IDENTIFIER> { rootName = t.image; } ]
+  ";"
   {
+    last = token;
     root.addCollDecl(attrName.image, attrType, targetName, fileName,
         first.beginLine, last.endLine, (ASTExpression)startValue, combOp,
         isCircular, annotations, jjtThis, rootName, enclosingAspect);
+    token_source.SwitchTo(DEFAULT);
   }
-
 }
 
 void CollectionContribution():
