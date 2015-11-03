@@ -885,3 +885,419 @@ For older change logs, see ChangeLogUntil2010.txt
 Year-Month-Day: (Who) Short Description
 Longer description, or pointer to trac ticket.
 --------------------------------------------------------
+
+The following is a list of CVS log messages compiled by Görel on Jan 24, 2011.
+----------------------------
+jastadd2.jar revision 1.61
+date: 2010-04-17 13:30:43 +0200;  author: mjolner;  state: Exp;  lines: +1296 -1574;
+Fixed bug in ASTNode.fullCopy() when running JastAdd using the j2me option. The init$copy method used to simulate clone was incorrectly implemented, resulting in the original AST being changed and the two copies sharing subtrees. Fixed by changing JastAdd/ast/JaddCodeGen.jrag. (Problem pointed out by Sven Robertz.)/GH
+----------------------------
+jastadd2.jar revision 1.60
+date: 2010-03-11 10:29:28 +0100;  author: mjolner;  state: Exp;  lines: +1752 -1411;
+Merged DoxyGen fixes into trunk.
+----------------------------
+jastadd2.jar revision 1.59
+date: 2010-03-10 16:45:57 +0100;  author: mjolner;  state: Exp;  lines: +342 -337;
+Fixed bug in ast/ClassRelations.jrag, for attribute fathers(). JastAdd previously treated interast references (using tokens) as children, in some situations. This gave erroneous error messages when using interast references to nodes with inherited attributes. And it led to erroneous constructors for interast references to root nodes. These nodes were erroneously not treated as roots in that they were not set to is$Final upon construction. (Problem pointed out by Philip Nilsson.)/GH
+----------------------------
+jastadd2.jar revision 1.58
+date: 2010-01-29 16:24:00 +0100;  author: mjolner;  state: Exp;  lines: +805 -788;
+Fixed bug in jrag/JragCodeGen.jrag. JastAdd crashed when equations had preceding comments starting with "//**". (Problem pionted out by Gary Leavens.)
+----------------------------
+jastadd2.jar revision 1.57
+date: 2009-12-02 14:55:08 +0100;  author: emma;  state: Exp;  lines: +1477 -1795;
+Code supporting more expressive external caching
+----------------------------
+jastadd2.jar revision 1.56
+date: 2009-07-21 16:40:10 +0200;  author: mjolner;  state: Exp;  lines: +551 -510;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.55
+date: 2009-06-10 10:49:04 +0200;  author: mjolner;  state: Exp;  lines: +1801 -1703;
+Release 20090610
+----------------------------
+jastadd2.jar revision 1.54
+date: 2009-01-22 09:57:06 +0100;  author: mjolner;  state: Exp;  lines: +1535 -1559;
+Added deterministic mode to JastAdd.
+Added support for J2ME.
+----------------------------
+jastadd2.jar revision 1.53
+date: 2008-06-28 21:16:34 +0200;  author: mjolner;  state: Exp;  lines: +1604 -1667;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.52
+date: 2008-04-10 11:35:44 +0200;  author: mjolner;  state: Exp;  lines: +1765 -1614;
+Various changes.
+----------------------------
+jastadd2.jar revision 1.51
+date: 2008-02-20 18:40:39 +0100;  author: mjolner;  state: Exp;  lines: +1648 -1602;
+JastAdd5 support added.
+----------------------------
+jastadd2.jar revision 1.50
+date: 2008-02-19 14:31:22 +0100;  author: mjolner;  state: Exp;  lines: +1550 -1421;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.49
+date: 2007-10-29 16:18:34 +0100;  author: mjolner;  state: Exp;  lines: +1574 -1686;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.48
+date: 2007-09-24 15:18:48 +0200;  author: mjolner;  state: Exp;  lines: +877 -779;
+Added refinement of constructors.
+----------------------------
+jastadd2.jar revision 1.47
+date: 2007-09-24 12:06:38 +0200;  author: mjolner;  state: Exp;  lines: +1580 -1238;
+Better support for comments.
+Added option to include license file in all generated files.
+----------------------------
+jastadd2.jar revision 1.46
+date: 2007-06-15 14:44:20 +0200;  author: mjolner;  state: Exp;  lines: +731 -741;
+Added some  error checking of collection attributes.
+----------------------------
+jastadd2.jar revision 1.45
+date: 2007-05-07 14:09:07 +0200;  author: mjolner;  state: Exp;  lines: +569 -597;
+Made @SeparateEvaluation and @Naive equivalent.
+----------------------------
+jastadd2.jar revision 1.44
+date: 2007-04-24 17:07:20 +0200;  author: mjolner;  state: Exp;  lines: +643 -649;
+Added @Naive and @OnePass evaluation strategies for collection attributes
+----------------------------
+jastadd2.jar revision 1.43
+date: 2007-04-17 17:36:17 +0200;  author: mjolner;  state: Exp;  lines: +441 -414;
+Bugfix: Flag indicating that collection is finished is now updated after collection.
+----------------------------
+jastadd2.jar revision 1.42
+date: 2007-04-17 13:39:18 +0200;  author: mjolner;  state: Exp;  lines: +1023 -1021;
+Added feature:
+Collection attributes now support multiple evaluation strategies.
+----------------------------
+jastadd2.jar revision 1.41
+date: 2007-03-29 18:32:17 +0200;  author: mjolner;  state: Exp;  lines: +491 -474;
+Bugfix: Circular attributes now work with rewrites disabled.
+Bugfix: Caching of parametrized circular attributes used to return value from cache to soon.
+----------------------------
+jastadd2.jar revision 1.40
+date: 2007-03-01 12:37:48 +0100;  author: mjolner;  state: Exp;  lines: +824 -851;
+Feature: Support for lazy final attributes that are evaluated once only regardless of rewrite state.
+Bugfix: getParent() now generated correct code for JJTree.
+----------------------------
+jastadd2.jar revision 1.39
+date: 2007-02-21 23:25:05 +0100;  author: mjolner;  state: Exp;  lines: +526 -498;
+Collection attributes now generated correctly for ASTNode as contributor.
+Inherited attributes can now be read from List nodes when being the immediate child of the node providing the equation.
+----------------------------
+jastadd2.jar revision 1.38
+date: 2007-02-06 11:46:54 +0100;  author: mjolner;  state: Exp;  lines: +422 -446;
+Fixed bug in code generation for collection attributes.
+Contributions in ASTNode were always HashSets.
+----------------------------
+jastadd2.jar revision 1.37
+date: 2007-02-01 11:35:06 +0100;  author: mjolner;  state: Exp;  lines: +792 -727;
+The target reference for a collection attribute is now an expression. This enables casts and more complex expressions than a single attribute name.
+----------------------------
+jastadd2.jar revision 1.36
+date: 2007-01-29 19:22:09 +0100;  author: mjolner;  state: Exp;  lines: +1090 -1028;
+Initial support for collection attributes.
+Please notice that there is no error checking so use carefully.
+----------------------------
+jastadd2.jar revision 1.35
+date: 2007-01-11 10:50:10 +0100;  author: mjolner;  state: Exp;  lines: +631 -659;
+Uppdaterat makefilen. Ersatt "java1.4" med "java" p de frsta raderna.
+----------------------------
+jastadd2.jar revision 1.34
+date: 2006-11-29 11:10:01 +0100;  author: mjolner;  state: Exp;  lines: +1483 -1269;
+Upgraded to javacc/jjtree 4.0, aspectj 1.5.3. This allows for building using either JDK 1.4 or JDK 5.
+Various bugfixes in name mangling for code generation.
+Added experimental support for resetting circular to bottom when interacting with rewrites.
+Added switch to suppress warnings in generated code when using JDK 5.
+----------------------------
+jastadd2.jar revision 1.33
+date: 2006-09-05 12:07:01 +0200;  author: mjolner;  state: Exp;  lines: +779 -826;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.32
+date: 2006-08-23 18:05:53 +0200;  author: mjolner;  state: Exp;  lines: +397 -411;
+Updated circular attribute computation with support to split up strongly connected components.
+----------------------------
+jastadd2.jar revision 1.31
+date: 2006-07-29 23:24:27 +0200;  author: mjolner;  state: Exp;  lines: +416 -418;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.30
+date: 2006-07-18 22:38:41 +0200;  author: mjolner;  state: Exp;  lines: +985 -896;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.29
+date: 2005-10-05 13:01:04 +0200;  author: mjolner;  state: Exp;  lines: +743 -721;
+Added support for lazy creation of hashmaps used for caching attributes
+----------------------------
+jastadd2.jar revision 1.28
+date: 2005-10-03 10:27:06 +0200;  author: torbjorn;  state: Exp;  lines: +255 -245;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.27
+date: 2005-09-23 16:07:17 +0200;  author: torbjorn;  state: Exp;  lines: +239 -288;
+Added support to build binary and source distribution in Makefile using target release
+----------------------------
+jastadd2.jar revision 1.26
+date: 2005-09-23 15:50:40 +0200;  author: torbjorn;  state: Exp;  lines: +543 -580;
+Added automatic embedding of version information in manifest and tool
+----------------------------
+jastadd2.jar revision 1.25
+date: 2005-09-23 15:15:04 +0200;  author: torbjorn;  state: Exp;  lines: +390 -390;
+Added support for --version command line argument
+Refactored version of JastAddTask
+----------------------------
+jastadd2.jar revision 1.24
+date: 2005-09-23 13:52:26 +0200;  author: mjolner;  state: Exp;  lines: +376 -380;
+Added option noCacheCycle to ant -task
+----------------------------
+tools/ant.jar revision 1.1
+date: 2005-09-19 10:57:52 +0200;  author: torbjorn;  state: Exp;
+Added binaries for ant
+----------------------------
+manifest revision 1.5
+date: 2005-09-08 09:19:50 +0200;  author: torbjorn;  state: Exp;  lines: +1 -1;
+Updated manifest to today`s date
+----------------------------
+jastadd2.jar revision 1.23
+date: 2005-09-08 10:45:47 +0200;  author: torbjorn;  state: Exp;  lines: +193 -196;
+Added LICENSE to repository
+----------------------------
+jastadd2.jar revision 1.22
+date: 2005-09-08 09:18:28 +0200;  author: torbjorn;  state: Exp;  lines: +1103 -1107;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.21
+date: 2004-11-16 11:25:04 +0100;  author: mjolner;  state: Exp;  lines: +200 -202;
+Added command line option: noCacheCycle
+----------------------------
+jastadd2.jar revision 1.20
+date: 2004-11-09 11:39:14 +0100;  author: mjolner;  state: Exp;  lines: +396 -386;
+Added code generation for cached cycles
+----------------------------
+jastadd2.jar revision 1.19
+date: 2004-10-27 13:51:31 +0200;  author: torbjorn;  state: Exp;  lines: +264 -292;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.18
+date: 2004-10-26 12:43:52 +0200;  author: torbjorn;  state: Exp;  lines: +245 -258;
+Removed multiple root node check
+Enabled full path names for .jrag files
+----------------------------
+jastadd2.jar revision 1.17
+date: 2004-10-25 11:02:09 +0200;  author: torbjorn;  state: Exp;  lines: +817 -663;
+Fixed caching of parameterized attributes with more than one parameter
+Added overloading of attributes
+----------------------------
+jastadd2.jar revision 1.16
+date: 2004-10-20 17:29:39 +0200;  author: torbjorn;  state: Exp;  lines: +343 -371;
+Added initial support for overloaded attribute code generation
+----------------------------
+jastadd2.jar revision 1.15
+date: 2004-10-20 15:36:45 +0200;  author: torbjorn;  state: Exp;  lines: +365 -346;
+Added support to postpone a rewrite until a set (in an aspect) of active rewrites have finished
+----------------------------
+jastadd2.jar revision 1.14
+date: 2004-10-20 11:27:02 +0200;  author: torbjorn;  state: Exp;  lines: +404 -434;
+Refactored ast/JaddCodeGen.jrag
+Removed errornous rewrite initialization code generated with rewrites disabled
+----------------------------
+jastadd2.jar revision 1.13
+date: 2004-10-19 11:31:41 +0200;  author: mjolner;  state: Exp;  lines: +636 -627;
+Handle primitive circular attributes.Handle inherited circular attributes.
+----------------------------
+jastadd2.jar revision 1.12
+date: 2004-10-13 20:07:20 +0200;  author: torbjorn;  state: Exp;  lines: +417 -424;
+Added option "--novisitcheck" that disables check for circularity
+----------------------------
+jastadd2.jar revision 1.11
+date: 2004-10-12 11:10:21 +0200;  author: mjolner;  state: Exp;  lines: +384 -380;
+Added basic evaluation of circular synthesized attributes
+----------------------------
+jastadd2.jar revision 1.10
+date: 2004-10-06 17:55:09 +0200;  author: torbjorn;  state: Exp;  lines: +458 -446;
+Refactored code generation for syn and inh declarations
+Added support for caching and circular visit check for primitive type parameters in paramterized attributes
+----------------------------
+jastadd2.jar revision 1.9
+date: 2004-09-21 10:56:05 +0200;  author: mjolner;  state: Exp;  lines: +927 -908;
+Added bottomValue to AST for SynDecl
+----------------------------
+jastadd2.jar revision 1.8
+date: 2004-09-21 09:35:01 +0200;  author: torbjorn;  state: Exp;  lines: +711 -727;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.7
+date: 2004-09-20 16:29:57 +0200;  author: torbjorn;  state: Exp;  lines: +724 -708;
+Fixed bug when using arrays as paramter types
+Added support for private access to node children through command line parameter --private
+----------------------------
+jastadd2.jar revision 1.6
+date: 2004-09-16 10:47:35 +0200;  author: mjolner;  state: Exp;  lines: +636 -608;
+Added syntax for "circular[Exp]".
+----------------------------
+jastadd2.jar revision 1.5
+date: 2004-09-15 16:56:05 +0200;  author: torbjorn;  state: Exp;  lines: +196 -199;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.4
+date: 2004-09-14 11:26:25 +0200;  author: torbjorn;  state: Exp;  lines: +266 -269;
+Fixed bug that generated instantiations of non qualified name HashSet
+----------------------------
+jastadd2.jar revision 1.3
+date: 2004-09-14 11:14:46 +0200;  author: torbjorn;  state: Exp;  lines: +948 -1789;
+Fixed bug in "rewrite in"
+Added syntax for selecting a child index in inherited equations for lists
+----------------------------
+jastadd2.jar revision 1.2
+date: 2004-09-13 22:03:02 +0200;  author: mjolner;  state: Exp;  lines: +2130 -0;
+Merged JastAdd II branch into HEAD
+----------------------------
+jastadd2.jar revision 1.1
+date: 2004-02-19 11:13:39 +0100;  author: torbjorn;  state: dead;
+branches:  1.1.2;
+file jastadd2.jar was initially added on branch R20030619-JastAdd2.
+----------------------------
+.externalToolBuilders/make jar.launch revision 1.1
+date: 2004-09-09 13:03:49 +0200;  author: mjolner;  state: dead;
+branches:  1.1.2;
+file make jar.launch was initially added on branch R20030619-JastAdd2.
+----------------------------
+.externalToolBuilders/make jar.launch revision 1.1.2.2
+date: 2004-09-09 13:30:50 +0200;  author: mjolner;  state: Exp;  lines: +1 -1;
+Changed build not to run automatically at clean
+----------------------------
+jastadd2.jar revision 1.1.2.19
+date: 2004-09-07 21:19:48 +0200;  author: mjolner;  state: Exp;  lines: +1632 -1907;
+*** empty log message ***
+----------------------------
+org/aspectj/runtime/CFlow.class revision 1.1.1.1.2.1
+date: 2004-09-07 13:57:28 +0200;  author: torbjorn;  state: Exp;  lines: +5 -5;
+Added new version of AspectJ.
+Added tools directory with AspectJ, JavaCC, JJTree, JastAdd
+Changed makefile to use tools directory
+----------------------------
+jastadd2.jar revision 1.1.2.18
+date: 2004-09-06 11:14:27 +0200;  author: torbjorn;  state: Exp;  lines: +413 -417;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.17
+date: 2004-09-02 13:07:34 +0200;  author: mjolner;  state: Exp;  lines: +7 -7;
+Changed to binary mode.
+----------------------------
+jastadd2.jar revision 1.1.2.16
+date: 2004-09-01 16:24:14 +0200;  author: torbjorn;  state: Exp;  lines: +877 -875;
+Fixed bug that caused errorneous binding for inherited equations and declarations.
+----------------------------
+jrag/NameBinding.jrag revision 1.3.2.8
+date: 2004-09-01 13:39:23 +0200;  author: ive;  state: Exp;  lines: +1 -4;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.15
+date: 2004-08-31 12:15:28 +0200;  author: torbjorn;  state: Exp;  lines: +1374 -1026;
+*** empty log message ***
+----------------------------
+ast/JaddCodeGen.jrag revision 1.5.2.17
+date: 2004-08-30 18:18:09 +0200;  author: torbjorn;  state: Exp;  lines: +13 -1;
+Fixed generation of faulty constructor when there are only non terminal attribute components.
+----------------------------
+JastAdd.java revision 1.2.2.11
+date: 2004-08-27 13:37:44 +0200;  author: torbjorn;  state: Exp;  lines: +14 -1;
+Fixed syn equations to use that parameter names in the attribute equation and not in the attribute declaration
+Fixed syn and inh attributes to use ciruclarity check correctly for 0 and 1 parameter and disabled ciruclarity check for 2 or more parameters
+----------------------------
+ast/JaddCodeGen.jrag revision 1.5.2.15
+date: 2004-07-13 14:09:19 +0200;  author: tor;  state: Exp;  lines: +15 -8;
+Fixed bug in copy() method to include attributes in superclasses as well
+----------------------------
+ast/JaddCodeGen.jrag revision 1.5.2.14
+date: 2004-07-13 11:37:22 +0200;  author: tor;  state: Exp;  lines: +25 -3;
+Made copy clear cloned visited and computed attributes
+----------------------------
+jastadd2.jar revision 1.1.2.14
+date: 2004-04-22 17:05:04 +0200;  author: torbjorn;  state: Exp;  lines: +506 -519;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.13
+date: 2004-04-22 15:09:38 +0200;  author: torbjorn;  state: Exp;  lines: +679 -759;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.12
+date: 2004-04-22 12:01:54 +0200;  author: torbjorn;  state: Exp;  lines: +1332 -1321;
+Added check for single root node and finalizing root node
+----------------------------
+ast/JaddCodeGen.jrag revision 1.5.2.10
+date: 2004-04-21 17:06:14 +0200;  author: torbjorn;  state: Exp;  lines: +3 -3;
+Fixed error when revisting higher order attributes during inherited attribute evaluation
+----------------------------
+Makefile revision 1.5.2.5
+date: 2004-04-21 17:02:36 +0200;  author: torbjorn;  state: Exp;  lines: +2 -2;
+Added support for rewriting a single node to multiple nodes when in a list
+----------------------------
+jastadd2.jar revision 1.1.2.11
+date: 2004-04-13 11:38:34 +0200;  author: torbjorn;  state: Exp;  lines: +654 -2657;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.10
+date: 2004-04-07 10:32:26 +0200;  author: torbjorn;  state: Exp;  lines: +418 -405;
+*** empty log message ***
+----------------------------
+ast/NameBinding.jrag revision 1.1.2.4
+date: 2004-04-06 17:39:17 +0200;  author: tor;  state: Exp;  lines: +1 -1;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.9
+date: 2004-04-06 17:31:00 +0200;  author: torbjorn;  state: Exp;  lines: +487 -500;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.8
+date: 2004-04-06 16:40:35 +0200;  author: torbjorn;  state: Exp;  lines: +685 -787;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.7
+date: 2004-04-06 14:53:33 +0200;  author: torbjorn;  state: Exp;  lines: +649 -697;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.6
+date: 2004-04-05 11:26:44 +0200;  author: torbjorn;  state: Exp;  lines: +2983 -883;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.5
+date: 2004-03-10 10:50:24 +0100;  author: torbjorn;  state: Exp;  lines: +622 -631;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.4
+date: 2004-03-10 10:22:15 +0100;  author: torbjorn;  state: Exp;  lines: +844 -771;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.3
+date: 2004-03-10 09:52:53 +0100;  author: torbjorn;  state: Exp;  lines: +1309 -1203;
+*** empty log message ***
+----------------------------
+jastadd2.jar revision 1.1.2.2
+date: 2004-02-26 11:18:30 +0100;  author: torbjorn;  state: Exp;  lines: +783 -773;
+Added syntax for aspects
+----------------------------
+manifest revision 1.1
+date: 2004-02-19 11:22:01 +0100;  author: torbjorn;  state: dead;
+branches:  1.1.2;
+file manifest was initially added on branch R20030619-JastAdd2.
+----------------------------
+jastadd2.jar revision 1.1.2.1
+date: 2004-02-19 11:13:39 +0100;  author: torbjorn;  state: Exp;  lines: +2014 -0;
+*** empty log message ***
+----------------------------
+JastAdd.java revision 1.2.2.5
+date: 2004-02-19 11:03:24 +0100;  author: torbjorn;  state: Exp;  lines: +7 -7;
+Added support for clone()
+----------------------------
+JastAdd.java revision 1.2.2.4
+date: 2004-02-18 15:09:20 +0100;  author: torbjorn;  state: Exp;  lines: +3 -4;
+Refactoring: Rename Class to ASTDecl in Ast.ast
+----------------------------
+JastAdd.java revision 1.2.2.3
+date: 2004-02-11 14:58:18 +0100;  author: torbjorn;  state: Exp;  lines: +65 -53;
+Added support for exceptions when building trees using jjtree that do not conform to AST-grammar.
+Added support for multiple .ast files.
+=============================================================================
