@@ -96,22 +96,18 @@ aspect TemplateUtil {
 
   private void Grammar.loadTemplates(TinyTemplate tt, String templateFile) {
     try {
-      InputStream in = getClass().getResourceAsStream(
-          "/template/" + templateFile + ".tt");
+      InputStream in = getClass().getResourceAsStream("/template/" + templateFile + ".tt");
       if (in == null) {
-        System.err.println("WARNING: Could not load template file " +
-            templateFile);
+        System.err.println("WARNING: Could not load template file " + templateFile);
         return;
       }
       tt.loadTemplates(in);
       in.close();
     } catch (TemplateParser.SyntaxError e) {
-      System.err.println("WARNING: Could not load template file " +
-          templateFile);
+      System.err.println("WARNING: Could not load template file " + templateFile);
       System.err.println(e.getMessage());
     } catch (IOException e) {
-      System.err.println("WARNING: Could not load template file " +
-          templateFile);
+      System.err.println("WARNING: Could not load template file " + templateFile);
       System.err.println(e.getMessage());
     }
   }

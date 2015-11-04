@@ -362,7 +362,7 @@ aspect JastAddCodeGen {
     buf.append(" implements Cloneable");
 
     for (Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
+      buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode) iter.next()));
     }
 
     if (isASTNodeDecl()) {
@@ -375,9 +375,9 @@ aspect JastAddCodeGen {
     StringBuffer buf = new StringBuffer();
     Iterator iter = implementsList.iterator();
     if (iter.hasNext()) {
-      buf.append(Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
+      buf.append(Unparser.unparse((org.jastadd.jrag.AST.SimpleNode) iter.next()));
       while (iter.hasNext()) {
-        buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode)iter.next()));
+        buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode) iter.next()));
       }
     }
     return buf.toString();

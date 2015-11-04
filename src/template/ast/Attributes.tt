@@ -50,6 +50,12 @@ $if(!#isParameterized)
    * @apilevel internal
    */
   protected #getType #(signature)_value;
+$if(#isCircular)
+  /**
+   * @apilevel internal
+   */
+  protected boolean #(signature)_initialized = false;
+$endif
 $else
 $if(#declaredNTA)
   /**

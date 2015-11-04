@@ -25,26 +25,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collection;
+import java.util.LinkedList;
+
 aspect CollectionAttributes {
 
   /**
-   * Find interface coll decl introductions.
+   * Find interface collection attribute declarations.
    */
   public Collection<CollDecl> TypeDecl.interfaceCollDecls() {
     LinkedList<CollDecl> list = new LinkedList<CollDecl>();
-    for (Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      String typename = Unparser.unparse((org.jastadd.jrag.AST.SimpleNode) iter.next());
-      int index = typename.indexOf('<');
-      if (index != -1) {
-        typename = typename.substring(0, index);
+    for (InterfaceDecl type : implementedInterfaces()) {
+      for (CollDecl decl : type.getCollDeclList()) {
+        list.add(decl);
       }
-      TypeDecl type = grammar().lookup(typename);
-      if (type instanceof InterfaceDecl) {
-        for (CollDecl decl : type.getCollDeclList()) {
-          list.add(decl);
-        }
-        list.addAll(type.interfaceCollDecls());
-      }
+      list.addAll(type.interfaceCollDecls());
     }
     return list;
   }
@@ -75,12 +72,8 @@ aspect CollectionAttributes {
     for (int i = 0; i < getNumCollDecl(); i++) {
       CollDecl attr = getCollDecl(i);
       if (!attr.separateEvaluation() && (attr.isCircular() || !attr.onePhase())) {
-        String ind = config().indent;
-        out.println(ind + "/**");
-        out.println(ind + " * @apilevel internal");
-        out.println(ind + " */");
-        out.println(ind + "public " + config().typeDefaultContributorSet()
-            + " " + attr.signature() + "_contributors();");
+        TemplateContext tt = attr.templateContext();
+        tt.expand("CollDecl.interfaceDeclaration", out);
       }
     }
   }
@@ -88,25 +81,14 @@ aspect CollectionAttributes {
   syn TypeDecl AttrDecl.root() = grammar().root();
   eq CollDecl.root() = root != null ? grammar().lookup(root) : super.root();
 
-  syn String AttrDecl.collDebugString() {
-    if (!config().debugMode()) {
-      return "";
-    } else {
-      return "if (node == null) throw new RuntimeException("
-          + "\"Trying to evaluate collection attribute in subtree not attached to main tree\");";
-    }
-  }
-
   // Only used by circular collection attributes.
   public void AttrDecl.emitCircularCollectionEval(PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("RootType", root().name());
     tt.bind("SeparateEvaluation", separateEvaluation());
-    tt.bind("Cond1",
-        differs("new_" + signature() + "_value", signature() + "_value"));
-    tt.bind("Cond2",
-        differs("new_" + signature() + "_value",
+    tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("Cond2", valueComparisonExpr("new_" + signature() + "_value",
             fromReferenceType(signature() + "_values.get(_parameters)", getType())));
 
     String rhs;
@@ -118,7 +100,8 @@ aspect CollectionAttributes {
           + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
     }
     tt.bind("CircularComputeRHS", rhs);
-    tt.bind("CircularComputeStmt", ""+getType() + " new_" + signature() + "_value = " + rhs + ";");
+    tt.bind("CircularComputeStmt",
+        String.format("%s new_%s_value = %s;", getType(), signature(), rhs));
 
     tt.expand("AttrDecl.circularCollectionEval", out);
   }
@@ -181,7 +164,7 @@ aspect CollectionAttributes {
   syn boolean AttrDecl.lazyCondition() = hasAnnotation("@LazyCondition");
   syn boolean AttrEq.lazyCondition() = decl().lazyCondition();
 
-  syn boolean AttrDecl.onePhase() = hasAnnotation("@OnePhase") /*|| naive()*/;
+  syn boolean AttrDecl.onePhase() = hasAnnotation("@OnePhase");
   syn boolean AttrEq.onePhase() = decl().onePhase();
 
   syn boolean AttrDecl.naive() = hasAnnotation("@Naive");
@@ -241,10 +224,10 @@ aspect CollectionAttributes {
           if (decl.onePhase() || decl.separateEvaluation()) {
             tt.bind("HasCondition", c.hasCondition());
             tt.bind("Value", c.getValue().trim());
-            tt.expand("ASTDecl.collectContributors:alt1", out);
+            tt.expand("ASTDecl.collectContributors:onePhase", out);
           } else {
             tt.bind("HasCondition", c.hasCondition() && !decl.lazyCondition());
-            tt.expand("ASTDecl.collectContributors:alt2", out);
+            tt.expand("ASTDecl.collectContributors:twoPhase", out);
           }
         }
       }
@@ -279,7 +262,7 @@ aspect CollectionAttributes {
       }
     }
 
-    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry: map.entrySet()) {
+    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry : map.entrySet()) {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
@@ -287,10 +270,10 @@ aspect CollectionAttributes {
           + "_" + decl.signature() + "(" + decl.getType() + " collection) {");
       out.println(config().ind(2) + "super.contributeTo_" + decl.getTarget()
           + "_" + decl.signature() + "(collection);");
-      for (CollEq attr: equations) {
+      for (CollEq attr : equations) {
         for (int j = 0; j < attr.getNumContribution(); j++) {
           Contribution c = attr.getContribution(j);
-          if (c.hasCondition() /* && attr.getNumContribution() > 1*/) {
+          if (c.hasCondition()) {
             out.println(config().ind(2) + "if (" + c.getCondition().trim() + ")");
             out.println(config().ind(3) + "collection." + decl.getCombOp()
                 + "(" + c.getValue().trim() + ");");
@@ -305,7 +288,7 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.nextIteration(PrintStream out) {
-    HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
+    HashMap<CollDecl, ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
     for (int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if (attr.separateEvaluation()) {
@@ -319,7 +302,7 @@ aspect CollectionAttributes {
       }
     }
 
-    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry : map.entrySet()) {
+    for (Map.Entry<CollDecl, ArrayList<CollEq>> entry : map.entrySet()) {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
@@ -334,7 +317,7 @@ aspect CollectionAttributes {
 
       out.println(config().indent + "protected void " + decl.getTarget() + "_"
           + firstEq.signature() + "_nextIteration(" + decl.getTarget() + " n) {");
-      for (CollEq attr: equations) {
+      for (CollEq attr : equations) {
         TemplateContext tt = attr.templateContext();
         tt.bind("CombOp", decl.getCombOp());
         tt.bind("ValueAccess", valueAccess);
@@ -409,42 +392,32 @@ aspect CollectionAttributes {
 
   public void TypeDecl.weaveCollectionAttributes() { }
 
-  private HashSet TypeDecl.processedCollectingSignatures = null;
+  private Set<String> TypeDecl.processedCollectingSignatures = new HashSet<String>();
 
   protected boolean TypeDecl.processedCollectingSignature(String signature) {
-    if (processedCollectingSignatures == null) {
-      processedCollectingSignatures = new LinkedHashSet();
-    }
     if (processedCollectingSignatures.contains(signature)) {
       return true;
+    } else {
+      processedCollectingSignatures.add(signature);
+      return false;
     }
-    processedCollectingSignatures.add(signature);
-    return false;
   }
 
   protected String TypeDecl.collectionReset() {
-    StringBuffer res = new StringBuffer();
+    StringBuilder res = new StringBuilder();
     for (int k = 0; k < grammar().getNumTypeDecl(); k++) {
       TypeDecl typeDecl = grammar().getTypeDecl(k);
-      for (CollDecl decl: typeDecl.interfaceCollDecls()) {
+      for (CollDecl decl : typeDecl.interfaceCollDecls()) {
         TemplateContext tt = decl.templateContext();
         if (decl.root() == this && !decl.separateEvaluation()) {
-          if (decl.circularCollection()) {
-            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush1"));
-          } else {
-            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush2"));
-          }
+          res.append(tt.expand("Collection.flush"));
         }
       }
       for (int i = 0; i < typeDecl.getNumCollDecl(); i++) {
         CollDecl attr = typeDecl.getCollDecl(i);
         TemplateContext tt = attr.templateContext();
         if (attr.root() == this && !attr.separateEvaluation()) {
-          if (attr.circularCollection()) {
-            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush1"));
-          } else {
-            res.append(tt.expand("ASTDecl.weaveCollectionAttributes.flush2"));
-          }
+          res.append(tt.expand("Collection.flush"));
         }
       }
     }
@@ -452,55 +425,52 @@ aspect CollectionAttributes {
   }
 
   public void ASTDecl.weaveCollectionAttributes() {
-    for (CollDecl decl: interfaceCollDecls()) {
-      weaveCollectionAttribute(decl);
+    for (CollDecl decl : interfaceCollDecls()) {
+      decl.weaveCollectionAttribute();
     }
-    for (CollDecl decl: getCollDeclList()) {
-      weaveCollectionAttribute(decl);
+    for (CollDecl decl : getCollDeclList()) {
+      decl.weaveCollectionAttribute();
     }
   }
 
-  public void ASTDecl.weaveCollectionAttribute(CollDecl attr) {
-    TemplateContext tt = attr.templateContext();
+  public void CollDecl.weaveCollectionAttribute() {
+    TemplateContext tt = templateContext();
 
-    boolean separateEvaluation = attr.separateEvaluation();
+    boolean separateEvaluation = separateEvaluation();
     TypeDecl astDecl = grammar().lookup(config().astNodeType());
-    TypeDecl rootDecl = attr.root();
+    TypeDecl rootDecl = root();
     if (astDecl != null && rootDecl != null) {
-      boolean process = !astDecl.processedCollectingSignature(attr.collectingSignature());
-      if (!astDecl.hasCollEq(attr) && process) {
+      boolean process = !astDecl.processedCollectingSignature(collectingSignature());
+      if (!astDecl.hasCollEq(this) && process) {
         String s = "";
         if (separateEvaluation) {
           s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
         }
-
-        if (process && !separateEvaluation/*&& attr.isCircular() && !separateEvaluation*/) {
+        if (process && !separateEvaluation) {
           s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
         }
-
-        if (!separateEvaluation && (attr.isCircular() || !attr.onePhase())) {
+        if (!separateEvaluation && (isCircular() || !onePhase())) {
           s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
         }
-
-        astDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
+        astDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
       }
       if (process) {
         String s = "";
-        if (attr.circularCollection() && !separateEvaluation) {
+        if (circularCollection() && !separateEvaluation) {
           s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
-        } else if (!attr.circularCollection() && !attr.separateEvaluation()) {
-          if (!rootDecl.hasCollEq(attr)) {
+        } else if (!circularCollection() && !separateEvaluation()) {
+          if (!rootDecl.hasCollEq(this)) {
             s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
           } else {
             s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
           }
         }
-        rootDecl.classBodyDecls.add(buildClassBodyObject(s, attr.getFileName(), attr.getStartLine()));
+        rootDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
       }
     }
   }
 
-  private ClassBodyObject ASTDecl.buildClassBodyObject(String data,
+  private ClassBodyObject CollDecl.buildClassBodyObject(String data,
       String fileName, int line) {
     org.jastadd.jrag.AST.SimpleNode n = new org.jastadd.jrag.AST.ASTBlock(0);
     n.firstToken = n.lastToken = org.jastadd.jrag.AST.Token.newToken(0);
@@ -508,21 +478,24 @@ aspect CollectionAttributes {
     return new ClassBodyObject(n, fileName, line, "<NoAspect>");
   }
 
-
-
-  // name binding
+  /**
+   * Finds the declaration node of a collection equation. Returns {@code null}
+   * if no declaration was found.
+   */
   eq CollEq.decl() {
     TypeDecl typeDecl = grammar().lookup(getTargetName());
-    if (typeDecl != null /*&& typeDecl instanceof ASTDecl*/) {
+    if (typeDecl != null) {
       TypeDecl astDecl = (TypeDecl)typeDecl;
       for (int i = 0; i < astDecl.getNumCollDecl(); i++)
-        if (astDecl.getCollDecl(i).getName().equals(getTargetAttributeName()))
+        if (astDecl.getCollDecl(i).getName().equals(getTargetAttributeName())) {
           return astDecl.getCollDecl(i);
+        }
     }
     return null;
   }
 
   coll HashSet CollDecl.uses() [new LinkedHashSet()] with add;
+
   CollEq contributes this when decl() != null to CollDecl.uses() for decl();
 
   public void Grammar.addCollDecl(String name, String type, String className,
@@ -652,5 +625,4 @@ aspect CollectionAttributes {
     }
     return true;
   }
-
 }

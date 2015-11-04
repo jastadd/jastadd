@@ -309,9 +309,7 @@ aspect JragCodeGen {
   }
 
   public void AttrDecl.emitCacheDeclarations(PrintStream out) {
-    if (isLazy()) {
-      templateContext().expand("AttrDecl.cacheDeclarations", out);
-    }
+    templateContext().expand("AttrDecl.cacheDeclarations", out);
   }
 
   /**
@@ -322,42 +320,44 @@ aspect JragCodeGen {
   eq InhDecl.declaredNTA() = getNTA();
 
   public String ASTNode.fromReferenceType(String value, String type) {
-    if (type.equals("int"))
+    if (type.equals("int")) {
       return "((Integer)" + value + ")";
-    else if (type.equals("short"))
+    } else if (type.equals("short")) {
       return "((Short)" + value + ")";
-    else if (type.equals("long"))
+    } else if (type.equals("long")) {
       return "((Long)" + value + ")";
-    else if (type.equals("float"))
+    } else if (type.equals("float")) {
       return "((Float)" + value + ")";
-    else if (type.equals("double"))
+    } else if (type.equals("double")) {
       return "((Double)" + value + ")";
-    else if (type.equals("boolean"))
+    } else if (type.equals("boolean")) {
       return "((Boolean)" + value + ")";
-    else if (type.equals("char"))
+    } else if (type.equals("char")) {
       return "((Character)" + value + ")";
-    else
+    } else {
       return "(" + type + ")" + value;
+    }
   }
 
   public String AttrDecl.boxedType() {
     String type = getType();
-    if (type.equals("int"))
+    if (type.equals("int")) {
       return "Integer";
-    else if (type.equals("short"))
+    } else if (type.equals("short")) {
       return "Short";
-    else if (type.equals("long"))
+    } else if (type.equals("long")) {
       return "Long";
-    else if (type.equals("float"))
+    } else if (type.equals("float")) {
       return "Float";
-    else if (type.equals("double"))
+    } else if (type.equals("double")) {
       return "Double";
-    else if (type.equals("boolean"))
+    } else if (type.equals("boolean")) {
       return "Boolean";
-    else if (type.equals("char"))
+    } else if (type.equals("char")) {
       return "Character";
-    else
+    } else {
       return type;
+    }
   }
 
   public boolean AttrDecl.isPrimitive() {
@@ -387,7 +387,8 @@ aspect JragCodeGen {
       return "Object _parameters = " + getParameter(0).getName() + ";\n";
     } else {
       StringBuilder sb = new StringBuilder();
-      sb.append("java.util.List _parameters = new java.util.ArrayList(" + getNumParameter() + ");\n");
+      sb.append("java.util.List _parameters = new java.util.ArrayList("
+          + getNumParameter() + ");\n");
       for (int i = 0; i < getNumParameter(); i++) {
         sb.append("_parameters.add(" + getParameter(i).getName() + ");\n");
       }
@@ -535,8 +536,8 @@ aspect JragCodeGen {
 
   public void AttrDecl.emitCircularEquationNoParams(PrintStream out) {
     TemplateContext tt = templateContext();
-    tt.bind("Cond1", differs("new_" + signature() + "_value", signature() + "_value"));
-    tt.bind("Cond2", differs("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("Cond2", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
@@ -546,7 +547,8 @@ aspect JragCodeGen {
   public void AttrDecl.emitCircularEquationWithParams(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
-    tt.bind("Cond1", differs("new_" + signature() + "_value", fromReferenceType("_value.value", getType())));
+    tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value",
+        fromReferenceType("_value.value", getType())));
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(fromReferenceType(signature() + "_values.get(_parameters)" , getType())));
@@ -681,16 +683,20 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.differs(String s1, String s2) {
+  /**
+   * Generate code to test if two attribute values differ based on the type of the attribute.
+   */
+  public String AttrDecl.valueComparisonExpr(String s1, String s2) {
     if (isPrimitive()) {
       return s1 + " != " + s2;
     } else if (declaredNTA() && isCircular()) {
       if (isRewriteCircularNtaAttr()) {
         return "rewriteState != " + config().stateClassName() + ".REWRITE_NOCHANGE";
       }
-      return "!is$Equal(" + s1 + "," + s2 + ")";
+      return String.format("!is$Equal(%s, %s)", s1, s2);
     } else {
-      return "(" + s1 + "==null && " + s2 + "!=null) || (" + s1 + "!=null && !" + s1 + ".equals(" + s2 + "))";
+      return String.format("(%s == null && %s != null) || (%s != null && !%s.equals(%s))",
+          s1, s2, s1, s1, s2);
     }
   }
 
@@ -700,42 +706,33 @@ aspect JragCodeGen {
       // EMMA_2011-09-13: Setting this to true to get declarations for each
       // equation of an attribute. If an equation lacks its own visited declaration
       // and calls an overriden equation it can cause a circularity exception.
-      needsCacheDeclaration = true; // superClass() == null || !superClass().hasLazySynEqFor(attr);
+      needsCacheDeclaration = true;
     }
     String ind = config().indent;
     if (!attr.isCircular()) {
       if (needsCacheDeclaration) {
         attr.emitVisitedDeclarations(out);
-        attr.emitCacheDeclarations(out);
         attr.emitResetMethod(out);
+        if (attr.isLazy()) {
+          attr.emitCacheDeclarations(out);
+        }
       }
     } else {
       if (attr.getNumParameter() == 0) {
-        if (!needsCacheDeclaration && attr instanceof SynDecl &&
-            superClass() != null && superClass().lookupSynEq(attr.signature()) != null
+        // Non-parameterized, circular attribute
+        if (!needsCacheDeclaration && attr instanceof SynDecl
+            && superClass() != null && superClass().lookupSynEq(attr.signature()) != null
             && !superClass().lookupSynEq(attr.signature()).decl().isCircular()) {
-
           needsCacheDeclaration = true;
         }
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
           attr.emitResetMethod(out);
-          out.println(ind + "/**");
-          out.println(ind + " * @apilevel internal");
-          out.println(ind + " */");
-          out.println(ind + "protected boolean " + attr.signature() + "_computed = false;");
-          out.println(ind + "/**");
-          out.println(ind + " * @apilevel internal");
-          out.println(ind + " */");
-          out.println(ind + "protected boolean " + attr.signature() + "_initialized = false;");
-          out.println(ind + "/**");
-          out.println(ind + " * @apilevel internal");
-          out.println(ind + " */");
-          out.println(ind + "protected " + attr.getType() + " " + attr.signature() + "_value;");
+          attr.emitCacheDeclarations(out);
           return;
         }
-      }
-      else {
+      } else {
+        // Parameterized, circular attribute.
         if (needsCacheDeclaration) {
           attr.emitVisitedDeclarations(out);
           attr.emitResetMethod(out);

@@ -48,7 +48,6 @@ aspect Flush {
     tt.bind("FlushAttrCacheBody", sb.toString());
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
 
-    tt.bind("FlushCollectionCache", emitFlushCollectionCacheString());
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
 
     tt.expand("ASTDecl.flushRewriteCacheMethod", out);
@@ -90,16 +89,16 @@ aspect Flush {
   /**
    * Creates string with code flushing collection attributes in a node.
    */
-  public String ASTDecl.emitFlushCollectionCacheString() {
+  public String ASTDecl.flushCollectionCacheCode() {
     StringBuffer res = new StringBuffer();
-    for (CollDecl decl: interfaceCollDecls()) {
+    for (CollDecl decl : interfaceCollDecls()) {
       res.append(decl.resetVisit());
       res.append(decl.resetCache());
       if (!decl.separateEvaluation() && !decl.onePhase()) {
         res.append(decl.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
       }
     }
-    for (CollDecl decl: getCollDeclList()) {
+    for (CollDecl decl : getCollDeclList()) {
       res.append(decl.resetVisit());
       res.append(decl.resetCache());
       if (!decl.separateEvaluation() && !decl.onePhase()) {

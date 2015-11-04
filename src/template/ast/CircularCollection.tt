@@ -133,7 +133,7 @@ $endif
     $ASTNode node = this;
     while(node.getParent() != null && !(node instanceof $RootType))
       node = node.getParent();
-    #collDebugString
+    $include(collDebugCheck)
     $RootType root = ($RootType) node;
 
 $if(!SeparateEvaluation)

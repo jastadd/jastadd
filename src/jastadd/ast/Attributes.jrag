@@ -393,39 +393,6 @@ public aspect Attributes {
     interTypeObjects.add(new InterTypeObject(className, obj));
   }
 
-  public void Grammar.addInterface(org.jastadd.jrag.AST.SimpleNode nameList,
-      String className, String fileName) {
-    if (nameList == null) {
-      System.err.println("Panic");
-    } else {
-      TypeDecl c = lookup(className);
-      if (c != null) {
-        c.implementsList.add(nameList);
-      } else {
-        int line = nameList.firstToken.beginLine;
-        error("can not add interface to unknown class " + className, fileName, line);
-      }
-    }
-  }
-
-  public void Grammar.extendInterface(org.jastadd.jrag.AST.SimpleNode nameList, String className,
-      String fileName) {
-    if (nameList == null) {
-      System.err.println("Panic");
-    } else {
-      TypeDecl c = lookup(className);
-      if (c instanceof InterfaceDecl) {
-        c.implementsList.add(nameList);
-      } else if (c != null) {
-        int line = nameList.firstToken.beginLine;
-        error(className + " is not an interface and can therefore not be extended", fileName, line);
-      } else {
-        int line = nameList.firstToken.beginLine;
-        error("can not add interface to unknown interface " + className, fileName, line);
-      }
-    }
-  }
-
   public Collection<ClassBodyObject> TypeDecl.classBodyDecls = new LinkedHashSet<ClassBodyObject>();
 
   public String AttrEq.aspectName() {
@@ -1097,26 +1064,6 @@ public aspect Attributes {
     }
 
     return keep;
-  }
-
-  public LinkedList TypeDecl.implementsList = new LinkedList();
-
-  public boolean ASTDecl.implementsInterface(String name) { // DRAGONS
-    for (Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
-      org.jastadd.jrag.AST.SimpleNode n = (org.jastadd.jrag.AST.SimpleNode)iter.next();
-      StringBuffer s = new StringBuffer();
-      n.jjtAccept(new Unparser(), s);
-      String i = s.toString();
-      int index = i.indexOf(name);
-      if (index == -1)
-        continue;
-      if (index > 0 && Character.isJavaIdentifierPart(i.charAt(index-1)))
-        continue;
-      if (index + name.length() < i.length() && Character.isJavaIdentifierPart(i.charAt(index + name.length())))
-        continue;
-      return true;
-    }
-    return false;
   }
 
   public Collection<ASTCompilationUnit> Grammar.compilationUnits =

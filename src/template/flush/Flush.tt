@@ -116,7 +116,7 @@ $if(FlushColl)
     $if(!#isASTNodeDecl)
     super.flushCollectionCache();
     $endif
-    $FlushCollectionCache
+    #flushCollectionCacheCode
   }
 $endif
 ]]

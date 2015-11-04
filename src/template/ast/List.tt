@@ -37,10 +37,12 @@ $endif
   public $List<T> $List.add(T node) {
     $SynchBegin
 $if(DebugMode)
-    if (node instanceof $List)
+    if (node instanceof $List) {
       throw new RuntimeException("Lists can not have children of type $List");
-    if (node instanceof $Opt)
+    }
+    if (node instanceof $Opt) {
       throw new RuntimeException("Lists can not have children of type $Opt");
+    }
 $endif
     addChild(node);
     return this;
@@ -51,10 +53,12 @@ $endif
     $SynchBegin
 $if(DebugMode)
     for (T node : c) {
-      if (node instanceof $List)
+      if (node instanceof $List) {
         throw new RuntimeException("Lists can not have children of type $List");
-      if (node instanceof $Opt)
+      }
+      if (node instanceof $Opt) {
         throw new RuntimeException("Lists can not have children of type $Opt");
+      }
     }
 $endif
     for (T node : c) {
