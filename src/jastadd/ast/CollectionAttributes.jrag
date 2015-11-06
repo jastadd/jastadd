@@ -183,12 +183,13 @@ aspect CollectionAttributes {
 
 
   private void ASTDecl.collectContributors(PrintStream out) {
-    HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
+    // Mapping collection declaration -> collection equations (excluding separate eval eqs)
+    HashMap<CollDecl, Collection<CollEq>> map = new LinkedHashMap<CollDecl, Collection<CollEq>>();
     for (int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if (!attr.separateEvaluation()) {
         CollDecl decl = (CollDecl) attr.decl();
-        ArrayList<CollEq> equations = map.get(decl);
+        Collection<CollEq> equations = map.get(decl);
         if (equations == null) {
           equations = new ArrayList<CollEq>();
           map.put(decl, equations);
@@ -197,11 +198,9 @@ aspect CollectionAttributes {
       }
     }
 
-    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry: map.entrySet()) {
+    for (Map.Entry<CollDecl, Collection<CollEq>> entry : map.entrySet()) {
       CollDecl decl = entry.getKey();
-      ArrayList<CollEq> equations = entry.getValue();
-
-      CollEq firstEq = equations.get(0);
+      Collection<CollEq> equations = entry.getValue();
 
       out.println(config().indent + "protected void collect_contributors_"
           + decl.collectingSignature() + "() {"); // Once per group.
@@ -248,7 +247,7 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.contributeTo(PrintStream out) {
-    HashMap<CollDecl,ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
+    HashMap<CollDecl, ArrayList<CollEq>> map = new LinkedHashMap<CollDecl, ArrayList<CollEq>>();
     for (int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if (!attr.separateEvaluation() && !attr.onePhase()) {
@@ -262,7 +261,7 @@ aspect CollectionAttributes {
       }
     }
 
-    for (Map.Entry<CollDecl,ArrayList<CollEq>> entry : map.entrySet()) {
+    for (Map.Entry<CollDecl, ArrayList<CollEq>> entry : map.entrySet()) {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
@@ -288,7 +287,7 @@ aspect CollectionAttributes {
   }
 
   private void ASTDecl.nextIteration(PrintStream out) {
-    HashMap<CollDecl, ArrayList<CollEq>> map = new LinkedHashMap<CollDecl,ArrayList<CollEq>>();
+    HashMap<CollDecl, ArrayList<CollEq>> map = new LinkedHashMap<CollDecl, ArrayList<CollEq>>();
     for (int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       if (attr.separateEvaluation()) {
@@ -440,21 +439,19 @@ aspect CollectionAttributes {
     TypeDecl astDecl = grammar().lookup(config().astNodeType());
     TypeDecl rootDecl = root();
     if (astDecl != null && rootDecl != null) {
-      boolean process = !astDecl.processedCollectingSignature(collectingSignature());
-      if (!astDecl.hasCollEq(this) && process) {
-        String s = "";
-        if (separateEvaluation) {
-          s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
+      if (!astDecl.processedCollectingSignature(collectingSignature())) {
+        if (!astDecl.hasCollEq(this)) {
+          String s = "";
+          if (separateEvaluation) {
+            s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
+          } else {
+            s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
+            if (isCircular() || !onePhase()) {
+              s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
+            }
+          }
+          astDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
         }
-        if (process && !separateEvaluation) {
-          s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
-        }
-        if (!separateEvaluation && (isCircular() || !onePhase())) {
-          s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
-        }
-        astDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
-      }
-      if (process) {
         String s = "";
         if (circularCollection() && !separateEvaluation) {
           s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
