@@ -2,6 +2,9 @@
 
     * Fixed error in the collection attribute runtime debug check (when trying
     to evaluate a collection attribute in subtree not attached to main tree).
+    * Renamed the hidden inherited attribute parameters "child" and "caller"
+    to "_childNode" and "_callerNode" in order to reduce the likelyhood of
+    name clashes with the formal attribute parameters.
 
 2015-11-03  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 

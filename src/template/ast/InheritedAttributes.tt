@@ -29,11 +29,11 @@ InhEq.defaultInhDefineMethod [[
   /**
    * @apilevel internal
    */
-  public #type Define_#name($ASTNode caller, $ASTNode child#inhParametersDeclTail) {
+  public #type Define_#name($ASTNode _callerNode, $ASTNode _childNode#inhParametersDeclTail) {
     ASTNode self = this;
     ASTNode parent = getParent();
-    while (parent != null && !parent.canDefine_#name(self, caller#inhParametersTail)) {
-      caller = self;
+    while (parent != null && !parent.canDefine_#name(self, _callerNode#inhParametersTail)) {
+      _callerNode = self;
       self = parent;
       parent = self.getParent();
     }
@@ -43,7 +43,7 @@ $if(DebugMode)
           "Trying to evaluate inherited attribute #name in detached subtree (parent == null)");
     }
 $endif
-    return parent.Define_#name(self, caller#inhParametersTail);
+    return parent.Define_#name(self, _callerNode#inhParametersTail);
   }
 
   /**
@@ -51,7 +51,7 @@ $endif
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute #name
    */
-  protected boolean canDefine_#name($ASTNode caller, $ASTNode child#inhParametersDeclTail) {
+  protected boolean canDefine_#name($ASTNode _callerNode, $ASTNode _childNode#inhParametersDeclTail) {
     return false;
   }
 ]]
@@ -62,13 +62,13 @@ InhDecl.DefineInhMethod [[
    * #declaredat
    * @apilevel internal
    */
-  public #getType Define_#(name)($ASTNode caller, $ASTNode child#inhParametersDeclTail) {
+  public #getType Define_#(name)($ASTNode _callerNode, $ASTNode _childNode#inhParametersDeclTail) {
     $InhEqClauses
   }
 ]]
 
 InhDecl.canDefineMethod [[
-  protected boolean canDefine_#(name)($ASTNode caller, $ASTNode child#inhParametersDeclTail) {
+  protected boolean canDefine_#(name)($ASTNode _callerNode, $ASTNode _childNode#inhParametersDeclTail) {
     return true;
   }
 ]]
@@ -76,20 +76,20 @@ InhDecl.canDefineMethod [[
 # list child equation clause
 InhEq.emitListClause [[
 $if(RewriteCircularNTA)
-if (caller == get#(childName)ListNoTransform() ||
+if (_callerNode == get#(childName)ListNoTransform() ||
   (rewritten_int_values != null &&
     rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) != null &&
-    ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))) ||
+    ((_callerNode == rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))) ||
       (rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) instanceof $StateClass.CircularValue &&
-      caller == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))).value)))) {
+      _callerNode == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))).value)))) {
   // #declaredat
-  int $ChildIndexVar = caller.getIndexOfChild(child);
+  int $ChildIndexVar = _callerNode.getIndexOfChild(_childNode);
   $EvalStmt
 }
 $else
-if (caller == get#(childName)ListNoTransform()) {
+if (_callerNode == get#(childName)ListNoTransform()) {
   // #declaredat
-  int $ChildIndexVar = caller.getIndexOfChild(child);
+  int $ChildIndexVar = _callerNode.getIndexOfChild(_childNode);
   $EvalStmt
 }
 $endif
@@ -98,17 +98,17 @@ $endif
 # optional child equation clause
 InhEq.emitOptClause [[
 $if(RewriteCircularNTA)
-if (caller == get#(childName)OptNoTransform() ||
-  (rewritten_int_values != null &&
-    rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) != null &&
-    ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))) ||
-      (rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) instanceof $StateClass.CircularValue &&
-        caller == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))).value)))) {
+if (_callerNode == get#(childName)OptNoTransform()
+    || (rewritten_int_values != null
+      && rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) != null
+      && ((_callerNode == rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())))
+        || (rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) instanceof $StateClass.CircularValue
+          && _callerNode == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))).value)))) {
   // #declaredat
   $EvalStmt
 }
 $else
-if (caller == get#(childName)OptNoTransform()) {
+if (_callerNode == get#(childName)OptNoTransform()) {
   // #declaredat
   $EvalStmt
 }
@@ -118,17 +118,17 @@ $endif
 # regular child equation clause
 InhEq.emitChildClause [[
 $if(RewriteCircularNTA)
-if (caller == get#(childName)NoTransform() ||
-  (rewritten_int_values != null &&
-    rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) != null &&
-    ((caller == rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))) ||
-      (rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) instanceof $StateClass.CircularValue &&
-        caller == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))).value)))) {
+if (_callerNode == get#(childName)NoTransform()
+    || (rewritten_int_values != null
+    && rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) != null
+    && ((_callerNode == rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())))
+      || (rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) instanceof $StateClass.CircularValue
+        && _callerNode == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))).value)))) {
   // #declaredat
   $EvalStmt
 }
 $else
-if (caller == get#(childName)NoTransform()) {
+if (_callerNode == get#(childName)NoTransform()) {
   // #declaredat
   $EvalStmt
 }
@@ -147,20 +147,20 @@ $endif
 ]]
 
 InhEq.defaultEval [[
-int $ChildIndexVar = this.getIndexOfChild(caller);
+int $ChildIndexVar = this.getIndexOfChild(_callerNode);
 $EvalStmt
 ]]
 
 # non-terminal child equation clause
 InhEq.emitNTAClause [[
 $if(IsParameterized)
-if (caller == $(AttrSignature)_list) {
+if (_callerNode == $(AttrSignature)_list) {
   // #declaredat
-  int $ChildIndexVar = caller.getIndexOfChild(child);
+  int $ChildIndexVar = _callerNode.getIndexOfChild(_childNode);
   $EvalStmt
 }
 $else
-if (caller == #(childName)_value) {
+if (_callerNode == #(childName)_value) {
   // #declaredat
   $EvalStmt
 }
@@ -179,7 +179,7 @@ $endif
 
 InhDecl.tailCall [[
 $if(HasEqInSupertype)
-return super.Define_#(name)(caller, child#inhParametersTail);
+return super.Define_#(name)(_callerNode, _childNode#inhParametersTail);
 $else
   $if(DebugMode)
 if (getParent() == null) {
@@ -187,7 +187,7 @@ if (getParent() == null) {
       "Trying to evaluate inherited attribute #name in detached subtree (parent == null)");
 }
   $endif
-return getParent().Define_#(name)(this, caller#inhParametersTail);
+return getParent().Define_#(name)(this, _callerNode#inhParametersTail);
 $endif
 ]]
 
