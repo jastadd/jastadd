@@ -41,23 +41,6 @@ if (node == null) {
 $endif
 ]]
 
-CollDecl.computeMethod:separateEvaluation = [[
-  /**
-   * @apilevel internal
-   */
-  private #getType #(name)_compute(#parametersDecl) {
-    $ASTNode node = this;
-    while (node != null && !(node instanceof $RootType)) {
-      node = node.getParent();
-    }
-    $include(collDebugCheck)
-    $RootType root = ($RootType) node;
-    #(signature)_value = $BottomValue;
-    root.#(signature)_nextIteration(this);
-    return #(signature)_value;
-  }
-]]
-
 CollDecl.computeMethod:onePhase = [[
   /**
    * @apilevel internal
@@ -205,61 +188,6 @@ $if(HasCondition)
 $endif
 ]]
 
-ASTDecl.nextIteration = [[
-$if(HasCondition)
-$if(#lazyCondition)
-$if(#getRefSet)
-    for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-      #getTargetName ref = (#getTargetName) iter.next();
-      if (ref == n && ($Condition)) {
-        $(ValueAccess)#(signature)_value.$CombOp($Value);
-      }
-    }
-$else
-    if (#getReference == n && ($Condition)) {
-      $(ValueAccess)#(signature)_value.$CombOp($Value);
-    }
-$endif
-$else
-    if ($Condition) {
-$if(#getRefSet)
-      for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-        #getTargetName ref = (#getTargetName) iter.next();
-        if (ref == n) {
-          $(ValueAccess)#(signature)_value.$CombOp($Value);
-        }
-      }
-$else
-      if (#getReference == n) {
-        $(ValueAccess)#(signature)_value.$CombOp($Value);
-      }
-$endif
-    }
-$endif
-$else
-$if(#getRefSet)
-    for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-      #getTargetName ref = (#getTargetName) iter.next();
-      if (ref == n) {
-        $(ValueAccess)#(signature)_value.$CombOp($Value);
-      }
-    }
-$else
-    if (#getReference == n) {
-      $(ValueAccess)#(signature)_value.$CombOp($Value);
-    }
-$endif
-$endif
-]]
-
-ASTDecl.weaveCollectionAttributes.nextIteration = [[
-  protected void #(signature)_nextIteration(#getTarget n) {
-    for (int i = 0; i < getNumChild(); i++) {
-      getChild(i).#(signature)_nextIteration(n);
-    }
-  }
-]]
-
 ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
   protected void collect_contributors_#(collectingSignature)() {
     for (int i = 0; i < getNumChild(); i++) {
@@ -307,25 +235,5 @@ Collection.flush = [[
 collect_contributors_#(collectingSignature) = false;
 $if(#circularCollection)
 collecting_contributors_#(collectingSignature) = false;
-$endif
-]]
-
-CollDecl.cacheCycleCheck [[
-$if(CacheCycle)
-if (state.LAST_CYCLE) {
-$if(#isParameterized)
-  #setVisited
-  $CircularComputeStmt
-  #clearVisited
-  #(signature)_computed.add(_parameters);
-  return (#boxedType) #(signature)_values.get(_parameters);
-$else
-  #setVisited
-  $CircularComputeStmt
-  #clearVisited
-  #(signature)_computed = true;
-  return #(signature)_value;
-$endif
-}
 $endif
 ]]

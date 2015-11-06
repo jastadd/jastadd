@@ -998,23 +998,11 @@ aspect Compute {
 
   syn String AttrDecl.circularComputeRHS() = computeRHS();
 
-  eq CollDecl.circularComputeRHS() {
-    if (separateEvaluation()) {
-      return Unparser.unparse(getBottomValue()) + ";\n" +
-             "root." + name() + "_" + signature() + "_nextIteration(this)";
-    } else {
-      return "combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
-    }
-  }
+  eq CollDecl.circularComputeRHS() =
+      "combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
 
   syn String AttrDecl.circularComputeLHS() = "new_" + signature() + "_value";
 
-  eq CollDecl.circularComputeLHS() {
-    if (separateEvaluation()) {
-      return "new_" + signature() + "_value";
-    } else {
-      return signature() + "_value";
-    }
-  }
+  eq CollDecl.circularComputeLHS() = signature() + "_value";
 
 }

@@ -94,14 +94,14 @@ aspect Flush {
     for (CollDecl decl : interfaceCollDecls()) {
       res.append(decl.resetVisit());
       res.append(decl.resetCache());
-      if (!decl.separateEvaluation() && !decl.onePhase()) {
+      if (!decl.onePhase()) {
         res.append(decl.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
       }
     }
     for (CollDecl decl : getCollDeclList()) {
       res.append(decl.resetVisit());
       res.append(decl.resetCache());
-      if (!decl.separateEvaluation() && !decl.onePhase()) {
+      if (!decl.onePhase()) {
         res.append(decl.signature() + "_contributors = " + (config().lazyMaps() ? "null" : config().createContributorSet()) + ";\n");
       }
     }

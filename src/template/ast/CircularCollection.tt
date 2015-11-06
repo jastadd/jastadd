@@ -118,10 +118,6 @@ $else
    */
   protected #getType #(signature)_value;
 
-$if(SeparateEvaluation)
-  protected #getType new_#(signature)_value;
-$endif
-
 #docComment
   #annotations
   @ASTNodeAnnotation.Attribute
@@ -137,14 +133,11 @@ $endif
     $include(collDebugCheck)
     $RootType root = ($RootType) node;
 
-$if(!SeparateEvaluation)
-    if (root.collecting_contributors_#collectingSignature)
-      throw new RuntimeException("Circularity during phase 1");
-$endif
+    if (root.collecting_contributors_#collectingSignature) {
+      throw new RuntimeException("Circularity during survey phase");
+    }
     #addComponentCheck
-$if(!SeparateEvaluation)
     root.collect_contributors_#collectingSignature();
-$endif
 
     if (!#(signature)_initialized) {
       #(signature)_initialized = true;
@@ -160,13 +153,8 @@ $endif
         #(signature)_visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
 
-$if(SeparateEvaluation)
-        new_#(signature)_value = $BottomValue;
-        root.#(name)_#(signature)_nextIteration(this);
-$else
         #getType new_#(signature)_value = $BottomValue;
         combine_#(signature)_contributions(new_#(signature)_value);
-$endif
         if ($Cond1) {
           state.CHANGE = true;
         }
@@ -191,13 +179,8 @@ $endif
       #cacheCycleCheck
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
-$if(SeparateEvaluation)
-      new_#(signature)_value = $BottomValue;
-      root.#(name)_#(signature)_nextIteration(this);
-$else
       #(getType) new_#(signature)_value = $BottomValue;
       combine_#(signature)_contributions(new_#(signature)_value);
-$endif
       if ($Cond1) {
         state.CHANGE = true;
       }

@@ -55,7 +55,6 @@ aspect Annotations {
   syn boolean CollDecl.supportedAnnotation(Annotation a) {
     // TODO: document these annotations!
     return a.isAnnotation("@OnePhase")
-        || a.isAnnotation("@SeparateEvaluation")
         || a.isAnnotation("@LazyCondition")
         || a.isAnnotation("@Circular")
         || a.isAnnotation("@CollectionGroup")

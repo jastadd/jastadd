@@ -5,6 +5,8 @@
     * Renamed the hidden inherited attribute parameters "child" and "caller"
     to "_childNode" and "_callerNode" in order to reduce the likelyhood of
     name clashes with the formal attribute parameters.
+    * Removed @SeparateEvaluation annotation for collection attributes - this
+    code generation annotation did not since many version back.
 
 2015-11-03  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
