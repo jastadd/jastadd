@@ -47,7 +47,7 @@ CollDecl.computeMethod:separateEvaluation = [[
    */
   private #getType #(name)_compute(#parametersDecl) {
     $ASTNode node = this;
-    while (node.getParent() != null && !(node instanceof $RootType)) {
+    while (node != null && !(node instanceof $RootType)) {
       node = node.getParent();
     }
     $include(collDebugCheck)
@@ -64,7 +64,7 @@ CollDecl.computeMethod:onePhase = [[
    */
   private #getType #(name)_compute(#parametersDecl) {
     $ASTNode node = this;
-    while (node.getParent() != null && !(node instanceof $RootType)) {
+    while (node != null && !(node instanceof $RootType)) {
       node = node.getParent();
     }
     $include(collDebugCheck)
@@ -97,7 +97,7 @@ $endif
    */
   private #getType #(name)_compute(#parametersDecl) {
     $ASTNode node = this;
-    while (node.getParent() != null && !(node instanceof $RootType)) {
+    while (node != null && !(node instanceof $RootType)) {
       node = node.getParent();
     }
     $include(collDebugCheck)

@@ -131,8 +131,9 @@ $endif
     $StateClass state = state();
     $include(AttrDecl.cacheCheck)
     $ASTNode node = this;
-    while(node.getParent() != null && !(node instanceof $RootType))
+    while (node != null && !(node instanceof $RootType)) {
       node = node.getParent();
+    }
     $include(collDebugCheck)
     $RootType root = ($RootType) node;
 
