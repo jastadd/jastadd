@@ -151,22 +151,42 @@ aspect CollectionAttributes {
       ((CollDecl) decl()).getTarget() + "_" + signature();
 
   /**
-   * Separate evaluation means that the collection contribution is evaluated during
-   * the contributing phase in two-phase collection evaluation.
+   * Separate evaluation means that the instances of a collection attribute are
+   * evaluated separately from each other, as opposed to joint evaluation where
+   * all instances of an attribute are evaluated during a single traversal.
+   *
+   * <p>Defaults to {@code false}.
    */
   syn boolean AttrDecl.separateEvaluation() = hasAnnotation("@SeparateEvaluation") || naive();
   syn boolean AttrEq.separateEvaluation() = decl().separateEvaluation();
 
   /**
    * Lazy condition means that the condition is evaluated during the
-   * contributing phase in two-phase collection evaluation.
+   * combination phase in two-phase collection evaluation, as opposed to
+   * eagerly evaluating the condition during the survey phase.
+   *
+   * <p>This corresponds to "late condition evaluation" in the collection
+   * attribute paper, as opposed to "early condition evaluation".
+   *
+   * <p>Defaults to {@code true}.
    */
   syn boolean AttrDecl.lazyCondition() = hasAnnotation("@LazyCondition");
   syn boolean AttrEq.lazyCondition() = decl().lazyCondition();
 
+  /**
+   * One phase evaluation combines the survey and combination phases.
+   *
+   * <p>Defaults to {@code false}.
+   */
   syn boolean AttrDecl.onePhase() = hasAnnotation("@OnePhase");
   syn boolean AttrEq.onePhase() = decl().onePhase();
 
+  /**
+   * In naive evaluation the tree is traversed once per collection attribute,
+   * and there is only one phase.
+   *
+   * <p>Defaults to {@code false}.
+   */
   syn boolean AttrDecl.naive() = hasAnnotation("@Naive");
   syn boolean AttrEq.naive() = decl().naive();
 
@@ -436,11 +456,11 @@ aspect CollectionAttributes {
     TemplateContext tt = templateContext();
 
     boolean separateEvaluation = separateEvaluation();
-    TypeDecl astDecl = grammar().lookup(config().astNodeType());
+    TypeDecl astNode = grammar().lookup(config().astNodeType());
     TypeDecl rootDecl = root();
-    if (astDecl != null && rootDecl != null) {
-      if (!astDecl.processedCollectingSignature(collectingSignature())) {
-        if (!astDecl.hasCollEq(this)) {
+    if (astNode != null && rootDecl != null) {
+      if (!astNode.processedCollectingSignature(collectingSignature())) {
+        if (!astNode.hasCollEq(this)) {
           String s = "";
           if (separateEvaluation) {
             s = tt.expand("ASTDecl.weaveCollectionAttributes.nextIteration");
@@ -450,19 +470,21 @@ aspect CollectionAttributes {
               s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
             }
           }
-          astDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
+          astNode.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
         }
-        String s = "";
-        if (circularCollection() && !separateEvaluation) {
-          s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
-        } else if (!circularCollection() && !separateEvaluation()) {
-          if (!rootDecl.hasCollEq(this)) {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
+        if (!separateEvaluation) {
+          String s = "";
+          if (circularCollection()) {
+            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
           } else {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
+            if (!rootDecl.hasCollEq(this)) {
+              s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
+            } else {
+              s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
+            }
           }
+          rootDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
         }
-        rootDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
       }
     }
   }

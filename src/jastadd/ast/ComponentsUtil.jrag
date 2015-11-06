@@ -130,8 +130,6 @@ aspect ComponentHostClass {
   public String ClassDecl.extendsName = "java.lang.Object";
 }
 
-
-// ES_2011-12-05: Checks for regions in coarse incremental evaluation
 aspect CoarseIncremental {
 
   syn lazy boolean ASTDecl.isRegionRoot() = isRootNode() || lookupRegionDecl(name()) != null;
@@ -159,25 +157,20 @@ aspect CoarseIncremental {
   }
 
   syn lazy boolean ASTDecl.isRegionLeaf() {
-
     if (name().equals(config().listType()) || name().equals(config().optType())) {
       TypeDecl type = grammar().lookup(config().astNodeType());
-      if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
+      if (type != null && type instanceof ASTDecl && ((ASTDecl) type).isRegionRoot()) {
           return false;
       }
       return true;
     }
-
     for (int i = 0; i < getNumComponent(); i++) {
       Component comp = getComponent(i);
       TypeDecl type = grammar().lookup(comp.type());
-      if (type != null && type instanceof ASTDecl && ((ASTDecl)type).isRegionRoot()) {
+      if (type != null && type instanceof ASTDecl && ((ASTDecl) type).isRegionRoot()) {
         return true;
       }
     }
     return false;
   }
-
-
 }
-//
