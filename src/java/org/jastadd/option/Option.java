@@ -109,7 +109,7 @@ abstract public class Option<ValueType> implements Comparable<Option<?>> {
    * @param templateName
    * @return self
    */
-  public final Option<ValueType> templateName(String templateName) {
+  public final Option<ValueType> templateVariable(String templateName) {
     templateVariable = templateName;
     return this;
   }

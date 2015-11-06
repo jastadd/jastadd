@@ -88,27 +88,27 @@ public class Configuration {
   Option<String> ASTNodeOption = new ValueOption("ASTNode", "set the name of the ASTNode type")
       .acceptAnyValue()
       .defaultValue("ASTNode")
-      .templateName("ASTNode");
+      .templateVariable("ASTNode");
 
   Option<String> ListOption = new ValueOption("List", "set the name of the List type")
       .acceptAnyValue()
       .defaultValue("List")
-      .templateName("List");
+      .templateVariable("List");
 
   Option<String> OptOption = new ValueOption("Opt", "set the name of the Opt type")
       .acceptAnyValue()
       .defaultValue("Opt")
-      .templateName("Opt");
+      .templateVariable("Opt");
 
   Option<String> stateClassNameOption = new ValueOption("stateClassName",
       "set the name of the AST state class")
       .acceptAnyValue()
       .defaultValue("ASTNode$State")
-      .templateName("StateClass");
+      .templateVariable("StateClass");
 
   Option<String> ASTNodeSuperOption = new ValueOption("ASTNodeSuper", "set the ASTNode supertype")
       .acceptAnyValue()
-      .templateName("ASTNodeSuper");
+      .templateVariable("ASTNodeSuper");
 
   Option<Boolean> generateImplicitsOption = new BooleanOption("generateImplicits",
       "generate implicit node types")
@@ -117,34 +117,34 @@ public class Configuration {
 
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
       "use jjtree base node, this requires --grammar to be set")
-      .templateName("JJTree");
+      .templateVariable("JJTree");
 
   Option<String> grammarOption = new ValueOption("grammar",
       "the name of the grammar's parser, required when using --jjtree")
-      .templateName("ParserName");
+      .templateVariable("ParserName");
 
   Option<String> defaultMapOption = new ValueOption(
       "defaultMap", "use this expression to construct maps for attribute caches")
       .acceptAnyValue()
       .defaultValue("new java.util.HashMap(4)")
       .nonStandard()
-      .templateName("CreateDefaultMap");
+      .templateVariable("CreateDefaultMap");
 
   Option<String> defaultSetOption = new ValueOption(
       "defaultSet", "use this expression to construct sets for attribute caches")
       .acceptAnyValue()
       .defaultValue("new java.util.HashSet(4)")
       .nonStandard()
-      .templateName("CreateDefaultSet");
+      .templateVariable("CreateDefaultSet");
 
   Option<Boolean> lazyMapsOption = new BooleanOption("lazyMaps", "use lazy maps")
       .defaultValue(true)
-      .templateName("LazyMaps")
+      .templateVariable("LazyMaps")
       .nonStandard();
 
   Option<Boolean> privateOption = new FlagOption("private",
       "generated methods will use the private modifier")
-      .templateName("PrivateModifier")
+      .templateVariable("PrivateModifier")
       .nonStandard();
 
   ValueOption rewriteOption = new ValueOption("rewrite",
@@ -157,7 +157,7 @@ public class Configuration {
       .addAcceptedValue("cnta", "evaluate rewrites with circular NTAs");
 
   Option<Boolean> beaverOption = new FlagOption("beaver", "use beaver.Symbol as ASTNode supertype")
-      .templateName("Beaver");
+      .templateVariable("Beaver");
 
   Option<Boolean> lineColumnNumbersOption = new FlagOption("lineColumnNumbers",
       "generate interface for storing line and column numbers");
@@ -165,22 +165,22 @@ public class Configuration {
   Option<Boolean> visitCheckOption = new BooleanOption("visitCheck",
       "enable circularity check for attributes")
       .defaultValue(true)
-      .templateName("VisitCheckEnabled");
+      .templateVariable("VisitCheckEnabled");
 
   Option<Boolean> traceVisitCheckOption = new BooleanOption("traceVisitCheck",
       "just print an error rather than throwing a circularity check exception")
       .nonStandard()
-      .templateName("TraceVisitCheck");
+      .templateVariable("TraceVisitCheck");
 
   Option<Boolean> cacheCycleOption = new BooleanOption("cacheCycle",
       "enable cache cycle optimization for circular attributes")
       .defaultValue(true)
-      .templateName("CacheCycle")
+      .templateVariable("CacheCycle")
       .nonStandard();
 
   Option<Boolean> componentCheckOption = new BooleanOption("componentCheck",
       "strongly connected component checking for circular attributes")
-      .templateName("ComponentCheck");
+      .templateVariable("ComponentCheck");
 
   // TODO(jesper): make this deprecated.
   Option<Boolean> inhEqCheckOption = new BooleanOption("inhEqCheck",
@@ -200,7 +200,7 @@ public class Configuration {
 
   // TODO(jesper): add description for --stagedRewrites option.
   Option<Boolean> stagedRewritesOption = new FlagOption("stagedRewrites", "")
-      .templateName("StagedRewrites")
+      .templateVariable("StagedRewrites")
       .nonStandard();
 
   Option<Boolean> doxygenOption = new FlagOption("doxygen", "")
@@ -275,7 +275,7 @@ public class Configuration {
   };
 
   Option<Boolean> debugOption = new FlagOption("debug", "generate run-time checks for debugging")
-      .templateName("DebugMode");
+      .templateVariable("DebugMode");
 
   Option<Boolean> synchOption = new FlagOption("synch",
       "generate synchronized blocks around all AST-accessing methods")
@@ -284,7 +284,7 @@ public class Configuration {
   Option<Boolean> staticStateOption = new BooleanOption("staticState",
       "the generated state field is static")
       .defaultValue(true)
-      .templateName("StaticState")
+      .templateVariable("StaticState")
       .nonStandard();
 
   ValueOption outputDirOption = new ValueOption("o",
@@ -337,7 +337,7 @@ public class Configuration {
     {
       acceptAnyValue();
       defaultValue("4");
-      templateName("MinListSize");
+      templateVariable("MinListSize");
       nonStandard();
     }
     @Override
