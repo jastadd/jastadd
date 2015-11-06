@@ -55,16 +55,15 @@ aspect AttributeNamesAndTypes {
   syn String AttrEq.name() = getName();
 
   syn String AttrEq.type() {
-    if (decl() != null) return decl().type();
-    throw new Error(getFileName() + ":" + getStartLine() +
-        " could not find decl for AttrEq " + signature() + " in " +
-        hostClass().name());
+    if (decl() != null) {
+      return decl().type();
+    } else {
+      throw new Error(getFileName() + ":" + getStartLine()
+          + " could not find decl for AttrEq " + signature() + " in " + hostClass().name());
+    }
   }
 
   syn lazy String AttrDecl.signature() {
-    if (getNumParameter() == 0) {
-      return getName();
-    }
     StringBuilder sb = new StringBuilder();
     sb.append(getName());
     for (int i = 0; i < getNumParameter(); i++) {
@@ -74,14 +73,30 @@ aspect AttributeNamesAndTypes {
   }
 
   syn lazy String AttrEq.signature() {
-    if (getNumParameter() == 0) {
-      return getName();
-    }
     StringBuilder sb = new StringBuilder();
     sb.append(getName());
     for (int i = 0; i < getNumParameter(); i++) {
       sb.append("_" + getParameter(i).getTypeInSignature());
     }
+    return sb.toString();
+  }
+
+  /**
+   * The attribute name, including parameter list.
+   */
+  syn lazy String AttrEq.attributeName() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getName());
+    sb.append("(");
+    for (int i = 0; i < getNumParameter(); i++) {
+      if (i > 0) {
+        sb.append(",");
+      }
+      sb.append(getParameter(i).getType());
+      sb.append(" ");
+      sb.append(getParameter(i).getName());
+    }
+    sb.append(")");
     return sb.toString();
   }
 }

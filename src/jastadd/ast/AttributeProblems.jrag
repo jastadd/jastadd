@@ -90,23 +90,23 @@ aspect AttributeProblems {
 
 
   coll Collection<Problem> TypeDecl.attributeProblems()
-    [new LinkedList<Problem>()]
-    with add
-    root TypeDecl;
+      [new LinkedList<Problem>()]
+      with add
+      root TypeDecl;
 
   /**
    * Hack to make collection only on ASTdecls that are not
    * ClassDecl or InterfaceDecl.
    */
   syn Collection<Problem> ClassDecl.attributeProblems() =
-    Collections.emptyList(); // Don't collect problems for attributes in ClassDecls.
+      Collections.emptyList(); // Don't collect problems for attributes in ClassDecls.
 
   /**
    * Hack to make collection only on ASTdecls that are not
    * ClassDecl or InterfaceDecl.
    */
   syn Collection<Problem> InterfaceDecl.attributeProblems() =
-    Collections.emptyList(); // Don't collect problems for attributes in InterfaceDecls.
+      Collections.emptyList(); // Don't collect problems for attributes in InterfaceDecls.
 
   SynEq contributes errorf("synthesized attribute %s assigned in class %s is not declared",
       name(), hostClass().name())
@@ -164,6 +164,12 @@ aspect AttributeProblems {
       "equation must have the same parameter names as attribute declaration in %s:%d",
       decl().getFileName(), decl().getStartLine())
     when decl() != null && !decl().parametersDecl().equals(parametersDecl())
+    to TypeDecl.attributeProblems()
+    for hostClass();
+
+  // TODO(jesper): Check if there is a parameter list mismatch that might be causing the problem.
+  InhEq contributes errorf("missing declaration for inherited attribute %s", attributeName())
+    when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
 
@@ -293,12 +299,10 @@ aspect AttributeProblems {
 
   syn boolean InhEq.hasMultiEqProblem() = prevEq() != null && prevEq() != this;
 
-  syn Problem InhEq.multiEqProblem() =
-      error(String.format(
-          "multiple equations for inherited attribute %s.%s"
-          + " in class %s and %s in class %s in %s:%d",
-          childName(), name(), hostClass().name(), prevEq().name(), prevEq().hostClass().name(),
-          prevEq().getFileName(), prevEq().getStartLine()));
+  syn Problem InhEq.multiEqProblem() = errorf(
+      "multiple equations for inherited attribute %s.%s in class %s and %s in class %s in %s:%d",
+      childName(), name(), hostClass().name(), prevEq().name(), prevEq().hostClass().name(),
+      prevEq().getFileName(), prevEq().getStartLine());
 
   InhEq contributes badIndexProblem()
     when hasBadIndexProblem()
@@ -306,10 +310,10 @@ aspect AttributeProblems {
     for hostClass();
 
   syn boolean InhEq.hasBadIndexProblem() =
-    hasIndex() &&
-    getComponent() != null &&
-    !(getComponent() instanceof ListComponent) &&
-    !getChildName().equals("getChild");
+      hasIndex()
+      && getComponent() != null
+      && !(getComponent() instanceof ListComponent)
+      && !getChildName().equals("getChild");
 
   syn Problem InhEq.badIndexProblem() =
       errorf("may not supply index for non list child %s in class %s",
