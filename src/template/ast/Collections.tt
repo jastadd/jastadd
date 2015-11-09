@@ -101,7 +101,7 @@ $endif
 CollDecl.collectContributions = [[
 for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
   $ASTNode contributor = ($ASTNode) iter.next();
-  contributor.contributeTo_#(getTarget)_#(signature)(#(signature)_value);
+  contributor.contributeTo_#(signature)(#(signature)_value);
 }
 ]]
 
@@ -114,8 +114,9 @@ CollDecl.combineMethod = [[
    */
   public $ContributorSetType #(signature)_contributors() {
 $if(LazyMaps)
-    if (#(signature)_contributors == null)
+    if (#(signature)_contributors == null) {
       #(signature)_contributors  = $CreateContributorSet;
+    }
 $endif
     return #(signature)_contributors;
   }
@@ -126,7 +127,7 @@ $if(LazyMaps)
 $endif
     for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
       $ASTNode contributor = ($ASTNode) iter.next();
-      contributor.contributeTo_#(getTarget)_#(signature)(h);
+      contributor.contributeTo_#(signature)(h);
     }
     return h;
   }
@@ -205,13 +206,13 @@ ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
 ]]
 
 ASTDecl.weaveCollectionAttributes.contributeTo = [[
-  protected void contributeTo_#(getTarget)_#(signature)(#getType collection) {
+  protected void contributeTo_#(signature)(#getType collection) {
   }
 ]]
 
 CollDecl.contributeTo [[
-  protected void contributeTo_#(getTarget)_#(signature)(#getType collection) {
-    super.contributeTo_#(getTarget)_#(signature)(collection);
+  protected void contributeTo_#(signature)(#getType collection) {
+    super.contributeTo_#(signature)(collection);
 ]]
 
 Contribution.statement [[
