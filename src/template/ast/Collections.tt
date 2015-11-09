@@ -132,59 +132,67 @@ $endif
   }
 ]]
 
-ASTDecl.collectContributors:onePhase = [[
-    #docComment
+CollEq.collectContributors:onePhase = [[
+    // #declaredat
 $if(HasCondition)
     if ($Condition) {
-$endif
-$if(#getRefSet)
-      for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-        #getTargetName ref = (#getTargetName) iter.next();
-        if (ref != null) {
-          if (ref.#(signature)_value == null) {
-            ref.#(signature)_value = $BottomValue;
-          }
-          ref.#(signature)_value.$CombOp($Value);
-        }
-      }
-$else
-      {
-        #getTargetName ref = #getReference;
-        if (ref != null) {
-          if (ref.#(signature)_value == null) {
-            ref.#(signature)_value = $BottomValue;
-          }
-          ref.#(signature)_value.$CombOp($Value);
-        }
-      }
-$endif
-$if(HasCondition)
+      $include(CollEq.contribution:onePhase)
     }
+$else
+    $include(CollEq.contribution:onePhase)
 $endif
 ]]
 
-ASTDecl.collectContributors:twoPhase = [[
-    #docComment
+CollEq.contribution:onePhase [[
+$if(#getRefSet)
+for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
+  #getTargetName ref = (#getTargetName) iter.next();
+  if (ref != null) {
+    if (ref.#(signature)_value == null) {
+      ref.#(signature)_value = $BottomValue;
+    }
+    ref.#(signature)_value.$CombOp($Value);
+  }
+}
+$else
+{
+  #getTargetName ref = #getReference;
+  if (ref != null) {
+    if (ref.#(signature)_value == null) {
+      ref.#(signature)_value = $BottomValue;
+    }
+    ref.#(signature)_value.$CombOp($Value);
+  }
+}
+$endif
+]]
+
+CollEq.collectContributors:twoPhase = [[
+    // #declaredat
 $if(HasCondition)
     if ($Condition) {
-$endif
-$if(#getRefSet)
-      for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-        #getTargetName ref = (#getTargetName) iter.next();
-        if (ref != null) {
-          ref.#(signature)_contributors().add(this);
-        }
-      }
-$else
-      {
-        #getTargetName ref = (#getTargetName) (#getReference);
-        if (ref != null) {
-          ref.#(signature)_contributors().add(this);
-        }
-      }
-$endif
-$if(HasCondition)
+      $include(CollEq.contribution:twoPhase)
     }
+$else
+    $include(CollEq.contribution:twoPhase)
+$endif
+]]
+
+CollEq.contribution:twoPhase [[
+$if(#getRefSet)
+for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
+  #getTargetName ref = (#getTargetName) iter.next();
+  if (ref != null) {
+    ref.#(signature)_contributors().add(this);
+  }
+}
+$else
+{
+  #getTargetName ref = (#getTargetName) (#getReference);
+  if (ref != null) {
+    ref.#(signature)_contributors().add(this);
+  }
+}
 $endif
 ]]
 
@@ -199,6 +207,21 @@ ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
 ASTDecl.weaveCollectionAttributes.contributeTo = [[
   protected void contributeTo_#(getTarget)_#(signature)(#getType collection) {
   }
+]]
+
+CollDecl.contributeTo [[
+  protected void contributeTo_#(getTarget)_#(signature)(#getType collection) {
+    super.contributeTo_#(getTarget)_#(signature)(collection);
+]]
+
+Contribution.statement [[
+$if(#hasCondition)
+    if (#getCondition) {
+      collection.$CombOp(#getValue);
+    }
+$else
+    collection.$CombOp(#getValue);
+$endif
 ]]
 
 ASTDecl.weaveCollectionAttributes.collectContributors2 = [[

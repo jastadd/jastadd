@@ -211,10 +211,10 @@ aspect CollectionAttributes {
           if (decl.onePhase()) {
             tt.bind("HasCondition", c.hasCondition());
             tt.bind("Value", c.getValue().trim());
-            tt.expand("ASTDecl.collectContributors:onePhase", out);
+            tt.expand("CollEq.collectContributors:onePhase", out);
           } else {
             tt.bind("HasCondition", c.hasCondition() && !decl.lazyCondition());
-            tt.expand("ASTDecl.collectContributors:twoPhase", out);
+            tt.expand("CollEq.collectContributors:twoPhase", out);
           }
         }
       }
@@ -253,24 +253,15 @@ aspect CollectionAttributes {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
-      out.println(config().indent + "protected void contributeTo_" + decl.getTarget()
-          + "_" + decl.signature() + "(" + decl.getType() + " collection) {");
-      out.println(config().ind(2) + "super.contributeTo_" + decl.getTarget()
-          + "_" + decl.signature() + "(collection);");
+      decl.templateContext().expand("CollDecl.contributeTo", out);
       for (CollEq attr : equations) {
-        for (int j = 0; j < attr.getNumContribution(); j++) {
-          Contribution c = attr.getContribution(j);
-          if (c.hasCondition()) {
-            out.println(config().ind(2) + "if (" + c.getCondition().trim() + ")");
-            out.println(config().ind(3) + "collection." + decl.getCombOp()
-                + "(" + c.getValue().trim() + ");");
-          } else {
-            out.println(config().ind(2) + "collection." + decl.getCombOp()
-                + "(" + c.getValue().trim() + ");");
-          }
+        for (Contribution c : attr.getContributionList()) {
+          TemplateContext tt = c.templateContext();
+          tt.bind("CombOp", decl.getCombOp());
+          tt.expand("Contribution.statement", out);
         }
       }
-      out.println(config().indent + "}\n");
+      out.println(config().indent + "}");
     }
   }
 
