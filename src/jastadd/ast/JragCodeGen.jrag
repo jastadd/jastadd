@@ -559,9 +559,9 @@ aspect JragCodeGen {
    * @return {@code true} if this attribute equation can be inlined in the
    * attribute method
    */
-  syn boolean AttrEq.canInlineExpression(AttrDecl decl) = false;
+  syn boolean AttrEq.canInlineExpression() = false;
 
-  eq SynEq.canInlineExpression(AttrDecl decl) = !hasComputeBlock();
+  eq SynEq.canInlineExpression() = !hasComputeBlock();
 
   /**
    * @return {@code true} if this attribute code block can be inlined in the
@@ -578,12 +578,11 @@ aspect JragCodeGen {
    * @param equ the equation to generate code for
    */
   public void AttrDecl.emitAttrEquation(PrintStream out, AttrEq equ) {
-    if (equ.canInlineExpression(this)) {
+    if (equ.canInlineExpression()) {
       if (isCircular()) {
-        templateContext().bind("CircularComputeRHS", equ.computeCode());
+        templateContext().bind("CircularComputeRhs", equ.computeCode());
       } else {
-        templateContext().bind("ComputeStmt",
-            computeLHS() + " = " + equ.computeCode() + ";");
+        templateContext().bind("ComputeRhs", equ.computeCode());
       }
       emitAttrEquation(out, equ.parametersDecl());
     } else if (equ.canInlineBlock(this)) {
@@ -596,10 +595,9 @@ aspect JragCodeGen {
       }
     } else {
       if (isCircular()) {
-        templateContext().bind("CircularComputeRHS", circularComputeRHS());
+        templateContext().bind("CircularComputeRhs", circularComputeRhs());
       } else {
-        templateContext().bind("ComputeStmt",
-            computeLHS() + " = " + computeRHS() + ";");
+        templateContext().bind("ComputeRhs", computeRhs());
       }
       emitAttrEquation(out, equ.parametersDecl());
       equ.emitComputeMethod(out);
@@ -607,30 +605,26 @@ aspect JragCodeGen {
   }
 
   /**
-   * Generates the method to compute an attribute
+   * Generates the Java method to evaluate an attribute.
    * @param out
-   * @param paramDecl
    */
   public void AttrDecl.emitAttrEquation(PrintStream out) {
     if (isCircular()) {
-      templateContext().bind("CircularComputeRHS", circularComputeRHS());
+      templateContext().bind("CircularComputeRhs", circularComputeRhs());
     } else {
-      templateContext().bind("ComputeStmt",
-          computeLHS() + " = " + computeRHS() + ";");
+      templateContext().bind("ComputeRhs", computeRhs());
     }
     emitAttrEquation(out, parametersDecl());
   }
 
   /**
-   * Generates the method to compute an attribute
+   * Generates the Java method to evaluate an attribute.
    * @param out
    * @param paramDecl
    */
   public void AttrDecl.emitAttrEquation(PrintStream out, String paramDecl) {
     if (isCircular()) {
       TemplateContext tt = templateContext();
-      String rhs = "" + tt.evalVariable("CircularComputeRHS");
-      tt.bind("CircularComputeStmt", circularComputeLHS() + " = " + rhs + ";");
       if (getNumParameter() == 0) {
         emitCircularEquationNoParams(out);
       } else {
@@ -873,7 +867,7 @@ aspect JragCodeGen {
 
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for (int i = 0; i < getNumInhDecl(); i++) {
-       AttrDecl attr = getInhDecl(i);
+       InhDecl attr = getInhDecl(i);
        out.println(attr.docComment());
        attr.emitAttrEquation(out);
        emitCacheDeclarations(out, attr);
@@ -985,12 +979,12 @@ aspect JragCodeGen {
 }
 
 aspect Compute {
-  syn String AttrDecl.computeRHS() = name() + "_compute(" + parameters() + ")";
+  syn String AttrDecl.computeRhs() = name() + "_compute(" + parameters() + ")";
 
-  eq InhDecl.computeRHS() =
+  eq InhDecl.computeRhs() =
     "getParent().Define_" + name() + "(this, null" + inhParametersTail() + ")";
 
-  syn String AttrDecl.computeLHS() {
+  syn String AttrDecl.computeLhs() {
     if (isLazy() && getNumParameter() == 0) {
       return signature() + "_value";
     } else {
@@ -998,13 +992,13 @@ aspect Compute {
     }
   }
 
-  syn String AttrDecl.circularComputeRHS() = computeRHS();
+  syn String AttrDecl.circularComputeRhs() = computeRhs();
 
-  eq CollDecl.circularComputeRHS() =
-      "combine_" + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
+  eq CollDecl.circularComputeRhs() = String.format("combine_%s_contributions(%s)",
+      signature(), Unparser.unparse(getBottomValue()));
 
-  syn String AttrDecl.circularComputeLHS() = "new_" + signature() + "_value";
+  syn String AttrDecl.circularComputeLhs() = String.format("new_%s_value", signature());
 
-  eq CollDecl.circularComputeLHS() = signature() + "_value";
+  eq CollDecl.circularComputeLhs() = String.format("%s new_%s_value", getType(), signature());
 
 }

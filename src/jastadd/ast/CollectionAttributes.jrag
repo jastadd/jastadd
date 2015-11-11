@@ -92,9 +92,7 @@ aspect CollectionAttributes {
 
     String rhs = signature() + "_value = combine_"
         + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
-    tt.bind("CircularComputeRHS", rhs);
-    tt.bind("CircularComputeStmt",
-        String.format("%s new_%s_value = %s;", getType(), signature(), rhs));
+    tt.bind("CircularComputeRhs", rhs);
 
     tt.expand("AttrDecl.circularCollectionEval", out);
   }

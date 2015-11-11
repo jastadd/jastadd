@@ -31,12 +31,10 @@ $if(#isAttrNTA)
 $include(AttrDecl.incHookAttrCompEnd)
 return node;
 $else
-  $if(#isCircular)
-return #(signature)_value;
-  $else
+  $if(!#isCircular)
 $include(AttrDecl.incHookAttrCompEnd)
-return #(signature)_value;
   $endif
+return #(signature)_value;
 $endif
 ]]
 
@@ -268,7 +266,7 @@ AttrDecl.emitEquation [[
     $include(addCheckInterruptedCircle)
     #cacheInit
     $include(AttrDecl.traceHookAttrComputeBegin)
-    $ComputeStmt
+    #computeLhs = $ComputeRhs;
     $include(AttrDecl.traceHookAttrComputeEnd)
     #higherOrderAttributeCode
     $include(AttrDecl.cacheUpdate)
@@ -310,7 +308,7 @@ $endif
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
-        $CircularComputeStmt
+        #circularComputeLhs = $CircularComputeRhs;
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($Cond1) {
@@ -353,7 +351,7 @@ $endif
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
-      $CircularComputeStmt
+      #circularComputeLhs = $CircularComputeRhs;
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($Cond2) {
@@ -432,7 +430,7 @@ $if(#isRewriteCircularNtaAttr)
 $endif
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceHookAttrComputeBegin)
-        $CircularComputeStmt
+        #circularComputeLhs = $CircularComputeRhs;
         $include(AttrDecl.traceHookAttrComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
 $if(#isRewriteCircularNtaAttr)
@@ -488,7 +486,7 @@ $if(#isRewriteCircularNtaAttr)
 $endif
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceHookAttrComputeBegin)
-      $CircularComputeStmt
+      #circularComputeLhs = $CircularComputeRhs;
       $include(AttrDecl.traceHookAttrComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
 $if(#isRewriteCircularNtaAttr)
@@ -536,7 +534,7 @@ state.LAST_CYCLE = true;
 $if(#isRewriteCircularNtaAttr)
 state.push($StateClass.REWRITE_CHANGE);
 $endif
-#getType $$tmp = $CircularComputeRHS;
+#getType $$tmp = $CircularComputeRhs;
 $if(#isRewriteCircularNtaAttr)
 state.pop();
 $endif
@@ -567,7 +565,7 @@ $endif]]
 
 resetCycleInit = [[
 state.RESET_CYCLE = true;
-#getType $$tmp = $CircularComputeRHS;
+#getType $$tmp = $CircularComputeRhs;
 state.RESET_CYCLE = false;]]
 
 AttrDecl.cacheCheck = [[
@@ -647,7 +645,7 @@ $if(#isParameterized)
 $else
   #(signature)_computed = true;
   $include(AttrDecl.incHookAttrCompStartCircular)
-  $CircularComputeStmt
+  #circularComputeLhs = $CircularComputeRhs;
   $include(AttrDecl.incHookAttrCompEndCircular)
   return new_#(signature)_value;
 $endif
