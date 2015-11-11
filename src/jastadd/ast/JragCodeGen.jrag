@@ -560,6 +560,7 @@ aspect JragCodeGen {
    * attribute method
    */
   syn boolean AttrEq.canInlineExpression(AttrDecl decl) = false;
+
   eq SynEq.canInlineExpression(AttrDecl decl) = !hasComputeBlock();
 
   /**
@@ -567,8 +568,9 @@ aspect JragCodeGen {
    * attribute method
    */
   syn boolean AttrEq.canInlineBlock(AttrDecl decl) = false;
+
   eq SynEq.canInlineBlock(AttrDecl decl) =
-    hasComputeBlock() && !decl.isLazy() && !decl.isNTA() && !decl.isCircular();
+      hasComputeBlock() && !decl.isLazy() && !decl.isNTA() && !decl.isCircular();
 
   /**
    * Generates the method to compute an attribute with a specific equation

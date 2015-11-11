@@ -617,25 +617,25 @@ $endif
 AttrDecl.cacheUpdate [[
 $if(#isLazy)
   $if(#isParameterized)
-    if (#cacheStoreCondition) {
-      $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(signature)_values.put(_parameters, #(signature)_value);
-      $include(AttrDecl.traceHookAttrCached)
-    } else {
-      $include(AttrDecl.traceHookAttrCacheAbort)
-      $include(AttrDecl.incHookAttrCompAfterStore)
-    }
+if (#cacheStoreCondition) {
+  $include(AttrDecl.incHookAttrCompBeforeStore)
+  #(signature)_values.put(_parameters, #(signature)_value);
+  $include(AttrDecl.traceHookAttrCached)
+} else {
+  $include(AttrDecl.traceHookAttrCacheAbort)
+  $include(AttrDecl.incHookAttrCompAfterStore)
+}
   $else
-    if (#cacheStoreCondition) {
-      $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(signature)_computed = true;
-      $include(AttrDecl.traceHookAttrCached)
-    } else {
-      $include(AttrDecl.traceHookAttrCacheAbort)
-      $include(AttrDecl.incHookAttrCompAfterStore)
-    }
+if (#cacheStoreCondition) {
+  $include(AttrDecl.incHookAttrCompBeforeStore)
+  #(signature)_computed = true;
+  $include(AttrDecl.traceHookAttrCached)
+} else {
+  $include(AttrDecl.traceHookAttrCacheAbort)
+  $include(AttrDecl.incHookAttrCompAfterStore)
+}
   $endif
-    #cacheRestore
+#cacheRestore
 $endif
 ]]
 
