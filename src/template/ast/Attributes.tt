@@ -101,7 +101,7 @@ AttrDecl.emitInlineComputeWithTry = [[
     $include(AttrDecl.cacheCheck)
     #lazyState
     $include(addInterruptedCircleDeclaration)
-    #visitedCheck
+    $include(AttrDecl.visitedCheck)
     #setVisited
     $include(addCheckInterruptedCircle)
     $include(AttrDecl.traceHookAttrComputeBegin)
@@ -127,7 +127,7 @@ AttrDecl.emitInlineComputeWithoutTry = [[
     #lazyState
     $include(AttrDecl.cacheCheck)
     $include(addInterruptedCircleDeclaration)
-    #visitedCheck
+    $include(AttrDecl.visitedCheck)
     #setVisited
     $include(addCheckInterruptedCircle)
     $include(AttrDecl.traceHookAttrComputeBegin)
@@ -261,7 +261,7 @@ AttrDecl.emitEquation [[
     $include(AttrDecl.cacheCheck)
     $include(AttrDecl.incHookAttrCompStart)
     $include(addInterruptedCircleDeclaration)
-    #visitedCheck
+    $include(AttrDecl.visitedCheck)
     #setVisited
     $include(addCheckInterruptedCircle)
     #cacheInit

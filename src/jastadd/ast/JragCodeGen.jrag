@@ -280,11 +280,6 @@ aspect JragCodeGen {
     return tt.expand("AttrDecl.visitedException");
   }
 
-
-  public String AttrDecl.visitedCheck() {
-    return templateContext().expand("AttrDecl.visitedCheck");
-  }
-
   public String AttrDecl.setVisited() {
     if (!config().visitCheckEnabled() && !isCircular()) {
       return "";
