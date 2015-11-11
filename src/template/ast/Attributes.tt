@@ -271,29 +271,7 @@ AttrDecl.emitEquation [[
     $ComputeStmt
     $include(AttrDecl.traceHookAttrComputeEnd)
     #higherOrderAttributeCode
-$if(#isLazy)
-  $if(#isParameterized)
-    if (#cacheStoreCondition) {
-      $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(signature)_values.put(_parameters, #(signature)_value);
-      $include(AttrDecl.traceHookAttrCached)
-    } else {
-      $include(AttrDecl.traceHookAttrCacheAbort)
-      $include(AttrDecl.incHookAttrCompAfterStore)
-    }
-  $else
-    if (#cacheStoreCondition) {
-      $include(AttrDecl.incHookAttrCompBeforeStore)
-      #(signature)_computed = true;
-      $include(AttrDecl.traceHookAttrCached)
-    } else {
-      $include(AttrDecl.traceHookAttrCacheAbort)
-      $include(AttrDecl.incHookAttrCompAfterStore)
-    }
-  $endif
-    #cacheRestore
-$endif
-
+    $include(AttrDecl.cacheUpdate)
     #clearVisited
     $include(addClearInterruptedCircle)
     $include(AttrDecl.returnStmt)
@@ -632,6 +610,32 @@ if (#(signature)_values.containsKey(_parameters)) {
       $endif
     $endif
   $endif
+$endif
+]]
+
+# Update the cache value for this attribute if caching is enabled.
+AttrDecl.cacheUpdate [[
+$if(#isLazy)
+  $if(#isParameterized)
+    if (#cacheStoreCondition) {
+      $include(AttrDecl.incHookAttrCompBeforeStore)
+      #(signature)_values.put(_parameters, #(signature)_value);
+      $include(AttrDecl.traceHookAttrCached)
+    } else {
+      $include(AttrDecl.traceHookAttrCacheAbort)
+      $include(AttrDecl.incHookAttrCompAfterStore)
+    }
+  $else
+    if (#cacheStoreCondition) {
+      $include(AttrDecl.incHookAttrCompBeforeStore)
+      #(signature)_computed = true;
+      $include(AttrDecl.traceHookAttrCached)
+    } else {
+      $include(AttrDecl.traceHookAttrCacheAbort)
+      $include(AttrDecl.incHookAttrCompAfterStore)
+    }
+  $endif
+    #cacheRestore
 $endif
 ]]
 
