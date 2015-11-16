@@ -1,0 +1,18 @@
+aspect ASTNodeAnnotations {
+  syn String AttrDecl.annotationKind();
+  eq SynDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.SYN";
+  eq InhDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.INH";
+  eq CollDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.COLL";
+
+  syn String AttrDecl.attributeAnnotationValue() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(annotationKind());
+    if (isCircular()) {
+      sb.append(", isCircular=true");
+    }
+    if (getNTA() || isNTA()) {
+      sb.append(", isNTA=true");
+    }
+    return sb.toString();
+  }
+}

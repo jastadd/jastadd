@@ -61,6 +61,10 @@ public class ASTNodeAnnotation {
   @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD)
   @java.lang.annotation.Documented
   public @interface Attribute {
+    Kind kind();
+    boolean isCircular() default false;
+    boolean isNTA() default false;
   }
+  public enum Kind { SYN, INH, COLL }
 } 
 ]]
