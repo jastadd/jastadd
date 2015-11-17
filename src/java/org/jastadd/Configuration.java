@@ -115,6 +115,11 @@ public class Configuration {
       .defaultValue(true)
       .nonStandard();
 
+  Option<Boolean> generateAnnotations = new BooleanOption("generateAnnotations",
+      "generate Java annotations, e.g., describing attribute properties")
+      .defaultValue(true)
+      .templateVariable("generateAnnotations");
+
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
       "use jjtree base node, this requires --grammar to be set")
       .templateVariable("JJTree");
@@ -416,6 +421,7 @@ public class Configuration {
     allOptions.add(OptOption);
     allOptions.add(jjtreeOption);
     allOptions.add(grammarOption);
+    allOptions.add(generateAnnotations);
     allOptions.add(defaultMapOption);
     allOptions.add(defaultSetOption);
     allOptions.add(lazyMapsOption);

@@ -27,7 +27,9 @@
 
 # This template file contains declarations for annotations 
 
+# Annotation declaration
 ASTNodeAnnotation = [[
+$if(generateAnnotations)
 public class ASTNodeAnnotation {
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
   @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD)
@@ -75,21 +77,32 @@ public class ASTNodeAnnotation {
     String declaredAt() default "";
   }
 }
+$endif
 ]]
 
 # Annotations
 AttrDecl.generatedAnnotations = [[
+$if(generateAnnotations)
 @ASTNodeAnnotation.Attribute(#attributeAnnotationValue)
-@ASTNodeAnnotation.Source(aspect="#getAspectName", declaredAt="#sourceLocation")]]
+@ASTNodeAnnotation.Source(aspect="#getAspectName", declaredAt="#sourceLocation")
+$endif]]
 
 AggregateComponent.generatedAnnotations = [[
-@ASTNodeAnnotation.Child(name="$Name")]]
+$if(generateAnnotations)
+@ASTNodeAnnotation.Child(name="$Name")
+$endif]]
 
 ListComponent.generatedAnnotations = [[
-@ASTNodeAnnotation.ListChild(name="$Name")]]
+$if(generateAnnotations)
+@ASTNodeAnnotation.ListChild(name="$Name")
+$endif]]
 
 OptionalComponent.generatedAnnotations = [[
-@ASTNodeAnnotation.OptChild(name="$Name")]]
+$if(generateAnnotations)
+@ASTNodeAnnotation.OptChild(name="$Name")
+$endif]]
 
 TokenComponent.generatedAnnotations = [[
-@ASTNodeAnnotation.Token(name="$Id")]]
+$if(generateAnnotations)
+@ASTNodeAnnotation.Token(name="$Id")
+$endif]]
