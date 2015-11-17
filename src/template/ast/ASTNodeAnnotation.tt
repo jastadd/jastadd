@@ -66,5 +66,30 @@ public class ASTNodeAnnotation {
     boolean isNTA() default false;
   }
   public enum Kind { SYN, INH, COLL }
-} 
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD)
+  @java.lang.annotation.Documented
+  public @interface Source {
+    String aspect() default "";
+    String declaredAt() default "";
+  }
+}
 ]]
+
+# Annotations
+AttrDecl.generatedAnnotations = [[
+@ASTNodeAnnotation.Attribute(#attributeAnnotationValue)
+@ASTNodeAnnotation.Source(aspect="#getAspectName", declaredAt="#sourceLocation")]]
+
+AggregateComponent.generatedAnnotations = [[
+@ASTNodeAnnotation.Child(name="$Name")]]
+
+ListComponent.generatedAnnotations = [[
+@ASTNodeAnnotation.ListChild(name="$Name")]]
+
+OptionalComponent.generatedAnnotations = [[
+@ASTNodeAnnotation.OptChild(name="$Name")]]
+
+TokenComponent.generatedAnnotations = [[
+@ASTNodeAnnotation.Token(name="$Id")]]

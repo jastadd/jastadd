@@ -89,7 +89,7 @@ $else
    * @return The current node used as the $Name child.
    * @apilevel high-level
    */
-  @ASTNodeAnnotation.Child(name="$Name")
+  $include(AggregateComponent.generatedAnnotations)
   public $Type $Host.get$Name() {
     $SynchBegin
     return ($Type) getChild($Index);

@@ -131,7 +131,7 @@ $endif
    * @apilevel low-level
    */
   #annotations
-  @ASTNodeAnnotation.OptChild(name="$Name")
+  $include(OptionalComponent.generatedAnnotations)
   $Modifier $OptType $Host.get$(Name)Opt() {
     $SynchBegin
     return ($OptType) getChild($Index);

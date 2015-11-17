@@ -45,7 +45,7 @@ $if(#isParameterized)
 
 #docComment
   #annotations
-  @ASTNodeAnnotation.Attribute(#attributeAnnotationValue)
+  $include(AttrDecl.generatedAnnotations)
   public #getType #name(#parametersDecl) {
     $SynchBegin
     #parameterStructure
@@ -120,7 +120,7 @@ $else
 
 #docComment
   #annotations
-  @ASTNodeAnnotation.Attribute(#attributeAnnotationValue)
+  $include(AttrDecl.generatedAnnotations)
   public #getType #name(#parametersDecl) {
     $SynchBegin
     #parameterStructure

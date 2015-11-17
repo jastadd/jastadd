@@ -15,4 +15,9 @@ aspect ASTNodeAnnotations {
     }
     return sb.toString();
   }
+
+  syn String AttrDecl.sourceLocation()
+    = ASTNode.sourceLocation(getFileName().trim(), getStartLine());
+  syn String AttrEq.sourceLocation()
+    = ASTNode.sourceLocation(getFileName().trim(), getStartLine());
 }
