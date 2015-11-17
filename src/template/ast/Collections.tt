@@ -86,7 +86,7 @@ $endif
     $include(collDebugCheck)
     $RootType root = ($RootType) node;
     root.collect_contributors_#collectingSignature();
-    #(signature)_value = $BottomValue;
+    #getType _computedValue = $BottomValue;
 $if(LazyMaps)
     if (#(signature)_contributors != null) {
       $include(CollDecl.collectContributions)
@@ -94,14 +94,14 @@ $if(LazyMaps)
 $else
     $include(CollDecl.collectContributions)
 $endif
-    return #(signature)_value;
+    return _computedValue;
   }
 ]]
 
 CollDecl.collectContributions = [[
 for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
   $ASTNode contributor = ($ASTNode) iter.next();
-  contributor.contributeTo_#(signature)(#(signature)_value);
+  contributor.contributeTo_#(signature)(_computedValue);
 }
 ]]
 
