@@ -453,7 +453,8 @@ aspect AttributeProblems {
     to TypeDecl.attributeProblems()
     for hostClass();
 
-  CollEq contributes errorf("undeclared collection attribute '%s'", name())
+  CollEq contributes errorf("undeclared collection attribute '%s.%s'", getTargetName(),
+      getTargetAttributeName())
     when decl() == null
     to TypeDecl.attributeProblems()
     for hostClass();
