@@ -189,11 +189,11 @@ aspect CollectionAttributes {
       Collection<CollEq> equations = entry.getValue();
 
       out.println(config().indent + "protected void collect_contributors_"
-          + decl.collectingSignature() + "() {"); // Once per group.
+          + decl.collectionId() + "() {"); // Once per group.
 
       if (isRootNode()) {
         out.println(config().ind(2) + "if (collect_contributors_"
-            + decl.collectingSignature() + ") return;");
+            + decl.collectionId() + ") return;");
       }
 
       String bottomValue = Unparser.unparse(decl.getBottomValue());
@@ -219,13 +219,13 @@ aspect CollectionAttributes {
       if (isASTNodeDecl()) {
         out.println(config().ind(2) + "for (int i = 0; i < getNumChild(); i++)");
         out.println(config().ind(3) + "getChild(i).collect_contributors_"
-            + decl.collectingSignature() + "();"); // Once per group.
+            + decl.collectionId() + "();"); // Once per group.
       } else {
         out.println(config().ind(2) + "super.collect_contributors_"
-            + decl.collectingSignature() + "();");
+            + decl.collectionId() + "();");
         if (isRootNode()) {
           out.println(config().ind(2) + "collect_contributors_"
-              + decl.collectingSignature() + " = true;");
+              + decl.collectionId() + " = true;");
         }
       }
       out.println(config().indent + "}");
@@ -263,11 +263,11 @@ aspect CollectionAttributes {
     }
   }
 
-  syn String CollEq.collectingSignature() = decl().collectingSignature();
+  syn String CollEq.collectionId() = decl().collectionId();
 
-  syn lazy String AttrDecl.collectingSignature() = signature();
+  syn lazy String AttrDecl.collectionId() = signature();
 
-  eq CollDecl.collectingSignature() {
+  eq CollDecl.collectionId() {
     String value = getAnnotationValue("@CollectionGroup");
     if (value != null) {
       return "CollectionGroup_" + value;
@@ -359,7 +359,7 @@ aspect CollectionAttributes {
     TypeDecl astNode = grammar().lookup(config().astNodeType());
     TypeDecl rootDecl = root();
     if (astNode != null && rootDecl != null) {
-      if (!astNode.processedCollectingSignature(collectingSignature())) {
+      if (!astNode.processedCollectingSignature(collectionId())) {
         if (!astNode.hasCollEq(this)) {
           String s = "";
           s += tt.expand("CollDecl.collectContributors:default");

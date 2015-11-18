@@ -133,11 +133,11 @@ $else
     $include(collDebugCheck)
     $RootType root = ($RootType) node;
 
-    if (root.collecting_contributors_#collectingSignature) {
+    if (root.collecting_contributors_#collectionId) {
       throw new RuntimeException("Circularity during survey phase");
     }
     #addComponentCheck
-    root.collect_contributors_#collectingSignature();
+    root.collect_contributors_#collectionId();
 
     if (!#(signature)_initialized) {
       #(signature)_initialized = true;

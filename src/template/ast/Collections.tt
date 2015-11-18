@@ -52,7 +52,7 @@ CollDecl.computeMethod:onePhase = [[
     }
     $include(collDebugCheck)
     $RootType root = ($RootType) node;
-    root.collect_contributors_#collectingSignature();
+    root.collect_contributors_#collectionId();
     if (#(signature)_value == null) {
       #(signature)_value = $BottomValue;
     }
@@ -85,7 +85,7 @@ $endif
     }
     $include(collDebugCheck)
     $RootType root = ($RootType) node;
-    root.collect_contributors_#collectingSignature();
+    root.collect_contributors_#collectionId();
     #getType _computedValue = $BottomValue;
 $if(LazyMaps)
     if (#(signature)_contributors != null) {
@@ -198,9 +198,9 @@ $endif
 ]]
 
 CollDecl.collectContributors:default = [[
-  protected void collect_contributors_#(collectingSignature)() {
+  protected void collect_contributors_#collectionId() {
     for (int i = 0; i < getNumChild(); i++) {
-      getChild(i).collect_contributors_#(collectingSignature)();
+      getChild(i).collect_contributors_#collectionId();
     }
   }
 ]]
@@ -226,38 +226,39 @@ $endif
 ]]
 
 CollDecl.collectContributors:circular = [[
-  private boolean collect_contributors_#(collectingSignature) = false;
+  private boolean collect_contributors_#collectionId = false;
 
-  public boolean collecting_contributors_#(collectingSignature) = false;
+  public boolean collecting_contributors_#collectionId = false;
 
-  protected void collect_contributors_#(collectingSignature)() {
-    if (!collect_contributors_#(collectingSignature)) {
-      collecting_contributors_#(collectingSignature) = true;
-      super.collect_contributors_#(collectingSignature)();
-      collecting_contributors_#(collectingSignature) = false;
-      collect_contributors_#(collectingSignature) = true;
+  protected void collect_contributors_#collectionId() {
+    if (!collect_contributors_#collectionId) {
+      collecting_contributors_#collectionId = true;
+      super.collect_contributors_#collectionId();
+      collecting_contributors_#collectionId = false;
+      collect_contributors_#collectionId = true;
     }
   }
 ]]
 
 CollDecl.collectContributors:withoutEquation = [[
-  private boolean collect_contributors_#(collectingSignature) = false;
-  protected void collect_contributors_#(collectingSignature)() {
-    if (collect_contributors_#(collectingSignature)) {
+  private boolean collect_contributors_#collectionId = false;
+
+  protected void collect_contributors_#collectionId() {
+    if (collect_contributors_#collectionId) {
       return;
     }
-    super.collect_contributors_#(collectingSignature)();
-    collect_contributors_#(collectingSignature) = true;
+    super.collect_contributors_#collectionId();
+    collect_contributors_#collectionId = true;
   }
 ]]
 
 CollDecl.collectContributors:withEquation = [[
-  private boolean collect_contributors_#(collectingSignature) = false;
+  private boolean collect_contributors_#collectionId = false;
 ]]
 
 Collection.flush = [[
-collect_contributors_#(collectingSignature) = false;
+collect_contributors_#collectionId = false;
 $if(#circularCollection)
-collecting_contributors_#(collectingSignature) = false;
+collecting_contributors_#collectionId = false;
 $endif
 ]]
