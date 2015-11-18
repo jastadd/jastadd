@@ -197,7 +197,7 @@ $else
 $endif
 ]]
 
-ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
+CollDecl.collectContributors:default = [[
   protected void collect_contributors_#(collectingSignature)() {
     for (int i = 0; i < getNumChild(); i++) {
       getChild(i).collect_contributors_#(collectingSignature)();
@@ -205,12 +205,12 @@ ASTDecl.weaveCollectionAttributes.collectContributors1 = [[
   }
 ]]
 
-ASTDecl.weaveCollectionAttributes.contributeTo = [[
+CollDecl.contributeTo:default = [[
   protected void contributeTo_#(signature)(#getType collection) {
   }
 ]]
 
-CollDecl.contributeTo [[
+CollDecl.contributeTo:header [[
   protected void contributeTo_#(signature)(#getType collection) {
     super.contributeTo_#(signature)(collection);
 ]]
@@ -225,7 +225,7 @@ $else
 $endif
 ]]
 
-ASTDecl.weaveCollectionAttributes.collectContributors2 = [[
+CollDecl.collectContributors:circular = [[
   private boolean collect_contributors_#(collectingSignature) = false;
 
   public boolean collecting_contributors_#(collectingSignature) = false;
@@ -240,7 +240,7 @@ ASTDecl.weaveCollectionAttributes.collectContributors2 = [[
   }
 ]]
 
-ASTDecl.weaveCollectionAttributes.collectContributors3 = [[
+CollDecl.collectContributors:withoutEquation = [[
   private boolean collect_contributors_#(collectingSignature) = false;
   protected void collect_contributors_#(collectingSignature)() {
     if (collect_contributors_#(collectingSignature)) {
@@ -251,7 +251,7 @@ ASTDecl.weaveCollectionAttributes.collectContributors3 = [[
   }
 ]]
 
-ASTDecl.weaveCollectionAttributes.collectContributors4 = [[
+CollDecl.collectContributors:withEquation = [[
   private boolean collect_contributors_#(collectingSignature) = false;
 ]]
 

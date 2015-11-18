@@ -251,7 +251,7 @@ aspect CollectionAttributes {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
-      decl.templateContext().expand("CollDecl.contributeTo", out);
+      decl.templateContext().expand("CollDecl.contributeTo:header", out);
       for (CollEq attr : equations) {
         for (Contribution c : attr.getContributionList()) {
           TemplateContext tt = c.templateContext();
@@ -362,20 +362,20 @@ aspect CollectionAttributes {
       if (!astNode.processedCollectingSignature(collectingSignature())) {
         if (!astNode.hasCollEq(this)) {
           String s = "";
-          s += tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors1");
+          s += tt.expand("CollDecl.collectContributors:default");
           if (isCircular() || !onePhase()) {
-            s += tt.expand("ASTDecl.weaveCollectionAttributes.contributeTo");
+            s += tt.expand("CollDecl.contributeTo:default");
           }
           astNode.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
         }
         String s = "";
         if (circularCollection()) {
-          s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors2");
+          s = tt.expand("CollDecl.collectContributors:circular");
         } else {
           if (!rootDecl.hasCollEq(this)) {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors3");
+            s = tt.expand("CollDecl.collectContributors:withoutEquation");
           } else {
-            s = tt.expand("ASTDecl.weaveCollectionAttributes.collectContributors4");
+            s = tt.expand("CollDecl.collectContributors:withEquation");
           }
         }
         rootDecl.classBodyDecls.add(buildClassBodyObject(s, getFileName(), getStartLine()));
