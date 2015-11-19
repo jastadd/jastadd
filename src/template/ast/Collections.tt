@@ -197,8 +197,11 @@ $else
 $endif
 ]]
 
-CollDecl.collectContributors:default = [[
+CollDecl.collectContributors:header [[
   protected void collect_contributors_#collectionId() {
+]]
+
+CollDecl.collectContributors:end [[
     for (int i = 0; i < getNumChild(); i++) {
       getChild(i).collect_contributors_#collectionId();
     }

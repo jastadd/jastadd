@@ -171,7 +171,7 @@ aspect CollectionAttributes {
 
 
   private void ASTDecl.collectContributors(PrintStream out) {
-    // Mapping collection declaration -> collection equations (excluding separate eval eqs)
+    // Mapping collection declaration to collection equations.
     HashMap<CollDecl, Collection<CollEq>> map = new LinkedHashMap<CollDecl, Collection<CollEq>>();
     for (int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
@@ -188,13 +188,7 @@ aspect CollectionAttributes {
       CollDecl decl = entry.getKey();
       Collection<CollEq> equations = entry.getValue();
 
-      out.println(config().indent + "protected void collect_contributors_"
-          + decl.collectionId() + "() {"); // Once per group.
-
-      if (isRootNode()) {
-        out.println(config().ind(2) + "if (collect_contributors_"
-            + decl.collectionId() + ") return;");
-      }
+      decl.templateContext().expand("CollDecl.collectContributors:header", out);
 
       String bottomValue = Unparser.unparse(decl.getBottomValue());
 
@@ -216,19 +210,7 @@ aspect CollectionAttributes {
           }
         }
       }
-      if (isASTNodeDecl()) {
-        out.println(config().ind(2) + "for (int i = 0; i < getNumChild(); i++)");
-        out.println(config().ind(3) + "getChild(i).collect_contributors_"
-            + decl.collectionId() + "();"); // Once per group.
-      } else {
-        out.println(config().ind(2) + "super.collect_contributors_"
-            + decl.collectionId() + "();");
-        if (isRootNode()) {
-          out.println(config().ind(2) + "collect_contributors_"
-              + decl.collectionId() + " = true;");
-        }
-      }
-      out.println(config().indent + "}");
+      decl.templateContext().expand("CollDecl.collectContributors:end", out);
     }
   }
 
@@ -362,7 +344,8 @@ aspect CollectionAttributes {
       if (!astNode.processedCollectingSignature(collectionId())) {
         if (!astNode.hasCollEq(this)) {
           String s = "";
-          s += tt.expand("CollDecl.collectContributors:default");
+          s += tt.expand("CollDecl.collectContributors:header");
+          s += tt.expand("CollDecl.collectContributors:end");
           if (isCircular() || !onePhase()) {
             s += tt.expand("CollDecl.contributeTo:default");
           }
