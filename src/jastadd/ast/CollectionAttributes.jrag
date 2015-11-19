@@ -368,30 +368,10 @@ aspect CollectionAttributes {
           }
           astNode.addClassDeclaration(s, getFileName(), getStartLine());
         }
-        String s = "";
-        if (circularCollection()) {
-          s = tt.expand("CollDecl.collectContributors:circular");
-        } else {
-          if (!rootDecl.hasCollEq(this)) {
-            s = tt.expand("CollDecl.collectContributors:withoutEquation");
-          } else {
-            s = tt.expand("CollDecl.collectContributors:withEquation");
-          }
-        }
-        rootDecl.addClassDeclaration(s, getFileName(), getStartLine());
+        String surveyMethod = tt.expand("CollDecl.surveyMethod");
+        rootDecl.addClassDeclaration(surveyMethod, getFileName(), getStartLine());
       }
     }
-  }
-
-  /**
-   * Add a member to this type declaration.
-   */
-  protected void TypeDecl.addClassDeclaration(String declaration, String sourceFile,
-      int sourceLine) {
-    org.jastadd.jrag.AST.SimpleNode n = new org.jastadd.jrag.AST.ASTBlock(0);
-    n.firstToken = n.lastToken = org.jastadd.jrag.AST.Token.newToken(0);
-    n.firstToken.image = declaration;
-    classBodyDecls.add(new ClassBodyObject(n, sourceFile, sourceLine, "<NoAspect>"));
   }
 
   /**
@@ -403,11 +383,12 @@ aspect CollectionAttributes {
   eq CollEq.decl() {
     TypeDecl typeDecl = grammar().lookup(getTargetName());
     if (typeDecl != null) {
-      TypeDecl astDecl = (TypeDecl)typeDecl;
-      for (int i = 0; i < astDecl.getNumCollDecl(); i++)
+      TypeDecl astDecl = (TypeDecl) typeDecl;
+      for (int i = 0; i < astDecl.getNumCollDecl(); i++) {
         if (astDecl.getCollDecl(i).getName().equals(getTargetAttributeName())) {
           return astDecl.getCollDecl(i);
         }
+      }
     }
     return null;
   }

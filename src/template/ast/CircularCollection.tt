@@ -137,7 +137,7 @@ $else
       throw new RuntimeException("Circularity during survey phase");
     }
     #addComponentCheck
-    root.collect_contributors_#collectionId();
+    root.survey_#collectionId();
 
     if (!#(signature)_initialized) {
       #(signature)_initialized = true;

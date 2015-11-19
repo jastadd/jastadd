@@ -111,4 +111,15 @@ aspect Grammar {
     }
     return list;
   }
+
+  /**
+   * Add a member to this type declaration.
+   */
+  protected void TypeDecl.addClassDeclaration(String declaration, String sourceFile,
+      int sourceLine) {
+    org.jastadd.jrag.AST.SimpleNode n = new org.jastadd.jrag.AST.ASTBlock(0);
+    n.firstToken = n.lastToken = org.jastadd.jrag.AST.Token.newToken(0);
+    n.firstToken.image = declaration;
+    classBodyDecls.add(new ClassBodyObject(n, sourceFile, sourceLine, "<NoAspect>"));
+  }
 }
