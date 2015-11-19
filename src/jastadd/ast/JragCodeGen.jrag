@@ -632,10 +632,6 @@ aspect JragCodeGen {
 
   syn boolean AttrDecl.isParameterized() = getNumParameter() != 0;
 
-  public String AttrDecl.cacheCycleCheck() {
-    return templateContext().expand("AttrDecl.cacheCycleCheck");
-  }
-
   public String AttrDecl.addComponentCheck() {
     if (!config().componentCheck() || !config().visitCheckEnabled()) return "";
     String arg = getNumParameter() == 0 ? "null" : "_parameters";

@@ -100,7 +100,7 @@ AttrDecl.circularCollectionEval [[
     }
     if (#(signature)_visited != state.CIRCLE_INDEX) {
       #(signature)_visited = state.CIRCLE_INDEX;
-      #cacheCycleCheck
+      $include(AttrDecl.cacheCycleCheck)
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
       #(getType) new_#(signature)_value = $BottomValue;

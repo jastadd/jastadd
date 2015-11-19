@@ -345,7 +345,7 @@ $endif
     if (#(signature)_visited != state.CIRCLE_INDEX) {
       $include(AttrDecl.traceHookCircularEnterCase2)
       #(signature)_visited = state.CIRCLE_INDEX;
-      #cacheCycleCheck
+      $include(AttrDecl.cacheCycleCheck)
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
       #tracePrintBeginComputingValue
@@ -492,7 +492,7 @@ $endif
 $if(#isRewriteCircularNtaAttr)
       int rewriteState = state.pop();
 $endif
-      #cacheCycleCheck
+      $include(AttrDecl.cacheCycleCheck)
       $include(AttrDecl.resetCycleCheck)
       else if ($Cond1) {
         state.CHANGE = true;
