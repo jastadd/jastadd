@@ -25,13 +25,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-CollDecl.interfaceDeclaration [[
-/**
- * @apilevel internal
- */
-public $ContributorSetType #(signature)_contributors();
-]]
-
 collDebugCheck [[
 $if(DebugMode)
 if (node == null) {
@@ -41,11 +34,11 @@ if (node == null) {
 $endif
 ]]
 
-CollDecl.computeMethod:onePhase = [[
+CollDecl.computeMethod:onePhase [[
   /**
    * @apilevel internal
    */
-  private #getType #(name)_compute(#parametersDecl) {
+  private #getType #(name)_compute() {
     $ASTNode node = this;
     while (node != null && !(node instanceof $RootType)) {
       node = node.getParent();
@@ -60,25 +53,11 @@ CollDecl.computeMethod:onePhase = [[
   }
 ]]
 
-CollDecl.computeMethod = [[
-  $ContributorSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
-
-  /**
-   * @apilevel internal
-   * @return the contributor set for #name
-   */
-  public $ContributorSetType #(signature)_contributors() {
-$if(LazyMaps)
-    if (#(signature)_contributors == null)
-      #(signature)_contributors  = $CreateContributorSet;
-$endif
-    return #(signature)_contributors;
-  }
-
+CollDecl.computeMethod:twoPhase [[
   /**
    * @apilevel internal
    */
-  private #getType #(name)_compute(#parametersDecl) {
+  private #getType #(name)_compute() {
     $ASTNode node = this;
     while (node != null && !(node instanceof $RootType)) {
       node = node.getParent();
@@ -87,49 +66,12 @@ $endif
     $RootType root = ($RootType) node;
     root.survey_#collectionId();
     #getType _computedValue = $BottomValue;
-$if(LazyMaps)
-    if (#(signature)_contributors != null) {
-      $include(CollDecl.collectContributions)
+    if (root.contributorMap_#collectionId.containsKey(this)) {
+      for ($ASTNode contributor : root.contributorMap_#collectionId.get(this)) {
+        contributor.contributeTo_#(signature)(_computedValue);
+      }
     }
-$else
-    $include(CollDecl.collectContributions)
-$endif
     return _computedValue;
-  }
-]]
-
-CollDecl.collectContributions = [[
-for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
-  $ASTNode contributor = ($ASTNode) iter.next();
-  contributor.contributeTo_#(signature)(_computedValue);
-}
-]]
-
-CollDecl.combineMethod = [[
-  $ContributorSetType #(signature)_contributors$if(!LazyMaps) = $CreateContributorSet$endif;
-
-  /**
-   * @apilevel internal
-   * @return the contributor set for #name
-   */
-  public $ContributorSetType #(signature)_contributors() {
-$if(LazyMaps)
-    if (#(signature)_contributors == null) {
-      #(signature)_contributors  = $CreateContributorSet;
-    }
-$endif
-    return #(signature)_contributors;
-  }
-
-  private #getType combine_#(signature)_contributions(#getType h) {
-$if(LazyMaps)
-    if (#(signature)_contributors != null)
-$endif
-    for (java.util.Iterator iter = #(signature)_contributors.iterator(); iter.hasNext(); ) {
-      $ASTNode contributor = ($ASTNode) iter.next();
-      contributor.contributeTo_#(signature)(h);
-    }
-    return h;
   }
 ]]
 
@@ -146,23 +88,22 @@ $endif
 
 CollEq.contribution:onePhase [[
 $if(#getRefSet)
-for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-  #getTargetName ref = (#getTargetName) iter.next();
-  if (ref != null) {
-    if (ref.#(signature)_value == null) {
-      ref.#(signature)_value = $BottomValue;
+for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
+  if (target != null) {
+    if (target.#(signature)_value == null) {
+      target.#(signature)_value = $BottomValue;
     }
-    ref.#(signature)_value.$CombOp($Value);
+    target.#(signature)_value.$CombOp($Value);
   }
 }
 $else
 {
-  #getTargetName ref = #getReference;
-  if (ref != null) {
-    if (ref.#(signature)_value == null) {
-      ref.#(signature)_value = $BottomValue;
+  #getTargetName target = #getReference;
+  if (target != null) {
+    if (target.#(signature)_value == null) {
+      target.#(signature)_value = $BottomValue;
     }
-    ref.#(signature)_value.$CombOp($Value);
+    target.#(signature)_value.$CombOp($Value);
   }
 }
 $endif
@@ -181,29 +122,42 @@ $endif
 
 CollEq.contribution:twoPhase [[
 $if(#getRefSet)
-for (java.util.Iterator iter = (#getReference).iterator(); iter.hasNext(); ) {
-  #getTargetName ref = (#getTargetName) iter.next();
-  if (ref != null) {
-    ref.#(signature)_contributors().add(this);
+for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
+  if (target != null) {
+    java.util.LinkedList<$ASTNode> contributors = map.get(target);
+    if (contributors == null) {
+      contributors = new java.util.LinkedList<$ASTNode>();
+      map.put(($ASTNode) target, contributors);
+    }
+    contributors.add(this);
   }
 }
 $else
 {
-  #getTargetName ref = (#getTargetName) (#getReference);
-  if (ref != null) {
-    ref.#(signature)_contributors().add(this);
+  #getTargetName target = (#getTargetName) (#getReference);
+  if (target != null) {
+    java.util.LinkedList<$ASTNode> contributors = map.get(target);
+    if (contributors == null) {
+      contributors = new java.util.LinkedList<$ASTNode>();
+      map.put(($ASTNode) target, contributors);
+    }
+    contributors.add(this);
   }
 }
 $endif
 ]]
 
 CollDecl.collectContributors:header [[
+$if(#onePhase)
   protected void collect_contributors_#collectionId() {
+$else
+  protected void collect_contributors_#collectionId(java.util.Map<$ASTNode, java.util.LinkedList<$ASTNode>> map) {
+$endif
 ]]
 
 CollDecl.collectContributors:end [[
     for (int i = 0; i < getNumChild(); i++) {
-      getChild(i).collect_contributors_#collectionId();
+      getChild(i).collect_contributors_#collectionId($if(!#onePhase)map$endif);
     }
   }
 ]]
@@ -230,28 +184,45 @@ $endif
 
 # The method to start the survey phase (collecting contributors).
 CollDecl.surveyMethod [[
-  private boolean collect_contributors_#collectionId = false;
+$if(#onePhase)
+private boolean collect_contributors_#collectionId = false;
+$else
+protected java.util.Map<$ASTNode, java.util.LinkedList<$ASTNode>> contributorMap_#collectionId = null;
+$endif
 
 $if(#isCircular)
   public boolean collecting_contributors_#collectionId = false;
 
 $endif
   protected void survey_#collectionId() {
+$if(#onePhase)
     if (!collect_contributors_#collectionId) {
+      collect_contributors_#collectionId = true;
+$else
+    if (contributorMap_#collectionId == null) {
+      contributorMap_#collectionId = new java.util.IdentityHashMap<$ASTNode, java.util.LinkedList<$ASTNode>>();
+$endif
 $if(#isCircular)
       collecting_contributors_#collectionId = true;
 $endif
+$if(#onePhase)
       collect_contributors_#collectionId();
+$else
+      collect_contributors_#collectionId(contributorMap_#collectionId);
+$endif
 $if(#isCircular)
       collecting_contributors_#collectionId = false;
 $endif
-      collect_contributors_#collectionId = true;
     }
   }
 ]]
 
 Collection.flush = [[
+$if(#onePhase)
 collect_contributors_#collectionId = false;
+$else
+contributorMap_#collectionId = null;
+$endif
 $if(#circularCollection)
 collecting_contributors_#collectionId = false;
 $endif

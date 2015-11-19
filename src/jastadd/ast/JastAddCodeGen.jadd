@@ -220,7 +220,6 @@ aspect JastAddCodeGen {
       emitMembers(stream);
       emitAbstractSyns(stream);
       emitInhDeclarations(stream);
-      emitInterfaceCollections(stream);
 
       stream.println("}");
       stream.close();

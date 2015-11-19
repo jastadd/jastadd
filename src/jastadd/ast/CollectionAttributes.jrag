@@ -59,22 +59,12 @@ aspect CollectionAttributes {
     if (attr.circularCollection()) {
       attr.emitVisitedDeclarations(out);
       attr.emitCircularCollectionEval(out);
-      attr.emitCombineMethod(out);
+      attr.emitComputeMethod(out);
     } else {
       out.println(attr.docComment());
       attr.emitAttrEquation(out);
       attr.emitComputeMethod(out);
       emitCacheDeclarations(out, attr);
-    }
-  }
-
-  public void InterfaceDecl.emitInterfaceCollections(PrintStream out) {
-    for (int i = 0; i < getNumCollDecl(); i++) {
-      CollDecl attr = getCollDecl(i);
-      if (attr.isCircular() || !attr.onePhase()) {
-        TemplateContext tt = attr.templateContext();
-        tt.expand("CollDecl.interfaceDeclaration", out);
-      }
     }
   }
 
@@ -89,11 +79,7 @@ aspect CollectionAttributes {
     tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("Cond2", valueComparisonExpr("new_" + signature() + "_value",
             fromReferenceType(signature() + "_values.get(_parameters)", getType())));
-
-    String rhs = signature() + "_value = combine_"
-        + signature() + "_contributions(" + Unparser.unparse(getBottomValue()) + ")";
-    tt.bind("CircularComputeRhs", rhs);
-
+    tt.bind("CircularComputeRhs", signature() + "_value = " + name() + "_compute()");
     tt.expand("AttrDecl.circularCollectionEval", out);
   }
 
@@ -106,13 +92,8 @@ aspect CollectionAttributes {
     if (onePhase()) {
       tt.expand("CollDecl.computeMethod:onePhase", out);
     } else {
-      tt.expand("CollDecl.computeMethod", out);
+      tt.expand("CollDecl.computeMethod:twoPhase", out);
     }
-  }
-
-  // Only used by circular collection attributes.
-  public void CollDecl.emitCombineMethod(PrintStream out) {
-    templateContext().expand("CollDecl.combineMethod", out);
   }
 
   syn boolean TypeDecl.hasCollEq(CollDecl decl) = false;
@@ -173,6 +154,7 @@ aspect CollectionAttributes {
   private void ASTDecl.collectContributors(PrintStream out) {
     // Mapping collection declaration to collection equations.
     HashMap<CollDecl, Collection<CollEq>> map = new LinkedHashMap<CollDecl, Collection<CollEq>>();
+
     for (int i = 0; i < getNumCollEq(); i++) {
       CollEq attr = getCollEq(i);
       CollDecl decl = (CollDecl) attr.decl();
