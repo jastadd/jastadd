@@ -282,7 +282,6 @@ ASTDecl.genCircularEquationNoParams [[
   $include(AttrDecl.generatedAnnotations)
   public #getType #name() {
     $SynchBegin
-    #parameterStructure
     $include(AttrDecl.cacheCheck)
     $StateClass state = state();
     #getType new_#(signature)_value;

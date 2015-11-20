@@ -47,7 +47,6 @@ AttrDecl.circularCollectionEval [[
   $include(AttrDecl.generatedAnnotations)
   public #getType #name() {
     $SynchBegin
-    #parameterStructure
     $StateClass state = state();
     $include(AttrDecl.cacheCheck)
     $ASTNode node = this;
