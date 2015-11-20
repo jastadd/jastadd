@@ -533,8 +533,6 @@ public class Configuration {
     // Default attribute cache sets/maps
     tt.bind("DefaultMapType", typeDefaultMap());
     tt.bind("DefaultSetType", typeDefaultSet());
-    tt.bind("ContributorSetType", typeDefaultContributorSet());
-    tt.bind("CreateContributorSet", createContributorSet());
 
     // Rewrite options.
     tt.bind("RewriteEnabled", rewriteEnabled());
@@ -1175,13 +1173,6 @@ public class Configuration {
   }
 
   /**
-   * @return default contributor collection type
-   */
-  public String typeDefaultContributorSet() {
-    return "java.util.Collection";
-  }
-
-  /**
    * @return {@code true} if --debug
    */
   public boolean debugMode() {
@@ -1241,13 +1232,6 @@ public class Configuration {
    */
   public String createDefaultSet() {
     return defaultSetOption.value();
-  }
-
-  /**
-   * @return default ontributor collection initialization
-   */
-  public String createContributorSet() {
-    return "new java.util.LinkedList()";
   }
 
   /**
