@@ -61,7 +61,6 @@ aspect CollectionAttributes {
       attr.emitCircularCollectionEval(out);
       attr.emitComputeMethod(out);
     } else {
-      out.println(attr.docComment());
       attr.emitAttrEquation(out);
       attr.emitComputeMethod(out);
       emitCacheDeclarations(out, attr);

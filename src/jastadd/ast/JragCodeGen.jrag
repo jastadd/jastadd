@@ -858,7 +858,6 @@ aspect JragCodeGen {
   public void ASTDecl.emitInhDeclarations(PrintStream out) {
     for (int i = 0; i < getNumInhDecl(); i++) {
        InhDecl attr = getInhDecl(i);
-       out.println(attr.docComment());
        attr.emitAttrEquation(out);
        emitCacheDeclarations(out, attr);
     }
