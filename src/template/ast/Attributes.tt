@@ -158,8 +158,8 @@ $endif
 ]]
 
 AttrDecl.visitedCheck = [[
-$if (VisitCheckEnabled)
-  $if (RewriteEnabled)
+$if(VisitCheckEnabled)
+  $if(RewriteEnabled)
     $if(#isParameterized)
 if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
   #visitedException
@@ -315,7 +315,7 @@ $endif
           $include(AttrDecl.traceHookCircularCase1Change)
         }
         #(signature)_value = new_#(signature)_value;
-$if (#getNTA)
+$if(#getNTA)
         if (#(signature)_value != null) {
           #(signature)_value.setParent(this);
         }
@@ -339,9 +339,7 @@ $endif
       #tracePrintCycleEndString
       state.INTERMEDIATE_VALUE = false;
       $include(AttrDecl.traceHookCircularExitCase1)
-      $include(AttrDecl.returnStmt)
-    }
-    if (#(signature)_visited != state.CIRCLE_INDEX) {
+    } else if (#(signature)_visited != state.CIRCLE_INDEX) {
       $include(AttrDecl.traceHookCircularEnterCase2)
       #(signature)_visited = state.CIRCLE_INDEX;
       $include(AttrDecl.cacheCycleCheck)
@@ -358,7 +356,7 @@ $endif
         $include(AttrDecl.traceHookCircularCase2Change)
       }
       #(signature)_value = new_#(signature)_value;
-$if (#getNTA)
+$if(#getNTA)
       if (#(signature)_value != null) {
         #(signature)_value.setParent(this);
       }
@@ -366,11 +364,11 @@ $endif
       $TracePrintReturnNewValue
       state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceHookCircularExitCase2)
-      $include(AttrDecl.returnStmt)
+    } else {
+      $TracePrintReturnPreviousValue
+      state.INTERMEDIATE_VALUE = true;
+      $include(AttrDecl.traceHookCircularExitCase3)
     }
-    $TracePrintReturnPreviousValue
-    state.INTERMEDIATE_VALUE = true;
-    $include(AttrDecl.traceHookCircularExitCase3)
     $include(AttrDecl.returnStmt)
     $SynchEnd
   }
@@ -391,8 +389,8 @@ ASTDecl.genCircularEquationWithParams [[
 $if(#getNTA)
  $if(#isRewriteCircularNtaAttr)
        if (_value.value != null) {
-         (($ASTNode)_value.value).setParent(this);
-         (($ASTNode)_value.value).childIndex = i;
+         (($ASTNode) _value.value).setParent(this);
+         (($ASTNode) _value.value).childIndex = i;
        }
  $else
        if (_value.value != null) { 
@@ -400,7 +398,7 @@ $if(#getNTA)
            #(signature)_list = new $List();
            #(signature)_list.setParent(this);
          }
-         (($ASTNode)_value.value).setParent(#(signature)_list);
+         (($ASTNode) _value.value).setParent(#(signature)_list);
       }
 
  $endif
@@ -418,8 +416,6 @@ $endif
       #tracePrintCycleBeginString
       #cacheInitRewrite
       #addAddToComponent
-      // TODO: fixme
-      // state().CIRCLE_INDEX = 1;
       do {
         _value.visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
@@ -442,8 +438,8 @@ $endif
 $if(#getNTA)
  $if(#isRewriteCircularNtaAttr)
           if (_value.value != null) {
-            (($ASTNode)_value.value).setParent(this);
-            (($ASTNode)_value.value).childIndex = i;
+            (($ASTNode) _value.value).setParent(this);
+            (($ASTNode) _value.value).childIndex = i;
           }
  $else
           if (_value.value != null) {
@@ -451,7 +447,7 @@ $if(#getNTA)
               #(signature)_list = new $List();
               #(signature)_list.setParent(this);
             }
-            (($ASTNode)_value.value).setParent(#(signature)_list);
+            (($ASTNode) _value.value).setParent(#(signature)_list);
           }
  $endif
 $endif
@@ -475,8 +471,7 @@ $endif
       state.INTERMEDIATE_VALUE = false;
       $include(AttrDecl.traceHookCircularExitCase1)
       return new_#(signature)_value;
-    }
-    if (state.CIRCLE_INDEX != _value.visited) {
+    } else if (state.CIRCLE_INDEX != _value.visited) {
       _value.visited = state.CIRCLE_INDEX;
       $include(AttrDecl.traceHookCircularEnterCase2)
       #tracePrintBeginComputingValue
@@ -500,8 +495,8 @@ $endif
 $if(#getNTA)
  $if(#isRewriteCircularNtaAttr)
         if (_value.value != null) {
-          (($ASTNode)_value.value).setParent(this);
-          (($ASTNode)_value.value).childIndex = i;
+          (($ASTNode) _value.value).setParent(this);
+          (($ASTNode) _value.value).childIndex = i;
         }
  $else
         if (_value.value != null) {
@@ -509,7 +504,7 @@ $if(#getNTA)
             #(signature)_list = new $List();
             #(signature)_list.setParent(this);
           }
-          (($ASTNode)_value.value).setParent(#(signature)_list);
+          (($ASTNode) _value.value).setParent(#(signature)_list);
         }
  $endif
 $endif          
@@ -518,11 +513,12 @@ $endif
       state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceHookCircularExitCase2)
       return new_#(signature)_value;
+    } else {
+      $TracePrintReturnPreviousValue
+      state.INTERMEDIATE_VALUE = true;
+      $include(AttrDecl.traceHookCircularExitCase3)
+      return (#boxedType) _value.value;
     }
-    $TracePrintReturnPreviousValue
-    state.INTERMEDIATE_VALUE = true;
-    $include(AttrDecl.traceHookCircularExitCase3)
-    return (#boxedType) _value.value;
     $SynchEnd
   }
 ]]
