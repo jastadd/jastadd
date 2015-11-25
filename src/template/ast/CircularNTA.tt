@@ -27,18 +27,14 @@
 
 ASTDecl.emitIsEqualMethods = [[
 $if(#isASTNodeDecl)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #name.is$$Equal($ASTNode n1, $ASTNode n2) {
     if (n1 == null && n2 == null) return true;
     if (n1 == null || n2 == null) return false;
     return n1.is$$Equal(n2);
   }
 $endif
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #name.is$$Equal($ASTNode node) {
 $if(#isASTNodeDecl)
     if (getClass() != node.getClass()) {

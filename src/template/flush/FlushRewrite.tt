@@ -28,10 +28,8 @@
 # Method flushing rewrites in a node
 ASTDecl.flushRewriteCacheMethod = [[
 $if(RewriteEnabled)
-  /**
-   * @apilevel internal
-   */
-  public void #(name).flushRewriteCache() {
+  /** @apilevel internal */
+  public void #name.flushRewriteCache() {
     $SynchBegin
 $if(#isASTNodeDecl)
  $if(FlushRewrite)
@@ -69,13 +67,10 @@ ASTNode.getChild_initValue = [[
 $if(RewriteEnabled)
 $if(FlushRewrite)
 $if(#isASTNodeDecl)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public $ASTNode[] $ASTNode.init_children;
-  /**
-   * @apilevel internal
-   */
+
+  /** @apilevel internal */
   public boolean[] $ASTNode.children_computed;
 $endif
 $endif
@@ -88,9 +83,7 @@ ASTNode.getChild_hasEnclosingInitValueMethod = [[
 $if(RewriteEnabled)
 $if(FlushRewrite)
 $if(#isASTNodeDecl)
-  /**
-    * @apilevel internal
-    */
+  /** @apilevel internal */
   protected boolean $ASTNode.getChild_hasEnclosingInitValue() {
     $ASTNode child = this;
     $ASTNode parent = this.parent;

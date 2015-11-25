@@ -26,45 +26,29 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ASTNode$State = [[
-/**
- * @apilevel internal
- */
+/** @apilevel internal */
 public class $StateClass {
   $if(CacheCycle)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean LAST_CYCLE = false;
   $endif
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean INTERMEDIATE_VALUE = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean IN_CIRCLE = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public int CIRCLE_INDEX = 1;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean CHANGE = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean RESET_CYCLE = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   static public class CircularValue {
     Object value;
     int visited = -1;
@@ -74,9 +58,7 @@ public class $StateClass {
 
   public java.util.Stack circularEvalStack = new java.util.Stack();
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   static class CircularEvalEntry {
     $ASTNode node;
     String attrName;
@@ -111,9 +93,7 @@ public class $StateClass {
     return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));
   }
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   static class CircularStackEntry {
     $DefaultSetType circularEvalSet;
     boolean changeValue;
@@ -138,24 +118,17 @@ public class $StateClass {
   $endif
 $if(RewriteEnabled)
   $if(HasRewriteLimit)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public $DefaultMapType debugRewrite = $CreateDefaultMap;
+
   $endif
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public static final int REWRITE_CHANGE = 1;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public static final int REWRITE_NOCHANGE = 2;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public static final int REWRITE_INTERRUPT = 3;
 
   public int boundariesCrossed = 0;
@@ -210,9 +183,7 @@ $endif
 ]]
 
 ASTNode$State.reset = [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public void $StateClass.reset() {
     $SynchBegin
     IN_CIRCLE = false;

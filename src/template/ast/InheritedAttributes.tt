@@ -26,9 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 InhEq.defaultInhDefineMethod [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public #type Define_#name($ASTNode _callerNode, $ASTNode _childNode#inhParametersDeclTail) {
     ASTNode self = this;
     ASTNode parent = getParent();

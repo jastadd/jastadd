@@ -156,9 +156,7 @@ $endif
 ]]
 
 ASTDecl.incChangeStateMethod = [[
-/**
- * @apilevel internal
- */
+/** @apilevel internal */
 public void #name.inc_changeState(int newState) {
 $if(#isASTNodeDecl)
   inc_state = newState;
@@ -264,9 +262,7 @@ $endif
 ]]
 
 ASTDecl.incThrowAwayMethod = [[
-/**
- * @apilevel internal
- */
+/** @apilevel internal */
 public void #name.inc_throwAway() {
   inc_state = inc_GARBAGE;
 $if(#isASTNodeDecl)

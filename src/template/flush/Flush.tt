@@ -28,9 +28,7 @@
 ASTNode.flushTreeCacheMethod = [[
 $if(FlushEnabled)
 $if(#isASTNodeDecl)
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public void $ASTNode.flushTreeCache() {
     $SynchBegin
     flushCache();
@@ -57,9 +55,7 @@ $endif
 ASTDecl.flushCacheMethod = [[
 $if(FlushEnabled)
 $if(#isASTNodeDecl)
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public void #name.flushCache() {
     $SynchBegin
     $if(FlushRewrite)
@@ -76,9 +72,7 @@ $endif
 ASTDecl.flushAttrAndCollectionCacheMethod = [[
 $if(FlushEnabled)
 $if(#isASTNodeDecl)
-  /**
-    * @apilevel internal
-    */
+  /** @apilevel internal */
   public void #name.flushAttrAndCollectionCache() {
     $SynchBegin
     $if(FlushAttr)
@@ -95,9 +89,7 @@ $endif
 
 ASTDecl.flushAttrCacheMethod = [[
 $if(FlushAttr)
-  /**
-    * @apilevel internal
-    */
+  /** @apilevel internal */
   public void #name.flushAttrCache() {
     $if(!#isASTNodeDecl)
     super.flushAttrCache();
@@ -109,9 +101,7 @@ $endif
 
 ASTDecl.flushCollectionCacheMethod = [[
 $if(FlushColl)
-  /**
-    * @apilevel internal
-    */
+  /** @apilevel internal */
   public void #name.flushCollectionCache() {
     $if(!#isASTNodeDecl)
     super.flushCollectionCache();
@@ -132,9 +122,7 @@ $endif
 
 AttrDecl.resetMethod = [[
 $if(FlushAttr)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   private void #(signature)_reset() {
     $include(AttrDecl.traceHookFlushAttr)
     $include(AttrDecl.resetAttrCache)

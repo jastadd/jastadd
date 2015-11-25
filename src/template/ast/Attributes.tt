@@ -40,36 +40,25 @@ $endif
 
 AttrDecl.cacheDeclarations = [[
 $if(!#isParameterized)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #(signature)_computed = false;
-  /**
-   * @apilevel internal
-   */
+
+  /** @apilevel internal */
   protected #getType #(signature)_value;
 $if(#isCircular)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #(signature)_initialized = false;
 $endif
 $else
 $if(#declaredNTA)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected $List #(signature)_list;
 $endif
 $if(LazyMaps)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected $DefaultMapType #(signature)_values;
 $else
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
 $endif
 $endif
@@ -137,9 +126,7 @@ AttrDecl.emitInlineComputeWithoutTry = [[
 ]]
 
 SynEq.emitComputeMethod = [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
 $if(#hasComputeBlock)
   private #getType #(name)_compute(#parametersDecl) #computeCode
 $else

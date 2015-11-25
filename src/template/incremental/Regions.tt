@@ -98,9 +98,7 @@ public $ASTNode #name.getParent() {
 
 # Create getChild method for region dependency tracking
 ASTDecl.trackGetChildForRegionMethod = [[
-/**
- * @apilevel low-level
- */
+/** @apilevel low-level */
  // Overloading getChild for region leaf
 $if(IsListOrOpt)
 public T #name.getChild(int i) {
@@ -123,9 +121,7 @@ $endif
 
 # Create getChildNoTransform method for region dependency tracking
 ASTDecl.trackGetChildNoTranForRegionMethod = [[
-/**
- * @apilevel low-level
- */
+/** @apilevel low-level */
  // Overloading getChildNoTransform for region leaf
 $if(IsListOrOpt)
 public T #name.getChildNoTransform(int i) {

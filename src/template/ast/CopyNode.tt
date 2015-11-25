@@ -27,9 +27,7 @@
 
 # generates ASTNode.copy()
 ASTDecl.emitCopyNode = [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   #annotations
   public #copyReturnType #name.copy() {
     $SynchBegin
@@ -155,9 +153,7 @@ $endif
 #       flushRewriteCache(), which should not be called during cloning.
 #       This is tested in the test case flush/flushRewriteAndTreeCopy01.
 ASTDecl.emitCloneNode = [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   #annotations
   public #copyReturnType #name.clone() throws CloneNotSupportedException {
     $SynchBegin

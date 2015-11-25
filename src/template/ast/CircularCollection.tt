@@ -27,19 +27,13 @@
 
 # Circular collection evaluation.
 AttrDecl.circularCollectionEval [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #(signature)_computed = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #(signature)_initialized = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected #getType #(signature)_value;
 
 #docComment

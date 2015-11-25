@@ -29,14 +29,10 @@
 # for the ASTNode AST node type
 
 ASTNode.declarations = [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   private int $ASTNode.childIndex;
 
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   public int $ASTNode.getIndexOfChild($ASTNode node) {
     if (node == null) {
       return -1;
@@ -63,56 +59,39 @@ $endif
     return -1;
   }
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public static final boolean $ASTNode.generatedWithCacheCycle = $CacheCycle;
-  /**
-   * @apilevel internal
-   */
+
+  /** @apilevel internal */
   public static final boolean $ASTNode.generatedWithComponentCheck = $ComponentCheck;
 
 $if(!JJTree)
-  /**
-   * Parent pointer
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   protected $ASTNode $ASTNode.parent;
 
-  /**
-   * Child array
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   protected $ASTNode[] $ASTNode.children;
 $endif
 
 $if(TracingEnabled)
   public final $StateClass.Trace $ASTNode.trace() {
     return state().trace();
-  } 
+  }
 $endif
 
 $if(StaticState)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   private static $StateClass $ASTNode.state = new $StateClass();
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public final $StateClass $ASTNode.state() {
     return state;
   }
 $else
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   private $StateClass $ASTNode.state = null;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public final $StateClass $ASTNode.state() {
     if (state == null) {
       if (parent == null) {
@@ -127,29 +106,21 @@ $else
 $endif
 
 $if(RewriteEnabled)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean $ASTNode.in$$Circle = false;
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean $ASTNode.in$$Circle() {
     return in$$Circle;
   }
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public void $ASTNode.in$$Circle(boolean b) {
     in$$Circle = b;
   }
 
 $if(HasRewriteLimit)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public void $ASTNode.debugRewrite(String info) {
     if (!parent.is$$Final()) return;
     java.util.ArrayList key = new java.util.ArrayList(2);
@@ -171,9 +142,7 @@ $if(HasRewriteLimit)
     }
   }
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public void $ASTNode.debugRewriteRemove() {
     java.util.ArrayList key = new java.util.ArrayList(2);
     key.add(getParent());
@@ -182,39 +151,41 @@ $if(HasRewriteLimit)
   }
 $endif
 $if(StagedRewrites)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public int $ASTNode.is$$Final = 0;
-  /**
-   * @apilevel internal
-   */
-  public boolean $ASTNode.is$$Final() { return is$$Final >= state().rewritePhase; }
-  /**
-   * @apilevel internal
-   */
-  public void $ASTNode.is$$Final(int phase) { is$$Final = phase; }
-  /**
-   * @apilevel internal
-   */
-  public void $ASTNode.enterRewritePhase(int phase) { state().rewritePhase = phase; }
-  /**
-   * @apilevel internal
-   */
-  public boolean $ASTNode.inRewritePhase(int phase) { return state().rewritePhase >= phase; }
+
+  /** @apilevel internal */
+  public boolean $ASTNode.is$$Final() {
+    return is$$Final >= state().rewritePhase;
+  }
+
+  /** @apilevel internal */
+  public void $ASTNode.is$$Final(int phase) {
+    is$$Final = phase;
+  }
+
+  /** @apilevel internal */
+  public void $ASTNode.enterRewritePhase(int phase) {
+    state().rewritePhase = phase;
+  }
+
+  /** @apilevel internal */
+  public boolean $ASTNode.inRewritePhase(int phase) {
+    return state().rewritePhase >= phase;
+  }
 $else
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   public boolean $ASTNode.is$$Final = false;
-  /**
-   * @apilevel internal
-   */
-  public boolean $ASTNode.is$$Final() { return is$$Final; }
-  /**
-   * @apilevel internal
-   */
-  public void $ASTNode.is$$Final(boolean b) { is$$Final = b; }
+
+  /** @apilevel internal */
+  public boolean $ASTNode.is$$Final() {
+    return is$$Final;
+  }
+
+  /** @apilevel internal */
+  public void $ASTNode.is$$Final(boolean b) {
+    is$$Final = b;
+  }
 $endif
 $endif
 
@@ -223,16 +194,12 @@ $include(ASTNode.emitNodeToStringMethod)
 
 ASTNode.debugDecls = [[
 $if(DebugMode)
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean $ASTNode.debugNodeAttachmentIsRoot() {
     return false;
   }
 
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   private static void $ASTNode.debugNodeAttachment($ASTNode node) {
     if (node == null) {
       throw new RuntimeException("Trying to assign null to a tree child node");
@@ -258,9 +225,7 @@ $endif
 ]]
 
 ASTNode.iterator = [[
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   public java.util.Iterator<T> $ASTNode.iterator() {
     $SynchBegin
     return new java.util.Iterator<T>() {
@@ -283,9 +248,7 @@ ASTNode.iterator = [[
 ]]
 
 ASTNode.setParent = [[
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   public void $ASTNode.setParent($ASTNode node) {
     $SynchBegin
     $include(ASTNode.incHookSetParent)
@@ -300,9 +263,7 @@ $endif
 ]]
 
 ASTNode.getParent = [[
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   public $ASTNode $ASTNode.getParent() {
     $SynchBegin
 $if(RewriteEnabled)
@@ -319,9 +280,7 @@ $endif
 ]]
 
 ASTNode.addChild = [[
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public void $ASTNode.addChild(T node) {
     setChild(node, getNumChildNoTransform());
     $include(ASTNode.incHookAddChild)
@@ -329,22 +288,16 @@ ASTNode.addChild = [[
 ]]
 
 ASTNode.numChildren = [[
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
    protected int $ASTNode.numChildren;
 
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   protected int $ASTNode.numChildren() {
     $include(ASTNode.incHookNumChildren)
     return numChildren;
   }
 
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public int $ASTNode.getNumChild() {
     $SynchBegin
     return numChildren();
@@ -352,7 +305,7 @@ ASTNode.numChildren = [[
   }
 
   /**
-    * <p><em>This method does not invoke AST transformations.</em></p>
+    * Behaves like getNumChild, but does not invoke AST transformations (rewrites).
     * @apilevel low-level
     */
   public final int $ASTNode.getNumChildNoTransform() {
@@ -363,9 +316,7 @@ ASTNode.numChildren = [[
 ]]
 
 ASTNode.setChild = [[
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public void $ASTNode.setChild($ASTNode node, int i) {
     $SynchBegin
 $if(DebugMode)
@@ -396,9 +347,7 @@ $endif
 ]]
 
 ASTNode.insertChild = [[
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public void $ASTNode.insertChild($ASTNode node, int i) {
     $SynchBegin
 $if(DebugMode)
@@ -434,9 +383,7 @@ $endif
 ]]
 
 ASTNode.removeChild = [[
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public void $ASTNode.removeChild(int i) {
     $SynchBegin
     if (children != null) {
@@ -471,9 +418,7 @@ ASTNode.removeChild = [[
 ]]
 
 ASTNode.getChild = [[
-  /**
-    * @apilevel low-level
-    */
+  /** @apilevel low-level */
   public T $ASTNode.getChild(int i) {
 
 $if(RewriteEnabled)

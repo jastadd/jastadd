@@ -30,17 +30,13 @@
 
 RegularNodeType.getNumChild = [[
 $if(JJTree)
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   public int #name.getNumChild() {
     $include(ASTNode.incHookNumChildren)
     return #numRegularChildren;
   }
 $else
-  /**
-   * @apilevel low-level
-   */
+  /** @apilevel low-level */
   protected int #name.numChildren() {
     $include(ASTNode.incHookNumChildren)
     return #numRegularChildren;
@@ -49,9 +45,7 @@ $endif
 ]]
 
 RegularNodeType.debugNodeAttachmentIsRoot = [[
-  /**
-   * @apilevel internal
-   */
+  /** @apilevel internal */
   protected boolean #name.debugNodeAttachmentIsRoot() {
     return true;
   }
