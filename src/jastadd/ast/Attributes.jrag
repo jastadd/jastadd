@@ -44,15 +44,21 @@ public aspect Attributes {
   /**
    * Add an error to the grammar.
    */
-  public void Grammar.error(String msg, String file, int line) {
-    problems.add(new Problem.Error(msg, file, line));
+  public void Grammar.error(String message, String file, int line) {
+    problems.add(Problem.builder()
+        .message(message)
+        .sourceFile(file)
+        .sourceLine(line)
+        .buildError());
   }
 
   /**
    * Add an error to the grammar.
    */
-  public void Grammar.error(String msg) {
-    problems.add(new Problem.Error(msg));
+  public void Grammar.error(String message) {
+    problems.add(Problem.builder()
+        .message(message)
+        .buildError());
   }
 
   /**

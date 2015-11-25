@@ -314,8 +314,11 @@ public class JastAdd {
       if (clazz != null) {
         clazz.classBodyDecls.add(object.classBodyObject);
       } else {
-        problems.add(new Problem.Error("can not add member to unknown class " + object.className,
-            object.classBodyObject.fileName, object.classBodyObject.line));
+        problems.add(Problem.builder()
+            .message("can not add member to unknown class %s", object.className)
+            .sourceFile(object.classBodyObject.fileName)
+            .sourceLine(object.classBodyObject.line)
+            .buildError());
       }
     }
     // TODO(jesper): Remove the below line.
@@ -475,18 +478,26 @@ public class JastAdd {
         }
       }
     } catch (org.jastadd.ast.AST.TokenMgrError e) {
-      problems.add(new Problem.Error(e.getMessage(), fileName));
+      problems.add(Problem.builder()
+          .message(e.getMessage())
+          .sourceFile(fileName)
+          .buildError());
     } catch (org.jastadd.ast.AST.ParseException e) {
       int startLine = e.currentToken.next.beginLine;
       int startColumn = e.currentToken.next.beginColumn;
       int endColumn = e.currentToken.next.endColumn;
       String offendingToken = e.currentToken.next.image;
       String context = syntaxErrorContext(fileName, startLine, startColumn, endColumn);
-      problems.add(new Problem.Error(
-          String.format("unexpected token \"%s\":\n%s", offendingToken, context),
-          fileName, startLine, startColumn));
+      problems.add(Problem.builder()
+          .message("unexpected token \"%s\":\n%s", offendingToken, context)
+          .sourceFile(fileName)
+          .sourceLine(startLine)
+          .sourceColumn(startColumn)
+          .buildError());
     } catch (FileNotFoundException e) {
-      problems.add(new Problem.Error("could not find abstract syntax file '" + fileName + "'"));
+      problems.add(Problem.builder()
+          .message("could not find abstract syntax file '%s'", fileName)
+          .buildError());
     } finally {
       if (inStream != null)
         try {
@@ -521,16 +532,25 @@ public class JastAdd {
       int endColumn = e.currentToken.next.endColumn;
       String offendingToken = e.currentToken.next.image;
       String context = syntaxErrorContext(fileName, startLine, startColumn, endColumn);
-      problems.add(new Problem.Error(
-          String.format("unexpected token \"%s\":\n%s", offendingToken, context),
-          fileName, startLine, startColumn));
+      problems.add(Problem.builder()
+          .message("unexpected token \"%s\":\n%s", offendingToken, context)
+          .sourceFile(fileName)
+          .sourceLine(startLine)
+          .sourceColumn(startColumn)
+          .buildError());
     } catch (TokenMgrError e) {
-      problems.add(new Problem.Error(e.getMessage(), fileName));
+      problems.add(Problem.builder()
+          .message(e.getMessage())
+          .sourceFile(fileName)
+          .buildError());
     } catch (FileNotFoundException e) {
-      problems.add(new Problem.Error("could not find aspect file '" + fileName + "'"));
+      problems.add(Problem.builder()
+          .message("could not find aspect file '%s'", fileName)
+          .buildError());
     } catch (Throwable e) {
-      problems.add(new Problem.Error("exception occurred while parsing: " + e.getMessage(),
-              fileName));
+      problems.add(Problem.builder()
+          .message("exception occurred while parsing: %s", e.getMessage())
+          .buildError());
     } finally {
       if (inStream != null)
         try {
@@ -559,7 +579,9 @@ public class JastAdd {
       jp.AspectBodyDeclarationsEOF();
       problems.addAll(JastAdd.weaveInterTypeObjects(grammar));
     } catch (org.jastadd.jrag.AST.ParseException e) {
-      problems.add(new Problem.Error("Internal Error in " + sourceName + ": " + e.getMessage()));
+      problems.add(Problem.builder()
+          .message("Internal Error in %s: %s", sourceName, e.getMessage())
+          .buildError());
     }
     jp.popTopLevelOrAspect();
     return problems;
@@ -579,10 +601,16 @@ public class JastAdd {
       jp.setFileName(fileName);
       jp.CacheDeclarations();
     } catch (org.jastadd.jrag.AST.ParseException e) {
-      problems.add(new Problem.Error("syntax error", fileName,
-            e.currentToken.next.beginLine, e.currentToken.next.beginColumn));
+      problems.add(Problem.builder()
+          .message("syntax error")
+          .sourceFile(fileName)
+          .sourceLine(e.currentToken.next.beginLine)
+          .sourceColumn(e.currentToken.next.beginColumn)
+          .buildError());
     } catch (FileNotFoundException e) {
-      problems.add(new Problem.Error("could not find cache file '" + fileName + "'"));
+      problems.add(Problem.builder()
+          .message("could not find cache file '%s'", fileName)
+          .buildError());
     } finally {
       if (inStream != null)
         try {

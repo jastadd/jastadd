@@ -30,7 +30,12 @@ public class Ast {
     
     int line = e.currentToken.next.beginLine;
     int column = e.currentToken.next.beginColumn;
-    problems.add(new Problem.Error("syntax error", fileName, line, column));
+    problems.add(Problem.builder()
+        .message("syntax error")
+        .sourceFile(fileName)
+        .sourceLine(line)
+        .sourceColumn(column)
+        .buildError());
   }
 
   // Added methods for NODE_SCOPE_HOOK.

@@ -118,7 +118,11 @@ aspect AttributeProblems {
    * Create a new error object with relevant file name and line number.
    */
   syn Problem AttrEq.error(String message) =
-      new Problem.Error(message, getFileName(), getStartLine());
+      Problem.builder()
+          .message(message)
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildError();
 
   /**
    * Create a new error object with relevant file name and line number.
@@ -131,7 +135,11 @@ aspect AttributeProblems {
    * Create a new error object with relevant file name and line number.
    */
   syn Problem AttrDecl.error(String message) =
-      new Problem.Error(message, getFileName(), getStartLine());
+      Problem.builder()
+          .message(message)
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildError();
 
   /**
    * Create a new error object with relevant file name and line number.
@@ -142,7 +150,11 @@ aspect AttributeProblems {
 
   /** Create a new warning with the relevant file name and line number. */
   syn Problem AttrDecl.warning(String message) =
-      new Problem.Warning(message, getFileName(), getStartLine());
+      Problem.builder()
+          .message(message)
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildWarning();
 
   /** Create a new warning with the relevant file name and line number. */
   public Problem AttrDecl.warningf(String messagefmt, Object... args) {

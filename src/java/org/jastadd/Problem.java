@@ -36,30 +36,55 @@ import java.io.PrintStream;
  */
 public abstract class Problem {
 
+  public static class ProblemBuilder {
+    String message;
+    String filename = "";
+    int line = -1;
+    int column = -1;
+
+    public ProblemBuilder message(String format, Object... args) {
+      message = String.format(format, args);
+      return this;
+    }
+
+    public ProblemBuilder sourceFile(String filename) {
+      if (filename == null) {
+        throw new NullPointerException("filename can not be null");
+      }
+      this.filename = filename;
+      return this;
+    }
+
+    public ProblemBuilder sourceLine(int line) {
+      this.line = line;
+      return this;
+    }
+
+    public ProblemBuilder sourceColumn(int column) {
+      this.column = column;
+      return this;
+    }
+
+    public Error buildError() {
+      checkNotNull();
+      return new Error(message, filename, line, column);
+    }
+
+    public Warning buildWarning() {
+      checkNotNull();
+      return new Warning(message, filename, line, column);
+    }
+
+    private void checkNotNull() {
+      if (message == null) {
+        throw new NullPointerException("message can not be null");
+      }
+    }
+  }
+
   @SuppressWarnings("javadoc")
   public static class Error extends Problem {
-
-    public Error(String message) {
-      super(message, "", -1, -1);
-    }
-
-    public Error(String message, String fileName) {
-      super(message, fileName, -1, -1);
-    }
-
-    public Error(String message, String fileName, int line) {
-      super(message, fileName, line, -1);
-    }
-
-    public Error(String message, int line) {
-      super(message, "", line, -1);
-    }
-
-    public Error(String message, int line, int column) {
-      super(message, "", line, column);
-    }
-
-    public Error(String message, String file, int line, int column) {
+    protected Error(String message, String file, int line, int column) {
       super(message, file, line, column);
     }
 
@@ -71,28 +96,7 @@ public abstract class Problem {
 
   @SuppressWarnings("javadoc")
   public static class Warning extends Problem {
-
-    public Warning(String message) {
-      super(message, "", -1, -1);
-    }
-
-    public Warning(String message, String fileName) {
-      super(message, fileName, -1, -1);
-    }
-
-    public Warning(String message, String fileName, int line) {
-      super(message, fileName, line, -1);
-    }
-
-    public Warning(String message, int line) {
-      super(message, "", line, -1);
-    }
-
-    public Warning(String message, int line, int column) {
-      super(message, "", line, column);
-    }
-
-    public Warning(String message, String file, int line, int column) {
+    protected Warning(String message, String file, int line, int column) {
       super(message, file, line, column);
     }
 
@@ -107,17 +111,15 @@ public abstract class Problem {
   private final int line;
   private final int column;
 
-  /**
-   * @param message
-   * @param file
-   * @param line
-   * @param column
-   */
-  public Problem(String message, String file, int line, int column) {
+  protected Problem(String message, String file, int line, int column) {
     this.message = message;
     this.file = file;
     this.line = line;
     this.column = column;
+  }
+
+  public static ProblemBuilder builder() {
+    return new ProblemBuilder();
   }
 
   /**
@@ -127,8 +129,7 @@ public abstract class Problem {
   public abstract boolean isError();
 
   /**
-   * Print the problem to the given PrintStream
-   * @param out
+   * Print the problem to the given PrintStream.
    */
   public final void print(PrintStream out) {
     out.println(this.toString());

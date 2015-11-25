@@ -52,48 +52,64 @@ aspect ASTErrors {
   eq ASTDecl.isPotentialRootNode() =
       !hasAbstract() && !isASTNodeDecl() && !isOptSubtype() && !isListSubtype();
 
-  Grammar contributes new Problem.Warning("there is no root node in the grammar!")
+  Grammar contributes Problem.builder()
+          .message("there is no root node in the grammar!")
+          .buildWarning()
       when roots().isEmpty()
       to Grammar.problems()
       for this;
 
   // TODO(joqvist): add filename, line, column.
-  TypeDecl contributes new Problem.Error("multiple production rule for non-terminal " + name())
+  TypeDecl contributes Problem.builder()
+          .message("multiple production rule for non-terminal %s", name())
+          .buildError()
       when grammar().lookup(name()) != this
       to Grammar.problems()
       for grammar();
 
-  ASTDecl contributes new Problem.Error("multiple production rule for non-terminal " + name(),
-          getFileName(), getStartLine())
+  ASTDecl contributes Problem.builder()
+          .message("multiple production rule for non-terminal %s", name())
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildError()
       when grammar().lookup(name()) != this
       to Grammar.problems()
       for grammar();
 
-  ASTDecl contributes new Problem.Error(name() + " causes circular inheritance",
-          getFileName(), getStartLine())
+  ASTDecl contributes Problem.builder()
+          .message("%s causes circular inheritance", name())
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildError()
       when isCircular()
       to Grammar.problems()
       for grammar();
 
-  ASTDecl contributes new Problem.Error(
-        name() + " inherits from undeclared class " + getSuperClass().name(),
-        getFileName(), getStartLine())
+  ASTDecl contributes Problem.builder()
+        .message("%s inherits from undeclared class %s", name(), getSuperClass().name())
+        .sourceFile(getFileName())
+        .sourceLine(getStartLine())
+        .buildError()
       when hasSuperClass() && superClass() == null
       to Grammar.problems()
       for grammar();
 
-  Component contributes new Problem.Error(
-          String.format("Component name %s is not unique in production rule for %s (%s)",
-              name(), hostClass().name(), hostClass().lookupComponent(name())),
-          hostClass().getFileName(), hostClass().getStartLine())
+  Component contributes Problem.builder()
+          .message("Component name %s is not unique in production rule for %s (%s)",
+              name(), hostClass().name(), hostClass().lookupComponent(name()))
+          .sourceFile(hostClass().getFileName())
+          .sourceLine(hostClass().getStartLine())
+          .buildError()
       when hostClass().lookupComponent(name()) != this
       to Grammar.problems()
       for grammar();
 
-  Component contributes new Problem.Error(
-          String.format("Type %s of component %s in production %s is not declared",
-              type(), name(), hostClass().name()),
-          hostClass().getFileName(), hostClass().getStartLine())
+  Component contributes Problem.builder()
+          .message("Type %s of component %s in production %s is not declared",
+              type(), name(), hostClass().name())
+          .sourceFile(hostClass().getFileName())
+          .sourceLine(hostClass().getStartLine())
+          .buildError()
       when !declared()
       to Grammar.problems()
       for grammar();
