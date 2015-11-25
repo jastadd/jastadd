@@ -71,7 +71,7 @@ AttrDecl.circularCollectionEval [[
         state.CHANGE = false;
 
         #getType new_#(signature)_value = #(name)_compute();
-        if ($Cond1) {
+        if ($ChangeCondition) {
           state.CHANGE = true;
         }
         #(signature)_value = new_#(signature)_value;
@@ -96,7 +96,7 @@ AttrDecl.circularCollectionEval [[
       $include(AttrDecl.resetCycleCheck)
       #addAddToComponent
       #(getType) new_#(signature)_value = #(name)_compute();
-      if ($Cond1) {
+      if ($ChangeCondition) {
         state.CHANGE = true;
       }
       #(signature)_value = new_#(signature)_value;

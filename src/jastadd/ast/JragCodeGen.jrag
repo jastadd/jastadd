@@ -428,24 +428,23 @@ aspect JragCodeGen {
 
   public void AttrDecl.emitCircularEquationNoParams(PrintStream out) {
     TemplateContext tt = templateContext();
-    tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
-    tt.bind("Cond2", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
-    tt.expand("ASTDecl.genCircularEquationNoParams", out);
+    tt.expand("ASTDecl.circularEquation:unparameterized", out);
   }
 
   public void AttrDecl.emitCircularEquationWithParams(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
-    tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value",
+    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value",
         fromReferenceType("_value.value", getType())));
     tt.bind("ParamDecl", paramDecl);
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(
           fromReferenceType(signature() + "_values.get(_parameters)" , getType())));
-    tt.expand("ASTDecl.genCircularEquationWithParams", out);
+    tt.expand("ASTDecl.circularEquation:parameterized", out);
   }
 
   /**

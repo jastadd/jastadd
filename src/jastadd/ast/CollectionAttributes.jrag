@@ -75,9 +75,7 @@ aspect CollectionAttributes {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("RootType", root().name());
-    tt.bind("Cond1", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
-    tt.bind("Cond2", valueComparisonExpr("new_" + signature() + "_value",
-            fromReferenceType(signature() + "_values.get(_parameters)", getType())));
+    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("CircularComputeRhs", signature() + "_value = " + name() + "_compute()");
     tt.expand("AttrDecl.circularCollectionEval", out);
   }

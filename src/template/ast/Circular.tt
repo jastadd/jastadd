@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2015, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -50,4 +50,284 @@ protected boolean #(signature)_visited = false;
     $endif
   $endif
 $endif
+]]
+
+ASTDecl.circularEquation:unparameterized [[
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #getType #name() {
+    $SynchBegin
+    $include(AttrDecl.cacheCheck)
+    $StateClass state = state();
+    #getType new_#(signature)_value;
+    #addComponentCheck
+    if (!#(signature)_initialized) {
+      #(signature)_initialized = true;
+      #(signature)_value = $BottomValue;
+$if(#getNTA)
+      if (#(signature)_value != null) {
+        #(signature)_value.setParent(this);
+      }
+$endif
+    }
+    if (!state.IN_CIRCLE) {
+      $include(AttrDecl.traceHookCircularEnterCase1)
+      state.IN_CIRCLE = true;
+      #tracePrintCycleBeginString
+      #addAddToComponent
+      $include(AttrDecl.cacheInitRewrite)
+      do {
+        #(signature)_visited = state.CIRCLE_INDEX;
+        state.CHANGE = false;
+        #tracePrintBeginComputingValue
+        $include(AttrDecl.incHookAttrCompStartCircular)
+        $include(AttrDecl.traceHookAttrComputeBegin)
+        #circularComputeLhs = $CircularComputeRhs;
+        $include(AttrDecl.traceHookAttrComputeEnd)
+        $include(AttrDecl.incHookAttrCompEndCircular)
+        if ($ChangeCondition) {
+          state.CHANGE = true;
+          $include(AttrDecl.traceHookCircularCase1Change)
+        }
+        #(signature)_value = new_#(signature)_value;
+$if(#getNTA)
+        if (#(signature)_value != null) {
+          #(signature)_value.setParent(this);
+        }
+$endif
+        state.CIRCLE_INDEX++;
+        #tracePrintStartingCycle
+        #cycleLimitCheck
+      } while (state.CHANGE);
+      if (#cacheStoreCondition) {
+        #(signature)_computed = true;
+        $include(cacheCycleInit)
+        $include(AttrDecl.traceHookAttrCached)
+      } else {
+        $include(resetCycleInit)
+        #(signature)_computed = false;
+        #(signature)_initialized = false;
+        $include(AttrDecl.traceHookAttrCacheAbort)
+      }
+      state.IN_CIRCLE = false;
+      $TracePrintReturnNewValue
+      #tracePrintCycleEndString
+      state.INTERMEDIATE_VALUE = false;
+      $include(AttrDecl.traceHookCircularExitCase1)
+    } else if (#(signature)_visited != state.CIRCLE_INDEX) {
+      $include(AttrDecl.traceHookCircularEnterCase2)
+      #(signature)_visited = state.CIRCLE_INDEX;
+      $include(AttrDecl.cacheCycleCheck)
+      $include(AttrDecl.resetCycleCheck)
+      #addAddToComponent
+      #tracePrintBeginComputingValue
+      $include(AttrDecl.incHookAttrCompStartCircular)
+      $include(AttrDecl.traceHookAttrComputeBegin)
+      #circularComputeLhs = $CircularComputeRhs;
+      $include(AttrDecl.traceHookAttrComputeEnd)
+      $include(AttrDecl.incHookAttrCompEndCircular)
+      if ($ChangeCondition) {
+        state.CHANGE = true;
+        $include(AttrDecl.traceHookCircularCase2Change)
+      }
+      #(signature)_value = new_#(signature)_value;
+$if(#getNTA)
+      if (#(signature)_value != null) {
+        #(signature)_value.setParent(this);
+      }
+$endif
+      $TracePrintReturnNewValue
+      state.INTERMEDIATE_VALUE = true;
+      $include(AttrDecl.traceHookCircularExitCase2)
+    } else {
+      $TracePrintReturnPreviousValue
+      state.INTERMEDIATE_VALUE = true;
+      $include(AttrDecl.traceHookCircularExitCase3)
+    }
+    $include(AttrDecl.returnStmt)
+    $SynchEnd
+  }
+]]
+
+ASTDecl.circularEquation:parameterized [[
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #getType #name($ParamDecl) {
+    $SynchBegin
+    #parameterStructure
+    #initLazyMaps
+    $StateClass.CircularValue _value;
+    $include(AttrDecl.cacheCheck) else {
+      _value = new $StateClass.CircularValue();
+      #(signature)_values.put(_parameters, _value);
+      _value.value = $BottomValue;
+$if(#getNTA)
+ $if(#isRewriteCircularNtaAttr)
+       if (_value.value != null) {
+         (($ASTNode) _value.value).setParent(this);
+         (($ASTNode) _value.value).childIndex = i;
+       }
+ $else
+       if (_value.value != null) {
+         if (#(signature)_list == null) {
+           #(signature)_list = new $List();
+           #(signature)_list.setParent(this);
+         }
+         (($ASTNode) _value.value).setParent(#(signature)_list);
+      }
+ $endif
+$endif
+    }
+    $StateClass state = state();
+    #getType new_#(signature)_value;
+    #addComponentCheck
+    if (!state.IN_CIRCLE) {
+      $include(AttrDecl.traceHookCircularEnterCase1)
+      state.IN_CIRCLE = true;
+$if(#isRewriteCircularNtaAttr)
+      int rewriteState;
+$endif
+      #tracePrintCycleBeginString
+      $include(AttrDecl.cacheInitRewrite)
+      #addAddToComponent
+      do {
+        _value.visited = state.CIRCLE_INDEX;
+        state.CHANGE = false;
+        #tracePrintBeginComputingValue
+$if(#isRewriteCircularNtaAttr)
+        state.push($StateClass.REWRITE_CHANGE);
+$endif
+        $include(AttrDecl.incHookAttrCompStartCircular)
+        $include(AttrDecl.traceHookAttrComputeBegin)
+        #circularComputeLhs = $CircularComputeRhs;
+        $include(AttrDecl.traceHookAttrComputeEnd)
+        $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isRewriteCircularNtaAttr)
+        rewriteState = state.pop();
+$endif
+        if ($ChangeCondition) {
+          state.CHANGE = true;
+          $include(AttrDecl.traceHookCircularCase1Change)
+          _value.value = new_#(signature)_value;
+$if(#getNTA)
+ $if(#isRewriteCircularNtaAttr)
+          if (_value.value != null) {
+            (($ASTNode) _value.value).setParent(this);
+            (($ASTNode) _value.value).childIndex = i;
+          }
+ $else
+          if (_value.value != null) {
+            if (#(signature)_list == null) {
+              #(signature)_list = new $List();
+              #(signature)_list.setParent(this);
+            }
+            (($ASTNode) _value.value).setParent(#(signature)_list);
+          }
+ $endif
+$endif
+        }
+        state.CIRCLE_INDEX++;
+        #tracePrintStartingCycle
+        #cycleLimitCheck
+      } while (state.CHANGE);
+      if (#cacheStoreCondition) {
+        #(signature)_values.put(_parameters, new_#(signature)_value);
+        $include(cacheCycleInit)
+        $include(AttrDecl.traceHookAttrCached)
+      } else {
+        #(signature)_values.remove(_parameters);
+        $include(resetCycleInit)
+        $include(AttrDecl.traceHookAttrCacheAbort)
+      }
+      state.IN_CIRCLE = false;
+      $TracePrintReturnNewValue
+      #tracePrintCycleEndString
+      state.INTERMEDIATE_VALUE = false;
+      $include(AttrDecl.traceHookCircularExitCase1)
+      return new_#(signature)_value;
+    } else if (state.CIRCLE_INDEX != _value.visited) {
+      _value.visited = state.CIRCLE_INDEX;
+      $include(AttrDecl.traceHookCircularEnterCase2)
+      #tracePrintBeginComputingValue
+$if(#isRewriteCircularNtaAttr)
+      state.push($StateClass.REWRITE_CHANGE);
+$endif
+      $include(AttrDecl.incHookAttrCompStartCircular)
+      $include(AttrDecl.traceHookAttrComputeBegin)
+      #circularComputeLhs = $CircularComputeRhs;
+      $include(AttrDecl.traceHookAttrComputeEnd)
+      $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isRewriteCircularNtaAttr)
+      int rewriteState = state.pop();
+$endif
+      $include(AttrDecl.cacheCycleCheck)
+      $include(AttrDecl.resetCycleCheck)
+      else if ($ChangeCondition) {
+        state.CHANGE = true;
+        $include(AttrDecl.traceHookCircularCase2Change)
+        _value.value = new_#(signature)_value;
+$if(#getNTA)
+ $if(#isRewriteCircularNtaAttr)
+        if (_value.value != null) {
+          (($ASTNode) _value.value).setParent(this);
+          (($ASTNode) _value.value).childIndex = i;
+        }
+ $else
+        if (_value.value != null) {
+          if (#(signature)_list == null) {
+            #(signature)_list = new $List();
+            #(signature)_list.setParent(this);
+          }
+          (($ASTNode) _value.value).setParent(#(signature)_list);
+        }
+ $endif
+$endif
+      }
+      $TracePrintReturnNewValue
+      state.INTERMEDIATE_VALUE = true;
+      $include(AttrDecl.traceHookCircularExitCase2)
+      return new_#(signature)_value;
+    } else {
+      $TracePrintReturnPreviousValue
+      state.INTERMEDIATE_VALUE = true;
+      $include(AttrDecl.traceHookCircularExitCase3)
+      return (#boxedType) _value.value;
+    }
+    $SynchEnd
+  }
+]]
+
+resetCycleInit [[
+state.RESET_CYCLE = true;
+#getType $$tmp = $CircularComputeRhs;
+state.RESET_CYCLE = false;
+]]
+
+AttrDecl.cacheCycleCheck [[
+$if(CacheCycle)
+if (state.LAST_CYCLE) {
+$if(#isParameterized)
+  #(signature)_values.put(_parameters, new_#(signature)_value);
+$else
+  #(signature)_computed = true;
+  $include(AttrDecl.incHookAttrCompStartCircular)
+  #circularComputeLhs = $CircularComputeRhs;
+  $include(AttrDecl.incHookAttrCompEndCircular)
+  return new_#(signature)_value;
+$endif
+}
+$endif
+]]
+
+AttrDecl.resetCycleCheck [[
+if (state.RESET_CYCLE) {
+$if(#isParameterized)
+  #(signature)_values.remove(_parameters);
+$else
+  #(signature)_computed = false;
+  #(signature)_initialized = false;
+  #(signature)_visited = -1;
+  $include(AttrDecl.returnStmt)
+$endif
+}
 ]]
