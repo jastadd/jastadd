@@ -31,8 +31,9 @@ import java.util.*;
 aspect Lookup {
   syn TypeDecl Grammar.lookup(String name) {
     for (int i = 0; i < getNumTypeDecl(); i++) {
-      if (getTypeDecl(i).name().equals(name))
+      if (getTypeDecl(i).name().equals(name)) {
         return getTypeDecl(i);
+      }
     }
     return null;
   }
@@ -116,9 +117,7 @@ aspect Names {
 
   syn String TokenId.name() = getID();
 
-  // ES_2011-12-05: Name to RegionDecl, coarse incremental evaluation
   syn String RegionDecl.name() = getIdUse().name();
-  //
 }
 
 aspect Types {
@@ -135,4 +134,8 @@ aspect Types {
 
 aspect ComponentHostClass {
   syn String Component.className() = hostClass().name();
+
+  syn String AttrDecl.className() = hostClass().name();
+
+  syn String AttrEq.className() = hostClass().name();
 }

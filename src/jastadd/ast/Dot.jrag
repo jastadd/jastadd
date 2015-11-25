@@ -32,6 +32,9 @@ import java.io.PrintStream;
  * Helper methods to generate Dot graph from a grammar.
  */
 aspect DotGraph {
+  /**
+   * Generates a Dot graph from the grammar.
+   */
   public void Grammar.genDotGraph(PrintStream out) {
     out.println("digraph {");
     out.println("  edge [dir=back];");

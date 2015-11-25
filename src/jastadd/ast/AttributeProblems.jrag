@@ -109,10 +109,10 @@ aspect AttributeProblems {
       Collections.emptyList(); // Don't collect problems for attributes in InterfaceDecls.
 
   SynEq contributes errorf("synthesized attribute %s assigned in class %s is not declared",
-      name(), hostClass().name())
-    when decl() == null
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          name(), hostClass().name())
+      when decl() == null
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   /**
    * Create a new error object with relevant file name and line number.
@@ -155,49 +155,49 @@ aspect AttributeProblems {
   syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
 
   SynEq contributes errorf("multiple equations for synthesized attribute %s.%s, previously defined in %s:%d",
-      hostClass().name(), name(), prevEq().getFileName(), prevEq().getStartLine())
-    when decl() != null && prevEq() != null && prevEq() != this
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          hostClass().name(), name(), prevEq().getFileName(), prevEq().getStartLine())
+      when decl() != null && prevEq() != null && prevEq() != this
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   SynEq contributes errorf(
-      "equation must have the same parameter names as attribute declaration in %s:%d",
-      decl().getFileName(), decl().getStartLine())
-    when decl() != null && !decl().parametersDecl().equals(parametersDecl())
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          "equation must have the same parameter names as attribute declaration in %s:%d",
+          decl().getFileName(), decl().getStartLine())
+      when decl() != null && !decl().parametersDecl().equals(parametersDecl())
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   // TODO(jesper): Check if there is a parameter list mismatch that might be causing the problem.
   InhEq contributes errorf("missing declaration for inherited attribute %s", attributeName())
-    when decl() == null
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when decl() == null
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   InhEq contributes errorf(
-      "equation must have the same parameter names as attribute declaration in %s:%d",
-      decl().getFileName(), decl().getStartLine())
-    when decl() != null && !decl().parametersDecl().equals(parametersDecl())
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          "equation must have the same parameter names as attribute declaration in %s:%d",
+          decl().getFileName(), decl().getStartLine())
+      when decl() != null && !decl().parametersDecl().equals(parametersDecl())
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn SynDecl SynDecl.prevDecl() = hostClass().lookupSynDecl(signature());
 
   SynDecl contributes errorf(
-      "multiple declaration of attribute %s.%s, previously declared in %s:%d",
-      hostClass().name(), name(), prevDecl().getFileName(), prevDecl().getStartLine())
-    when prevDecl() != null && prevDecl() != this
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          "multiple declaration of attribute %s.%s, previously declared in %s:%d",
+          hostClass().name(), name(), prevDecl().getFileName(), prevDecl().getStartLine())
+      when prevDecl() != null && prevDecl() != this
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   SynDecl contributes missingEqProblem()
-    when !missingEqs().isEmpty()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when !missingEqs().isEmpty()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   SynDecl contributes error("return type of NTA must be an AST node")
-    when declaredNTA() && !(grammar().lookup(type().split("<")[0]) instanceof ASTDecl)
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when declaredNTA() && !(grammar().lookup(type().split("<")[0]) instanceof ASTDecl)
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn Problem SynDecl.missingEqProblem() {
     StringBuilder buf = new StringBuilder();
@@ -246,14 +246,14 @@ aspect AttributeProblems {
   }
 
   InhEq contributes unknownChildProblem()
-    when hasUnknownChildProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasUnknownChildProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean InhEq.hasUnknownChildProblem() =
-    getComponent() == null &&
-    getChildName().startsWith("get") &&
-    !getChildName().equals("getChild");
+      getComponent() == null
+      && getChildName().startsWith("get")
+      && !getChildName().equals("getChild");
 
   syn Problem InhEq.unknownChildProblem() {
     StringBuilder buf = new StringBuilder();
@@ -266,14 +266,14 @@ aspect AttributeProblems {
   }
 
   InhEq contributes unknownNTAProblem()
-    when hasUnknownNTAProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasUnknownNTAProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean InhEq.hasUnknownNTAProblem() =
-    !hasUnknownChildProblem() &&
-    (getChildAttrDecl() == null || !getChildAttrDecl().declaredNTA()) &&
-    (getComponent() == null && !getChildName().equals("getChild"));
+      !hasUnknownChildProblem()
+      && (getChildAttrDecl() == null || !getChildAttrDecl().declaredNTA())
+      && (getComponent() == null && !getChildName().equals("getChild"));
 
   syn Problem InhEq.unknownNTAProblem() {
     StringBuilder buf = new StringBuilder();
@@ -288,9 +288,9 @@ aspect AttributeProblems {
   }
 
   InhEq contributes multiEqProblem()
-    when hasMultiEqProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasMultiEqProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   /**
    * @return Previous equation for this inherited attribute
@@ -305,9 +305,9 @@ aspect AttributeProblems {
       prevEq().getFileName(), prevEq().getStartLine());
 
   InhEq contributes badIndexProblem()
-    when hasBadIndexProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasBadIndexProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean InhEq.hasBadIndexProblem() =
       hasIndex()
@@ -320,24 +320,24 @@ aspect AttributeProblems {
           childName(), hostClass().name());
 
   InhDecl contributes multiDeclProblem()
-    when isDuplicateInhDecl()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when isDuplicateInhDecl()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn Problem InhDecl.multiDeclProblem() =
       warningf("multiple declarations of inherited attribute %s.%s, previously declared in %s:%d",
           hostClass().name(), name(), prevDecl().getFileName(), prevDecl().getStartLine());
 
   InhDecl contributes errorf("inherited attribute %s defined on root node %s",
-      name(), hostClass().name())
-    when hostClass().isRootNode()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          name(), hostClass().name())
+      when hostClass().isRootNode()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   AttrDecl contributes unsupportedAnnotationProblem()
-    when hasUnsupportedAnnotation()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasUnsupportedAnnotation()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean AttrDecl.hasUnsupportedAnnotation() {
     for (Annotation annotation: getAnnotationList()) {
@@ -365,9 +365,9 @@ aspect AttributeProblems {
   }
 
   AttrEq contributes unsupportedAnnotationProblem()
-    when hasUnsupportedAnnotation()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasUnsupportedAnnotation()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean AttrEq.hasUnsupportedAnnotation() {
     for (Annotation annotation: getAnnotationList()) {
@@ -395,9 +395,9 @@ aspect AttributeProblems {
   }
 
   CollDecl contributes collectionGroupProblem()
-    when hasCollectionGroupProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasCollectionGroupProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean CollDecl.hasCollectionGroupProblem() {
     if (hasAnnotation("@CollectionGroup")) {
@@ -425,9 +425,9 @@ aspect AttributeProblems {
   }
 
   CollDecl contributes multipleRootsProblem()
-    when hasMultipleRootsProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when hasMultipleRootsProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean CollDecl.hasMultipleRootsProblem() = root == null && grammar().roots().size() > 1;
 
@@ -441,27 +441,26 @@ aspect AttributeProblems {
   }
 
   CollDecl contributes error("No tree roots to search for contributions. "
-      + "Please declare an explicit root node.")
-    when hasNoRootProblem()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          + "Please declare an explicit root node.")
+      when hasNoRootProblem()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   syn boolean CollDecl.hasNoRootProblem() = root == null && grammar().roots().isEmpty();
 
   CollDecl contributes warning("no contributions for this collection attribute")
-    when uses().isEmpty()
-    to TypeDecl.attributeProblems()
-    for hostClass();
+      when uses().isEmpty()
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   CollEq contributes errorf("undeclared collection attribute '%s.%s'", getTargetName(),
-      getTargetAttributeName())
-    when decl() == null
-    to TypeDecl.attributeProblems()
-    for hostClass();
+          getTargetAttributeName())
+      when decl() == null
+      to TypeDecl.attributeProblems()
+      for hostClass();
 
   CollDecl contributes errorf("Unknown collection root: \"%s\"", root)
-    when root != null && root() == null
-    to TypeDecl.attributeProblems()
-    for hostClass();
-
+      when root != null && root() == null
+      to TypeDecl.attributeProblems()
+      for hostClass();
 }

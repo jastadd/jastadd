@@ -230,7 +230,7 @@ aspect JragCodeGen {
   }
 
   public void AttrDecl.emitVisitedDeclarations(PrintStream out) {
-    if ( !config().visitCheckEnabled() && !isCircular()) {
+    if (!config().visitCheckEnabled() && !isCircular()) {
       return;
     }
 
@@ -272,35 +272,6 @@ aspect JragCodeGen {
     tt.bind("Type", type);
     tt.bind("Init", init);
     tt.expand("AttrDecl.emitVisitedDeclarations", out);
-  }
-
-  public String AttrDecl.visitedException() {
-    TemplateContext tt = templateContext();
-    tt.bind("ClassName", getClass().getName());
-    return tt.expand("AttrDecl.visitedException");
-  }
-
-  public String AttrDecl.setVisited() {
-    if (!config().visitCheckEnabled() && !isCircular()) {
-      return "";
-    }
-    return templateContext().expand("AttrDecl.setVisited");
-  }
-
-  public String AttrDecl.clearVisited() {
-    if (!config().visitCheckEnabled() && !isCircular()) {
-      return "";
-    } else if (config().rewriteEnabled()) {
-      if (getNumParameter() == 0) {
-        return signature() + "_visited = -1;\n";
-      } else {
-        return signature() + "_visited.remove(_parameters);\n";
-      }
-    } else if (getNumParameter() == 0) {
-      return signature() + "_visited = false;\n";
-    } else {
-      return signature() + "_visited.remove(_parameters);\n";
-    }
   }
 
   public void AttrDecl.emitCacheDeclarations(PrintStream out) {
@@ -376,7 +347,7 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.parameterStructure() {
-    if (getNumParameter() == 0 || (!isLazy() && !isCircular() && !config().visitCheckEnabled())) {
+    if (!isParameterized() || (!isLazy() && !isCircular() && !config().visitCheckEnabled())) {
       return "";
     } else if (getNumParameter() == 1) {
       return "Object _parameters = " + getParameter(0).getName() + ";\n";
@@ -391,14 +362,6 @@ aspect JragCodeGen {
     }
   }
 
-  public String AttrDecl.cacheInit() {
-    if (isLazy()) {
-      return cacheInitCircular() + cacheInitRewrite();
-    } else {
-      return "";
-    }
-  }
-
   /**
    * Generate the state variable if needed.
    */
@@ -407,20 +370,6 @@ aspect JragCodeGen {
       return config().stateClassName() + " state = state();";
     } else {
       return "";
-    }
-  }
-
-  public String AttrDecl.cacheInitCircular() {
-    return "boolean intermediate = state.INTERMEDIATE_VALUE;\n" +
-           "state.INTERMEDIATE_VALUE = false;\n";
-  }
-
-  public String AttrDecl.cacheInitRewrite() {
-    if (!config().rewriteEnabled()) {
-      return "";
-    } else {
-      return "int num = state.boundariesCrossed;\n" +
-             "boolean isFinal = this.is$Final();";
     }
   }
 
@@ -890,35 +839,45 @@ aspect JragCodeGen {
    */
   syn AttrDecl InhEq.getChildAttrDecl() {
     AttrDecl decl = hostClass().lookupSynDeclPrefix(childName());
-    if (decl == null) decl = hostClass().lookupInhDeclPrefix(childName());
+    if (decl == null) {
+      decl = hostClass().lookupInhDeclPrefix(childName());
+    }
     return decl;
   }
 
   syn SynDecl TypeDecl.lookupSynDeclPrefix(String signature) {
-    for (int i = 0; i < getNumSynDecl(); i++)
-      if (getSynDecl(i).signature().equals(signature) || getSynDecl(i).signature().startsWith(signature + "_"))
+    for (int i = 0; i < getNumSynDecl(); i++) {
+      if (getSynDecl(i).signature().equals(signature)
+          || getSynDecl(i).signature().startsWith(signature + "_")) {
         return getSynDecl(i);
+      }
+    }
     return null;
   }
 
   eq ASTDecl.lookupSynDeclPrefix(String signature) {
     SynDecl decl = super.lookupSynDeclPrefix(signature);
-    if (decl != null || superClass() == null)
+    if (decl != null || superClass() == null) {
       return decl;
+    }
     return superClass().lookupSynDeclPrefix(signature);
   }
 
   syn InhDecl TypeDecl.lookupInhDeclPrefix(String signature) {
-    for (int i = 0; i < getNumInhDecl(); i++)
-      if (getInhDecl(i).signature().equals(signature) || getInhDecl(i).signature().startsWith(signature + "_"))
+    for (int i = 0; i < getNumInhDecl(); i++) {
+      if (getInhDecl(i).signature().equals(signature)
+          || getInhDecl(i).signature().startsWith(signature + "_")) {
         return getInhDecl(i);
+      }
+    }
     return null;
   }
 
   syn InhDecl ASTDecl.lookupInhDeclPrefix(String signature) {
     InhDecl decl = super.lookupInhDeclPrefix(signature);
-    if (decl != null || superClass() == null)
+    if (decl != null || superClass() == null) {
       return decl;
+    }
     return superClass().lookupInhDeclPrefix(signature);
   }
 
@@ -936,8 +895,7 @@ aspect JragCodeGen {
     return map;
   }
 
-  syn lazy String Rewrite.aspectName() =
-    getAspectName();
+  syn lazy String Rewrite.aspectName() = getAspectName();
 
   public void AttrEq.emitDefaultInhMethod(PrintStream out) {
     templateContext().expand("InhEq.defaultInhDefineMethod", out);

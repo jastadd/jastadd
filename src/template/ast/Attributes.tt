@@ -101,14 +101,14 @@ AttrDecl.emitInlineComputeWithTry = [[
     $include(AttrDecl.cacheCheck)
     #lazyState
     $include(addInterruptedCircleDeclaration)
-    $include(AttrDecl.visitedCheck)
-    #setVisited
+    $include(AttrDecl.checkVisited)
+    $include(AttrDecl.setVisited)
     $include(addCheckInterruptedCircle)
     $include(AttrDecl.traceHookAttrComputeBegin)
     try $ComputeBody
     finally {
       #higherOrderAttributeCode
-      #clearVisited
+      $include(AttrDecl.clearVisited)
       $include(addClearInterruptedCircle)
       $include(AttrDecl.traceHookAttrComputeEndInline)
     }
@@ -127,8 +127,8 @@ AttrDecl.emitInlineComputeWithoutTry = [[
     #lazyState
     $include(AttrDecl.cacheCheck)
     $include(addInterruptedCircleDeclaration)
-    $include(AttrDecl.visitedCheck)
-    #setVisited
+    $include(AttrDecl.checkVisited)
+    $include(AttrDecl.setVisited)
     $include(addCheckInterruptedCircle)
     $include(AttrDecl.traceHookAttrComputeBegin)
     $ComputeBody
@@ -149,41 +149,42 @@ $else
 $endif
 ]]
 
-AttrDecl.visitedException = [[
+AttrDecl.visitedException [[
 $if(TraceVisitCheck)
-System.out.println("Circular definition of attr: #name in class: $ClassName");
+System.out.println("Circular definition of attr: #name in class: #className");
 $else
-throw new RuntimeException("Circular definition of attr: #name in class: $ClassName");
+throw new RuntimeException("Circular definition of attr: #name in class: #className");
 $endif
 ]]
 
-AttrDecl.visitedCheck = [[
+AttrDecl.checkVisited [[
 $if(VisitCheckEnabled)
   $if(RewriteEnabled)
     $if(#isParameterized)
 if (Integer.valueOf(state().boundariesCrossed).equals(#(signature)_visited.get(_parameters))) {
-  #visitedException
+  $include(AttrDecl.visitedException)
 }
     $else
 if (#(signature)_visited == state().boundariesCrossed) {
-  #visitedException
+  $include(AttrDecl.visitedException)
 }
     $endif
   $else
     $if(#isParameterized)
 if (#(signature)_visited.contains(_parameters)) {
-  #visitedException
+  $include(AttrDecl.visitedException)
 }
     $else
 if (#(signature)_visited) {
-  #visitedException
+  $include(AttrDecl.visitedException)
 }
     $endif
   $endif
 $endif
 ]]
 
-AttrDecl.setVisited = [[
+AttrDecl.setVisited [[
+$if(VisitCheckEnabled)
 $if(RewriteEnabled)
   $if(#isParameterized)
 #(signature)_visited.put(_parameters, Integer.valueOf(state().boundariesCrossed));
@@ -196,6 +197,25 @@ $else
   $else
 #(signature)_visited = true;
   $endif
+$endif
+$endif
+]]
+
+AttrDecl.clearVisited [[
+$if(VisitCheckEnabled)
+$if(RewriteEnabled)
+  $if(#isParameterized)
+#(signature)_visited.remove(_parameters);
+  $else
+#(signature)_visited = -1;
+  $endif
+$else
+  $if(#isParameterized)
+#(signature)_visited.remove(_parameters);
+  $else
+#(signature)_visited = false;
+  $endif
+$endif
 $endif
 ]]
 
@@ -261,16 +281,16 @@ AttrDecl.emitEquation [[
     $include(AttrDecl.cacheCheck)
     $include(AttrDecl.incHookAttrCompStart)
     $include(addInterruptedCircleDeclaration)
-    $include(AttrDecl.visitedCheck)
-    #setVisited
+    $include(AttrDecl.checkVisited)
+    $include(AttrDecl.setVisited)
     $include(addCheckInterruptedCircle)
-    #cacheInit
+    $include(AttrDecl.cacheInit)
     $include(AttrDecl.traceHookAttrComputeBegin)
     #computeLhs = $ComputeRhs;
     $include(AttrDecl.traceHookAttrComputeEnd)
     #higherOrderAttributeCode
     $include(AttrDecl.cacheUpdate)
-    #clearVisited
+    $include(AttrDecl.clearVisited)
     $include(addClearInterruptedCircle)
     $include(AttrDecl.returnStmt)
     $SynchEnd
@@ -300,7 +320,7 @@ $endif
       state.IN_CIRCLE = true;
       #tracePrintCycleBeginString
       #addAddToComponent
-      #cacheInitRewrite
+      $include(AttrDecl.cacheInitRewrite)
       do {
         #(signature)_visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
@@ -414,7 +434,7 @@ $if(#isRewriteCircularNtaAttr)
       int rewriteState;
 $endif
       #tracePrintCycleBeginString
-      #cacheInitRewrite
+      $include(AttrDecl.cacheInitRewrite)
       #addAddToComponent
       do {
         _value.visited = state.CIRCLE_INDEX;
@@ -645,5 +665,24 @@ $else
   return new_#(signature)_value;
 $endif
 }
+$endif
+]]
+
+AttrDecl.cacheInit [[
+$if(#isLazy)
+$include(AttrDecl.cacheInitCircular)
+$include(AttrDecl.cacheInitRewrite)
+$endif
+]]
+
+AttrDecl.cacheInitCircular [[
+boolean intermediate = state.INTERMEDIATE_VALUE;
+state.INTERMEDIATE_VALUE = false;
+]]
+
+AttrDecl.cacheInitRewrite [[
+$if(RewriteEnabled)
+int num = state.boundariesCrossed;
+boolean isFinal = this.is$$Final();
 $endif
 ]]

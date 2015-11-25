@@ -53,7 +53,7 @@ aspect Annotations {
   eq SynDecl.supportedAnnotation(Annotation a) = true;
 
   syn boolean CollDecl.supportedAnnotation(Annotation a) {
-    // TODO: document these annotations!
+    // TODO(joqvist): document these annotations!
     return a.isAnnotation("@OnePhase")
         || a.isAnnotation("@LazyCondition")
         || a.isAnnotation("@Circular")
@@ -106,5 +106,4 @@ aspect Annotations {
   syn String OptionalComponent.annotations() = "";
 
   syn String TokenComponent.annotations() = "";
-
 }

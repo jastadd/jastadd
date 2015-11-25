@@ -70,7 +70,7 @@ AttrDecl.circularCollectionEval [[
     if (!state.IN_CIRCLE) {
       state.IN_CIRCLE = true;
       #addAddToComponent
-      #cacheInitRewrite
+      $include(AttrDecl.cacheInitRewrite)
       state.CIRCLE_INDEX = 1;
       do {
         #(signature)_visited = state.CIRCLE_INDEX;

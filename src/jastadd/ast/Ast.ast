@@ -84,9 +84,9 @@ IdDecl ::= <ID:String>;
 TokenId ::= <ID:String> <TYPE:String>;
 
 /**
-  * Used to represent synthesized NTA components.
-  *
-  * <p>Synthesized NTAs are mostly not treated as components, but we need to know
-  * about them when checking for missing inherited equations.
-  */
+ * Used to represent synthesized NTA components.
+ *
+ * <p>Synthesized NTAs are mostly not treated as components, but we need to know
+ * about them when checking for missing inherited equations.
+ */
 SynthesizedNta ::= <Name:String> <Type:String>;
