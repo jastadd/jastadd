@@ -25,7 +25,29 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AttrDecl.emitVisitedDeclarations = [[
-  /** @apilevel internal */
-  protected $Type #(signature)_visited$Init;
+AttrDecl.visitedDeclaration [[
+$if(#isCircular)
+  $if(!#isParameterized)
+/** @apilevel internal */
+protected int #(signature)_visited = -1;
+  $endif
+$else
+  $if(RewriteEnabled)
+    $if(#isParameterized)
+/** @apilevel internal */
+protected $DefaultMapType #(signature)_visited$if(LazyMaps) = $CreateDefaultMap$endif;
+    $else
+/** @apilevel internal */
+protected int #(signature)_visited = -1;
+    $endif
+  $else
+    $if(#isParameterized)
+/** @apilevel internal */
+protected $DefaultSetType #(signature)_visited$if(LazyMaps) = $CreateDefaultSet$endif;
+    $else
+/** @apilevel internal */
+protected boolean #(signature)_visited = false;
+    $endif
+  $endif
+$endif
 ]]

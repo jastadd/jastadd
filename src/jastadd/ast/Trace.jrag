@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2013,
+/* Copyright (c) 2010-2015,
  * Torbjörn Ekman
  * Emma Söderberg <emma.soderberg@cs.lth.se>
  * All rights reserved.
@@ -43,16 +43,19 @@ aspect Trace {
     StringBuilder b = new StringBuilder();
     b.append(getAspectName());
     b.append(": ");
-    if (this instanceof SynDecl)
+    if (this instanceof SynDecl) {
       b.append("syn ");
-    if (this instanceof InhDecl)
+    } else if (this instanceof InhDecl) {
       b.append("inh ");
-    if (this instanceof CollDecl)
+    } else if (this instanceof CollDecl) {
       b.append("coll ");
-    if (isLazy())
+    }
+    if (isLazy()) {
       b.append("lazy ");
-    if (isCircular())
+    }
+    if (isCircular()) {
       b.append(" circular");
+    }
 
     b.append(getType());
     b.append(" ");
@@ -61,8 +64,9 @@ aspect Trace {
     b.append(name());
     b.append("(");
     for (int i = 0; i < getNumParameter(); i++) {
-      if (i != 0)
+      if (i != 0) {
         b.append(", ");
+      }
       b.append(getParameter(i).getType());
       b.append(" ");
       b.append(getParameter(i).getName());
@@ -76,10 +80,11 @@ aspect Trace {
       b.append(", ");
       b.append(name);
       b.append(" = ");
-      if (isPrimitive(type) || type.equals("String") || type.equals("java.lang.String"))
+      if (isPrimitiveType(type) || type.equals("String") || type.equals("java.lang.String")) {
         b.append("\" + " + name + " + \"");
-      else
+      } else {
         b.append("\" + " + name + ".getClass().getName() + \"@\" + Integer.toHexString(" + name + ".hashCode()) + \"");
+      }
     }
     return b.toString();
   }

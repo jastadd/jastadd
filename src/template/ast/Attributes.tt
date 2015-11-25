@@ -634,7 +634,7 @@ if (#cacheStoreCondition) {
   $include(AttrDecl.incHookAttrCompAfterStore)
 }
   $endif
-#cacheRestore
+state.INTERMEDIATE_VALUE |= intermediate;
 $endif
 ]]
 
