@@ -41,11 +41,25 @@ public static class Trace {
   /**
    * Interface used to process collected trace objects.
    *
-   * Use it together with the method $StateClass.Trace.process($StateClass.Trace.Processor).
+   * <p>Use it together with the method $StateClass.Trace.process($StateClass.Trace.Processor).
    */
   public interface Processor {
     public void process($StateClass.Trace.Entry e);
   }
+
+  /** Prints trace events to an output stream. */
+  public static class PrintProcessor implements Processor {
+    private final java.io.PrintStream out;
+
+    public PrintProcessor(java.io.PrintStream outStream) {
+      this.out = outStream;
+    }
+
+    @Override
+    public void process($StateClass.Trace.Entry e) {
+      out.println(e);
+    }
+  };
 
   /**
    * Trace entries collected during attribute evaluation.
