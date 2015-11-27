@@ -330,7 +330,7 @@ aspect JragCodeGen {
     if (!config().rewriteEnabled() || getFinal()) {
       return "true";
     } else {
-      return "isFinal && num == state().boundariesCrossed";
+      return "isFinal && _boundaries == state().boundariesCrossed";
     }
     /* END INCORRECT legacy cache store condition */
 
@@ -362,9 +362,9 @@ aspect JragCodeGen {
     if (config().rewriteEnabled() && !config().rewriteCircularNTA()) {
       // TODO: Should final on attributes be allowed?
       if (getFinal()) {
-        return "(num == state().boundariesCrossed)";
+        return "(_boundaries == state().boundariesCrossed)";
       }
-      return "(isFinal && num == state().boundariesCrossed)";
+      return "(isFinal && _boundaries == state().boundariesCrossed)";
     } else {
       return "";
     }

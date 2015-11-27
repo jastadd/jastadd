@@ -402,7 +402,7 @@ state.INTERMEDIATE_VALUE = false;
 
 AttrDecl.cacheInitRewrite [[
 $if(RewriteEnabled)
-int num = state.boundariesCrossed;
+int _boundaries = state.boundariesCrossed;
 boolean isFinal = this.is$$Final();
 $endif
 ]]

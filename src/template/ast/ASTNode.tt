@@ -455,7 +455,7 @@ $if(RewriteEnabled)
       $include(ASTNode.flushHookRewriteEnterCircle)
       $include(ASTNode.incHookGetChild1)
       int rewriteState;
-      int num = state().boundariesCrossed;
+      int _boundaries = state().boundariesCrossed;
       do {
         state().push($StateClass.REWRITE_CHANGE);
         $ASTNode oldNode = node;
@@ -479,7 +479,7 @@ $if(RewriteEnabled)
   $else
         node.is$$Final(true);
   $endif
-        state().boundariesCrossed = num;
+        state().boundariesCrossed = _boundaries;
   $if(HasRewriteLimit)
         node.debugRewriteRemove();
   $endif
