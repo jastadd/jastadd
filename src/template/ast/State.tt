@@ -28,94 +28,168 @@
 ASTNode$State = [[
 /** @apilevel internal */
 public class $StateClass {
-  $if(CacheCycle)
   /** @apilevel internal */
-  public boolean LAST_CYCLE = false;
-  $endif
-
-  /** @apilevel internal */
-  public boolean INTERMEDIATE_VALUE = false;
-
-  /** @apilevel internal */
-  public boolean IN_CIRCLE = false;
-
-  /** @apilevel internal */
-  public int CIRCLE_INDEX = 1;
-
-  /** @apilevel internal */
-  public boolean CHANGE = false;
-
-  /** @apilevel internal */
-  public boolean RESET_CYCLE = false;
-
-  /** @apilevel internal */
-  static public class CircularValue {
+  protected static class CircularValue {
     Object value;
-    int visited = -1;
+    Cycle cycle;
   }
-  $if(ComponentCheck)
-  public $DefaultSetType circularEvalSet = $CreateDefaultSet;
 
-  public java.util.Stack circularEvalStack = new java.util.Stack();
+  /**
+   * Instances of this class are used to uniquely identify circular evaluation cycles.
+   * @apilevel internal
+   */
+  protected static class Cycle {
+  }
+
+  /**
+   * Tracks the state of the current circular evaluation. This class defines a
+   * stack structure where the next element on the stack is pointed to by the
+   * {@code next} field.
+   * @apilevel internal
+   */
+  protected static class CircleState {
+    final CircleState next;
+    boolean inCircle = false;
+    boolean resetCycle = false;
+    boolean change = false;
+
+    /** Evaluation depth of lazy attributes. */
+    int lazyAttribute = 0;
+
+$if(CacheCycle)
+    boolean lastCycle = false;
+
+$endif
+$if(ComponentCheck)
+    boolean completed = false; // Whether the circular evaluation has completed.
+
+$endif
+    Cycle cycle = null;
+
+    protected CircleState(CircleState next) {
+      this.next = next;
+    }
+  }
+
+  /**
+   * Current circular state.
+   * @apilevel internal
+   */
+  private CircleState circle = new CircleState(null);
 
   /** @apilevel internal */
-  static class CircularEvalEntry {
-    $ASTNode node;
-    String attrName;
-    Object parameters;
-
-    public CircularEvalEntry($ASTNode node, String attrName, Object parameters) {
-      this.node = node;
-      this.attrName = attrName;
-      this.parameters = parameters;
-    }
-
-    public boolean equals(Object rhs) {
-      CircularEvalEntry s = (CircularEvalEntry) rhs;
-      if (parameters == null && s.parameters == null)
-        return node == s.node && attrName.equals(s.attrName);
-      else if (parameters != null && s.parameters != null)
-        return node == s.node && attrName.equals(s.attrName) && parameters.equals(s.parameters);
-      else
-        return false;
-    }
-
-    public int hashCode() {
-      return node.hashCode();
-    }
-  }
-
-  public void addEvalEntry($ASTNode node, String attrName, Object parameters) {
-    circularEvalSet.add(new CircularEvalEntry(node,attrName,parameters));
-  }
-
-  public boolean containsEvalEntry($ASTNode node, String attrName, Object parameters) {
-    return circularEvalSet.contains(new CircularEvalEntry(node,attrName,parameters));
+  protected boolean inCircle() {
+    return circle.inCircle;
   }
 
   /** @apilevel internal */
-  static class CircularStackEntry {
-    $DefaultSetType circularEvalSet;
-    boolean changeValue;
+  protected boolean calledByLazyAttribute() {
+    return circle.lazyAttribute > 0;
+  }
 
-    public CircularStackEntry($DefaultSetType set, boolean change) {
-      circularEvalSet = set;
-      changeValue = change;
+  /** @apilevel internal */
+  protected void enterLazyAttribute() {
+    circle.lazyAttribute += 1;
+  }
+
+  /** @apilevel internal */
+  protected void leaveLazyAttribute() {
+    circle.lazyAttribute -= 1;
+  }
+
+  /** @apilevel internal */
+  protected void enterCircle() {
+    CircleState next = new CircleState(circle);
+    next.inCircle = true;
+    circle = next;
+  }
+
+  /** @apilevel internal */
+  protected void leaveCircle() {
+$if(ComponentCheck)
+    circle.completed = true;
+$endif
+    circle = circle.next;
+  }
+
+  /** @apilevel internal */
+  protected Cycle nextCycle() {
+    Cycle cycle = new Cycle();
+    circle.cycle = cycle;
+    return cycle;
+  }
+
+  /** @apilevel internal */
+  protected Cycle cycle() {
+    return circle.cycle;
+  }
+
+  /** @apilevel internal */
+  protected CircleState currentCircle() {
+    return circle;
+  }
+
+$if(ComponentCheck)
+  /**
+   * Throws a RuntimeException if called on a different circular evaluation
+   * than the given circle state.
+   * @apilevel internal
+   */
+  protected void assertSameCircle(CircleState prev, String attribute) {
+    if (prev != null && !prev.completed && prev != currentCircle()) {
+      throw new RuntimeException(String.format("Circular definition of attribute %s.", attribute));
     }
   }
+$endif
 
-  public void pushEvalStack() {
-    circularEvalStack.push(new CircularStackEntry(circularEvalSet, CHANGE));
-    circularEvalSet = $CreateDefaultSet;
-    CHANGE = false;
+  /** @apilevel internal */
+  protected void setChangeInCycle() {
+    circle.change = true;
   }
 
-  public void popEvalStack() {
-    CircularStackEntry c = (CircularStackEntry) circularEvalStack.pop();
-    circularEvalSet = c.circularEvalSet;
-    CHANGE = c.changeValue;
+  /** @apilevel internal */
+  protected boolean testAndClearChangeInCycle() {
+    boolean change = circle.change;
+    circle.change = false;
+    return change;
   }
-  $endif
+
+  /** @apilevel internal */
+  protected boolean changeInCycle() {
+    return circle.change;
+  }
+
+$if(CacheCycle)
+  /** @apilevel internal */
+  protected boolean lastCycle() {
+    return circle.lastCycle;
+  }
+
+  /** @apilevel internal */
+  protected void startLastCycle() {
+    circle.lastCycle = true;
+  }
+$endif
+
+  /** @apilevel internal */
+  protected void startResetCycle() {
+    circle.resetCycle = true;
+  }
+
+  /** @apilevel internal */
+  protected boolean resetCycle() {
+    return circle.resetCycle;
+  }
+
+  protected $StateClass() {
+$if(ComponentCheck)
+    circle.completed = true;
+$endif
+$if(RewriteEnabled)
+    stack = new int[64];
+    pos = 0;
+$endif
+  }
 $if(RewriteEnabled)
   $if(HasRewriteLimit)
   /** @apilevel internal */
@@ -137,11 +211,6 @@ $if(RewriteEnabled)
   private int[] stack;
 
   private int pos;
-
-  public $StateClass() {
-    stack = new int[64];
-    pos = 0;
-  }
 
   private void ensureSize(int size) {
     if (size < stack.length)
@@ -186,16 +255,6 @@ ASTNode$State.reset = [[
   /** @apilevel internal */
   public void $StateClass.reset() {
     $SynchBegin
-    IN_CIRCLE = false;
-    CIRCLE_INDEX = 1;
-    CHANGE = false;
-  $if(CacheCycle)
-    LAST_CYCLE = false;
-  $endif
-  $if(ComponentCheck)
-    circularEvalSet = $CreateDefaultSet;
-    circularEvalStack = new java.util.Stack();
-  $endif
 $if(RewriteEnabled)
     boundariesCrossed = 0;
   $if(HasRewriteLimit)

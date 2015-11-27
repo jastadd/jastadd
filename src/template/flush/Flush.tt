@@ -178,7 +178,7 @@ $endif
 AttrDecl.resetAttrVisit = [[
 $if(#isCircular)
  $if(!#isParameterized)
-#(signature)_visited = -1;
+#(signature)_cycle = null;
  $endif
 $else
  $if(VisitCheckEnabled)

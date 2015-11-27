@@ -37,7 +37,7 @@ ASTDecl.emitRewrites.touch_list = [[
       }
       list$$touched = false;
 $if(RewriteCircularNTA)
-      if (state().CHANGE) {
+      if (state().changeInCycle()) {
         return this;
       }
 $else

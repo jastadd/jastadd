@@ -178,13 +178,15 @@ public class Configuration {
       .templateVariable("TraceVisitCheck");
 
   Option<Boolean> cacheCycleOption = new BooleanOption("cacheCycle",
-      "enable cache cycle optimization for circular attributes")
+      "Circular attributes run one last cycle to cache all\n"
+      + "attributes on the cycle.")
       .defaultValue(true)
       .templateVariable("CacheCycle")
       .nonStandard();
 
   Option<Boolean> componentCheckOption = new BooleanOption("componentCheck",
-      "strongly connected component checking for circular attributes")
+      "Throw an exception if mutually circular attributes separated\n"
+      + "by non-circular attribute is detected.")
       .templateVariable("ComponentCheck");
 
   // TODO(jesper): make this deprecated.
@@ -922,8 +924,12 @@ public class Configuration {
    */
   public String astNodeSuperType() {
     if (ASTNodeSuperOption.value().isEmpty()) {
-      if (beaverOption.value()) return "beaver.Symbol";
-      if (jjtree()) return "SimpleNode";
+      if (beaverOption.value()) {
+        return "beaver.Symbol";
+      }
+      if (jjtree()) {
+        return "SimpleNode";
+      }
       return "";
     }
     return ASTNodeSuperOption.value();
@@ -935,17 +941,13 @@ public class Configuration {
   public String indent() {
     String arg = indentOption.value();
     if (arg.equals("2space")) {
-      // Use 2 spaces for indentation.
-      return "  ";
+      return "  "; // Use 2 spaces for indentation.
     } else if (arg.equals("4space")) {
-      // Use 4 spaces for indentation.
-      return "    ";
+      return "    "; // Use 4 spaces for indentation.
     } else if (arg.equals("8space")) {
-      // Use 8 spaces for indentation.
-      return "        ";
+      return "        "; // Use 8 spaces for indentation.
     } else if (arg.equals("tab")) {
-      // Use tabs for indentation.
-      return "\t";
+      return "\t"; // Use tabs for indentation.
     }
     return "  ";
   }
@@ -990,7 +992,7 @@ public class Configuration {
     if (visitCheckOption.isMatched()) {
       return visitCheckOption.value();
     }
-    // fallback on deprecated option
+    // Fall back on deprecated option.
     return !noVisitCheckOption.value();
   }
 
@@ -999,7 +1001,7 @@ public class Configuration {
    */
   public boolean cacheAll() {
     return cacheOption.hasValue("all") ||
-        // cache analysis requires full caching and tracing of cache usage
+        // Cache analysis requires full caching and tracing of cache usage.
         cacheAnalyzeEnabled();
   }
 
@@ -1068,7 +1070,7 @@ public class Configuration {
    */
   public boolean incrementalChangeFlush() {
     return incrementalOption.hasValue("flush") ||
-        // no chosen strategy means default -- "flush"
+        // No chosen strategy means default -- "flush".
         !incrementalChangeMark();
   }
 
@@ -1133,7 +1135,7 @@ public class Configuration {
     if (refineLegacyOption.isMatched()) {
       return refineLegacyOption.value();
     }
-    // fallback on deprecated option
+    // Fall back on deprecated option.
     return !noRefineLegacyOption.value();
   }
 
@@ -1280,7 +1282,7 @@ public class Configuration {
     if (cacheCycleOption.isMatched()) {
       return cacheCycleOption.value();
     }
-    // fallback on deprecated option
+    // Fall back on deprecated option.
     return !noCacheCycleOption.value();
   }
 
@@ -1291,7 +1293,7 @@ public class Configuration {
     if (staticStateOption.isMatched()) {
       return staticStateOption.value();
     }
-    // fallback on deprecated option
+    // Fall back on deprecated option.
     return !noStaticOption.value();
   }
 

@@ -254,7 +254,7 @@ ASTNode.setParent = [[
     $include(ASTNode.incHookSetParent)
     parent = node;
 $if(RewriteCircularNTA)
-    if (state().IN_CIRCLE) {
+    if (state().inCircle()) {
       flushTreeCache();
     }
 $endif

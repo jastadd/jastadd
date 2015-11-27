@@ -230,8 +230,15 @@ aspect JragCodeGen {
   }
 
   public void AttrDecl.emitVisitedDeclarations(PrintStream out) {
-    if (config().visitCheckEnabled() || isCircular()) {
-      templateContext().expand("AttrDecl.visitedDeclaration", out);
+    if (isCircular()) {
+      templateContext().expand("AttrDecl.cycleDeclaration", out);
+    } else {
+      if (config().visitCheckEnabled()) {
+        templateContext().expand("AttrDecl.visitedDeclaration", out);
+      }
+      if (config().componentCheck()) {
+        templateContext().expand("AttrDecl.componentCheckDeclaration", out);
+      }
     }
   }
 
@@ -317,7 +324,7 @@ aspect JragCodeGen {
    * Generate the state variable if needed.
    */
   public String AttrDecl.lazyState() {
-    if (config().componentCheck() || isLazy()) {
+    if (isLazy()) {
       return config().stateClassName() + " state = state();";
     } else {
       return "";
@@ -478,9 +485,9 @@ aspect JragCodeGen {
       }
       emitAttrEquation(out, equ.parametersDecl());
     } else if (equ.canInlineBlock(this)) {
-      if (!declaredNTA() &&
-          !config().componentCheck() && !config().traceCompute() &&
-          !config().visitCheckEnabled()) {
+      if (!declaredNTA() && !config().traceCompute()
+          && !config().visitCheckEnabled()
+          && !config().componentCheck()) {
         emitInlineComputeWithoutTry(out, equ);
       } else {
         emitInlineComputeWithTry(out, equ);
@@ -528,46 +535,6 @@ aspect JragCodeGen {
   }
 
   syn boolean AttrDecl.isParameterized() = getNumParameter() != 0;
-
-  public String AttrDecl.addComponentCheck() {
-    if (!config().componentCheck() || !config().visitCheckEnabled()) {
-      return "";
-    }
-    String arg = getNumParameter() == 0 ? "null" : "_parameters";
-    String ind = config().indent;
-    if (getNumParameter() == 0) {
-      if (config().rewriteEnabled()) {
-        return
-          "if (" + signature() + "_visited == state.boundariesCrossed && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
-          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-      } else {
-        return
-          "if (" + signature() + "_visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", null))\n" +
-          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-      }
-    } else {
-      if (config().rewriteEnabled()) {
-        return
-          "if (Integer.valueOf(state.boundariesCrossed).equals(_value.visited) && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
-          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-      } else {
-        return
-          "if (_value.visited != -1 && !state.containsEvalEntry(this, \"" + signature() + "\", _parameters))\n" +
-          ind + "throw new java.lang.RuntimeException(\"XXX\");\n";
-      }
-    }
-  }
-
-  public String AttrDecl.addAddToComponent() {
-    if (!config().componentCheck() || !config().visitCheckEnabled()) {
-      return "";
-    }
-    if (getNumParameter() == 0) {
-      return "state.addEvalEntry(this, \"" + signature() + "\", null);\n";
-    } else {
-      return "state.addEvalEntry(this, \"" + signature() + "\", _parameters);\n";
-    }
-  }
 
   /**
    * Generate code to test if two attribute values differ based on the type of the attribute.

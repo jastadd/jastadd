@@ -25,29 +25,29 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+AttrDecl.cycleDeclaration [[
+$if(!#isParameterized)
+/** @apilevel internal */
+protected $StateClass.Cycle #(signature)_cycle = null;
+$endif
+]]
+
 AttrDecl.visitedDeclaration [[
-$if(#isCircular)
-  $if(!#isParameterized)
+$if(RewriteEnabled)
+  $if(#isParameterized)
+/** @apilevel internal */
+protected $DefaultMapType #(signature)_visited$if(LazyMaps) = $CreateDefaultMap$endif;
+  $else
 /** @apilevel internal */
 protected int #(signature)_visited = -1;
   $endif
 $else
-  $if(RewriteEnabled)
-    $if(#isParameterized)
-/** @apilevel internal */
-protected $DefaultMapType #(signature)_visited$if(LazyMaps) = $CreateDefaultMap$endif;
-    $else
-/** @apilevel internal */
-protected int #(signature)_visited = -1;
-    $endif
-  $else
-    $if(#isParameterized)
+  $if(#isParameterized)
 /** @apilevel internal */
 protected $DefaultSetType #(signature)_visited$if(LazyMaps) = $CreateDefaultSet$endif;
-    $else
+  $else
 /** @apilevel internal */
 protected boolean #(signature)_visited = false;
-    $endif
   $endif
 $endif
 ]]
@@ -59,7 +59,6 @@ AttrDecl.circularEquation:unparameterized [[
     $SynchBegin
     $include(AttrDecl.cacheCheck)
     $StateClass state = state();
-    #addComponentCheck
     if (!#(signature)_initialized) {
 $if(#isCollection)
       $ASTNode _node = this;
@@ -71,7 +70,6 @@ $if(#isCollection)
       if (root.collecting_contributors_#collectionId) {
         throw new RuntimeException("Circularity during survey phase");
       }
-      #addComponentCheck
       root.survey_#collectionId();
 $endif
       #(signature)_initialized = true;
@@ -82,15 +80,13 @@ $if(#getNTA)
       }
 $endif
     }
-    if (!state.IN_CIRCLE) {
+    if (!state.inCircle() || state.calledByLazyAttribute()) {
       $include(AttrDecl.traceCircularEnterCase1)
-      state.IN_CIRCLE = true;
+      state.enterCircle();
       #tracePrintCycleBeginString
-      #addAddToComponent
       $include(AttrDecl.cacheInitRewrite)
       do {
-        #(signature)_visited = state.CIRCLE_INDEX;
-        state.CHANGE = false;
+        #(signature)_cycle = state.nextCycle();
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceComputeBegin)
@@ -98,7 +94,7 @@ $endif
         $include(AttrDecl.traceComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($ChangeCondition) {
-          state.CHANGE = true;
+          state.setChangeInCycle();
           $include(AttrDecl.traceCircularCase1Change)
         }
         #(signature)_value = new_#(signature)_value;
@@ -107,31 +103,29 @@ $if(#getNTA)
           #(signature)_value.setParent(this);
         }
 $endif
-        state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
         #cycleLimitCheck
-      } while (state.CHANGE);
+      } while (state.testAndClearChangeInCycle());
       if (#cacheStoreCondition) {
         #(signature)_computed = true;
-        $include(cacheCycleInit)
+        $include(AttrDecl.cacheCycleInit)
         $include(AttrDecl.traceCacheStore)
       } else {
-        $include(resetCycleInit)
+        state.startResetCycle();
+        #getType $$tmp = $CircularComputeRhs;
         #(signature)_computed = false;
         #(signature)_initialized = false;
         $include(AttrDecl.traceCacheAbort)
       }
-      state.IN_CIRCLE = false;
+      state.leaveCircle();
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
-      state.INTERMEDIATE_VALUE = false;
       $include(AttrDecl.traceCircularExitCase1)
-    } else if (#(signature)_visited != state.CIRCLE_INDEX) {
+    } else if (#(signature)_cycle != state.cycle()) {
       $include(AttrDecl.traceCircularEnterCase2)
-      #(signature)_visited = state.CIRCLE_INDEX;
+      #(signature)_cycle = state.cycle();
       $include(AttrDecl.cacheCycleCheck)
       $include(AttrDecl.resetCycleCheck)
-      #addAddToComponent
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceComputeBegin)
@@ -139,7 +133,7 @@ $endif
       $include(AttrDecl.traceComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($ChangeCondition) {
-        state.CHANGE = true;
+        state.setChangeInCycle();
         $include(AttrDecl.traceCircularCase2Change)
       }
       #(signature)_value = new_#(signature)_value;
@@ -149,11 +143,9 @@ $if(#getNTA)
       }
 $endif
       $TracePrintReturnNewValue
-      state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceCircularExitCase2)
     } else {
       $TracePrintReturnPreviousValue
-      state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceCircularExitCase3)
     }
     $include(AttrDecl.returnStmt)
@@ -191,20 +183,17 @@ $if(#getNTA)
 $endif
     }
     $StateClass state = state();
-    #addComponentCheck
-    if (!state.IN_CIRCLE) {
+    if (!state.inCircle() || state.calledByLazyAttribute()) {
       $include(AttrDecl.traceCircularEnterCase1)
-      state.IN_CIRCLE = true;
+      state.enterCircle();
 $if(#isRewriteCircularNtaAttr)
       int rewriteState;
 $endif
       #tracePrintCycleBeginString
       $include(AttrDecl.cacheInitRewrite)
-      #addAddToComponent
       #getType new_#(signature)_value;
       do {
-        _value.visited = state.CIRCLE_INDEX;
-        state.CHANGE = false;
+        _value.cycle = state.nextCycle();
         #tracePrintBeginComputingValue
 $if(#isRewriteCircularNtaAttr)
         state.push($StateClass.REWRITE_CHANGE);
@@ -218,7 +207,7 @@ $if(#isRewriteCircularNtaAttr)
         rewriteState = state.pop();
 $endif
         if ($ChangeCondition) {
-          state.CHANGE = true;
+          state.setChangeInCycle();
           $include(AttrDecl.traceCircularCase1Change)
           _value.value = new_#(signature)_value;
 $if(#getNTA)
@@ -238,27 +227,26 @@ $if(#getNTA)
  $endif
 $endif
         }
-        state.CIRCLE_INDEX++;
         #tracePrintStartingCycle
         #cycleLimitCheck
-      } while (state.CHANGE);
+      } while (state.testAndClearChangeInCycle());
       if (#cacheStoreCondition) {
         #(signature)_values.put(_parameters, new_#(signature)_value);
-        $include(cacheCycleInit)
+        $include(AttrDecl.cacheCycleInit)
         $include(AttrDecl.traceCacheStore)
       } else {
         #(signature)_values.remove(_parameters);
-        $include(resetCycleInit)
+        state.startResetCycle();
+        #getType $$tmp = $CircularComputeRhs;
         $include(AttrDecl.traceCacheAbort)
       }
-      state.IN_CIRCLE = false;
+      state.leaveCircle();
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
-      state.INTERMEDIATE_VALUE = false;
       $include(AttrDecl.traceCircularExitCase1)
       return new_#(signature)_value;
-    } else if (state.CIRCLE_INDEX != _value.visited) {
-      _value.visited = state.CIRCLE_INDEX;
+    } else if (_value.cycle != state.cycle()) {
+      _value.cycle = state.cycle();
       $include(AttrDecl.traceCircularEnterCase2)
       #tracePrintBeginComputingValue
 $if(#isRewriteCircularNtaAttr)
@@ -275,7 +263,7 @@ $endif
       $include(AttrDecl.cacheCycleCheck)
       $include(AttrDecl.resetCycleCheck)
       else if ($ChangeCondition) {
-        state.CHANGE = true;
+        state.setChangeInCycle();
         $include(AttrDecl.traceCircularCase2Change)
         _value.value = new_#(signature)_value;
 $if(#getNTA)
@@ -296,12 +284,10 @@ $if(#getNTA)
 $endif
       }
       $TracePrintReturnNewValue
-      state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceCircularExitCase2)
       return new_#(signature)_value;
     } else {
       $TracePrintReturnPreviousValue
-      state.INTERMEDIATE_VALUE = true;
       $include(AttrDecl.traceCircularExitCase3)
       return (#boxedType) _value.value;
     }
@@ -309,36 +295,43 @@ $endif
   }
 ]]
 
-resetCycleInit [[
-state.RESET_CYCLE = true;
+AttrDecl.cacheCycleInit [[
+$if(CacheCycle)
+state.startLastCycle();
+ $if(#isRewriteCircularNtaAttr)
+state.push($StateClass.REWRITE_CHANGE);
+ $endif
 #getType $$tmp = $CircularComputeRhs;
-state.RESET_CYCLE = false;
+ $if(#isRewriteCircularNtaAttr)
+state.pop();
+ $endif
+$endif
 ]]
 
 AttrDecl.cacheCycleCheck [[
 $if(CacheCycle)
-if (state.LAST_CYCLE) {
-$if(#isParameterized)
+if (state.lastCycle()) {
+ $if(#isParameterized)
   #(signature)_values.put(_parameters, new_#(signature)_value);
-$else
+ $else
   #(signature)_computed = true;
   $include(AttrDecl.incHookAttrCompStartCircular)
   #getType new_#(signature)_value = $CircularComputeRhs;
   $include(AttrDecl.incHookAttrCompEndCircular)
   return new_#(signature)_value;
-$endif
+ $endif
 }
 $endif
 ]]
 
 AttrDecl.resetCycleCheck [[
-if (state.RESET_CYCLE) {
+if (state.resetCycle()) {
 $if(#isParameterized)
   #(signature)_values.remove(_parameters);
 $else
   #(signature)_computed = false;
   #(signature)_initialized = false;
-  #(signature)_visited = -1;
+  #(signature)_cycle = null;
   $include(AttrDecl.returnStmt)
 $endif
 }

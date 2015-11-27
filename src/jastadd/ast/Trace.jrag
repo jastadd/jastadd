@@ -130,6 +130,9 @@ aspect NewTrace {
     return sb.toString();
   }
 
+  /**
+   * The signature of this attribute, in Java format.
+   */
   syn String AttrDecl.signatureJavaStyle() {
     return getName() + "(" + parameterTypesAsCSV() + ")";
   }
