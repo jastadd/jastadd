@@ -138,9 +138,9 @@ $endif
 
 AttrDecl.visitedException [[
 $if(TraceVisitCheck)
-System.out.println("Circular definition of attr: #name in class: #className");
+System.out.println("Circular definition of attribute #hostClassName.#signatureJavaStyle.");
 $else
-throw new RuntimeException("Circular definition of attr: #name in class: #className");
+throw new RuntimeException("Circular definition of attribute #hostClassName.#signatureJavaStyle.");
 $endif
 ]]
 
