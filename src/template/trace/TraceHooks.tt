@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2015, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ASTNode.emitNodeToStringMethod = [[
+ASTNode.emitNodeToStringMethod [[
 $if (TracingEnabled)
 public static String $ASTNode.nodeToString(Object node) {
   return (node != null ? node.getClass().getSimpleName() : "null");
@@ -33,12 +33,11 @@ public static String $ASTNode.nodeToString(Object node) {
 $endif
 ]]
 
-
-AttrDecl.traceHookAttrComputeBegin = [[
+AttrDecl.traceComputeBegin [[
 $if (TraceCompute)
   $if(#isParameterized)
     $if(#isCircular)
-state().trace().addComputeBegin(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, "");
+state().trace().computeBegin(this, "#hostClassName.#signatureJavaStyle", _parameters, "");
     $else
       $if(!#isLazy)
         $if(!VisitCheckEnabled)
@@ -49,290 +48,290 @@ Object _parameters = java.util.Arrays.asList(#parameters);
           $endif
         $endif
       $endif
-state().trace().addComputeBegin(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, "");
+state().trace().computeBegin(this, "#hostClassName.#signatureJavaStyle", _parameters, "");
     $endif
   $else
-state().trace().addComputeBegin(this, "#(hostClassName).#(signatureJavaStyle)", "", "");
+state().trace().computeBegin(this, "#hostClassName.#signatureJavaStyle", "", "");
   $endif
 $endif
 ]]
 
-AttrDecl.traceHookAttrComputeEnd = [[
+AttrDecl.traceComputeEnd [[
 $if (TraceCompute)
   $if(#isParameterized)
     $if(#isCircular)
-state().trace().addComputeEnd(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
     $else
-state().trace().addComputeEnd(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, #(signature)_value);
+state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
     $endif
   $else
-state().trace().addComputeEnd(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
 $endif
 ]]
 
-AttrDecl.traceHookAttrComputeEndInline = [[
+AttrDecl.traceComputeEndInline [[
 $if (TraceCompute)
   $if(#isParameterized)
-state().trace().addComputeEnd(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, "");
+state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", _parameters, "");
   $else
-state().trace().addComputeEnd(this, "#(hostClassName).#(signatureJavaStyle)", "", "");
+state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", "", "");
   $endif
 $endif
 ]]
 
-AttrDecl.traceHookAttrCacheRead = [[
+AttrDecl.traceCacheRead [[
 $if (TraceCache)
   $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _o);
+state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, _o);
       $else
-state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, #(signature)_values.get(_parameters));
+state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_values.get(_parameters));
       $endif
     $else
-state().trace().addCacheRead(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
   $endif
 $endif
 ]]
 
-AttrDecl.traceHookAttrCached = [[
+AttrDecl.traceCacheStore [[
 $if (TraceCache)
   $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().addCached(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
       $else
-state().trace().addCached(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, #(signature)_value);
+state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
       $endif
     $else
-state().trace().addCached(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
   $endif
 $endif
 ]]
 
-AttrDecl.traceHookAttrCacheAbort = [[
+AttrDecl.traceCacheAbort [[
 $if (TraceCache)
   $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().addCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().cacheAbort(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
       $else
-state().trace().addCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, #(signature)_value);
+state().trace().cacheAbort(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
       $endif
     $else
-state().trace().addCacheAbort(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().cacheAbort(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
   $endif
 $endif
 ]]
 
-AttrDecl.traceHookCircularEnterCase1 = [[
+AttrDecl.traceCircularEnterCase1 [[
 $if (TraceCircular)
  $if(#getNTA)
    $if(#isParameterized)
-state().trace().addEnterCircularNTACase1(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().enterCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().addEnterCircularNTACase1(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().enterCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().addEnterCircularCase1(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().enterCircularCase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().addEnterCircularCase1(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().enterCircularCase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
 ]]
 
-AttrDecl.traceHookCircularCase1Change = [[
+AttrDecl.traceCircularCase1Change [[
 $if (TraceCircular)
  $if(#getNTA)
    $if(#isParameterized)
-state().trace().addCircularNTACase1Change(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, 
+state().trace().circularNTACase1Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
     _value.value + "->" + new_#(signature)_value);
   $else
-state().trace().addCircularNTACase1Change(this, "#(hostClassName).#(signatureJavaStyle)", "", 
+state().trace().circularNTACase1Change(this, "#hostClassName.#signatureJavaStyle", "", 
     #(signature)_value + "->" + new_#(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().addCircularCase1Change(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, 
+state().trace().circularCase1Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
     _value.value + "->" + new_#(signature)_value);
   $else
-state().trace().addCircularCase1Change(this, "#(hostClassName).#(signatureJavaStyle)", "", 
-    #(signature)_value + "->" + new_#(signature)_value);
-  $endif
- $endif
-$endif
-]]
-
-AttrDecl.traceHookCircularExitCase1 = [[
-$if (TraceCircular)
- $if(#getNTA)
-  $if(#isParameterized)
-state().trace().addExitCircularNTACase1(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
-  $else
-state().trace().addExitCircularNTACase1(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
-  $endif
- $else
-  $if(#isParameterized)
-state().trace().addExitCircularCase1(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
-  $else
-state().trace().addExitCircularCase1(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
-  $endif
- $endif
-$endif
-]]
-
-AttrDecl.traceHookCircularEnterCase2 = [[
-$if (TraceCircular)
- $if(#getNTA)
-  $if(#isParameterized)
-state().trace().addEnterCircularNTACase2(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
-  $else
-state().trace().addEnterCircularNTACase2(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
-  $endif
- $else
-  $if(#isParameterized)
-state().trace().addEnterCircularCase2(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
-  $else
-state().trace().addEnterCircularCase2(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
-  $endif
- $endif
-$endif
-]]
-
-AttrDecl.traceHookCircularCase2Change = [[
-$if (TraceCircular)
- $if(#getNTA)
-  $if(#isParameterized)
-state().trace().addCircularNTACase2Change(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, 
-    _value.value + "->" + new_#(signature)_value);
-  $else
-state().trace().addCircularNTACase2Change(this, "#(hostClassName).#(signatureJavaStyle)", "", 
-    #(signature)_value + "->" + new_#(signature)_value);
-  $endif
- $else
-  $if(#isParameterized)
-state().trace().addCircularCase2Change(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, 
-    _value.value + "->" + new_#(signature)_value);
-  $else
-state().trace().addCircularCase2Change(this, "#(hostClassName).#(signatureJavaStyle)", "", 
+state().trace().circularCase1Change(this, "#hostClassName.#signatureJavaStyle", "", 
     #(signature)_value + "->" + new_#(signature)_value);
   $endif
  $endif
 $endif
 ]]
 
-AttrDecl.traceHookCircularExitCase2 = [[
+AttrDecl.traceCircularExitCase1 [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().addExitCircularNTACase2(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().exitCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().addExitCircularNTACase2(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().exitCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().addExitCircularCase2(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().exitCircularCase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().addExitCircularCase2(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().exitCircularCase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
 ]]
 
-AttrDecl.traceHookCircularExitCase3 = [[
+AttrDecl.traceCircularEnterCase2 [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().addExitCircularNTACase3(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().enterCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().addExitCircularNTACase3(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().enterCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().addExitCircularCase3(this, "#(hostClassName).#(signatureJavaStyle)", _parameters, _value.value);
+state().trace().enterCircularCase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().addExitCircularCase3(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().enterCircularCase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
 ]]
 
-ASTNode.traceHookRewriteEnterCase1 = [[
+AttrDecl.traceCircularCase2Change [[
+$if (TraceCircular)
+ $if(#getNTA)
+  $if(#isParameterized)
+state().trace().circularNTACase2Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
+    _value.value + "->" + new_#(signature)_value);
+  $else
+state().trace().circularNTACase2Change(this, "#hostClassName.#signatureJavaStyle", "", 
+    #(signature)_value + "->" + new_#(signature)_value);
+  $endif
+ $else
+  $if(#isParameterized)
+state().trace().circularCase2Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
+    _value.value + "->" + new_#(signature)_value);
+  $else
+state().trace().circularCase2Change(this, "#hostClassName.#signatureJavaStyle", "", 
+    #(signature)_value + "->" + new_#(signature)_value);
+  $endif
+ $endif
+$endif
+]]
+
+AttrDecl.traceCircularExitCase2 [[
+$if (TraceCircular)
+ $if(#getNTA)
+  $if(#isParameterized)
+state().trace().exitCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+  $else
+state().trace().exitCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+  $endif
+ $else
+  $if(#isParameterized)
+state().trace().exitCircularCase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+  $else
+state().trace().exitCircularCase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+  $endif
+ $endif
+$endif
+]]
+
+AttrDecl.traceCircularExitCase3 [[
+$if (TraceCircular)
+ $if(#getNTA)
+  $if(#isParameterized)
+state().trace().exitCircularNTACase3(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+  $else
+state().trace().exitCircularNTACase3(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+  $endif
+ $else
+  $if(#isParameterized)
+state().trace().exitCircularCase3(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+  $else
+state().trace().exitCircularCase3(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+  $endif
+ $endif
+$endif
+]]
+
+ASTNode.traceRewriteEnterCase1 [[
 $if (TraceRewrite)
-state().trace().addEnterRewriteCase1(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().enterRewriteCase1(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
-ASTNode.traceHookRewriteChange = [[
+ASTNode.traceRewriteChange [[
 $if (TraceRewrite)
 if (this.state().peek() == $StateClass.REWRITE_CHANGE) {
-  state().trace().addRewriteChange(this, "ASTNode.getChild", i,
+  state().trace().rewriteChange(this, "ASTNode.getChild", i,
       nodeToString(oldNode) + "->" + nodeToString(node));
 }
 $endif
 ]]
 
-ASTNode.traceHookRewriteCached = [[
+ASTNode.traceRewriteCached [[
 $if (TraceRewrite)
-state().trace().addCached(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().cacheWrite(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
-ASTNode.traceHookRewriteCacheAbort = [[
+ASTNode.traceRewriteCacheAbort [[
 $if (TraceRewrite)
-state().trace().addCacheAbort(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().cacheAbort(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
-ASTNode.traceHookRewriteExitCase1 = [[
+ASTNode.traceRewriteExitCase1 [[
 $if (TraceRewrite)
-state().trace().addExitRewriteCase1(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().exitRewriteCase1(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
-ASTNode.traceHookRewriteExitCase2 = [[
+ASTNode.traceRewriteExitCase2 [[
 $if (TraceRewrite)
-state().trace().addExitRewriteCase2(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().exitRewriteCase2(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
-ASTNode.traceHookRewriteExitCase3 = [[
+ASTNode.traceRewriteExitCase3 [[
 $if (TraceRewrite)
-state().trace().addExitRewriteCase3(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().exitRewriteCase3(this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
-ASTDecl.traceHookCopyNode = [[
+ASTDecl.traceCopyNode [[
 $if (TraceCopy)
-state().trace().addCopy(this, nodeToString(this));
+state().trace().copyNode(this, nodeToString(this));
 $endif
 ]]
 
-AttrDecl.traceHookFlushAttr = [[
+AttrDecl.traceFlushAttr [[
 $if (TraceFlush)
     $if(#isParameterized)
-state().trace().addFlushAttr(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_values);
+state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_values);
     $else
-state().trace().addFlushAttr(this, "#(hostClassName).#(signatureJavaStyle)", "", #(signature)_value);
+state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
 $endif
 ]]
 
-ASTNode.traceHookFlushRewrite = [[
+ASTNode.traceFlushRewrite [[
 $if (TraceRewrite)
-state().trace().addFlushRewrite(this, "ASTNode.getChild", i, nodeToString(children[i]));
+state().trace().flushRewrite(this, "ASTNode.getChild", i, nodeToString(children[i]));
 $endif
 ]]
 
-ASTNode.traceHookFlushRewriteInit = [[
+ASTNode.traceFlushRewriteInit [[
 $if (TraceRewrite)
-state().trace().addFlushRewriteInit(this, "ASTNode.getChild", i, nodeToString(children[i]));
+state().trace().flushRewriteInit(this, "ASTNode.getChild", i, nodeToString(children[i]));
 $endif
 ]]
 

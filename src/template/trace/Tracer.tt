@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2015, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Code for inner class Trace
-TraceClass = [[
+# Code for the class ASTNodeState.Trace.
+TraceClass [[
 $if(TracingEnabled)
 public static class Trace {
 
@@ -200,6 +200,13 @@ public static class Trace {
 
   private java.util.List<$StateClass.Trace.Entry> list = new java.util.ArrayList<$StateClass.Trace.Entry>();
 
+  /**
+   * Add a trace event for an attribute instance.
+   * @param node The host node.
+   * @param attr The attribute name.
+   * @param params The parameter list.
+   * @param value The current value of the attribute instance.
+   */
   private void add($StateClass.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
     $StateClass.Trace.Entry e = inputFilter.createEntry(evt, node, attr, params, value);
     if (inputFilter.include(e)) {
@@ -213,248 +220,193 @@ public static class Trace {
 
   /**
    * Trace that an attribute instance started its computation.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public void addComputeBegin($ASTNode node, String attr, Object params, Object value) {
+  public void computeBegin($ASTNode node, String attr, Object params, Object value) {
     add(Event.COMPUTE_BEGIN, node, attr, params, value);
   }
 
   /**
    * Trace that an attribute instance ended its computation.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public void addComputeEnd($ASTNode node, String attr, Object params, Object value) {
+  public void computeEnd($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.COMPUTE_END, node, attr, params, value);
   }
 
   /**
    * Trace that the cache of an attribute instances was read.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public void addCacheRead($ASTNode node, String attr, Object params, Object value) {
+  public void cacheRead($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CACHE_READ, node, attr, params, value);
   }
 
   /**
    * Trace that an attribute instance was cached.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public void addCached($ASTNode node, String attr, Object params, Object value) {
+  public void cacheWrite($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CACHED, node, attr, params, value);
   }
+
   /**
    * Trace that the caching of an attribute instance was aborted.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute instance.
    */
-  public void addCacheAbort($ASTNode node, String attr, Object params, Object value) {
+  public void cacheAbort($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CACHE_ABORT, node, attr, params, value);
   }
 
   /**
    * Trace that a rewrite evaluation entered case 1.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public void addEnterRewriteCase1($ASTNode node, String attr, Object params, Object value) {
+  public void enterRewriteCase1($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.REWRITE_CASE1_START, node, attr, params, value);
   }
+
   /**
    * Trace that a rewrite in evaluation case 1 changed value.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the rewrite before and after.
    */
-  public void addRewriteChange($ASTNode node, String attr, Object params, Object value) {
+  public void rewriteChange($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.REWRITE_CASE1_CHANGE, node, attr, params, value);
   }
+
   /**
    * Trace that a rewrite returned from evaluation case 1.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public void addExitRewriteCase1($ASTNode node, String attr, Object params, Object value) {
+  public void exitRewriteCase1($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.REWRITE_CASE1_RETURN, node, attr, params, value);
   }
+
   /**
    * Trace that a rewrite returned from evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public void addExitRewriteCase2($ASTNode node, String attr, Object params, Object value) {
+  public void exitRewriteCase2($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.REWRITE_CASE2_RETURN, node, attr, params, value);
   }
+
   /**
    * Trace that a rewrite returned from evaluation case 3.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the rewrite.
    */
-  public void addExitRewriteCase3($ASTNode node, String attr, Object params, Object value) {
+  public void exitRewriteCase3($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.REWRITE_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance entered evaluation case 1.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public void addEnterCircularCase1($ASTNode node, String attr, Object params, Object value) {
+  public void enterCircularCase1($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE1_START, node, attr, params, value);
   }
+
   /**
    * Trace that a circular attribute instance in evaluation case 1 changed value.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance, before and after.
    */
-  public void addCircularCase1Change($ASTNode node, String attr, Object params, Object value) {
+  public void circularCase1Change($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE1_CHANGE, node, attr, params, value);
   }
+
   /**
    * Trace that a circular attribute instance returned from evaluation case 1.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public void addExitCircularCase1($ASTNode node, String attr, Object params, Object value) {
+  public void exitCircularCase1($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE1_RETURN, node, attr, params, value);
   }
+
   /**
    * Trace that a circular attribute instance entered evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public void addEnterCircularCase2($ASTNode node, String attr, Object params, Object value) {
+  public void enterCircularCase2($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE2_START, node, attr, params, value);
   }
+
   /**
    * Trace that a circular attribute instance in evaluation case 2 changed value.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance, before and after.
    */
-  public void addCircularCase2Change($ASTNode node, String attr, Object params, Object value) {
+  public void circularCase2Change($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE2_CHANGE, node, attr, params, value);
   }
+
   /**
    * Trace that a circular attribute instance returned from evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public void addExitCircularCase2($ASTNode node, String attr, Object params, Object value) {
+  public void exitCircularCase2($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE2_RETURN, node, attr, params, value);
   }
+
   /**
    * Trace that a circular attribute instance returned from evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular attribute instance.
    */
-  public void addExitCircularCase3($ASTNode node, String attr, Object params, Object value) {
+  public void exitCircularCase3($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA entered evaluation case 1.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public void addEnterCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
+  public void enterCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START, node, attr, params, value);
   }
+
   /**
    * Trace that a circular NTA in evaluation case 1 changed value.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA, before and after.
    */
-  public void addCircularNTACase1Change($ASTNode node, String attr, Object params, Object value) {
+  public void circularNTACase1Change($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_CHANGE, node, attr, params, value);
   }
+
   /**
    * Trace that a circular NTA returned from evaluation case 1.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public void addExitCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
+  public void exitCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN, node, attr, params, value);
   }
+
   /**
    * Trace that a circular NTA entered evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public void addEnterCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
+  public void enterCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START, node, attr, params, value);
   }
+
   /**
    * Trace that a circular NTA in evaluation case 2 changed value.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA, before and after.
    */
-  public void addCircularNTACase2Change($ASTNode node, String attr, Object params, Object value) {
+  public void circularNTACase2Change($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_CHANGE, node, attr, params, value);
   }
+
   /**
    * Trace that a circular NTA returned from evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public void addExitCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
+  public void exitCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN, node, attr, params, value);
   }
+
   /**
    * Trace that a circular NTA returned from evaluation case 2.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the circular NTA.
    */
-  public void addExitCircularNTACase3($ASTNode node, String attr, Object params, Object value) {
+  public void exitCircularNTACase3($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.CIRCULAR_NTA_CASE3_RETURN, node, attr, params, value);
   }
 
@@ -463,40 +415,31 @@ public static class Trace {
    * @param node The copied node.
    * @param value The value of the node.
    */
-  public void addCopy($ASTNode node, Object value) {
+  public void copyNode($ASTNode node, Object value) {
     add($StateClass.Trace.Event.COPY_NODE, node, "ASTNode.copy", "", value);
   }
 
   /**
    * Trace that an attribute was flushed.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute.
    */
-  public void addFlushAttr($ASTNode node, String attr, Object params, Object value) {
+  public void flushAttr($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.FLUSH_ATTR, node, attr, params, value);
   }
 
   /**
    * Trace that a rewrite was flushed.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute.
    */
-  public void addFlushRewrite($ASTNode node, String attr, Object params, Object value) {
+  public void flushRewrite($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.FLUSH_REWRITE, node, attr, params, value);
   }
 
   /**
    * Trace that the initial value of an enclosing rewrite was stored for flushing.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
    * @param value The value of the attribute.
    */
-  public void addFlushRewriteInit($ASTNode node, String attr, Object params, Object value) {
+  public void flushRewriteInit($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.FLUSH_REWRITE_INIT, node, attr, params, value);
   }
 

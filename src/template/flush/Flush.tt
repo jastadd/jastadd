@@ -124,7 +124,7 @@ AttrDecl.resetMethod = [[
 $if(FlushAttr)
   /** @apilevel internal */
   private void #(signature)_reset() {
-    $include(AttrDecl.traceHookFlushAttr)
+    $include(AttrDecl.traceFlushAttr)
     $include(AttrDecl.resetAttrCache)
     $include(AttrDecl.resetAttrVisit)
   }

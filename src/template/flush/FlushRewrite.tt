@@ -35,7 +35,7 @@ $if(#isASTNodeDecl)
  $if(FlushRewrite)
     for (int i = 0; i < getNumChildNoTransform(); i++) {
       if (children_computed != null && children_computed[i]) {
-        $include(ASTNode.traceHookFlushRewrite)
+        $include(ASTNode.traceFlushRewrite)
         if (init_children[i] != null) {
           setChild(init_children[i], i);
           init_children[i] = null;

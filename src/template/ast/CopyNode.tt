@@ -32,7 +32,7 @@ ASTDecl.emitCopyNode = [[
   public #copyReturnType #name.copy() {
     $SynchBegin
     try {
-      $include(ASTDecl.traceHookCopyNode)
+      $include(ASTDecl.traceCopyNode)
       #name node = (#name) clone();
       node.parent = null;
       if (children != null) {

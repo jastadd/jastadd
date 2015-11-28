@@ -93,13 +93,13 @@ AttrDecl.emitInlineComputeWithTry = [[
     $include(AttrDecl.checkVisited)
     $include(AttrDecl.setVisited)
     $include(addCheckInterruptedCircle)
-    $include(AttrDecl.traceHookAttrComputeBegin)
+    $include(AttrDecl.traceComputeBegin)
     try $ComputeBody
     finally {
       #higherOrderAttributeCode
       $include(AttrDecl.clearVisited)
       $include(addClearInterruptedCircle)
-      $include(AttrDecl.traceHookAttrComputeEndInline)
+      $include(AttrDecl.traceComputeEndInline)
     }
     $SynchEnd
   }
@@ -119,7 +119,7 @@ AttrDecl.emitInlineComputeWithoutTry = [[
     $include(AttrDecl.checkVisited)
     $include(AttrDecl.setVisited)
     $include(addCheckInterruptedCircle)
-    $include(AttrDecl.traceHookAttrComputeBegin)
+    $include(AttrDecl.traceComputeBegin)
     $ComputeBody
     $SynchEnd
   }
@@ -272,9 +272,9 @@ AttrDecl.emitEquation [[
     $include(AttrDecl.setVisited)
     $include(addCheckInterruptedCircle)
     $include(AttrDecl.cacheInit)
-    $include(AttrDecl.traceHookAttrComputeBegin)
+    $include(AttrDecl.traceComputeBegin)
     #computeLhs = $ComputeRhs;
-    $include(AttrDecl.traceHookAttrComputeEnd)
+    $include(AttrDecl.traceComputeEnd)
     #higherOrderAttributeCode
     $include(AttrDecl.cacheUpdate)
     $include(AttrDecl.clearVisited)
@@ -325,19 +325,19 @@ $include(AttrDecl.incHookAttrRead)
   $if(#isAttrNTA)
     $if(!#isParameterized)
 if (#(signature)_computed) {
-  $include(AttrDecl.traceHookAttrCacheRead)
+  $include(AttrDecl.traceCacheRead)
   return (#boxedType) getChild(#(signature)ChildPosition());
 }
     $else
 if (#(signature)_values.containsKey(_parameters)) {
-  $include(AttrDecl.traceHookAttrCacheRead)
+  $include(AttrDecl.traceCacheRead)
   return (#boxedType) getChild(#(signature)ChildPosition()));
 }
     $endif
   $else
     $if(!#isParameterized)
 if (#(signature)_computed) {
-  $include(AttrDecl.traceHookAttrCacheRead)
+  $include(AttrDecl.traceCacheRead)
   return #(signature)_value;
 }
     $else
@@ -345,7 +345,7 @@ if (#(signature)_computed) {
 if (#(signature)_values.containsKey(_parameters)) {
   Object _o = #(signature)_values.get(_parameters);
   if (!(_o instanceof $StateClass.CircularValue)) {
-    $include(AttrDecl.traceHookAttrCacheRead)
+    $include(AttrDecl.traceCacheRead)
     return (#boxedType) _o;
   } else {
     _value = ($StateClass.CircularValue) _o;
@@ -353,7 +353,7 @@ if (#(signature)_values.containsKey(_parameters)) {
 }
       $else
 if (#(signature)_values.containsKey(_parameters)) {
-  $include(AttrDecl.traceHookAttrCacheRead)
+  $include(AttrDecl.traceCacheRead)
   return (#boxedType) #(signature)_values.get(_parameters);
 }
       $endif
@@ -369,18 +369,18 @@ $if(#isLazy)
 if (#cacheStoreCondition) {
   $include(AttrDecl.incHookAttrCompBeforeStore)
   #(signature)_values.put(_parameters, #(signature)_value);
-  $include(AttrDecl.traceHookAttrCached)
+  $include(AttrDecl.traceCacheStore)
 } else {
-  $include(AttrDecl.traceHookAttrCacheAbort)
+  $include(AttrDecl.traceCacheAbort)
   $include(AttrDecl.incHookAttrCompAfterStore)
 }
   $else
 if (#cacheStoreCondition) {
   $include(AttrDecl.incHookAttrCompBeforeStore)
   #(signature)_computed = true;
-  $include(AttrDecl.traceHookAttrCached)
+  $include(AttrDecl.traceCacheStore)
 } else {
-  $include(AttrDecl.traceHookAttrCacheAbort)
+  $include(AttrDecl.traceCacheAbort)
   $include(AttrDecl.incHookAttrCompAfterStore)
 }
   $endif

@@ -91,7 +91,7 @@ if (!node.getChild_hasEnclosingInitValue()) {
   }
   this.init_children[i] = node.treeCopyNoTransform();
   this.children_computed[i] = true;
-  $include(ASTNode.traceHookFlushRewriteInit)
+  $include(ASTNode.traceFlushRewriteInit)
 }
 $endif
 ]]

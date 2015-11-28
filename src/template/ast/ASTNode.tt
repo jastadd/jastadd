@@ -451,7 +451,7 @@ $if(RewriteEnabled)
       return (T) node;
     }
     if (!node.in$$Circle()) {
-      $include(ASTNode.traceHookRewriteEnterCase1)
+      $include(ASTNode.traceRewriteEnterCase1)
       $include(ASTNode.flushHookRewriteEnterCircle)
       $include(ASTNode.incHookGetChild1)
       int rewriteState;
@@ -462,7 +462,7 @@ $if(RewriteEnabled)
         oldNode.in$$Circle(true);
         $include(ASTNode.incHookGetChild5)
         node = node.rewriteTo();
-        $include(ASTNode.traceHookRewriteChange)
+        $include(ASTNode.traceRewriteChange)
         if (node != oldNode) {
           $include(ASTNode.incHookGetChild7)
           this.setChild(node, i);
@@ -483,17 +483,17 @@ $if(RewriteEnabled)
   $if(HasRewriteLimit)
         node.debugRewriteRemove();
   $endif
-        $include(ASTNode.traceHookRewriteCached)
+        $include(ASTNode.traceRewriteCached)
       } else {
-        $include(ASTNode.traceHookRewriteCacheAbort)
+        $include(ASTNode.traceRewriteCacheAbort)
       }
       $include(ASTNode.incHookGetChild2)
-      $include(ASTNode.traceHookRewriteExitCase1)
+      $include(ASTNode.traceRewriteExitCase1)
     } else if (this.is$$Final() != node.is$$Final()) {
       state().boundariesCrossed++;
-      $include(ASTNode.traceHookRewriteExitCase2)
+      $include(ASTNode.traceRewriteExitCase2)
     } else {
-      $include(ASTNode.traceHookRewriteExitCase3)
+      $include(ASTNode.traceRewriteExitCase3)
     }
     $include(ASTNode.incHookGetChild11)
     $include(ASTNode.incHookGetChild12)
