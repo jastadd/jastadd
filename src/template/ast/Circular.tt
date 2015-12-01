@@ -32,26 +32,6 @@ protected $StateClass.Cycle #(signature)_cycle = null;
 $endif
 ]]
 
-AttrDecl.visitedDeclaration [[
-$if(RewriteEnabled)
-  $if(#isParameterized)
-/** @apilevel internal */
-protected $DefaultMapType #(signature)_visited$if(LazyMaps) = $CreateDefaultMap$endif;
-  $else
-/** @apilevel internal */
-protected int #(signature)_visited = -1;
-  $endif
-$else
-  $if(#isParameterized)
-/** @apilevel internal */
-protected $DefaultSetType #(signature)_visited$if(LazyMaps) = $CreateDefaultSet$endif;
-  $else
-/** @apilevel internal */
-protected boolean #(signature)_visited = false;
-  $endif
-$endif
-]]
-
 AttrDecl.circularEquation:unparameterized [[
   #annotations
   $include(AttrDecl.generatedAnnotations)

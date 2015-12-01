@@ -141,6 +141,26 @@ throw new RuntimeException("Circular definition of attribute #hostClassName.#sig
 $endif
 ]]
 
+AttrDecl.visitedDeclaration [[
+$if(RewriteEnabled)
+  $if(#isParameterized)
+/** @apilevel internal */
+protected $DefaultMapType #(signature)_visited$if(LazyMaps) = $CreateDefaultMap$endif;
+  $else
+/** @apilevel internal */
+protected int #(signature)_visited = -1;
+  $endif
+$else
+  $if(#isParameterized)
+/** @apilevel internal */
+protected $DefaultSetType #(signature)_visited$if(LazyMaps) = $CreateDefaultSet$endif;
+  $else
+/** @apilevel internal */
+protected boolean #(signature)_visited = false;
+  $endif
+$endif
+]]
+
 AttrDecl.checkVisited [[
 $if(VisitCheckEnabled)
   $if(RewriteEnabled)
