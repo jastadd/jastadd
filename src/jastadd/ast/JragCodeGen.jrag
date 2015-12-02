@@ -587,53 +587,32 @@ aspect JragCodeGen {
   }
 
   public void ASTDecl.emitCacheDeclarations(PrintStream out, AttrDecl attr) {
-    boolean needsCacheDeclaration = true;
-    if (attr instanceof SynDecl) {
-      // EMMA_2011-09-13: Setting this to true to get declarations for each
-      // equation of an attribute. If an equation lacks its own visited declaration
-      // and calls an overriden equation it can cause a circularity exception.
-      needsCacheDeclaration = true;
-    }
-    String ind = config().indent;
+    // All equations of an attribute need cache and visited declarations.  If
+    // an equation lacks its own visited declaration and calls an overriden
+    // equation it can cause a circularity exception.
+    attr.emitVisitedDeclarations(out);
     if (!attr.isCircular()) {
-      if (needsCacheDeclaration) {
-        attr.emitVisitedDeclarations(out);
-        attr.emitResetMethod(out);
-        if (attr.isLazy()) {
-          attr.emitCacheDeclarations(out);
-        }
+      attr.emitResetMethod(out);
+      if (attr.isLazy()) {
+        attr.emitCacheDeclarations(out);
       }
+    } else if (attr.getNumParameter() == 0) {
+      // Non-parameterized, circular attribute.
+      attr.emitResetMethod(out);
+      attr.emitCacheDeclarations(out);
     } else {
-      if (attr.getNumParameter() == 0) {
-        // Non-parameterized, circular attribute
-        if (!needsCacheDeclaration && attr instanceof SynDecl
-            && superClass() != null && superClass().lookupSynEq(attr.signature()) != null
-            && !superClass().lookupSynEq(attr.signature()).decl().isCircular()) {
-          needsCacheDeclaration = true;
-        }
-        if (needsCacheDeclaration) {
-          attr.emitVisitedDeclarations(out);
-          attr.emitResetMethod(out);
-          attr.emitCacheDeclarations(out);
-          return;
-        }
+      // Parameterized, circular attribute.
+      attr.emitResetMethod(out);
+      if (attr.declaredNTA()) {
+        attr.emitCacheDeclarations(out);
+      } else if (config().lazyMaps()) {
+        out.format("%sprotected %s %s_values;",
+            config().indent, config().typeDefaultMap(), attr.signature());
+        out.println();
       } else {
-        // Parameterized, circular attribute.
-        if (needsCacheDeclaration) {
-          attr.emitVisitedDeclarations(out);
-          attr.emitResetMethod(out);
-          if (attr.declaredNTA()) {
-            attr.emitCacheDeclarations(out);
-          } else {
-            if (config().lazyMaps()) {
-              out.println(ind + "protected " + config().typeDefaultMap() + " " + attr.signature() + "_values;");
-              return;
-            } else {
-              out.println(ind + "protected " + config().typeDefaultMap() + " " + attr.signature() + "_values = " + config().createDefaultMap() + ";");
-              return;
-            }
-          }
-        }
+        out.format("%sprotected %s %s_values = %s;", config().indent,
+            config().typeDefaultMap(), attr.signature(), config().createDefaultMap());
+        out.println();
       }
     }
   }
