@@ -432,7 +432,7 @@ aspect JragCodeGen {
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
-    tt.expand("ASTDecl.circularEquation:unparameterized", out);
+    tt.expand("AttrDecl.circularEquation:unparameterized", out);
   }
 
   public void AttrDecl.emitCircularEquationWithParams(PrintStream out, String paramDecl) {
@@ -444,7 +444,7 @@ aspect JragCodeGen {
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue("new_" + signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(
           fromReferenceType(signature() + "_values.get(_parameters)" , getType())));
-    tt.expand("ASTDecl.circularEquation:parameterized", out);
+    tt.expand("AttrDecl.circularEquation:parameterized", out);
   }
 
   /**

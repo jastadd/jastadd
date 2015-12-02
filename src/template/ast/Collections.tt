@@ -38,11 +38,11 @@ CollDecl.computeMethod:onePhase [[
   /** @apilevel internal */
   private #getType #(name)_compute() {
     $ASTNode node = this;
-    while (node != null && !(node instanceof $RootType)) {
+    while (node != null && !(node instanceof #rootType)) {
       node = node.getParent();
     }
     $include(collDebugCheck)
-    $RootType root = ($RootType) node;
+    #rootType root = (#rootType) node;
     root.survey_#collectionId();
     if (#(signature)_value == null) {
       #(signature)_value = $BottomValue;
@@ -55,11 +55,11 @@ CollDecl.computeMethod:twoPhase [[
   /** @apilevel internal */
   private #getType #(name)_compute() {
     $ASTNode node = this;
-    while (node != null && !(node instanceof $RootType)) {
+    while (node != null && !(node instanceof #rootType)) {
       node = node.getParent();
     }
     $include(collDebugCheck)
-    $RootType root = ($RootType) node;
+    #rootType root = (#rootType) node;
     root.survey_#collectionId();
     #getType _computedValue = $BottomValue;
     if (root.contributorMap_#collectionId.containsKey(this)) {

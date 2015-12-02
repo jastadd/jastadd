@@ -52,16 +52,28 @@ protected boolean #(signature)_visited = false;
 $endif
 ]]
 
-ASTDecl.circularEquation:unparameterized [[
+AttrDecl.circularEquation:unparameterized [[
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name() {
     $SynchBegin
     $include(AttrDecl.cacheCheck)
     $StateClass state = state();
-    #getType new_#(signature)_value;
     #addComponentCheck
     if (!#(signature)_initialized) {
+$if(#isCollection)
+      $ASTNode _node = this;
+      while (_node != null && !(_node instanceof #rootType)) {
+        _node = _node.getParent();
+      }
+      $include(collDebugCheck)
+      #rootType root = (#rootType) _node;
+      if (root.collecting_contributors_#collectionId) {
+        throw new RuntimeException("Circularity during survey phase");
+      }
+      #addComponentCheck
+      root.survey_#collectionId();
+$endif
       #(signature)_initialized = true;
       #(signature)_value = $BottomValue;
 $if(#getNTA)
@@ -82,7 +94,7 @@ $endif
         #tracePrintBeginComputingValue
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceComputeBegin)
-        #circularComputeLhs = $CircularComputeRhs;
+        #getType new_#(signature)_value = $CircularComputeRhs;
         $include(AttrDecl.traceComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
         if ($ChangeCondition) {
@@ -123,7 +135,7 @@ $endif
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceComputeBegin)
-      #circularComputeLhs = $CircularComputeRhs;
+      #getType new_#(signature)_value = $CircularComputeRhs;
       $include(AttrDecl.traceComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
       if ($ChangeCondition) {
@@ -149,7 +161,7 @@ $endif
   }
 ]]
 
-ASTDecl.circularEquation:parameterized [[
+AttrDecl.circularEquation:parameterized [[
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name($ParamDecl) {
@@ -179,7 +191,6 @@ $if(#getNTA)
 $endif
     }
     $StateClass state = state();
-    #getType new_#(signature)_value;
     #addComponentCheck
     if (!state.IN_CIRCLE) {
       $include(AttrDecl.traceCircularEnterCase1)
@@ -190,6 +201,7 @@ $endif
       #tracePrintCycleBeginString
       $include(AttrDecl.cacheInitRewrite)
       #addAddToComponent
+      #getType new_#(signature)_value;
       do {
         _value.visited = state.CIRCLE_INDEX;
         state.CHANGE = false;
@@ -199,7 +211,7 @@ $if(#isRewriteCircularNtaAttr)
 $endif
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceComputeBegin)
-        #circularComputeLhs = $CircularComputeRhs;
+        new_#(signature)_value = $CircularComputeRhs;
         $include(AttrDecl.traceComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
 $if(#isRewriteCircularNtaAttr)
@@ -254,7 +266,7 @@ $if(#isRewriteCircularNtaAttr)
 $endif
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceComputeBegin)
-      #circularComputeLhs = $CircularComputeRhs;
+      #getType new_#(signature)_value = $CircularComputeRhs;
       $include(AttrDecl.traceComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
 $if(#isRewriteCircularNtaAttr)
@@ -311,7 +323,7 @@ $if(#isParameterized)
 $else
   #(signature)_computed = true;
   $include(AttrDecl.incHookAttrCompStartCircular)
-  #circularComputeLhs = $CircularComputeRhs;
+  #getType new_#(signature)_value = $CircularComputeRhs;
   $include(AttrDecl.incHookAttrCompEndCircular)
   return new_#(signature)_value;
 $endif

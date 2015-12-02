@@ -32,6 +32,12 @@ import java.util.LinkedList;
 
 aspect CollectionAttributes {
 
+  syn boolean AttrDecl.isCollection() = false;
+
+  eq CollDecl.isCollection() = true;
+
+  syn String CollDecl.rootType() = root().name();
+
   /**
    * Find interface collection attribute declarations.
    */
@@ -60,10 +66,12 @@ aspect CollectionAttributes {
       attr.emitVisitedDeclarations(out);
       attr.emitCircularCollectionEval(out);
       attr.emitComputeMethod(out);
+      attr.emitCacheDeclarations(out);
     } else {
+      attr.emitVisitedDeclarations(out);
       attr.emitAttrEquation(out);
       attr.emitComputeMethod(out);
-      emitCacheDeclarations(out, attr);
+      attr.emitCacheDeclarations(out);
     }
   }
 
@@ -74,17 +82,17 @@ aspect CollectionAttributes {
   public void AttrDecl.emitCircularCollectionEval(PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
-    tt.bind("RootType", root().name());
     tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
     tt.bind("CircularComputeRhs", signature() + "_value = " + name() + "_compute()");
-    tt.expand("AttrDecl.circularCollectionEval", out);
+    tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
+    tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
+    tt.expand("AttrDecl.circularEquation:unparameterized", out);
   }
 
   // Only used by non-circular collection attributes.
   public void CollDecl.emitComputeMethod(PrintStream out) {
     String rootType = root().name();
     TemplateContext tt = templateContext();
-    tt.bind("RootType", rootType);
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     if (onePhase()) {
       tt.expand("CollDecl.computeMethod:onePhase", out);
