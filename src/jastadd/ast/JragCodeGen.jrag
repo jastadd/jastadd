@@ -874,8 +874,4 @@ aspect Compute {
 
   eq CollDecl.circularComputeRhs() = String.format("combine_%s_contributions(%s)",
       signature(), Unparser.unparse(getBottomValue()));
-
-  syn String AttrDecl.circularComputeLhs() = String.format("new_%s_value", signature());
-
-  eq CollDecl.circularComputeLhs() = String.format("%s new_%s_value", getType(), signature());
 }
