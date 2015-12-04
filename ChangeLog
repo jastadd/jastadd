@@ -1,3 +1,18 @@
+2015-12-04  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * JastAdd now always starts a new circular evaluation if a circular
+    attribute is called by a cached attribute that in turn was called by
+    another circular evaluation. This ensures correct caching behaviour for
+    the lazy attribute by avoiding caching an intermediate circular value,
+    but it can cause incorrectly specified circular attributes to behave
+    differently.
+
+    Cached attribute checking for circular evaluation used to be part of the
+    --componentCheck flag, so part of the original purpose of --componentCheck
+    is now removed, but the flag can still be used to generate code that
+    throws a runtime exception whenever a non-circular attribute is found to
+    be effectively circular.
+
 2015-11-19  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Added separate survey method to start collecting contributors for
