@@ -145,7 +145,7 @@ AttrDecl.visitedDeclaration [[
 $if(RewriteEnabled)
   $if(#isParameterized)
 /** @apilevel internal */
-protected $DefaultMapType #(signature)_visited$if(LazyMaps) = $CreateDefaultMap$endif;
+protected $DefaultMapType #(signature)_visited$if(!LazyMaps) = $CreateDefaultMap$endif;
   $else
 /** @apilevel internal */
 protected int #(signature)_visited = -1;
@@ -153,7 +153,7 @@ protected int #(signature)_visited = -1;
 $else
   $if(#isParameterized)
 /** @apilevel internal */
-protected $DefaultSetType #(signature)_visited$if(LazyMaps) = $CreateDefaultSet$endif;
+protected $DefaultSetType #(signature)_visited$if(!LazyMaps) = $CreateDefaultSet$endif;
   $else
 /** @apilevel internal */
 protected boolean #(signature)_visited = false;
