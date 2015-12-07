@@ -153,8 +153,7 @@ aspect CollectionAttributes {
   }
 
   syn boolean Contribution.hasCondition() =
-    getCondition() != null && !getCondition().trim().isEmpty();
-
+      getCondition() != null && !getCondition().trim().isEmpty();
 
   private void ASTDecl.collectContributors(PrintStream out) {
     // Mapping collection declaration to collection equations.
@@ -179,13 +178,13 @@ aspect CollectionAttributes {
 
       String bottomValue = Unparser.unparse(decl.getBottomValue());
 
-      for (CollEq attr : equations) {
-        TemplateContext tt = attr.templateContext();
+      for (CollEq equation : equations) {
+        TemplateContext tt = equation.templateContext();
         tt.bind("BottomValue", bottomValue);
         tt.bind("CombOp", decl.getCombOp());
 
-        for (int j = 0; j < attr.getNumContribution(); j++) {
-          Contribution c = attr.getContribution(j);
+        for (int j = 0; j < equation.getNumContribution(); j++) {
+          Contribution c = equation.getContribution(j);
           tt.bind("Condition", c.getCondition().trim());
           if (decl.onePhase()) {
             tt.bind("HasCondition", c.hasCondition());
@@ -332,7 +331,7 @@ aspect CollectionAttributes {
         if (!astNode.hasCollEq(this)) {
           String s = "";
           s += tt.expand("CollDecl.collectContributors:header");
-          s += tt.expand("CollDecl.collectContributors:end");
+          s += tt.expand("CollDecl.collectContributors:default");
           if (isCircular() || !onePhase()) {
             s += tt.expand("CollDecl.contributeTo:default");
           }

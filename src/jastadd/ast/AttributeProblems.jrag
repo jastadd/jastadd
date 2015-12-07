@@ -166,7 +166,8 @@ aspect AttributeProblems {
    */
   syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
 
-  SynEq contributes errorf("multiple equations for synthesized attribute %s.%s, previously defined in %s:%d",
+  SynEq contributes errorf(
+          "multiple equations for synthesized attribute %s.%s, previously defined in %s:%d",
           hostClass().name(), name(), prevEq().getFileName(), prevEq().getStartLine())
       when decl() != null && prevEq() != null && prevEq() != this
       to TypeDecl.attributeProblems()
@@ -352,7 +353,7 @@ aspect AttributeProblems {
       for hostClass();
 
   syn boolean AttrDecl.hasUnsupportedAnnotation() {
-    for (Annotation annotation: getAnnotationList()) {
+    for (Annotation annotation : getAnnotationList()) {
       if (!supportedAnnotation(annotation)) {
         return true;
       }

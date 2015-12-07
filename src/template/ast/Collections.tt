@@ -120,9 +120,9 @@ CollEq.contribution:twoPhase [[
 $if(#getRefSet)
 for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
   if (target != null) {
-    java.util.LinkedList<$ASTNode> contributors = map.get(target);
+    java.util.Set<$ASTNode> contributors = map.get(target);
     if (contributors == null) {
-      contributors = new java.util.LinkedList<$ASTNode>();
+      contributors = new java.util.HashSet<$ASTNode>();
       map.put(($ASTNode) target, contributors);
     }
     contributors.add(this);
@@ -132,9 +132,9 @@ $else
 {
   #getTargetName target = (#getTargetName) (#getReference);
   if (target != null) {
-    java.util.LinkedList<$ASTNode> contributors = map.get(target);
+    java.util.Set<$ASTNode> contributors = map.get(target);
     if (contributors == null) {
-      contributors = new java.util.LinkedList<$ASTNode>();
+      contributors = new java.util.HashSet<$ASTNode>();
       map.put(($ASTNode) target, contributors);
     }
     contributors.add(this);
@@ -147,14 +147,23 @@ CollDecl.collectContributors:header [[
 $if(#onePhase)
   protected void collect_contributors_#collectionId() {
 $else
-  protected void collect_contributors_#collectionId(java.util.Map<$ASTNode, java.util.LinkedList<$ASTNode>> map) {
+  protected void collect_contributors_#collectionId(java.util.Map<$ASTNode, java.util.Set<$ASTNode>> map) {
 $endif
 ]]
 
-CollDecl.collectContributors:end [[
+CollDecl.collectContributors:default [[
     for (int i = 0; i < getNumChild(); i++) {
       getChild(i).collect_contributors_#collectionId($if(!#onePhase)map$endif);
     }
+  }
+]]
+
+CollDecl.collectContributors:end [[
+$if(#onePhase)
+    super.collect_contributors_#collectionId();
+$else
+    super.collect_contributors_#collectionId(map);
+$endif
   }
 ]]
 
@@ -183,7 +192,7 @@ CollDecl.surveyMethod [[
 $if(#onePhase)
 private boolean collect_contributors_#collectionId = false;
 $else
-protected java.util.Map<$ASTNode, java.util.LinkedList<$ASTNode>> contributorMap_#collectionId = null;
+protected java.util.Map<$ASTNode, java.util.Set<$ASTNode>> contributorMap_#collectionId = null;
 $endif
 
 $if(#isCircular)
@@ -196,7 +205,7 @@ $if(#onePhase)
       collect_contributors_#collectionId = true;
 $else
     if (contributorMap_#collectionId == null) {
-      contributorMap_#collectionId = new java.util.IdentityHashMap<$ASTNode, java.util.LinkedList<$ASTNode>>();
+      contributorMap_#collectionId = new java.util.IdentityHashMap<$ASTNode, java.util.Set<$ASTNode>>();
 $endif
 $if(#isCircular)
       collecting_contributors_#collectionId = true;
