@@ -322,22 +322,10 @@ if (#(signature)_computed) {
   return #(signature)_value;
 }
     $else
-      $if(#isCircular)
-if (#(signature)_values.containsKey(_parameters)) {
-  Object _o = #(signature)_values.get(_parameters);
-  if (!(_o instanceof $StateClass.CircularValue)) {
-    $include(AttrDecl.traceCacheRead)
-    return (#boxedType) _o;
-  } else {
-    _value = ($StateClass.CircularValue) _o;
-  }
-}
-      $else
 if (#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceCacheRead)
   return (#boxedType) #(signature)_values.get(_parameters);
 }
-      $endif
     $endif
   $endif
 $endif

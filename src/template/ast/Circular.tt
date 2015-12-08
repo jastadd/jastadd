@@ -141,7 +141,15 @@ AttrDecl.circularEquation:parameterized [[
     #parameterStructure
     #initLazyMaps
     $StateClass.CircularValue _value;
-    $include(AttrDecl.cacheCheck) else {
+    if (#(signature)_values.containsKey(_parameters)) {
+      Object _cache = #(signature)_values.get(_parameters);
+      if (!(_cache instanceof $StateClass.CircularValue)) {
+        $include(AttrDecl.traceCacheRead)
+        return (#boxedType) _cache;
+      } else {
+        _value = ($StateClass.CircularValue) _cache;
+      }
+    } else {
       _value = new $StateClass.CircularValue();
       #(signature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
