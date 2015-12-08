@@ -253,28 +253,7 @@ aspect JragCodeGen {
   eq SynDecl.declaredNTA() = getNTA();
   eq InhDecl.declaredNTA() = getNTA();
 
-  public String ASTNode.fromReferenceType(String value, String type) {
-    if (type.equals("int")) {
-      return "((Integer)" + value + ")";
-    } else if (type.equals("short")) {
-      return "((Short)" + value + ")";
-    } else if (type.equals("long")) {
-      return "((Long)" + value + ")";
-    } else if (type.equals("float")) {
-      return "((Float)" + value + ")";
-    } else if (type.equals("double")) {
-      return "((Double)" + value + ")";
-    } else if (type.equals("boolean")) {
-      return "((Boolean)" + value + ")";
-    } else if (type.equals("char")) {
-      return "((Character)" + value + ")";
-    } else {
-      return "(" + type + ")" + value;
-    }
-  }
-
-  public String AttrDecl.boxedType() {
-    String type = getType();
+  public static String ASTNode.boxedType(String type) {
     if (type.equals("int")) {
       return "Integer";
     } else if (type.equals("short")) {
@@ -289,10 +268,18 @@ aspect JragCodeGen {
       return "Boolean";
     } else if (type.equals("char")) {
       return "Character";
+    } else if (type.equals("byte")) {
+      return "Byte";
     } else {
       return type;
     }
   }
+
+  public String ASTNode.fromReferenceType(String value, String type) {
+    return "((" + boxedType(type) + ")" + value + ")";
+  }
+
+  syn String AttrDecl.boxedType() = boxedType(getType());
 
   syn boolean AttrDecl.isPrimitive() = isPrimitiveType(getType());
 
