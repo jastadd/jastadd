@@ -814,7 +814,7 @@ aspect Compute {
   syn String AttrDecl.computeRhs() = name() + "_compute(" + parameters() + ")";
 
   eq InhDecl.computeRhs() =
-    "getParent().Define_" + name() + "(this, null" + inhParametersTail() + ")";
+      "getParent().Define_" + name() + "(this, null" + inhParametersTail() + ")";
 
   syn String AttrDecl.computeLhs() {
     if (isLazy() && getNumParameter() == 0) {

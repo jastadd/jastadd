@@ -83,7 +83,7 @@ aspect CollectionAttributes {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
-    tt.bind("CircularComputeRhs", signature() + "_value = " + name() + "_compute()");
+    tt.bind("CircularComputeRhs", name() + "_compute()");
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
     tt.expand("AttrDecl.circularEquation:unparameterized", out);
