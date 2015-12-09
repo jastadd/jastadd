@@ -196,7 +196,11 @@ aspect CollectionAttributes {
           }
         }
       }
-      decl.templateContext().expand("CollDecl.collectContributors:end", out);
+      if (isASTNodeDecl()) {
+        decl.templateContext().expand("CollDecl.collectContributors:default", out);
+      } else {
+        decl.templateContext().expand("CollDecl.collectContributors:end", out);
+      }
     }
   }
 
@@ -219,6 +223,7 @@ aspect CollectionAttributes {
       CollDecl decl = entry.getKey();
       ArrayList<CollEq> equations = entry.getValue();
 
+      decl.templateContext().bind("IsAstNode", isASTNodeDecl());
       decl.templateContext().expand("CollDecl.contributeTo:header", out);
       for (CollEq attr : equations) {
         for (Contribution c : attr.getContributionList()) {

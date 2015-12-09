@@ -416,7 +416,9 @@ aspect JaddCodeGen {
   }
 
   syn boolean ASTDecl.isASTNodeDecl() = name().equals(config().astNodeType());
+
   syn boolean ASTDecl.isOptDecl() = name().equals(config().optType());
+
   syn boolean ASTDecl.isListDecl() = name().equals(config().listType());
 
   syn boolean ASTDecl.isOptSubtype() =

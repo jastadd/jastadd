@@ -174,7 +174,9 @@ CollDecl.contributeTo:default = [[
 
 CollDecl.contributeTo:header [[
   protected void contributeTo_#(signature)(#getType collection) {
+$if(!IsAstNode)
     super.contributeTo_#(signature)(collection);
+$endif
 ]]
 
 Contribution.statement [[
