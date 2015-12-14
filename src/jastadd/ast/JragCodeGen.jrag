@@ -38,8 +38,11 @@ import org.jastadd.JastAdd;
 
 aspect AttributeKind {
   syn String AttrDecl.attributeKind();
+
   eq SynDecl.attributeKind() = isNTA() ? "syn nta" : "syn";
+
   eq InhDecl.attributeKind() = "inh";
+
   eq CollDecl.attributeKind() = "coll";
 }
 
@@ -82,29 +85,17 @@ aspect JragCodeGen {
 
   syn String Rewrite.sourceLocation() = ASTNode.sourceLocation(getFileName(), getStartLine());
 
-  syn boolean AttrDecl.isLazy() {
-    return config().cacheAll() ||
-      declaredNTA() ||
-      (!config().cacheNone() && getLazy());
-  }
+  syn boolean AttrDecl.isLazy() =
+      config().cacheAll() || declaredNTA() || (!config().cacheNone() && getLazy());
 
-  eq SynDecl.isLazy() {
-    return config().cacheAll() ||
-      declaredNTA() ||
-      (!config().cacheNone() && getLazy());
-  }
+  eq SynDecl.isLazy() =
+      config().cacheAll() || declaredNTA() || (!config().cacheNone() && getLazy());
 
-  eq InhDecl.isLazy() {
-    return config().cacheAll() ||
-      declaredNTA() ||
-      (!config().cacheNone() && getLazy());
-  }
+  eq InhDecl.isLazy() =
+      config().cacheAll() || declaredNTA() || (!config().cacheNone() && getLazy());
 
-  eq CollDecl.isLazy() {
-    return config().cacheAll() ||
-      !config().cacheNone() &&
-      (declaredNTA() || getLazy());
-  }
+  eq CollDecl.isLazy() =
+      config().cacheAll() || !config().cacheNone() && (declaredNTA() || getLazy());
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
@@ -122,7 +113,6 @@ aspect JragCodeGen {
   public void InterfaceDecl.emitMembers(PrintStream out) {
     for (ClassBodyObject obj : classBodyDecls) {
       org.jastadd.jrag.AST.SimpleNode n = obj.node;
-      //out.println(ind + "// Declared in " + obj.fileName + " at line " + obj.line);
       if (n instanceof org.jastadd.jrag.AST.ASTAspectMethodDeclaration) {
         try {
           StringBuffer buf = new StringBuffer();
@@ -146,7 +136,7 @@ aspect JragCodeGen {
           e.printStackTrace();
         }
       } else if (n instanceof org.jastadd.jrag.AST.ASTBlock) {
-        // do not emit refined implementations
+        // Do not emit refined implementations.
       } else {
         if (!obj.comments.equals("")) {
           out.print(obj.comments + " ");
@@ -560,13 +550,11 @@ aspect JragCodeGen {
       if (attr.declaredNTA()) {
         attr.emitCacheDeclarations(out);
       } else if (config().lazyMaps()) {
-        out.format("%sprotected %s %s_values;",
+        out.format("%sprotected %s %s_values;%n",
             config().indent, config().typeDefaultMap(), attr.signature());
-        out.println();
       } else {
-        out.format("%sprotected %s %s_values = %s;", config().indent,
+        out.format("%sprotected %s %s_values = %s;%n", config().indent,
             config().typeDefaultMap(), attr.signature(), config().createDefaultMap());
-        out.println();
       }
     }
   }

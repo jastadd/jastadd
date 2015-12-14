@@ -44,59 +44,58 @@ aspect JastAddCodeGen {
       if (getTypeDecl(i) instanceof InterfaceDecl) {
         InterfaceDecl d = (InterfaceDecl)getTypeDecl(i);
         String name = d.name();
-        //System.out.println("Processing interface " + name);
-
         for (int j = 0; j < getNumTypeDecl(); j++) {
           if (getTypeDecl(j) instanceof ASTDecl) {
             ASTDecl dest = (ASTDecl)getTypeDecl(j);
             if (dest.implementsInterface(name)) {
-              //System.out.println("  implemented by " + dest.name());
               for (ClassBodyObject o : d.classBodyDecls) {
-                if (o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
-                  if (!dest.hasClassBodyDecl(o.signature()))
-                    dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
-                }
-                else if (o.node instanceof ASTAspectRefineMethodDeclaration) {
-                  ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
+                if (o.node instanceof ASTAspectMethodDeclaration
+                    || o.node instanceof ASTAspectFieldDeclaration) {
+                  if (!dest.hasClassBodyDecl(o.signature())) {
+                    dest.classBodyDecls.add(new ClassBodyObject(o.node, o.fileName, o.line,
+                          o.getAspectName()));
+                  }
+                } else if (o.node instanceof ASTAspectRefineMethodDeclaration) {
+                  ClassBodyObject object = new ClassBodyObject(o.node, o.fileName, o.line,
+                      o.getAspectName());
                   object.refinesAspect = o.refinesAspect;
                   dest.classBodyDecls.add(object);
-                }
-                else if (o.node instanceof ASTBlock) {
-                  dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
+                } else if (o.node instanceof ASTBlock) {
+                  dest.classBodyDecls.add(new ClassBodyObject(o.node, o.fileName, o.line,
+                      o.getAspectName()));
                 }
               }
               for (ClassBodyObject o : d.refinedClassBodyDecls) {
-                  if (o.node instanceof ASTAspectMethodDeclaration || o.node instanceof ASTAspectFieldDeclaration) {
-                    if (!dest.hasClassBodyDecl(o.signature()))
-                      dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
-                  }
-                  else if (o.node instanceof ASTAspectRefineMethodDeclaration) {
-                    ClassBodyObject object = new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName());
+                  if (o.node instanceof ASTAspectMethodDeclaration
+                      || o.node instanceof ASTAspectFieldDeclaration) {
+                    if (!dest.hasClassBodyDecl(o.signature())) {
+                      dest.refinedClassBodyDecls.add(new ClassBodyObject(o.node, o.fileName,
+                          o.line, o.getAspectName()));
+                    }
+                  } else if (o.node instanceof ASTAspectRefineMethodDeclaration) {
+                    ClassBodyObject object = new ClassBodyObject(o.node, o.fileName,
+                        o.line, o.getAspectName());
                     object.refinesAspect = o.refinesAspect;
                     dest.refinedClassBodyDecls.add(object);
-                  }
-                  else if (o.node instanceof ASTBlock) {
-                    dest.classBodyDecls.add(new ClassBodyObject(o.node/*.fullCopy()*/, o.fileName, o.line, o.getAspectName()));
+                  } else if (o.node instanceof ASTBlock) {
+                    dest.classBodyDecls.add(new ClassBodyObject(o.node, o.fileName,
+                        o.line, o.getAspectName()));
                   }
               }
 
               for (int k = 0; k < d.getNumSynDecl(); k++) {
-                //System.out.println("    adding syndecl " + d.getSynDecl(k).signature());
                 dest.addSynDecl((SynDecl)d.getSynDecl(k).fullCopy());
               }
 
               for (int k = 0; k < d.getNumSynEq(); k++) {
-                //System.out.println("    adding syneq " + d.getSynEq(k).signature());
                 dest.addSynEq((SynEq)d.getSynEq(k).fullCopy());
               }
 
               for (int k = 0; k < d.getNumInhDecl(); k++) {
-                //System.out.println("    adding inhdecl " + d.getInhDecl(k).signature());
                 dest.addInhDecl((InhDecl)d.getInhDecl(k).fullCopy());
               }
 
               for (int k = 0; k < d.getNumInhEq(); k++) {
-                //System.out.println("    adding inheq " + d.getInhEq(k).signature());
                 dest.addInhEq((InhEq)d.getInhEq(k).fullCopy());
               }
             }
@@ -140,28 +139,34 @@ aspect JastAddCodeGen {
   }
 
   public String ClassDecl.typeDeclarationString() {
-    String s = interfacesString();
-    if (s.equals(""))
-      return modifiers() + "class " + getIdDecl().getID() + typeParameters + " extends " + extendsName + " {";
-    else
-      return modifiers() + "class " + getIdDecl().getID() + typeParameters + " extends " + extendsName + " implements " +
-        s + " {";
+    String interfaces = interfacesString();
+    if (interfaces.isEmpty()) {
+      return String.format("%sclass %s%s extends %s {", modifiers(), getIdDecl().getID(),
+          typeParameters, extendsName);
+    } else {
+      return String.format("%sclass %s%s extends %s implements %s {",
+          modifiers(), getIdDecl().getID(), typeParameters, extendsName, interfaces);
+    }
   }
 
   public String InterfaceDecl.typeDeclarationString() {
-    String s = interfacesString();
-    if (s.equals(""))
-      return modifiers() + "interface " + getIdDecl().getID() + typeParameters + " {";
-    else
-      return modifiers() + "interface " + getIdDecl().getID() + typeParameters + " extends " + s + " {";
+    String interfaces = interfacesString();
+    if (interfaces.equals("")) {
+      return String.format("%sinterface %s%s {", modifiers(), getIdDecl().getID(), typeParameters);
+    } else {
+      return String.format("%sinterface %s%s extends %s {", modifiers(), getIdDecl().getID(),
+          typeParameters, interfaces);
+    }
   }
 
   public String EnumDecl.typeDeclarationString() {
-    String s = interfacesString();
-    if (s.isEmpty())
-      return modifiers() + "enum " + getIdDecl().getID() + typeParameters + " {";
-    else
-      return modifiers() + "enum " + getIdDecl().getID() + typeParameters + " implements " + s + " {";
+    String interfaces = interfacesString();
+    if (interfaces.isEmpty()) {
+      return String.format("%senum %s%s {", modifiers(), getIdDecl().getID(), typeParameters);
+    } else {
+      return String.format("%senum %s%s implements %s {", modifiers(), getIdDecl().getID(),
+          typeParameters, interfaces);
+    }
   }
 
   public String ASTDecl.componentString() {
@@ -174,25 +179,33 @@ aspect JastAddCodeGen {
     }
     return buf.toString();
   }
+
   public String Id.componentString() {
-    String id = "{@link "+getIdUse().getID()+"}";
-    if (hasNameNode())
-      return getNameNode().getID()+":"+id;
+    String id = "{@link " + getIdUse().getID() + "}";
+    if (hasNameNode()) {
+      return getNameNode().getID() + ":" + id;
+    }
     return id;
   }
+
   public String TokenId.componentString() {
-    return getID()+":"+getTYPE();
+    return getID() + ":" + getTYPE();
   }
+
   public abstract String Component.componentString();
+
   public String ListComponent.componentString() {
-    return getId().componentString()+"*";
+    return getId().componentString() + "*";
   }
+
   public String OptionalComponent.componentString() {
-    return "["+getId().componentString()+"]";
+    return "[" + getId().componentString() + "]";
   }
+
   public String TokenComponent.componentString() {
-    return "&lt;"+getTokenId().componentString()+"&gt;";
+    return "&lt;" + getTokenId().componentString() + "&gt;";
   }
+
   public String AggregateComponent.componentString() {
     return getId().componentString();
   }
@@ -208,7 +221,7 @@ aspect JastAddCodeGen {
         stream.println(config().license);
       }
 
-      // TODO move to template
+      // TODO(joqvist): move to template.
       if (!config().packageName().isEmpty()) {
         stream.println("package " + config().packageName() + ";\n");
       }
@@ -230,6 +243,7 @@ aspect JastAddCodeGen {
   }
 
   public org.jastadd.jrag.AST.SimpleNode EnumDecl.simpleNode = null;
+
   public void EnumDecl.jastAddGen(boolean publicModifier) {
     File file = grammar().targetJavaFile(name());
     try {
@@ -238,7 +252,7 @@ aspect JastAddCodeGen {
         stream.println(config().license);
       }
 
-      // TODO move to template
+      // TODO(joqvist): move to template.
       if (!config().packageName().isEmpty()) {
         stream.println("package " + config().packageName() + ";\n");
       }
@@ -263,7 +277,7 @@ aspect JastAddCodeGen {
         stream.println(config().license);
       }
 
-      // TODO move to template
+      // TODO(joqvist): move to template.
       if (!config().packageName().isEmpty()) {
         stream.println("package " + config().packageName() + ";\n");
       }
@@ -274,10 +288,6 @@ aspect JastAddCodeGen {
       StringBuffer buf = new StringBuffer();
       for (ClassBodyObject obj : classBodyDecls) {
         org.jastadd.jrag.AST.SimpleNode n = obj.node;
-
-        //buf.append("    // Declared in " + obj.fileName + " at line " + obj.line + "\n");
-        //if (!obj.comments.equals(""))
-          //buf.append(obj.comments + " ");
         buf.append(config().indent);
         buf.append(obj.modifiers());
         n.jjtAccept(new ClassBodyDeclUnparser(), buf);
@@ -285,16 +295,13 @@ aspect JastAddCodeGen {
       }
       stream.println(buf.toString());
 
-      //emitMembers(stream);
       emitAbstractSyns(stream);
-      //emitSynEquations(stream);
       emitInhDeclarations(stream);
-      //emitInhEquations(stream);
 
       stream.println("}");
       stream.close();
     } catch (FileNotFoundException f) {
-      System.err.println("Could not create file " + file.getName() + " in " + file.getParent());
+      System.err.format("Could not create file %s in %s%n", file.getName(), file.getParent());
       System.exit(1);
     }
   }
@@ -305,15 +312,15 @@ aspect JastAddCodeGen {
     try {
       PrintStream stream = new PrintStream(new FileOutputStream(file));
 
-      // Insert comment notifying that this is a generated file
+      // Insert comment notifying that this is a generated file.
       stream.println("/* This file was generated with " +
           org.jastadd.JastAdd.getLongVersionString() + " */");
 
-      if ( !config().license.isEmpty()) {
+      if (!config().license.isEmpty()) {
         stream.println(config().license);
       }
 
-      // TODO move to template
+      // TODO(joqvist): move to template.
       if (!config().packageName().isEmpty()) {
         stream.println("package " + config().packageName() + ";\n");
       }
@@ -351,7 +358,7 @@ aspect JastAddCodeGen {
       stream.println("}");
       stream.close();
     } catch (FileNotFoundException f) {
-      System.err.println("Could not create file " + file.getName() + " in " + file.getParent());
+      System.err.format("Could not create file %s in %s%n", file.getName(), file.getParent());
       System.exit(1);
     }
   }

@@ -43,11 +43,11 @@ aspect DotGraph {
       if (decl instanceof ASTDecl) {
         ASTDecl astDecl = (ASTDecl) decl;
         if (astDecl.superClass() != null) {
-          out.println("  " + astDecl.getSuperClass().name() + " -> " + decl.name() + ";");
+          out.format("  %s -> %s;%n", astDecl.getSuperClass().name(), decl.name());
         } else if (!astDecl.isASTNodeDecl()) {
-          out.println("  " + config().astNodeType() + " -> " + decl.name() + ";");
+          out.format("  %s -> %s;%n", config().astNodeType(), decl.name());
         } else {
-          out.println("  " + decl.name() + ";");
+          out.format("  %s;%n", decl.name());
         }
       }
     }

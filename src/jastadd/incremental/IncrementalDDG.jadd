@@ -61,7 +61,7 @@ aspect IncrementalDDG {
       if (name().equals(config().astNodeType())) {
         tt.expand("ASTDecl.createASTHandlers", out);
       }
-      // collect attributes
+      // Collect attributes.
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
@@ -135,7 +135,7 @@ aspect IncrementalDDG {
   public String ASTDecl.emitCopyAttributeHandlersString() {
     StringBuffer res = new StringBuffer();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
-      // Collect attributes
+      // Collect attributes.
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
@@ -147,7 +147,7 @@ aspect IncrementalDDG {
         if (attr != null && (attr.isLazy() || attr.isCircular()))
           list.add(attr);
       }
-      // Attribute code
+      // Attribute code.
       TemplateContext tt = templateContext();
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
@@ -190,35 +190,5 @@ aspect IncrementalDDG {
         }
       }
     }
-    // TODO revisit these methods
-    /*
-    // method: removeChild(int) -- overloaded for region tracking
-    if (config().incrementalLevelRegion()) {
-      if (isRegionLeaf() && !name().equals(config().astNodeType())) {
-        stream.println(ind + "public void " + name() + ".removeChild(int index) {");
-        stream.println(ind(2) + "// region leaf");
-        stream.println(ind(2) + "" + config().astNodeType() + " child = getChild(index);");
-        stream.println(ind(2) + "if (child.isRegionRoot()) {");
-        stream.println(ind(3) +   "" + config().astNodeType() + "$DepGraphNode handler = handler();");
-        stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
-        stream.println(ind(2) + "}");
-        stream.println(ind(2) + "super.removeChild(index);");
-        stream.println(ind + "}");
-      }
-    }
-    // method: insertChild(ASTNode,int) -- overloaded for region tracking
-    if (config().incrementalLevelRegion()) {
-      if (isRegionLeaf() && !name().equals(config().astNodeType())) {
-        stream.println("    public void " + name() + ".insertChild(" + config().astNodeType() + " node, int index) {");
-        stream.println("      // region leaf");
-        stream.println("      if (node.isRegionRoot()) {");
-        stream.println(ind(3) +   "" + config().astNodeType() + "$DepGraphNode handler = handler();");
-        stream.println(ind(3) +   "if (handler != null) handler.flushRegion();");
-        stream.println("      }");
-        stream.println("      super.insertChild(node, index);");
-        stream.println("    }");
-      }
-    }
-    */
   }
 }

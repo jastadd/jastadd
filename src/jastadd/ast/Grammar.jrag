@@ -63,6 +63,7 @@ aspect Grammar {
   public void Grammar.addInterface(org.jastadd.jrag.AST.SimpleNode nameList,
       String className, String fileName) {
     if (nameList == null) {
+      // TODO(joqvist): Generate a proper error message.
       System.err.println("Panic");
     } else {
       TypeDecl c = lookup(className);
@@ -78,6 +79,7 @@ aspect Grammar {
   public void Grammar.extendInterface(org.jastadd.jrag.AST.SimpleNode nameList, String className,
       String fileName) {
     if (nameList == null) {
+      // TODO(joqvist): Generate a proper error message.
       System.err.println("Panic");
     } else {
       TypeDecl c = lookup(className);

@@ -176,10 +176,10 @@ aspect JaddCodeGen {
         if (c instanceof TokenComponent) {
           TokenComponent t = (TokenComponent)c;
           String tokenId = t.getTokenId().getID();
-          out.println(config().ind(2) + "set" + tokenId + "(p" + param + ");");
+          out.format("%sset%s(p%d);%n", config().ind(2), tokenId, param);
         }
         else {
-          out.println(config().ind(2) + "setChild(p" + param + ", " + childIndex + ");");
+          out.format("%ssetChild(p%d, %d);%n", config().ind(2), param, childIndex);
           childIndex++;
         }
         param += 1;
@@ -519,9 +519,9 @@ aspect JaddCodeGen {
     out.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
     if (name().equals(config().listType())) {
 
-      // Avoiding list touch rewrite
+      // Avoiding list touch rewrite.
       if (!(config().incremental() || config().flushRewrite())) {
-        out.println(ind2 + "return true;");  // old code
+        out.println(ind2 + "return true;");  // Old code.
       } else {
         out.println(ind2 + "return false;");
       }
