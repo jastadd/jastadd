@@ -567,15 +567,14 @@ aspect JaddCodeGen {
       tt.expand("JJTree.checkChild", out);
     }
 
-    // Generate code common for all nodes by adding them to ASTNode
+    // Generate code common for all nodes by adding them to ASTNode.
     if (isASTNodeDecl()) {
       emitImplicitASTNodeDecls(out);
       grammar().genReset(out);
-      templateContext().expand("ASTNode.iterator", out);
     } else if (isListDecl()) {
       emitImplicitListDecls(out);
     } else if (isOptDecl()) {
-      // do not override getNumChild with regular node implementation
+      // Do not override getNumChild with regular node implementation.
     } else {
       emitImplicitRegularNodeDecls(out);
     }

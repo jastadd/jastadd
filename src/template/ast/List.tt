@@ -70,22 +70,18 @@ $endif
 
   public void $List.insertChild($ASTNode node, int i) {
     $SynchBegin
-
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-
     super.insertChild(node, i);
     $SynchEnd
   }
 
   public void $List.addChild(T node) {
     $SynchBegin
-
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-
     super.addChild(node);
     $SynchEnd
   }
@@ -93,18 +89,15 @@ $endif
   /** @apilevel low-level */
   public void $List.removeChild(int i) {
     $SynchBegin
-
 $if(#needsListTouched)
     list$$touched = true;
 $endif
-
     super.removeChild(i);
     $SynchEnd
   }
 
   public int $List.getNumChild() {
     $SynchBegin
-
 $if(#needsListTouched)
     if (list$$touched) {
       for (int i = 0; i < getNumChildNoTransform(); i++) {
@@ -113,8 +106,31 @@ $if(#needsListTouched)
       list$$touched = false;
     }
 $endif
-
     return getNumChildNoTransform();
+    $SynchEnd
+  }
+
+  /** @return an iterator to iterate over elements in this list node. */
+  public java.util.Iterator<T> $List.iterator() {
+    $SynchBegin
+    return new java.util.Iterator<T>() {
+      private int index = 0;
+
+      @Override
+      public boolean hasNext() {
+        return index < getNumChild();
+      }
+
+      @Override
+      public T next() {
+        return hasNext() ? (T) getChild(index++) : null;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
     $SynchEnd
   }
 ]]

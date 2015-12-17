@@ -224,29 +224,6 @@ $endif
 $endif
 ]]
 
-ASTNode.iterator = [[
-  /** @apilevel low-level */
-  public java.util.Iterator<T> $ASTNode.iterator() {
-    $SynchBegin
-    return new java.util.Iterator<T>() {
-      private int counter = 0;
-      public boolean hasNext() {
-        return counter < getNumChild();
-      }
-      public T next() {
-        if (hasNext())
-          return (T)getChild(counter++);
-        else
-          return null;
-      }
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-    };
-    $SynchEnd
-  }
-]]
-
 ASTNode.setParent = [[
   /** @apilevel low-level */
   public void $ASTNode.setParent($ASTNode node) {

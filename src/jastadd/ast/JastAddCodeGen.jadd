@@ -32,6 +32,7 @@ import java.io.*;
 
 import java.util.*;
 
+import org.jastadd.JastAdd;
 import org.jastadd.jrag.AST.ASTAspectMethodDeclaration;
 import org.jastadd.jrag.AST.ASTAspectRefineMethodDeclaration;
 import org.jastadd.jrag.AST.ASTAspectFieldDeclaration;
@@ -313,8 +314,8 @@ aspect JastAddCodeGen {
       PrintStream stream = new PrintStream(new FileOutputStream(file));
 
       // Insert comment notifying that this is a generated file.
-      stream.println("/* This file was generated with " +
-          org.jastadd.JastAdd.getLongVersionString() + " */");
+      stream.format("/* This file was generated with %s */%n",
+          JastAdd.getLongVersionString());
 
       if (!config().license.isEmpty()) {
         stream.println(config().license);
@@ -322,7 +323,7 @@ aspect JastAddCodeGen {
 
       // TODO(joqvist): move to template.
       if (!config().packageName().isEmpty()) {
-        stream.println("package " + config().packageName() + ";\n");
+        stream.format("package %s;%n", config().packageName());
       }
 
       stream.print(grammar().genImportsList());
@@ -332,23 +333,22 @@ aspect JastAddCodeGen {
       if (hasAbstract()) {
         stream.print("abstract ");
       }
-      stream.print("class " + name());
+      stream.format("class %s", name());
       if (isOptDecl() || isListDecl() || isASTNodeDecl()) {
-        stream.print("<T extends " + config().astNodeType() + ">");
+        stream.format("<T extends %s>", config().astNodeType());
       }
       if (hasSuperClass()) {
-        stream.print(" extends ");
         String name = getSuperClass().name();
         if (isListDecl() || isOptDecl()) {
-          name = name + "<T>";
+          name += "<T>";
         } else if (name.equals(config().astNodeType())) {
-          name = name + "<" + config().astNodeType() + ">";
+          name += "<" + config().astNodeType() + ">";
         }
-        stream.print(name);
+        stream.format(" extends %s", name);
       } else if (isASTNodeDecl()) {
         String superType = config().astNodeSuperType();
         if (!superType.equals("")) {
-          stream.print(" extends " + superType);
+          stream.format(" extends %s", superType);
         }
       }
       stream.print(jastAddImplementsList());
@@ -366,12 +366,10 @@ aspect JastAddCodeGen {
   public String ASTDecl.jastAddImplementsList() {
     StringBuffer buf = new StringBuffer();
     buf.append(" implements Cloneable");
-
     for (Iterator iter = implementsList.iterator(); iter.hasNext(); ) {
       buf.append(", " + Unparser.unparse((org.jastadd.jrag.AST.SimpleNode) iter.next()));
     }
-
-    if (isASTNodeDecl()) {
+    if (isListDecl()) {
       buf.append(", Iterable<T>");
     }
     return buf.toString();
