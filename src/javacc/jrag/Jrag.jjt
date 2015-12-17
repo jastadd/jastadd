@@ -35,9 +35,9 @@ import org.jastadd.ast.AST.Grammar;
 public class JragParser {
 
   /* Added attributes to the parser: */
-  public String className = "";// Name of class currently parsed.
-  public String enclosingAspect = "";// The name of the aspect currently being parsed.
-  public String fileName;      // Name of parsed file;
+  public String className = ""; // Name of class currently parsed.
+  public String enclosingAspect = ""; // The name of the aspect currently being parsed.
+  public String fileName; // Name of parsed file;
 
   private java.util.List<String> contextStack = new java.util.ArrayList<String>();
 
@@ -880,7 +880,9 @@ void AspectNestedInterfaceDeclaration() :
 }
 {
   modifiers = Modifiers()
-  "interface" { pushTopLevelOrAspect("interface"); } <IDENTIFIER> [ "extends" NameList() ]
+  "interface" { pushTopLevelOrAspect("interface"); } <IDENTIFIER>
+  [ TypeParameters() ]
+  [ "extends" TypeNameList() ]
   "{" ( InterfaceMemberDeclaration() )* "}"
   {
     className = outerClassName;
@@ -894,11 +896,14 @@ void AspectNestedClassDeclaration() :
   String outerClassName = className;
   className = "D$u$m$m$y";
   String modifiers;
+  String typeParameters;
 }
 {
   modifiers = Modifiers()
   "class" { pushTopLevelOrAspect("class"); } <IDENTIFIER>
-   [ "extends" ClassOrInterfaceType() ] [ "implements" TypeNameList() ]
+  [ TypeParameters() ]
+  [ "extends" ClassOrInterfaceType() ]
+  [ "implements" TypeNameList() ]
   ClassBody()
   {
     className = outerClassName;
