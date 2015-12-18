@@ -52,7 +52,7 @@ aspect Rewrites {
     tt.expand("ASTDecl.emitRewrites.begin", out);
 
     if (name().equals(config().listType())) {
-      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite
+      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite.
       if (!(config().incremental() || config().flushRewrite())) {
         tt.expand("ASTDecl.emitRewrites.touch_list", out);
       }
@@ -112,54 +112,60 @@ aspect Rewrites {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println();
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      if (config().rewriteLimit() > 0)
-        out.println(ind2 +
-          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");");
+      if (config().rewriteLimit() > 0) {
+        out.println(ind2
+            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
+            + "using rule in " + getFileNameEscaped() + " at line "
+            + getStartLine() + "\");");
+      }
       out.print(Unparser.unparse(getResult()));
       out.println(ind + "}");
     } else {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      if (config().rewriteLimit() > 0)
-        out.println(ind2 +
-          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");");
+      if (config().rewriteLimit() > 0) {
+        out.println(ind2
+            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
+            + "using rule in " + getFileNameEscaped() + " at line "
+            + getStartLine() + "\");");
+      }
       out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
       out.println(ind + "}");
     }
   }
+
   public void RewriteList.genRewritesExtra(PrintStream out, int index) {
     String ind = config().indent;
     String ind2 = config().ind(2);
     if (getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
       templateContext().expand("Rewrite.javaDoc:internal", out);
-      out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
-      if (config().rewriteLimit() > 0)
-        out.println(ind2 +
-          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");");
+      out.println(ind + "private " + getReturnType() + " rewrite"
+          + getParentName() + "_" + getChildName() + "() {");
+      if (config().rewriteLimit() > 0) {
+        out.println(ind2
+            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
+            + "using rule in " + getFileNameEscaped() + " at line "
+            + getStartLine() + "\");");
+      }
       out.print(Unparser.unparse(getResult()));
       out.println(ind + "}");
     } else {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
-      if (config().rewriteLimit() > 0)
-        out.println(ind2 +
-          "debugRewrite(\"Rewriting \" + getClass().getName() + \" " +
-          "using rule in " + getFileNameEscaped() + " at line " +
-          getStartLine() + "\");");
+      if (config().rewriteLimit() > 0) {
+        out.println(ind2
+            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
+            + "using rule in " + getFileNameEscaped() + " at line "
+            + getStartLine() + "\");");
+      }
       out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
       out.println(ind + "}");
     }
   }
 
   syn lazy boolean ASTDecl.hasRewrites() =
-    getNumRewrite() > 0 || (superClass() != null && superClass().hasRewrites());
+      getNumRewrite() > 0 || (superClass() != null && superClass().hasRewrites());
 
   syn lazy boolean AttrDecl.isRewriteCircularNtaAttr() =
-    config().rewriteCircularNTA() && name().equals("rewritten"); 
+      config().rewriteCircularNTA() && name().equals("rewritten"); 
 }

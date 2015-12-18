@@ -109,8 +109,7 @@ aspect Names {
   eq TokenComponent.name() = getTokenId().name();
   eq AggregateComponent.name() = getId().name();
 
-  syn String Id.name() = hasNameNode() ?
-    getNameNode().name() : getIdUse().name();
+  syn String Id.name() = hasNameNode() ?  getNameNode().name() : getIdUse().name();
 
   syn String NameNode.name() = getID();
   syn String IdUse.name() = getID();

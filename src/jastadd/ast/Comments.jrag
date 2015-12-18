@@ -47,7 +47,7 @@ outer: while (true) {
           break;
         }
         if (lnStart != -1 && lnStart < newStart) {
-          // skip to end of line
+          // Skip to end of line.
           int len = comments.length();
           for (int i = lnStart; i < len; ++i) {
             char c = comments.charAt(i);
@@ -77,7 +77,7 @@ outer: while (true) {
         return "";
       }
 
-      // doc comment with /** and */ stripped:
+      // Doc comment with /** and */ stripped:
       javadoc = comments.substring(start+3, end-2).toCharArray();
       out = new StringBuilder(javadoc.length);
       i = 0;
@@ -169,13 +169,16 @@ outer: while (true) {
   public String TypeDecl.extraDocCommentLines() {
     return "";
   }
+
   public String ASTDecl.extraDocCommentLines() {
     String superclass = "";
-    if (hasSuperClass())
-      superclass = " : {@link "+getSuperClass().getID()+"}";
+    if (hasSuperClass()) {
+      superclass = " : {@link " + getSuperClass().getID() + "}";
+    }
     String components = "";
-    if (getNumComponent() > 0)
+    if (getNumComponent() > 0) {
       components = " ::=" + componentString();
+    }
     return " * @production " + getIdDecl().getID() + superclass + components + ";\n";
   }
 
@@ -199,5 +202,4 @@ outer: while (true) {
     tt.bind("SourceComment", parser.parse(getComment()));
     return tt.expand("CollEq.docComment");
   }
-
 }

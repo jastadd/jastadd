@@ -49,5 +49,6 @@ aspect ASTEqual {
   }
 
   syn lazy boolean Component.isTokenComponent() = false;
+
   eq TokenComponent.isTokenComponent() = true;
 }

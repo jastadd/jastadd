@@ -31,16 +31,18 @@ import org.jastadd.ast.AST.SimpleNode;
 
 public aspect Unparse {
   public Token SimpleNode.firstToken;
+
   public Token SimpleNode.lastToken; 
+
   public void SimpleNode.unparseComment(StringBuffer buf) {
-        Token tt = firstToken.specialToken;
-        if (tt != null) {
-            while (tt.specialToken != null) tt = tt.specialToken;
-            while (tt != null) {
-                buf.append(addUnicodeEscapes(tt.image));
-                tt = tt.next;
-            }
-        }
+    Token tt = firstToken.specialToken;
+    if (tt != null) {
+      while (tt.specialToken != null) tt = tt.specialToken;
+      while (tt != null) {
+        buf.append(addUnicodeEscapes(tt.image));
+        tt = tt.next;
+      }
+    }
   }
 
   public String SimpleNode.unparseComment() {
@@ -54,8 +56,8 @@ public aspect Unparse {
     char ch;
     for (int i = 0; i < str.length(); i++) {
       ch = str.charAt(i);
-      if ((ch < 0x20 || ch > 0x7e) &&
-          ch != '\t' && ch != '\n' && ch != '\r' && ch != '\f') {
+      if ((ch < 0x20 || ch > 0x7e)
+          && ch != '\t' && ch != '\n' && ch != '\r' && ch != '\f') {
         String s = "0000" + Integer.toString(ch, 16);
         retval += "\\u" + s.substring(s.length() - 4, s.length());
       } else {

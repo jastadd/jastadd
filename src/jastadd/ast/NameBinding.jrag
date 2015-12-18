@@ -109,12 +109,14 @@ aspect AllEquations {
     }
     return set;
   }
+
   eq ASTDecl.synEquations() {
     Set set = super.synEquations();
     if (superClass() != null)
       set.addAll(superClass().synEquations());
     return set;
   }
+
   syn lazy Set TypeDecl.synDeclarations() {
     Set set = new LinkedHashSet();
     for (int i = 0; i < getNumSynDecl(); i++) {
@@ -122,12 +124,14 @@ aspect AllEquations {
     }
     return set;
   }
+
   eq ASTDecl.synDeclarations() {
     Set set = super.synDeclarations();
     if (superClass() != null)
       set.addAll(superClass().synDeclarations());
     return set;
   }
+
   syn lazy Set TypeDecl.inhEquations() {
     Set set = new LinkedHashSet();
     for (int i = 0; i < getNumInhEq(); i++) {
@@ -135,12 +139,14 @@ aspect AllEquations {
     }
     return set;
   }
+
   eq ASTDecl.inhEquations() {
     Set set = super.inhEquations();
     if (superClass() != null)
       set.addAll(superClass().inhEquations());
     return set;
   }
+
   syn lazy Set TypeDecl.inhDeclarations() {
     Set set = new LinkedHashSet();
     for (int i = 0; i < getNumInhDecl(); i++) {
@@ -148,6 +154,7 @@ aspect AllEquations {
     }
     return set;
   }
+
   eq ASTDecl.inhDeclarations() {
     Set set = super.inhDeclarations();
     if (superClass() != null)
@@ -163,6 +170,7 @@ aspect BindSynEquations {
         return getSynDecl(i);
     return null;
   }
+
   eq ASTDecl.lookupSynDecl(String signature) {
     SynDecl decl = super.lookupSynDecl(signature);
     if (decl != null || superClass() == null)
@@ -171,20 +179,24 @@ aspect BindSynEquations {
   }
 
   syn lazy SynEq TypeDecl.lookupSynEq(String signature) {
-    for (int i = 0; i < getNumSynEq(); i++)
-      if (getSynEq(i).signature().equals(signature))
+    for (int i = 0; i < getNumSynEq(); i++) {
+      if (getSynEq(i).signature().equals(signature)) {
         return getSynEq(i);
+      }
+    }
     return null;
   }
+
   eq ASTDecl.lookupSynEq(String signature) {
     SynEq equations = super.lookupSynEq(signature);
-    if (equations != null || superClass() == null)
+    if (equations != null || superClass() == null) {
       return equations;
+    }
     return superClass().lookupSynEq(signature);
   }
 
   syn lazy boolean TypeDecl.hasInhEq(InhDecl decl, Component c) =
-    lookupInhEq(decl.signature(), c.name()) != null;
+      lookupInhEq(decl.signature(), c.name()) != null;
 
   syn lazy InhEq TypeDecl.lookupInhEq(String signature, String childName) {
     for (int i = 0; i < getNumInhEq(); i++) {
@@ -202,21 +214,21 @@ aspect BindSynEquations {
 
   eq ASTDecl.lookupInhEq(String signature, String childName) {
     InhEq equation = super.lookupInhEq(signature, childName);
-    if (equation != null || superClass() == null)
+    if (equation != null || superClass() == null) {
       return equation;
+    }
     return superClass().lookupInhEq(signature, childName);
   }
-
 }
 
 aspect LookupDecls {
-  // this can not be lazy because we remove duplicate InhDecls,
+  // This can not be lazy because we remove duplicate InhDecls,
   // so if this were lazy it could point to removed nodes!
   syn AttrDecl AttrEq.decl();
 
   eq InhEq.decl() = grammar().inhDecls().get(signature());
 
-  // SynDecls are not removed, so this can be lazy
+  // SynDecls are not removed, so this can be lazy.
   syn lazy SynDecl SynEq.decl() = hostClass().lookupSynDecl(signature());
 }
 
@@ -232,20 +244,18 @@ aspect ASTDecl {
         map.put(id, list);
       }
       if (equ.getChildName().equals("getChild")) {
-        list.add(equ); // insert last
-      }
-      else if (equ.getComponent() != null && equ.getComponent().isNTA()) {
-        list.add(0, equ); // insert first
-      }
-      else {
-        list.add(0, equ); // insert first
+        list.add(equ); // Insert last.
+      } else if (equ.getComponent() != null && equ.getComponent().isNTA()) {
+        list.add(0, equ); // Insert first.
+      } else {
+        list.add(0, equ); // Insert first.
       }
     }
     return map;
   }
 
   /**
-   * @return list of inherited attributes with equations at this node
+   * @return list of inherited attributes with equations at this node.
    */
   public Collection<String> TypeDecl.inhAttrSet() {
     return inhEqMap().keySet();

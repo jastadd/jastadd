@@ -214,7 +214,8 @@ aspect AttributeProblems {
 
   syn Problem SynDecl.missingEqProblem() {
     StringBuilder buf = new StringBuilder();
-    buf.append("equation for synthesized attribute " + name() + " missing in the following classes:");
+    buf.append("equation for synthesized attribute "
+        + name() + " missing in the following classes:");
     for (TypeDecl decl: missingEqs()) {
       buf.append("\n    " + decl.name());
     }
@@ -237,19 +238,19 @@ aspect AttributeProblems {
   eq InterfaceDecl.missingSynEqs(String signature) = Collections.emptyList();
 
   /**
-   * @param signature the signature of the attribute
+   * @param signature the signature of the attribute.
    * @return the subclasses of this AST class that are missing an
-   * equation for for the synthesized attribute
+   * equation for for the synthesized attribute.
    */
   eq ASTDecl.missingSynEqs(String signature) {
     if (lookupSynEq(signature) != null) {
-      // if there is an equation defined for this class we are done
+      // If there is an equation defined for this class we are done.
       return Collections.emptyList();
     } else if (!hasAbstract()) {
-      // if the class is not abstract then it is missing an equation
+      // If the class is not abstract then it is missing an equation.
       return Collections.singletonList(this);
     } else {
-      // the class was abstract so we must check that all subclasses define the equation
+      // The class was abstract so we must check that all subclasses define the equation.
       Collection<TypeDecl> missing = new LinkedList<TypeDecl>();
       for (ASTDecl subclass: subclasses()) {
         missing.addAll(subclass.missingSynEqs(signature));

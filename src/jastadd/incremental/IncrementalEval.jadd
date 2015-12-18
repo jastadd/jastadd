@@ -57,14 +57,16 @@ aspect IncrementalEval {
   public ArrayList ASTDecl.listOfCachedAttributes() {
     ArrayList list = new ArrayList();
     for (int k = 0; k < getNumSynEq(); k++) {
-       AttrDecl attr = getSynEq(k).decl();
-       if (attr != null && (attr.isLazy() || attr.isCircular()))
+      AttrDecl attr = getSynEq(k).decl();
+      if (attr != null && (attr.isLazy() || attr.isCircular())) {
         list.add(attr);
+      }
     }
     for (int k = 0; k < getNumInhDecl(); k++) {
       InhDecl attr = getInhDecl(k);
-       if (attr.isLazy() || attr.isCircular())
+      if (attr.isLazy() || attr.isCircular()) {
         list.add(attr);
+      }
     }
     return list;
   }
@@ -76,13 +78,15 @@ aspect IncrementalEval {
     ArrayList list = new ArrayList();
     for (int k = 0; k < getNumSynDecl(); k++) {
       AttrDecl attr = getSynDecl(k);
-      if (attr.isNTA())
+      if (attr.isNTA()) {
         list.add(attr);
+      }
     }
     for (int k = 0; k < getNumInhDecl(); k++) {
       AttrDecl attr = getInhDecl(k);
-      if (attr.isNTA())
+      if (attr.isNTA()) {
         list.add(attr);
+      }
     }
     return list;
   }

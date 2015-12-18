@@ -206,14 +206,17 @@ aspect JragCodeGen {
     if (config().lazyMaps()) {
       if (!isCircular()) {
         if (getNumParameter() != 0 && config().visitCheckEnabled() && config().rewriteEnabled()) {
-          sb.append("if (" + signature() + "_visited == null) " + signature() + "_visited = " + config().createDefaultMap() + ";\n");
+          sb.append("if (" + signature() + "_visited == null) " + signature()
+              + "_visited = " + config().createDefaultMap() + ";\n");
         }
         else if (getNumParameter() != 0 && config().visitCheckEnabled()) {
-          sb.append("if (" + signature() + "_visited == null) " + signature() + "_visited = " + config().createDefaultSet() + ";\n");
+          sb.append("if (" + signature() + "_visited == null) " + signature()
+              + "_visited = " + config().createDefaultSet() + ";\n");
         }
       }
       if (getNumParameter() != 0 && (isLazy() || isCircular())) {
-        sb.append("if (" + signature() + "_values == null) " + signature() + "_values = " + config().createDefaultMap() + ";\n");
+        sb.append("if (" + signature() + "_values == null) " + signature()
+            + "_values = " + config().createDefaultMap() + ";\n");
       }
     }
     return sb.toString();
@@ -337,7 +340,8 @@ aspect JragCodeGen {
 
   public String AttrDecl.cacheStoreCircular() {
     if (config().cacheCycle()) {
-      return "(!state.IN_CIRCLE || (state.IN_CIRCLE && (!state.INTERMEDIATE_VALUE || state.LAST_CYCLE)))";
+      return "(!state.IN_CIRCLE || (state.IN_CIRCLE && (!state.INTERMEDIATE_VALUE "
+          + "|| state.LAST_CYCLE)))";
     }
     return "!state.INTERMEDIATE_VALUE";
   }
@@ -400,9 +404,8 @@ aspect JragCodeGen {
     return false;
   }
 
+  // TODO(joqvist): remove this.
   syn String AttrDecl.cycleLimitCheck() = "";
-   // TODO: fixme cycleLimit > 0 ?
-   //    "if (state().CIRCLE_INDEX > " + cycleLimit + ") throw new java.lang.RuntimeException(\"Iteration limit " + cycleLimit + " exceeded\");\n" : "";
 
   public void AttrDecl.emitEquation(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
@@ -412,7 +415,8 @@ aspect JragCodeGen {
 
   public void AttrDecl.emitCircularEquationNoParams(PrintStream out) {
     TemplateContext tt = templateContext();
-    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature()
+        + "_value", signature() + "_value"));
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
@@ -695,8 +699,9 @@ aspect JragCodeGen {
     }
     return false;
   }
+
   eq ASTDecl.hasInhEq(String attrName) =
-    super.hasInhEq(attrName) || superClass() != null && superClass().hasInhEq(attrName);
+      super.hasInhEq(attrName) || superClass() != null && superClass().hasInhEq(attrName);
 
   syn Component InhEq.getComponent() {
     TypeDecl c = hostClass();
@@ -706,7 +711,8 @@ aspect JragCodeGen {
     return  null;
   }
 
-  syn String InhEq.childName() = getChildName().startsWith("get") ? getChildName().substring(3) : getChildName();
+  syn String InhEq.childName() =
+      getChildName().startsWith("get") ? getChildName().substring(3) : getChildName();
 
   /**
    * Lookup NTA child corresponding to this inherited equation.

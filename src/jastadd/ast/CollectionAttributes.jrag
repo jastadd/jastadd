@@ -82,7 +82,8 @@ aspect CollectionAttributes {
   public void AttrDecl.emitCircularCollectionEval(PrintStream out) {
     TemplateContext tt = templateContext();
     tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
-    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value", signature() + "_value"));
+    tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value",
+        signature() + "_value"));
     tt.bind("CircularComputeRhs", name() + "_compute()");
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));

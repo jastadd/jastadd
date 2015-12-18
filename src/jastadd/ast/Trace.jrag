@@ -73,7 +73,8 @@ aspect Trace {
     }
     b.append(")");
     b.append(", ");
-    b.append("this = \" + this.getClass().getName() + \"@\"+ Integer.toHexString(this.hashCode()) + \"");
+    b.append("this = \" + this.getClass().getName() + \"@\"+ "
+        + "Integer.toHexString(this.hashCode()) + \"");
     for (int i = 0; i < getNumParameter(); i++) {
       String name = getParameter(i).getName();
       String type = getParameter(i).getType();
@@ -83,32 +84,21 @@ aspect Trace {
       if (isPrimitiveType(type) || type.equals("String") || type.equals("java.lang.String")) {
         b.append("\" + " + name + " + \"");
       } else {
-        b.append("\" + " + name + ".getClass().getName() + \"@\" + Integer.toHexString(" + name + ".hashCode()) + \"");
+        b.append("\" + " + name + ".getClass().getName() + \"@\" + Integer.toHexString("
+            + name + ".hashCode()) + \"");
       }
     }
     return b.toString();
   }
 
   protected String AttrDecl.trace(String s) {
-    // Disabling this print-based tracing in favor of the new in-memory tracing using templates
-    /*if (!grammar().tracing || grammar().tracing)
-      return "";
-    StringBuilder b = new StringBuilder();
-    b.append("System.out.println(\"");
-    b.append(s);
-    b.append("\");\n");
-    return b.toString();*/
-
-    // removed above dead code /jesper
+    // TODO(joqvist): remove this method? 
     return "";
   }
 
-  syn String AttrDecl.traceBeginAttr() =
-    trace("begin " + traceSignature());
-  syn String AttrDecl.traceEndAttr() =
-    trace("end " + traceSignature());
-  syn String AttrDecl.traceEndCachedAttr() =
-    trace("end cached " + traceSignature());
+  syn String AttrDecl.traceBeginAttr() = trace("begin " + traceSignature());
+  syn String AttrDecl.traceEndAttr() = trace("end " + traceSignature());
+  syn String AttrDecl.traceEndCachedAttr() = trace("end cached " + traceSignature());
 }
 
 aspect NewTrace {

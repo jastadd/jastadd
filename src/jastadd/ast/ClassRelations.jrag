@@ -38,21 +38,25 @@ aspect Superclass {
   }
 
   syn boolean ASTDecl.testCircular(String name) {
-    if (!hasSuperClass())
+    if (!hasSuperClass()) {
       return false;
-    if (getSuperClassName().equals(name))
+    }
+    if (getSuperClassName().equals(name)) {
       return true;
+    }
     ASTDecl superClass = (ASTDecl) grammar().lookup(getSuperClassName());
     return superClass != null ? superClass.testCircular(name) : false;
   }
 
   syn boolean ASTDecl.isCircular() = testCircular(name());
 
-  syn lazy ASTDecl ASTDecl.superClass() = hasSuperClass() && !isCircular() ?
-    (ASTDecl) grammar().lookup(getSuperClassName()) : null;
+  syn lazy ASTDecl ASTDecl.superClass() =
+      hasSuperClass() && !isCircular()
+      ? (ASTDecl) grammar().lookup(getSuperClassName())
+      : null;
 
-  syn lazy String ASTDecl.getSuperClassName() = hasSuperClass() ?
-    getSuperClass().name() : null;
+  syn lazy String ASTDecl.getSuperClassName() =
+      hasSuperClass() ?  getSuperClass().name() : null;
 
   /**
    * @return all supertypes of this AST type
@@ -102,6 +106,7 @@ aspect Subclasses {
   }
 
   inh lazy Collection<ASTDecl> TypeDecl.findSubclasses(ASTDecl target);
+
   syn lazy Collection<ASTDecl> ASTDecl.subclasses() = findSubclasses(this);
 
   eq Grammar.getTypeDecl().findSubclasses(ASTDecl target) {

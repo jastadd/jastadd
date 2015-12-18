@@ -32,25 +32,27 @@ aspect InheritedAttributes {
    * The tail of the list of inherited attribute parameters after removing caller and child.
    */
   syn String InhDecl.inhParametersTail() =
-    parameters().equals("") ? "" : (", " + parameters());
+      parameters().equals("") ? "" : (", " + parameters());
 
   /**
    * The tail of the list of inherited attribute parameters after removing caller and child.
    */
   syn String InhEq.inhParametersTail() =
-    parameters().equals("") ? "" : (", " + parameters());
+      parameters().equals("") ? "" : (", " + parameters());
 
   /**
-   * The tail of the list of inherited attribute parameter declarations after removing caller and child.
+   * The tail of the list of inherited attribute parameter declarations after
+   * removing caller and child.
    */
   syn String InhDecl.inhParametersDeclTail() =
-    parametersDecl().equals("") ? "" : (", " + parametersDecl());
+      parametersDecl().equals("") ? "" : (", " + parametersDecl());
 
   /**
-   * The tail of the list of inherited attribute parameter declarations after removing caller and child.
+   * The tail of the list of inherited attribute parameter declarations after
+   * removing caller and child.
    */
   syn String InhEq.inhParametersDeclTail() =
-    parametersDecl().equals("") ? "" : (", " + parametersDecl());
+      parametersDecl().equals("") ? "" : (", " + parametersDecl());
 
   /**
    * Ensure no duplicate inherited declarations.
@@ -76,6 +78,7 @@ aspect InheritedAttributes {
   }
 
   syn boolean AttrDecl.isDuplicateInhDecl() = false;
+
   eq InhDecl.isDuplicateInhDecl() = prevDecl() != this;
 
   syn InhDecl InhDecl.prevDecl() = hostClass().lookupInhDecl(signature());
@@ -99,14 +102,14 @@ aspect InheritedAttributes {
 
   /**
    * Find all inherited attribute declarations in the grammar. Used for
-   * semantic analysis and error checkin of inherited attributes.
+   * semantic analysis and error checking of inherited attributes.
    *
    * @return map containing all inherited attribute declarations in
-   * the grammar
+   * the grammar.
    */
-  Map<String,InhDecl> Grammar.inhDecls() {
-    Map<String,InhDecl> decls = new HashMap<String,InhDecl>();
-    for (TypeDecl type: getTypeDecls()) {
+  Map<String, InhDecl> Grammar.inhDecls() {
+    Map<String, InhDecl> decls = new HashMap<String, InhDecl>();
+    for (TypeDecl type : getTypeDecls()) {
       for (int i = 0; i < type.getNumInhDecl(); ++i) {
         InhDecl decl = type.getInhDecl(i);
         decls.put(decl.signature(), decl);
@@ -114,7 +117,6 @@ aspect InheritedAttributes {
     }
     return decls;
   }
-
 }
 
 aspect FindInheritedEquations {
@@ -216,12 +218,12 @@ aspect FindInheritedEquations {
     }
 
     if (!isRootNode()) {
-      // add all inh attrs declared on this node
+      // Add all inh attrs declared on this node.
       for (InhDecl decl: getInhDeclList()) {
         missing.add(decl);
       }
 
-      // add all missing equations from supertypes
+      // Add all missing equations from supertypes.
       for (ASTDecl supertype: supertypes()) {
         for (InhDecl decl: supertype.getInhDeclList()) {
           missing.add(decl);
@@ -235,13 +237,12 @@ aspect FindInheritedEquations {
 
   private void ASTDecl.addMissingChildInhEqs(Collection<InhDecl> missing,
       String childName, Collection<InhDecl> childMissing) {
-
-      for (InhDecl decl: childMissing) {
-        if (!hasInhEqForDecl(childName, decl.signature())) {
-          // we have no equation X.getY() = ...;
-          missing.add(decl);
-        }
+    for (InhDecl decl: childMissing) {
+      if (!hasInhEqForDecl(childName, decl.signature())) {
+        // We have no equation X.getY() = ...;.
+        missing.add(decl);
       }
+    }
   }
 
   /**
@@ -271,13 +272,13 @@ aspect FindInheritedEquations {
       // The visited set is used for caching (also for sub classes).
       Map<ASTDecl, Set<ASTDecl>> visited = new HashMap<ASTDecl, Set<ASTDecl>>();
 
-      // check class
+      // Check class.
       map = host.missingInhEqs(signature(), host.parents(), visited);
       if (!map.isEmpty()) {
         missing.put(host, map);
       }
 
-      // check sub classes (transitive)
+      // Check sub classes (transitive).
       for (ASTDecl sub: host.subclassesTransitive()) {
         map = sub.missingInhEqs(signature(), sub.parentsIntransitive(), visited);
         if (!map.isEmpty()) {
@@ -323,7 +324,7 @@ aspect FindInheritedEquations {
       return name();
     }
     for (ASTDecl parent: parents()) {
-      // Cache for efficiency
+      // Cache for efficiency.
       Set<ASTDecl> visitedChildren = visited.get(parent);
       if (visitedChildren == null) {
         visitedChildren = new HashSet<ASTDecl>();
@@ -332,7 +333,6 @@ aspect FindInheritedEquations {
         break;
       }
       visitedChildren.add(this);
-
       if (!parent.hasInhEq(this, signature)) {
         String path = parent.missingInhEqPath(signature, visited);
         if (path != null) {
@@ -390,7 +390,7 @@ aspect InheritedAttributeCodeGen {
   private String ASTDecl.inhEqClauses(InhDecl decl, Collection<InhEq> inhEqs) {
     StringBuffer sb = new StringBuffer();
 
-    // have we already generated a component equation?
+    // Have we already generated a component equation?
     boolean hasComponentEq = false;
 
     for (InhEq equ: inhEqs) {
@@ -403,10 +403,10 @@ aspect InheritedAttributeCodeGen {
       TemplateContext tc = equ.templateContext();
 
       if (equ.getRHS() instanceof ASTBlock) {
-        // Block
+        // Block right hand side.
         tc.bind("EvalStmt", rhs);
       } else {
-        // Expr
+        // Expression right hand side.
         tc.bind("EvalStmt", "return " + rhs + ";");
       }
 
@@ -424,10 +424,11 @@ aspect InheritedAttributeCodeGen {
         tc.bind("ChildIndexVar", equ.hasIndex() ? equ.getIndex().getName() : "childIndex");
         tc.bind("HasComponentEq", hasComponentEq);
         tc.expand("InhEq.emitDefaultClause", sb);
-        // the getChild equation, if present, is always last in the equation list, so we are done now
+        // The getChild equation, if present, is always last in the equation
+        // list, so we are done now.
         return sb.toString();
       } else {
-        // NTA child equation
+        // NTA child equation.
         AttrDecl attrDecl = equ.getChildAttrDecl();
         tc.bind("IsParameterized", attrDecl.isParameterized());
         if (attrDecl.isParameterized()) {
@@ -436,11 +437,10 @@ aspect InheritedAttributeCodeGen {
         }
         tc.expand("InhEq.emitNTAClause", sb);
       }
-
       hasComponentEq = true;
     }
 
-    // there was no default (getChild) equation
+    // There was no default (getChild) equation.
     TemplateContext tc = decl.templateContext();
     tc.bind("HasComponentEq", hasComponentEq);
     tc.bind("HasEqInSupertype", superClass() != null && superClass().hasInhEq(decl.name()));
@@ -451,12 +451,8 @@ aspect InheritedAttributeCodeGen {
   public void ASTDecl.emitCanDefineInhMethod(PrintStream out, String attrId) {
     Collection<InhEq> inhEqs = inhAttrEqs(attrId);
     assert(inhEqs.iterator().hasNext());
-
     InhDecl decl = (InhDecl) inhEqs.iterator().next().decl();
-
     TemplateContext tc = decl.templateContext();
     tc.expand("InhDecl.canDefineMethod", out);
   }
-
 }
-

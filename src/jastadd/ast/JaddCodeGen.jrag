@@ -41,7 +41,7 @@ aspect JaddCodeGen {
     ASTDecl cl;
     IdDecl name;
 
-    // Add ASTNode
+    // Add ASTNode.
     cl = new ASTDecl();
     name = new IdDecl();
     name.setID(config().astNodeType());
@@ -50,7 +50,7 @@ aspect JaddCodeGen {
     cl.modifiers = "public";
     addTypeDecl(cl);
 
-    // Add List
+    // Add List.
     cl = new ASTDecl();
     name = new IdDecl();
     name.setID(config().listType());
@@ -59,7 +59,7 @@ aspect JaddCodeGen {
     cl.modifiers = "public";
     addTypeDecl(cl);
 
-    // Add Opt
+    // Add Opt.
     cl = new ASTDecl();
     name = new IdDecl();
     name.setID(config().optType());
@@ -212,12 +212,12 @@ aspect JaddCodeGen {
       return;
     }
     out.print(config().indent + "public " + name() + "." + name() + "(");
-    int i = 0; // parameter index
+    int paramIndex = 0;
     for (Component c : components()) {
       if (!c.isNTA()) {
-        if (i != 0) out.print(", ");
-        out.print(c.constrParmType() + " p" + i);
-        i++;
+        if (paramIndex != 0) out.print(", ");
+        out.print(c.constrParmType() + " p" + paramIndex);
+        paramIndex++;
       }
     }
     out.println(") {");
@@ -230,7 +230,6 @@ aspect JaddCodeGen {
       // We only build constructors if there are components.
       return;
     }
-    // ... and if one of these components is a string token component
     boolean stringArg = false;
     for (Component c : components()) {
       if (!c.isNTA() && c instanceof TokenComponent && c.constrParmType().equals("String")
@@ -241,17 +240,17 @@ aspect JaddCodeGen {
     if (!stringArg) return;
 
     out.print(config().indent + "public " + name() + "." + name() + "(");
-    int i = 0; // parameter index
+    int paramIndex = 0;
     for (Component c : components()) {
       if (!c.isNTA()) {
-        if (i != 0) out.print(", ");
+        if (paramIndex != 0) out.print(", ");
         if (c instanceof TokenComponent && c.constrParmType().equals("String")
             || c.constrParmType().equals("java.lang.String")) {
-          out.print("beaver.Symbol p" + i);
+          out.print("beaver.Symbol p" + paramIndex);
         } else {
-          out.print(c.constrParmType() + " p" + i);
+          out.print(c.constrParmType() + " p" + paramIndex);
         }
-        i++;
+        paramIndex++;
       }
     }
     out.println(") {");
@@ -307,7 +306,8 @@ aspect JaddCodeGen {
    * array size.
    */
   syn String ASTDecl.initialChildArraySize() {
-    return "(i+1>" + config().minListSize() + " || !(this instanceof " + config().listType() + "))?i+1:" + config().minListSize();
+    return "(i+1>" + config().minListSize() + " || !(this instanceof " + config().listType()
+      + "))?i+1:" + config().minListSize();
   }
 
   /**
@@ -315,7 +315,7 @@ aspect JaddCodeGen {
    */
   syn String ASTDecl.debugASTNodeState() {
     if (config().debugMode() && !grammar().roots().isEmpty()) {
-      // Check if a new state object is created for a node that is not a root node
+      // Check if a new state object is created for a node that is not a root node.
       StringBuilder buf = new StringBuilder();
       buf.append("if (");
       boolean first = true;
@@ -328,7 +328,8 @@ aspect JaddCodeGen {
         buf.append("!(this instanceof " + root.name() + ")");
       }
       buf.append(")\n");
-      buf.append(config().indent + "throw new RuntimeException(\"Trying to evaluate state in a node which is not attached to the main tree\");");
+      buf.append(config().indent + "throw new RuntimeException(\"Trying to evaluate state in "
+          + "a node which is not attached to the main tree\");");
       return buf.toString();
     } else {
       return "";
@@ -342,43 +343,19 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.emitImplicitASTNodeDecls(PrintWriter out) {
     TemplateContext tt = templateContext();
-
-    /* emit general declarations */
     tt.expand("ASTNode.declarations", out);
-
-    /* emit getChild */
     tt.expand("ASTNode.getChild", out);
     tt.expand("ASTNode.rewrittenAttr", out);
-
-    /* emit addChild */
     tt.expand("ASTNode.addChild", out);
-
-    /* emit getChildNoTransform */
     tt.expand("ASTNode.getChildNoTransform", out);
-
-    /* emit numChildren */
     tt.expand("ASTNode.numChildren", out);
-
-    /* emit setChild */
     tt.expand("ASTNode.setChild", out);
-
-    /* emit insertChild */
     tt.expand("ASTNode.insertChild", out);
-
-    /* emit removeChild */
     tt.expand("ASTNode.removeChild", out);
-
-    /* emit setParent & getParent */
     tt.expand("ASTNode.getParent", out);
     tt.expand("ASTNode.setParent", out);
-
-    /* emit annotation types */
     tt.expand("ASTNodeAnnotation", out);
-
-    /* emit debug declarations */
     tt.expand("ASTNode.debugDecls", out);
-
-    /* emit declarations for line and column */
     if (config().lineColumnNumbers()) {
       tt.expand("ASTNode.lineColumnNumbers", out);
     }
@@ -388,8 +365,7 @@ aspect JaddCodeGen {
    * @return <code>true</code> if the list$touched field is needed for this
    * ASTDecl.
    */
-  syn boolean ASTDecl.needsListTouched() =
-    !(config().incremental() || config().flushRewrite());
+  syn boolean ASTDecl.needsListTouched() = !(config().incremental() || config().flushRewrite());
 
   /**
    * Generate implicit aspect declarations for the List type.
@@ -553,17 +529,9 @@ aspect JaddCodeGen {
 
     if (config().jjtree()) {
       TemplateContext tt = templateContext();
-
-      // Emit the dumpTree method.
       tt.expand("JJTree.dumpTree", out);
-
-      // Emit the jjtAccept method.
       tt.expand("JJTree.jjtAccept", out);
-
-      // Emit the jjtAddChild method.
       tt.expand("JJTree.jjtAddChild", out);
-
-      // Emit method to check the structure of a JJTree node.
       tt.expand("JJTree.checkChild", out);
     }
 
@@ -658,7 +626,8 @@ aspect JaddCodeGen {
     tt.bind("Host", decl.name());
     tt.bind("Modifier", publicModifier ? "public" : "private");
 
-    boolean isStringToken = getTokenId().getTYPE().equals("String") || getTokenId().getTYPE().equals("java.lang.String");
+    boolean isStringToken = getTokenId().getTYPE().equals("String")
+        || getTokenId().getTYPE().equals("java.lang.String");
     boolean isRedefined = decl.redefinesTokenComponent(this);
     tt.bind("IsStringToken", isStringToken);
     tt.bind("IsRedefined", isRedefined);
@@ -678,7 +647,8 @@ aspect JaddCodeGen {
   }
 
   protected void Component.parse(String s) {
-    org.jastadd.jrag.AST.JragParser jp = new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(s));
+    org.jastadd.jrag.AST.JragParser jp =
+        new org.jastadd.jrag.AST.JragParser(new java.io.StringReader(s));
     jp.root = grammar();
 
     // The file name is not meaningful, as the component is completely generated
