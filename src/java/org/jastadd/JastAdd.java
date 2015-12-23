@@ -48,6 +48,8 @@ import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Ast;
 import org.jastadd.ast.AST.Component;
 import org.jastadd.ast.AST.Grammar;
+import org.jastadd.ast.AST.InhDecl;
+import org.jastadd.ast.AST.InhEq;
 import org.jastadd.ast.AST.InterTypeObject;
 import org.jastadd.ast.AST.List;
 import org.jastadd.ast.AST.SynDecl;
@@ -271,7 +273,7 @@ public class JastAdd {
   private boolean checkErrors(String description, Collection<Problem> problems, PrintStream err) {
     boolean hasError = false;
     boolean first = true;
-    for (Problem problem: problems) {
+    for (Problem problem : problems) {
       if (first && !description.isEmpty()) {
         err.println("Problems during " + description + ":");
       }
@@ -309,7 +311,7 @@ public class JastAdd {
 
   protected static Collection<Problem> weaveInterTypeObjects(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    for (InterTypeObject object: grammar.interTypeObjects) {
+    for (InterTypeObject object : grammar.interTypeObjects) {
       TypeDecl clazz = grammar.lookup(object.className);
       if (clazz != null) {
         clazz.classBodyDecls.add(object.classBodyObject);
@@ -328,30 +330,54 @@ public class JastAdd {
 
   protected static Collection<Problem> weaveAttributes(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    for (SynDecl decl: grammar.synDecls) {
+    for (SynDecl decl : grammar.synDecls) {
       String className = decl.hostName;
       TypeDecl clazz = grammar.lookup(className);
       if (clazz != null) {
         clazz.addSynDecl(decl);
       } else {
-        problems.add(decl.errorf("can not add synthesized attribute %s %s to unknown class %s",
+        problems.add(decl.errorf(
+            "can not add synthesized attribute %s %s to unknown class %s",
             decl.getType(), decl.getName(), className));
       }
     }
     grammar.synDecls.clear();
-
-    for (SynEq equ: grammar.synEqs) {
+    for (SynEq equ : grammar.synEqs) {
       String className = equ.hostName;
       TypeDecl clazz = grammar.lookup(className);
       if (clazz != null) {
         clazz.addSynEq(equ);
       } else {
-        problems.add(
-            equ.errorf("can not add equation for synthesized attribute %s to unknown class %s",
-                equ.getName(), className));
+        problems.add(equ.errorf(
+            "can not add equation for synthesized attribute %s to unknown class %s",
+            equ.getName(), className));
       }
     }
     grammar.synEqs.clear();
+    for (InhDecl decl : grammar.inhDecls) {
+      String className = decl.hostName;
+      TypeDecl clazz = grammar.lookup(className);
+      if (clazz != null) {
+        clazz.addInhDecl(decl);
+      } else {
+        problems.add(decl.errorf(
+            "can not add inherited attribute %s %s to unknown class %s",
+            decl.getType(), decl.getName(), className));
+      }
+    }
+    grammar.inhDecls.clear();
+    for (InhEq equ : grammar.inhEqs) {
+      String className = equ.hostName;
+      TypeDecl clazz = grammar.lookup(className);
+      if (clazz != null) {
+        clazz.addInhEq(equ);
+      } else {
+        problems.add(equ.errorf(
+            "can not add equation for inhertied attribute %s to unknown class %s",
+            equ.getName(), className));
+      }
+    }
+    grammar.inhEqs.clear();
     return problems;
   }
 
@@ -552,12 +578,13 @@ public class JastAdd {
           .message("exception occurred while parsing: %s", e.getMessage())
           .buildError());
     } finally {
-      if (inStream != null)
+      if (inStream != null) {
         try {
           inStream.close();
         } catch (IOException e) {
           // Failed to close input. Not a problem.
         }
+      }
     }
   }
 

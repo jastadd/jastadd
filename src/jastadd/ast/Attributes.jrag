@@ -208,6 +208,14 @@ public aspect Attributes {
 
   public String SynEq.hostName = "";
 
+  public LinkedList<InhDecl> Grammar.inhDecls = new LinkedList<InhDecl>();
+
+  public LinkedList<InhEq> Grammar.inhEqs = new LinkedList<InhEq>();
+
+  public String InhDecl.hostName = "";
+
+  public String InhEq.hostName = "";
+
   public void Grammar.addSynDecl(
       String name,
       String type,
@@ -237,7 +245,7 @@ public aspect Attributes {
         aspectName,
         new List()
     );
-    for (String annotation: annotations) {
+    for (String annotation : annotations) {
       decl.addAnnotation(new Annotation(annotation));
     }
     decl.setBottomValue(bottomValue);
@@ -265,7 +273,7 @@ public aspect Attributes {
     equ.setParameterList(list);
     equ.setComment(Unparser.unparseComment(node));
     equ.setAspectName(aspectName);
-    for (String annotation: annotations) {
+    for (String annotation : annotations) {
       equ.addAnnotation(new Annotation(annotation));
     }
     equ.hostName = className;
@@ -277,9 +285,7 @@ public aspect Attributes {
       org.jastadd.ast.AST.List parameterList, ASTExpression bottomValue,
       boolean isFinal, boolean isNTA, org.jastadd.jrag.AST.SimpleNode node,
       String aspectName, ArrayList<String> annotations) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      InhDecl decl = new InhDecl(
+    InhDecl decl = new InhDecl(
         parameterList,
         name,
         type,
@@ -292,16 +298,13 @@ public aspect Attributes {
         Unparser.unparseComment(node),
         aspectName,
         new List()
-      );
-      for (String annotation: annotations) {
-        decl.addAnnotation(new Annotation(annotation));
-      }
-      decl.setBottomValue(bottomValue);
-      c.addInhDecl(decl);
-    } else {
-      error("can not add inherited attribute " + type + " " + name + " to unknown class "
-          + className, fileName, startLine);
+    );
+    for (String annotation : annotations) {
+      decl.addAnnotation(new Annotation(annotation));
     }
+    decl.setBottomValue(bottomValue);
+    decl.hostName = className;
+    inhDecls.add(decl);
   }
 
   public void Grammar.addInhEq(String childName, String name, String className,
@@ -318,29 +321,24 @@ public aspect Attributes {
       int endLine, org.jastadd.ast.AST.List list, Parameter p,
       org.jastadd.jrag.AST.SimpleNode node, String aspectName,
       ArrayList<String> annotations) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-        InhEq equ = new InhEq();
-        equ.setName(name);
-        equ.setFileName(fileName);
-        equ.setStartLine(startLine);
-        equ.setEndLine(endLine);
-        equ.setRHS(rhs);
-        equ.setChildName(childName);
-        equ.setParameterList(list);
-        equ.setComment(Unparser.unparseComment(node));
-        equ.setAspectName(aspectName);
-        for (String annotation: annotations) {
-          equ.addAnnotation(new Annotation(annotation));
-        }
-        if (p != null) {
-          equ.setIndex(p);
-        }
-        c.addInhEq(equ); // Sort in alphabetical order, then non-NTAs first.
-    } else {
-      error("can not add equation for inherited attribute " + name + " to unknown class "
-          + className, fileName, startLine);
+    InhEq equ = new InhEq();
+    equ.setName(name);
+    equ.setFileName(fileName);
+    equ.setStartLine(startLine);
+    equ.setEndLine(endLine);
+    equ.setRHS(rhs);
+    equ.setChildName(childName);
+    equ.setParameterList(list);
+    equ.setComment(Unparser.unparseComment(node));
+    equ.setAspectName(aspectName);
+    for (String annotation : annotations) {
+      equ.addAnnotation(new Annotation(annotation));
     }
+    if (p != null) {
+      equ.setIndex(p);
+    }
+    equ.hostName = className;
+    inhEqs.add(equ);
   }
 
   public void Grammar.addComponents(String className, org.jastadd.ast.AST.List componentsList) {
@@ -391,7 +389,7 @@ public aspect Attributes {
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
       String className, String fileName, String aspectName) {
     interTypeObjects.add(new InterTypeObject(className, new ClassBodyObject(n,
-            fileName, n.firstToken.beginLine, aspectName)));
+        fileName, n.firstToken.beginLine, aspectName)));
   }
 
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
@@ -630,7 +628,7 @@ public aspect Attributes {
     } else {
       n.firstToken.image = s.toString();
     }
-    // change body of original equation to the refined body
+    // Change body of original equation to the refined body.
     equ.setRHS(n);
     equ.setFileName(refinedEqu.getFileName());
     equ.setStartLine(refinedEqu.getStartLine());
