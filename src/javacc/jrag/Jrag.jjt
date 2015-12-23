@@ -37,14 +37,13 @@ public class JragParser {
   /* Added attributes to the parser: */
   public String className = ""; // Name of class currently parsed.
   public String enclosingAspect = ""; // The name of the aspect currently being parsed.
-  public String fileName; // Name of parsed file;
+  public String fileName; // Name of parsed file.
 
   private java.util.List<String> contextStack = new java.util.ArrayList<String>();
 
   public boolean inTopLevelOrAspect() {
     int size = contextStack.size();
-    return size == 0 || (size == 1 &&
-        contextStack.get(0).equals("aspect"));
+    return size == 0 || (size == 1 && contextStack.get(0).equals("aspect"));
   }
 
   public boolean shouldAddClassBodyDecl() {
@@ -66,7 +65,7 @@ public class JragParser {
   public Grammar root;
   public java.io.InputStream inputStream;
 
-  /* ------- Method to set name of parsed file --------- */
+  /** Set name of parsed file. */
   public void setFileName(String name) {
     fileName = name;
     className = "";
@@ -83,42 +82,40 @@ public class JragParser {
   }
   /* ------End of methods for NODE_SCOPE_HOOK------------*/
 
-  /* ------ Some auxiliary methods ----------------------*/
-
-  /* Returns string consisting of all chars before a dot */
+  /** Returns string consisting of all chars before a dot. */
   public String beforeDot(String s) {
     int i = s.indexOf('.');
-    if (i<0)
+    if (i < 0) {
       return s;
-    else
-      return s.substring(0,i);
+    } else {
+      return s.substring(0, i);
+    }
   }
 
-  /* Returns string consisting of all chars between "get" and before a '('
-     Returns null if "get" is not a prefix; s  if no "(" found*/
+  /**
+   * Returns string consisting of all chars between "get" and before a '('.
+   * Returns null if "get" is not a prefix; s  if no "(" found.
+   */
   public String stripGet(String s) {
-    if (!s.startsWith("get"))
+    if (!s.startsWith("get")) {
       return null;
+    }
     s = s.substring(3, s.length());
     return s;
   }
 
-  /* Returns string consisting of all chars after a dot */
+  /** Returns string consisting of all chars after a dot. */
   public String afterDot(String s) {
     int i = s.indexOf('.');
-    if (i<0)
+    if (i < 0) {
       return null;
-    else
+    } else {
       return s.substring(i+1,s.length());
+    }
   }
-
-  /* ---------------- End of auxiliary methods -----------------*/
 }
 
-
-
 PARSER_END(JragParser)
-
 
 /* WHITE SPACE */
 
@@ -1356,10 +1353,9 @@ void CollectionContribution():
   String targetName;
   String targetAttributeName;
   String attributeType;
-  SimpleNode reference;
+  SimpleNode reference = null;
   org.jastadd.ast.AST.List contributionList = new org.jastadd.ast.AST.List();
   boolean refSet = false;
-
   ArrayList<String> annotations = new ArrayList<String>();
   String annotation;
 }
@@ -1384,12 +1380,13 @@ void CollectionContribution():
   )*
   "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
 
-  "for" [LOOKAHEAD("each") "each" { refSet = true; } ] reference = Expression() ";" { last = token; }
+  [ "for" [LOOKAHEAD("each") "each" { refSet = true; } ] reference = Expression() ]
+  ";" { last = token; }
   {
     root.addCollEq(targetName,
         targetAttributeName,
         attributeType,
-        Unparser.unparse(reference).trim(),
+        reference == null ? "" : Unparser.unparse(reference).trim(),
         contributionList,
         fileName,
         first.beginLine,
@@ -1462,18 +1459,15 @@ void ClassDeclaration(String modifiers) :
         fileName, first.beginLine, enclosingAspect);
     typeDecl.modifiers = modifiers;
   }
-   [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
-   [ "extends"
-   node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
-  //t = <IDENTIFIER>  { name.append(t.image); } ("." t = <IDENTIFIER> {name.append("." + t.image); })*
-  { if(!name.toString().equals("") && typeDecl instanceof org.jastadd.ast.AST.ClassDecl)
+  [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
+  [ "extends"
+    node = ClassOrInterfaceType() { name.append(Unparser.unparse(node)); }
+    { if(!name.toString().equals("") && typeDecl instanceof org.jastadd.ast.AST.ClassDecl)
       ((org.jastadd.ast.AST.ClassDecl)typeDecl).extendsName = name.toString();
-  }
-   //Name()
-   ]
-   [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName);} ]
+    }
+  ]
+  [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName);} ]
   ClassBody() { className = outerClassName; popTopLevelOrAspect(); }
-  //UnmodifiedClassDeclaration()
 }
 
 SimpleNode TypeNameList():

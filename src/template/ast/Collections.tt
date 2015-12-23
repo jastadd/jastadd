@@ -94,6 +94,12 @@ for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
 }
 $else
 {
+$if(#implicitTarget)
+  if (_root.#(signature)_value == null) {
+    _root.#(signature)_value = $BottomValue;
+  }
+  _root.#(signature)_value.$CombOp($Value);
+$else
   #getTargetName target = #getReference;
   if (target != null) {
     if (target.#(signature)_value == null) {
@@ -101,6 +107,7 @@ $else
     }
     target.#(signature)_value.$CombOp($Value);
   }
+$endif
 }
 $endif
 ]]
@@ -120,49 +127,60 @@ CollEq.contribution:twoPhase [[
 $if(#getRefSet)
 for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
   if (target != null) {
-    java.util.Set<$ASTNode> contributors = map.get(target);
+    java.util.Set<$ASTNode> contributors = _map.get(target);
     if (contributors == null) {
       contributors = new java.util.HashSet<$ASTNode>();
-      map.put(($ASTNode) target, contributors);
+      _map.put(($ASTNode) target, contributors);
     }
     contributors.add(this);
   }
 }
 $else
 {
-  #getTargetName target = (#getTargetName) (#getReference);
-  if (target != null) {
-    java.util.Set<$ASTNode> contributors = map.get(target);
+$if(#implicitTarget)
+  if (_root != null) {
+    java.util.Set<$ASTNode> contributors = _map.get(_root);
     if (contributors == null) {
       contributors = new java.util.HashSet<$ASTNode>();
-      map.put(($ASTNode) target, contributors);
+      _map.put(($ASTNode) _root, contributors);
     }
     contributors.add(this);
   }
+$else
+  #getTargetName target = (#getTargetName) (#getReference);
+  if (target != null) {
+    java.util.Set<$ASTNode> contributors = _map.get(target);
+    if (contributors == null) {
+      contributors = new java.util.HashSet<$ASTNode>();
+      _map.put(($ASTNode) target, contributors);
+    }
+    contributors.add(this);
+  }
+$endif
 }
 $endif
 ]]
 
 CollDecl.collectContributors:header [[
 $if(#onePhase)
-  protected void collect_contributors_#collectionId() {
+  protected void collect_contributors_#collectionId(#rootType _root) {
 $else
-  protected void collect_contributors_#collectionId(java.util.Map<$ASTNode, java.util.Set<$ASTNode>> map) {
+  protected void collect_contributors_#collectionId(#rootType _root, java.util.Map<$ASTNode, java.util.Set<$ASTNode>> _map) {
 $endif
 ]]
 
 CollDecl.collectContributors:default [[
     for (int i = 0; i < getNumChild(); i++) {
-      getChild(i).collect_contributors_#collectionId($if(!#onePhase)map$endif);
+      getChild(i).collect_contributors_#collectionId(_root$if(!#onePhase), _map$endif);
     }
   }
 ]]
 
 CollDecl.collectContributors:end [[
 $if(#onePhase)
-    super.collect_contributors_#collectionId();
+    super.collect_contributors_#collectionId(_root);
 $else
-    super.collect_contributors_#collectionId(map);
+    super.collect_contributors_#collectionId(_root, _map);
 $endif
   }
 ]]
@@ -213,9 +231,9 @@ $if(#isCircular)
       collecting_contributors_#collectionId = true;
 $endif
 $if(#onePhase)
-      collect_contributors_#collectionId();
+      collect_contributors_#collectionId(this);
 $else
-      collect_contributors_#collectionId(contributorMap_#collectionId);
+      collect_contributors_#collectionId(this, contributorMap_#collectionId);
 $endif
 $if(#isCircular)
       collecting_contributors_#collectionId = false;

@@ -38,6 +38,9 @@ aspect CollectionAttributes {
 
   syn String CollDecl.rootType() = root().name();
 
+  /** @return {@code true} if this contribution implicitly contributes to the collection root. */
+  syn boolean CollEq.implicitTarget() = getReference().isEmpty();
+
   /**
    * Find interface collection attribute declarations.
    */
@@ -355,7 +358,7 @@ aspect CollectionAttributes {
    * @return the collection attribute declaration, or {@code null} if no
    * declaration was found.
    */
-  eq CollEq.decl() {
+  syn CollDecl CollEq.decl() {
     TypeDecl typeDecl = grammar().lookup(getTargetName());
     if (typeDecl != null) {
       TypeDecl astDecl = (TypeDecl) typeDecl;
@@ -396,6 +399,7 @@ aspect CollectionAttributes {
       decl.setTarget(className);
       decl.root = root;
       decl.setAspectName(aspectName);
+      // TODO(joqvist): defer collection attribute weaving.
       ((TypeDecl) c).addCollDecl(decl);
     } else {
       errorf("Can not add collection attribute %s %s to unknown class %s in %s at line %d",
@@ -449,6 +453,7 @@ aspect CollectionAttributes {
       for (String annotation : annotations) {
         equ.addAnnotation(new Annotation(annotation));
       }
+      // TODO(joqvist): defer collection attribute weaving.
       ((ASTDecl) c).addCollEq(equ);
     } else {
       errorf("Can not add collection contribution to unknown class %s in %s at line %d",

@@ -88,7 +88,6 @@ aspect AttributeProblems {
     return problems;
   }
 
-
   coll Collection<Problem> TypeDecl.attributeProblems()
       [new LinkedList<Problem>()]
       with add
@@ -161,9 +160,7 @@ aspect AttributeProblems {
     return warning(String.format(messagefmt, args));
   }
 
-  /**
-   * @return Previous equation for same synthesized attribute
-   */
+  /** @return Previous equation for same synthesized attribute. */
   syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
 
   SynEq contributes errorf(
@@ -464,6 +461,14 @@ aspect AttributeProblems {
 
   CollDecl contributes warning("no contributions for this collection attribute")
       when uses().isEmpty()
+      to TypeDecl.attributeProblems()
+      for hostClass();
+
+  CollEq contributes errorf("contribution target expression missing for attribute '%s.%s'. "
+          + "Contribution target expression is optional only when the collection root node is "
+          + "the target.",
+          getTargetName(), getTargetAttributeName())
+      when decl() != null && implicitTarget() && !decl().rootType().equals(getTargetName())
       to TypeDecl.attributeProblems()
       for hostClass();
 
