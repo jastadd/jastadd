@@ -573,10 +573,6 @@ public class JastAdd {
       problems.add(Problem.builder()
           .message("could not find aspect file '%s'", fileName)
           .buildError());
-    } catch (Throwable e) {
-      problems.add(Problem.builder()
-          .message("exception occurred while parsing: %s", e.getMessage())
-          .buildError());
     } finally {
       if (inStream != null) {
         try {

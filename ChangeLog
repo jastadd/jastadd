@@ -1,3 +1,12 @@
+2015-12-27  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * The initial expression for a collection attribute is now
+    optional. If no expression is given, the default
+    initialization is calling the default constructor of the
+    collection attribute type. This only works when the
+    attribute type is a concrete type with an accessible
+    default constructor.
+
 2015-12-17  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Removed java.lang.Iterable from the list of implemented interfaces for

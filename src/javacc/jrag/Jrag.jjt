@@ -786,8 +786,8 @@ void AspectInterfaceSynAttributeDeclaration() :
     root.addSynDecl(attrName.image, attrType, className,
         (root.config().cacheImplicit() || isLazy),
         fileName, first.beginLine, last.endLine, list,
-        (ASTExpression) bottomValue, isFinal, false, jjtThis,
-        enclosingAspect, annotations);
+        bottomValue == null ? "" : Unparser.unparse(bottomValue),
+        isFinal, false, jjtThis, enclosingAspect, annotations);
 
   }
 }
@@ -832,8 +832,8 @@ void AspectInterfaceInhAttributeDeclaration() :
     last = token;
     root.addInhDecl(attrName.image, attrType, className,
         (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
-        last.endLine, list, (ASTExpression) bottomValue, isFinal,
-        false, jjtThis, enclosingAspect, annotations);
+        last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
+        isFinal, false, jjtThis, enclosingAspect, annotations);
   }
 }
 
@@ -1051,8 +1051,8 @@ void AspectSynAttributeDeclaration() :
   {
     root.addSynDecl(attrName.image, attrType, targetName,
         (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
-        last.endLine, list, (ASTExpression) bottomValue, isFinal,
-        isNTA, jjtThis, enclosingAspect, annotations);
+        last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
+        isFinal, isNTA, jjtThis, enclosingAspect, annotations);
 
     if (init) {
       root.addSynEq(attrName.image, targetName, eq, fileName, first.beginLine,
@@ -1104,8 +1104,8 @@ void AspectInhAttributeDeclaration() :
     last = token;
     root.addInhDecl(attrName.image, attrType, targetName,
         (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
-        last.endLine, list, (ASTExpression) bottomValue, isFinal, isNTA,
-        jjtThis, enclosingAspect, annotations);
+        last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
+        isFinal, isNTA, jjtThis, enclosingAspect, annotations);
   }
 }
 
@@ -1320,7 +1320,7 @@ void CollectionAttribute():
   Token attrName;
   String combOp = "add";
   String rootName = null;
-  SimpleNode startValue;
+  SimpleNode startValue = null;
   boolean isCircular = false;
 
   ArrayList<String> annotations = new ArrayList<String>();
@@ -1331,14 +1331,16 @@ void CollectionAttribute():
   "coll" { first = token; }
   attrType = AspectType() t = <IDENTIFIER> "." { targetName = t.image; } attrName = AttributeName() "(" ")"
   [ <CIRCULAR> { isCircular = true; } ]
-  <LBRACKET> startValue = Expression() <RBRACKET>
+  [ <LBRACKET> startValue = Expression() <RBRACKET> ]
   [ <WITH> t = <IDENTIFIER> { combOp = t.image; } ]
   [ <ROOT> t = <IDENTIFIER> { rootName = t.image; } ]
   ";"
   {
     last = token;
     root.addCollDecl(attrName.image, attrType, targetName, fileName,
-        first.beginLine, last.endLine, (ASTExpression)startValue, combOp,
+        first.beginLine, last.endLine,
+        startValue == null ? "new " + attrType + "()" : Unparser.unparse(startValue).trim(),
+        combOp,
         isCircular, annotations, jjtThis, rootName, enclosingAspect);
     token_source.SwitchTo(DEFAULT);
   }

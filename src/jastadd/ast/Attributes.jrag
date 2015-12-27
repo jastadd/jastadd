@@ -225,7 +225,7 @@ public aspect Attributes {
       int startLine,
       int endLine,
       org.jastadd.ast.AST.List parameterList,
-      ASTExpression bottomValue,
+      String bottomValue,
       boolean isFinal,
       boolean isNTA,
       org.jastadd.jrag.AST.SimpleNode node,
@@ -282,7 +282,7 @@ public aspect Attributes {
 
   public void Grammar.addInhDecl(String name, String type, String className,
       boolean isLazy, String fileName, int startLine, int endLine,
-      org.jastadd.ast.AST.List parameterList, ASTExpression bottomValue,
+      org.jastadd.ast.AST.List parameterList, String bottomValue,
       boolean isFinal, boolean isNTA, org.jastadd.jrag.AST.SimpleNode node,
       String aspectName, ArrayList<String> annotations) {
     InhDecl decl = new InhDecl(

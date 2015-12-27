@@ -84,7 +84,7 @@ aspect CollectionAttributes {
   // Only used by circular collection attributes.
   public void AttrDecl.emitCircularCollectionEval(PrintStream out) {
     TemplateContext tt = templateContext();
-    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
+    tt.bind("BottomValue", getBottomValue());
     tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value",
         signature() + "_value"));
     tt.bind("CircularComputeRhs", name() + "_compute()");
@@ -97,7 +97,7 @@ aspect CollectionAttributes {
   public void CollDecl.emitComputeMethod(PrintStream out) {
     String rootType = root().name();
     TemplateContext tt = templateContext();
-    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
+    tt.bind("BottomValue", getBottomValue());
     if (onePhase()) {
       tt.expand("CollDecl.computeMethod:onePhase", out);
     } else {
@@ -180,7 +180,7 @@ aspect CollectionAttributes {
 
       decl.templateContext().expand("CollDecl.collectContributors:header", out);
 
-      String bottomValue = Unparser.unparse(decl.getBottomValue());
+      String bottomValue = decl.getBottomValue();
 
       for (CollEq equation : equations) {
         TemplateContext tt = equation.templateContext();
@@ -376,7 +376,7 @@ aspect CollectionAttributes {
   CollEq contributes this when decl() != null to CollDecl.uses() for decl();
 
   public void Grammar.addCollDecl(String name, String type, String className,
-      String fileName, int startLine, int endLine, ASTExpression startValue,
+      String fileName, int startLine, int endLine, String startValue,
       String combOp, boolean isCircular, ArrayList<String> annotations,
       org.jastadd.jrag.AST.SimpleNode node, String root, String aspectName) {
     TypeDecl c = lookup(className);
@@ -461,13 +461,13 @@ aspect CollectionAttributes {
     }
   }
 
-  private ASTExpression CollDecl.startValue;
+  private String CollDecl.startValue;
 
-  public void CollDecl.setStartValue(ASTExpression e) {
-    startValue = e;
+  public void CollDecl.setStartValue(String expression) {
+    startValue = expression;
   }
 
-  public ASTExpression CollDecl.getBottomValue() {
+  public String CollDecl.getBottomValue() {
     return startValue;
   }
 

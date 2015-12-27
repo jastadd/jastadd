@@ -417,7 +417,7 @@ aspect JragCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature()
         + "_value", signature() + "_value"));
-    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
+    tt.bind("BottomValue", getBottomValue());
     tt.bind("TracePrintReturnNewValue", tracePrintReturnNewValue(signature() + "_value"));
     tt.bind("TracePrintReturnPreviousValue", tracePrintReturnPreviousValue(signature() + "_value"));
     tt.expand("AttrDecl.circularEquation:unparameterized", out);
@@ -425,7 +425,7 @@ aspect JragCodeGen {
 
   public void AttrDecl.emitCircularEquationWithParams(PrintStream out, String paramDecl) {
     TemplateContext tt = templateContext();
-    tt.bind("BottomValue", Unparser.unparse(getBottomValue()));
+    tt.bind("BottomValue", getBottomValue());
     tt.bind("ChangeCondition", valueComparisonExpr("new_" + signature() + "_value",
         fromReferenceType("_value.value", getType())));
     tt.bind("ParamDecl", paramDecl);
@@ -821,5 +821,5 @@ aspect Compute {
   syn String AttrDecl.circularComputeRhs() = computeRhs();
 
   eq CollDecl.circularComputeRhs() = String.format("combine_%s_contributions(%s)",
-      signature(), Unparser.unparse(getBottomValue()));
+      signature(), getBottomValue());
 }

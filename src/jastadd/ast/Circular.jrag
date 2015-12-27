@@ -28,15 +28,15 @@
 import org.jastadd.jrag.AST.ASTExpression;
 
 aspect Circular {
-  ASTExpression AttrDecl.bottomValue;
+  String AttrDecl.bottomValue = "";
 
   syn boolean AttrDecl.isCircular() = hasBottomValue();
 
-  syn boolean AttrDecl.hasBottomValue() = bottomValue != null;
+  syn boolean AttrDecl.hasBottomValue() = bottomValue != null && !bottomValue.isEmpty();
 
-  syn ASTExpression AttrDecl.getBottomValue() = bottomValue;
+  syn String AttrDecl.getBottomValue() = bottomValue;
 
-  public void AttrDecl.setBottomValue(ASTExpression v) {
-    bottomValue = v;
+  public void AttrDecl.setBottomValue(String expression) {
+    bottomValue = expression;
   }
 }
