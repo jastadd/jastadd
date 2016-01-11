@@ -1350,7 +1350,7 @@ void CollectionContribution():
 {
   Token t;
   Token first, last;
-  SimpleNode contribution;
+  SimpleNode value;
   SimpleNode condition = null;
   String targetName;
   String targetAttributeName;
@@ -1364,35 +1364,19 @@ void CollectionContribution():
 }
 {
   ( annotation = Annotation() { annotations.add(annotation); } )*
-
   t = <IDENTIFIER> { first = token; attributeType = t.image; }
   "contributes"
-
   [ LOOKAHEAD("each") "each" { iterableValue = true; } ]
-
-  contribution = Expression() { condition = null; }
+  value = Expression()
   [ "when" condition = Expression() ]
-  {
-      contributionList.add(new org.jastadd.ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
-  }
-  (
-    ","
-    contribution = Expression() { condition = null; }
-    [ "when" condition = Expression() ]
-    {
-        contributionList.add(new org.jastadd.ast.AST.Contribution(Unparser.unparse(contribution), condition == null ? null : Unparser.unparse(condition)));
-    }
-  )*
   "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
-
   [ "for" [ LOOKAHEAD("each") "each" { iterableTarget = true; } ] reference = Expression() ]
   ";" { last = token; }
   {
-    root.addCollEq(targetName,
+    org.jastadd.ast.AST.CollEq equ = root.addCollEq(targetName,
         targetAttributeName,
         attributeType,
         reference == null ? "" : Unparser.unparse(reference).trim(),
-        contributionList,
         fileName,
         first.beginLine,
         last.endLine,
@@ -1401,6 +1385,13 @@ void CollectionContribution():
         jjtThis,
         enclosingAspect,
         annotations);
+    // TODO(joqvist): make equ non-null.
+    if (equ != null) {
+      equ.setValue(Unparser.unparse(value).trim());
+      if (condition != null) {
+          equ.setCondition(Unparser.unparse(condition).trim());
+      }
+    }
   }
 }
 

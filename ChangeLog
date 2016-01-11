@@ -1,8 +1,10 @@
 2016-01-11  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * When a contribution uses the `each` keyword before the value expression,
-    the value is treated as a collection and the `addAll` method is used as
-    combination operator instead of the default combination operator.
+    the value is treated as an iterable object. The value object is iterated
+    and each element in the value is added to the attribute value.
+    * Removed an undocumented feature that allowed multiple value expressions
+    for a single contribution statement.
 
 2015-12-27  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 

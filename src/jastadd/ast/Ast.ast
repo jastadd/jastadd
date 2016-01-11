@@ -43,10 +43,8 @@ InhEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <C
     <AspectName:String> <ChildName> [Index:Parameter];
 
 CollEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String>
-    <AspectName:String> Contribution* <TargetName:String> <TargetAttributeName:String>
-    <Reference:String>;
-
-Contribution ::= <Value:String> <Condition:String>;
+    <AspectName:String> <Value:String> <Condition:String> <TargetName:String>
+    <TargetAttributeName:String> <Reference:String>;
 
 ClassBodyDecl ::= <Name> <FileName> <StartLine:int> <EndLine:int> <AspectName:String>;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2015, The JastAdd Team
+/* Copyright (c) 2005-2016, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,24 @@ aspect CollectionAttributes {
   eq CollDecl.isCollection() = true;
 
   syn String CollDecl.rootType() = root().name();
+
+  /** @return the return type of the collection attribute */
+  syn String CollEq.getType() = decl().getType();
+
+  /**
+   * @return the element type of this collection, or Object if the collection
+   * is not parameterized
+   */
+  syn String CollEq.elementType() {
+    String type = decl().getType();
+    int start = type.indexOf('<');
+    int end = type.lastIndexOf('>');
+    if (start != -1 && end != -1) {
+      return type.substring(start + 1, end);
+    } else {
+      return "Object";
+    }
+  }
 
   private boolean CollEq.iterableValue = false;
 
@@ -176,8 +194,7 @@ aspect CollectionAttributes {
     contributeTo(out);
   }
 
-  syn boolean Contribution.hasCondition() =
-      getCondition() != null && !getCondition().trim().isEmpty();
+  syn boolean CollEq.hasCondition() = !getCondition().isEmpty();
 
   private void ASTDecl.collectContributors(PrintStream out) {
     // Mapping collection declaration to collection equations.
@@ -205,23 +222,13 @@ aspect CollectionAttributes {
       for (CollEq equation : equations) {
         TemplateContext tt = equation.templateContext();
         tt.bind("BottomValue", bottomValue);
-        if (equation.iterableValue()) {
-          tt.bind("CombOp", "addAll");
+        tt.bind("CombOp", decl.getCombOp());
+        if (decl.onePhase()) {
+          tt.bind("HasCondition", equation.hasCondition());
+          tt.expand("CollEq.collectContributors:onePhase", out);
         } else {
-          tt.bind("CombOp", decl.getCombOp());
-        }
-
-        for (int j = 0; j < equation.getNumContribution(); j++) {
-          Contribution c = equation.getContribution(j);
-          tt.bind("Condition", c.getCondition().trim());
-          if (decl.onePhase()) {
-            tt.bind("HasCondition", c.hasCondition());
-            tt.bind("Value", c.getValue().trim());
-            tt.expand("CollEq.collectContributors:onePhase", out);
-          } else {
-            tt.bind("HasCondition", c.hasCondition() && !decl.lazyCondition());
-            tt.expand("CollEq.collectContributors:twoPhase", out);
-          }
+          tt.bind("HasCondition", equation.hasCondition() && !decl.lazyCondition());
+          tt.expand("CollEq.collectContributors:twoPhase", out);
         }
       }
       if (isASTNodeDecl()) {
@@ -253,16 +260,10 @@ aspect CollectionAttributes {
 
       decl.templateContext().bind("IsAstNode", isASTNodeDecl());
       decl.templateContext().expand("CollDecl.contributeTo:header", out);
-      for (CollEq attr : equations) {
-        for (Contribution c : attr.getContributionList()) {
-          TemplateContext tt = c.templateContext();
-          if (attr.iterableValue()) {
-            tt.bind("CombOp", "addAll");
-          } else {
-            tt.bind("CombOp", decl.getCombOp());
-          }
-          tt.expand("Contribution.statement", out);
-        }
+      for (CollEq equation : equations) {
+        TemplateContext tt = equation.templateContext();
+        tt.bind("CombOp", decl.getCombOp());
+        tt.expand("CollEq.contributeStatement", out);
       }
       out.println(config().indent + "}");
     }
@@ -456,9 +457,8 @@ aspect CollectionAttributes {
     return null;
   }
 
-  public void Grammar.addCollEq(String targetName, String targetAttributeName,
-      String attributeType, String reference,
-      org.jastadd.ast.AST.List contributionList, String fileName,
+  public CollEq Grammar.addCollEq(String targetName, String targetAttributeName,
+      String attributeType, String reference, String fileName,
       int startLine, int endLine, boolean iterableValue, boolean iterableTarget,
       org.jastadd.jrag.AST.SimpleNode node, String aspectName,
       ArrayList<String> annotations) {
@@ -473,7 +473,8 @@ aspect CollectionAttributes {
           endLine,
           Unparser.unparseComment(node),
           aspectName,
-          contributionList,
+          "",
+          "",
           targetName,
           targetAttributeName,
           reference);
@@ -484,9 +485,12 @@ aspect CollectionAttributes {
       }
       // TODO(joqvist): defer collection attribute weaving.
       ((ASTDecl) c).addCollEq(equ);
+      return equ;
     } else {
       errorf("Can not add collection contribution to unknown class %s in %s at line %d",
           attributeType, fileName, startLine);
+      // TODO(joqvist): defer weaving so we can return non-null.
+      return null;
     }
   }
 

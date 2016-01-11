@@ -74,7 +74,7 @@ CollDecl.computeMethod:twoPhase [[
 CollEq.collectContributors:onePhase = [[
     // #declaredat
 $if(HasCondition)
-    if ($Condition) {
+    if (#getCondition) {
       $include(CollEq.contribution:onePhase)
     }
 $else
@@ -89,7 +89,8 @@ for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
     if (target.#(signature)_value == null) {
       target.#(signature)_value = $BottomValue;
     }
-    target.#(signature)_value.$CombOp($Value);
+    #getType collection = target.#(signature)_value;
+    $include(CollEq.addValueToCollection)
   }
 }
 $else
@@ -98,14 +99,16 @@ $if(#implicitTarget)
   if (_root.#(signature)_value == null) {
     _root.#(signature)_value = $BottomValue;
   }
-  _root.#(signature)_value.$CombOp($Value);
+  #getType collection = _root.#(signature)_value;
+  $include(CollEq.addValueToCollection)
 $else
   #getTargetName target = #getReference;
   if (target != null) {
     if (target.#(signature)_value == null) {
       target.#(signature)_value = $BottomValue;
     }
-    target.#(signature)_value.$CombOp($Value);
+    #getType collection = target.#(signature)_value;
+    $include(CollEq.addValueToCollection)
   }
 $endif
 }
@@ -115,7 +118,7 @@ $endif
 CollEq.collectContributors:twoPhase = [[
     // #declaredat
 $if(HasCondition)
-    if ($Condition) {
+    if (#getCondition) {
       $include(CollEq.contribution:twoPhase)
     }
 $else
@@ -197,13 +200,23 @@ $if(!IsAstNode)
 $endif
 ]]
 
-Contribution.statement [[
+CollEq.contributeStatement [[
 $if(#hasCondition)
     if (#getCondition) {
-      collection.$CombOp(#getValue);
+      $include(CollEq.addValueToCollection)
     }
 $else
-    collection.$CombOp(#getValue);
+    $include(CollEq.addValueToCollection)
+$endif
+]]
+
+CollEq.addValueToCollection [[
+$if(#iterableValue)
+for (#elementType value : #getValue) {
+  collection.$CombOp(value);
+}
+$else
+collection.$CombOp(#getValue);
 $endif
 ]]
 
