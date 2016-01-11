@@ -83,7 +83,7 @@ $endif
 ]]
 
 CollEq.contribution:onePhase [[
-$if(#getRefSet)
+$if(#iterableTarget)
 for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
   if (target != null) {
     if (target.#(signature)_value == null) {
@@ -124,7 +124,7 @@ $endif
 ]]
 
 CollEq.contribution:twoPhase [[
-$if(#getRefSet)
+$if(#iterableTarget)
 for (#getTargetName target : (Iterable<#getTargetName>) (#getReference)) {
   if (target != null) {
     java.util.Set<$ASTNode> contributors = _map.get(target);

@@ -44,7 +44,7 @@ InhEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <C
 
 CollEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <Comment:String>
     <AspectName:String> Contribution* <TargetName:String> <TargetAttributeName:String>
-    <RefSet:boolean> <Reference:String>;
+    <Reference:String>;
 
 Contribution ::= <Value:String> <Condition:String>;
 

@@ -38,6 +38,26 @@ aspect CollectionAttributes {
 
   syn String CollDecl.rootType() = root().name();
 
+  private boolean CollEq.iterableValue = false;
+
+  private boolean CollEq.iterableTarget = false;
+
+  public boolean CollEq.iterableTarget() {
+    return iterableTarget;
+  }
+
+  public void CollEq.setIterableTarget(boolean b) {
+    iterableTarget = b;
+  }
+
+  public boolean CollEq.iterableValue() {
+    return iterableValue;
+  }
+
+  public void CollEq.setIterableValue(boolean b) {
+    iterableValue = b;
+  }
+
   /** @return {@code true} if this contribution implicitly contributes to the collection root. */
   syn boolean CollEq.implicitTarget() = getReference().isEmpty();
 
@@ -185,7 +205,11 @@ aspect CollectionAttributes {
       for (CollEq equation : equations) {
         TemplateContext tt = equation.templateContext();
         tt.bind("BottomValue", bottomValue);
-        tt.bind("CombOp", decl.getCombOp());
+        if (equation.iterableValue()) {
+          tt.bind("CombOp", "addAll");
+        } else {
+          tt.bind("CombOp", decl.getCombOp());
+        }
 
         for (int j = 0; j < equation.getNumContribution(); j++) {
           Contribution c = equation.getContribution(j);
@@ -232,7 +256,11 @@ aspect CollectionAttributes {
       for (CollEq attr : equations) {
         for (Contribution c : attr.getContributionList()) {
           TemplateContext tt = c.templateContext();
-          tt.bind("CombOp", decl.getCombOp());
+          if (attr.iterableValue()) {
+            tt.bind("CombOp", "addAll");
+          } else {
+            tt.bind("CombOp", decl.getCombOp());
+          }
           tt.expand("Contribution.statement", out);
         }
       }
@@ -431,7 +459,7 @@ aspect CollectionAttributes {
   public void Grammar.addCollEq(String targetName, String targetAttributeName,
       String attributeType, String reference,
       org.jastadd.ast.AST.List contributionList, String fileName,
-      int startLine, int endLine, boolean refSet,
+      int startLine, int endLine, boolean iterableValue, boolean iterableTarget,
       org.jastadd.jrag.AST.SimpleNode node, String aspectName,
       ArrayList<String> annotations) {
     TypeDecl c = lookup(attributeType);
@@ -448,8 +476,9 @@ aspect CollectionAttributes {
           contributionList,
           targetName,
           targetAttributeName,
-          refSet,
           reference);
+      equ.setIterableValue(iterableValue);
+      equ.setIterableTarget(iterableTarget);
       for (String annotation : annotations) {
         equ.addAnnotation(new Annotation(annotation));
       }
