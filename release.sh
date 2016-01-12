@@ -39,7 +39,68 @@ if [ $# -lt "1" ]; then
     exit 1
 fi
 
-VERSION="$1"
+update_website ()
+{
+    echo "Updating webpages..."
+    if [ ! -d website ]; then
+        git clone git@bitbucket.org:jastadd/web.git website
+    else
+        pushd website
+        git clean -fd
+        git fetch origin
+        git reset --hard origin/master
+        popd
+    fi
+
+    # Copy files to the website repository.
+    rsync -v \
+        jastadd2-src.zip \
+        jastadd2-bin.zip \
+        README.md \
+        doc/*.php \
+        doc/index.md \
+        doc/reference-manual.html \
+        doc/release-notes.html \
+        "website/static/releases/jastadd2/${VERSION}"
+
+    # Update links.
+    echo "Updating links..."
+    vim -e website/web/index.md <<EOF
+%s/^\(News:\n-----\n\)/\1\r### Date: JastAdd2 Release ${VERSION}\r\rVersion ${VERSION} of JastAdd2 has been released!\r\r* [Download it here!](\/releases\/jastadd2\/${VERSION}\/index.php)\r* [View Release Notes](http:\/\/jastadd.org\/releases\/jastadd2\/${VERSION}\/release-notes.php)\r/
+w
+EOF
+    vim -e website/web/download.md <<EOF
+%s/^\(JastAdd2\n--------\n\n\)/\1* [JastAdd2 Release ${VERSION}](\/releases\/jastadd2\/${VERSION})\r/
+w
+EOF
+    vim -e website/web/documentation/reference-manual.php <<EOF
+%s/\(releases\/jastadd2\/\)\d\+\.\d\+\.\d\+\(\/reference-manual.html\)/\1${VERSION}\2/
+w
+EOF
+
+    pushd website
+    echo "Publishing to staging website http://jastadd.org/testweb..."
+    ./testpublish.sh
+    git add static/releases
+    git commit -am "Update for JastAdd release ${VERSION}"
+    echo
+    echo "Published to http://jastadd.org/testweb - go check it out!"
+
+    while true; do
+      read -p "Push website changes to bitbucket and continue? (yes/no) " yn
+      case $yn in
+        [Yy]* ) break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+      esac
+    done
+
+    ./publish.sh
+    git push
+    popd
+}
+
+VERSION="${1}"
 
 echo "JastAdd2 Release $VERSION"
 echo "======================"
@@ -81,51 +142,17 @@ done
 echo "Building release ${VERSION}..."
 gradle clean release "-PnewVersion=${VERSION}"
 
-if [ "$?" -ne "0" ]; then
-	exit "$?"
-fi
-
-echo "Ready to upload artifacts to jastadd.org..."
-while true; do
-  read -p "Proceed? (yes/no) " yn
-  case "$yn" in
-    [Yy]* ) break;;
-    [Nn]* ) exit;;
-    * ) echo "Please answer yes or no.";;
-  esac
-done
-
-echo "Uploading files to jastadd.org..."
-# Add --chmod=g+w to set group write permission.
-rsync -av --chmod=g+w \
-  	jastadd2-src.zip \
-  	jastadd2-bin.zip \
-  	README.md \
-  	doc/*.php \
-  	doc/index.md \
-  	doc/reference-manual.html \
-  	doc/release-notes.html \
-  	"web.cs.lth.se:/Websites/jastadd/releases/jastadd2/${VERSION}"
+update_web
 
 echo
-echo "Release Checklist"
-echo "-----------------"
-echo "1. Update web pages with links to the new release:"
-echo "   * update index.md"
-echo "   * update download.md"
-echo "   * update documentation/reference-manual.php"
-echo "2. Publish the web pages to the test website:"
-echo "    ./testpublish.sh"
-echo "3. Browse to http://jastadd.org/testweb and check that everything looks okay"
-echo "4. Commit and publish the production website:"
-echo "    git commit -am \"Release ${VERSION}\""
-echo "    git push origin master"
-echo "    ./publish.sh"
-echo "5. Tag the jastadd-test repository with the new JastAdd2 version:"
+echo "Post-release checklist"
+echo "----------------------"
+echo
+echo "1. Tag the jastadd-test repository with the new JastAdd2 version:"
 echo "    cd ../jastadd-test"
 echo "    git tag -a ${VERSION} -m \"Tests for JastAdd2 ${VERSION}\""
 echo "    git push origin ${VERSION}"
-echo "6. Push the JastAdd2 release commit:"
+echo "2. Push the JastAdd2 release commit:"
 echo "    git push origin master"
 echo "7. Push the release tag:"
 echo "    git push origin ${VERSION}"
