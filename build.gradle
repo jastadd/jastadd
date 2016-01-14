@@ -6,22 +6,20 @@ apply plugin: 'signing'
 defaultTasks 'jar'
 
 /** Helper function to run a command. Returns the command output if the command succeeded. */
-def tryCommand(List command, boolean failOnError = false) {
+def tryCommand(List command) {
 	def out = new StringBuilder()
 	def err = new StringBuilder()
 	def proc = command.execute()
 	proc.waitForProcessOutput(out, err)
 	if (proc.exitValue()) {
 		def msg = "failed to run '${command[0]}' command (args: ${command.tail()})\n$err$out"
-		if (failOnError) {
-			throw new GradleException(msg)
-		} else {
-			print 'Warning: '
-			println msg
-		}
+		print 'Warning: '
+		println msg
 		""
 	} else {
-		if (err) println "${err}"
+		if (err) {
+			println "${err}"
+		}
 		out.toString()
 	}
 }
@@ -92,13 +90,9 @@ task copyResources(type: Copy) {
 
 task release(dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
 	if (!project.hasProperty('newVersion')) {
-		throw new GradleException('You must set -PnewVersion=<VERSION> when running the release task!')
+		throw new GradleException('You should add -PnewVersion=<VERSION> so the release task embeds the correct version string!')
 	}
 	assert version.equals(newVersion)
-	def versionFile = file('src/res/Version.properties')
-	tryCommand(['git', 'add', versionFile.path], true)
-	tryCommand(['git', 'commit', '-m', "Release $version"], true)
-	tryCommand(['git', 'tag', '-a', "$version", '-m', "Version $version"], true)
 }
 
 task sourceZip(type: Zip, dependsOn: 'documentation') {
@@ -137,7 +131,7 @@ task sourceZip(type: Zip, dependsOn: 'documentation') {
 
 task binaryDistReadme(type: Exec) {
 	description 'Generate the README for binary distributions'
-	commandLine 'perl', file('tools/Markdown.pl').path, 'README-binary-dist.md'
+	commandLine 'python', file('tools/pymarkdown.py').path, 'README-binary-dist.md'
 
 	inputs.file 'tools/Markdown.pl'
 	inputs.file 'README-binary-dist.md'
@@ -179,8 +173,8 @@ task documentation << {
 		flattenmapper()
 		globmapper(from: '*.md', to: "doc${File.separator}*.html")
 	}
-	ant.apply(executable: 'perl', dest: 'doc') {
-		arg(value: 'tools/Markdown.pl')
+	ant.apply(executable: 'python', dest: 'doc') {
+		arg(value: 'tools/pymarkdown.py')
 		srcfile()
 		fileset(dir: 'doc', includes: '*.md')
 		mapper(refid: 'mdmapper')

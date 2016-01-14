@@ -10,7 +10,7 @@ For additional contributors, see the change logs.
 License
 -------
 
-Copyright (c) 2005-2013, The JastAdd Team. All rights reserved.
+Copyright (c) 2005-2016, The JastAdd Team. All rights reserved.
 
 JastAdd2 is covered by the modified BSD License. For the full license text
 see the LICENSE file.
@@ -33,9 +33,10 @@ Ant. See licenses/javacc-BSD for the full license text.
 The context-free grammar used in JastAdd is based on an example from JavaCC.
 
 The README file for the binary distribution (README-binary-dist.md) is written
-in the language Markdown. This file is then converted to HTML during the
-release process with the Markdown tool. See licenses/markdown-BSD for the full
-license text.
+in the markup language Markdown. This file is converted to HTML using a Python
+script during the build script. The Python script requires the Python-Markdown
+package for Python. The Python-Markdown package can be installed using `pip
+install markdown`.
 
 Building
 --------

@@ -225,6 +225,8 @@ OPTIONS:
 		</zip>
 	</target>
 
+	<!-- This Ant build is no longer used for releases. The Gradle build should be used
+		 instead via the release script (release.sh). -->
 	<target name="release" if="version" depends="-timestamp"
 		description="tag and commit new JastAdd2 release">
 		<!-- NB: update release-notes.md before release! -->
@@ -272,8 +274,8 @@ OPTIONS:
 			<flattenmapper/>
 			<globmapper from="*.md" to="doc${file.separator}*.html"/>
 		</chainedmapper>
-		<apply executable="perl" dest="doc">
-			<arg value="${jastadd2.tools.dir}/Markdown.pl"/>
+		<apply executable="python" dest="doc">
+			<arg value="${jastadd2.tools.dir}/pymarkdown.py"/>
 			<srcfile/>
 			<fileset dir="doc" includes="*.md"/>
 			<mapper refid="mdmapper"/>
