@@ -57,7 +57,6 @@ aspect IncrementalDDG {
     }
     if (config().incrementalLevelParam() ||
       config().incrementalLevelAttr()) {
-
       if (name().equals(config().astNodeType())) {
         tt.expand("ASTDecl.createASTHandlers", out);
       }
@@ -65,13 +64,15 @@ aspect IncrementalDDG {
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr.isLazy() || attr.isCircular())
+        if (attr.isLazy() || attr.isCircular()) {
           list.add(attr);
+        }
       }
       for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr.isLazy() || attr.isCircular())
+        if (attr.isLazy() || attr.isCircular()) {
           list.add(attr);
+        }
       }
       for (CollDecl decl: interfaceCollDecls()) {
         list.add(decl);
@@ -79,10 +80,10 @@ aspect IncrementalDDG {
       for (CollDecl decl: getCollDeclList()) {
         list.add(decl);
       }
-      // attribute code
+      // Attribute code.
       for (Iterator itr = list.iterator(); itr.hasNext();) {
         AttrDecl attr = (AttrDecl)itr.next();
-        tt.bind("AttributeName", attr.signature());// TODO rename template variable?
+        tt.bind("AttributeName", attr.signature()); // TODO(joqvist): rename template variable?
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.expand("ASTDecl.createAttributeHandler", out);
       }
@@ -94,16 +95,21 @@ aspect IncrementalDDG {
    * This only applies for the incremental param configuration.
    */
   public String ASTDecl.genIncrementalInitChildHandlers() {
-    if (!config().incremental()) return "";
-    TemplateContext tt = templateContext();
-    return tt.expand("ASTDecl.incrementalInitChildHandlers");
+    if (!config().incremental()) {
+      return "";
+    } else {
+      TemplateContext tt = templateContext();
+      return tt.expand("ASTDecl.incrementalInitChildHandlers");
+    }
   }
 
   /**
    * Generate code for copying of DDG nodes.
    */
   public void ASTDecl.genIncrementalCopyHandlers(PrintWriter out) {
-    if (!config().incremental()) return;
+    if (!config().incremental()) {
+      return;
+    }
     TemplateContext tt = templateContext();
     tt.bind("IsRegionRoot", isRegionRoot());
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
@@ -115,7 +121,7 @@ aspect IncrementalDDG {
    * Emit string for copying of token DDG nodes in a node.
    */
   public String ASTDecl.emitCopyTokenHandlersString() {
-    StringBuffer res = new StringBuffer();
+    StringBuilder res = new StringBuilder();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       TemplateContext tt = templateContext();
       for (int c = 0; c < getNumComponent(); c++) {
@@ -133,19 +139,21 @@ aspect IncrementalDDG {
    * Emit string for copying of attribute DDG nodes in a node.
    */
   public String ASTDecl.emitCopyAttributeHandlersString() {
-    StringBuffer res = new StringBuffer();
+    StringBuilder res = new StringBuilder();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       // Collect attributes.
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr != null && (attr.isLazy() || attr.isCircular()))
+        if (attr != null && (attr.isLazy() || attr.isCircular())) {
           list.add(attr);
+        }
       }
       for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr != null && (attr.isLazy() || attr.isCircular()))
+        if (attr != null && (attr.isLazy() || attr.isCircular())) {
           list.add(attr);
+        }
       }
       // Attribute code.
       TemplateContext tt = templateContext();
@@ -166,7 +174,9 @@ aspect IncrementalDDG {
    * and tracking of region dependencies.
    */
   public void ASTDecl.genIncrementalRegions(PrintWriter out) {
-    if (!config().incremental()) return;
+    if (!config().incremental()) {
+      return;
+    }
     TemplateContext tt = templateContext();
     tt.bind("IsRegionRoot", isRegionRoot());
     if (config().incrementalLevelNode()) {

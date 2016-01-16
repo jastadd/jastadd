@@ -366,9 +366,7 @@ public class Configuration {
       .acceptMultipleValues(false)
       .addAcceptedValue("none", "disable attribute caching")
       .addAcceptedValue("all", "cache all attributes")
-      .addAcceptedValue("config", "cache attributes according to a given .config file")
-      .addAcceptedValue("implicit", "cache all attribute but also read a .config file that takes precedence")
-      .addAcceptedValue( "analyze", "analyze the cache use during evaluation (when all attributes are cached)\n"
+      .addAcceptedValue("analyze", "analyze the cache use during evaluation (when all attributes are cached)\n"
           + "the result is available via the API in org.jastadd.CacheAnalyzer")
       .additionalDescription(".config files have the following format:\n"
           + " ((cache|uncache) NodeType.AttrName((ParamType(,ParamType)*)?);)*");
@@ -516,7 +514,8 @@ public class Configuration {
     // Configuration object must be set before creating root template context!
     TemplateContext tt = root.templateContext();
 
-    // Global locking
+    // Configure global locking.
+    // TODO(joqvist): remove this.
     tt.bind("SynchBegin", synchronizedBlockBegin(tt));
     tt.bind("SynchEnd", synchronizedBlockEnd(tt));
 
@@ -532,7 +531,7 @@ public class Configuration {
       tt.bind("PackageDecl", "package " + packageName + ";");
     }
 
-    // Default attribute cache sets/maps
+    // Default attribute cache sets/maps.
     tt.bind("DefaultMapType", typeDefaultMap());
     tt.bind("DefaultSetType", typeDefaultSet());
 
@@ -616,29 +615,25 @@ public class Configuration {
     for (String filename: filenames) {
       if (!(filename.endsWith(".ast")
           || filename.endsWith(".jrag")
-          || filename.endsWith(".jadd")
-          || filename.endsWith(".config"))) {
-        out.println("Error: Unrecognized file extension: " + filename);
+          || filename.endsWith(".jadd"))) {
+        out.format("Error: Unrecognized file extension: %s%n", filename);
         return true;
       }
     }
 
     File outputDir = outputDir();
     if (!outputDir.exists()) {
-      out.println("Error: Output directory " + outputDir.getAbsolutePath() +
-        " does not exist");
+      out.format("Error: Output directory %s does not exist%n", outputDir.getAbsolutePath());
       return true;
     }
 
     if (!outputDir.isDirectory()) {
-      out.println("Error: Output directory " + outputDir.getAbsolutePath() +
-        " is not a directory");
+      out.format("Error: Output directory %s is not a directory%n", outputDir.getAbsolutePath());
       return true;
     }
 
     if (!outputDir.canWrite()) {
-      out.println("Error: Output directory " + outputDir.getAbsolutePath() +
-        " is write protected");
+      out.format("Error: Output directory %s is write protected%n", outputDir.getAbsolutePath());
       return true;
     }
 
@@ -735,29 +730,12 @@ public class Configuration {
    */
   public Collection<String> getFiles() {
     Collection<String> files = new ArrayList<String>();
-
     for (String filename: filenames) {
       if (filename.endsWith(".ast") || filename.endsWith(".jrag") || filename.endsWith(".jadd")) {
         files.add(filename);
       }
     }
-
     return files;
-  }
-
-  /**
-   * @return cache file list
-   */
-  public Collection<String> getCacheFiles() {
-    Collection<String> cacheFiles = new ArrayList<String>();
-
-    for (String filename: filenames) {
-      if (filename.endsWith(".config")) {
-        cacheFiles.add(filename);
-      }
-    }
-
-    return cacheFiles;
   }
 
   /**
@@ -766,27 +744,26 @@ public class Configuration {
    */
   public void printHelp(PrintStream out) {
     out.println("This program reads a number of .jrag, .jadd, and .ast files");
-    out.println("and creates the nodes in the abstract syntax tree");
+    out.println("and generates the Java classes for the abstract syntax tree.");
     out.println();
-    out.println("The .jrag source files may contain declarations of synthesized ");
-    out.println("and inherited attributes and their corresponding equations.");
-    out.println("It may also contain ordinary Java methods and fields.");
-    out.println();
-    out.println("Source file syntax can be found at http://jastadd.org");
+    out.println("Source files contain declarations of synthesized ");
+    out.println("and inherited attributes and their corresponding equations,");
+    out.println("as well as ordinary Java methods and fields.");
+    out.println("Source file syntax is documented at http://jastadd.org");
     out.println();
     out.println("Options:");
     argParser().printHelp(out);
     out.println();
     out.println("Arguments:");
-    out.println("Names of .ast, .jrag, .jadd and .config source files");
+    out.println("  Names of abstract grammr (.ast) and aspect (.jrag and .jadd) files.");
     out.println();
-    out.println("Example: The following command reads and translates files NameAnalysis.jrag");
-    out.println("and TypeAnalysis.jrag, weaves PrettyPrint.jadd into the abstract syntax tree");
-    out.println("defined in the grammar Toy.ast.");
+    out.println("Example: The following command reads and translates NameAnalysis.jrag,");
+    out.println("and weaves PrettyPrint.jadd into the abstract syntax classes");
+    out.println("defined in the grammar file Toy.ast.");
     out.println("The result is the generated classes for the nodes in the AST that are placed");
     out.println("in the package ast.");
     out.println();
-    out.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd");
+    out.println("java -jar jastadd2.jar --package=ast Toy.ast NameAnalysis.jrag PrettyPrint.jadd");
   }
 
   /**
@@ -823,8 +800,7 @@ public class Configuration {
    * @return <code>true</code> if the --tracing option is enabled
    */
   public boolean tracingEnabled() {
-    return !tracingOption.hasValue("none") ||
-      cacheAnalyzeEnabled();
+    return !tracingOption.hasValue("none") || cacheAnalyzeEnabled();
   }
 
   /**
@@ -1000,9 +976,8 @@ public class Configuration {
    * @return {@code true} if everything should be cached
    */
   public boolean cacheAll() {
-    return cacheOption.hasValue("all") ||
-        // Cache analysis requires full caching and tracing of cache usage.
-        cacheAnalyzeEnabled();
+    // Cache analysis requires full caching and tracing of cache usage.
+    return cacheOption.hasValue("all") || cacheAnalyzeEnabled();
   }
 
   /**
@@ -1010,20 +985,6 @@ public class Configuration {
    */
   public boolean cacheNone() {
     return cacheOption.hasValue("none");
-  }
-
-  /**
-   * @return {@code true} if cache configuration should be used
-   */
-  public boolean cacheConfig() {
-    return cacheOption.hasValue("config");
-  }
-
-  /**
-   * @return {@code true} if implicit caching is used
-   */
-  public boolean cacheImplicit() {
-    return cacheOption.hasValue("implicit");
   }
 
   /**
@@ -1046,9 +1007,7 @@ public class Configuration {
   public boolean incrementalLevelAttr() {
     // No chosen level means default -- "attr".
     return incrementalOption.hasValue("attr")
-        || (!incrementalLevelNode()
-            && !incrementalLevelParam()
-            && !incrementalLevelRegion());
+        || (!incrementalLevelNode() && !incrementalLevelParam() && !incrementalLevelRegion());
   }
 
   /**
@@ -1069,9 +1028,8 @@ public class Configuration {
    * @return {@code true} if --incremental=flush
    */
   public boolean incrementalChangeFlush() {
-    return incrementalOption.hasValue("flush") ||
-        // No chosen strategy means default -- "flush".
-        !incrementalChangeMark();
+    // No chosen strategy means default -- "flush".
+    return incrementalOption.hasValue("flush") || !incrementalChangeMark();
   }
 
   /**

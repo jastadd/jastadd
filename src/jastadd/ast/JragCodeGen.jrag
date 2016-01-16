@@ -85,17 +85,31 @@ aspect JragCodeGen {
 
   syn String Rewrite.sourceLocation() = ASTNode.sourceLocation(getFileName(), getStartLine());
 
-  syn boolean AttrDecl.isLazy() =
-      config().cacheAll() || declaredNTA() || (!config().cacheNone() && getLazy());
+  /**
+   * Decide if an attribute should be cached based on the cache mode and
+   * current global configuration.
+   */
+  syn boolean ASTNode.shouldCache(CacheMode mode) {
+    switch (mode) {
+      case DEFAULT:
+        return config().cacheAll();
+      case LAZY:
+        return !config().cacheNone();
+      case CACHED:
+        return true;
+      case UNCACHED:
+        return false;
+    }
+    throw new Error("unhandled cache mode");
+  }
 
-  eq SynDecl.isLazy() =
-      config().cacheAll() || declaredNTA() || (!config().cacheNone() && getLazy());
+  syn boolean AttrDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
 
-  eq InhDecl.isLazy() =
-      config().cacheAll() || declaredNTA() || (!config().cacheNone() && getLazy());
+  eq SynDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
 
-  eq CollDecl.isLazy() =
-      config().cacheAll() || !config().cacheNone() && (declaredNTA() || getLazy());
+  eq InhDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
+
+  eq CollDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();

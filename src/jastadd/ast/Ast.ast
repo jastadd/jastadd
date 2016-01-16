@@ -22,7 +22,7 @@ Abstract;
 
 Annotation ::= <Annotation:String>;
 
-abstract AttrDecl ::= Parameter* <Name> <Type> <Lazy:boolean> <FileName> <StartLine:int>
+abstract AttrDecl ::= Parameter* <Name> <Type> <CacheMode:CacheMode> <FileName> <StartLine:int>
     <EndLine:int> <Final:boolean> <NTA:boolean> <Comment:String> <AspectName:String> Annotation*;
 
 SynDecl : AttrDecl;

@@ -46,6 +46,7 @@ import java.util.Scanner;
 
 import org.jastadd.ast.AST.ASTDecl;
 import org.jastadd.ast.AST.Ast;
+import org.jastadd.ast.AST.CacheDecl;
 import org.jastadd.ast.AST.Component;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.InhDecl;
@@ -193,7 +194,7 @@ public class JastAdd {
         return 1;
       }
 
-      if (checkErrors("reading cache files", readCacheFiles(grammar), err)) {
+      if (checkErrors("cache configuration", applyCacheConfiguration(grammar), err)) {
         return 1;
       }
 
@@ -381,6 +382,29 @@ public class JastAdd {
     return problems;
   }
 
+  protected static Collection<Problem> applyCacheConfiguration(Grammar grammar) {
+    Collection<Problem> problems = new LinkedList<Problem>();
+    for (int i = 0; i < grammar.cacheDecls.size(); ++i) {
+      CacheDecl decl = grammar.cacheDecls.get(i);
+      for (int j = 0; j < i; ++j) {
+        CacheDecl prev = grammar.cacheDecls.get(j);
+        if (decl.signature.equals(prev.signature) && !decl.mode.equals(prev.mode)) {
+          problems.add(Problem.builder()
+              .message("conflicting cache declaration for attribute %s.%s, "
+                  + "previous declaration is at %s:%d", decl.hostName, decl.attrName,
+                  prev.fileName, prev.startLine)
+              .sourceFile(decl.fileName)
+              .sourceLine(decl.startLine)
+              .buildError());
+          break;
+        }
+      }
+      grammar.applyCacheMode(decl, problems);
+    }
+    grammar.cacheDecls.clear();
+    return problems;
+  }
+
   /** Add synthesized NTAs as components in their host types. */
   private Collection<Problem> addNtaComponents(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
@@ -393,19 +417,6 @@ public class JastAdd {
           }
         }
       }
-    }
-    return problems;
-  }
-
-  private Collection<Problem> readCacheFiles(Grammar grammar) {
-    Collection<Problem> problems = new LinkedList<Problem>();
-    if (!(config.cacheConfig() || config.cacheImplicit())) {
-      return problems;
-    }
-    for (Iterator<String> iter = config.getCacheFiles().iterator(); iter.hasNext();) {
-      String fileName = iter.next();
-      File cacheFile = new File(fileName);
-      parseCacheDeclarations(cacheFile, grammar, problems);
     }
     return problems;
   }
@@ -439,8 +450,7 @@ public class JastAdd {
     return allProblems;
   }
 
-  private void genCacheAnalyzer(Grammar grammar)
-      throws FileNotFoundException {
+  private void genCacheAnalyzer(Grammar grammar) throws FileNotFoundException {
     grammar.createPackageOutputDirectory();
     PrintWriter writer = new PrintWriter(grammar.targetJavaFile("CacheAnalyzer"));
     grammar.emitCacheAnalyzer(writer);
@@ -608,40 +618,6 @@ public class JastAdd {
     }
     jp.popTopLevelOrAspect();
     return problems;
-  }
-
-  /**
-   * Read the cache declarations from a cache config file.
-   */
-  protected static void parseCacheDeclarations(File source, Grammar grammar,
-      Collection<Problem> problems) {
-    Reader inStream = null;
-    String fileName = source.getName();
-    try {
-      inStream = new FileReader(source);
-      JragParser jp = new JragParser(inStream);
-      jp.root = grammar;
-      jp.setFileName(fileName);
-      jp.CacheDeclarations();
-    } catch (org.jastadd.jrag.AST.ParseException e) {
-      problems.add(Problem.builder()
-          .message("syntax error")
-          .sourceFile(fileName)
-          .sourceLine(e.currentToken.next.beginLine)
-          .sourceColumn(e.currentToken.next.beginColumn)
-          .buildError());
-    } catch (FileNotFoundException e) {
-      problems.add(Problem.builder()
-          .message("could not find cache file '%s'", fileName)
-          .buildError());
-    } finally {
-      if (inStream != null)
-        try {
-          inStream.close();
-        } catch (IOException e) {
-          // Failed to close input. Not a problem.
-        }
-    }
   }
 
   /**

@@ -193,14 +193,14 @@ public class Unparser implements JragParserVisitor {
   }
   public Object visit(ASTAspectMethodDeclaration self, Object data) {
     StringBuffer buf = (StringBuffer) data;
-    // MethodDeclaration <- ClassBodyDeclaration <- 
+    // MethodDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
-    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+    for (int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
-    if(node instanceof ASTCompilationUnit || node == null) {
-      // Remove optional "Class." before IdDecl in method declaration
+    if (node instanceof ASTCompilationUnit || node == null) {
+      // Remove optional "Class." before IdDecl in method declaration.
       for (int i = 0; i < self.jjtGetNumChildren(); ++i) {
         SimpleNode n = (SimpleNode) self.jjtGetChild(i);
         if (n instanceof ASTMethodDeclarator) {
@@ -222,13 +222,13 @@ public class Unparser implements JragParserVisitor {
   }
   public Object visit(ASTAspectRefineMethodDeclaration self, Object data) {
     StringBuffer buf = (StringBuffer) data;
-    // MethodDeclaration <- ClassBodyDeclaration <- 
+    // MethodDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
-    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+    for (int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
-    if(node instanceof ASTCompilationUnit || node == null) {
+    if (node instanceof ASTCompilationUnit || node == null) {
       // Remove optional "Class." before IdDecl in method declaration
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
@@ -254,14 +254,14 @@ public class Unparser implements JragParserVisitor {
   }
   public Object visit(ASTAspectFieldDeclaration self, Object data) {
     StringBuffer buf = (StringBuffer) data;
-    // FieldDeclaration <- ClassBodyDeclaration <- 
+    // FieldDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit || node == null) {
-      // Remove optional "Class." before IdDecl in field declaration 
+      // Remove optional "Class." before IdDecl in field declaration
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -378,14 +378,14 @@ public class Unparser implements JragParserVisitor {
   }
   public Object visit(ASTFieldDeclaration self, Object data) {
     StringBuffer buf = (StringBuffer) data;
-    // FieldDeclaration <- ClassBodyDeclaration <- 
+    // FieldDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit) {
-      // Remove optional "Class." before IdDecl in field declaration 
+      // Remove optional "Class." before IdDecl in field declaration
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -414,14 +414,14 @@ public class Unparser implements JragParserVisitor {
   }
   public Object visit(ASTMethodDeclaration self, Object data) {
     StringBuffer buf = (StringBuffer) data;
-    // MethodDeclaration <- ClassBodyDeclaration <- 
+    // MethodDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
     for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
     if(node instanceof ASTCompilationUnit) {
-      // Remove optional "Class." before IdDecl in method declaration
+      // Remove optional "Class." before IdDecl in method declaration.
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
       Token t = new Token();
@@ -796,7 +796,7 @@ public class Unparser implements JragParserVisitor {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTCacheDeclarations self, Object data) {
+  public Object visit(ASTAspectCacheDeclaration self, Object data) {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }

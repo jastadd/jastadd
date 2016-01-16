@@ -27,7 +27,8 @@
  */
 import org.jastadd.ast.AST.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -157,46 +158,78 @@ public aspect Attributes {
     }
   }
 
+  public class CacheDecl {
+    public String mode;
+    public String hostName;
+    public String attrName;
+    public String signature;
+    public String fileName;
+    public int startLine;
+  }
+
+  public ArrayList<CacheDecl> Grammar.cacheDecls = new ArrayList<CacheDecl>();
+
   /**
    * Configures the caching behavior for an attribute.
-   * 
-   * @param cacheConfig The cache configuration, should be "cache" or "uncache"
+   *
+   * @param mode The cache configuration, should be "cache" or "uncache"
    * @param hostName The node type hosting the attribute
    * @param attrName The attribute name
    * @param paramList The list of attribute parameters
    * @param fileName The name of the file with the attribute declaration
    * @param startLine The line of the attribute declaration
    */
-  public void Grammar.setAttrDeclLazy(String cacheConfig, String hostName, String attrName, 
+  public void Grammar.setAttributeCacheMode(String mode, String hostName, String attrName,
       org.jastadd.ast.AST.List paramList, String fileName, int startLine) {
+    CacheDecl decl = new CacheDecl();
+    decl.mode = mode;
+    decl.hostName = hostName;
+    decl.attrName = attrName;
+    decl.fileName = fileName;
+    decl.startLine = startLine;
+    StringBuilder signature = new StringBuilder();
+    signature.append(attrName);
+    for (int i = 0; i < paramList.getNumChild(); i++) {
+      signature.append("_" + ((Parameter) paramList.getChild(i)).getTypeInSignature());
+    }
+    decl.signature = signature.toString();
+    cacheDecls.add(decl);
+  }
+
+  public void Grammar.applyCacheMode(CacheDecl decl, Collection<Problem> problems) {
     // Lookup type.
-    TypeDecl type = lookup(hostName);
+    TypeDecl type = lookup(decl.hostName);
     if (type == null) {
-      error("can not find attribute " + attrName + " in unknown class " + hostName, fileName, startLine);
+      problems.add(Problem.builder()
+          .message("can not find attribute %s in unknown class %s", decl.attrName, decl.hostName)
+          .sourceFile(decl.fileName)
+          .sourceLine(decl.startLine)
+          .buildError());
       return;
     }
-    // Build signature for lookup of inherited attribute.
-    StringBuilder signBuf = new StringBuilder();
-    signBuf.append(attrName);
-    for (int i = 0; i < paramList.getNumChild(); i++) {
-      signBuf.append("_" + ((Parameter)paramList.getChild(i)).getTypeInSignature());
-    }
     // Lookup attribute; first 'syn' then 'inh'.
-    AttrDecl attr = null; 
-    String signature = signBuf.toString();
-    if ((attr = type.lookupSynDecl(signature)) == null
-        && (attr = type.lookupInhDecl(signature)) == null) {
-      error("can not find attribute " + attrName + " in class " + hostName);
+    AttrDecl attr = null;
+    if ((attr = type.lookupSynDecl(decl.signature)) == null
+        && (attr = type.lookupInhDecl(decl.signature)) == null) {
+      problems.add(Problem.builder()
+          .message("can not find attribute %s.%s", decl.hostName, decl.attrName)
+          .sourceFile(decl.fileName)
+          .sourceLine(decl.startLine)
+          .buildError());
       return;
     }
     // Configure attribute caching.
-    if (cacheConfig.equals("cache")) {
-      attr.setLazy(true);
-    } else if (cacheConfig.equals("uncache")) { 
-      attr.setLazy(false);
+    if (decl.mode.equals("cache")) {
+      attr.setCacheMode(CacheMode.CACHED);
+    } else if (decl.mode.equals("uncache")) {
+      attr.setCacheMode(CacheMode.UNCACHED);
     } else {
-      error("unknown configuration " + cacheConfig + " for attribute " + hostName + "."
-          + attrName, fileName, startLine);
+      problems.add(Problem.builder()
+          .message("unknown configuration %s for attribute %s.%s", decl.mode, decl.hostName,
+              decl.attrName)
+          .sourceFile(decl.fileName)
+          .sourceLine(decl.startLine)
+          .buildError());
     }
   }
 
@@ -235,7 +268,7 @@ public aspect Attributes {
         parameterList,
         name,
         type,
-        isLazy | isNTA,
+        (isLazy | isNTA) ? CacheMode.LAZY : CacheMode.DEFAULT,
         fileName,
         startLine,
         endLine,
@@ -243,8 +276,7 @@ public aspect Attributes {
         isNTA,
         Unparser.unparseComment(node),
         aspectName,
-        new List()
-    );
+        new List());
     for (String annotation : annotations) {
       decl.addAnnotation(new Annotation(annotation));
     }
@@ -289,7 +321,7 @@ public aspect Attributes {
         parameterList,
         name,
         type,
-        isLazy | isNTA,
+        (isLazy | isNTA) ? CacheMode.LAZY : CacheMode.DEFAULT,
         fileName,
         startLine,
         endLine,

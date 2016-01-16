@@ -639,7 +639,9 @@ void AspectBodyDeclaration() :
 |
   LOOKAHEAD( AspectFieldDeclarationLookahead() )
   AspectFieldDeclaration()
-
+|
+  LOOKAHEAD( ( "cache" | "uncache" ) )
+  AspectCacheDeclaration()
 }
 
 /**
@@ -784,8 +786,7 @@ void AspectInterfaceSynAttributeDeclaration() :
   ";" { last = token; }
   {
     root.addSynDecl(attrName.image, attrType, className,
-        (root.config().cacheImplicit() || isLazy),
-        fileName, first.beginLine, last.endLine, list,
+        isLazy, fileName, first.beginLine, last.endLine, list,
         bottomValue == null ? "" : Unparser.unparse(bottomValue),
         isFinal, false, jjtThis, enclosingAspect, annotations);
 
@@ -831,7 +832,7 @@ void AspectInterfaceInhAttributeDeclaration() :
   {
     last = token;
     root.addInhDecl(attrName.image, attrType, className,
-        (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
+        isLazy, fileName, first.beginLine,
         last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
         isFinal, false, jjtThis, enclosingAspect, annotations);
   }
@@ -1050,7 +1051,7 @@ void AspectSynAttributeDeclaration() :
 
   {
     root.addSynDecl(attrName.image, attrType, targetName,
-        (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
+        isLazy, fileName, first.beginLine,
         last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
         isFinal, isNTA, jjtThis, enclosingAspect, annotations);
 
@@ -1103,7 +1104,7 @@ void AspectInhAttributeDeclaration() :
   {
     last = token;
     root.addInhDecl(attrName.image, attrType, targetName,
-        (root.config().cacheImplicit() || isLazy), fileName, first.beginLine,
+        isLazy, fileName, first.beginLine,
         last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
         isFinal, isNTA, jjtThis, enclosingAspect, annotations);
   }
@@ -2589,8 +2590,8 @@ void DefaultValue():
 }
 
 // Adding (cache|uncached) keywords in front of each line in the cache configuration.
-// This information is propagated to the grammar via setAttrDeclLazy(..)
-void CacheDeclarations():
+// This information is propagated to the grammar via setAttributeCacheMode(..)
+void AspectCacheDeclaration():
 {
   Token t;
   Token cacheConfig;
@@ -2602,26 +2603,24 @@ void CacheDeclarations():
   org.jastadd.ast.AST.List paramList = new org.jastadd.ast.AST.List();
 }
 {
-(
   ( cacheConfig = "cache" | cacheConfig = "uncache" )
-  hostType = <IDENTIFIER> "." 
+  hostType = <IDENTIFIER> "."
   attrName = AttributeName()
   "(" { paramList = new org.jastadd.ast.AST.List(); }
   [
-    paramType = Type() paramName = <IDENTIFIER> 
+    paramType = Type() paramName = <IDENTIFIER>
       { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, paramName.image)); }
-    ( 
-      "," paramType = Type() paramName = <IDENTIFIER> 
+    (
+      "," paramType = Type() paramName = <IDENTIFIER>
         { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, paramName.image)); }
     )*
   ]
-  ")" 
+  ")"
   ";"
-  { 
-    root.setAttrDeclLazy(cacheConfig.image, hostType.image, attrName.image, 
-        paramList, fileName, cacheConfig.beginLine); 
+  {
+    root.setAttributeCacheMode(cacheConfig.image, hostType.image, attrName.image,
+        paramList, fileName, cacheConfig.beginLine);
   }
-)*
 }
 
 // Valid Java identifiers include 'syn', 'eq', etc. (reserved JastAdd words are legal in pure Java)

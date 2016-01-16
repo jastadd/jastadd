@@ -26,19 +26,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Code for inner class CacheAnalyzer
-CacheAnalyzer = [[
+CacheAnalyzer [[
 /**
  * Cache analyzer based on the ideas presented in
  *
  *   <a href="http://dx.doi.org/10.1007/978-3-642-19440-5_2">
- *   Automated selective caching for reference attribute grammars"
- *    </a>
+ *   Automated selective caching for reference attribute grammars</a>
  *   <i>Emma S&ouml;derberg and G&ouml;rel Hedin</i>
  *   <i>Dept. of Computer Science, Lund University</i>
  *
  */
 public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
-  
+
   private final String[] ATTRIBUTES = { $AttrNameList };
   private java.util.Map<String,java.util.Map<String,Integer>> attrMap = null;
 
@@ -54,8 +53,8 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
       }
       String instance = String.format("%08X", node.hashCode());
       Integer calls = instanceMap.get(instance);
-      instanceMap.put(instance, calls == null ? 1 : calls + 1); 
-    }  
+      instanceMap.put(instance, calls == null ? 1 : calls + 1);
+    }
     return super.createEntry(evt, node, attr, params, value);
   }
 
@@ -74,7 +73,7 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
     }
     return attrMap;
   }
-  
+
   /**
    * @return The raw trace result of the analyzer, mapping attribute names to call counts
    */
@@ -87,7 +86,7 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
       if (e.getValue() != null) {
         java.util.Map<String,Integer> innerMap = new java.util.HashMap<String,Integer>();
         for (java.util.Map.Entry<String,Integer> ie : e.getValue().entrySet()) {
-          innerMap.put(ie.getKey(), ie.getValue());    
+          innerMap.put(ie.getKey(), ie.getValue());
         }
         map.put(e.getKey(), innerMap);
       } else {
@@ -96,7 +95,7 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
     }
     return map;
   }
-  
+
   /**
    * @return The average number of calls per instance for the given attribute
    */
@@ -114,7 +113,7 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
     }
     return sum / instanceMap.size();
   }
-  
+
   /**
    * @return The set of all attributes, represented with signature strings
    */
@@ -128,7 +127,7 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
     }
     return set;
   }
-  
+
   /**
    * @return The set of used attributes, represented with signature strings
    */
@@ -144,7 +143,7 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
     }
     return set;
   }
-  
+
   /**
    * @return The set of attributes used once, represented with signature strings
    */
@@ -160,37 +159,41 @@ public class CacheAnalyzer extends $StateClass.Trace.InputFilter {
     }
     return set;
   }
-  
+
   /**
    * @return The attribute coverage in percent (i.e., Used/All)
    */
    public double getAttributeCoverage() {
      return (getUsedSet().size()*1.0 / getAllSet().size()*1.0) * 100.0;
    }
-   
+
   /**
    * Prints a cache configuration corresponding to All-One
-   * @param out Print writer to use 
+   * @param out Print writer to use
    */
    public void printAllMinusOneConfig(java.io.PrintWriter out) {
      java.util.Set<String> configSet = getAllSet();
      configSet.removeAll(getOneSet());
+     out.println("aspect CacheConfig {");
      for (String attr : configSet) {
-       out.println("cache " + attr + ";");  
+       out.println("  cache " + attr + ";");
      }
+     out.println("}");
      out.flush();
    }
-   
+
   /**
    * Prints a cache configuration corresponding to Used-One
-   * @param out Print writer to use 
+   * @param out Print writer to use
    */
    public void printUsedMinusOneConfig(java.io.PrintWriter out) {
      java.util.Set<String> configSet = getUsedSet();
      configSet.removeAll(getOneSet());
+     out.println("aspect CacheConfig {");
      for (String attr : configSet) {
-       out.println("cache " + attr + ";");  
+       out.println("  cache " + attr + ";");
      }
+     out.println("}");
      out.flush();
    }
 }

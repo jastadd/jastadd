@@ -413,7 +413,7 @@ aspect CollectionAttributes {
       CollDecl decl = new CollDecl();
       decl.setName(name);
       decl.setType(type);
-      decl.setLazy(true);
+      decl.setCacheMode(CacheMode.LAZY);
       decl.setFileName(fileName);
       decl.setStartLine(startLine);
       decl.setEndLine(endLine);
