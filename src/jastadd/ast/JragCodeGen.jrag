@@ -220,17 +220,16 @@ aspect JragCodeGen {
     if (config().lazyMaps()) {
       if (!isCircular()) {
         if (getNumParameter() != 0 && config().visitCheckEnabled() && config().rewriteEnabled()) {
-          sb.append("if (" + signature() + "_visited == null) " + signature()
-              + "_visited = " + config().createDefaultMap() + ";\n");
-        }
-        else if (getNumParameter() != 0 && config().visitCheckEnabled()) {
-          sb.append("if (" + signature() + "_visited == null) " + signature()
-              + "_visited = " + config().createDefaultSet() + ";\n");
+          sb.append(String.format("if (%s_visited == null) %s_visited = %s;\n",
+              signature(), signature(), config().createDefaultMap()));
+        } else if (getNumParameter() != 0 && config().visitCheckEnabled()) {
+          sb.append(String.format("if (%s_visited == null) %s_visited = %s;\n",
+              signature(), signature(), config().createDefaultSet()));
         }
       }
       if (getNumParameter() != 0 && (isLazy() || isCircular())) {
-        sb.append("if (" + signature() + "_values == null) " + signature()
-            + "_values = " + config().createDefaultMap() + ";\n");
+        sb.append(String.format("if (%s_values == null) %s_values = %s;\n",
+            signature(), signature(), config().createDefaultMap()));
       }
     }
     return sb.toString();
@@ -257,7 +256,9 @@ aspect JragCodeGen {
    * @return {@code true} if the attribute is declared as NTA in the aspect file
    */
   syn boolean AttrDecl.declaredNTA() = false;
+
   eq SynDecl.declaredNTA() = getNTA();
+
   eq InhDecl.declaredNTA() = getNTA();
 
   public static String ASTNode.boxedType(String type) {
@@ -413,7 +414,7 @@ aspect JragCodeGen {
   public boolean TypeDecl.hasLazySynEqFor(AttrDecl attr) {
     if (attr instanceof SynDecl) {
       SynEq synEq = lookupSynEq(attr.signature());
-      return synEq != null && (synEq.decl().isLazy() || synEq.decl().isCircular()) ;
+      return synEq != null && (synEq.decl().isLazy() || synEq.decl().isCircular());
     }
     return false;
   }
@@ -663,7 +664,7 @@ aspect JragCodeGen {
             + " was affected by a bug causing the equation value to be discarded! "
             + "(fixed since version 2.1.11)");
       }
-      String attrName = getName().substring(3); // remove get
+      String attrName = getName().substring(3);
       if (comp.name().equals(attrName) && comp instanceof AggregateComponentNTA
           || attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA
           || attrName.equals(comp.name() + "List") && comp instanceof ListComponentNTA) {

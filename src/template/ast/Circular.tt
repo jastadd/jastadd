@@ -45,7 +45,7 @@ $if(#isCollection)
       while (_node != null && !(_node instanceof #rootType)) {
         _node = _node.getParent();
       }
-      $include(collDebugCheck)
+      $include(CollDecl.collDebugCheck)
       #rootType root = (#rootType) _node;
       if (root.collecting_contributors_#collectionId) {
         throw new RuntimeException("Circularity during survey phase");

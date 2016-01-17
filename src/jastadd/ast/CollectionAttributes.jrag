@@ -36,7 +36,11 @@ aspect CollectionAttributes {
 
   eq CollDecl.isCollection() = true;
 
+  /** @return the type name of the collection root node */
   syn String CollDecl.rootType() = root().name();
+
+  /** @return the type name of the collection root node */
+  syn String CollEq.rootType() = decl().rootType();
 
   /** @return the return type of the collection attribute */
   syn String CollEq.getType() = decl().getType();
@@ -117,6 +121,7 @@ aspect CollectionAttributes {
   }
 
   syn TypeDecl AttrDecl.root() = grammar().root();
+
   eq CollDecl.root() = root != null ? grammar().lookup(root) : super.root();
 
   // Only used by circular collection attributes.
