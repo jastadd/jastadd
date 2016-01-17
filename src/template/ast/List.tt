@@ -28,7 +28,7 @@
 # This template file contains implicit aspect declarations for the
 # List AST node type
 
-List.implicitAspectDecls = [[
+List.implicitAspectDecls [[
 
 $if(#needsListTouched)
   private boolean $List.list$$touched = true;
@@ -111,26 +111,8 @@ $endif
   }
 
   /** @return an iterator to iterate over elements in this list node. */
+  @Override
   public java.util.Iterator<T> $List.iterator() {
-    $SynchBegin
-    return new java.util.Iterator<T>() {
-      private int index = 0;
-
-      @Override
-      public boolean hasNext() {
-        return index < getNumChild();
-      }
-
-      @Override
-      public T next() {
-        return hasNext() ? (T) getChild(index++) : null;
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-    };
-    $SynchEnd
+    return astChildIterator();
   }
 ]]

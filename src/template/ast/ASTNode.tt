@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 # This template file contains templates for implicit aspect declarations
 # for the ASTNode AST node type
 
-ASTNode.declarations = [[
+ASTNode.declarations [[
   /** @apilevel internal */
   private int $ASTNode.childIndex;
 
@@ -136,8 +136,10 @@ $if(HasRewriteLimit)
     list.add(info);
     if (list.size() > $RewriteLimit) {
       StringBuffer buf = new StringBuffer("Iteration count exceeded for rewrite:");
-      for(java.util.Iterator iter = list.iterator(); iter.hasNext(); )
+      java.util.Iterator iter = list.iterator();
+      while (iter.hasNext()) {
         buf.append("\n" + iter.next());
+      }
       throw new RuntimeException(buf.toString());
     }
   }
@@ -189,10 +191,47 @@ $else
 $endif
 $endif
 
-$include(ASTNode.emitNodeToStringMethod)
+  /**
+   * @return an iterator that can be used to iterate over the children of this node.
+   * The iterator does not allow removing children.
+   */
+  public java.util.Iterator<T> $ASTNode.astChildIterator() {
+    $SynchBegin
+    return new java.util.Iterator<T>() {
+      private int index = 0;
+
+      @Override
+      public boolean hasNext() {
+        return index < getNumChild();
+      }
+
+      @Override
+      public T next() {
+        return hasNext() ? (T) getChild(index++) : null;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+    $SynchEnd
+  }
+
+  /** @return an object that can be used to iterate over the children of this node */
+  public Iterable<T> $ASTNode.astChildren() {
+    return new Iterable<T>() {
+      @Override
+      public java.util.Iterator<T> iterator() {
+        return astChildIterator();
+      }
+    };
+  }
+
+  $include(ASTNode.nodeToStringMethod)
 ]]
 
-ASTNode.debugDecls = [[
+ASTNode.debugDecls [[
 $if(DebugMode)
   /** @apilevel internal */
   protected boolean $ASTNode.debugNodeAttachmentIsRoot() {
@@ -224,7 +263,7 @@ $endif
 $endif
 ]]
 
-ASTNode.setParent = [[
+ASTNode.setParent [[
   /** @apilevel low-level */
   public void $ASTNode.setParent($ASTNode node) {
     $SynchBegin
@@ -239,7 +278,7 @@ $endif
   }
 ]]
 
-ASTNode.getParent = [[
+ASTNode.getParent [[
   /** @apilevel low-level */
   public $ASTNode $ASTNode.getParent() {
     $SynchBegin
@@ -256,7 +295,7 @@ $endif
   }
 ]]
 
-ASTNode.addChild = [[
+ASTNode.addChild [[
   /** @apilevel low-level */
   public void $ASTNode.addChild(T node) {
     setChild(node, getNumChildNoTransform());
@@ -264,7 +303,7 @@ ASTNode.addChild = [[
   }
 ]]
 
-ASTNode.numChildren = [[
+ASTNode.numChildren [[
   /** @apilevel low-level */
    protected int $ASTNode.numChildren;
 
@@ -292,7 +331,7 @@ ASTNode.numChildren = [[
   }
 ]]
 
-ASTNode.setChild = [[
+ASTNode.setChild [[
   /** @apilevel low-level */
   public void $ASTNode.setChild($ASTNode node, int i) {
     $SynchBegin
@@ -323,7 +362,7 @@ $endif
   }
 ]]
 
-ASTNode.insertChild = [[
+ASTNode.insertChild [[
   /** @apilevel low-level */
   public void $ASTNode.insertChild($ASTNode node, int i) {
     $SynchBegin
@@ -359,7 +398,7 @@ $endif
   }
 ]]
 
-ASTNode.removeChild = [[
+ASTNode.removeChild [[
   /** @apilevel low-level */
   public void $ASTNode.removeChild(int i) {
     $SynchBegin
@@ -394,7 +433,7 @@ ASTNode.removeChild = [[
   }
 ]]
 
-ASTNode.getChild = [[
+ASTNode.getChild [[
   /** @apilevel low-level */
   public T $ASTNode.getChild(int i) {
 
@@ -487,7 +526,7 @@ $endif
   }
 ]]
 
-ASTNode.getChildNoTransform = [[
+ASTNode.getChildNoTransform [[
   /**
     * <p><em>This method does not invoke AST transformations.</em></p>
     * @apilevel low-level
@@ -509,7 +548,7 @@ ASTNode.getChildNoTransform = [[
   }
 ]]
 
-ASTNode.lineColumnNumbers = [[
+ASTNode.lineColumnNumbers [[
   /**
    * Line and column information.
    */

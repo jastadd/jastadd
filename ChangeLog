@@ -1,3 +1,9 @@
+2016-01-17  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Added generated methods ASTNode.astChildren() and
+    ASTNode.astChildIterator() for easier iteration over the AST, but without
+    implmenting java.lang.Iterable on ASTNode.
+
 2016-01-11  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * When a contribution uses the `each` keyword before the value expression,
