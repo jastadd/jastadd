@@ -1,19 +1,39 @@
-/**
+/* Copyright (c) 2006, Sun Microsystems, Inc.
+ *               2006-2013, The JastAdd Team
+ * All rights reserved.
  *
- * Copied from teh VTransformer Java1.1.jjt file in the Javacc
- * release. (Author: Sriram Sankar 3/5/97)
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * This file contains a Java grammar and actions that implement a front-end.
- * The VTransformer file has been changed to suit the grammar
- * of attribute "jrag"-files. Changes:
- * FieldDeclarations restricted to be of form ("inh"|"syn" type() attrName)
- * Actions added:
- * In production UnmodifiedClassDeclaration, to keep track of current
- * classname.
- * In production FieldDeclaration. To add declared attributes
- * to tables
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Sun Microsystems, Inc. nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * This file is based on the Java1.1.jjt file from the VTransformer example
+ * from JavaCC by Sun Microsystems, Inc. Modifications have been made by the
+ * JastAdd team to add support for JastAdd features.  The original author of
+ * this file, according to older releases of JavaCC, was Sriram Sankar. A date
+ * tag in the older releases shows the file was created on 3/5/97.
+ */
 options {
   JAVA_UNICODE_ESCAPE = true;
 
