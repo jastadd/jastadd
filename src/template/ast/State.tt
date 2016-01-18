@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,7 @@ $if(ComponentCheck)
     boolean completed = false; // Whether the circular evaluation has completed.
 
 $endif
+    /** Cycle ID of the latest cycle in this circular evaluation. */
     Cycle cycle = null;
 
     protected CircleState(CircleState next) {
