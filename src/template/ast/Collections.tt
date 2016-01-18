@@ -130,7 +130,7 @@ for (#getTargetName target : (Iterable<? extends #getTargetName>) (#getReference
   $include(CollEq.targetDebugCheck)
   java.util.Set<$ASTNode> contributors = _map.get(target);
   if (contributors == null) {
-    contributors = new java.util.HashSet<$ASTNode>();
+    contributors = new java.util.LinkedHashSet<$ASTNode>();
     _map.put(($ASTNode) target, contributors);
   }
   contributors.add(this);
@@ -140,7 +140,7 @@ $else
 $if(#implicitTarget)
   java.util.Set<$ASTNode> contributors = _map.get(_root);
   if (contributors == null) {
-    contributors = new java.util.HashSet<$ASTNode>();
+    contributors = new java.util.LinkedHashSet<$ASTNode>();
     _map.put(($ASTNode) _root, contributors);
   }
   contributors.add(this);
@@ -149,7 +149,7 @@ $else
   $include(CollEq.targetDebugCheck)
   java.util.Set<$ASTNode> contributors = _map.get(target);
   if (contributors == null) {
-    contributors = new java.util.HashSet<$ASTNode>();
+    contributors = new java.util.LinkedHashSet<$ASTNode>();
     _map.put(($ASTNode) target, contributors);
   }
   contributors.add(this);
