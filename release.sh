@@ -176,7 +176,7 @@ echo "Building release ${VERSION}..."
 gradle clean release "-PnewVersion=${VERSION}"
 VERSIONFILE='src/res/Version.properties'
 git add "${VERSIONFILE}"
-git commit "${VERSIONFILE}" -m "Release ${VERSION}"
+git commit -m "Release ${VERSION}"
 git tag -a "${VERSION}" -m "Version ${VERSION}"
 
 update_website
