@@ -6,40 +6,62 @@ JastAdd2 Release Notes
 
 ### Bugfixes
 
-* Fixed circular attribute evaluation bug causing lazy attributes to cache intermediate results. [More info](https://bitbucket.org/jastadd/jastadd2/issues/244/lazy-attribute-connecting-two-separate)
-* Fixed declaration order dependency between inherited attributes and aspect interface declarations. [More info](https://bitbucket.org/jastadd/jastadd2/issues/248/declaration-order-dependency-between)
-* Fixed some duplicate documentation comments in generated code. [More info](https://bitbucket.org/jastadd/jastadd2/issues/239/duplicate-documentation-comments-for)
+* Fixed circular attribute evaluation bug causing lazy attributes to cache intermediate results.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/244/lazy-attribute-connecting-two-separate)
+* Fixed declaration order dependency between inherited attributes and aspect interface declarations.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/248/declaration-order-dependency-between)
+* Fixed declaration order dependency between collection attributes and aspect interface declarations.
+* Removed some duplicate documentation comments in generated code.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/239/duplicate-documentation-comments-for)
 
 ###  Collection attributes
 
-* Removed multiple value expressions in collection contribution statements. [More info](https://bitbucket.org/jastadd/jastadd2/issues/250/remove-multiple-value-expressions-per)
-* Added multi-value collection contributions using the `each` keyword. [More info](https://bitbucket.org/jastadd/jastadd2/issues/249/multi-value-collection-contributions)
-* The initialization expression for collection attributes is now optional. [More info](https://bitbucket.org/jastadd/jastadd2/issues/232/optional-initial-expression-for-collection)
-* Made contribution target optional when the collection root is the target node. [More info](https://bitbucket.org/jastadd/jastadd2/issues/242/make-contribution-target-optional-when-the)
-* Default update method for collection attributes. [More info](https://bitbucket.org/jastadd/jastadd2/issues/219/default-update-method-for-collection)
-* Misspelling `with` and `root` keywords in a collection attribute declaration now causes a sytax error. [More info](https://bitbucket.org/jastadd/jastadd2/issues/237/collection-attribute-keywords-with-and)
+* Removed multiple value expressions in collection contribution statements.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/250/remove-multiple-value-expressions-per)
+* Added multi-value collection contributions using the **each** keyword.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/249/multi-value-collection-contributions)
+* The initialization expression for collection attributes is now optional.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/232/optional-initial-expression-for-collection)
+* Made contribution target optional when the collection root is the target node.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/242/make-contribution-target-optional-when-the)
+* Made the update method optional in collection declarations. The `add` method
+  is used if no update method is specified.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/219/default-update-method-for-collection)
+* Misspelling the **with** and **root** keywords in a collection attribute declaration now causes a syntax error.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/237/collection-attribute-keywords-with-and)
 
 ### Aspect declarations
 
-* The aspect parser now allows nested generic types. [More info](https://bitbucket.org/jastadd/jastadd2/issues/246/nested-generic-types)
-* Added cache declarations in aspects. [More info](https://bitbucket.org/jastadd/jastadd2/issues/252/cache-declarations-in-aspect)
-    * Added `cache` and `uncache` declarations, allowing more control of attribute caching behaviour.
+* The aspect parser now allows nested generic types.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/246/nested-generic-types)
+* Added cache declarations in aspects.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/252/cache-declarations-in-aspect)
+    * Added **cache** and **uncache** declarations, allowing more control of attribute caching behaviour.
     * Removed support for cache configuration files. They have been replaced by cache declarations in aspects.
-    * Removed the `--cache=implicit` and `--cache=config` options, as they were obsolete.
+    * Removed the `--cache=implicit` and `--cache=config` options, as they are now obsolete.
 
 ### Code generation changes
 
-* Attributes are now annotated using the ASTNodeAnnotations.DeclaredAt annotation. [More info](https://bitbucket.org/jastadd/jastadd2/issues/240/generate-declaredat-annotations)
-* Removed the `Iterable<ASTNode>` interface from `ASTNode`. [More info](https://bitbucket.org/jastadd/jastadd2/issues/247/remove-iterable-interface-from-astnode)
-* Added `astChildren()` returning an `Iterable<ASTNode>` object for iterating over the children of an AST node. This replaces using `ASTNode` as an iterable.
-* Fixed error in generated code for collection attribute contributions on `ASTNode`. [More info](https://bitbucket.org/jastadd/jastadd2/issues/245/collection-attribute-contributions-on)
-* Renamed parameter names in generated inherited attribute code to avoid name collisions. [More info](https://bitbucket.org/jastadd/jastadd2/issues/236/caller-and-child-arguments-of-inh)
+* Attributes are now annotated using the `ASTNodeAnnotations.DeclaredAt` annotation.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/240/generate-declaredat-annotations)
+* Removed the `Iterable<ASTNode>` interface from `ASTNode`.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/247/remove-iterable-interface-from-astnode)
+* Added generated method `ASTNode.astChildren()` returning an
+  `Iterable<ASTNode>` object for iterating over the children of an AST node.
+  This replaces using `ASTNode` as an iterable.
+* Fixed error in generated code for collection attribute contributions on `ASTNode`.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/245/collection-attribute-contributions-on)
+* Renamed parameter names in generated inherited attribute code to avoid name collisions.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/236/caller-and-child-arguments-of-inh)
 
 ### Error reporting
 
-* The error message for a missing collection attribute declaration now includes the attribute name. [More info](https://bitbucket.org/jastadd/jastadd2/issues/241/error-message-for-undeclared-collection)
-* An error message is now reported when JastAdd does not find a matching inherited attribute declaration. [More info](https://bitbucket.org/jastadd/jastadd2/issues/189/missing-inherited-declarations-cause-stack)
-* Fixed a problem in collection attribute runtime debug check. [More info](https://bitbucket.org/jastadd/jastadd2/issues/238/collection-attribute-runtime-debug-check)
+* The error message for a missing collection attribute declaration now includes the attribute name.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/241/error-message-for-undeclared-collection)
+* An error message is now reported when JastAdd does not find a matching inherited attribute declaration.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/189/missing-inherited-declarations-cause-stack)
+* Fixed a problem in collection attribute runtime debug check.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/238/collection-attribute-runtime-debug-check)
 
 2.1.13 - 2015-09-11
 -------------------
