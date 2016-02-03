@@ -99,7 +99,7 @@ public aspect Attributes {
       String aspectName) {
 
     if (!config().rewriteEnabled()) {
-      error("can not use rewrites while rewrites are disabled (enable with --rewrite=true)",
+      error("can not use rewrites while rewrites are disabled (enable with --rewrite=regular)",
           fileName, startLine);
       return;
     }
@@ -135,7 +135,7 @@ public aspect Attributes {
       String aspectName) {
 
     if (!config().rewriteEnabled()) {
-      error("can not use rewrites while rewrites are disabled (enable with --rewrite=true)",
+      error("can not use rewrites while rewrites are disabled (enable with --rewrite=regular)",
           fileName, startLine);
       return;
     }
