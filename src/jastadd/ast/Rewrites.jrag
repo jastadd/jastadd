@@ -31,20 +31,6 @@
  */
 aspect Rewrites {
 
-  syn lazy Collection Grammar.rewriteAspects() {
-    Set set = new LinkedHashSet();
-    for (int i = 0; i < getNumTypeDecl(); i++) {
-      if (getTypeDecl(i) instanceof ASTDecl) {
-        ASTDecl decl = (ASTDecl)getTypeDecl(i);
-        for (int j = 0; j < decl.getNumRewrite(); j++) {
-          Rewrite r = decl.getRewrite(j);
-          set.add(r.aspectName());
-        }
-      }
-    }
-    return set;
-  }
-
   public void ASTDecl.emitRewrites(PrintStream out) {
     TemplateContext tt = templateContext();
     boolean unconditional = false;
