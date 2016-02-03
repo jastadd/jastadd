@@ -1,5 +1,5 @@
 /* Copyright (c) 2006, Sun Microsystems, Inc.
- *               2006-2013, The JastAdd Team
+ *               2006-2016, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1138,24 +1138,17 @@ void AspectRewrite() :
   SimpleNode eq;
   Token first, last;
 
-  Token parent = null;
-  Token child = null;
   String type;
 }
 {
   "rewrite" {cond = null; first = token;} t = <IDENTIFIER> { className = t.image; }
-  [<IDENTIFIER> parent = <IDENTIFIER> "." child = <IDENTIFIER> <LPAREN> <RPAREN>]
   <LBRACE>
     ( ["when" { first = token; } <LPAREN> cond = Expression() <RPAREN>]
       "to" type = AspectType() ( (eq = Expression() ";" { last = token; }) | eq = Block() { last = token; } )
       {
-        if(parent != null && child != null) {
-          root.addRewriteList(className, cond, eq, type, fileName, first.beginLine, last.endLine, parent.image, child.image, enclosingAspect);
-        }
-        else {
-          root.addRewrite(className, cond, eq, type, fileName, first.beginLine, last.endLine, enclosingAspect);
-        }
-        cond = null;}
+        root.addRewrite(className, cond, eq, type, fileName, first.beginLine, last.endLine, enclosingAspect);
+        cond = null;
+      }
     )+
   <RBRACE>
 }

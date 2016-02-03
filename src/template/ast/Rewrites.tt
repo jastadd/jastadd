@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,46 +25,53 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ASTDecl.emitRewrites.begin = [[
+ASTDecl.rewriteTo:begin [[
   /** @apilevel internal */
   public $ASTNode rewriteTo() {
 ]]
 
-ASTDecl.emitRewrites.touch_list = [[
-    if (list$$touched) {
-      for(int i = 0 ; i < getNumChildNoTransform(); i++) {
-        getChild(i);
-      }
-      list$$touched = false;
-$if(RewriteCircularNTA)
-      if (state().changeInCycle()) {
-        return this;
-      }
-$else
-      return this;
-$endif
-    }
-]]
-
-ASTDecl.emitRewrites.end:ASTNode = [[
+ASTDecl.rewriteTo:end:ASTNode [[
+$if(LegacyRewrite)
     if (state().peek() == $StateClass.REWRITE_CHANGE) {
       state().pop();
       state().push($StateClass.REWRITE_NOCHANGE);
     }
+$endif
     return this;
   }
 ]]
 
-ASTDecl.emitRewrites.end:!unconditional = [[
+ASTDecl.rewriteTo:end:conditional [[
     return super.rewriteTo();
   }
 ]]
 
-ASTDecl.emitRewrites.end = [[
+ASTDecl.rewriteTo:end:unconditional [[
   }
 ]]
 
-Rewrite.genRewrite.declaredat = [[
+ASTDecl.canRewrite:begin [[
+  /** @apilevel internal */
+  public boolean canRewrite() {
+]]
+
+ASTDecl.canRewrite:end [[
+    return false;
+  }
+]]
+
+ASTDecl.canRewrite:end:unconditional [[
+    return true;
+  }
+]]
+
+Rewrite.condition [[
+    if ($Condition) {
+      return true;
+    }
+]]
+
+Rewrite.declaredat [[
     // Declared at #sourceLocation
 ]]
 
@@ -78,31 +85,8 @@ Rewrite.genRewrite:unconditional [[
     return rewriteRule$RewriteIndex();
 ]]
 
-RewriteList.genRewrite [[
-    if (getParent().getParent() instanceof #getParentName &&
-        ((#getParentName)getParent().getParent()).#(getChildName)ListNoTransform() == getParent()$Condition) {
-      $List list = ($List) getParent();
-      int i = list.getIndexOfChild(this);
-      $List newList = rewrite#(getParentName)_#getChildName();
-      // The first child is set by the normal rewrite loop.
-      for(int j = 1; j < newList.getNumChildNoTransform(); j++) {
-        list.insertChild(newList.getChildNoTransform(j), ++i);
-      }
-      return newList.getChildNoTransform(0);
-    }
-]]
-
 Rewrite.javaDoc:internal [[
   /**
    * #declaredat
    * @apilevel internal
    */]]
-
-ASTNode.rewrittenAttr = [[
-$if(RewriteCircularNTA)
-syn nta $ASTNode $ASTNode.rewritten(int i)
-    circular [getChildNoTransform(i).treeCopyNoTransform()] =
-  rewritten(i).rewriteTo();
-
-$endif
-]]

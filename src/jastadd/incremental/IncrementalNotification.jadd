@@ -74,8 +74,7 @@
   public String ASTDecl.emitFlushNtaSubTreesString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
               && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParameterized", attr.isParameterized());
@@ -93,8 +92,7 @@
   public String ASTDecl.emitTransferSetsFromAttrTokenHandlersString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.transferSetsFromAttributeHandler"));
@@ -115,8 +113,7 @@
   public String ASTDecl.emitFlushNTAsInRegionString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
             && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
@@ -136,8 +133,7 @@
   public String ASTDecl.emitFlushNTAsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
       		!(attr.type().equals("String") || attr.type().equals("java.lang.String")) &&
       		attr.getNumParameter() == 0) {
@@ -162,8 +158,7 @@
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     boolean firstAttr = true;
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       res.append(firstAttr ? "" : "else ");
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
@@ -195,8 +190,7 @@
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     boolean firstAttr = true;
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       res.append(firstAttr ? "" : "else ");
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.signature());
@@ -218,8 +212,7 @@
   public String ASTDecl.emitFlushAttrsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.signature());
       tt.bind("AttrResetVisit", attr.resetVisit());

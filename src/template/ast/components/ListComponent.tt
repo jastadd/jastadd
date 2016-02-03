@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 
 # List component boilerplate code for accessing children etc.
 
-ListComponent = [[
+ListComponent [[
 $if(!#isNTA)
   /**
    * Replaces the $Name list.
@@ -158,17 +158,6 @@ $if(#isNTA)
     $SynchEnd
   }
 $else
-
-$if(RewriteCircularNTA)
-  /**
-   * Retrieves the child position of the $Name list.
-   * @return The the child position of the $Name list.
-   * @apilevel low-level
-   */
-  protected int $Host.get$(Name)ListChildPosition() {
-    return $Index;
-  }
-$endif
 
   /**
    * Retrieves the $Name list.

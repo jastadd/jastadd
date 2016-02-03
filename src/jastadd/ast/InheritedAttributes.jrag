@@ -393,7 +393,7 @@ aspect InheritedAttributeCodeGen {
     // Have we already generated a component equation?
     boolean hasComponentEq = false;
 
-    for (InhEq equ: inhEqs) {
+    for (InhEq equ : inhEqs) {
       if (hasComponentEq) {
         sb.append("else ");
       }

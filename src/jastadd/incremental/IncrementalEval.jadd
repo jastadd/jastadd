@@ -54,8 +54,11 @@ aspect IncrementalEval {
   /**
    * Returns a list of all cached attributes (syn, inh).
    */
-  public ArrayList ASTDecl.listOfCachedAttributes() {
-    ArrayList list = new ArrayList();
+  public ArrayList<AttrDecl> ASTDecl.listOfCachedAttributes() {
+    ArrayList<AttrDecl> list = new ArrayList<AttrDecl>();
+    if (config().rewriteCircularNTA() && hasRewriteAttribute()) {
+      list.add(getCircularRewriteDecl());
+    }
     for (int k = 0; k < getNumSynEq(); k++) {
       AttrDecl attr = getSynEq(k).decl();
       if (attr != null && (attr.isLazy() || attr.isCircular())) {

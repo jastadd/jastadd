@@ -428,22 +428,6 @@ public static class Trace {
   }
 
   /**
-   * Trace that a rewrite was flushed.
-   * @param value The value of the attribute.
-   */
-  public void flushRewrite($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.FLUSH_REWRITE, node, attr, params, value);
-  }
-
-  /**
-   * Trace that the initial value of an enclosing rewrite was stored for flushing.
-   * @param value The value of the attribute.
-   */
-  public void flushRewriteInit($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.FLUSH_REWRITE_INIT, node, attr, params, value);
-  }
-
-  /**
    * Process all trace entries given a trace processor
    */
   public void process($StateClass.Trace.Processor processor) {

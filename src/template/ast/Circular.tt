@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ $endif
       #(signature)_value = $BottomValue;
 $if(#getNTA)
       if (#(signature)_value != null) {
-        #(signature)_value.setParent(this);
+        #(signature)_value.setParent(#ntaParent);
       }
 $endif
     }
@@ -64,7 +64,9 @@ $endif
       $include(AttrDecl.traceCircularEnterCase1)
       state.enterCircle();
       #tracePrintCycleBeginString
+$if(LegacyRewrite)
       $include(AttrDecl.cacheInitRewrite)
+$endif
       do {
         #(signature)_cycle = state.nextCycle();
         #tracePrintBeginComputingValue
@@ -80,12 +82,13 @@ $endif
         #(signature)_value = new_#(signature)_value;
 $if(#getNTA)
         if (#(signature)_value != null) {
-          #(signature)_value.setParent(this);
+          #(signature)_value.setParent(#ntaParent);
         }
 $endif
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.testAndClearChangeInCycle());
+$if(LegacyRewrite)
       if (#cacheStoreCondition) {
         #(signature)_computed = true;
         $include(AttrDecl.cacheCycleInit)
@@ -97,6 +100,11 @@ $endif
         #(signature)_initialized = false;
         $include(AttrDecl.traceCacheAbort)
       }
+$else
+      #(signature)_computed = true;
+      $include(AttrDecl.cacheCycleInit)
+      $include(AttrDecl.traceCacheStore)
+$endif
       state.leaveCircle();
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
@@ -105,7 +113,9 @@ $endif
       $include(AttrDecl.traceCircularEnterCase2)
       #(signature)_cycle = state.cycle();
       $include(AttrDecl.cacheCycleCheck)
+$if(LegacyRewrite)
       $include(AttrDecl.resetCycleCheck)
+$endif
       #tracePrintBeginComputingValue
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceComputeBegin)
@@ -119,7 +129,7 @@ $endif
       #(signature)_value = new_#(signature)_value;
 $if(#getNTA)
       if (#(signature)_value != null) {
-        #(signature)_value.setParent(this);
+        #(signature)_value.setParent(#ntaParent);
       }
 $endif
       $TracePrintReturnNewValue
@@ -154,70 +164,50 @@ AttrDecl.circularEquation:parameterized [[
       #(signature)_values.put(_parameters, _value);
       _value.value = $BottomValue;
 $if(#getNTA)
- $if(#isRewriteCircularNtaAttr)
-       if (_value.value != null) {
-         (($ASTNode) _value.value).setParent(this);
-         (($ASTNode) _value.value).childIndex = i;
-       }
- $else
        if (_value.value != null) {
          if (#(signature)_list == null) {
            #(signature)_list = new $List();
-           #(signature)_list.setParent(this);
+           #(signature)_list.setParent(#ntaParent);
          }
          (($ASTNode) _value.value).setParent(#(signature)_list);
       }
- $endif
 $endif
     }
     $StateClass state = state();
     if (!state.inCircle() || state.calledByLazyAttribute()) {
       $include(AttrDecl.traceCircularEnterCase1)
       state.enterCircle();
-$if(#isRewriteCircularNtaAttr)
-      int rewriteState;
-$endif
       #tracePrintCycleBeginString
+$if(LegacyRewrite)
       $include(AttrDecl.cacheInitRewrite)
+$endif
       #getType new_#(signature)_value;
       do {
         _value.cycle = state.nextCycle();
         #tracePrintBeginComputingValue
-$if(#isRewriteCircularNtaAttr)
-        state.push($StateClass.REWRITE_CHANGE);
-$endif
         $include(AttrDecl.incHookAttrCompStartCircular)
         $include(AttrDecl.traceComputeBegin)
         new_#(signature)_value = $CircularComputeRhs;
         $include(AttrDecl.traceComputeEnd)
         $include(AttrDecl.incHookAttrCompEndCircular)
-$if(#isRewriteCircularNtaAttr)
-        rewriteState = state.pop();
-$endif
         if ($ChangeCondition) {
           state.setChangeInCycle();
           $include(AttrDecl.traceCircularCase1Change)
           _value.value = new_#(signature)_value;
 $if(#getNTA)
- $if(#isRewriteCircularNtaAttr)
-          if (_value.value != null) {
-            (($ASTNode) _value.value).setParent(this);
-            (($ASTNode) _value.value).childIndex = i;
-          }
- $else
           if (_value.value != null) {
             if (#(signature)_list == null) {
               #(signature)_list = new $List();
-              #(signature)_list.setParent(this);
+              #(signature)_list.setParent(#ntaParent);
             }
             (($ASTNode) _value.value).setParent(#(signature)_list);
           }
- $endif
 $endif
         }
         #tracePrintStartingCycle
         #cycleLimitCheck
       } while (state.testAndClearChangeInCycle());
+$if(LegacyRewrite)
       if (#cacheStoreCondition) {
         #(signature)_values.put(_parameters, new_#(signature)_value);
         $include(AttrDecl.cacheCycleInit)
@@ -228,6 +218,11 @@ $endif
         #getType $$tmp = $CircularComputeRhs;
         $include(AttrDecl.traceCacheAbort)
       }
+$else
+      #(signature)_values.put(_parameters, new_#(signature)_value);
+      $include(AttrDecl.cacheCycleInit)
+      $include(AttrDecl.traceCacheStore)
+$endif
       state.leaveCircle();
       $TracePrintReturnNewValue
       #tracePrintCycleEndString
@@ -237,38 +232,29 @@ $endif
       _value.cycle = state.cycle();
       $include(AttrDecl.traceCircularEnterCase2)
       #tracePrintBeginComputingValue
-$if(#isRewriteCircularNtaAttr)
-      state.push($StateClass.REWRITE_CHANGE);
-$endif
       $include(AttrDecl.incHookAttrCompStartCircular)
       $include(AttrDecl.traceComputeBegin)
       #getType new_#(signature)_value = $CircularComputeRhs;
       $include(AttrDecl.traceComputeEnd)
       $include(AttrDecl.incHookAttrCompEndCircular)
-$if(#isRewriteCircularNtaAttr)
-      int rewriteState = state.pop();
-$endif
       $include(AttrDecl.cacheCycleCheck)
+$if(LegacyRewrite)
       $include(AttrDecl.resetCycleCheck)
       else if ($ChangeCondition) {
+$else
+      if ($ChangeCondition) {
+$endif
         state.setChangeInCycle();
         $include(AttrDecl.traceCircularCase2Change)
         _value.value = new_#(signature)_value;
 $if(#getNTA)
- $if(#isRewriteCircularNtaAttr)
-        if (_value.value != null) {
-          (($ASTNode) _value.value).setParent(this);
-          (($ASTNode) _value.value).childIndex = i;
-        }
- $else
         if (_value.value != null) {
           if (#(signature)_list == null) {
             #(signature)_list = new $List();
-            #(signature)_list.setParent(this);
+            #(signature)_list.setParent(#ntaParent);
           }
           (($ASTNode) _value.value).setParent(#(signature)_list);
         }
- $endif
 $endif
       }
       $TracePrintReturnNewValue
@@ -286,13 +272,7 @@ $endif
 AttrDecl.cacheCycleInit [[
 $if(CacheCycle)
 state.startLastCycle();
- $if(#isRewriteCircularNtaAttr)
-state.push($StateClass.REWRITE_CHANGE);
- $endif
 #getType $$tmp = $CircularComputeRhs;
- $if(#isRewriteCircularNtaAttr)
-state.pop();
- $endif
 $endif
 ]]
 
@@ -312,6 +292,7 @@ if (state.lastCycle()) {
 $endif
 ]]
 
+# Only used for legacy rewrites.
 AttrDecl.resetCycleCheck [[
 if (state.resetCycle()) {
 $if(#isParameterized)

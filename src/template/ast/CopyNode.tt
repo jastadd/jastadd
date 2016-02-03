@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# generates ASTNode.copy()
-ASTDecl.emitCopyNode = [[
+# Generates the ASTNode.copy() method.
+ASTDecl.emitCopyNode [[
   /** @apilevel internal */
   #annotations
   public #copyReturnType #name.copy() {
@@ -55,8 +55,8 @@ $endif
   }
 ]]
 
-# generates ASTNode.fullCopy()
-ASTDecl.emitFullCopy = [[
+# Generates the ASTNode.fullCopy() method.
+ASTDecl.emitFullCopy [[
   /**
    * Create a deep copy of the AST subtree at this node.
    * The copy is dangling, i.e. has no parent.
@@ -75,7 +75,7 @@ $else
 $endif
 ]]
 
-ASTDecl.emitTreeCopyNoTransform = [[
+ASTDecl.emitTreeCopyNoTransform [[
   /**
    * Create a deep copy of the AST subtree at this node.
    * The copy is dangling, i.e. has no parent.
@@ -110,7 +110,7 @@ $endif
 $endif
 ]]
 
-ASTNode.emitDoFullTraversal = [[
+ASTNode.emitDoFullTraversal [[
   /**
    * Performs a full traversal of the tree using getChild to trigger rewrites
    * @apilevel low-level
@@ -125,7 +125,7 @@ ASTNode.emitDoFullTraversal = [[
   }
 ]]
 
-ASTDecl.emitTreeCopy = [[
+ASTDecl.emitTreeCopy [[
   /**
    * Create a deep copy of the AST subtree at this node.
    * The subtree of this node is traversed to trigger rewrites before copy.
@@ -139,41 +139,56 @@ $if(#hasAbstract)
 $else
   public #copyReturnType #name.treeCopy() {
     $SynchBegin
+  $if(LegacyRewrite)
     doFullTraversal();
     return treeCopyNoTransform();
+  $else
+    #name tree = (#name) copy();
+    if (children != null) {
+      for (int i = 0; i < children.length; ++i) {
+        $SkipNTAs
+        $ASTNode child = ($ASTNode) getChild(i);
+        if (child != null) {
+          child = child.treeCopyNoTransform();
+    $if(IncrementalEnabled)
+          tree.children[i] = child;
+          child.parent = tree;
+    $else
+          tree.setChild(child, i);
+    $endif
+        }
+      }
+    }
+    return tree;
+  $endif
     $SynchEnd
   }
 $endif
 ]]
 
+# Generates the ASTNode.clone() method.
 #
-# ASTNode.clone()
-#
-# NOTE: We should not invoke node.flushCache() since this methods can invoke
-#       flushRewriteCache(), which should not be called during cloning.
+# NOTE: We should not invoke node.flushCache() since this methods can
+#       flush CNTA rewrites, which should not be called during cloning.
 #       This is tested in the test case flush/flushRewriteAndTreeCopy01.
-ASTDecl.emitCloneNode = [[
+ASTDecl.emitCloneNode [[
   /** @apilevel internal */
   #annotations
   public #copyReturnType #name.clone() throws CloneNotSupportedException {
     $SynchBegin
     #name node = (#name) super.clone();
-    $if(#isASTNodeDecl)
-$if(RewriteEnabled)
+$if(#isASTNodeDecl)
+  $if(LegacyRewrite)
     if (node.is$$Final()) {
       node.flushAttrAndCollectionCache();
     }
     node.in$$Circle(false);
     // flush rewrites
-  $if(StagedRewrites)
-    node.is$$Final(0);
-  $else
     node.is$$Final(false);
-  $endif
-$else
+  $else
     node.flushAttrAndCollectionCache();
+  $endif
 $endif
-    $endif
     return node;
     $SynchEnd
   }

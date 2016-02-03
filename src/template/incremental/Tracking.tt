@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,6 @@ $endif
 
 ASTNode.incHookAddChild = [[
 $if(IncrementalEnabled)
-
 $if(IncrementalLevelParam)
 int i = getNumChildNoTransform() - 1;
 if (getChild_handler[i] == null) {
@@ -65,33 +64,41 @@ $else
 $endif
 }
 state().addHandlerDepTo(getChild_handler[i]);
+  $if(LegacyRewrite)
 if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
   node.is$$Final(is$$Final());
 }
+  $endif
 $endif
 
 $if(IncrementalLevelAttr)
 state().addHandlerDepTo(getChild_handler);
+  $if(LegacyRewrite)
 if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
   node.is$$Final(is$$Final());
 }
+  $endif
 $endif
 
 $if(IncrementalLevelNode)
 if (node != null) {
   state().addHandlerDepTo(node.handler);
+  $if(LegacyRewrite)
   if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
     node.is$$Final(is$$Final());
   }
+  $endif
 }
 $endif
 
 $if(IncrementalLevelRegion)
 if (node != null && node.isRegionRoot()) {
   state().addHandlerDepTo(node.handler());
+  $if(LegacyRewrite)
   if (state().IN_ATTR_STORE_EVAL && !node.mayHaveRewrite()) {
     node.is$$Final(is$$Final());
   }
+  $endif
 }
 $endif
 
@@ -114,17 +121,6 @@ $endif
 
 ASTNode.incHookGetChild1 = [[
 $if(IncrementalEnabled)
-
-$if (!FlushRewrite)
-if(this.init_children == null) {
-  this.init_children = new $ASTNode[this.children.length];
-  this.children_computed = new boolean[this.children.length];
-}
-if(!node.getChild_hasEnclosingInitValue()) {
-  this.init_children[i] = node.fullCopy();
-  this.children_computed[i] = true;
-}
-$endif
 
 $if(IncrementalLevelParam)
 this.state().enterRewriteEval(this.getChild_handler[i]);
@@ -153,12 +149,6 @@ $endif
 
 ASTNode.incHookGetChild3 = [[
 $if(IncrementalEnabled)
-
-$if(!FlushRewrite)
-if (rewriteState == $StateClass.REWRITE_CHANGE) {
-  this.children_computed[i] = true;
-}
-$endif
 
 $endif
 ]]

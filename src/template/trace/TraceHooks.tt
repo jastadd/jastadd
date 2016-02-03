@@ -85,7 +85,7 @@ $if (TraceCache)
   $if(#isLazy)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, _o);
+state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, _cache);
       $else
 state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_values.get(_parameters));
       $endif
@@ -322,16 +322,3 @@ state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(sign
     $endif
 $endif
 ]]
-
-ASTNode.traceFlushRewrite [[
-$if (TraceRewrite)
-state().trace().flushRewrite(this, "ASTNode.getChild", i, nodeToString(children[i]));
-$endif
-]]
-
-ASTNode.traceFlushRewriteInit [[
-$if (TraceRewrite)
-state().trace().flushRewriteInit(this, "ASTNode.getChild", i, nodeToString(children[i]));
-$endif
-]]
-

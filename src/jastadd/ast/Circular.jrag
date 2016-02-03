@@ -32,9 +32,18 @@ aspect Circular {
 
   syn boolean AttrDecl.isCircular() = hasBottomValue();
 
+  eq CircularRewriteDecl.isCircular() = true;
+
   syn boolean AttrDecl.hasBottomValue() = bottomValue != null && !bottomValue.isEmpty();
 
   syn String AttrDecl.getBottomValue() = bottomValue;
+
+  eq CircularRewriteDecl.getBottomValue() = "this";
+
+  /** The parent to attach an NTA value to during circular evaluation. */
+  syn String AttrDecl.ntaParent() = "this";
+
+  eq CircularRewriteDecl.ntaParent() = "getParent()";
 
   public void AttrDecl.setBottomValue(String expression) {
     bottomValue = expression;

@@ -205,10 +205,8 @@ public class Configuration {
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  // TODO(jesper): add description for --stagedRewrites option.
   Option<Boolean> stagedRewritesOption = new FlagOption("stagedRewrites", "")
-      .templateVariable("StagedRewrites")
-      .nonStandard();
+      .deprecated("2.2.1", "this option currently does nothing");
 
   Option<Boolean> doxygenOption = new FlagOption("doxygen", "")
       .deprecated("2.1.5", "this option currently does nothing");
@@ -537,15 +535,13 @@ public class Configuration {
 
     // Rewrite options.
     tt.bind("RewriteEnabled", rewriteEnabled());
-    tt.bind("RewriteLimit", rewriteLimit());
-    tt.bind("HasRewriteLimit", rewriteLimit() > 0);
     tt.bind("RewriteCircularNTA", rewriteCircularNTA());
+    tt.bind("LegacyRewrite", legacyRewrite());
 
     // Flush options.
     tt.bind("FlushEnabled", flushEnabled());
     tt.bind("FlushAttr", flushAttr());
     tt.bind("FlushColl", flushColl());
-    tt.bind("FlushRewrite", flushRewrite());
 
     // Incremental options.
     tt.bind("IncrementalEnabled", incremental());
@@ -579,7 +575,6 @@ public class Configuration {
     tt.bind("VisitCheckEnabled", visitCheckEnabled());
     tt.bind("CacheCycle", cacheCycle());
     tt.bind("StaticState", staticState());
-    tt.bind("StagedRewrites", stagedRewrites());
     tt.bind("LazyMaps", lazyMaps());
 
     return root;
@@ -1105,17 +1100,18 @@ public class Configuration {
   }
 
   /**
+   * @return {@code true} if rewrites are enabled and the old rewrite
+   * implementation should be used.
+   */
+  public boolean legacyRewrite() {
+    return rewriteEnabled() && !rewriteCircularNTA();
+  }
+
+  /**
    * @return {@code true} if --rewrite=none
    */
   public boolean rewriteEnabled() {
     return !rewriteOption.hasValue("none");
-  }
-
-  /**
-   * @return {@code true} if --stagedRewrites=true
-   */
-  public boolean stagedRewrites() {
-    return stagedRewritesOption.value();
   }
 
   /**
@@ -1172,15 +1168,6 @@ public class Configuration {
   }
 
   /**
-   * @return {@code true} if --flush=rewrite || --flush=full
-   */
-  public boolean flushRewrite() {
-    return flushOption.hasValue("rewrite")
-        || incremental()
-        || flushOption.hasValue("full");
-  }
-
-  /**
    * @return default map initialization
    */
   public String createDefaultMap() {
@@ -1203,13 +1190,6 @@ public class Configuration {
     }
     // Fallback on deprecated option.
     return !noInhEqCheckOption.value();
-  }
-
-  /**
-   * @return rewrite limit (0 if disabled)
-   */
-  public int rewriteLimit() {
-    return debugMode() ? 100 : 0;
   }
 
   /**

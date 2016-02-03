@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2015, The JastAdd Team
+/* Copyright (c) 2005-2016, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,8 @@ aspect AttributeKind {
   eq InhDecl.attributeKind() = "inh";
 
   eq CollDecl.attributeKind() = "coll";
+
+  eq CircularRewriteDecl.attributeKind() = "syn nta";
 }
 
 aspect JragCodeGen {
@@ -81,8 +83,6 @@ aspect JragCodeGen {
 
   syn String Rewrite.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
 
-  syn String RewriteList.declaredat() = ASTNode.declaredat(getFileName(), getStartLine());
-
   syn String Rewrite.sourceLocation() = ASTNode.sourceLocation(getFileName(), getStartLine());
 
   /**
@@ -103,13 +103,13 @@ aspect JragCodeGen {
     throw new Error("unhandled cache mode");
   }
 
-  syn boolean AttrDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
+  syn boolean AttrDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
 
-  eq SynDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
+  eq SynDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
 
-  eq InhDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
+  eq InhDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
 
-  eq CollDecl.isLazy() = declaredNTA() || shouldCache(getCacheMode());
+  eq CollDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
@@ -219,7 +219,7 @@ aspect JragCodeGen {
     StringBuilder sb = new StringBuilder();
     if (config().lazyMaps()) {
       if (!isCircular()) {
-        if (getNumParameter() != 0 && config().visitCheckEnabled() && config().rewriteEnabled()) {
+        if (getNumParameter() != 0 && config().visitCheckEnabled() && config().legacyRewrite()) {
           sb.append(String.format("if (%s_visited == null) %s_visited = %s;\n",
               signature(), signature(), config().createDefaultMap()));
         } else if (getNumParameter() != 0 && config().visitCheckEnabled()) {
@@ -327,49 +327,12 @@ aspect JragCodeGen {
   }
 
   public String AttrDecl.cacheStoreCondition() {
-    /* BEGIN INCORRECT legacy cache store condition */
-    /* TODO remove this */
+    // This cache store condition is only used with the old (legacy) rewrite implementation.
+    // It is kept for backward compatibility.
     if (!config().rewriteEnabled() || getFinal()) {
       return "true";
     } else {
       return "isFinal && _boundaries == state().boundariesCrossed";
-    }
-    /* END INCORRECT legacy cache store condition */
-
-    /* BEGIN CORRECT cache store condition.
-     * TODO use this instead of above condition in 2.2.0!!
-    StringBuilder cacheCond = new StringBuilder();
-    cacheCond.append(cacheStoreRewrite());
-    String circularCond = (!isCircular() ? cacheStoreCircular() : "");
-    if (cacheCond.length() != 0 && !circularCond.isEmpty()) {
-      cacheCond.append(" && ");
-    }
-    cacheCond.append(circularCond);
-    if (cacheCond.length() == 0) {
-      cacheCond.append("true");
-    }
-    return cacheCond;
-    END CORRECT cache store condition
-    */
-  }
-
-  public String AttrDecl.cacheStoreCircular() {
-    if (config().cacheCycle()) {
-      return "(!state.IN_CIRCLE || (state.IN_CIRCLE && (!state.INTERMEDIATE_VALUE "
-          + "|| state.LAST_CYCLE)))";
-    }
-    return "!state.INTERMEDIATE_VALUE";
-  }
-
-  public String AttrDecl.cacheStoreRewrite() {
-    if (config().rewriteEnabled() && !config().rewriteCircularNTA()) {
-      // TODO: Should final on attributes be allowed?
-      if (getFinal()) {
-        return "(_boundaries == state().boundariesCrossed)";
-      }
-      return "(isFinal && _boundaries == state().boundariesCrossed)";
-    } else {
-      return "";
     }
   }
 
@@ -535,17 +498,12 @@ aspect JragCodeGen {
   /**
    * Generate code to test if two attribute values differ based on the type of the attribute.
    */
-  public String AttrDecl.valueComparisonExpr(String s1, String s2) {
-    if (isPrimitive()) {
-      return s1 + " != " + s2;
-    } else if (declaredNTA() && isCircular()) {
-      if (isRewriteCircularNtaAttr()) {
-        return "rewriteState != " + config().stateClassName() + ".REWRITE_NOCHANGE";
-      }
-      return String.format("!is$Equal(%s, %s)", s1, s2);
+  public String AttrDecl.valueComparisonExpr(String oldValue, String newValue) {
+    if (isPrimitive() || (declaredNTA() && isCircular())) {
+      return String.format("%s != %s", oldValue, newValue);
     } else {
       return String.format("(%s == null && %s != null) || (%s != null && !%s.equals(%s))",
-          s1, s2, s1, s1, s2);
+          oldValue, newValue, oldValue, oldValue, newValue);
     }
   }
 
@@ -674,11 +632,7 @@ aspect JragCodeGen {
       return "";
     } else if (declaredNTA()) { // Check if attribute equation is declared NTA.
       if (config().rewriteEnabled()) {
-        if (config().stagedRewrites()) {
-          return templateContext().expand("SynDecl.higherOrderAttributeCode:stagedrewrites");
-        } else {
-          return templateContext().expand("SynDecl.higherOrderAttributeCode:nostagedrewrites");
-        }
+        return templateContext().expand("SynDecl.higherOrderAttributeCode:rewritesEnabled");
       } else {
         return templateContext().expand("SynDecl.higherOrderAttributeCode:norewrite");
       }

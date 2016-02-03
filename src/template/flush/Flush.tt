@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,26 +25,23 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ASTNode.flushTreeCacheMethod = [[
+ASTNode.flushTreeCacheMethod [[
 $if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel low-level */
   public void $ASTNode.flushTreeCache() {
     $SynchBegin
     flushCache();
-    if (children == null) {
-      return;
-    }
-    for (int i = 0; i < children.length; i++) {
-      $if(RewriteEnabled)
-      if (children[i] != null && (($ASTNode)children[i]).is$$Final) {
-        (($ASTNode)children[i]).flushTreeCache();
+    if (children != null) {
+      for (int i = 0; i < children.length; i++) {
+  $if(LegacyRewrite)
+        if (children[i] != null && (($ASTNode) children[i]).is$$Final) {
+  $else
+        if (children[i] != null) {
+  $endif
+          (($ASTNode) children[i]).flushTreeCache();
+        }
       }
-      $else
-      if (children[i] != null) {
-        (($ASTNode)children[i]).flushTreeCache();
-      }
-      $endif
     }
     $SynchEnd
   }
@@ -52,15 +49,12 @@ $endif
 $endif
 ]]
 
-ASTDecl.flushCacheMethod = [[
+ASTDecl.flushCacheMethod [[
 $if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel low-level */
   public void #name.flushCache() {
     $SynchBegin
-    $if(FlushRewrite)
-    flushRewriteCache();
-    $endif
     flushAttrAndCollectionCache();
     $SynchEnd
   }
@@ -69,7 +63,7 @@ $endif
 ]]
 
 
-ASTDecl.flushAttrAndCollectionCacheMethod = [[
+ASTDecl.flushAttrAndCollectionCacheMethod [[
 $if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel internal */
@@ -87,7 +81,7 @@ $endif
 $endif
 ]]
 
-ASTDecl.flushAttrCacheMethod = [[
+ASTDecl.flushAttrCacheMethod [[
 $if(FlushAttr)
   /** @apilevel internal */
   public void #name.flushAttrCache() {
@@ -99,7 +93,7 @@ $if(FlushAttr)
 $endif
 ]]
 
-ASTDecl.flushCollectionCacheMethod = [[
+ASTDecl.flushCollectionCacheMethod [[
 $if(FlushColl)
   /** @apilevel internal */
   public void #name.flushCollectionCache() {
@@ -112,7 +106,7 @@ $endif
 ]]
 
 # TODO: Figure out if this can be removed
-TokenComponent.flushNTACache = [[
+TokenComponent.flushNTACache [[
 $if(FlushAttr)
 if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
   token$(TypeSign)_$Id = null;
@@ -120,7 +114,7 @@ if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
 $endif
 ]]
 
-AttrDecl.resetMethod = [[
+AttrDecl.resetMethod [[
 $if(FlushAttr)
   /** @apilevel internal */
   private void #(signature)_reset() {
@@ -131,7 +125,7 @@ $if(FlushAttr)
 $endif
 ]]
 
-AttrDecl.resetAttrCache = [[
+AttrDecl.resetAttrCache [[
 $if(#isLazy)
   $if(#isParameterized)
     $if(LazyMaps)
@@ -154,14 +148,14 @@ $if(#isLazy)
 $endif
 ]]
 
-AttrDecl.resetAttrVisit = [[
+AttrDecl.resetAttrVisit [[
 $if(#isCircular)
  $if(!#isParameterized)
 #(signature)_cycle = null;
  $endif
 $else
  $if(VisitCheckEnabled)
-  $if(RewriteEnabled)
+  $if(LegacyRewrite)
    $if(#isParameterized)
     $if(LazyMaps)
 #(signature)_visited = null;

@@ -38,21 +38,13 @@ aspect Flush {
     //tt.bind("FlushNTACache", emitFlushNTACacheString());
 
     StringBuilder sb = new StringBuilder();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
+    for (AttrDecl attr : listOfCachedAttributes()) {
       sb.append(attr.signature() + "_reset();\n");
     }
-    if (config().rewriteCircularNTA() && isASTNodeDecl()) {
-      sb.append("rewritten_int_reset();\n");
-    }
+
     tt.bind("FlushAttrCacheBody", sb.toString());
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
-
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
-
-    tt.expand("ASTDecl.flushRewriteCacheMethod", out);
-    tt.expand("ASTNode.getChild_initValue", out);
-    tt.expand("ASTNode.getChild_hasEnclosingInitValueMethod", out);
   }
 
   syn String AttrDecl.resetCache() = templateContext().expand("AttrDecl.resetAttrCache");

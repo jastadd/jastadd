@@ -1,3 +1,19 @@
+2016-03-16  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Improved circular NTA rewrite implementation: implicit rewrite
+    attributes are now generated only for node types that have a rewrite, and
+    the attribute relies on the rewrite condition to decide when the rewrite
+    has reached a final result.
+    * Removed list rewrites. List rewrites were an undocumented feature that
+    caused problems for attribute correctness by allowing nodes to change
+    position in a list after the AST was constructed.
+    * Removed staged rewrites. Rewrite stages were an undocumented,
+    unsupported, and mostly unused feature. Removing staged rewrites
+    simplifies code generation.
+    * Rewrites no longer trigger on child count access.
+
+    Removed list rewrites. Removed rewrite limit. Removed staged rewrites.
+
 2016-02-02  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Fixed repeated error message reported for multiple production rules for

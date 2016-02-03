@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -71,66 +71,33 @@ InhDecl.canDefineMethod [[
   }
 ]]
 
-# list child equation clause
+# List child equation clause.
 InhEq.emitListClause [[
-$if(RewriteCircularNTA)
-if (_callerNode == get#(childName)ListNoTransform() ||
-  (rewritten_int_values != null &&
-    rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) != null &&
-    ((_callerNode == rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))) ||
-      (rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition())) instanceof $StateClass.CircularValue &&
-      _callerNode == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ListChildPosition()))).value)))) {
-  // #declaredat
-  int $ChildIndexVar = _callerNode.getIndexOfChild(_childNode);
-  $EvalStmt
-}
-$else
 if (_callerNode == get#(childName)ListNoTransform()) {
   // #declaredat
   int $ChildIndexVar = _callerNode.getIndexOfChild(_childNode);
   $EvalStmt
 }
-$endif
 ]]
 
-# optional child equation clause
+# Optional child equation clause.
 InhEq.emitOptClause [[
-$if(RewriteCircularNTA)
-if (_callerNode == get#(childName)OptNoTransform()
-    || (rewritten_int_values != null
-      && rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) != null
-      && ((_callerNode == rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())))
-        || (rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition())) instanceof $StateClass.CircularValue
-          && _callerNode == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)OptChildPosition()))).value)))) {
-  // #declaredat
-  $EvalStmt
-}
-$else
 if (_callerNode == get#(childName)OptNoTransform()) {
   // #declaredat
   $EvalStmt
 }
-$endif
 ]]
 
-# regular child equation clause
+# Regular child equation clause.
 InhEq.emitChildClause [[
-$if(RewriteCircularNTA)
-if (_callerNode == get#(childName)NoTransform()
-    || (rewritten_int_values != null
-    && rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) != null
-    && ((_callerNode == rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())))
-      || (rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition())) instanceof $StateClass.CircularValue
-        && _callerNode == (($StateClass.CircularValue)rewritten_int_values.get(Integer.valueOf(get#(childName)ChildPosition()))).value)))) {
-  // #declaredat
-  $EvalStmt
-}
-$else
+$if(LegacyRewrite)
 if (_callerNode == get#(childName)NoTransform()) {
+$else
+if (_callerNode == get#(childName)()) {
+$endif
   // #declaredat
   $EvalStmt
 }
-$endif
 ]]
 
 # getChild equation clause

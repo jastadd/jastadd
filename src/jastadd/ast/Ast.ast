@@ -16,7 +16,7 @@ EnumDecl : TypeDecl;
 ASTDecl : TypeDecl ::= [Abstract] IdDecl [SuperClass:IdUse] Component*
     SynDecl* SynEq* InhDecl* InhEq* ClassBodyDecl* Rewrite* CollDecl* CollEq*
     <FileName> <StartLine:int> <EndLine:int> <Comment:String>
-    SynthesizedNta*;
+    SynthesizedNta* /CircularRewriteDecl/;
 
 Abstract;
 
@@ -26,6 +26,14 @@ abstract AttrDecl ::= Parameter* <Name> <Type> <CacheMode:CacheMode> <FileName> 
     <EndLine:int> <Final:boolean> <NTA:boolean> <Comment:String> <AspectName:String> Annotation*;
 
 SynDecl : AttrDecl;
+
+/**
+ * Only used to generate code for implicit circular rewrite NTAs.
+ * The reason a separate node type is used for this is because we need to
+ * change the code generation for the implicit circular NTA slightly.
+ * The changes in code generation affect parent attachment and update condition.
+ */
+CircularRewriteDecl : AttrDecl;
 
 InhDecl : AttrDecl;
 
@@ -49,8 +57,6 @@ CollEq : AttrEq ::= Parameter* <Name> <FileName> <StartLine:int> <EndLine:int> <
 ClassBodyDecl ::= <Name> <FileName> <StartLine:int> <EndLine:int> <AspectName:String>;
 
 Rewrite ::= <FileName> <StartLine:int> <EndLine:int> <AspectName>;
-
-RewriteList : Rewrite;
 
 /** A component of an AST node type declaration. */
 abstract Component;

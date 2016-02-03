@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, The JastAdd Team
+/* Copyright (c) 2005-2016, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,8 @@ aspect Rewrites {
     TemplateContext tt = templateContext();
     boolean unconditional = false;
 
-    tt.expand("ASTDecl.emitRewrites.begin", out);
+    tt.expand("ASTDecl.rewriteTo:begin", out);
 
-    if (name().equals(config().listType())) {
-      // ES_2011-10-10: Code generation for incremental evaluation, avoiding list touch rewrite.
-      if (!(config().incremental() || config().flushRewrite())) {
-        tt.expand("ASTDecl.emitRewrites.touch_list", out);
-      }
-    }
     for (int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
       if (r.genRewrite(out, i)) {
@@ -51,23 +45,38 @@ aspect Rewrites {
     }
 
     if (name().equals(config().astNodeType())) {
-      tt.expand("ASTDecl.emitRewrites.end:ASTNode", out);
+      tt.expand("ASTDecl.rewriteTo:end:ASTNode", out);
     } else if (!unconditional) {
-      tt.expand("ASTDecl.emitRewrites.end:!unconditional", out);
+      tt.expand("ASTDecl.rewriteTo:end:conditional", out);
     } else {
-      tt.expand("ASTDecl.emitRewrites.end", out);
+      tt.expand("ASTDecl.rewriteTo:end:unconditional", out);
     }
 
     for (int i = 0; i < getNumRewrite(); i++) {
       Rewrite r = getRewrite(i);
       r.genRewritesExtra(out, i);
     }
+
+    if (config().rewriteCircularNTA()) {
+      // Generate the canRewrite method.
+      tt.expand("ASTDecl.canRewrite:begin", out);
+
+      if (unconditional) {
+        tt.expand("ASTDecl.canRewrite:end:unconditional", out);
+      } else {
+        for (int i = 0; i < getNumRewrite(); i++) {
+          Rewrite r = getRewrite(i);
+          r.genRewriteCondition(out, i);
+        }
+        tt.expand("ASTDecl.canRewrite:end", out);
+      }
+    }
   }
 
   public boolean Rewrite.genRewrite(PrintStream out, int index) {
     TemplateContext tt = templateContext();
     tt.bind("RewriteIndex", "" + index);
-    tt.expand("Rewrite.genRewrite.declaredat", out);
+    tt.expand("Rewrite.declaredat", out);
     if (getCondition() != null) {
       tt.bind("Condition", Unparser.unparse(getCondition()));
       tt.expand("Rewrite.genRewrite:conditional", out);
@@ -77,18 +86,15 @@ aspect Rewrites {
       return true;
     }
   }
-  public boolean RewriteList.genRewrite(PrintStream out, int index) {
+
+  public void Rewrite.genRewriteCondition(PrintStream out, int index) {
     TemplateContext tt = templateContext();
-    tt.expand("Rewrite.genRewrite.declaredat", out);
-
+    tt.bind("RewriteIndex", "" + index);
+    tt.expand("Rewrite.declaredat", out);
     if (getCondition() != null) {
-      tt.bind("Condition", " && " + Unparser.unparse(getCondition()));
-    } else {
-      tt.bind("Condition", "");
+      tt.bind("Condition", Unparser.unparse(getCondition()));
+      tt.expand("Rewrite.condition", out);
     }
-
-    tt.expand("RewriteList.genRewrite", out);
-    return false;
   }
 
   public void Rewrite.genRewritesExtra(PrintStream out, int index) {
@@ -98,52 +104,11 @@ aspect Rewrites {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println();
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      if (config().rewriteLimit() > 0) {
-        out.println(ind2
-            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
-            + "using rule in " + getFileNameEscaped() + " at line "
-            + getStartLine() + "\");");
-      }
       out.print(Unparser.unparse(getResult()));
       out.println(ind + "}");
     } else {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      if (config().rewriteLimit() > 0) {
-        out.println(ind2
-            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
-            + "using rule in " + getFileNameEscaped() + " at line "
-            + getStartLine() + "\");");
-      }
-      out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
-      out.println(ind + "}");
-    }
-  }
-
-  public void RewriteList.genRewritesExtra(PrintStream out, int index) {
-    String ind = config().indent;
-    String ind2 = config().ind(2);
-    if (getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
-      templateContext().expand("Rewrite.javaDoc:internal", out);
-      out.println(ind + "private " + getReturnType() + " rewrite"
-          + getParentName() + "_" + getChildName() + "() {");
-      if (config().rewriteLimit() > 0) {
-        out.println(ind2
-            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
-            + "using rule in " + getFileNameEscaped() + " at line "
-            + getStartLine() + "\");");
-      }
-      out.print(Unparser.unparse(getResult()));
-      out.println(ind + "}");
-    } else {
-      templateContext().expand("Rewrite.javaDoc:internal", out);
-      out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
-      if (config().rewriteLimit() > 0) {
-        out.println(ind2
-            + "debugRewrite(\"Rewriting \" + getClass().getName() + \" "
-            + "using rule in " + getFileNameEscaped() + " at line "
-            + getStartLine() + "\");");
-      }
       out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
       out.println(ind + "}");
     }
@@ -152,6 +117,56 @@ aspect Rewrites {
   syn lazy boolean ASTDecl.hasRewrites() =
       getNumRewrite() > 0 || (superClass() != null && superClass().hasRewrites());
 
-  syn lazy boolean AttrDecl.isRewriteCircularNtaAttr() =
-      config().rewriteCircularNTA() && name().equals("rewritten"); 
+  /**
+   * @return {@code true} if this AST node has a rewrittenNode attribute declaration
+   * for circular NTA rewrites.
+   */
+  syn lazy boolean ASTDecl.hasRewriteAttribute() =
+      getNumRewrite() > 0 && (superClass() == null || !superClass().hasRewrites());
+
+  /**
+   * Generates the attribute code for circular rewrites.
+   */
+  public void ASTDecl.emitRewriteAttribute(PrintStream out) {
+    if (config().rewriteCircularNTA() && hasRewriteAttribute()) {
+      // Generate the rewrittenNode attribute only if this node has rewrites and
+      // a supertype does not have rewrites (if the supertype has rewrites then
+      // this node inherites the rewrittenNode attribute).
+      CircularRewriteDecl decl = getCircularRewriteDecl();
+      TemplateContext tt = decl.templateContext();
+      String newValue = "new_" + decl.signature() + "_value";
+      String oldValue = decl.signature() + "_value";
+      tt.bind("CircularComputeRhs", oldValue + ".rewriteTo()");
+      tt.bind("ChangeCondition", String.format("%s != %s || %s.canRewrite()",
+            newValue, oldValue, newValue));
+      tt.bind("BottomValue", "this");
+      tt.bind("TracePrintReturnNewValue",
+          decl.tracePrintReturnNewValue(decl.signature() + "_value"));
+      tt.bind("TracePrintReturnPreviousValue",
+          decl.tracePrintReturnPreviousValue(decl.signature() + "_value"));
+      tt.expand("AttrDecl.resetMethod", out);
+      tt.expand("AttrDecl.cycleDeclaration", out);
+      tt.expand("AttrDecl.cacheDeclarations", out);
+      tt.expand("AttrDecl.circularEquation:unparameterized", out);
+    } else if (isASTNodeDecl()) {
+      out.format("public %s rewrittenNode() { "
+          + "throw new Error(\"rewrittenNode is undefined for ASTNode\"); }%n",
+          config().astNodeType());
+    }
+  }
+
+  syn lazy CircularRewriteDecl ASTDecl.getCircularRewriteDecl() =
+      new CircularRewriteDecl(
+          new List<Parameter>(),
+          "rewrittenNode",
+          "ASTNode",
+          CacheMode.DEFAULT,
+          "",
+          0,
+          0,
+          false,
+          true,
+          "",
+          "",
+          new List<Annotation>());
 }

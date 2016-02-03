@@ -1,4 +1,4 @@
-# Copyright (c) 2013, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AggregateComponent = [[
+AggregateComponent [[
 $if(!#isNTA)
   /**
    * Replaces the $Name child.
@@ -74,16 +74,6 @@ $if(#isNTA)
     return $Index;
   }
 $else
-  $if(RewriteCircularNTA)
-  /**
-   * Retrieves the child position of the optional child $Name.
-   * @return The the child position of the optional child $Name.
-   * @apilevel low-level
-   */
-  protected int $Host.get$(Name)ChildPosition() {
-    return $Index;
-  }
-  $endif
   /**
    * Retrieves the $Name child.
    * @return The current node used as the $Name child.

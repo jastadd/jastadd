@@ -28,9 +28,14 @@
 
 aspect ASTNodeAnnotations {
   syn String AttrDecl.annotationKind();
+
   eq SynDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.SYN";
+
   eq InhDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.INH";
+
   eq CollDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.COLL";
+
+  eq CircularRewriteDecl.annotationKind() = "kind=ASTNodeAnnotation.Kind.SYN";
 
   syn String AttrDecl.attributeAnnotationValue() {
     StringBuilder sb = new StringBuilder();

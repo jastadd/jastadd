@@ -29,30 +29,36 @@
 # for the ASTNode AST node type
 
 ASTNode.declarations [[
-  /** @apilevel internal */
-  private int $ASTNode.childIndex;
+  /**
+   * Cached child index. Child indices are assumed to never change (AST should
+   * not change after construction).
+   * @apilevel internal
+   */
+  private int $ASTNode.childIndex = -1;
 
   /** @apilevel low-level */
   public int $ASTNode.getIndexOfChild($ASTNode node) {
     if (node == null) {
       return -1;
     }
-    if (node.childIndex < numChildren && node == children[node.childIndex]) {
+$if(RewriteCircularNTA)
+    if (node.childIndex >= 0) {
       return node.childIndex;
     }
-    for(int i = 0; children != null && i < children.length; i++) {
-      if (children[i] == node) {
+    for (int i = 0; children != null && i < children.length; i++) {
+      if (getChild(i) == node) {
         node.childIndex = i;
         return i;
       }
     }
-$if(RewriteCircularNTA)
-    if (rewritten_int_values != null) {
-      for (java.util.Iterator itr = rewritten_int_values.entrySet().iterator(); itr.hasNext();) {
-        java.util.Map.Entry e = (java.util.Map.Entry)itr.next();
-        if (e.getValue() == node) {
-          return ((Integer)e.getKey()).intValue();
-        }
+$else
+    if (node.childIndex >= 0) {
+      return node.childIndex;
+    }
+    for (int i = 0; children != null && i < children.length; i++) {
+      if (children[i] == node) {
+        node.childIndex = i;
+        return i;
       }
     }
 $endif
@@ -105,7 +111,7 @@ $else
   }
 $endif
 
-$if(RewriteEnabled)
+$if(LegacyRewrite)
   /** @apilevel internal */
   public boolean $ASTNode.in$$Circle = false;
 
@@ -118,64 +124,6 @@ $if(RewriteEnabled)
   public void $ASTNode.in$$Circle(boolean b) {
     in$$Circle = b;
   }
-
-$if(HasRewriteLimit)
-  /** @apilevel internal */
-  public void $ASTNode.debugRewrite(String info) {
-    if (!parent.is$$Final()) return;
-    java.util.ArrayList key = new java.util.ArrayList(2);
-    key.add(getParent());
-    key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
-    java.util.ArrayList list;
-    if (state().debugRewrite.containsKey(key)) {
-      list = (java.util.ArrayList) state().debugRewrite.get(key);
-    } else {
-      list = new java.util.ArrayList();
-      state().debugRewrite.put(key, list);
-    }
-    list.add(info);
-    if (list.size() > $RewriteLimit) {
-      StringBuffer buf = new StringBuffer("Iteration count exceeded for rewrite:");
-      java.util.Iterator iter = list.iterator();
-      while (iter.hasNext()) {
-        buf.append("\n" + iter.next());
-      }
-      throw new RuntimeException(buf.toString());
-    }
-  }
-
-  /** @apilevel internal */
-  public void $ASTNode.debugRewriteRemove() {
-    java.util.ArrayList key = new java.util.ArrayList(2);
-    key.add(getParent());
-    key.add(Integer.valueOf(getParent().getIndexOfChild(this)));
-    state().debugRewrite.remove(key);
-  }
-$endif
-$if(StagedRewrites)
-  /** @apilevel internal */
-  public int $ASTNode.is$$Final = 0;
-
-  /** @apilevel internal */
-  public boolean $ASTNode.is$$Final() {
-    return is$$Final >= state().rewritePhase;
-  }
-
-  /** @apilevel internal */
-  public void $ASTNode.is$$Final(int phase) {
-    is$$Final = phase;
-  }
-
-  /** @apilevel internal */
-  public void $ASTNode.enterRewritePhase(int phase) {
-    state().rewritePhase = phase;
-  }
-
-  /** @apilevel internal */
-  public boolean $ASTNode.inRewritePhase(int phase) {
-    return state().rewritePhase >= phase;
-  }
-$else
   /** @apilevel internal */
   public boolean $ASTNode.is$$Final = false;
 
@@ -188,7 +136,6 @@ $else
   public void $ASTNode.is$$Final(boolean b) {
     is$$Final = b;
   }
-$endif
 $endif
 
   /**
@@ -231,6 +178,7 @@ $endif
   $include(ASTNode.nodeToStringMethod)
 ]]
 
+# Adds debug checks for tree construction.
 ASTNode.debugDecls [[
 $if(DebugMode)
   /** @apilevel internal */
@@ -244,8 +192,8 @@ $if(DebugMode)
       throw new RuntimeException("Trying to assign null to a tree child node");
     }
 
-    while(node != null && !node.debugNodeAttachmentIsRoot()) {
-$if(RewriteEnabled)
+    while (node != null && !node.debugNodeAttachmentIsRoot()) {
+$if(LegacyRewrite)
       if (node.in$$Circle())
         return;
 $endif
@@ -269,11 +217,6 @@ ASTNode.setParent [[
     $SynchBegin
     $include(ASTNode.incHookSetParent)
     parent = node;
-$if(RewriteCircularNTA)
-    if (state().inCircle()) {
-      flushTreeCache();
-    }
-$endif
     $SynchEnd
   }
 ]]
@@ -282,12 +225,10 @@ ASTNode.getParent [[
   /** @apilevel low-level */
   public $ASTNode $ASTNode.getParent() {
     $SynchBegin
-$if(RewriteEnabled)
-$if(!RewriteCircularNTA)
+$if(LegacyRewrite)
     if (parent != null && (($ASTNode) parent).is$$Final() != is$$Final()) {
       state().boundariesCrossed++;
     }
-$endif
 $endif
     $include(ASTNode.incHookGetParent)
     return ($ASTNode) parent;
@@ -436,14 +377,16 @@ ASTNode.removeChild [[
 ASTNode.getChild [[
   /** @apilevel low-level */
   public T $ASTNode.getChild(int i) {
-
 $if(RewriteEnabled)
  $if(RewriteCircularNTA)
     $ASTNode node = this.getChildNoTransform(i);
-    if (node.mayHaveRewrite()) {
-      node = rewritten(i);
+    if (node != null && node.mayHaveRewrite()) {
+      $ASTNode rewritten = node.rewrittenNode();
+      if (rewritten != node) {
+        rewritten.setParent(this);
+        node = rewritten;
+      }
     }
-    node.is$$Final(true);
     return (T) node;
  $else
     $SynchBegin
@@ -457,18 +400,13 @@ $if(RewriteEnabled)
       return (T) node;
     }
     if (!node.mayHaveRewrite()) {
-  $if(StagedRewrites)
-      node.is$$Final(this.is$$Final);
-  $else
       node.is$$Final(this.is$$Final());
-  $endif
       $include(ASTNode.incHookGetChild4)
       $include(ASTNode.incHookGetChild12)
       return (T) node;
     }
     if (!node.in$$Circle()) {
       $include(ASTNode.traceRewriteEnterCase1)
-      $include(ASTNode.flushHookRewriteEnterCircle)
       $include(ASTNode.incHookGetChild1)
       int rewriteState;
       int _boundaries = state().boundariesCrossed;
@@ -490,15 +428,8 @@ $if(RewriteEnabled)
         $include(ASTNode.incHookGetChild6)
       } while(rewriteState == $StateClass.REWRITE_CHANGE);
       if (rewriteState == $StateClass.REWRITE_NOCHANGE && this.is$$Final()) {
-  $if(StagedRewrites)
-        node.is$$Final(state().rewritePhase);
-  $else
         node.is$$Final(true);
-  $endif
         state().boundariesCrossed = _boundaries;
-  $if(HasRewriteLimit)
-        node.debugRewriteRemove();
-  $endif
         $include(ASTNode.traceRewriteCached)
       } else {
         $include(ASTNode.traceRewriteCacheAbort)
@@ -517,12 +448,10 @@ $if(RewriteEnabled)
     $SynchEnd
  $endif
 $else
-    // No rewrites
     $ASTNode child = getChildNoTransform(i);
     $include(ASTNode.incHookGetChildNT)
     return (T) child;
 $endif
-
   }
 ]]
 

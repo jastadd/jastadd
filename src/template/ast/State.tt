@@ -50,7 +50,9 @@ public class $StateClass {
   protected static class CircleState {
     final CircleState next;
     boolean inCircle = false;
+$if(LegacyRewrite)
     boolean resetCycle = false;
+$endif
     boolean change = false;
 
     /** Evaluation depth of lazy attributes. */
@@ -175,6 +177,7 @@ $if(CacheCycle)
   }
 $endif
 
+$if(LegacyRewrite)
   /** @apilevel internal */
   protected void startResetCycle() {
     circle.resetCycle = true;
@@ -185,21 +188,17 @@ $endif
     return circle.resetCycle;
   }
 
+$endif
   protected $StateClass() {
 $if(ComponentCheck)
     circle.completed = true;
 $endif
-$if(RewriteEnabled)
+$if(LegacyRewrite)
     stack = new int[64];
     pos = 0;
 $endif
   }
-$if(RewriteEnabled)
-  $if(HasRewriteLimit)
-  /** @apilevel internal */
-  public $DefaultMapType debugRewrite = $CreateDefaultMap;
-
-  $endif
+$if(LegacyRewrite)
   /** @apilevel internal */
   public static final int REWRITE_CHANGE = 1;
 
@@ -217,8 +216,9 @@ $if(RewriteEnabled)
   private int pos;
 
   private void ensureSize(int size) {
-    if (size < stack.length)
+    if (size < stack.length) {
       return;
+    }
     int[] newStack = new int[stack.length * 2];
     System.arraycopy(stack, 0, newStack, 0, stack.length);
     stack = newStack;
@@ -234,11 +234,8 @@ $if(RewriteEnabled)
   }
 
   public int peek() {
-    return stack[pos-1];
+    return stack[pos - 1];
   }
-  $if(StagedRewrites)
-  public int rewritePhase = 1;
-  $endif
 $endif
   $include(State.incHook)
 
@@ -255,20 +252,14 @@ $endif
 }
 ]]
 
-ASTNode$State.reset = [[
+ASTNode$State.reset [[
   /** @apilevel internal */
   public void $StateClass.reset() {
     $SynchBegin
     // Reset circular evaluation state.
     circle = CIRCLE_BOTTOM;
-$if(RewriteEnabled)
+$if(LegacyRewrite)
     boundariesCrossed = 0;
-  $if(HasRewriteLimit)
-    debugRewrite = $CreateDefaultMap;
-  $endif
-  $if(StagedRewrites)
-    rewritePhase = 1;
-  $endif
 $endif
     $SynchEnd
   }

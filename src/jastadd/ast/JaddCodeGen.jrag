@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, The JastAdd Team
+/* Copyright (c) 2005-2016, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,20 +110,12 @@ aspect JaddCodeGen {
    * all list and opt children. Initializes NTAs.
    */
   public void ASTDecl.emitDefaultConstructor(PrintWriter out) {
-
     TemplateContext tt = templateContext();
-
     String finalInit = "";
-    if (config().rewriteEnabled() && isRootNode()) {
-      if (config().stagedRewrites()) {
-        finalInit = "is$Final(state().rewritePhase);";
-      } else {
-        finalInit = "is$Final(true);";
-      }
+    if (config().legacyRewrite() && isRootNode()) {
+      finalInit = "is$Final(true);";
     }
-
     tt.bind("FinalInit", finalInit);
-
     tt.expand("ASTDecl.emitDefaultConstructor", out);
   }
 
@@ -184,19 +176,15 @@ aspect JaddCodeGen {
         }
         param += 1;
       } else {
-        if (c instanceof ListComponent ||
-          c instanceof OptionalComponent ||
-          c instanceof AggregateComponent) {
-        childIndex++;
+        if (c instanceof ListComponent
+            || c instanceof OptionalComponent
+            || c instanceof AggregateComponent) {
+          childIndex++;
         }
       }
     }
-    if (config().rewriteEnabled() && isRootNode()) {
-      if (config().stagedRewrites()) {
-        out.println(config().ind(2) + "is$Final(java.lang.Integer.MAX_VALUE);");
-      } else {
-        out.println(config().ind(2) + "is$Final(true);");
-      }
+    if (config().legacyRewrite() && isRootNode()) {
+      out.println(config().ind(2) + "is$Final(true);");
     }
 
     tt.expand("State.incHookConstructionEnd", out);
@@ -237,18 +225,19 @@ aspect JaddCodeGen {
         stringArg = true;
       }
     }
-    if (!stringArg) return;
-
-    out.print(config().indent + "public " + name() + "." + name() + "(");
+    if (!stringArg) {
+      return;
+    }
+    out.format("%spublic %s.%s(", config().indent, name(), name());
     int paramIndex = 0;
     for (Component c : components()) {
       if (!c.isNTA()) {
         if (paramIndex != 0) out.print(", ");
         if (c instanceof TokenComponent && c.constrParmType().equals("String")
             || c.constrParmType().equals("java.lang.String")) {
-          out.print("beaver.Symbol p" + paramIndex);
+          out.format("beaver.Symbol p%d", paramIndex);
         } else {
-          out.print(c.constrParmType() + " p" + paramIndex);
+          out.format("%s p%d", c.constrParmType(), paramIndex);
         }
         paramIndex++;
       }
@@ -306,8 +295,8 @@ aspect JaddCodeGen {
    * array size.
    */
   syn String ASTDecl.initialChildArraySize() {
-    return "(i+1>" + config().minListSize() + " || !(this instanceof " + config().listType()
-      + "))?i+1:" + config().minListSize();
+    return String.format("(i + 1 > %d || !(this instanceof %s)) ? i + 1 : %d",
+        config().minListSize(), config().listType(), config().minListSize());
   }
 
   /**
@@ -345,7 +334,6 @@ aspect JaddCodeGen {
     TemplateContext tt = templateContext();
     tt.expand("ASTNode.declarations", out);
     tt.expand("ASTNode.getChild", out);
-    tt.expand("ASTNode.rewrittenAttr", out);
     tt.expand("ASTNode.addChild", out);
     tt.expand("ASTNode.getChildNoTransform", out);
     tt.expand("ASTNode.numChildren", out);
@@ -360,12 +348,6 @@ aspect JaddCodeGen {
       tt.expand("ASTNode.lineColumnNumbers", out);
     }
   }
-
-  /**
-   * @return <code>true</code> if the list$touched field is needed for this
-   * ASTDecl.
-   */
-  syn boolean ASTDecl.needsListTouched() = !(config().incremental() || config().flushRewrite());
 
   /**
    * Generate implicit aspect declarations for the List type.
@@ -458,9 +440,7 @@ aspect JaddCodeGen {
   }
 
   public void ASTDecl.emitConstructor(PrintWriter out) {
-
     emitDefaultConstructor(out);
-
     emitChildInitMethod(out);
 
     if (numNonNTAComponent() != 0) {
@@ -482,7 +462,7 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Emit aspect declaration for the mayHaveRewrite method
+   * Emit aspect declaration for the mayHaveRewrite method.
    *
    * @param out Aspect output stream
    */
@@ -493,24 +473,9 @@ aspect JaddCodeGen {
     out.println(ind + " * @apilevel internal");
     out.println(ind + " */");
     out.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-    if (name().equals(config().listType())) {
-
-      // Avoiding list touch rewrite.
-      if (!(config().incremental() || config().flushRewrite())) {
-        out.println(ind2 + "return true;");  // Old code.
-      } else {
-        out.println(ind2 + "return false;");
-      }
-
-    } else if (!hasRewrites()) {
-      out.println(ind2 + "return false;");
-    } else if (!config().stagedRewrites() || rewriteWithNoPhaseCondition()) {
+    if (hasRewrites()) {
       out.println(ind2 + "return true;");
     } else {
-      for (Iterator iter = rewritePhaseConditions().iterator(); iter.hasNext(); ) {
-        String condition = (String)iter.next();
-        out.println(ind2 + "if (" + condition + ") return true;");
-      }
       out.println(ind2 + "return false;");
     }
     out.println(ind + "}");
@@ -556,7 +521,6 @@ aspect JaddCodeGen {
     emitCopyNode(out);
     emitFullCopy(out);
     emitIsEqualMethods(out);
-
     genIncremental(out);
   }
 
@@ -569,25 +533,6 @@ aspect JaddCodeGen {
         return true;
     }
     return superClass() instanceof ASTDecl && ((ASTDecl)superClass()).rewriteWithNoPhaseCondition();
-  }
-
-  syn java.util.Set ASTDecl.rewritePhaseConditions() {
-    java.util.Set set = new java.util.LinkedHashSet();
-    Pattern p = Pattern.compile("inRewritePhase\\([\\w\\.]*\\)|inExactRewritePhase\\([\\w\\.]*\\)");
-    for (int i = 0; i < getNumRewrite(); i++) {
-      if (getRewrite(i).getCondition() != null) {
-        String condition = Unparser.unparse(getRewrite(i).getCondition());
-        Matcher m = p.matcher(condition);
-        while (m.find()) {
-          String match = m.group();
-          set.add(match);
-        }
-      }
-    }
-    if (superClass() instanceof ASTDecl) {
-      set.addAll(((ASTDecl)superClass()).rewritePhaseConditions());
-    }
-    return set;
   }
 
   public abstract void Component.jaddGen(int index, boolean publicModifier, ASTDecl decl);
@@ -654,11 +599,6 @@ aspect JaddCodeGen {
     // The file name is not meaningful, as the component is completely generated
     // from a node type specification
     jp.setFileName("");
-
-    // EMMA_2011-09-08: Adding this to give .ast generated methods an enclosing
-    // aspect "Ast" which allows for refinement of these methods. For example,
-    // "getA" generated from "B ::= A" can be refined using the "Ast" aspect.
-    //jp.enclosingAspect = "Ast";
 
     try {
       jp.AspectBodyDeclarationsEOF();
