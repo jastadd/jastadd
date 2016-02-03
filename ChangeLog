@@ -1,3 +1,13 @@
+2016-03-21  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Added --safeLazy option which allows non-circular attributes to be
+    safely cached during circular evaluation, even if the attribute is
+    effectively circular. The --safeLazy option adds an extra cache field for
+    each attributes which tracks the last cycle on which the attribute was
+    evaluated. The next time the attribute is accessed it checks if it can
+    reuse the last cached value based on the current cycle state and the last
+    cached cycle state.
+
 2016-03-16  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Improved circular NTA rewrite implementation: implicit rewrite

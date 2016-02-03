@@ -128,6 +128,9 @@ $endif
 AttrDecl.resetAttrCache [[
 $if(#isLazy)
   $if(#isParameterized)
+    $if(!#simpleCacheCheck)
+#(signature)_computed = $CreateDefaultMap;
+    $endif
     $if(LazyMaps)
 #(signature)_values = null;
     $else
@@ -137,9 +140,13 @@ $if(#isLazy)
 #(signature)_list = null;
     $endif
   $else
+    $if(#simpleCacheCheck)
 #(signature)_computed = false;
-    $if(#isCircular)
+      $if(#isCircular)
 #(signature)_initialized = false;
+      $endif
+    $else
+#(signature)_computed = null;
     $endif
     $if(!#isPrimitive)
 #(signature)_value = null;

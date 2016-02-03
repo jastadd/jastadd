@@ -381,6 +381,10 @@ public class Configuration {
   Option<Boolean> dotOption = new FlagOption("dot", "generate a Dot graph from the grammar")
       .nonStandard();
 
+  Option<Boolean> safeLazyOption = new FlagOption("safeLazy",
+      "safe in-cycle caching of non-circular attributes")
+      .nonStandard();
+
   Collection<String> filenames = new LinkedList<String>();
 
   /**
@@ -457,6 +461,9 @@ public class Configuration {
 
     // New since 2.1.12.
     allOptions.add(stateClassNameOption);
+
+    // New since 2.2.1:
+    allOptions.add(safeLazyOption);
 
     // Deprecated in 2.1.5.
     allOptions.add(doxygenOption);
@@ -1263,5 +1270,12 @@ public class Configuration {
    */
   public boolean generateImplicits() {
     return generateImplicitsOption.value();
+  }
+
+  /**
+   * @return {@code true} if safe lazy attribute caching in circular evaluation should be used.
+   */
+  public boolean safeLazy() {
+    return safeLazyOption.value();
   }
 }

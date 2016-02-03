@@ -41,7 +41,11 @@ $endif
 AttrDecl.cacheDeclarations [[
 $if(!#isParameterized)
   /** @apilevel internal */
+  $if(#simpleCacheCheck)
   protected boolean #(signature)_computed = false;
+  $else
+  protected $StateClass.Cycle #(signature)_computed = null;
+  $endif
 
   /** @apilevel internal */
   protected #getType #(signature)_value;
@@ -61,9 +65,14 @@ $else
   /** @apilevel internal */
   protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
 $endif
+  $if(!#simpleCacheCheck)
+  /** @apilevel internal */
+  protected $DefaultMapType #(signature)_computed;
+  $endif
 $endif
 ]]
 
+# Method headers for attribute declarations.
 AttrDecl.synDecl = AttrDecl.inhDecl [[
 #docComment
   #annotations
@@ -291,7 +300,11 @@ AttrDecl.cacheCheck [[
 $if(#hasCache)
 $include(AttrDecl.incHookAttrRead)
   $if(!#isParameterized)
+    $if(#simpleCacheCheck)
 if (#(signature)_computed) {
+    $else
+if (#(signature)_computed == $StateClass.NON_CYCLE || #(signature)_computed == state().cycle()) {
+    $endif
   $include(AttrDecl.traceCacheRead)
     $if(#isAttrNTA)
   return (#boxedType) getChild(#(signature)ChildPosition());
@@ -300,7 +313,13 @@ if (#(signature)_computed) {
     $endif
 }
   $else
+    $if(#simpleCacheCheck)
 if (#(signature)_values.containsKey(_parameters)) {
+    $else
+if (#(signature)_values.containsKey(_parameters) && #(signature)_computed != null
+    && #(signature)_computed.containsKey(_parameters)
+    && (#(signature)_computed.get(_parameters) == $StateClass.NON_CYCLE || #(signature)_computed.get(_parameters) == state().cycle())) {
+    $endif
   $include(AttrDecl.traceCacheRead)
     $if(#isAttrNTA)
   return (#boxedType) getChild(#(signature)ChildPosition()));
@@ -318,14 +337,40 @@ $if(#isLazy)
   $if(LegacyRewrite)
 if (#cacheStoreCondition) {
   $endif
-  $if(#isParameterized)
+  $if(#simpleCacheCheck)
+    $if(#isParameterized)
+$include(AttrDecl.incHookAttrCompBeforeStore)
+#(signature)_values.put(_parameters, #(signature)_value);
+$include(AttrDecl.traceCacheStore)
+    $else
+$include(AttrDecl.incHookAttrCompBeforeStore)
+#(signature)_computed = true;
+$include(AttrDecl.traceCacheStore)
+    $endif
+  $else
+if (state().inCircle()) {
+    $if(#isParameterized)
   $include(AttrDecl.incHookAttrCompBeforeStore)
   #(signature)_values.put(_parameters, #(signature)_value);
+  #(signature)_computed.put(_parameters, state().cycle());
   $include(AttrDecl.traceCacheStore)
-  $else
+    $else
   $include(AttrDecl.incHookAttrCompBeforeStore)
-  #(signature)_computed = true;
+  #(signature)_computed = state().cycle();
   $include(AttrDecl.traceCacheStore)
+    $endif
+} else {
+    $if(#isParameterized)
+  $include(AttrDecl.incHookAttrCompBeforeStore)
+  #(signature)_values.put(_parameters, #(signature)_value);
+  #(signature)_computed.put(_parameters, $StateClass.NON_CYCLE);
+  $include(AttrDecl.traceCacheStore)
+    $else
+  $include(AttrDecl.incHookAttrCompBeforeStore)
+  #(signature)_computed = $StateClass.NON_CYCLE;
+  $include(AttrDecl.traceCacheStore)
+    $endif
+}
   $endif
   $if(LegacyRewrite)
 } else {
@@ -363,7 +408,9 @@ state().assertSameCircle(#(signature)_circle, "#hostClassName.#signatureJavaStyl
 state().enterLazyAttribute();
 $else
   $if(#isLazy)
+    $if(#simpleCacheCheck)
 state().enterLazyAttribute();
+    $endif
   $endif
 $endif
 ]]
@@ -373,7 +420,9 @@ $if(ComponentCheck)
 state().leaveLazyAttribute();
 $else
   $if(#isLazy)
+    $if(#simpleCacheCheck)
 state().leaveLazyAttribute();
+    $endif
   $endif
 $endif
 ]]

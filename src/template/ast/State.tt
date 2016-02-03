@@ -41,6 +41,9 @@ public class $StateClass {
   protected static class Cycle {
   }
 
+  /** The cycle ID used outside of circular evaluation. */
+  public static final Cycle NON_CYCLE = new Cycle();
+
   /**
    * Tracks the state of the current circular evaluation. This class defines a
    * stack structure where the next element on the stack is pointed to by the
@@ -67,7 +70,7 @@ $if(ComponentCheck)
 
 $endif
     /** Cycle ID of the latest cycle in this circular evaluation. */
-    Cycle cycle = null;
+    Cycle cycle = NON_CYCLE;
 
     protected CircleState(CircleState next) {
       this.next = next;

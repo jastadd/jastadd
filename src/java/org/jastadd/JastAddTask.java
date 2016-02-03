@@ -274,6 +274,14 @@ public class JastAddTask extends Task {
     setOption(config.minListSizeOption, arg);
   }
 
+  public void setDot(boolean enable) {
+    setOption(config.dotOption, enable);
+  }
+
+  public void setSafeLazy(boolean enable) {
+    setOption(config.safeLazyOption, enable);
+  }
+
   @Override
   public void execute() throws BuildException {
     System.err.println("generating node types and weaving aspects");

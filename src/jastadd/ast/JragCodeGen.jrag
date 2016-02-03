@@ -226,6 +226,10 @@ aspect JragCodeGen {
           sb.append(String.format("if (%s_visited == null) %s_visited = %s;\n",
               signature(), signature(), config().createDefaultSet()));
         }
+        if (getNumParameter() != 0 && isLazy() && !simpleCacheCheck()) {
+          sb.append(String.format("if (%s_computed == null) %s_computed = %s;\n",
+              signature(), signature(), config().createDefaultMap()));
+        }
       }
       if (getNumParameter() != 0 && (isLazy() || isCircular())) {
         sb.append(String.format("if (%s_values == null) %s_values = %s;\n",
@@ -791,4 +795,9 @@ aspect Compute {
 
   eq CollDecl.circularComputeRhs() = String.format("combine_%s_contributions(%s)",
       signature(), getBottomValue());
+
+  syn boolean AttrDecl.simpleCacheCheck() =
+      config().safeLazy()
+      ? (isCircular() || declaredNTA() || isAttrNTA())
+      : true;
 }

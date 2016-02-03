@@ -199,8 +199,9 @@ $if(DebugMode)
 
     while (node != null && !node.debugNodeAttachmentIsRoot()) {
 $if(LegacyRewrite)
-      if (node.in$$Circle())
+      if (node.in$$Circle()) {
         return;
+      }
 $endif
       $ASTNode parent = ($ASTNode) node.parent;
       if (parent != null && parent.getIndexOfChild(node) == -1) {
