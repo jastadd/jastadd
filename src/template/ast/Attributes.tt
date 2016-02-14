@@ -303,30 +303,24 @@ AttrDecl.emitEquation [[
 AttrDecl.cacheCheck = [[
 $if(#hasCache)
 $include(AttrDecl.incHookAttrRead)
-  $if(#isAttrNTA)
-    $if(!#isParameterized)
+  $if(!#isParameterized)
 if (#(signature)_computed) {
   $include(AttrDecl.traceCacheRead)
+    $if(#isAttrNTA)
   return (#boxedType) getChild(#(signature)ChildPosition());
-}
     $else
-if (#(signature)_values.containsKey(_parameters)) {
-  $include(AttrDecl.traceCacheRead)
-  return (#boxedType) getChild(#(signature)ChildPosition()));
-}
-    $endif
-  $else
-    $if(!#isParameterized)
-if (#(signature)_computed) {
-  $include(AttrDecl.traceCacheRead)
   return #(signature)_value;
+    $endif
 }
-    $else
+  $else
 if (#(signature)_values.containsKey(_parameters)) {
   $include(AttrDecl.traceCacheRead)
+    $if(#isAttrNTA)
+  return (#boxedType) getChild(#(signature)ChildPosition()));
+    $else
   return (#boxedType) #(signature)_values.get(_parameters);
-}
     $endif
+}
   $endif
 $endif
 ]]
