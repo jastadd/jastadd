@@ -72,11 +72,14 @@ $endif
     }
   }
 
+  /** Sentinel circle state representing non-circular evaluation. */
+  private static final CircleState CIRCLE_BOTTOM = new CircleState(null);
+
   /**
    * Current circular state.
    * @apilevel internal
    */
-  private CircleState circle = new CircleState(null);
+  private CircleState circle = CIRCLE_BOTTOM;
 
   /** @apilevel internal */
   protected boolean inCircle() {
@@ -256,6 +259,8 @@ ASTNode$State.reset = [[
   /** @apilevel internal */
   public void $StateClass.reset() {
     $SynchBegin
+    // Reset circular evaluation state.
+    circle = CIRCLE_BOTTOM;
 $if(RewriteEnabled)
     boundariesCrossed = 0;
   $if(HasRewriteLimit)
