@@ -43,6 +43,8 @@ Syntax                  | Meaning
 `Y ::= [MyD:D];`        | Optional component `MyD` of type `D`.
 `Z ::= <E>;`            | Token component `E` of type `String`.
 `Z ::= <F:Integer>;`    | Token component `F` of type `Integer`.
+`U ::= /V/;`            | [NTA](#Nonterminal) component `V`.
+`U ::= /G:V/;`          | [NTA](#Nonterminal) component `G` of type `V`.
 
 ### Aspect declarations
 
