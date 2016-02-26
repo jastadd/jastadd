@@ -28,7 +28,7 @@
 
 aspect Annotations {
   syn boolean Annotation.isAnnotation(String name) =
-    getAnnotation().equals(name) || getAnnotation().startsWith(name + "(");
+      getAnnotation().equals(name) || getAnnotation().startsWith(name + "(");
 
   syn String Annotation.value() {
     // TODO: this is a hackjob - replace me!
@@ -37,7 +37,7 @@ aspect Annotations {
     key = key.replace(')', ',');
     String[] strs = key.split(",");
     if (strs.length > 1) {
-      return strs[1].substring(1,strs[1].length()-1); // remove quotes
+      return strs[1].substring(1, strs[1].length() - 1); // Remove quotes.
     } else {
       return null;
     }
@@ -76,8 +76,9 @@ aspect Annotations {
   syn String AttrEq.annotations() {
     StringBuilder sb = new StringBuilder();
     for (Annotation annotation: getAnnotationList()) {
-      if (sb.length() > 0)
+      if (sb.length() > 0) {
         sb.append("\n");
+      }
       sb.append(annotation.getAnnotation());
     }
     return sb.toString();

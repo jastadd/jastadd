@@ -7,25 +7,27 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
    * Unparse everything.
    */
   public Object unparseSimple(SimpleNode self, StringBuffer buf) {
-      Token t = new Token();
-      t.next = self.firstToken;
+    Token t = new Token();
+    t.next = self.firstToken;
 
-      SimpleNode n;
-      for(int i = 0; i < self.jjtGetNumChildren(); i++) {
-        n = (SimpleNode) self.jjtGetChild(i);
-        while(true) {
-          t = t.next;
-          if(t == n.firstToken) break;
-          Unparser.unparseToken(t, buf);
-        }
-        n.jjtAccept(this, buf);
-        t = n.lastToken;
-      }
-
-      while(t != self.lastToken && t != null) {
+    SimpleNode n;
+    for (int i = 0; i < self.jjtGetNumChildren(); i++) {
+      n = (SimpleNode) self.jjtGetChild(i);
+      while (true) {
         t = t.next;
+        if (t == n.firstToken) {
+          break;
+        }
         Unparser.unparseToken(t, buf);
       }
+      n.jjtAccept(this, buf);
+      t = n.lastToken;
+    }
+
+    while (t != self.lastToken && t != null) {
+      t = t.next;
+      Unparser.unparseToken(t, buf);
+    }
     return null;
   }
 
@@ -38,7 +40,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
     for (int i = 0; i < self.jjtGetNumChildren(); ++i) {
       SimpleNode n = (SimpleNode) self.jjtGetChild(i);
       if (n instanceof ASTMethodDeclarator) {
-        Token t1 = ((SimpleNode) self.jjtGetChild(i-1)).lastToken;
+        Token t1 = ((SimpleNode) self.jjtGetChild(i - 1)).lastToken;
         Token t2 = n.firstToken;
         Token t = new Token();
         t.image = " ";
@@ -56,9 +58,11 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       if (n instanceof ASTNameList || n instanceof ASTBlock) {
         break;
       }
-      while(true) {
+      while (true) {
         t = t.next;
-        if(t == n.firstToken) break;
+        if (t == n.firstToken) {
+          break;
+        }
         Unparser.unparseToken(t, buf);
       }
       n.jjtAccept(new Unparser(), buf);
@@ -85,23 +89,21 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
 
     SimpleNode n;
     int lastIndex = self.jjtGetNumChildren() >= 3 && self.jjtGetChild(2) instanceof ASTNameList ? 3 : 2;
-    for(int i = 0; i < lastIndex; i++) {
+    for (int i = 0; i < lastIndex; i++) {
       n = (SimpleNode) self.jjtGetChild(i);
-      while(true) {
+      while (true) {
         t = t.next;
-        if(t == n.firstToken) break;
+        if (t == n.firstToken) {
+          break;
+        }
         Unparser.unparseToken(t, buf);
       }
       n.jjtAccept(new Unparser(), buf);
       t = n.lastToken;
     }
-    if(self.jjtGetNumChildren() > 1)
+    if (self.jjtGetNumChildren() > 1) {
       buf.append(";\n");
-
-    //while(t != self.lastToken) {
-    //  t = t.next;
-    //  Unparser.unparseToken(t, buf);
-    //}
+    }
   }
 
   public Object visit(SimpleNode self, Object data) {
@@ -178,11 +180,11 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
     // MethodDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
-    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+    for (int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
-    if(node instanceof ASTCompilationUnit || node == null) {
-      // skip the "<ASTNode>." part
+    if (node instanceof ASTCompilationUnit || node == null) {
+      // Skip the "<ASTNode>." part.
       for (int i = 0; i < self.jjtGetNumChildren(); ++i) {
         SimpleNode n = (SimpleNode) self.jjtGetChild(i);
         if (n instanceof ASTMethodDeclarator) {
@@ -211,10 +213,10 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
     // MethodDeclaration <- ClassBodyDeclaration <-
     // ClassBody <- UnmodifiedClassDecl <- ClassDecl <- TypeDecl <- CompilationUnit
     org.jastadd.jrag.AST.Node node = self;
-    for(int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
+    for (int i = 0; node != null && !(node instanceof ASTCompilationUnit) && i < 8; i++) {
       node = node.jjtGetParent();
     }
-    if(node instanceof ASTCompilationUnit || node == null) {
+    if (node instanceof ASTCompilationUnit || node == null) {
       // Skip the "<ASTNode>." part.
       Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
       Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
@@ -223,8 +225,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
       t2.specialToken = t;
       t1.next = t2;
       Unparser.unparseSimple(new Unparser(), self, buf);
-    }
-    else {
+    } else {
       unparseSimple(self, buf);
     }
     return null;

@@ -9,7 +9,7 @@ public class Unparser implements JragParserVisitor {
 
   public static Set getImports(ASTCompilationUnit self) {
     Set imports = new LinkedHashSet();
-    for(int i = 0; i < self.jjtGetNumChildren(); i++) {
+    for (int i = 0; i < self.jjtGetNumChildren(); i++) {
       Unparser.getImports((SimpleNode) self.jjtGetChild(i), imports);
     }
     return imports;
@@ -19,16 +19,14 @@ public class Unparser implements JragParserVisitor {
     if (self instanceof ASTImportDeclaration) {
       Token t = new Token();
       t.next = self.firstToken;
-
-      StringBuffer buf = new StringBuffer(64);
-
-      while(t != null && t != self.lastToken) {
+      StringBuilder buf = new StringBuilder(64);
+      while (t != null && t != self.lastToken) {
         t = t.next;
-        if (t.specialToken != null)
+        if (t.specialToken != null) {
           buf.append(' ');
+        }
         buf.append(Util.addUnicodeEscapes(t.image));
       }
-
       imports.add(buf.toString().trim());
     }
   }
@@ -36,7 +34,9 @@ public class Unparser implements JragParserVisitor {
   public static void unparseComment(SimpleNode node, StringBuffer buf) {
     Token tt = node.firstToken.specialToken;
     if (tt != null) {
-      while (tt.specialToken != null) tt = tt.specialToken;
+      while (tt.specialToken != null) {
+        tt = tt.specialToken;
+      }
       while (tt != null) {
         buf.append(Util.addUnicodeEscapes(tt.image));
         tt = tt.next;
@@ -56,6 +56,15 @@ public class Unparser implements JragParserVisitor {
     return buf.toString().trim();
   }
 
+  public static String unparseSkipComment(SimpleNode node) {
+    StringBuffer buf = new StringBuffer();
+    Token tt = node.firstToken.specialToken;
+    node.firstToken.specialToken = null;
+    node.jjtAccept(new Unparser(), buf);
+    node.firstToken.specialToken = tt;
+    return buf.toString().trim();
+  }
+
   /**
    * Unparse a node to a string buffer
    */
@@ -65,22 +74,24 @@ public class Unparser implements JragParserVisitor {
     t.next = t1;
 
     SimpleNode n;
-    for(int i = 0; i < node.jjtGetNumChildren(); i++) {
-      n = (SimpleNode)node.jjtGetChild(i);
-      if(n != null) {
-        while(true) {
-          // unparse linked tokens until the first token of the current child is found
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      n = (SimpleNode) node.jjtGetChild(i);
+      if (n != null) {
+        while (true) {
+          // Unparse linked tokens until the first token of the current child is found.
           t = t.next;
-          if(t == n.firstToken) break;
+          if (t == n.firstToken) {
+            break;
+          }
           unparseToken(t, buf);
         }
-        // unparse the current child
+        // Unparse the current child.
         n.jjtAccept(visitor, buf);
         t = n.lastToken;
       }
     }
 
-    while(t != node.lastToken && t != null) {
+    while (t != node.lastToken && t != null) {
       t = t.next;
       unparseToken(t, buf);
     }
@@ -90,17 +101,20 @@ public class Unparser implements JragParserVisitor {
    * Unparse a token to a string buffer
    */
   public static void unparseToken(Token t, StringBuffer buf) {
-    if(t == null)
+    if (t == null) {
       return;
+    }
     Token tt = t.specialToken;
     if (tt != null) {
-      while (tt.specialToken != null) tt = tt.specialToken;
+      while (tt.specialToken != null) {
+        tt = tt.specialToken;
+      }
       while (tt != null) {
         buf.append(Util.addUnicodeEscapes(tt.image));
         tt = tt.next;
       }
     }
-    if(t instanceof Token.GTToken) {
+    if (t instanceof Token.GTToken) {
       buf.append(">");
     } else {
       buf.append(t.image);

@@ -480,7 +480,7 @@ void ImportDeclaration() :
 String Modifiers() :
 {
   StringBuilder buf = new StringBuilder();
-  String annotation;
+  SimpleNode annotation;
 }
 {
  (LOOKAHEAD(2)
@@ -554,7 +554,7 @@ String Modifiers() :
    annotation = Annotation()
    {
      if (buf.length() > 0) buf.append(" ");
-     buf.append(annotation);
+     buf.append(Unparser.unparse(annotation));
    }
   )
  )*
@@ -784,10 +784,10 @@ void AspectInterfaceSynAttributeDeclaration() :
   SimpleNode bottomValue = null;
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseSkipComment(annotation)); } )*
 
   "syn" { first = token; } ["lazy" {isLazy = true;}] ["final" {isFinal = true;}]
   attrType = AspectType() attrName = AttributeName()
@@ -828,10 +828,10 @@ void AspectInterfaceInhAttributeDeclaration() :
   boolean isFinal = false;
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparse(annotation)); } )*
 
   "inh" { first = token; } ["lazy" {isLazy = true;}] ["final" {isFinal = true;}] attrType = AspectType()
   attrName = AttributeName()
@@ -1035,10 +1035,10 @@ void AspectSynAttributeDeclaration() :
   boolean isNTA = false;
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseSkipComment(annotation)); } )*
 
   "syn" { first = token; }
 
@@ -1099,10 +1099,10 @@ void AspectInhAttributeDeclaration() :
   boolean isNTA = false;
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseSkipComment(annotation)); } )*
 
   "inh" { first = token; } [<NTA> {isNTA = true;}] ["lazy" {isLazy = true;}] ["final" {isFinal = true; }] attrType = AspectType()
   t = <IDENTIFIER> "." { targetName = t.image; }
@@ -1172,10 +1172,10 @@ void AspectSynEquation() :
   org.jastadd.ast.AST.List list = new org.jastadd.ast.AST.List();
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseSkipComment(annotation)); } )*
 
   "eq" { first = token; }
 
@@ -1267,10 +1267,10 @@ void AspectInhEquation() :
   org.jastadd.ast.AST.Parameter p = null;
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseSkipComment(annotation)); } )*
 
   "eq" { first = token; }
 
@@ -1345,10 +1345,10 @@ void CollectionAttribute():
   boolean isCircular = false;
 
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseSkipComment(annotation)); } )*
   "coll" { first = token; }
   attrType = AspectType() t = <IDENTIFIER> "." { targetName = t.image; } attrName = AttributeName() "(" ")"
   [ <CIRCULAR> { isCircular = true; } ]
@@ -1360,7 +1360,7 @@ void CollectionAttribute():
     last = token;
     root.addCollDecl(attrName.image, attrType, targetName, fileName,
         first.beginLine, last.endLine,
-        startValue == null ? "new " + attrType + "()" : Unparser.unparse(startValue).trim(),
+        startValue == null ? "new " + attrType + "()" : Unparser.unparse(startValue),
         combOp,
         isCircular, annotations, jjtThis, rootName, enclosingAspect);
     token_source.SwitchTo(DEFAULT);
@@ -1381,10 +1381,10 @@ void CollectionContribution():
   boolean iterableValue = false;
   boolean iterableTarget = false;
   ArrayList<String> annotations = new ArrayList<String>();
-  String annotation;
+  SimpleNode annotation;
 }
 {
-  ( annotation = Annotation() { annotations.add(annotation); } )*
+  ( annotation = Annotation() { annotations.add(Unparser.unparseComment(annotation)); } )*
   t = <IDENTIFIER> { first = token; attributeType = t.image; }
   "contributes"
   [ LOOKAHEAD("each") "each" { iterableValue = true; } ]
@@ -1397,7 +1397,7 @@ void CollectionContribution():
     org.jastadd.ast.AST.CollEq equ = root.addCollEq(targetName,
         targetAttributeName,
         attributeType,
-        reference == null ? "" : Unparser.unparse(reference).trim(),
+        reference == null ? "" : Unparser.unparse(reference),
         fileName,
         first.beginLine,
         last.endLine,
@@ -1408,9 +1408,9 @@ void CollectionContribution():
         annotations);
     // TODO(joqvist): make equ non-null.
     if (equ != null) {
-      equ.setValue(Unparser.unparse(value).trim());
+      equ.setValue(Unparser.unparse(value));
       if (condition != null) {
-          equ.setCondition(Unparser.unparse(condition).trim());
+          equ.setCondition(Unparser.unparse(condition));
       }
     }
   }
@@ -2498,7 +2498,7 @@ void RSIGNEDSHIFT():
 
 /* Annotation syntax follows. */
 
-String Annotation():
+SimpleNode Annotation():
 {}
 {
  (
@@ -2511,7 +2511,7 @@ String Annotation():
    LOOKAHEAD( MarkerAnnotation() )
    MarkerAnnotation()
  )
- { return Unparser.unparse(jjtThis); }
+ { return jjtThis; }
 }
 
 void NormalAnnotation():
