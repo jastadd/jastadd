@@ -149,7 +149,7 @@ $else
         $SkipNTAs
         $ASTNode child = ($ASTNode) getChild(i);
         if (child != null) {
-          child = child.treeCopyNoTransform();
+          child = child.treeCopy();
     $if(IncrementalEnabled)
           tree.children[i] = child;
           child.parent = tree;
