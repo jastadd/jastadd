@@ -85,6 +85,45 @@ public aspect Attributes {
     aspectMap.put(name, comment);
   }
 
+  // Add attributes to AST.
+  public void Grammar.addRewriteList(
+      String className,
+      org.jastadd.jrag.AST.SimpleNode condition,
+      org.jastadd.jrag.AST.SimpleNode result,
+      String type,
+      String fileName,
+      int startLine,
+      int endLine,
+      String parentName,
+      String childName,
+      String aspectName) {
+
+    if (!config().rewriteEnabled()) {
+      error("can not use rewrites while rewrites are disabled (enable with --rewrite=regular)",
+          fileName, startLine);
+      return;
+    }
+
+    TypeDecl c = lookup(className);
+    if (c != null && c instanceof ASTDecl) {
+      RewriteList r = new RewriteList();
+      r.setFileName(fileName);
+      r.setStartLine(startLine);
+      r.setEndLine(endLine);
+      r.setCondition(condition);
+      r.setResult(result);
+      r.setReturnType(type);
+      r.setParentName(parentName);
+      r.setChildName(childName);
+      r.setAspectName(aspectName);
+      ((ASTDecl)c).addRewrite(r);
+    } else if (c != null) {
+      error("can not rewrite to non AST class '" + className + "'", fileName, startLine);
+    } else {
+      error("can not rewrite to unknown class '" + className + "'", fileName, startLine);
+    }
+  }
+
   public void Grammar.addRewrite(
       String className,
       org.jastadd.jrag.AST.SimpleNode condition,
@@ -1169,5 +1208,25 @@ public aspect Attributes {
 
   public void Rewrite.setReturnType(String type) {
     returnType = type;
+  }
+
+  public String RewriteList.parentName;
+
+  public String RewriteList.getParentName() {
+    return parentName;
+  }
+
+  public void RewriteList.setParentName(String name) {
+    parentName = name;
+  }
+
+  public String RewriteList.childName;
+
+  public String RewriteList.getChildName() {
+    return childName;
+  }
+
+  public void RewriteList.setChildName(String name) {
+    childName = name;
   }
 }

@@ -350,6 +350,12 @@ aspect JaddCodeGen {
   }
 
   /**
+   * @return <code>true</code> if the list$touched field is needed for this
+   * ASTDecl.
+   */
+  syn boolean ASTDecl.needsListTouched() = config().legacyRewrite();
+
+  /**
    * Generate implicit aspect declarations for the List type.
    *
    * @param out Aspect output stream
@@ -473,7 +479,9 @@ aspect JaddCodeGen {
     out.println(ind + " * @apilevel internal");
     out.println(ind + " */");
     out.println(ind + "public boolean " + name() + ".mayHaveRewrite() {");
-    if (hasRewrites()) {
+    if (config().legacyRewrite() && name().equals(config().listType())) {
+      out.println(ind2 + "return true;");
+    } else if (hasRewrites()) {
       out.println(ind2 + "return true;");
     } else {
       out.println(ind2 + "return false;");
@@ -522,17 +530,6 @@ aspect JaddCodeGen {
     emitFullCopy(out);
     emitIsEqualMethods(out);
     genIncremental(out);
-  }
-
-  syn boolean ASTDecl.rewriteWithNoPhaseCondition() {
-    for (int i = 0; i < getNumRewrite(); i++) {
-      if (getRewrite(i).getCondition() == null)
-        return true;
-      String condition = Unparser.unparse(getRewrite(i).getCondition());
-      if (condition.indexOf("inRewritePhase") == -1 && condition.indexOf("inExactRewritePhase") == -1)
-        return true;
-    }
-    return superClass() instanceof ASTDecl && ((ASTDecl)superClass()).rewriteWithNoPhaseCondition();
   }
 
   public abstract void Component.jaddGen(int index, boolean publicModifier, ASTDecl decl);

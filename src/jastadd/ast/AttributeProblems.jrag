@@ -143,6 +143,16 @@ aspect AttributeProblems {
   /**
    * Create a new error object with relevant file name and line number.
    */
+  syn Problem Rewrite.error(String message) =
+      Problem.builder()
+          .message(message)
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildError();
+
+  /**
+   * Create a new error object with relevant file name and line number.
+   */
   public Problem AttrDecl.errorf(String messagefmt, Object... args) {
     return error(String.format(messagefmt, args));
   }
@@ -159,6 +169,14 @@ aspect AttributeProblems {
   public Problem AttrDecl.warningf(String messagefmt, Object... args) {
     return warning(String.format(messagefmt, args));
   }
+
+  /** Create a new warning with the relevant file name and line number. */
+  syn Problem Rewrite.warning(String message) =
+      Problem.builder()
+          .message(message)
+          .sourceFile(getFileName())
+          .sourceLine(getStartLine())
+          .buildWarning();
 
   /** @return Previous equation for same synthesized attribute. */
   syn SynEq SynEq.prevEq() = hostClass().lookupSynEq(signature());
@@ -480,6 +498,18 @@ aspect AttributeProblems {
 
   CollDecl contributes errorf("Unknown collection root: \"%s\"", root)
       when root != null && root() == null
+      to TypeDecl.attributeProblems()
+      for hostClass();
+
+  RewriteList contributes
+      error("list rewrites are not supported when using cnta rewrites")
+      when config().rewriteCircularNTA()
+      to TypeDecl.attributeProblems()
+      for hostClass();
+
+  RewriteList contributes
+      warning("list rewrites are deprecated and will be removed in a future version of JastAdd")
+      when config().legacyRewrite()
       to TypeDecl.attributeProblems()
       for hostClass();
 }

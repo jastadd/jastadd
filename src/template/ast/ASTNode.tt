@@ -52,7 +52,12 @@ $if(RewriteCircularNTA)
       }
     }
 $else
+  $if(LegacyRewrite)
+    // Legacy rewrites with rewrite in list can change child position, so update may be needed.
+    if (node.childIndex >= 0 && node.childIndex < numChildren && node == children[node.childIndex]) {
+  $else
     if (node.childIndex >= 0) {
+  $endif
       return node.childIndex;
     }
     for (int i = 0; children != null && i < children.length; i++) {
