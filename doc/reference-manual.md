@@ -1460,6 +1460,28 @@ For example, if the collection attribute is declared as `coll
 LinkedList<String> ...` then `value-exp` should have the type
 `Iterable<String>`.
 
+#### Custom Collection Survey
+
+It is possible to customize the tree traversal used to search for contributions
+for a collection attribute. This can be done using an alternative form of the
+`contributes` statement, where the expression part is replaced by a code block:
+
+    N1 contributes {
+      getA().collectContributions();
+      super.collectContributions();
+    } to N2.a();
+
+
+The meaning of the above code is that the `N1` node type should search its `A`
+child while searching contributions for the `N2.a()` collection attribute. The
+call to `super.collectContributions()` is needed to ensure that all regular
+children of `N1` are also searched for contributions.
+
+Multiple custom collection survey blocks like this can be used, but only one of
+them needs to call `super.collectContributions()`. It is possible to use
+attributes inside the code blocks to decide when a particular subtree should be
+searched for contributions.
+
 ## <a id="Rewrites"></a>Rewrites
 
 JastAdd has a mechanism for replacing AST nodes by a rewritten version of the

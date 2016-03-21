@@ -7,6 +7,13 @@
     evaluated. The next time the attribute is accessed it checks if it can
     reuse the last cached value based on the current cycle state and the last
     cached cycle state.
+    * Added mechanism for custom control over the collection attribute survey
+    phase. This allows altering the tree traversal of collection attributes
+    to, e.g., traverse certain nonterminal nodes, or to exclude certain
+    subtrees. This feature works similar to an ordinary contribution
+    statement, but instead of a contribution expression the statement contains
+    a code block which is inserted directly into the generated collection
+    attribute tree traversal code.
 
 2016-03-16  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 

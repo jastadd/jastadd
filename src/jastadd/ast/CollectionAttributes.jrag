@@ -159,8 +159,7 @@ aspect CollectionAttributes {
     return false;
   }
 
-  syn lazy String CollEq.contributionSignature() =
-      ((CollDecl) decl()).getTarget() + "_" + signature();
+  syn lazy String CollEq.contributionSignature() = decl().getTarget() + "_" + signature();
 
   /**
    * Lazy condition means that the condition is evaluated during the
@@ -201,56 +200,110 @@ aspect CollectionAttributes {
 
   syn boolean CollEq.hasCondition() = !getCondition().isEmpty();
 
-  private void ASTDecl.collectContributors(PrintStream out) {
-    // Mapping collection declaration to collection equations.
-    HashMap<CollDecl, Collection<CollEq>> map = new LinkedHashMap<CollDecl, Collection<CollEq>>();
+  interface SurveyContribution {
+    void emitSurveyCode(CollDecl delc, PrintStream out);
+  }
 
-    for (int i = 0; i < getNumCollEq(); i++) {
-      CollEq attr = getCollEq(i);
-      CollDecl decl = (CollDecl) attr.decl();
-      Collection<CollEq> equations = map.get(decl);
-      if (equations == null) {
-        equations = new ArrayList<CollEq>();
-        map.put(decl, equations);
-      }
-      equations.add(attr);
+  class EqSurveyContribution implements SurveyContribution {
+    private final CollEq eq;
+    public EqSurveyContribution(CollEq eq) {
+      this.eq = eq;
     }
 
-    for (Map.Entry<CollDecl, Collection<CollEq>> entry : map.entrySet()) {
-      CollDecl decl = entry.getKey();
-      Collection<CollEq> equations = entry.getValue();
-
-      decl.templateContext().expand("CollDecl.collectContributors:header", out);
-
-      String bottomValue = decl.getBottomValue();
-
-      for (CollEq equation : equations) {
-        TemplateContext tt = equation.templateContext();
-        tt.bind("BottomValue", bottomValue);
-        tt.bind("CombOp", decl.getCombOp());
-        if (decl.onePhase()) {
-          tt.bind("HasCondition", equation.hasCondition());
-          tt.expand("CollEq.collectContributors:onePhase", out);
-        } else {
-          tt.bind("HasCondition", equation.hasCondition() && !decl.lazyCondition());
-          tt.expand("CollEq.collectContributors:twoPhase", out);
-        }
-      }
-      if (isASTNodeDecl()) {
-        decl.templateContext().expand("CollDecl.collectContributors:default", out);
+    @Override
+    public void emitSurveyCode(CollDecl decl, PrintStream out) {
+      TemplateContext tt = eq.templateContext();
+      tt.bind("BottomValue", decl.getBottomValue());
+      tt.bind("CombOp", decl.getCombOp());
+      if (decl.onePhase()) {
+        tt.bind("HasCondition", eq.hasCondition());
+        tt.expand("CollEq.collectContributors:onePhase", out);
       } else {
-        decl.templateContext().expand("CollDecl.collectContributors:end", out);
+        tt.bind("HasCondition", eq.hasCondition() && !decl.lazyCondition());
+        tt.expand("CollEq.collectContributors:twoPhase", out);
+      }
+    }
+  }
+
+  class BlockSurveyContribution implements SurveyContribution {
+    private final CustomSurveyBlock block;
+    public BlockSurveyContribution(CustomSurveyBlock block) {
+      this.block = block;
+    }
+
+    @Override
+    public void emitSurveyCode(CollDecl decl, PrintStream out) {
+      out.println(block.comment);
+      String replacement;
+      if (decl.onePhase()) {
+        replacement = String.format(".collect_contributors_%s(_root);", decl.collectionId());
+      } else {
+        replacement = String.format(".collect_contributors_%s(_root, _map);", decl.collectionId());
+      }
+      out.println(block.surveyCode.replaceAll("\\.collectContributions\\(\\);", replacement));
+    }
+  }
+
+  /**
+   * Generates the survey method for each type with a collection contribution.
+   */
+  private void ASTDecl.collectContributors(PrintStream out) {
+    // Mapping collection declaration to collection equations.
+    HashMap<CollDecl, Collection<SurveyContribution>> map =
+        new LinkedHashMap<CollDecl, Collection<SurveyContribution>>();
+
+    for (CollEq attr : getCollEqList()) {
+      CollDecl decl = attr.decl();
+      Collection<SurveyContribution> equations = map.get(decl);
+      if (equations == null) {
+        equations = new ArrayList<SurveyContribution>();
+        map.put(decl, equations);
+      }
+      equations.add(new EqSurveyContribution(attr));
+    }
+
+    for (CustomSurveyBlock block : customSurveyBlocks) {
+      CollDecl decl = grammar().lookupCollDecl(block.collHost, block.collName);
+      if (decl == null) {
+        throw new Error(String.format(
+              "%s:%d: Can not add custom survey code for unknown collection attribute: %s.%s()",
+              block.fileName, block.startLine, block.collHost, block.collName));
+      }
+      Collection<SurveyContribution> equations = map.get(decl);
+      if (equations == null) {
+        equations = new ArrayList<SurveyContribution>();
+        map.put(decl, equations);
+      }
+      equations.add(new BlockSurveyContribution(block));
+    }
+
+    for (Map.Entry<CollDecl, Collection<SurveyContribution>> entry : map.entrySet()) {
+      CollDecl decl = entry.getKey();
+      Collection<SurveyContribution> equations = entry.getValue();
+      decl.templateContext().expand("CollDecl.collectContributors:header", out);
+      boolean skipSuperCall = false;
+      for (SurveyContribution contribution : equations) {
+        contribution.emitSurveyCode(decl, out);
+        skipSuperCall |= contribution instanceof BlockSurveyContribution;
+      }
+      if (skipSuperCall) {
+        out.println(config().indent + "}");
+      } else {
+        if (isASTNodeDecl()) {
+          decl.templateContext().expand("CollDecl.collectContributors:default", out);
+        } else {
+          decl.templateContext().expand("CollDecl.collectContributors:end", out);
+        }
       }
     }
   }
 
   private void ASTDecl.contributeTo(PrintStream out) {
-    HashMap<CollDecl, ArrayList<CollEq>> map = new LinkedHashMap<CollDecl, ArrayList<CollEq>>();
-    for (int i = 0; i < getNumCollEq(); i++) {
-      CollEq attr = getCollEq(i);
+    HashMap<CollDecl, Collection<CollEq>> map = new LinkedHashMap<CollDecl, Collection<CollEq>>();
+    for (CollEq attr : getCollEqList()) {
       if (!attr.onePhase()) {
-        CollDecl decl = (CollDecl) attr.decl();
-        ArrayList<CollEq> equations = map.get(decl);
+        CollDecl decl = attr.decl();
+        Collection<CollEq> equations = map.get(decl);
         if (equations == null) {
           equations = new ArrayList<CollEq>();
           map.put(decl, equations);
@@ -259,9 +312,9 @@ aspect CollectionAttributes {
       }
     }
 
-    for (Map.Entry<CollDecl, ArrayList<CollEq>> entry : map.entrySet()) {
+    for (Map.Entry<CollDecl, Collection<CollEq>> entry : map.entrySet()) {
       CollDecl decl = entry.getKey();
-      ArrayList<CollEq> equations = entry.getValue();
+      Collection<CollEq> equations = entry.getValue();
 
       decl.templateContext().bind("IsAstNode", isASTNodeDecl());
       decl.templateContext().expand("CollDecl.contributeTo:header", out);
@@ -392,13 +445,14 @@ aspect CollectionAttributes {
    * @return the collection attribute declaration, or {@code null} if no
    * declaration was found.
    */
-  syn CollDecl CollEq.decl() {
-    TypeDecl typeDecl = grammar().lookup(getTargetName());
+  syn CollDecl CollEq.decl() = grammar().lookupCollDecl(getTargetName(), getTargetAttributeName());
+
+  syn CollDecl Grammar.lookupCollDecl(String hostName, String collName) {
+    TypeDecl typeDecl = lookup(hostName);
     if (typeDecl != null) {
-      TypeDecl astDecl = (TypeDecl) typeDecl;
-      for (int i = 0; i < astDecl.getNumCollDecl(); i++) {
-        if (astDecl.getCollDecl(i).getName().equals(getTargetAttributeName())) {
-          return astDecl.getCollDecl(i);
+      for (CollDecl decl : typeDecl.getCollDeclList()) {
+        if (decl.getName().equals(collName)) {
+          return decl;
         }
       }
     }
@@ -462,26 +516,88 @@ aspect CollectionAttributes {
     return null;
   }
 
-  public CollEq Grammar.addCollEq(String targetName, String targetAttributeName,
-      String attributeType, String reference, String fileName,
-      int startLine, int endLine, boolean iterableValue, boolean iterableTarget,
-      org.jastadd.jrag.AST.SimpleNode node, String aspectName,
+  public class CustomSurveyBlock {
+    public final String collName;
+    public final String collHost;
+    public final String surveyCode;
+    public final String fileName;
+    public final int startLine;
+    public final int endLine;
+    public final String comment;
+    public final String aspectName;
+
+    public CustomSurveyBlock(String collName, String collHost, String surveyCode,
+        String fileName, int startLine, int endLine, String comment,
+        String aspectName) {
+      this.collName = collName;
+      this.collHost = collHost;
+      this.surveyCode = surveyCode;
+      this.fileName = fileName;
+      this.startLine = startLine;
+      this.endLine = endLine;
+      this.comment = comment;
+      this.aspectName = aspectName;
+    }
+  }
+
+  public final Collection<CustomSurveyBlock> ASTDecl.customSurveyBlocks =
+      new LinkedList<CustomSurveyBlock>();
+
+  /**
+   * Adds code to the survey method for a particular collection attribute in the
+   * given node type.
+   */
+  public void Grammar.addCustomSurveyBlock(String collHost,
+      String collName,
+      String nodeType,
+      String codeBlock,
+      String fileName,
+      int startLine,
+      int endLine,
+      org.jastadd.jrag.AST.SimpleNode commentNode,
+      String aspectName,
       ArrayList<String> annotations) {
-    TypeDecl c = lookup(attributeType);
-    if (c != null && c instanceof ASTDecl) {
-      CollEq equ = new CollEq(
-          new List(),
-          new List(),
-          targetName,
+    TypeDecl type = lookup(nodeType);
+    if (type != null && type instanceof ASTDecl) {
+      ((ASTDecl) type).customSurveyBlocks.add(new CustomSurveyBlock(
+          collName,
+          collHost,
+          codeBlock,
           fileName,
           startLine,
           endLine,
-          Unparser.unparseComment(node),
+          Unparser.unparseComment(commentNode),
+          aspectName));
+      for (String annotation : annotations) {
+        errorf("annotation %s not allowed for custom survey blocks.", annotation);
+      }
+    } else {
+      errorf("Can not add custom collection survey code to unknown class %s in %s at line %d",
+          nodeType, fileName, startLine);
+    }
+  }
+
+  public CollEq Grammar.addCollEq(String collHost,
+      String collName,
+      String nodeType, String reference, String fileName,
+      int startLine, int endLine, boolean iterableValue, boolean iterableTarget,
+      org.jastadd.jrag.AST.SimpleNode commentNode, String aspectName,
+      ArrayList<String> annotations) {
+    TypeDecl type = lookup(nodeType);
+    if (type != null && type instanceof ASTDecl) {
+      CollEq equ = new CollEq(
+          new List(),
+          new List(),
+          collHost,
+          fileName,
+          startLine,
+          endLine,
+          Unparser.unparseComment(commentNode),
           aspectName,
           "",
           "",
-          targetName,
-          targetAttributeName,
+          collHost,
+          collName,
           reference);
       equ.setIterableValue(iterableValue);
       equ.setIterableTarget(iterableTarget);
@@ -489,11 +605,11 @@ aspect CollectionAttributes {
         equ.addAnnotation(new Annotation(annotation));
       }
       // TODO(joqvist): defer collection attribute weaving.
-      ((ASTDecl) c).addCollEq(equ);
+      ((ASTDecl) type).addCollEq(equ);
       return equ;
     } else {
       errorf("Can not add collection contribution to unknown class %s in %s at line %d",
-          attributeType, fileName, startLine);
+          nodeType, fileName, startLine);
       // TODO(joqvist): defer weaving so we can return non-null.
       return null;
     }

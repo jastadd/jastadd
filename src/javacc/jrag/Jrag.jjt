@@ -1371,11 +1371,13 @@ void CollectionContribution():
 {
   Token t;
   Token first, last;
-  SimpleNode value;
+  SimpleNode block;
+  SimpleNode value = null;
   SimpleNode condition = null;
   String targetName;
   String targetAttributeName;
   String attributeType;
+  String surveyBlock = null;
   SimpleNode reference = null;
   org.jastadd.ast.AST.List contributionList = new org.jastadd.ast.AST.List();
   boolean iterableValue = false;
@@ -1387,30 +1389,47 @@ void CollectionContribution():
   ( annotation = Annotation() { annotations.add(Unparser.unparseComment(annotation)); } )*
   t = <IDENTIFIER> { first = token; attributeType = t.image; }
   "contributes"
-  [ LOOKAHEAD("each") "each" { iterableValue = true; } ]
-  value = Expression()
-  [ "when" condition = Expression() ]
-  "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
-  [ "for" [ LOOKAHEAD("each") "each" { iterableTarget = true; } ] reference = Expression() ]
+  (
+    [ LOOKAHEAD("each") "each" { iterableValue = true; } ]
+    value = Expression()
+    [ "when" condition = Expression() ]
+    "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
+    [ "for" [ LOOKAHEAD("each") "each" { iterableTarget = true; } ] reference = Expression() ]
+  | block = Block() { surveyBlock = Unparser.unparse(block); }
+    "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
+  )
   ";" { last = token; }
   {
-    org.jastadd.ast.AST.CollEq equ = root.addCollEq(targetName,
-        targetAttributeName,
-        attributeType,
-        reference == null ? "" : Unparser.unparse(reference),
-        fileName,
-        first.beginLine,
-        last.endLine,
-        iterableValue,
-        iterableTarget,
-        jjtThis,
-        enclosingAspect,
-        annotations);
-    // TODO(joqvist): make equ non-null.
-    if (equ != null) {
-      equ.setValue(Unparser.unparse(value));
-      if (condition != null) {
-          equ.setCondition(Unparser.unparse(condition));
+    if (surveyBlock != null) {
+      root.addCustomSurveyBlock(targetName,
+          targetAttributeName,
+          attributeType,
+          surveyBlock,
+          fileName,
+          first.beginLine,
+          last.endLine,
+          jjtThis,
+          enclosingAspect,
+          annotations);
+    } else {
+      org.jastadd.ast.AST.CollEq equ = root.addCollEq(targetName,
+          targetAttributeName,
+          attributeType,
+          reference == null ? "" : Unparser.unparse(reference),
+          fileName,
+          first.beginLine,
+          last.endLine,
+          iterableValue,
+          iterableTarget,
+          jjtThis,
+          enclosingAspect,
+          annotations);
+      // TODO(joqvist): make equ non-null.
+      if (equ != null) {
+        equ.setValue(Unparser.unparse(value));
+        if (condition != null) {
+            equ.setCondition(Unparser.unparse(condition));
+        }
       }
     }
   }
