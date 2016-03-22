@@ -1297,6 +1297,20 @@ attribute on every possible circular dependency cycle is declared circular and
 the other attributes on all cycles are either also declared circular or
 declared uncached as above.
 
+#### The --safeLazy Option
+
+Although it is normally an error to have cached non-circular attributes in a
+circular evaluation, the `safeLazy` option can be used to make non-circular
+attributes aware of circular evaluations and safely cache their results during
+circular evaluation. This still requires that at least one attribute on every
+circular dependency cycle is declared circular.
+
+The `safeLazy` option adds an extra cache field for each cached non-circular
+attribute which tracks the cycle ID on which the attribute was last evaluated.
+When the attribute is later re-evaluated it can reuse the cached value if the
+cycle ID is identical, or if it was previously cached outside of any circular
+evaluation.
+
 ### <a id="Nonterminal"></a>Nonterminal attributes
 
 Nonterminal attributes (NTAs) are nodes in the AST. Whereas normal AST nodes
@@ -1664,6 +1678,7 @@ Option                 | Purpose
 `--rewrite=regular`    | Enable ReRAGs support.
 `--visitCheck=false`   | Disable circularity check for attributes.
 `--cacheCycle=false`   | Disable cache cyle optimization for circular attributes.
+`--safeLazy`           | Makes non-circular lazy attributes safe to use in circular evaluations.
 
 ### Example
 
