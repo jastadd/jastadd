@@ -1,6 +1,51 @@
 JastAdd2 Release Notes
 ======================
 
+2.2.1 - 2016-03-23
+------------------
+
+
+### Rewrites
+
+* Improved circular NTA rewrite implementation to make caching and evaluation
+  of circular NTA rewrites more efficient.
+* Removed list rewrites in circular NTA rewrite mode. List rewrites remain in
+  the legacy rewrite mode (--rewrite=regular), but have been deprecated. A
+  deprecation warning is output if list rewrites are used.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/141/remove-list-rewrite-feature)
+* Removed staged rewrites. This was an undocumented and untested feature which
+  seems to have been unused.
+
+### Collection attributes
+
+* Added a variation of the contributes statement which allows searching specific NTA children for
+  contributions.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/256/a-method-of-customizing-collection)
+* Added a variation of the contributes statement which allows modifying the tree traversal used
+  to search for contributions during the collection survey phase.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/256/a-method-of-customizing-collection)
+
+### Circular attributes
+
+* Added the `--safeLazy` option which enables non-circular cached attributes to
+  be safely used in a circular evaluation cycle. It is still required that at
+  least one attribute in every circular dependency cycle is declared circular,
+  but using `--safeLazy` allows more lightweight caching of attributes
+  in a circular evaluation cycle.
+
+### Code generation
+
+* Code generation for List NTA components now generates a `getXNoTransform(int)` method, which
+  is equivalent to calling `getXList().getChildNoTransform(int)`.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/254/getxnotransform-int-i-for-list-child)
+* Code generation for NTA components has changed for the methods named
+  `getXNoTransform()`, `getXListNoTransform()`, and `getXOptNoTransform()`, so
+  that now they are equivalent to `getX()`, `getXList()`, and `getXOpt()`. This
+  means that these methods no longer return null if the NTA was not previously computed,
+  however they do trigger rewrites on the NTA value despite the `NoTransform` suffix.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/215/getxnotransform-for-ntas)
+
+
 2.2.0 - 2016-01-13
 ------------------
 

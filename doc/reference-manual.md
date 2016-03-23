@@ -1479,7 +1479,7 @@ LinkedList<String> ...` then `value-exp` should have the type
 It is possible to add contributions from an NTA child to a collection attribute
 using the following variation of the `contributes` statement:
 
-    N1 contributes getMyNta() to N2.a();
+    N1 contributes nta getMyNta() to N2.a();
 
 
 The above statement means that the NTA child named `MyNta` in node type `N1` is
