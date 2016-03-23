@@ -100,7 +100,7 @@ $if(#isNTA)
   #annotations
   $Modifier $OptType $Host.get$(Name)OptNoTransform() {
     $SynchBegin
-    return get$(Name)Opt();
+    return ($OptType) getChildNoTransform($Index);
     $SynchEnd
   }
 

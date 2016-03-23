@@ -154,7 +154,7 @@ $if(#isNTA)
    */
   $Modifier $ListType $Host.get$(Name)ListNoTransform() {
     $SynchBegin
-    return get$(Name)List();
+    return ($ListType) getChildNoTransform($Index);
     $SynchEnd
   }
 $else

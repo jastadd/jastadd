@@ -62,7 +62,7 @@ $if(#isNTA)
    */
   public $Type $Host.get$(Name)NoTransform() {
     $SynchBegin
-    return get$Name();
+    return ($Type) getChildNoTransform($Index);
     $SynchEnd
   }
   /**
