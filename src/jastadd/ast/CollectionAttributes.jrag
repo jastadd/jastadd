@@ -225,22 +225,80 @@ aspect CollectionAttributes {
     }
   }
 
-  class BlockSurveyContribution implements SurveyContribution {
-    private final CustomSurveyBlock block;
-    public BlockSurveyContribution(CustomSurveyBlock block) {
-      this.block = block;
+  abstract class CustomSurveyContribution implements SurveyContribution {
+    protected final String collName;
+    protected final String collHost;
+    protected final String fileName;
+    protected final int startLine;
+    protected final int endLine;
+    protected final String comment;
+    protected final String aspectName;
+
+    public CustomSurveyContribution(String collName, String collHost,
+        String fileName, int startLine, int endLine, String comment,
+        String aspectName) {
+      this.collName = collName;
+      this.collHost = collHost;
+      this.fileName = fileName;
+      this.startLine = startLine;
+      this.endLine = endLine;
+      this.comment = comment;
+      this.aspectName = aspectName;
+    }
+
+    public CollDecl lookupCollDecl(Grammar grammar) {
+      CollDecl decl = grammar.lookupCollDecl(collHost, collName);
+      if (decl == null) {
+        throw new Error(String.format(
+              "%s:%d: Can not add custom survey code for unknown collection attribute: %s.%s()",
+              fileName, startLine, collHost, collName));
+      }
+      return decl;
+    }
+  }
+
+  class BlockSurveyContribution extends CustomSurveyContribution {
+    private final String surveyCode;
+
+    public BlockSurveyContribution(String collName, String collHost, String surveyCode,
+        String fileName, int startLine, int endLine, String comment,
+        String aspectName) {
+      super(collName, collHost, fileName, startLine, endLine, comment, aspectName);
+      this.surveyCode = surveyCode;
     }
 
     @Override
     public void emitSurveyCode(CollDecl decl, PrintStream out) {
-      out.println(block.comment);
+      out.println(comment);
       String replacement;
       if (decl.onePhase()) {
         replacement = String.format(".collect_contributors_%s(_root);", decl.collectionId());
       } else {
         replacement = String.format(".collect_contributors_%s(_root, _map);", decl.collectionId());
       }
-      out.println(block.surveyCode.replaceAll("\\.collectContributions\\(\\);", replacement));
+      out.println(surveyCode.replaceAll("\\.collectContributions\\(\\);", replacement));
+    }
+  }
+
+  class ExpressionSurveyContribution extends CustomSurveyContribution {
+    private final String ntaExpression;
+
+    public ExpressionSurveyContribution(String collName, String collHost, String ntaExpression,
+        String fileName, int startLine, int endLine, String comment,
+        String aspectName) {
+      super(collName, collHost, fileName, startLine, endLine, comment, aspectName);
+      this.ntaExpression = ntaExpression;
+    }
+
+    @Override
+    public void emitSurveyCode(CollDecl decl, PrintStream out) {
+      out.println(comment);
+      if (decl.onePhase()) {
+        out.format("%s.collect_contributors_%s(_root);%n", ntaExpression, decl.collectionId());
+      } else {
+        out.format("%s.collect_contributors_%s(_root, _map);%n",
+            ntaExpression, decl.collectionId());
+      }
     }
   }
 
@@ -262,19 +320,14 @@ aspect CollectionAttributes {
       equations.add(new EqSurveyContribution(attr));
     }
 
-    for (CustomSurveyBlock block : customSurveyBlocks) {
-      CollDecl decl = grammar().lookupCollDecl(block.collHost, block.collName);
-      if (decl == null) {
-        throw new Error(String.format(
-              "%s:%d: Can not add custom survey code for unknown collection attribute: %s.%s()",
-              block.fileName, block.startLine, block.collHost, block.collName));
+    for (CustomSurveyContribution survey : surveyContributions) {
+      CollDecl decl = survey.lookupCollDecl(grammar());
+      Collection<SurveyContribution> contributions = map.get(decl);
+      if (contributions == null) {
+        contributions = new ArrayList<SurveyContribution>();
+        map.put(decl, contributions);
       }
-      Collection<SurveyContribution> equations = map.get(decl);
-      if (equations == null) {
-        equations = new ArrayList<SurveyContribution>();
-        map.put(decl, equations);
-      }
-      equations.add(new BlockSurveyContribution(block));
+      contributions.add(survey);
     }
 
     for (Map.Entry<CollDecl, Collection<SurveyContribution>> entry : map.entrySet()) {
@@ -516,32 +569,8 @@ aspect CollectionAttributes {
     return null;
   }
 
-  public class CustomSurveyBlock {
-    public final String collName;
-    public final String collHost;
-    public final String surveyCode;
-    public final String fileName;
-    public final int startLine;
-    public final int endLine;
-    public final String comment;
-    public final String aspectName;
-
-    public CustomSurveyBlock(String collName, String collHost, String surveyCode,
-        String fileName, int startLine, int endLine, String comment,
-        String aspectName) {
-      this.collName = collName;
-      this.collHost = collHost;
-      this.surveyCode = surveyCode;
-      this.fileName = fileName;
-      this.startLine = startLine;
-      this.endLine = endLine;
-      this.comment = comment;
-      this.aspectName = aspectName;
-    }
-  }
-
-  public final Collection<CustomSurveyBlock> ASTDecl.customSurveyBlocks =
-      new LinkedList<CustomSurveyBlock>();
+  public final Collection<CustomSurveyContribution> ASTDecl.surveyContributions =
+      new LinkedList<CustomSurveyContribution>();
 
   /**
    * Adds code to the survey method for a particular collection attribute in the
@@ -559,10 +588,44 @@ aspect CollectionAttributes {
       ArrayList<String> annotations) {
     TypeDecl type = lookup(nodeType);
     if (type != null && type instanceof ASTDecl) {
-      ((ASTDecl) type).customSurveyBlocks.add(new CustomSurveyBlock(
+      ((ASTDecl) type).surveyContributions.add(new BlockSurveyContribution(
           collName,
           collHost,
           codeBlock,
+          fileName,
+          startLine,
+          endLine,
+          Unparser.unparseComment(commentNode),
+          aspectName));
+      for (String annotation : annotations) {
+        errorf("annotation %s not allowed for custom survey blocks.", annotation);
+      }
+    } else {
+      errorf("Can not add custom collection survey code to unknown class %s in %s at line %d",
+          nodeType, fileName, startLine);
+    }
+  }
+
+  /**
+   * Adds an expression for an NTA child which should be searched during the
+   * survey phase of a collection attribute.
+   */
+  public void Grammar.addCustomSurveyExpression(String collHost,
+      String collName,
+      String nodeType,
+      String ntaExpression,
+      String fileName,
+      int startLine,
+      int endLine,
+      org.jastadd.jrag.AST.SimpleNode commentNode,
+      String aspectName,
+      ArrayList<String> annotations) {
+    TypeDecl type = lookup(nodeType);
+    if (type != null && type instanceof ASTDecl) {
+      ((ASTDecl) type).surveyContributions.add(new ExpressionSurveyContribution(
+          collName,
+          collHost,
+          ntaExpression,
           fileName,
           startLine,
           endLine,

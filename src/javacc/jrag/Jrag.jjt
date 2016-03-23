@@ -1374,6 +1374,7 @@ void CollectionContribution():
   SimpleNode block;
   SimpleNode value = null;
   SimpleNode condition = null;
+  SimpleNode ntaExpression = null;
   String targetName;
   String targetAttributeName;
   String attributeType;
@@ -1390,7 +1391,10 @@ void CollectionContribution():
   t = <IDENTIFIER> { first = token; attributeType = t.image; }
   "contributes"
   (
-    [ LOOKAHEAD("each") "each" { iterableValue = true; } ]
+    LOOKAHEAD("nta") "nta"
+    ntaExpression = Expression()
+    "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
+  | [ LOOKAHEAD("each") "each" { iterableValue = true; } ]
     value = Expression()
     [ "when" condition = Expression() ]
     "to" t = <IDENTIFIER> "." { targetName = t.image; } t = AttributeName() { targetAttributeName = t.image; } "(" ")"
@@ -1411,6 +1415,17 @@ void CollectionContribution():
           jjtThis,
           enclosingAspect,
           annotations);
+    } else if (ntaExpression != null) {
+      root.addCustomSurveyExpression(targetName,
+          targetAttributeName,
+          attributeType,
+          Unparser.unparse(ntaExpression),
+          fileName,
+          first.beginLine,
+          last.endLine,
+          jjtThis,
+          enclosingAspect,
+          annotations);
     } else {
       org.jastadd.ast.AST.CollEq equ = root.addCollEq(targetName,
           targetAttributeName,
@@ -1424,7 +1439,7 @@ void CollectionContribution():
           jjtThis,
           enclosingAspect,
           annotations);
-      // TODO(joqvist): make equ non-null.
+      // TODO(joqvist): make the returned equ non-null.
       if (equ != null) {
         equ.setValue(Unparser.unparse(value));
         if (condition != null) {

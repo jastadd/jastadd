@@ -1474,6 +1474,18 @@ For example, if the collection attribute is declared as `coll
 LinkedList<String> ...` then `value-exp` should have the type
 `Iterable<String>`.
 
+#### NTA Contributions
+
+It is possible to add contributions from an NTA child to a collection attribute
+using the following variation of the `contributes` statement:
+
+    N1 contributes getMyNta() to N2.a();
+
+
+The above statement means that the NTA child named `MyNta` in node type `N1` is
+also searched for contributions during the survey phase of the evaluation of
+the collection attribute `N2.a()`.
+
 #### Custom Collection Survey
 
 It is possible to customize the tree traversal used to search for contributions
