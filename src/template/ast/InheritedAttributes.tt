@@ -89,11 +89,14 @@ if (_callerNode == get#(childName)OptNoTransform()) {
 ]]
 
 # Regular child equation clause.
+# In circular NTA rewrite mode we first check getXNoTransform() to see if the child has been
+# computed yet, otherwise it might lead to circularity during NTA computation. See regression
+# test nta/inh_06 and issue https://bitbucket.org/jastadd/jastadd2/issues/261/inherited-attributes-evaluate-nta
 InhEq.emitChildClause [[
-$if(LegacyRewrite)
-if (_callerNode == get#(childName)NoTransform()) {
+$if(RewriteCircularNTA)
+if (get#(childName)NoTransform() != null && _callerNode == get#childName()) {
 $else
-if (_callerNode == get#(childName)()) {
+if (_callerNode == get#(childName)NoTransform()) {
 $endif
   // #declaredat
   $EvalStmt
