@@ -196,4 +196,4 @@ git push origin master
 git push origin "${VERSION}"
 
 echo "Release finished. To upload artifacts to the Central Repository, use this command:"
-echo "    gradle uploadArchives -PsshUser=username"
+echo "    gradle uploadArchives"

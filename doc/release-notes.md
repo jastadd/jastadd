@@ -1,6 +1,18 @@
 JastAdd2 Release Notes
 ======================
 
+2.2.2 - 2016-03-24
+------------------
+
+### Bugfixes
+
+* Fixed regression in previous release caused by the change to
+  `get{X,XList,XOpt}NoTransform` for NTA components. This change caused certain
+  NTAs using inherited attributes to trigger an unbounded recursion.  The change
+  to the `NoTransform` getters has been reverted, so that they do not evaluate
+  the corresponding NTA component.
+  [More info](https://bitbucket.org/jastadd/jastadd2/issues/261/inherited-attributes-evaluate-nta)
+
 2.2.1 - 2016-03-23
 ------------------
 
