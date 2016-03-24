@@ -503,8 +503,10 @@ aspect JragCodeGen {
    * Generate code to test if two attribute values differ based on the type of the attribute.
    */
   public String AttrDecl.valueComparisonExpr(String oldValue, String newValue) {
-    if (isPrimitive() || (declaredNTA() && isCircular())) {
+    if (isPrimitive() || isCircularRewrite()) {
       return String.format("%s != %s", oldValue, newValue);
+    } else if (declaredNTA() && isCircular()) {
+      return String.format("!is$Equal(%s, %s)", oldValue, newValue);
     } else {
       return String.format("(%s == null && %s != null) || (%s != null && !%s.equals(%s))",
           oldValue, newValue, oldValue, oldValue, newValue);

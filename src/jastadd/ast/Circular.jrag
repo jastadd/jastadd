@@ -30,6 +30,10 @@ import org.jastadd.jrag.AST.ASTExpression;
 aspect Circular {
   String AttrDecl.bottomValue = "";
 
+  syn boolean AttrDecl.isCircularRewrite() = false;
+
+  eq CircularRewriteDecl.isCircularRewrite() = true;
+
   syn boolean AttrDecl.isCircular() = hasBottomValue();
 
   eq CircularRewriteDecl.isCircular() = true;
