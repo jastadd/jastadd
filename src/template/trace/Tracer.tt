@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, The JastAdd Team
+# Copyright (c) 2013-2016, The JastAdd Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,11 @@ public static class Trace {
       timeStamp = System.nanoTime();
     }
     public String toString() {
-      return "[trace: " + event + ", " + attr + "[" + params + "]=" + value + " - " + node + "]";
+      if (value.isEmpty()) {
+        return String.format("%s %s:%s[%s]", event, node, attr, params);
+      } else {
+        return String.format("%s %s:%s[%s]=%s", event, node, attr, params, value);
+      }
     }
   }
 
@@ -94,8 +98,8 @@ public static class Trace {
    */
   public enum Event {
     // Flag --tracing=compute
-    COMPUTE_BEGIN,
-    COMPUTE_END,
+    COMPUTE_BEGIN(+1),
+    COMPUTE_END(-1),
 
     // Flag --tracing=cache
     CACHED,
@@ -103,19 +107,19 @@ public static class Trace {
     CACHE_READ,
 
     // Flag --tracing=rewrite
-    REWRITE_CASE1_START,
+    REWRITE_CASE1_START(+1),
     REWRITE_CASE1_CHANGE,
-    REWRITE_CASE1_RETURN,
+    REWRITE_CASE1_RETURN(-1),
     REWRITE_CASE2_RETURN,
     REWRITE_CASE3_RETURN,
 
     // Flag --tracing=circular
-    CIRCULAR_NTA_CASE1_START,
+    CIRCULAR_NTA_CASE1_START(+1),
     CIRCULAR_NTA_CASE1_CHANGE,
-    CIRCULAR_NTA_CASE1_RETURN,
-    CIRCULAR_NTA_CASE2_START,
+    CIRCULAR_NTA_CASE1_RETURN(-1),
+    CIRCULAR_NTA_CASE2_START(+1),
     CIRCULAR_NTA_CASE2_CHANGE,
-    CIRCULAR_NTA_CASE2_RETURN,
+    CIRCULAR_NTA_CASE2_RETURN(-1),
     CIRCULAR_NTA_CASE3_RETURN,
     CIRCULAR_CASE1_START,
     CIRCULAR_CASE1_CHANGE,
@@ -131,7 +135,18 @@ public static class Trace {
     // Flag --tracing=flush
     FLUSH_ATTR,
     FLUSH_REWRITE,
-    FLUSH_REWRITE_INIT
+    FLUSH_REWRITE_INIT;
+
+    /** How much indentation should change when printing this event. */
+    public final int indentDiff;
+
+    Event(int indent) {
+      this.indentDiff = indent;
+    }
+
+    Event() {
+      this.indentDiff = 0;
+    }
   }
 
   /**
@@ -216,6 +231,10 @@ public static class Trace {
 
   public void clear() {
     list.clear();
+  }
+
+  public java.util.List<$StateClass.Trace.Entry> getEventList() {
+    return list;
   }
 
   /**
@@ -431,7 +450,7 @@ public static class Trace {
    * Process all trace entries given a trace processor
    */
   public void process($StateClass.Trace.Processor processor) {
-    for ($StateClass.Trace.Entry e: list) {
+    for ($StateClass.Trace.Entry e : list) {
       processor.process(e);
     }
   }
@@ -477,7 +496,10 @@ public static class Trace {
           nodeBuf.append(indentToStr(3) + e.getKey() + " - " + e.getValue() + "\n");
           paramCount += e.getValue();
         }
-        paramBuf.append((!param.equals("") ? indentToStr(2) + "[" + param + "] - " + paramCount + "\n" : "") + nodeBuf.toString());
+        if (!param.equals("")) {
+          paramBuf.append(indentToStr(2) + "[" + param + "] - " + paramCount + "\n");
+        }
+        paramBuf.append(nodeBuf.toString());
         attrCount += paramCount;
       }
       res.append(indentToStr(1) + attr + " - " + attrCount + "\n" + paramBuf.toString());
@@ -487,37 +509,21 @@ public static class Trace {
     out.flush();
   }
 
-  protected boolean incIndent($StateClass.Trace.Event evt) {
-    switch (evt) {
-    case COMPUTE_BEGIN:
-    case REWRITE_CASE1_START:
-    case CIRCULAR_NTA_CASE1_START:
-    case CIRCULAR_NTA_CASE2_START:
-      return true;
-    default:
-      return false;
-    }
-  }
+  /** Indentation cache. */
+  protected java.util.List<String> indentList = new java.util.ArrayList<String>(32);
 
-  protected boolean decIndent($StateClass.Trace.Event evt) {
-    switch (evt) {
-    case COMPUTE_END:
-    case REWRITE_CASE1_RETURN:
-    case CIRCULAR_NTA_CASE1_RETURN:
-    case CIRCULAR_NTA_CASE2_RETURN:
-      return true;
-    default:
-      return false;
-    }
-  }
-
+  /** One level of indentation. */
   protected String INDENT_STEP = " ";
-  protected String indentToStr(int indent) {
-    StringBuffer buf = new StringBuffer();
-    for(int i = 0; i < indent; i++) {
-      buf.append(INDENT_STEP);
+
+  protected String indentToStr(int level) {
+    while (indentList.size() <= level) {
+      if (indentList.size() == 0) {
+        indentList.add("");
+      } else {
+        indentList.add(indentList.get(indentList.size() - 1) + INDENT_STEP);
+      }
     }
-    return buf.toString();
+    return indentList.get(level);
   }
 
   /**
@@ -525,19 +531,15 @@ public static class Trace {
    */
   public void printTrace(java.io.PrintWriter out) {
     boolean firstTimeStamp = true;
-    long prevTime = 0; long startTime = 0;
+    long startTime = 0;
     int indent = 0;
     for ($StateClass.Trace.Entry e : list) {
       if (firstTimeStamp) {
         firstTimeStamp = false;
-        prevTime = startTime = e.timeStamp;
+        startTime = e.timeStamp;
       }
-      out.print(indentToStr(indent) + e + " - ");
-      out.print(((e.timeStamp-prevTime)/1000000) + " ms - ");
-      out.println(((e.timeStamp-startTime)/1000000) + " ms");
-      if (incIndent(e.event)) indent++;
-      else if (decIndent(e.event)) indent--;
-      prevTime = e.timeStamp;
+      out.format("%s%s - %d ms%n", indentToStr(indent), e, (e.timeStamp - startTime) / 1000000);
+      indent += e.event.indentDiff;
     }
     out.flush();
   }
@@ -548,7 +550,8 @@ public static class Trace {
   public void printComputeReport(java.io.PrintWriter out) {
     printReport(out, new $StateClass.Trace.Filter() {
       public boolean include($StateClass.Trace.Entry e) {
-        return e.event == $StateClass.Trace.Event.CACHE_ABORT || e.event == $StateClass.Trace.Event.CACHED;
+        return e.event == $StateClass.Trace.Event.CACHE_ABORT
+            || e.event == $StateClass.Trace.Event.CACHED;
       }
       public String desc() {
         return "computed(i.e.,CACHE_ABORT||CACHED)";
@@ -620,13 +623,13 @@ public static class Trace {
     printReport(out, new $StateClass.Trace.Filter() {
       public boolean include($StateClass.Trace.Entry e) {
         boolean res = false;
-        if (e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START ||
-            e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START) {
+        if (e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START
+            || e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START) {
           res = true;
           counter.push();
         }
-        if (e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN ||
-            e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN) {
+        if (e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN
+            || e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN) {
           counter.pop();
         }
         return res;
