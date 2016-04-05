@@ -799,7 +799,5 @@ aspect Compute {
       signature(), getBottomValue());
 
   syn boolean AttrDecl.simpleCacheCheck() =
-      config().safeLazy()
-      ? (isCircular() || declaredNTA() || isAttrNTA())
-      : true;
+      !config().safeLazy() || isCircular() || declaredNTA() || isAttrNTA();
 }
