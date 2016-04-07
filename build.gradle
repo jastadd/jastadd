@@ -334,6 +334,8 @@ artifacts {
 }
 
 signing {
+	// Require OSSRH credentials for signing artifacts:
+	required { project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword') }
 	sign configurations.archives
 }
 
