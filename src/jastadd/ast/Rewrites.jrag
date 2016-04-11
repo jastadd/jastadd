@@ -154,13 +154,15 @@ aspect Rewrites {
    * for circular NTA rewrites.
    */
   syn lazy boolean ASTDecl.hasRewriteAttribute() =
-      getNumRewrite() > 0 && (superClass() == null || !superClass().hasRewrites());
+      config().rewriteCircularNTA()
+      && getNumRewrite() > 0
+      && (superClass() == null || !superClass().hasRewrites());
 
   /**
    * Generates the attribute code for circular rewrites.
    */
   public void ASTDecl.emitRewriteAttribute(PrintStream out) {
-    if (config().rewriteCircularNTA() && hasRewriteAttribute()) {
+    if (hasRewriteAttribute()) {
       // Generate the rewrittenNode attribute only if this node has rewrites and
       // a supertype does not have rewrites (if the supertype has rewrites then
       // this node inherites the rewrittenNode attribute).
