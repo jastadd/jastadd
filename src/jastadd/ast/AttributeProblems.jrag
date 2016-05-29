@@ -338,14 +338,17 @@ aspect AttributeProblems {
       to TypeDecl.attributeProblems()
       for hostClass();
 
+  /** @return {@code true} if this inherited equation has an index but is
+   * declared on a synthesized NTA or a non-list child component.
+   */
   syn boolean InhEq.hasBadIndexProblem() =
       hasIndex()
-      && getComponent() != null
-      && !(getComponent() instanceof ListComponent)
-      && !getChildName().equals("getChild");
+      && !getChildName().equals("getChild")
+      && (getComponent() == null
+          || !(getComponent() instanceof ListComponent));
 
   syn Problem InhEq.badIndexProblem() =
-      errorf("may not supply index for non list child %s in class %s",
+      errorf("may not supply index for non list child or nta %s in class %s",
           childName(), hostClass().name());
 
   InhDecl contributes multiDeclProblem()
