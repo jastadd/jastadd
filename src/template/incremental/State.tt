@@ -250,8 +250,8 @@ if ($(AttrSign)_handler != null) {
 $endif
 $if(ChangeStateValue)
 $if(IsParameterized)
-if ($(AttrSign)_list != null) {
-  $(AttrSign)_list.inc_changeState(newState);
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.inc_changeState(newState);
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
@@ -363,8 +363,8 @@ if ($(AttrSign)_handler != null) {
 $endif
 $if(ThrowAwayValue)
 $if(IsParameterized)
-if ($(AttrSign)_list != null) {
-  $(AttrSign)_list.inc_throwAway();
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.inc_throwAway();
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {

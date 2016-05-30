@@ -224,8 +224,8 @@ if ($(AttrSign)_handler != null) {
 $endif
 $if (IsNTA)
 $if (IsParameterized)
-if ($(AttrSign)_list != null) {
-  $(AttrSign)_list.dumpDependencies();
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.dumpDependencies();
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
@@ -240,8 +240,8 @@ if ($(AttrSign)_handler != null) {
 }
 $if (IsNTA)
 $if (IsParameterized)
-if ($(AttrSign)_list != null) {
-  $(AttrSign)_list.dumpDependencies();
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.dumpDependencies();
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
@@ -270,8 +270,8 @@ public void #name.dumpDepsInTree() {
 # Generate string with code for dumping dependencies in NTAs
 ASTDecl.checkAndDumpNTADeps = [[
 $if (IsParameterized)
-if ($(AttrSign)_list != null) {
-  $(AttrSign)_list.dumpDepsInTree();
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.dumpDepsInTree();
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {

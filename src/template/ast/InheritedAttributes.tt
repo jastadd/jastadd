@@ -122,7 +122,7 @@ $EvalStmt
 # non-terminal child equation clause
 InhEq.emitNTAClause [[
 $if(IsParameterized)
-if (_callerNode == $(AttrSignature)_list) {
+if (_callerNode == $(AttrSignature)_proxy) {
   // #declaredat
   int $ChildIndexVar = _callerNode.getIndexOfChild(_childNode);
   $EvalStmt

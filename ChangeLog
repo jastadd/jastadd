@@ -1,3 +1,11 @@
+2016-05-29  Jesper Öqvist <joqvist@google.com>
+
+    * Inherited equations on parameterized NTAs can no longer use the child
+    index which depended on evaluation order.
+    * Made parameterized NTA proxy object more loosely coupled to
+    parameterized NTA values in non-legacy rewrite mode (only setting parent
+    links to proxy object).
+
 2016-03-23  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Added a new variation of the contributes statement to allow NTA children

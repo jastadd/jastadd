@@ -252,12 +252,12 @@ $if(IsParameterized)
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
   $if(IsNTA)
   $AttrType value = ($AttrType)$(AttrSign)_values.remove(_parameters);
-  for (int i = 0; i < $(AttrSign)_list.children.length; i++) {
-    $ASTNode child = $(AttrSign)_list.children[i];
+  for (int i = 0; i < $(AttrSign)_proxy.children.length; i++) {
+    $ASTNode child = $(AttrSign)_proxy.children[i];
     if (child != null && value == child) {
       // using dummy node to flush dependencies from NTA
       value.inc_flush_subtree(($DDGNodeName)$(AttrSign)_handler.get(_parameters));
-      $(AttrSign)_list.removeChild(i);
+      $(AttrSign)_proxy.removeChild(i);
       break;
     }
   }
@@ -296,10 +296,10 @@ $if(IncrementalLevelAttr)
 $if(IsParameterized)
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
   $if(IsNTA)
-  if ($(AttrSign)_list != null) {
-    $(AttrSign)_list.setParent(null);
+  if ($(AttrSign)_proxy != null) {
+    $(AttrSign)_proxy.setParent(null);
     // using dummy node to flush dependencies from NTA
-    $(AttrSign)_list.inc_flush_subtree($(AttrSign)_handler);
+    $(AttrSign)_proxy.inc_flush_subtree($(AttrSign)_handler);
   }
   $endif
   $AttrResetVisit
@@ -763,12 +763,12 @@ $if(IncrementalChangeFlush)
 
 $if(IsNTA)
 $if(IsParameterized)
-if ($(AttrSign)_list != null) {
-  for (int index = 0; index < $(AttrSign)_list.numChildren; index++) {
-    $ASTNode value = $(AttrSign)_list.children[index];
+if ($(AttrSign)_proxy != null) {
+  for (int index = 0; index < $(AttrSign)_proxy.numChildren; index++) {
+    $ASTNode value = $(AttrSign)_proxy.children[index];
     if (!value.isRegionRoot()) {
       state().enterConstruction();
-      $(AttrSign)_list.removeChild(index);
+      $(AttrSign)_proxy.removeChild(index);
       // removeChild will decrease the index of all remaining children and numChildren
       // hence, to visit the remainder of the list index need to be decreased by one for each removeChild
       index--;
@@ -998,8 +998,8 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 $if(IsNTA)
 $if(IsParameterized)
-if ($(AttrSign)_list != null) {
-  $(AttrSign)_list.inc_flush_subtree(h);
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.inc_flush_subtree(h);
 }
 $else
 $if(IsNtaWithTree)

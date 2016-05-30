@@ -56,7 +56,7 @@ $endif
 $else
 $if(#declaredNTA)
   /** @apilevel internal */
-  protected $List #(signature)_list;
+  protected $ASTNode #(signature)_proxy;
 $endif
 $if(LazyMaps)
   /** @apilevel internal */
@@ -233,12 +233,14 @@ $endif
 
 SynDecl.higherOrderAttributeCode:norewrite [[
 $if(#isParameterized)
-if (#(signature)_list == null) {
-  #(signature)_list = new $List();
+if (#(signature)_proxy == null) {
+  #(signature)_proxy = new $ASTNode();
   $include(AttrDecl.incHookCreateNtaList)
-  #(signature)_list.setParent(this);
+  #(signature)_proxy.setParent(this);
 }
-#(signature)_list.add(#(signature)_value);
+if (#(signature)_value != null) {
+  #(signature)_value.setParent(#(signature)_proxy);
+}
 $else
 #(signature)_value.setParent(this);
 $endif
@@ -246,19 +248,26 @@ $endif
 
 SynDecl.higherOrderAttributeCode:rewritesEnabled [[
 $if(#isParameterized)
-if (#(signature)_list == null) {
-  #(signature)_list = new $List();
+if (#(signature)_proxy == null) {
+  #(signature)_proxy = new $ASTNode();
   $include(AttrDecl.incHookCreateNtaList)
   $if(LegacyRewrite)
-  #(signature)_list.is$$Final = true;
+  #(signature)_proxy.is$$Final = true;
   $endif
-  #(signature)_list.setParent(this);
+  #(signature)_proxy.setParent(this);
 }
-#(signature)_list.add(#(signature)_value);
 if (#(signature)_value != null) {
-  #(signature)_value = (#boxedType) #(signature)_list.getChild(#(signature)_list.numChildren - 1);
   $if(LegacyRewrite)
+  #(signature)_proxy.addChild(#(signature)_value);
+  // Proxy child access is used to trigger rewrite of NTA value.
+  #(signature)_value = (#boxedType) #(signature)_proxy.getChild(#(signature)_proxy.numChildren - 1);
   #(signature)_value.is$$Final = true;
+  $else
+  #(signature)_value.setParent(#(signature)_proxy);
+  if (#(signature)_value.mayHaveRewrite()) {
+    #(signature)_value = (#boxedType) #(signature)_value.rewrittenNode();
+    #(signature)_value.setParent(#(signature)_proxy);
+  }
   $endif
 }
 $else

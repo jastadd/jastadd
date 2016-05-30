@@ -165,11 +165,11 @@ AttrDecl.circularEquation:parameterized [[
       _value.value = $BottomValue;
 $if(#getNTA)
        if (_value.value != null) {
-         if (#(signature)_list == null) {
-           #(signature)_list = new $List();
-           #(signature)_list.setParent(#ntaParent);
+         if (#(signature)_proxy == null) {
+           #(signature)_proxy = new $ASTNode();
+           #(signature)_proxy.setParent(#ntaParent);
          }
-         (($ASTNode) _value.value).setParent(#(signature)_list);
+         (($ASTNode) _value.value).setParent(#(signature)_proxy);
       }
 $endif
     }
@@ -196,11 +196,11 @@ $endif
           _value.value = new_#(signature)_value;
 $if(#getNTA)
           if (_value.value != null) {
-            if (#(signature)_list == null) {
-              #(signature)_list = new $List();
-              #(signature)_list.setParent(#ntaParent);
+            if (#(signature)_proxy == null) {
+              #(signature)_proxy = new $ASTNode();
+              #(signature)_proxy.setParent(#ntaParent);
             }
-            (($ASTNode) _value.value).setParent(#(signature)_list);
+            (($ASTNode) _value.value).setParent(#(signature)_proxy);
           }
 $endif
         }
@@ -249,11 +249,11 @@ $endif
         _value.value = new_#(signature)_value;
 $if(#getNTA)
         if (_value.value != null) {
-          if (#(signature)_list == null) {
-            #(signature)_list = new $List();
-            #(signature)_list.setParent(#ntaParent);
+          if (#(signature)_proxy == null) {
+            #(signature)_proxy = new $ASTNode();
+            #(signature)_proxy.setParent(#ntaParent);
           }
-          (($ASTNode) _value.value).setParent(#(signature)_list);
+          (($ASTNode) _value.value).setParent(#(signature)_proxy);
         }
 $endif
       }

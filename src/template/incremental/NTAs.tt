@@ -63,13 +63,13 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelNode)
 $if(#getNTA)
-#(signature)_list.inc_internalNTAList(#(signature)_values);
+#(signature)_proxy.inc_internalNTAList(#(signature)_values);
 $endif
 $endif
 
 $if(IncrementalLevelRegion)
 $if(#getNTA)
-#(signature)_list.inc_internalNTAList(#(signature)_values);
+#(signature)_proxy.inc_internalNTAList(#(signature)_values);
 $endif
 $endif
 
