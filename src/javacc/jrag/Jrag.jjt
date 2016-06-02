@@ -2652,6 +2652,7 @@ void AspectCacheDeclaration():
   Token hostType;
   Token attrName;
 
+  int paramIndex = 1;
   String paramType;
   Token paramName;
   org.jastadd.ast.AST.List paramList = new org.jastadd.ast.AST.List();
@@ -2662,11 +2663,11 @@ void AspectCacheDeclaration():
   attrName = AttributeName()
   "(" { paramList = new org.jastadd.ast.AST.List(); }
   [
-    paramType = Type() paramName = <IDENTIFIER>
-      { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, paramName.image)); }
+    paramType = Type() (<IDENTIFIER>)?
+      { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, "p0")); }
     (
-      "," paramType = Type() paramName = <IDENTIFIER>
-        { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, paramName.image)); }
+      "," paramType = Type() (<IDENTIFIER>)?
+        { paramList.add(new org.jastadd.ast.AST.Parameter(paramType, "p" + (paramIndex++))); }
     )*
   ]
   ")"
