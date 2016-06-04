@@ -89,16 +89,16 @@ aspect JragCodeGen {
    * Decide if an attribute should be cached based on the cache mode and
    * current global configuration.
    */
-  syn boolean ASTNode.shouldCache(CacheMode mode) {
+  syn boolean AttrDecl.shouldCache(CacheMode mode) {
     switch (mode) {
       case DEFAULT:
         return config().cacheAll();
       case LAZY:
-        return !config().cacheNone();
+        return !config().cacheNone() || isNTA();
       case CACHED:
         return true;
       case UNCACHED:
-        return false;
+        return isNTA();
     }
     throw new Error("unhandled cache mode");
   }
