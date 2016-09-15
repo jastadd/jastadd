@@ -49,8 +49,7 @@ $endif
     $SynchEnd
   }
 
-  public $List<T> $List.addAll(java.util.Collection<? extends T> c) {
-    $SynchBegin
+  public $List<T> $List.addAll(Iterable<? extends T> c) {
 $if(DebugMode)
     for (T node : c) {
       if (node instanceof $List) {
@@ -65,7 +64,6 @@ $endif
       addChild(node);
     }
     return this;
-    $SynchEnd
   }
 
   public void $List.insertChild($ASTNode node, int i) {
