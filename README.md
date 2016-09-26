@@ -76,28 +76,26 @@ File Types
 Directory Structure
 -------------------
 
-* `src/java` Java source files
-    - `src/java/jastadd/`
-        - `JastAdd.java` The main class. Compiles the .ast and .jrag files to
-        Java files.
+* `src/java` Java source files.
+    - `src/java/org/jastadd/`
+        - `JastAdd.java` The main class. Compiles `*.ast` and `*.jrag` files to Java files.
         - `JastAdd.jrag` Extends the top AST node (Grammar) with methods for
-        adding .ast and .jrag info.
-        - `CommandLineArguments.java` A general class for reading in args and
-        options from the command line.
-        - `JastAddTask.java` Implements an ANT task for running jastadd,
-        including support for various args and options.
+        adding `*.ast` and `*.jrag` info.
+        - `Configuration.java` Encapsulates JastAdd configuration options. Can be used
+        to parse command line arguments.
+        - `JastAddTask.java` Implements an ANT task for running JastAdd,
+        including support for most available options.
 * `src/jastadd/` JastAdd aspect and AST specifications
-* `src/javacc/` JavaCC files
-* `src/res/` Templates, property files and other resources that are included
-    in the JastAdd jar file.
-    - `src/res/template/` Template root
-* `src/gen/` Generated source files
+* `src/javacc/` Parser specification files for JavaCC.
+* `src/res/Version.properties` Contains the JastAdd version property string.
+* `src/template` Template files for code generation.
+* `src/gen/` Generated source files.
 * `doc` Documentation html files.
     - `reference-manual.html` The reference manual
     - `release-notes.html` The release nodes
     - `index.html` For download from the web
     - `*.php` Helper files for browsing uploaded files on the web
-* `tools` 3rd party jar files used to build build JastAdd
+* `tools` 3rd party jar files used to build build JastAdd.
 * `README.md` This file.
 * `LICENSE` Text file with the jastadd LICENSE.
 * `release.sh` A script printing the commands for doing a release.
