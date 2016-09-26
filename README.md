@@ -79,8 +79,6 @@ Directory Structure
 * `src/java` Java source files.
     - `src/java/org/jastadd/`
         - `JastAdd.java` The main class. Compiles `*.ast` and `*.jrag` files to Java files.
-        - `JastAdd.jrag` Extends the top AST node (Grammar) with methods for
-        adding `*.ast` and `*.jrag` info.
         - `Configuration.java` Encapsulates JastAdd configuration options. Can be used
         to parse command line arguments.
         - `JastAddTask.java` Implements an ANT task for running JastAdd,
