@@ -57,7 +57,7 @@ Declaration                         | Meaning
 `syn T A.c() = exp;`                | Synthesized attribute, default equation
 `syn T A.c() { stmt* }`             | Synthesized attribute, method body
 `syn lazy T A.c() { stmt* }`        | Synthesized attribute, cached
-`syn circular X A.c() [bot] = exp;` | Synthesized attribute, circular
+`syn X A.c() circular [bot] = exp;` | Synthesized attribute, circular
 `syn nta X A.c() = exp;`            | Nonterminal attribute (NTA)
 `eq B.c() = exp;`                   | Synthesized equation
 `eq B.c() { stmt* }`                | Synthesized equation, method body
