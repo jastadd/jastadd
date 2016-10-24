@@ -248,7 +248,7 @@ aspect JaddCodeGen {
   }
 
   public void Grammar.genReset(PrintWriter out) {
-    templateContext().expand("ASTNode$State.reset", out);
+    templateContext().expand("ASTState.reset", out);
   }
 
   /**
@@ -257,7 +257,7 @@ aspect JaddCodeGen {
    * @param out Aspect output stream
    */
   public void Grammar.emitStateClass(PrintWriter out) {
-    templateContext().expand("ASTNode$State", out);
+    templateContext().expand("ASTState", out);
   }
 
   /**

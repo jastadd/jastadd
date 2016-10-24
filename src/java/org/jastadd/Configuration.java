@@ -103,7 +103,7 @@ public class Configuration {
   Option<String> stateClassNameOption = new ValueOption("stateClassName",
       "set the name of the AST state class")
       .acceptAnyValue()
-      .defaultValue("ASTNode$State")
+      .defaultValue("ASTState")
       .templateVariable("StateClass");
 
   Option<String> ASTNodeSuperOption = new ValueOption("ASTNodeSuper", "set the ASTNode supertype")
