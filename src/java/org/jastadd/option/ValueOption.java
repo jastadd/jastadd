@@ -80,7 +80,6 @@ public class ValueOption extends Option<String> {
 
   /**
    * Add a default value for this option
-   * @param defaultValue
    * @return this option object
    */
   public ValueOption defaultValue(String defaultValue) {
@@ -88,10 +87,6 @@ public class ValueOption extends Option<String> {
     return this;
   }
 
-  /**
-   * @param needsValue
-   * @return self
-   */
   public ValueOption needsValue(boolean needsValue) {
     this.needsValue = needsValue;
     return this;
@@ -106,10 +101,6 @@ public class ValueOption extends Option<String> {
     return this;
   }
 
-  /**
-   * @param multipleValues
-   * @return self
-   */
   public ValueOption acceptMultipleValues(boolean multipleValues) {
     this.acceptsMultipleValues = multipleValues;
     return this;
@@ -280,7 +271,6 @@ public class ValueOption extends Option<String> {
   }
 
   /**
-   * @param query
    * @return {@code true} if the given value was set
    */
   public boolean hasValue(String query) {

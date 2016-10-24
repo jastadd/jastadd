@@ -29,97 +29,40 @@
 TraceClass [[
 $if(TracingEnabled)
 public static class Trace {
-
   /**
-   * Trace filter interface used to filter the list of collected trace class.
-   */
-  public interface Filter {
-    public boolean include($StateClass.Trace.Entry e);
-    public String desc();
-  }
-
-  /**
-   * Interface used to process collected trace objects.
+   * Trace events corresponding to attribute evaluation events.
    *
-   * <p>Use it together with the method $StateClass.Trace.process($StateClass.Trace.Processor).
-   */
-  public interface Processor {
-    public void process($StateClass.Trace.Entry e);
-  }
-
-  /** Prints trace events to an output stream. */
-  public static class PrintProcessor implements Processor {
-    private final java.io.PrintStream out;
-
-    public PrintProcessor(java.io.PrintStream outStream) {
-      this.out = outStream;
-    }
-
-    @Override
-    public void process($StateClass.Trace.Entry e) {
-      out.println(e);
-    }
-  };
-
-  /**
-   * Trace entries collected during attribute evaluation.
-   */
-  public static class Entry {
-    public final $StateClass.Trace.Event event;
-    public final String node;
-    public final String nodeType;
-    public final String attr;
-    public final String params;
-    public final String value;
-    public final long timeStamp;
-    public Entry($StateClass.Trace.Event e, String n, String t, String a, String p, String v) {
-      event = e; node = n; nodeType = t; attr = a; params = p; value = v;
-      timeStamp = System.nanoTime();
-    }
-    public String toString() {
-      if (value.isEmpty()) {
-        return String.format("%s %s:%s[%s]", event, node, attr, params);
-      } else {
-        return String.format("%s %s:%s[%s]=%s", event, node, attr, params, value);
-      }
-    }
-  }
-
-  /**
-   * Trace events corresponding to where trace entries where collected.
-   *
-   * These events can be filtered statically using the flag --tracing to
-   * JastAdd2. For example, the flag --tracing=compute,cache will only trace
+   * <p>These events can be filtered statically using the flag --tracing to
+   * JastAdd2. For example, the flag {@code --tracing=compute,cache} will only trace
    * compute events and cache events. The flag --tracing will enable all events.
    *
-   * These events can also be filtered dynamically by extending the InputFilter
-   * class and then register this subclass using the method
-   * registerInputFilter($StateClass.Trace.InputFilter).
+   * <p>To access the trace events you will need to register an event receiver.
+   * This can be done using the method setReceiver($StateClass.Trace.Receiver).
    */
   public enum Event {
-    // Flag --tracing=compute
-    COMPUTE_BEGIN(+1),
-    COMPUTE_END(-1),
+    // Flag: --tracing=compute
+    COMPUTE_BEGIN,
+    COMPUTE_END,
 
-    // Flag --tracing=cache
-    CACHED,
-    CACHE_ABORT,
+    // Flag: --tracing=cache
+    CACHE_WRITE,
     CACHE_READ,
+    CACHE_ABORT,
 
-    // Flag --tracing=rewrite
-    REWRITE_CASE1_START(+1),
+    // Flag: --tracing=rewrite
+    REWRITE_CASE1_START,
     REWRITE_CASE1_CHANGE,
-    REWRITE_CASE1_RETURN(-1),
+    REWRITE_CASE1_RETURN,
     REWRITE_CASE2_RETURN,
     REWRITE_CASE3_RETURN,
 
-    // Flag --tracing=circular
-    CIRCULAR_NTA_CASE1_START(+1),
+    // Flag: --tracing=circular
+    CIRCULAR_NTA_CASE1_START,
     CIRCULAR_NTA_CASE1_CHANGE,
-    CIRCULAR_NTA_CASE1_RETURN(-1),
-    CIRCULAR_NTA_CASE2_START(+1),
+    CIRCULAR_NTA_CASE1_RETURN,
+    CIRCULAR_NTA_CASE2_START,
     CIRCULAR_NTA_CASE2_CHANGE,
-    CIRCULAR_NTA_CASE2_RETURN(-1),
+    CIRCULAR_NTA_CASE2_RETURN,
     CIRCULAR_NTA_CASE3_RETURN,
     CIRCULAR_CASE1_START,
     CIRCULAR_CASE1_CHANGE,
@@ -129,91 +72,38 @@ public static class Trace {
     CIRCULAR_CASE2_RETURN,
     CIRCULAR_CASE3_RETURN,
 
-    // Flag --tracing=copy
+    // Flag: --tracing=copy
     COPY_NODE,
 
-    // Flag --tracing=flush
+    // Flag: --tracing=flush
     FLUSH_ATTR,
     FLUSH_REWRITE,
     FLUSH_REWRITE_INIT;
-
-    /** How much indentation should change when printing this event. */
-    public final int indentDiff;
-
-    Event(int indent) {
-      this.indentDiff = indent;
-    }
-
-    Event() {
-      this.indentDiff = 0;
-    }
   }
 
   /**
-   * Class used to filter input
+   * Functional interface for a trace event receiver.
+   * This can be implemented by applications that want to trace attribute evaluation.
    */
-  public static abstract class InputFilter implements Filter {
-    public Entry createEntry($StateClass.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
-      String paramsString;
-      if (params instanceof $ASTNode) {
-        paramsString = String.format("%08X", params.hashCode());
-      } else {
-        paramsString = String.valueOf(params);
-      }
-      String valueString;
-      if (value instanceof $ASTNode) {
-        valueString = String.format("%08X", value.hashCode());
-      } else {
-        valueString = String.valueOf(value);
-      }
-      return new Entry(evt,
-          String.format("%08X", node.hashCode()),
-          node.getClass().getName(),
-          attr, paramsString, valueString);
-    }
-    public String desc() {
-      return "Custom input filter";
-    }
+  public interface Receiver {
+    void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
+        Object params, Object value);
   }
 
-  // Default input filter accepting all events
-  private final InputFilter defaultInputFilter = new InputFilter() {
-    public boolean include(Entry e) {
-      return true;
-    }
-    public String desc() {
-      return "Default input filter accepting all events";
+  // The default event receiver does nothing.
+  private Receiver receiver = new Receiver() {
+    public void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
+        Object params, Object value) {
     }
   };
-
-  $if(CacheAnalyzeEnabled)
-  private final CacheAnalyzer cacheAnalyzer = new CacheAnalyzer();
-  public CacheAnalyzer cacheAnalyzer() {
-    return cacheAnalyzer;
-  }
-  private Trace.InputFilter inputFilter = cacheAnalyzer;
-  $else
-  private Trace.InputFilter inputFilter = defaultInputFilter;
-  $endif
 
   /**
    * Registers an input filter to use during tracing.
    * @param filter The input filter to register.
    */
-  public void registerInputFilter($StateClass.Trace.InputFilter filter) {
-    if (filter != null) {
-      inputFilter = filter;
-    }
+  public void setReceiver($StateClass.Trace.Receiver receiver) {
+    this.receiver = receiver;
   }
-
-  /**
-   * Resets the input filter to the default input filter accepting all events.
-   */
-  public void unregisterInputFilter() {
-    inputFilter = defaultInputFilter;
-  }
-
-  private java.util.List<$StateClass.Trace.Entry> list = new java.util.ArrayList<$StateClass.Trace.Entry>();
 
   /**
    * Add a trace event for an attribute instance.
@@ -223,18 +113,7 @@ public static class Trace {
    * @param value The current value of the attribute instance.
    */
   private void add($StateClass.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    $StateClass.Trace.Entry e = inputFilter.createEntry(evt, node, attr, params, value);
-    if (inputFilter.include(e)) {
-      list.add(e);
-    }
-  }
-
-  public void clear() {
-    list.clear();
-  }
-
-  public java.util.List<$StateClass.Trace.Entry> getEventList() {
-    return list;
+    receiver.accept(evt, node, attr, params, value);
   }
 
   /**
@@ -266,7 +145,7 @@ public static class Trace {
    * @param value The value of the attribute instance.
    */
   public void cacheWrite($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CACHED, node, attr, params, value);
+    add($StateClass.Trace.Event.CACHE_WRITE, node, attr, params, value);
   }
 
   /**
@@ -444,201 +323,6 @@ public static class Trace {
    */
   public void flushAttr($ASTNode node, String attr, Object params, Object value) {
     add($StateClass.Trace.Event.FLUSH_ATTR, node, attr, params, value);
-  }
-
-  /**
-   * Process all trace entries given a trace processor
-   */
-  public void process($StateClass.Trace.Processor processor) {
-    for ($StateClass.Trace.Entry e : list) {
-      processor.process(e);
-    }
-  }
-
-  /**
-   * Print report from collected trace using the given filter.
-   * @param out Print writer to use.
-   * @param filter The filter to use.
-   */
-  public void printReport(java.io.PrintWriter out, $StateClass.Trace.Filter filter) {
-    // Construct report model: attr->param->node:count
-    java.util.Map<String,java.util.Map<String,java.util.Map<String,Integer>>> attrMap =
-        new java.util.HashMap<String,java.util.Map<String,java.util.Map<String,Integer>>>();
-    for ($StateClass.Trace.Entry e : list) {
-      if (filter.include(e)) {
-        if (!attrMap.containsKey(e.attr)) {
-          attrMap.put(e.attr, new java.util.HashMap<String,java.util.Map<String,Integer>>());
-        }
-        java.util.Map<String,java.util.Map<String,Integer>> paramMap = attrMap.get(e.attr);
-        if (!paramMap.containsKey(e.params)) {
-          paramMap.put(e.params, new java.util.HashMap<String,Integer>());
-        }
-        java.util.Map<String,Integer> nodeMap = paramMap.get(e.params);
-        if (!nodeMap.containsKey(e.node)) {
-          nodeMap.put(e.node, Integer.valueOf(0));
-        }
-        Integer nodeCount = nodeMap.get(e.node);
-        nodeMap.put(e.node, Integer.valueOf(nodeCount + 1));
-      }
-    }
-    // Create result string
-    int totalCount = 0;
-    StringBuffer res = new StringBuffer();
-    for (String attr : attrMap.keySet()) {
-      int attrCount = 0;
-      StringBuffer paramBuf = new StringBuffer();
-      java.util.Map<String,java.util.Map<String,Integer>> paramMap = attrMap.get(attr);
-      for (String param : paramMap.keySet()) {
-        int paramCount = 0;
-        StringBuffer nodeBuf = new StringBuffer();
-        java.util.Map<String,Integer> nodeMap = paramMap.get(param);
-        for (java.util.Map.Entry<String,Integer> e : nodeMap.entrySet()) {
-          nodeBuf.append(indentToStr(3) + e.getKey() + " - " + e.getValue() + "\n");
-          paramCount += e.getValue();
-        }
-        if (!param.equals("")) {
-          paramBuf.append(indentToStr(2) + "[" + param + "] - " + paramCount + "\n");
-        }
-        paramBuf.append(nodeBuf.toString());
-        attrCount += paramCount;
-      }
-      res.append(indentToStr(1) + attr + " - " + attrCount + "\n" + paramBuf.toString());
-      totalCount += attrCount;
-    }
-    out.println("[report:" + filter.desc() + "] - " + totalCount + "\n" + res.toString());
-    out.flush();
-  }
-
-  /** Indentation cache. */
-  protected java.util.List<String> indentList = new java.util.ArrayList<String>(32);
-
-  /** One level of indentation. */
-  protected String INDENT_STEP = " ";
-
-  protected String indentToStr(int level) {
-    while (indentList.size() <= level) {
-      if (indentList.size() == 0) {
-        indentList.add("");
-      } else {
-        indentList.add(indentList.get(indentList.size() - 1) + INDENT_STEP);
-      }
-    }
-    return indentList.get(level);
-  }
-
-  /**
-   * Prints all objects in the collected trace list.
-   */
-  public void printTrace(java.io.PrintWriter out) {
-    boolean firstTimeStamp = true;
-    long startTime = 0;
-    int indent = 0;
-    for ($StateClass.Trace.Entry e : list) {
-      if (firstTimeStamp) {
-        firstTimeStamp = false;
-        startTime = e.timeStamp;
-      }
-      out.format("%s%s - %d ms%n", indentToStr(indent), e, (e.timeStamp - startTime) / 1000000);
-      indent += e.event.indentDiff;
-    }
-    out.flush();
-  }
-
-  /**
-   * Prints all of attribute instance computations (cached or aborted).
-   */
-  public void printComputeReport(java.io.PrintWriter out) {
-    printReport(out, new $StateClass.Trace.Filter() {
-      public boolean include($StateClass.Trace.Entry e) {
-        return e.event == $StateClass.Trace.Event.CACHE_ABORT
-            || e.event == $StateClass.Trace.Event.CACHED;
-      }
-      public String desc() {
-        return "computed(i.e.,CACHE_ABORT||CACHED)";
-      }
-    });
-  }
-
-  /**
-   * Prints all cache aborts.
-   */
-  public void printCacheAbortReport(java.io.PrintWriter out) {
-    printReport(out, new $StateClass.Trace.Filter() {
-      public boolean include($StateClass.Trace.Entry e) {
-        return e.event == $StateClass.Trace.Event.CACHE_ABORT;
-      }
-      public String desc() {
-        return "CACHE_ABORT";
-      }
-    });
-  }
-
-  /**
-   * Prints all cached.
-   */
-  public void printCacheReport(java.io.PrintWriter out) {
-    printReport(out, new $StateClass.Trace.Filter() {
-      public boolean include($StateClass.Trace.Entry e) {
-        return e.event == $StateClass.Trace.Event.CACHED;
-      }
-      public String desc() {
-        return "CACHED";
-      }
-    });
-  }
-
-  /**
-   * Prints all copied nodes.
-   */
-  public void printCopyReport(java.io.PrintWriter out) {
-    printReport(out, new $StateClass.Trace.Filter() {
-      public boolean include($StateClass.Trace.Entry e) {
-        return e.event == $StateClass.Trace.Event.COPY_NODE;
-      }
-      public String desc() {
-        return "COPY_NODE";
-      }
-    });
-  }
-
-  /**
-   * Prints report of maxiumum nesting of circular NTA evaluations.
-   */
-  public void printCircularNtaNestingReport(java.io.PrintWriter out) {
-    class NestingCounter {
-      int nesting = 0;
-      int maxNesting = 0;
-      public void push() {
-        nesting++;
-        if (nesting > maxNesting) {
-          maxNesting = nesting;
-        }
-      }
-      public void pop() {
-        nesting--;
-      }
-      public int max() { return maxNesting; }
-    }
-    final NestingCounter counter = new NestingCounter();
-    printReport(out, new $StateClass.Trace.Filter() {
-      public boolean include($StateClass.Trace.Entry e) {
-        boolean res = false;
-        if (e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START
-            || e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START) {
-          res = true;
-          counter.push();
-        }
-        if (e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN
-            || e.event == $StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN) {
-          counter.pop();
-        }
-        return res;
-      }
-      public String desc() {
-        return "CIRCULAR_NTA_CASE*_START";
-      }
-    });
-    System.out.println("Max nesting: " + counter.max() + "\n");
   }
 }
 $endif

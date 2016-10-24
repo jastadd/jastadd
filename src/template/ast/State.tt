@@ -244,12 +244,15 @@ $endif
 
 $if(TracingEnabled)
   private Trace trace = null;
+
+  /** @return the tracer instance used for tracing attribute evaluation in this AST. */
   public Trace trace() {
     if (trace == null) {
       trace = new Trace();
     }
     return trace;
   }
+
   $include(TraceClass)
 $endif
 }

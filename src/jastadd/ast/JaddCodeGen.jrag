@@ -261,35 +261,6 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Generate CacheAnalyzer class.
-   *
-   * @param out Aspect output stream
-   */
-  public void Grammar.emitCacheAnalyzer(PrintWriter out) {
-    StringBuilder sb = new StringBuilder();
-    boolean first = true;
-    for (TypeDecl typeDecl : getTypeDecls()) {
-      for (SynDecl synDecl : typeDecl.getSynDecls()) {
-        if (!first) {
-          sb.append(",");
-        }
-        sb.append("\"" + synDecl.hostClassName() + "."  + synDecl.signatureJavaStyle() + "\"");
-        first = false;
-      }
-      for (InhDecl inhDecl : typeDecl.getInhDecls()) {
-        if (!first) {
-          sb.append(",");
-        }
-        sb.append("\"" + inhDecl.hostClassName() + "." + inhDecl.signatureJavaStyle() + "\"");
-        first = false;
-      }
-    }
-    TemplateContext tt = templateContext();
-    tt.bind("AttrNameList", sb.toString());
-    tt.expand("CacheAnalyzer", out);
-  }
-
-  /**
    * String for calculating the initial child array size.
    * List nodes use the minimum list size as the initial child
    * array size.

@@ -302,6 +302,7 @@ public class Configuration {
       .acceptMultipleValues(true)
       .needsValue(false)
       .addDefaultValue("none", "tracing is disabled")
+      .addDefaultValue("api", "tracing is disabled, but generate Trace class")
       .addAcceptedValue("all", "trace all events")
       .addAcceptedValue("compute", "trace begin and end of attribute computation")
       .addAcceptedValue("cache", "trace value cached, read cache, and cache aborted")
@@ -363,11 +364,7 @@ public class Configuration {
       "global cache configuration overriding 'lazy' keyword")
       .acceptMultipleValues(false)
       .addAcceptedValue("none", "disable attribute caching")
-      .addAcceptedValue("all", "cache all attributes")
-      .addAcceptedValue("analyze", "analyze the cache use during evaluation (when all attributes are cached)\n"
-          + "the result is available via the API in org.jastadd.CacheAnalyzer")
-      .additionalDescription(".config files have the following format:\n"
-          + " ((cache|uncache) NodeType.AttrName((ParamType(,ParamType)*)?);)*");
+      .addAcceptedValue("all", "cache all attributes");
 
   ValueOption incrementalOption = new ValueOption("incremental", "incremental evaluation")
       .acceptMultipleValues(true)
@@ -574,9 +571,6 @@ public class Configuration {
     tt.bind("TraceCopy", traceCopy());
     tt.bind("TraceFlush", traceFlush());
 
-    // Cache options.
-    tt.bind("CacheAnalyzeEnabled", cacheAnalyzeEnabled());
-
     // Set template variables to accommodate deprecated options
     // (the deprecated options may alter the value of the template variable).
     tt.bind("VisitCheckEnabled", visitCheckEnabled());
@@ -715,11 +709,11 @@ public class Configuration {
     return true;
   }
 
-  private static final String readFile(String name) throws IOException {
+  private static String readFile(String name) throws IOException {
     StringBuilder buf = new StringBuilder();
     Reader reader = new BufferedReader(new FileReader(name));
     char[] cbuf = new char[1024];
-    int i = 0;
+    int i;
     while((i = reader.read(cbuf)) != -1) {
       buf.append(String.valueOf(cbuf, 0, i));
     }
@@ -802,7 +796,7 @@ public class Configuration {
    * @return <code>true</code> if the --tracing option is enabled
    */
   public boolean tracingEnabled() {
-    return !tracingOption.hasValue("none") || cacheAnalyzeEnabled();
+    return !tracingOption.hasValue("none");
   }
 
   /**
@@ -824,7 +818,7 @@ public class Configuration {
    */
   public boolean traceCache() {
     // Cache analysis requires full caching and tracing of cache usage>
-    return traceAll() || tracingOption.hasValue("cache") || cacheAnalyzeEnabled();
+    return traceAll() || tracingOption.hasValue("cache");
   }
 
   /**
@@ -860,13 +854,6 @@ public class Configuration {
    */
   public boolean traceFlush() {
     return traceAll() || tracingOption.hasValue("flush");
-  }
-
-  /**
-   * @return <code>true</code> if the --cache=analyze option is enabled
-   */
-  public boolean cacheAnalyzeEnabled() {
-    return cacheOption.hasValue("analyze");
   }
 
   /**
@@ -938,14 +925,13 @@ public class Configuration {
     if (!filename.isEmpty()) {
       try {
         return readFile(filename);
-      } catch (IOException e) {
+      } catch (IOException ignored) {
       }
     }
     return "";
   }
 
   /**
-   * @param tc
    * @return the start of the synchronized block in attribute evaluator
    */
   public String synchronizedBlockBegin(TemplateContext tc) {
@@ -953,7 +939,6 @@ public class Configuration {
   }
 
   /**
-   * @param tc
    * @return the end of the synchronized block in attribute evaluator
    */
   public String synchronizedBlockEnd(TemplateContext tc) {
@@ -978,8 +963,7 @@ public class Configuration {
    * @return {@code true} if everything should be cached
    */
   public boolean cacheAll() {
-    // Cache analysis requires full caching and tracing of cache usage.
-    return cacheOption.hasValue("all") || cacheAnalyzeEnabled();
+    return cacheOption.hasValue("all");
   }
 
   /**

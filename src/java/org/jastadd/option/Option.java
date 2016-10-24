@@ -106,7 +106,6 @@ abstract public class Option<ValueType> implements Comparable<Option<?>> {
   /**
    * Set the name of the corresponding template variable which this option
    * binds to.
-   * @param templateName
    * @return self
    */
   public final Option<ValueType> templateVariable(String templateName) {
@@ -272,7 +271,6 @@ abstract public class Option<ValueType> implements Comparable<Option<?>> {
   /**
    * Bind the current value of this option to a template variable in the
    * provided context. Only binds if this option has a templateName assigned.
-   * @param context
    */
   public void bind(TemplateContext context) {
     if (!templateVariable.isEmpty()) {

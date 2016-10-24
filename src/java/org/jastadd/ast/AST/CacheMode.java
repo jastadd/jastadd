@@ -28,7 +28,7 @@
 package org.jastadd.ast.AST;
 
 public enum CacheMode {
-  /** Implicit cache beahviour. */
+  /** Implicit cache behaviour. */
   DEFAULT,
 
   /** Attribute is declared lazy. */

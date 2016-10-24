@@ -48,7 +48,6 @@ public class ArgumentParser {
 
   /**
    * Add a command-line option.
-   * @param option
    */
   public void addOption(Option<?> option) {
     String name = (Option.PREFIX + option.name).toLowerCase();
@@ -57,7 +56,6 @@ public class ArgumentParser {
 
   /**
    * Add a collection of command-line options.
-   * @param additionalOptions
    */
   public void addOptions(Collection<Option<?>> additionalOptions) {
     for (Option<?> option: additionalOptions) {
@@ -139,5 +137,5 @@ public class ArgumentParser {
    */
   public Collection<String> getFilenames() {
     return filenames;
-  };
-};
+  }
+}

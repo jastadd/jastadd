@@ -82,7 +82,6 @@ public abstract class Problem {
     }
   }
 
-  @SuppressWarnings("javadoc")
   public static class Error extends Problem {
     protected Error(String message, String file, int line, int column) {
       super(message, file, line, column);
@@ -94,7 +93,6 @@ public abstract class Problem {
     }
   }
 
-  @SuppressWarnings("javadoc")
   public static class Warning extends Problem {
     protected Warning(String message, String file, int line, int column) {
       super(message, file, line, column);
@@ -140,7 +138,7 @@ public abstract class Problem {
     String kind = isError() ? "Error" : "Warning";
     String loc = file.isEmpty() ? "" : file;
     if (line != -1) {
-      loc = loc.isEmpty() ? "" + line : loc + ":" + line;
+      loc = loc.isEmpty() ? "" + line : String.format("%s:%d", loc, line);
       if (column != -1) {
         loc += ":" + column;
       }
@@ -148,6 +146,6 @@ public abstract class Problem {
     if (!loc.isEmpty()) {
       loc = " at " + loc;
     }
-    return kind + loc + ": " + message;
+    return String.format("%s%s: %s", kind, loc, message);
   }
 }

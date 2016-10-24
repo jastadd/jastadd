@@ -37,8 +37,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -104,17 +104,12 @@ public class JastAdd {
 
   private final Configuration config;
 
-  /**
-   * Constructor
-   * @param configuration
-   */
   public JastAdd(Configuration configuration) {
     this.config = configuration;
   }
 
   /**
-   * Entry point. Calls System.exit when finished if something went wrong.
-   * @param args
+   * Calls System.exit when finished if something went wrong.
    */
   public static void main(String[] args) {
     int exitVal = compile(args, System.out, System.err);
@@ -198,10 +193,6 @@ public class JastAdd {
         return 1;
       }
 
-      if (config.cacheAnalyzeEnabled()) {
-        genCacheAnalyzer(grammar);
-      }
-
       grammar.processInterfaceRefinements();
       grammar.weaveInterfaceIntroductions();
 
@@ -255,8 +246,7 @@ public class JastAdd {
   }
 
   /**
-   * Print problems and check for errors
-   * @param problems
+   * Print problems and check for errors.
    * @param err error output stream
    * @return {@code true} if any of the problems was an error
    */
@@ -265,9 +255,7 @@ public class JastAdd {
   }
 
   /**
-   * Print problems with a description and check for errors
-   * @param description
-   * @param problems
+   * Print problems with a description and check for errors.
    * @param err error output stream
    * @return {@code true} if any of the problems was an error
    */
@@ -287,8 +275,7 @@ public class JastAdd {
 
   private static Collection<Problem> readAstFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
-      String fileName = iter.next();
+    for (String fileName : fileNames) {
       if (fileName.endsWith(".ast")) {
         File source = new File(fileName);
         parseAbstractGrammar(source, grammar, problems);
@@ -299,8 +286,7 @@ public class JastAdd {
 
   private static Collection<Problem> readJragFiles(Grammar grammar, Collection<String> fileNames) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    for (Iterator<String> iter = fileNames.iterator(); iter.hasNext();) {
-      String fileName = iter.next();
+    for (String fileName : fileNames) {
       if (fileName.endsWith(".jrag") || fileName.endsWith(".jadd")) {
         File source = new File(fileName);
         parseAspect(source, grammar, problems);
@@ -429,7 +415,7 @@ public class JastAdd {
     for (int i = 0; i < grammar.getNumTypeDecl(); i++) {
       if (grammar.getTypeDecl(i) instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl) grammar.getTypeDecl(i);
-        java.io.StringWriter writer = new java.io.StringWriter();
+        StringWriter writer = new StringWriter();
         decl.emitImplicitDeclarations(new PrintWriter(writer));
 
         Collection<Problem> problems = parseAspectBodyDeclarations(
@@ -450,16 +436,9 @@ public class JastAdd {
     return allProblems;
   }
 
-  private void genCacheAnalyzer(Grammar grammar) throws FileNotFoundException {
-    grammar.createPackageOutputDirectory();
-    PrintWriter writer = new PrintWriter(grammar.targetJavaFile("CacheAnalyzer"));
-    grammar.emitCacheAnalyzer(writer);
-    writer.close();
-  }
-
   private Collection<Problem> genIncrementalDDGNode(Grammar grammar) {
     if (config.incremental()) {
-      java.io.StringWriter writer = new java.io.StringWriter();
+      StringWriter writer = new StringWriter();
       grammar.genIncrementalDDGNode(new PrintWriter(writer));
       return parseAspectBodyDeclarations(writer.toString(), config.astNodeType(), grammar);
     }
@@ -467,7 +446,7 @@ public class JastAdd {
   }
 
   private Collection<Problem> genStateClass(Grammar grammar) {
-    java.io.StringWriter writer = new java.io.StringWriter();
+    StringWriter writer = new StringWriter();
     grammar.emitStateClass(new PrintWriter(writer));
     return parseAspectBodyDeclarations(writer.toString(), config.stateClassName(), grammar);
   }
@@ -633,7 +612,7 @@ public class JastAdd {
         scanner.nextLine();
       }
       if (scanner.hasNextLine()) {
-        buf.append(scanner.nextLine() + "\n");
+        buf.append(scanner.nextLine()).append("\n");
         for (int i = 1; i < startColumn; ++i) {
           buf.append(" ");
         }
