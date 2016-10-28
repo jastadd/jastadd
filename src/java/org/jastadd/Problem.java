@@ -42,8 +42,15 @@ public abstract class Problem {
     int line = -1;
     int column = -1;
 
+    /** Add a message using a format string. */
     public ProblemBuilder message(String format, Object... args) {
       message = String.format(format, args);
+      return this;
+    }
+
+    /** Add a message without using a format string. */
+    public ProblemBuilder message(String message) {
+      this.message = message;
       return this;
     }
 
