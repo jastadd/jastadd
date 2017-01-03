@@ -9,7 +9,9 @@ defaultTasks 'jar'
 def tryCommand(List command) {
 	def out = new StringBuilder()
 	def err = new StringBuilder()
-	def proc = command.execute()
+	// The project.projectDir argument to execute() sets the working directory for the
+	// command to the project directory.
+	def proc = command.execute(null, project.projectDir)
 	proc.waitForProcessOutput(out, err)
 	if (proc.exitValue()) {
 		def msg = "failed to run '${command[0]}' command (args: ${command.tail()})\n$err$out"
