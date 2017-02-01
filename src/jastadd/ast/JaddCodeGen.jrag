@@ -467,8 +467,6 @@ aspect JaddCodeGen {
    * @param out Aspect output stream
    */
   public void ASTDecl.emitImplicitDeclarations(PrintWriter out) {
-    String s;
-
     emitConstructor(out);
 
     if (config().jjtree()) {
