@@ -166,6 +166,10 @@ public class JastAddTask extends Task {
     setOption(config.componentCheckOption, enable);
   }
 
+  public void setInhEqCheck(boolean enable) {
+    setOption(config.inhEqCheckOption, enable);
+  }
+
   public void setNoComponentCheck(boolean enable) {
     setOption(config.noComponentCheckOption, enable);
   }

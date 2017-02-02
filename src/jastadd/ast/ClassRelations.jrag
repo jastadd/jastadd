@@ -124,6 +124,14 @@ aspect Subclasses {
 }
 
 aspect Parents {
+  // This attribute, and parents() below, can not be memoized right now because
+  // it depends on a side effect adding NTAs to ASTDecls. If rewrites are
+  // enabled then this attribute is evaluated before all NTAs have been added,
+  // leading to incorrect results during inherited attribute checking.
+  //
+  // See these bitbucket issues:
+  // https://bitbucket.org/jastadd/jastadd2/issues/268/remove-side-effects-in-aspect-weaving
+  // https://bitbucket.org/jastadd/jastadd2/issues/269/jmodelica-build-is-too-slow
   syn HashMap<TypeDecl, Collection<ASTDecl>> Grammar.parentMap() {
     HashMap<TypeDecl, Collection<ASTDecl>> map = new LinkedHashMap<TypeDecl, Collection<ASTDecl>>();
     for (int j = 0; j < getNumTypeDecl(); j++) {
