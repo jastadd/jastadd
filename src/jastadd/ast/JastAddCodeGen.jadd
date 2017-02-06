@@ -123,6 +123,29 @@ aspect JastAddCodeGen {
     }
   }
 
+  /**
+   * @param filename filepath to a CSV file to write to
+   */
+  public void Grammar.writeStatistics(String filename) throws IOException {
+    System.out.println("Writing attribute statistics to " + filename);
+    File csv = new File(filename);
+    PrintStream out = new PrintStream(new FileOutputStream(csv));
+    out.println("node,syndecl,syneq,inhdecl,inheq,colldecl,colleq");
+    for (int i = 0; i < getNumTypeDecl(); i++) {
+      getTypeDecl(i).writeStatistics(out);
+    }
+    out.close();
+  }
+
+  public void TypeDecl.writeStatistics(PrintStream out) {
+  }
+
+  public void ASTDecl.writeStatistics(PrintStream out) {
+    out.format("%s,%d,%d,%d,%d,%d,%d%n", name(), getNumSynDecl(), getNumSynEq(),
+      getNumInhDecl(), inhAttrSet().size(),
+      getNumCollDecl(), getNumCollEq());
+  }
+
   public String TypeDecl.modifiers = "";
 
   syn String TypeDecl.modifiers() {
@@ -306,7 +329,6 @@ aspect JastAddCodeGen {
       System.exit(1);
     }
   }
-
 
   public void ASTDecl.jastAddGen(boolean publicModifier) {
     File file = grammar().targetJavaFile(name());

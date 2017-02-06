@@ -286,6 +286,10 @@ public class JastAddTask extends Task {
     setOption(config.safeLazyOption, enable);
   }
 
+  public void setStatistics(String arg) {
+    setOption(config.statisticsOption, arg);
+  }
+
   @Override
   public void execute() throws BuildException {
     System.err.println("generating node types and weaving aspects");

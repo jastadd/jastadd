@@ -333,6 +333,11 @@ public class Configuration {
   FlagOption printNonStandardOptionsOption = new FlagOption("X",
       "print list of non-standard options and halt");
 
+  Option<String> statisticsOption = new ValueOption("statistics",
+      "write attribute statistics to a CSV file")
+      .acceptAnyValue()
+      .nonStandard();
+
   ValueOption indentOption = new ValueOption("indent", "indentation used in generated code")
       .addDefaultValue("2space", "two spaces")
       .addAcceptedValue("4space", "four spaces")
@@ -461,6 +466,9 @@ public class Configuration {
 
     // New since 2.2.1:
     allOptions.add(safeLazyOption);
+
+    // New since 2.2.3:
+    allOptions.add(statisticsOption);
 
     // Deprecated in 2.1.5.
     allOptions.add(doxygenOption);
@@ -790,6 +798,17 @@ public class Configuration {
    */
   public boolean shouldPrintNonStandardOptions() {
     return printNonStandardOptionsOption.value();
+  }
+
+  /**
+   * @return <code>true</code> if attribute statistics should be generated
+   */
+  public boolean shouldWriteStatistics() {
+    return !statisticsOption.value().isEmpty();
+  }
+
+  public String statisticsFile() {
+    return statisticsOption.value();
   }
 
   /**

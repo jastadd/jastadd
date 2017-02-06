@@ -232,6 +232,10 @@ public class JastAdd {
 
       grammar.jastAddGen(config.getPublicModifier());
 
+      if (config.shouldWriteStatistics()) {
+        grammar.writeStatistics(config.statisticsFile());
+      }
+
     } catch(NullPointerException e) {
       e.printStackTrace();
       throw e;
