@@ -86,13 +86,17 @@ aspect JragCodeGen {
   syn String Rewrite.sourceLocation() = ASTNode.sourceLocation(getFileName(), getStartLine());
 
   /**
-   * Decide if an attribute should be cached based on the cache mode and
-   * current global configuration.
+   * Decides if this attribute should be memoized.
    */
-  syn boolean AttrDecl.shouldCache(CacheMode mode) {
-    switch (mode) {
+  syn boolean AttrDecl.isMemoized() {
+    if (declaredNTA() || isCircular()) {
+      // NTAs and circular attributes are always cached.
+      return true;
+    }
+    // Check the cache mode:
+    switch (getCacheMode()) {
       case DEFAULT:
-        return config().cacheAll();
+        return config().cacheAll() || isNTA();
       case LAZY:
         return !config().cacheNone() || isNTA();
       case CACHED:
@@ -100,16 +104,10 @@ aspect JragCodeGen {
       case UNCACHED:
         return isNTA();
     }
+    // Only if there is a missing switch case:
     throw new Error("unhandled cache mode");
   }
 
-  syn boolean AttrDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
-
-  eq SynDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
-
-  eq InhDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
-
-  eq CollDecl.isLazy() = declaredNTA() || isCircular() || shouldCache(getCacheMode());
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
@@ -226,12 +224,12 @@ aspect JragCodeGen {
           sb.append(String.format("if (%s_visited == null) %s_visited = %s;\n",
               signature(), signature(), config().createDefaultSet()));
         }
-        if (getNumParameter() != 0 && isLazy() && !simpleCacheCheck()) {
+        if (getNumParameter() != 0 && isMemoized() && !simpleCacheCheck()) {
           sb.append(String.format("if (%s_computed == null) %s_computed = %s;\n",
               signature(), signature(), config().createDefaultMap()));
         }
       }
-      if (getNumParameter() != 0 && (isLazy() || isCircular())) {
+      if (getNumParameter() != 0 && (isMemoized() || isCircular())) {
         sb.append(String.format("if (%s_values == null) %s_values = %s;\n",
             signature(), signature(), config().createDefaultMap()));
       }
@@ -304,7 +302,7 @@ aspect JragCodeGen {
   syn boolean TokenComponent.isPrimitive() = AttrDecl.isPrimitiveType(getTokenId().getTYPE());
 
   public String AttrDecl.parameterStructure() {
-    if (!isParameterized() || (!isLazy() && !isCircular() && !config().visitCheckEnabled())) {
+    if (!isParameterized() || (!isMemoized() && !config().visitCheckEnabled())) {
       return "";
     } else if (getNumParameter() == 1) {
       return "Object _parameters = " + getParameter(0).getName() + ";\n";
@@ -323,7 +321,7 @@ aspect JragCodeGen {
    * Generate the state variable if needed.
    */
   public String AttrDecl.lazyState() {
-    if (isLazy()) {
+    if (isMemoized()) {
       return config().stateClassName() + " state = state();";
     } else {
       return "";
@@ -381,7 +379,7 @@ aspect JragCodeGen {
   public boolean TypeDecl.hasLazySynEqFor(AttrDecl attr) {
     if (attr instanceof SynDecl) {
       SynEq synEq = lookupSynEq(attr.signature());
-      return synEq != null && (synEq.decl().isLazy() || synEq.decl().isCircular());
+      return synEq != null && synEq.decl().isMemoized();
     }
     return false;
   }
@@ -432,7 +430,7 @@ aspect JragCodeGen {
   syn boolean AttrEq.canInlineBlock(AttrDecl decl) = false;
 
   eq SynEq.canInlineBlock(AttrDecl decl) =
-      hasComputeBlock() && !decl.isLazy() && !decl.isNTA() && !decl.isCircular();
+      hasComputeBlock() && !decl.isMemoized();
 
   /**
    * Generates the method to compute an attribute with a specific equation
@@ -520,7 +518,7 @@ aspect JragCodeGen {
     attr.emitVisitedDeclarations(out);
     if (!attr.isCircular()) {
       attr.emitResetMethod(out);
-      if (attr.isLazy()) {
+      if (attr.isMemoized()) {
         attr.emitCacheDeclarations(out);
       }
     } else if (attr.getNumParameter() == 0) {
@@ -770,8 +768,6 @@ aspect JragCodeGen {
     }
   }
 
-  syn boolean AttrDecl.hasCache() = isLazy() || isCircular();
-
   /**
    * @return {@code true} if the attribute declaration corresponds to a
    * non-token NTA component
@@ -786,7 +782,7 @@ aspect Compute {
       "getParent().Define_" + name() + "(this, null" + inhParametersTail() + ")";
 
   syn String AttrDecl.computeLhs() {
-    if (isLazy() && getNumParameter() == 0) {
+    if (isMemoized() && getNumParameter() == 0) {
       return signature() + "_value";
     } else {
       return getType() + " " + signature() + "_value";

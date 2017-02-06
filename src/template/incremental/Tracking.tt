@@ -420,7 +420,7 @@ $endif
 
 AttrDecl.incHookAttrCompStart = [[
 $if(IncrementalEnabled)
-$if(#hasCache)
+$if(#isMemoized)
 
 $if(IncrementalLevelParam)
 $DDGNodeName tmpHandler = new $DDGNodeName(this, "", null);
@@ -455,7 +455,7 @@ $endif
 
 AttrDecl.incHookAttrCompStartCircular = [[
 $if(IncrementalEnabled)
-$if(#hasCache)
+$if(#isMemoized)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
@@ -491,7 +491,7 @@ $endif
 
 AttrDecl.incHookAttrCompEnd = [[
 $if(IncrementalEnabled)
-$if(#hasCache)
+$if(#isMemoized)
 
 $if(IncrementalLevelParam)
 state().exitAttrStoreEval(tmpHandler);
@@ -529,7 +529,7 @@ $endif
 
 AttrDecl.incHookAttrCompEndCircular = [[
 $if(IncrementalEnabled)
-$if(#hasCache)
+$if(#isMemoized)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
@@ -571,7 +571,7 @@ $endif
 
 AttrDecl.incHookAttrCompBeforeStore = [[
 $if(IncrementalEnabled)
-$if(#hasCache)
+$if(#isMemoized)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
@@ -597,7 +597,7 @@ $endif
 
 AttrDecl.incHookAttrCompAfterStore = [[
 $if(IncrementalEnabled)
-$if(#hasCache)
+$if(#isMemoized)
 
 $if(IncrementalLevelParam)
 tmpHandler.clearDependencies();

@@ -52,7 +52,7 @@ aspect Flush {
   syn String AttrDecl.resetVisit() = templateContext().expand("AttrDecl.resetAttrVisit");
 
   public void AttrDecl.emitResetMethod(PrintStream out) {
-    if (isLazy() || isCircular()) {
+    if (isMemoized()) {
       templateContext().expand("AttrDecl.resetMethod", out);
     }
   }

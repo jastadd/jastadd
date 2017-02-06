@@ -64,13 +64,13 @@ aspect IncrementalDDG {
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr.isLazy() || attr.isCircular()) {
+        if (attr.isMemoized()) {
           list.add(attr);
         }
       }
       for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr.isLazy() || attr.isCircular()) {
+        if (attr.isMemoized()) {
           list.add(attr);
         }
       }
@@ -145,13 +145,13 @@ aspect IncrementalDDG {
       ArrayList list = new ArrayList();
       for (int k = 0; k < getNumSynDecl(); k++) {
         AttrDecl attr = getSynDecl(k);
-        if (attr != null && (attr.isLazy() || attr.isCircular())) {
+        if (attr != null && attr.isMemoized()) {
           list.add(attr);
         }
       }
       for (int k = 0; k < getNumInhDecl(); k++) {
         AttrDecl attr = getInhDecl(k);
-        if (attr != null && (attr.isLazy() || attr.isCircular())) {
+        if (attr != null && attr.isMemoized()) {
           list.add(attr);
         }
       }

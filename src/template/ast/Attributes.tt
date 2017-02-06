@@ -306,7 +306,7 @@ AttrDecl.emitEquation [[
 ]]
 
 AttrDecl.cacheCheck [[
-$if(#hasCache)
+$if(#isMemoized)
 $include(AttrDecl.incHookAttrRead)
   $if(!#isParameterized)
     $if(#simpleCacheCheck)
@@ -342,7 +342,7 @@ $endif
 
 # Update the cache value for this attribute if caching is enabled.
 AttrDecl.cacheUpdate [[
-$if(#isLazy)
+$if(#isMemoized)
   $if(LegacyRewrite)
 if (#cacheStoreCondition) {
   $endif
@@ -392,7 +392,7 @@ $endif
 
 AttrDecl.cacheInit [[
 $if(LegacyRewrite)
-  $if(#isLazy)
+  $if(#isMemoized)
 $include(AttrDecl.cacheInitRewrite)
   $endif
 $endif
@@ -416,7 +416,7 @@ state().assertSameCircle(#(signature)_circle, "#hostClassName.#signatureJavaStyl
 #(signature)_circle = state().currentCircle();
 state().enterLazyAttribute();
 $else
-  $if(#isLazy)
+  $if(#isMemoized)
     $if(#simpleCacheCheck)
 state().enterLazyAttribute();
     $endif
@@ -428,7 +428,7 @@ AttrDecl.leaveLazyAttribute [[
 $if(ComponentCheck)
 state().leaveLazyAttribute();
 $else
-  $if(#isLazy)
+  $if(#isMemoized)
     $if(#simpleCacheCheck)
 state().leaveLazyAttribute();
     $endif

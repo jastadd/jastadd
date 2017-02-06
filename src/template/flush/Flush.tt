@@ -126,7 +126,7 @@ $endif
 ]]
 
 AttrDecl.resetAttrCache [[
-$if(#isLazy)
+$if(#isMemoized)
   $if(#isParameterized)
     $if(!#simpleCacheCheck)
 #(signature)_computed = $CreateDefaultMap;

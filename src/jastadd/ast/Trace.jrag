@@ -50,7 +50,7 @@ aspect Trace {
     } else if (this instanceof CollDecl) {
       b.append("coll ");
     }
-    if (isLazy()) {
+    if (isMemoized()) {
       b.append("lazy ");
     }
     if (isCircular()) {
