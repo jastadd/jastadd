@@ -654,7 +654,7 @@ void AspectBodyDeclaration() :
   LOOKAHEAD( AspectMethodDeclarationLookahead() )
   AspectMethodDeclaration()
 |
-  LOOKAHEAD( [ "public" | "protected" | "private" ] <IDENTIFIER> "." <IDENTIFIER> "(" )
+  LOOKAHEAD( Modifiers() <IDENTIFIER> "." <IDENTIFIER> "(" )
   AspectConstructorDeclaration()
 |
   LOOKAHEAD( AspectFieldDeclarationLookahead() )
@@ -973,7 +973,7 @@ void AspectRefineMethodDeclaration() :
 void AspectConstructorDeclaration() :
 {Token t;}
 {
-  [ "public" | "protected" | "private" ]
+  Modifiers()
   t = <IDENTIFIER> "." { className = t.image; } <IDENTIFIER> FormalParameters() [ "throws" NameList() ]
   "{"
     [ LOOKAHEAD(ExplicitConstructorInvocation()) ExplicitConstructorInvocation() ]
