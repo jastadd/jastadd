@@ -76,6 +76,15 @@ public class ASTNodeAnnotation {
     String aspect() default "";
     String declaredAt() default "";
   }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.CONSTRUCTOR)
+  @java.lang.annotation.Documented
+  public @interface Constructor{
+    String[] name(); 
+    String[] type(); 
+    String[] kind(); 
+  }
 }
 $endif
 ]]

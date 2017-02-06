@@ -192,6 +192,55 @@ aspect JaddCodeGen {
   }
 
   /**
+   * Emits annotation on the constructor with information about the arguments.
+   * Three arrays are generated for the constructor, one with the name of the
+   * children, one with the type and one with the kind(Child, List, Opt or Token).
+   */
+  private void ASTDecl.emitConstructorAnnotation(PrintWriter out){
+    out.println(config().indent + "@ASTNodeAnnotation.Constructor(");
+    
+    out.print(config().ind(2) + "name = {");
+    int paramIndex = 0;
+    for (Component c : components()) {
+      if (!c.isNTA()) {
+        if (paramIndex != 0) out.print(", ");
+        out.print("\"");
+        out.print(c.name());
+        out.print("\"");
+        paramIndex++;
+      }
+    }
+    out.println("},");
+
+    out.print(config().ind(2) + "type = {");
+    paramIndex = 0;
+    for (Component c : components()) {
+      if (!c.isNTA()) {
+        if (paramIndex != 0) out.print(", ");
+        out.print("\"");
+        out.print(c.constrParmType());
+        out.print("\"");
+        paramIndex++;
+      }
+    }
+    out.println("},");
+
+    out.print(config().ind(2) + "kind = {");
+    paramIndex = 0;
+    for (Component c : components()) {
+      if (!c.isNTA()) {
+        if (paramIndex != 0) out.print(", ");
+        out.print("\"");
+        out.print(c.kind());
+        out.print("\"");
+        paramIndex++;
+      }
+    }
+    out.println("}");
+    out.println(config().indent + ")");
+  }
+
+  /**
    * Constructor to build trees bottom up
    */
   public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
@@ -199,6 +248,12 @@ aspect JaddCodeGen {
       // We only build constructors if there are components.
       return;
     }
+    if(config().generateAnnotations()){
+        emitConstructorAnnotation(out);
+    }
+
+
+
     out.print(config().indent + "public " + name() + "." + name() + "(");
     int paramIndex = 0;
     for (Component c : components()) {

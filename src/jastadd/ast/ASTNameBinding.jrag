@@ -138,3 +138,11 @@ aspect ComponentHostClass {
 
   syn String AttrEq.className() = hostClass().name();
 }
+
+aspect Kind {
+  syn String Component.kind();
+  eq ListComponent.kind() = "List";
+  eq OptionalComponent.kind() = "Opt";
+  eq TokenComponent.kind() = "Token";
+  eq AggregateComponent.kind() = "Child";
+}

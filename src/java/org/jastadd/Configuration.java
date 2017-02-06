@@ -1281,4 +1281,11 @@ public class Configuration {
   public boolean safeLazy() {
     return safeLazyOption.value();
   }
+
+  /**
+   * @return {@code true} annotations shall be generated.
+   */
+  public boolean generateAnnotations() {
+    return generateAnnotations.value(); 
+  }
 }
