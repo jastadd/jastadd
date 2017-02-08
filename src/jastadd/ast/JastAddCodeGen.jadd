@@ -84,10 +84,6 @@ aspect JastAddCodeGen {
                   }
               }
 
-              for (int k = 0; k < d.getNumSynDecl(); k++) {
-                dest.addSynDecl((SynDecl)d.getSynDecl(k).fullCopy());
-              }
-
               for (int k = 0; k < d.getNumSynEq(); k++) {
                 dest.addSynEq((SynEq)d.getSynEq(k).fullCopy());
               }
@@ -141,9 +137,10 @@ aspect JastAddCodeGen {
   }
 
   public void ASTDecl.writeStatistics(PrintStream out) {
-    out.format("%s,%d,%d,%d,%d,%d,%d%n", name(), getNumSynDecl(), getNumSynEq(),
-      getNumInhDecl(), inhAttrSet().size(),
-      getNumCollDecl(), getNumCollEq());
+    out.format("%s,%d,%d,%d,%d,%d,%d%n", name(),
+        synDecls().getNumChild(), getNumSynEq(),
+        getNumInhDecl(), inhAttrSet().size(),
+        getNumCollDecl(), getNumCollEq());
   }
 
   public String TypeDecl.modifiers = "";

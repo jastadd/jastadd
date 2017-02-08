@@ -1,0 +1,80 @@
+/* Copyright (c) 2017, The JastAdd Team
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Lund University nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * This aspect contains attributes for mapping AST types to JRAG attributes.
+ *
+ * <p>This weaving method is based entirely on attributes and does not
+ * rely on imperative modifications of the existing AST.
+ */
+aspect AttributeWeaving {
+  /**
+   * Maps AST types, by name, to synthesized attribute declarations.
+   *
+   * <p>This is computed from top-level attribute declarations and interface
+   * introductions from interface types.
+   */
+  syn lazy Map<String, Collection<SynDecl>> Grammar.synDeclMap() {
+    Map<String, Collection<SynDecl>> map = new HashMap<String, Collection<SynDecl>>();
+    for (TypeDecl type : getTypeDeclList()) {
+      map.put(type.name(), new ArrayList<SynDecl>());
+    }
+    for (SynDecl decl : grammar().synDecls) {
+      map.get(decl.hostName).add(decl);
+    }
+    for (TypeDecl type0 : getTypeDeclList()) {
+      if (type0 instanceof InterfaceDecl) {
+        InterfaceDecl iface = (InterfaceDecl) type0;
+        Collection<SynDecl> syns = map.get(iface.name());
+        for (TypeDecl type : getTypeDeclList()) {
+          if (type instanceof ASTDecl) {
+            ASTDecl decl = (ASTDecl) type;
+            if (decl.implementsInterface(iface.name())) {
+              map.get(decl.name()).addAll(syns);
+            }
+          }
+        }
+      }
+    }
+    return map;
+  }
+
+  /**
+   * @return the set of all synthesized declarations for this type declaration.
+   */
+  syn nta List<SynDecl> TypeDecl.synDecls() {
+    List<SynDecl> decls = new List<SynDecl>();
+    Collection<SynDecl> syns = grammar().synDeclMap().get(name());
+    if (syns != null) {
+      for (SynDecl decl : syns) {
+        decls.add((SynDecl) decl.fullCopy());
+      }
+    }
+    return decls;
+  }
+}

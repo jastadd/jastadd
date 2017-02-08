@@ -324,15 +324,12 @@ public class JastAdd {
     for (SynDecl decl : grammar.synDecls) {
       String className = decl.hostName;
       TypeDecl clazz = grammar.lookup(className);
-      if (clazz != null) {
-        clazz.addSynDecl(decl);
-      } else {
+      if (clazz == null) {
         problems.add(decl.errorf(
             "can not add synthesized attribute %s %s to unknown class %s",
             decl.getType(), decl.getName(), className));
       }
     }
-    grammar.synDecls.clear();
     for (SynEq equ : grammar.synEqs) {
       String className = equ.hostName;
       TypeDecl clazz = grammar.lookup(className);
@@ -401,7 +398,7 @@ public class JastAdd {
     for (TypeDecl typeDecl : grammar.getTypeDecls()) {
       if (typeDecl instanceof ASTDecl) {
         ASTDecl host = (ASTDecl) typeDecl;
-        for (SynDecl synDecl : typeDecl.getSynDecls()) {
+        for (SynDecl synDecl : typeDecl.synDecls()) {
           if (synDecl.getNTA()) {
             host.addSynthesizedNta(new SynthesizedNta(synDecl.getName(), synDecl.getType()));
           }

@@ -62,8 +62,7 @@ aspect IncrementalDDG {
       }
       // Collect attributes.
       ArrayList list = new ArrayList();
-      for (int k = 0; k < getNumSynDecl(); k++) {
-        AttrDecl attr = getSynDecl(k);
+      for (AttrDecl attr : synDecls()) {
         if (attr.isMemoized()) {
           list.add(attr);
         }
@@ -143,8 +142,7 @@ aspect IncrementalDDG {
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       // Collect attributes.
       ArrayList list = new ArrayList();
-      for (int k = 0; k < getNumSynDecl(); k++) {
-        AttrDecl attr = getSynDecl(k);
+      for (AttrDecl attr : synDecls()) {
         if (attr != null && attr.isMemoized()) {
           list.add(attr);
         }

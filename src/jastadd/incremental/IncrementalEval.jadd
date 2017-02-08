@@ -79,8 +79,7 @@ aspect IncrementalEval {
    */
   public ArrayList ASTDecl.listOfNtaAttributes() {
     ArrayList list = new ArrayList();
-    for (int k = 0; k < getNumSynDecl(); k++) {
-      AttrDecl attr = getSynDecl(k);
+    for (AttrDecl attr : synDecls()) {
       if (attr.isNTA()) {
         list.add(attr);
       }

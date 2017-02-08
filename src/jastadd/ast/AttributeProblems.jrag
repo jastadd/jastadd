@@ -210,6 +210,11 @@ aspect AttributeProblems {
 
   syn SynDecl SynDecl.prevDecl() = hostClass().lookupSynDecl(signature());
 
+  TypeDecl contributes {
+    synDecls().collectContributions();
+    super.collectContributions();
+  } to TypeDecl.attributeProblems();
+
   SynDecl contributes errorf(
           "multiple declaration of attribute %s.%s, previously declared in %s:%d",
           hostClass().name(), name(), prevDecl().getFileName(), prevDecl().getStartLine())

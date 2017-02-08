@@ -178,8 +178,7 @@ aspect JragCodeGen {
   }
 
   public void TypeDecl.emitAbstractSyns(PrintStream out) {
-    for (int i = 0; i < getNumSynDecl(); i++) {
-      AttrDecl attr = getSynDecl(i);
+    for (AttrDecl attr : synDecls()) {
       attr.emitSynDecl(out);
     }
   }
@@ -197,8 +196,7 @@ aspect JragCodeGen {
    * that lack an equation.
    */
   public void ASTDecl.emitAbstractSyns(PrintStream out) {
-    for (int i = 0; i < getNumSynDecl(); i++) {
-      AttrDecl attr = getSynDecl(i);
+    for (AttrDecl attr : synDecls()) {
       boolean equ = false;
       for (int j = 0; j < getNumSynEq(); j++) {
         if (getSynEq(j).signature().equals(attr.signature())) {
@@ -699,10 +697,10 @@ aspect JragCodeGen {
   }
 
   syn SynDecl TypeDecl.lookupSynDeclPrefix(String signature) {
-    for (int i = 0; i < getNumSynDecl(); i++) {
-      if (getSynDecl(i).signature().equals(signature)
-          || getSynDecl(i).signature().startsWith(signature + "_")) {
-        return getSynDecl(i);
+    for (SynDecl decl : synDecls()) {
+      if (decl.signature().equals(signature)
+          || decl.signature().startsWith(signature + "_")) {
+        return decl;
       }
     }
     return null;

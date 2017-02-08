@@ -3,7 +3,7 @@ Grammar ::= TypeDecl*  RegionDecl*;
 /** Region declarations for coarse incremental dependency tracking, e.g., "region A;" */
 RegionDecl ::= IdUse;
 
-abstract TypeDecl ::= IdDecl ClassBodyDecl* SynDecl* SynEq* InhDecl* InhEq*
+abstract TypeDecl ::= IdDecl ClassBodyDecl* SynEq* InhDecl* InhEq*
     Component* CollDecl* <FileName> <StartLine:int> <EndLine:int>
     <Comment:String> <AspectName:String>;
 
