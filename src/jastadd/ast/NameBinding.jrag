@@ -101,68 +101,6 @@ aspect AttributeNamesAndTypes {
   }
 }
 
-aspect AllEquations {
-  syn lazy Set TypeDecl.synEquations() {
-    Set set = new LinkedHashSet();
-    for (int i = 0; i < getNumSynEq(); i++) {
-      set.add(getSynEq(i));
-    }
-    return set;
-  }
-
-  eq ASTDecl.synEquations() {
-    Set set = super.synEquations();
-    if (superClass() != null)
-      set.addAll(superClass().synEquations());
-    return set;
-  }
-
-  syn lazy Set TypeDecl.synDeclarations() {
-    Set set = new LinkedHashSet();
-    for (int i = 0; i < getNumSynDecl(); i++) {
-      set.add(getSynDecl(i));
-    }
-    return set;
-  }
-
-  eq ASTDecl.synDeclarations() {
-    Set set = super.synDeclarations();
-    if (superClass() != null)
-      set.addAll(superClass().synDeclarations());
-    return set;
-  }
-
-  syn lazy Set TypeDecl.inhEquations() {
-    Set set = new LinkedHashSet();
-    for (int i = 0; i < getNumInhEq(); i++) {
-      set.add(getInhEq(i));
-    }
-    return set;
-  }
-
-  eq ASTDecl.inhEquations() {
-    Set set = super.inhEquations();
-    if (superClass() != null)
-      set.addAll(superClass().inhEquations());
-    return set;
-  }
-
-  syn lazy Set TypeDecl.inhDeclarations() {
-    Set set = new LinkedHashSet();
-    for (int i = 0; i < getNumInhDecl(); i++) {
-      set.add(getInhDecl(i));
-    }
-    return set;
-  }
-
-  eq ASTDecl.inhDeclarations() {
-    Set set = super.inhDeclarations();
-    if (superClass() != null)
-      set.addAll(superClass().inhDeclarations());
-    return set;
-  }
-}
-
 aspect BindSynEquations {
   syn lazy SynDecl TypeDecl.lookupSynDecl(String signature) {
     for (int i = 0; i < getNumSynDecl(); i++)
