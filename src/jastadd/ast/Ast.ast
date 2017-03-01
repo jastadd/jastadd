@@ -16,7 +16,7 @@ EnumDecl : TypeDecl;
 ASTDecl : TypeDecl ::= [Abstract] IdDecl [SuperClass:IdUse] Component*
     SynDecl* SynEq* InhDecl* InhEq* ClassBodyDecl* Rewrite* CollDecl* CollEq*
     <FileName> <StartLine:int> <EndLine:int> <Comment:String>
-    SynthesizedNta* /CircularRewriteDecl/;
+    /CircularRewriteDecl/;
 
 Abstract;
 

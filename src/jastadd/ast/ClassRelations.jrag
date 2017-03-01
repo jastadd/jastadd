@@ -150,7 +150,7 @@ aspect Parents {
             }
           }
         }
-        for (SynthesizedNta component : decl.getSynthesizedNtaList()) {
+        for (SynthesizedNta component : decl.synNtaDecls()) {
           TypeDecl t = lookup(component.getType());
           if (t != null) {
             map.get(t).add(decl);

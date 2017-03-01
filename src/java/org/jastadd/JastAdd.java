@@ -55,7 +55,6 @@ import org.jastadd.ast.AST.InterTypeObject;
 import org.jastadd.ast.AST.List;
 import org.jastadd.ast.AST.SynDecl;
 import org.jastadd.ast.AST.SynEq;
-import org.jastadd.ast.AST.SynthesizedNta;
 import org.jastadd.ast.AST.TokenComponent;
 import org.jastadd.ast.AST.TypeDecl;
 import org.jastadd.jrag.AST.ASTCompilationUnit;
@@ -205,10 +204,6 @@ public class JastAdd {
       }
 
       if (checkErrors("attribute weaving", weaveAttributes(grammar), err)) {
-        return 1;
-      }
-
-      if (checkErrors("attribute weaving", addNtaComponents(grammar), err)) {
         return 1;
       }
 
@@ -389,22 +384,6 @@ public class JastAdd {
       grammar.applyCacheMode(decl, problems);
     }
     grammar.cacheDecls.clear();
-    return problems;
-  }
-
-  /** Add synthesized NTAs as components in their host types. */
-  private Collection<Problem> addNtaComponents(Grammar grammar) {
-    Collection<Problem> problems = new LinkedList<Problem>();
-    for (TypeDecl typeDecl : grammar.getTypeDecls()) {
-      if (typeDecl instanceof ASTDecl) {
-        ASTDecl host = (ASTDecl) typeDecl;
-        for (SynDecl synDecl : typeDecl.synDecls()) {
-          if (synDecl.getNTA()) {
-            host.addSynthesizedNta(new SynthesizedNta(synDecl.getName(), synDecl.getType()));
-          }
-        }
-      }
-    }
     return problems;
   }
 

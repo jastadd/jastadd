@@ -77,4 +77,17 @@ aspect AttributeWeaving {
     }
     return decls;
   }
+
+  /**
+   * @return the set of all synthesized nta declarations for this type declaration.
+   */
+  syn nta List<SynthesizedNta> TypeDecl.synNtaDecls() {
+    List<SynthesizedNta> decls = new List<SynthesizedNta>();
+    for (SynDecl synDecl : synDecls()) {
+      if (synDecl.getNTA()) {
+        decls.addChild(new SynthesizedNta(synDecl.getName(), synDecl.getType()));
+      }
+    }
+    return decls;
+  }
 }

@@ -202,7 +202,7 @@ aspect FindInheritedEquations {
       }
     }
 
-    for (SynthesizedNta component : getSynthesizedNtaList()) {
+    for (SynthesizedNta component : synNtaDecls()) {
       TypeDecl type = grammar().lookup(component.getType());
       if (type instanceof ASTDecl) {
         ASTDecl decl = (ASTDecl) type;
@@ -353,7 +353,7 @@ aspect FindInheritedEquations {
         }
       }
     }
-    for (SynthesizedNta component : getSynthesizedNtaList()) {
+    for (SynthesizedNta component : synNtaDecls()) {
       if (child.instanceOf(grammar().lookup(component.getType()))) {
         if (lookupInhEq(signature, component.getName()) == null) {
           return false;

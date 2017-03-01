@@ -41,7 +41,7 @@ aspect ASTErrors {
    */
   coll Collection<Problem> Grammar.problems()
       [new LinkedList<Problem>()]
-      with add;
+      root Grammar;
 
   syn boolean TypeDecl.isRootNode() = false;
 

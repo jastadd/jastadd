@@ -512,7 +512,7 @@ aspect CollectionAttributes {
     return null;
   }
 
-  coll HashSet CollDecl.uses() [new LinkedHashSet()] with add;
+  coll HashSet CollDecl.uses() [new LinkedHashSet()] root Grammar;
 
   CollEq contributes this when decl() != null to CollDecl.uses() for decl();
 
