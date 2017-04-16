@@ -52,7 +52,6 @@ public class $StateClass {
    */
   protected static class CircleState {
     final CircleState next;
-    boolean inCircle = false;
 $if(LegacyRewrite)
     boolean resetCycle = false;
 $endif
@@ -88,7 +87,7 @@ $endif
 
   /** @apilevel internal */
   protected boolean inCircle() {
-    return circle.inCircle;
+    return circle != CIRCLE_BOTTOM;
   }
 
   /** @apilevel internal */
@@ -109,7 +108,6 @@ $endif
   /** @apilevel internal */
   protected void enterCircle() {
     CircleState next = new CircleState(circle);
-    next.inCircle = true;
     circle = next;
   }
 
