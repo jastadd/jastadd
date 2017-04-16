@@ -325,7 +325,7 @@ if (#(signature)_computed == $StateClass.NON_CYCLE || #(signature)_computed == s
     $if(#simpleCacheCheck)
 if (#(signature)_values.containsKey(_parameters)) {
     $else
-if (#(signature)_values.containsKey(_parameters) && #(signature)_computed != null
+if (#(signature)_values.containsKey(_parameters)
     && #(signature)_computed.containsKey(_parameters)
     && (#(signature)_computed.get(_parameters) == $StateClass.NON_CYCLE || #(signature)_computed.get(_parameters) == state().cycle())) {
     $endif
