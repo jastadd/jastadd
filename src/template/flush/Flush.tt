@@ -129,7 +129,11 @@ AttrDecl.resetAttrCache [[
 $if(#isMemoized)
   $if(#isParameterized)
     $if(!#simpleCacheCheck)
+      $if(LazyMaps)
+#(signature)_computed = null;
+      $else
 #(signature)_computed = $CreateDefaultMap;
+      $endif
     $endif
     $if(LazyMaps)
 #(signature)_values = null;
