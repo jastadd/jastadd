@@ -190,47 +190,6 @@ aspect JastAddCodeGen {
     }
   }
 
-  public String ASTDecl.componentString() {
-    StringBuffer buf = new StringBuffer();
-    for (int i = 0; i < getNumComponent(); ++i) {
-      buf.append(" ");
-      buf.append("<span class=\"component\">");
-      buf.append(getComponent(i).componentString());
-      buf.append("</span>");
-    }
-    return buf.toString();
-  }
-
-  public String Id.componentString() {
-    String id = "{@link " + getIdUse().getID() + "}";
-    if (hasNameNode()) {
-      return getNameNode().getID() + ":" + id;
-    }
-    return id;
-  }
-
-  public String TokenId.componentString() {
-    return getID() + ":" + getTYPE();
-  }
-
-  public abstract String Component.componentString();
-
-  public String ListComponent.componentString() {
-    return getId().componentString() + "*";
-  }
-
-  public String OptionalComponent.componentString() {
-    return "[" + getId().componentString() + "]";
-  }
-
-  public String TokenComponent.componentString() {
-    return "&lt;" + getTokenId().componentString() + "&gt;";
-  }
-
-  public String AggregateComponent.componentString() {
-    return getId().componentString();
-  }
-
   public void TypeDecl.jastAddGen(boolean publicModifier) {
   }
 

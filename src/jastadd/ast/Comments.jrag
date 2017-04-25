@@ -170,16 +170,120 @@ outer: while (true) {
     return "";
   }
 
+  /**
+   * @return the pretty-printed components part of the production for this AST class.
+   */
+  public String ASTDecl.componentString() {
+    StringBuffer components = new StringBuffer();
+    for (int i = 0; i < getNumComponent(); ++i) {
+      components.append(" ");
+      components.append(getComponent(i).componentString());
+    }
+    return components.toString();
+  }
+
+  public String Id.componentString() {
+    String id = getIdUse().getID();
+    if (hasNameNode()) {
+      return getNameNode().getID() + ":" + id;
+    } else {
+      return id;
+    }
+  }
+
+  public String TokenId.componentString() {
+    return getID() + ":" + getTYPE();
+  }
+
+  public abstract String Component.componentString();
+
+  public String ListComponent.componentString() {
+    return getId().componentString() + "*";
+  }
+
+  public String OptionalComponent.componentString() {
+    return "[" + getId().componentString() + "]";
+  }
+
+  public String TokenComponent.componentString() {
+    return "<" + getTokenId().componentString() + ">";
+  }
+
+  public String AggregateComponent.componentString() {
+    return getId().componentString();
+  }
+
+  /**
+   * @return the HTML markup for the components part of the production for this AST class.
+   */
+  public String ASTDecl.componentHtml() {
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < getNumComponent(); ++i) {
+      buf.append(" ");
+      buf.append("<span class=\"component\">");
+      buf.append(getComponent(i).componentHtml());
+      buf.append("</span>");
+    }
+    return buf.toString();
+  }
+
+  public String Id.componentHtml() {
+    String id = "{@link " + getIdUse().getID() + "}";
+    if (hasNameNode()) {
+      return getNameNode().getID() + ":" + id;
+    }
+    return id;
+  }
+
+  public String TokenId.componentHtml() {
+    return getID() + ":" + getTYPE();
+  }
+
+  public abstract String Component.componentHtml();
+
+  public String ListComponent.componentHtml() {
+    return getId().componentHtml() + "*";
+  }
+
+  public String OptionalComponent.componentHtml() {
+    return "[" + getId().componentHtml() + "]";
+  }
+
+  public String TokenComponent.componentHtml() {
+    return "&lt;" + getTokenId().componentHtml() + "&gt;";
+  }
+
+  public String AggregateComponent.componentHtml() {
+    return getId().componentHtml();
+  }
+
+  /**
+   * This adds the production rule of the AST class at the end of its
+   * generated documentation comment.
+   *
+   * <p>The production rule is added with and without HTML markup.
+   */
   public String ASTDecl.extraDocCommentLines() {
-    String superclass = "";
+    StringBuilder productionHtml = new StringBuilder();
+    productionHtml.append(getIdDecl().getID());
     if (hasSuperClass()) {
-      superclass = " : {@link " + getSuperClass().getID() + "}";
+      productionHtml.append(String.format(" : {@link %s}", getSuperClass().getID()));
     }
-    String components = "";
     if (getNumComponent() > 0) {
-      components = " ::=" + componentString();
+      productionHtml.append(" ::=").append(componentHtml());
     }
-    return " * @production " + getIdDecl().getID() + superclass + components + ";\n";
+    StringBuilder production = new StringBuilder();
+    production.append(getIdDecl().getID());
+    if (hasSuperClass()) {
+      production.append(" : ").append(getSuperClass().getID());
+    }
+    if (getNumComponent() > 0) {
+      production.append(" ::=").append(componentString());
+    }
+    return String.format(
+        " * @astdecl %s;%n"
+        + " * @production %s;%n",
+        production, productionHtml);
   }
 
   public String AttrDecl.docComment() {
