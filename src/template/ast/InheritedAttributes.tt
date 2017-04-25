@@ -66,6 +66,11 @@ InhDecl.DefineInhMethod [[
 ]]
 
 InhDecl.canDefineMethod [[
+  /**
+   * #declaredat
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute #name
+   */
   protected boolean canDefine_#(name)($ASTNode _callerNode, $ASTNode _childNode#inhParametersDeclTail) {
     return true;
   }
