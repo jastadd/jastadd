@@ -185,8 +185,10 @@ $endif
 
 CollDecl.collectContributors:header [[
 $if(#onePhase)
+  /** @apilevel internal */
   protected void collect_contributors_#collectionId(#rootType _root) {
 $else
+  /** @apilevel internal */
   protected void collect_contributors_#collectionId(#rootType _root, java.util.Map<$ASTNode, java.util.Set<$ASTNode>> _map) {
 $endif
 ]]
@@ -208,11 +210,13 @@ $endif
 ]]
 
 CollDecl.contributeTo:default [[
+  /** @apilevel internal */
   protected void contributeTo_#(signature)(#getType collection) {
   }
 ]]
 
 CollDecl.contributeTo:header [[
+  /** @apilevel internal */
   protected void contributeTo_#(signature)(#getType collection) {
 $if(!IsAstNode)
     super.contributeTo_#(signature)(collection);
@@ -242,8 +246,10 @@ $endif
 # The method to start the survey phase (collecting contributors).
 CollDecl.surveyMethod [[
 $if(#onePhase)
+/** @apilevel internal */
 private boolean collect_contributors_#collectionId = false;
 $else
+/** @apilevel internal */
 protected java.util.Map<$ASTNode, java.util.Set<$ASTNode>> contributorMap_#collectionId = null;
 $endif
 
