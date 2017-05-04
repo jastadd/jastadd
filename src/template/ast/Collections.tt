@@ -254,9 +254,11 @@ protected java.util.Map<$ASTNode, java.util.Set<$ASTNode>> contributorMap_#colle
 $endif
 
 $if(#isCircular)
-  public boolean collecting_contributors_#collectionId = false;
+  /** @apilevel internal */
+  protected boolean collecting_contributors_#collectionId = false;
 
 $endif
+  /** @apilevel internal */
   protected void survey_#collectionId() {
 $if(#onePhase)
     if (!collect_contributors_#collectionId) {
