@@ -233,17 +233,17 @@ public aspect Attributes {
     }
   }
 
-  public LinkedList<SynDecl> Grammar.synDecls = new LinkedList<SynDecl>();
+  public Collection<SynDecl> Grammar.synDecls = new ArrayList<SynDecl>();
 
-  public LinkedList<SynEq> Grammar.synEqs = new LinkedList<SynEq>();
+  public Collection<SynEq> Grammar.synEqs = new ArrayList<SynEq>();
 
   public String SynDecl.hostName = "";
 
   public String SynEq.hostName = "";
 
-  public LinkedList<InhDecl> Grammar.inhDecls = new LinkedList<InhDecl>();
+  public Collection<InhDecl> Grammar.inhDecls = new ArrayList<InhDecl>();
 
-  public LinkedList<InhEq> Grammar.inhEqs = new LinkedList<InhEq>();
+  public Collection<InhEq> Grammar.inhEqs = new ArrayList<InhEq>();
 
   public String InhDecl.hostName = "";
 
@@ -416,7 +416,7 @@ public aspect Attributes {
     }
   }
 
-  public LinkedList<InterTypeObject> Grammar.interTypeObjects = new LinkedList<InterTypeObject>();
+  public Collection<InterTypeObject> Grammar.interTypeObjects = new LinkedList<InterTypeObject>();
 
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
       String className, String fileName, String aspectName) {
@@ -477,7 +477,7 @@ public aspect Attributes {
     }
   }
 
-  public LinkedList TypeDecl.refinedSynEqs = new LinkedList();
+  public Collection<SynEq> TypeDecl.refinedSynEqs = new LinkedList<SynEq>();
 
   public void Grammar.addRefinedSynEq(String name, String className,
       org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine,
@@ -528,18 +528,20 @@ public aspect Attributes {
 
   public String AttrEq.replacesAspect = null;
 
-  public LinkedList TypeDecl.replacedSynEqs = new LinkedList();
+  public Collection<SynEq> TypeDecl.replacedSynEqs = new LinkedList<SynEq>();
 
   public void TypeDecl.processSynEqReplacements() {
     boolean change = true;
     ArrayList list = new ArrayList();
     while (change && !replacedSynEqs.isEmpty()) {
       change = false;
-      for (Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
-        SynEq decl = (SynEq)iter.next();
+      Iterator<SynEq> iter = refinedSynEqs.iterator();
+      while (iter.hasNext()) {
+        SynEq decl = iter.next();
         SynEq refinedDecl = null;
-        for (Iterator outerIter = replacedSynEqs.iterator(); outerIter.hasNext(); ) {
-          SynEq refinedCandidate = (SynEq)outerIter.next();
+        Iterator<SynEq> outerIter = replacedSynEqs.iterator();
+        while (outerIter.hasNext()) {
+          SynEq refinedCandidate = outerIter.next();
           boolean legacyCondition = config().refineLegacy()
               && decl.legacyAspectName().equals(refinedCandidate.replacesAspect);
           if (decl.signature().equals(refinedCandidate.signature())
@@ -563,9 +565,8 @@ public aspect Attributes {
       }
       refinedSynEqs.addAll(list);
     }
-    for (Iterator iter = replacedSynEqs.iterator(); iter.hasNext(); ) {
-      SynEq decl = (SynEq)iter.next();
-      refineError("equation", decl.getFileName(), decl.getStartLine());
+    for (SynEq equ : replacedSynEqs) {
+      refineError("equation", equ.getFileName(), equ.getStartLine());
     }
   }
 
@@ -582,8 +583,9 @@ public aspect Attributes {
       for (int i = 0; i < getNumSynEq(); i++) {
         SynEq equ = getSynEq(i);
         SynEq refinedEqu = null;
-        for (Iterator outerIter = refinedSynEqs.iterator(); outerIter.hasNext(); ) {
-          SynEq refinedCandidate = (SynEq)outerIter.next();
+        Iterator<SynEq> outerIter = refinedSynEqs.iterator();
+        while (outerIter.hasNext()) {
+          SynEq refinedCandidate = outerIter.next();
           boolean legacyCondition = config().refineLegacy()
               && equ.legacyAspectName().equals(refinedCandidate.refinesAspect);
           if (equ.signature().equals(refinedCandidate.signature())
@@ -604,8 +606,7 @@ public aspect Attributes {
         }
       }
     }
-    for (Iterator iter = refinedSynEqs.iterator(); iter.hasNext(); ) {
-      SynEq equ = (SynEq)iter.next();
+    for (SynEq equ : refinedSynEqs) {
       refineError("syn equation", equ.getFileName(), equ.getStartLine());
     }
   }
@@ -668,7 +669,7 @@ public aspect Attributes {
     equ.setAspectName(refinedEqu.getAspectName());
   }
 
-  public LinkedList TypeDecl.refinedInhEqs = new LinkedList();
+  public Collection<InhEq> TypeDecl.refinedInhEqs = new LinkedList<InhEq>();
 
   public void Grammar.addRefinedInhEq(String childName, String name, String className,
       org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine,
@@ -712,8 +713,9 @@ public aspect Attributes {
       for (int i = 0; i < getNumInhEq(); i++) {
         InhEq equ = getInhEq(i);
         InhEq refinedEqu = null;
-        for (Iterator outerIter = refinedInhEqs.iterator(); outerIter.hasNext(); ) {
-          InhEq refinedCandidate = (InhEq)outerIter.next();
+        Iterator<InhEq> outerIter = refinedInhEqs.iterator();
+        while (outerIter.hasNext()) {
+          InhEq refinedCandidate = outerIter.next();
           boolean legacyCondition = config().refineLegacy() &&
               equ.legacyAspectName().equals(refinedCandidate.refinesAspect);
           if (equ.signature().equals(refinedCandidate.signature()) &&
@@ -735,8 +737,7 @@ public aspect Attributes {
         }
       }
     }
-    for (Iterator iter = refinedInhEqs.iterator(); iter.hasNext(); ) {
-      InhEq equ = (InhEq)iter.next();
+    for (InhEq equ : refinedInhEqs) {
       refineError("inh equation", equ.getFileName(), equ.getStartLine());
     }
   }
@@ -883,24 +884,25 @@ public aspect Attributes {
       }
       classBodyDecls.addAll(list);
     }
-    for (Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
-      ClassBodyObject decl = (ClassBodyObject) iter.next();
+    for (ClassBodyObject decl : refinedClassBodyDecls) {
       refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }
 
-  public LinkedList TypeDecl.replacements = new LinkedList();
+  public Collection<ClassBodyObject> TypeDecl.replacements = new LinkedList<ClassBodyObject>();
 
   public void TypeDecl.processReplacements() {
     boolean change = true;
     ArrayList list = new ArrayList();
     while (change && !replacements.isEmpty()) {
       change = false;
-      for (Iterator iter = refinedClassBodyDecls.iterator(); iter.hasNext(); ) {
-        ClassBodyObject decl = (ClassBodyObject)iter.next();
+      Iterator<ClassBodyObject> iter = refinedClassBodyDecls.iterator();
+      while (iter.hasNext()) {
+        ClassBodyObject decl = iter.next();
         ClassBodyObject refinedDecl = null;
-        for (Iterator outerIter = replacements.iterator(); outerIter.hasNext(); ) {
-          ClassBodyObject refinedCandidate = (ClassBodyObject)outerIter.next();
+        Iterator<ClassBodyObject> outerIter = replacements.iterator();
+        while (outerIter.hasNext()) {
+          ClassBodyObject refinedCandidate = outerIter.next();
           boolean legacyCondition = config().refineLegacy()
               && decl.legacyAspectName().equals(refinedCandidate.replaceAspect);
           if (decl.signature().equals(refinedCandidate.signature())
@@ -924,8 +926,7 @@ public aspect Attributes {
       }
       refinedClassBodyDecls.addAll(list);
     }
-    for (Iterator iter = replacements.iterator(); iter.hasNext(); ) {
-      ClassBodyObject decl = (ClassBodyObject)iter.next();
+    for (ClassBodyObject decl : replacements) {
       refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }
