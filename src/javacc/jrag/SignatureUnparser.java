@@ -84,8 +84,14 @@ public class SignatureUnparser implements JragParserVisitor {
     return "";
   }
   public Object visit(ASTAspectRefineMethodDeclaration node, Object data) {
-    // signature = ResultType MethodDeclarator() Block()
-    return node.jjtGetChild(1).jjtAccept(this, data);
+    // signature = ResultType [ TypeParameters() ] MethodDeclarator() Block()
+    // Look for the method declarator:
+    for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
+      if (node.jjtGetChild(i) instanceof org.jastadd.jrag.AST.ASTMethodDeclarator) {
+        return node.jjtGetChild(i).jjtAccept(this, data);
+      }
+    }
+    return "<unknown refinement target signature>";
   }
   public Object visit(ASTAspectConstructorDeclaration node, Object data) {
     // AspectConstructorDeclaration = FormalParameters

@@ -952,23 +952,32 @@ void AspectMethodDeclaration() :
 void AspectRefineMethodDeclarationLookahead() :
 {}
 {
-  <REFINE> [LOOKAHEAD(<IDENTIFIER>)<IDENTIFIER>] ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" )*
+  <REFINE> [LOOKAHEAD(<IDENTIFIER>)<IDENTIFIER>]
+  Modifiers()
+  [ TypeParameters() ]
   AspectResultType() <IDENTIFIER> "." JavaIdentifier() "("
 }
 
 void AspectRefineMethodDeclaration() :
 {Token t; String aspectName = ""; String secondAspectName; }
 {
-  t = <REFINE> { t.image = ""; } [LOOKAHEAD(<IDENTIFIER>) t = <IDENTIFIER> { aspectName = t.image; t.image = ""; }] ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" )*
+  t = <REFINE> { t.image = ""; } [LOOKAHEAD(<IDENTIFIER>) t = <IDENTIFIER> { aspectName = t.image; t.image = ""; }]
+  Modifiers()
+  [ TypeParameters() ]
   AspectResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
   (( Block() | ";" ) {
     root.addRefinedClassBodyDecl(jjtThis, className, fileName, aspectName, enclosingAspect);
   }
-  | ( "to" <REFINE> t = <IDENTIFIER> { secondAspectName = t.image; t.image = ""; } ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" )*
-  AspectResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
-  ( Block() | ";" ) {
-    root.addReplacedClassBodyDecl(jjtThis, className, fileName, secondAspectName, aspectName, null, enclosingAspect);
-  }))
+  | (
+      // TODO(joqvist): what is this 'to' thing? Found no documentation/tests.
+      "to" <REFINE> t = <IDENTIFIER> { secondAspectName = t.image; t.image = ""; }
+      Modifiers()
+      [ TypeParameters() ]
+      AspectResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
+      ( Block() | ";" ) {
+        root.addReplacedClassBodyDecl(jjtThis, className, fileName, secondAspectName, aspectName, null, enclosingAspect);
+      })
+    )
 }
 void AspectConstructorDeclaration() :
 {Token t;}

@@ -194,6 +194,7 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
           t.image = " ";
           t2.specialToken = t;
           t1.next = t2;
+          break;
         }
       }
       Unparser.unparseSimple(new Unparser(), self, buf);
@@ -218,12 +219,17 @@ public class ClassBodyDeclUnparser implements JragParserVisitor {
     }
     if (node instanceof ASTCompilationUnit || node == null) {
       // Skip the "<ASTNode>." part.
-      Token t1 = ((SimpleNode) self.jjtGetChild(0)).lastToken;
-      Token t2 = ((SimpleNode) self.jjtGetChild(1)).firstToken;
-      Token t = new Token();
-      t.image = " ";
-      t2.specialToken = t;
-      t1.next = t2;
+      for (int i = 0; i < self.jjtGetNumChildren(); ++i) {
+        SimpleNode n = (SimpleNode) self.jjtGetChild(i);
+        if (n instanceof ASTMethodDeclarator) {
+          Token t1 = ((SimpleNode) self.jjtGetChild(i-1)).lastToken;
+          Token t2 = n.firstToken;
+          Token t = new Token();
+          t.image = " ";
+          t2.specialToken = t;
+          t1.next = t2;
+        }
+      }
       Unparser.unparseSimple(new Unparser(), self, buf);
     } else {
       unparseSimple(self, buf);
