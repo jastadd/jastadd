@@ -830,10 +830,10 @@ aspect B {
         this case).  Additional aspects may further refine the method. For example, an
         aspect C can refine the method refined in B.
 
-        <p>In most situations, the modifiers, type paramgers, and return type of the
+        <p>In most situations, the modifiers, type parameters, and return type of the
         original declaration should be re-stated in the refinement.
 
-        <p>The original method can be called using the keyword "refined". JastAdd2
+        <p>The original method can be called using the keyword "refined". JastAdd
         replaces all occurrences of this keyword with the new name of the refined
         method. Be careful with how you use refined - even occurrences in string
         literals or comments are replaced!  With the command line flag "--refineLegacy"

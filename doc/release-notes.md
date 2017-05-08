@@ -1,6 +1,86 @@
 JastAdd2 Release Notes
 ======================
 
+2.2.3 - 2017-05-08
+------------------
+
+### Attribute Tracing API
+
+The tracing API has been redesigned to be more light-weight and flexible.
+Trace events are no longer filtered, stored, and processed by the tracing API.
+Instead, a listener model is used to handle tracing events.
+Users that need to listen to trace events should now register a class
+implementing the interface `ASTState.Trace.Receiver` by calling
+`ASTState.Trace.setReceiver(Receiver)`.
+
+Some benefits of the tracing API changes are:
+
+* The separate concepts of trace event filtering and processing have been
+  merged into just event handling by the event receiver.
+* The tracing API no longer creates an object for each trace event,
+  instead the event information is sent directly to the trace receiver.
+* Trace receivers do not need to inherit from an abstract class, as was the
+  case for trace filters previously.
+
+Summary of tracing changes:
+
+* Added `api` option to the `--tracing` flag.  Specifying `--tracing=api` will
+  generate the `ASTState.Trace` class, but not insert trace events in generated
+  code.  This is used to make user code using the tracing API compile even
+  without incurring the runtime overhead of generating trace events in
+  attributes.
+* Removed the cache analyzer generation feature. Cache analyzers can be
+  implemented in user code by using an event receiver.
+* Removed the `--cache=analyze` option.
+* Renamed the `CACHED` trace event to `CACHE_WRITE` - this makes the naming
+  consistent with the `CACHE_READ` event.
+* Added interface `ASTState.Trace.Receiver`.
+* Added public method `ASTState.Trace.setReceiver(Receiver)`.
+* Removed class `ASTState.Trace.Entry`.
+* Removed abstract class `ASTState.Trace.InputFilter`.
+* Removed interface `ASTState.Trace.Processor`.
+* Removed class `ASTState.Trace.PrintProcessor`.
+* Removed the following public methods in `ASTState.Trace`:
+  `registerInputFilter`, `process`, `clear`, `getEventList`, `printReport`,
+  `printTrace`, `printComputeReport`, `printCacheAbortReport`,
+  `printCacheReport`, `printCopyReport`, `printCircularNtaNestingReport`,
+
+
+### Bugfixes
+
+* [Issue 277:](https://bitbucket.org/jastadd/jastadd2/issues/277/generated-code-for-refined-methods-with)
+  Fixed error in generic method refinement.
+* [Issue 276:](https://bitbucket.org/jastadd/jastadd2/issues/276/parameterized-attributes-arent-fully)
+  Fixed resetting of a cache field for parameterized attributes.
+* [Issue 269:](https://bitbucket.org/jastadd/jastadd2/issues/269/jmodelica-build-is-too-slow)
+  Fixed exponential time complexity in inherited equation error checking.
+* [Issue 72,](https://bitbucket.org/jastadd/jastadd2/issues/72/old-nta-syntax-requires-lazy)
+  [issue 263,](https://bitbucket.org/jastadd/jastadd2/issues/263/it-is-possible-to-make-an-nta-uncached-via)
+  [issue 6:](https://bitbucket.org/jastadd/jastadd2/issues/6/old-nta-containg-new-nta-circular)
+  All NTAs (old and new style) are now always memoized, and the `lazy` keyword
+  is optional.
+* Added the missing `inhEqCheck` option in the JastAdd Ant task.
+
+### Miscellaneous
+
+* [Issue 270:](https://bitbucket.org/jastadd/jastadd2/issues/270/annotation-on-constructor)
+  Added a generated annotation to constructors specifying which child the
+  constructor arguments map to.
+* Added missing documentation comments for several generated methods.
+* [Pull request 1:](https://bitbucket.org/jastadd/jastadd2/pull-requests/1/added-method-addall-javalangiterable-c-to/diff)
+  Added the `addAll` method in the generated `List` class.
+* Parameter names are now optional in cache declarations.
+* [Issue 205:](https://bitbucket.org/jastadd/jastadd2/issues/205/remove-child-index-for-inherited-equation)
+  Inherited equations for parameterized NTAs can no longer use a child index
+  parameter.
+
+### Deprecation
+
+* Removed the deprecated class `jastadd.JastAdd` - use `org.jastadd.JastAdd`
+  instead.
+* Removed the deprecated class `jastadd.JastAddTask` - use
+  `org.jastadd.JastAddTask` instead.
+
 2.2.2 - 2016-03-24
 ------------------
 
