@@ -455,9 +455,7 @@ public aspect Attributes {
     for (int i = 0; i < getNumTypeDecl(); i++) {
       TypeDecl typeDecl = getTypeDecl(i);
       if (!(typeDecl instanceof InterfaceDecl)) {
-        typeDecl.processReplacements();
         typeDecl.processRefinedClassBodyDecls();
-        typeDecl.processSynEqReplacements();
         typeDecl.processRefinedSynEqs();
         typeDecl.processRefinedInhEqs();
       }
@@ -468,9 +466,7 @@ public aspect Attributes {
     for (int i = 0; i < getNumTypeDecl(); i++) {
       TypeDecl typeDecl = getTypeDecl(i);
       if (typeDecl instanceof InterfaceDecl) {
-        typeDecl.processReplacements();
         typeDecl.processRefinedClassBodyDecls();
-        typeDecl.processSynEqReplacements();
         typeDecl.processRefinedSynEqs();
         typeDecl.processRefinedInhEqs();
       }
@@ -502,73 +498,7 @@ public aspect Attributes {
     }
   }
 
-  public void Grammar.addReplacedSynEq(String name, String className,
-      org.jastadd.jrag.AST.SimpleNode rhs, String fileName, int startLine, int endLine,
-      org.jastadd.ast.AST.List list, String aspectName, String secondAspectName,
-      org.jastadd.jrag.AST.SimpleNode node, String declaredAspect) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      SynEq equ = new SynEq();
-      equ.setName(name);
-      equ.setFileName(fileName);
-      equ.setStartLine(startLine);
-      equ.setEndLine(endLine);
-      equ.setRHS(rhs);
-      equ.setParameterList(list);
-      equ.refinesAspect = aspectName;
-      equ.replacesAspect = secondAspectName;
-      equ.setComment(Unparser.unparseComment(node));
-      equ.setAspectName(declaredAspect);
-      c.replacedSynEqs.add(equ);
-    } else {
-      error("can not add equation for synthesized attribute " + name + " to unknown class "
-          + className, fileName, startLine);
-    }
-  }
-
   public String AttrEq.replacesAspect = null;
-
-  public Collection<SynEq> TypeDecl.replacedSynEqs = new LinkedList<SynEq>();
-
-  public void TypeDecl.processSynEqReplacements() {
-    boolean change = true;
-    ArrayList list = new ArrayList();
-    while (change && !replacedSynEqs.isEmpty()) {
-      change = false;
-      Iterator<SynEq> iter = refinedSynEqs.iterator();
-      while (iter.hasNext()) {
-        SynEq decl = iter.next();
-        SynEq refinedDecl = null;
-        Iterator<SynEq> outerIter = replacedSynEqs.iterator();
-        while (outerIter.hasNext()) {
-          SynEq refinedCandidate = outerIter.next();
-          boolean legacyCondition = config().refineLegacy()
-              && decl.legacyAspectName().equals(refinedCandidate.replacesAspect);
-          if (decl.signature().equals(refinedCandidate.signature())
-              && (decl.aspectName().equals(refinedCandidate.replacesAspect) || legacyCondition)) {
-            change = true;
-            if (refinedDecl == null) {
-              refinedDecl = refinedCandidate;
-            } else {
-              grammar().error("refinement previously defined at " +
-                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
-                  refinedDecl.getFileName(), refinedDecl.getStartLine());
-            }
-            outerIter.remove();
-          }
-        }
-        if (refinedDecl != null) {
-          iter.remove();
-          refinedDecl.replacesAspect = null;
-          list.add(refinedDecl);
-        }
-      }
-      refinedSynEqs.addAll(list);
-    }
-    for (SynEq equ : replacedSynEqs) {
-      refineError("equation", equ.getFileName(), equ.getStartLine());
-    }
-  }
 
   public String AttrEq.refinesAspect = null;
 
@@ -819,20 +749,6 @@ public aspect Attributes {
     }
   }
 
-  public void Grammar.addReplacedClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
-      String className, String fileName, String aspectName, String replacedAspect,
-      org.jastadd.jrag.AST.SimpleNode replacedSignature, String declaredAspect) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      ClassBodyObject o = new ClassBodyObject(n, fileName, n.firstToken.beginLine, declaredAspect);
-      o.refinesAspect = aspectName;
-      o.replaceAspect = replacedAspect;
-      c.replacements.add(o);
-    } else {
-      error("can not add member to unknown class " + className + " in " + fileName);
-    }
-  }
-
   /*
   process all refine - to
     if there are multiple refines to that target the same class body decl then error
@@ -885,48 +801,6 @@ public aspect Attributes {
       classBodyDecls.addAll(list);
     }
     for (ClassBodyObject decl : refinedClassBodyDecls) {
-      refineError("method", decl.getFileName(), decl.getStartLine());
-    }
-  }
-
-  public Collection<ClassBodyObject> TypeDecl.replacements = new LinkedList<ClassBodyObject>();
-
-  public void TypeDecl.processReplacements() {
-    boolean change = true;
-    ArrayList list = new ArrayList();
-    while (change && !replacements.isEmpty()) {
-      change = false;
-      Iterator<ClassBodyObject> iter = refinedClassBodyDecls.iterator();
-      while (iter.hasNext()) {
-        ClassBodyObject decl = iter.next();
-        ClassBodyObject refinedDecl = null;
-        Iterator<ClassBodyObject> outerIter = replacements.iterator();
-        while (outerIter.hasNext()) {
-          ClassBodyObject refinedCandidate = outerIter.next();
-          boolean legacyCondition = config().refineLegacy()
-              && decl.legacyAspectName().equals(refinedCandidate.replaceAspect);
-          if (decl.signature().equals(refinedCandidate.signature())
-             && (decl.aspectName().equals(refinedCandidate.replaceAspect) || legacyCondition)) {
-            change = true;
-            if (refinedDecl == null) {
-              refinedDecl = refinedCandidate;
-            } else {
-              grammar().error("refinement previously defined at " +
-                  refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
-                  refinedDecl.getFileName(), refinedDecl.getStartLine());
-            }
-            outerIter.remove();
-          }
-        }
-        if (refinedDecl != null) {
-          iter.remove();
-          replaceWith(refinedDecl);
-          list.add(refinedDecl);
-        }
-      }
-      refinedClassBodyDecls.addAll(list);
-    }
-    for (ClassBodyObject decl : replacements) {
       refineError("method", decl.getFileName(), decl.getStartLine());
     }
   }

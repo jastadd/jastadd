@@ -965,19 +965,9 @@ void AspectRefineMethodDeclaration() :
   Modifiers()
   [ TypeParameters() ]
   AspectResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
-  (( Block() | ";" ) {
+  ( Block() | ";" ) {
     root.addRefinedClassBodyDecl(jjtThis, className, fileName, aspectName, enclosingAspect);
   }
-  | (
-      // TODO(joqvist): what is this 'to' thing? Found no documentation/tests.
-      "to" <REFINE> t = <IDENTIFIER> { secondAspectName = t.image; t.image = ""; }
-      Modifiers()
-      [ TypeParameters() ]
-      AspectResultType() t = <IDENTIFIER> "." { className = t.image; } MethodDeclarator() [ "throws" NameList() ]
-      ( Block() | ";" ) {
-        root.addReplacedClassBodyDecl(jjtThis, className, fileName, secondAspectName, aspectName, null, enclosingAspect);
-      })
-    )
 }
 void AspectConstructorDeclaration() :
 {Token t;}
@@ -1237,28 +1227,9 @@ void AspectRefineSynEquation() :
 
   ")"
 
-  (
   (  ( ("=" eq = Expression() ";" { last = token; })
     | eq = Block() { last = token; } )
     { root.addRefinedSynEq(attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, aspectName.image, jjtThis, enclosingAspect); }
-  )
-
-  |
-
-  ( "to" <REFINE> secondAspectName = <IDENTIFIER>
-    "eq" <IDENTIFIER> "." AttributeName()
-    "("
-    [
-      type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); }
-      ( "," type = Type() name = <IDENTIFIER> { list.add(new org.jastadd.ast.AST.Parameter(type, name.image)); })*
-    ]
-
-    ")"
-
-    ( ("=" eq = Expression() ";" { last = token; })
-    | eq = Block() { last = token; } )
-    { root.addReplacedSynEq(attrName.image, targetName.image, eq, fileName, first.beginLine, last.endLine, list, secondAspectName.image, aspectName.image, jjtThis, enclosingAspect); }
-  )
   )
 }
 
