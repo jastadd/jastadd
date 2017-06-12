@@ -138,10 +138,10 @@ aspect JaddCodeGen {
     int i = 0;
     for (Component c : components()) {
       if (c instanceof ListComponent) {
-        childInit.append("setChild(new " + config().listType() + "(), " + i + ");\n");
+        childInit.append("setChild(" + config().listType() + ".EMPTY, " + i + ");\n");
         i++;
       } else if (c instanceof OptionalComponent) {
-        childInit.append("setChild(new " + config().optType() + "(), " + i + ");\n");
+        childInit.append("setChild(" + config().optType() + ".EMPTY, " + i + ");\n");
         i++;
       } else if (c instanceof AggregateComponent) {
         i++;
@@ -169,8 +169,7 @@ aspect JaddCodeGen {
           TokenComponent t = (TokenComponent)c;
           String tokenId = t.getTokenId().getID();
           out.format("%sset%s(p%d);%n", config().ind(2), tokenId, param);
-        }
-        else {
+        } else {
           out.format("%ssetChild(p%d, %d);%n", config().ind(2), param, childIndex);
           childIndex++;
         }
@@ -449,7 +448,7 @@ aspect JaddCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    return tt.expand("OptionalComponent.checkComponentStructure");
+    return tt.expand("AggregateComponents.checkComponentStructure");
   }
 
   eq AggregateComponent.checkComponentStructure(int childIndex) {
@@ -538,8 +537,10 @@ aspect JaddCodeGen {
       grammar().genReset(out);
     } else if (isListDecl()) {
       emitImplicitListDecls(out);
+        templateContext().expand("List.additionalDeclarations", out);
     } else if (isOptDecl()) {
-      // Do not override getNumChild with regular node implementation.
+      templateContext().expand("Opt.additionalDeclarations", out);
+      // do not override getNumChild with regular node implementation
     } else {
       emitImplicitRegularNodeDecls(out);
     }

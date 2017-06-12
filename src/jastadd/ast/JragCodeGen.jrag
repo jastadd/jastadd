@@ -549,6 +549,51 @@ aspect JragCodeGen {
     }
   }
 
+
+  /**
+   * @return {@code true} if this attribute matches an Opt NTA component declared
+   * in the grammar
+   */
+  public boolean AttrDecl.isOptNTA() {
+    if (!getName().startsWith("get")) return false;
+    String attrName = getName().substring(3);
+    TypeDecl c = hostClass();
+    while (c != null) {
+      for (Component comp : c.components()) {
+        if (comp.name().equals(attrName) && comp instanceof OptionalComponentNTA) {
+          return true;
+        }
+        if (attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA) {
+          return true;
+        }
+      }
+      c = c instanceof ASTDecl ? ((ASTDecl)c).superClass() : null;
+    }
+    return false;
+  }
+
+  /**
+   * @return {@code true} if this attribute matches a List NTA component declared
+   * in the grammar
+   */
+  public boolean AttrDecl.isListNTA() {
+    if (!getName().startsWith("get")) return false;
+    String attrName = getName().substring(3);
+    TypeDecl c = hostClass();
+    while (c != null) {
+      for (Component comp : c.components()) {
+        if (comp.name().equals(attrName) && comp instanceof ListComponentNTA) {
+          return true;
+        }
+        if (attrName.equals(comp.name() + "List") && comp instanceof ListComponentNTA) {
+          return true;
+        }
+      }
+      c = c instanceof ASTDecl ? ((ASTDecl)c).superClass() : null;
+    }
+    return false;
+  }
+
   /**
    * @return {@code true} if this attribute matches an NTA component declared
    * in the grammar

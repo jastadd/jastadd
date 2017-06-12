@@ -296,7 +296,13 @@ $endif
       $include(ASTNode.incHookSetChild3)
     }
     $include(ASTNode.incHookSetChild4)
-    children[i] = node;
+    if ($include(Opt.isEmpty)) {
+      children[i] = $Opt.EMPTY;
+    } else if ($include(List.isEmpty)) {
+      children[i] = $List.EMPTY;
+    } else {
+      children[i] = node;
+    }
     if (i >= numChildren) {
       numChildren = i+1;
     }

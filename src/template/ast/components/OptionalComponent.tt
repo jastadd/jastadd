@@ -25,10 +25,36 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+Opt.isEmpty [[$Opt.EMPTY == node || node instanceof $Opt && (($Opt) node).numChildren() <= 0]]
+
+Opt.additionalDeclarations [[
+
+  protected static final $Opt $Opt.EMPTY = new $Opt() {
+
+    @Override
+    public void insertChild($ASTNode node, int i) {
+      throw new Error("attempting to insertChild() on empty $(Opt) singleton!");
+    }
+    @Override
+    public void addChild($ASTNode node) {
+      throw new Error("attempting to addChild() on empty $(Opt) singleton!");
+    }
+    @Override
+    public void removeChild(int i) {
+      throw new Error("attempting to removeChild() on empty $(Opt) singleton!");
+    }
+    @Override
+    public void setChild($ASTNode child, int pos) {
+      throw new Error("attempting to setChild() in empty $Opt singleton!");
+    }
+  };
+]]
+
 OptionalComponent [[
+
 $if(!#isNTA)
   /**
-   * Replaces the optional node for the $Name child. This is the <code>Opt</code>
+   * Replaces the optional node for the $Name child. This is the <code>$Opt</code>
    * node containing the child $Name, not the actual child!
    * @param opt The new node to be used as the optional node for the $Name child.
    * @apilevel low-level
@@ -62,7 +88,15 @@ $endif
   $Modifier void $Host.set$Name($Type node) {
     $SynchBegin
     $include(State.incHookConstructionStart)
-    get$(Name)Opt().setChild(node, 0);
+$if(#isNTA)
+    get$(Name)Opt().setChild(node, 0); //TODO need to check if getOpt is the singleton, since we check the _value on return
+$else
+    if (node != null) {
+      setChild(new $Opt(node), $Index);
+    } else {
+      setChild($Opt.EMPTY, $Index);
+    }
+$endif
     $include(State.incHookConstructionEnd)
     $SynchEnd
   }
@@ -92,7 +126,7 @@ $endif
 
 $if(#isNTA)
   /**
-   * Retrieves the optional node for child $Name. This is the <code>Opt</code> node containing the child $Name, not the actual child!
+   * Retrieves the optional node for child $Name. This is the <code>$Opt</code> node containing the child $Name, not the actual child!
    * <p><em>This method does not invoke AST transformations.</em></p>
    * @return The optional node for child $Name.
    * @apilevel low-level
@@ -115,7 +149,7 @@ $if(#isNTA)
 $else
 
   /**
-   * Retrieves the optional node for the $Name child. This is the <code>Opt</code> node containing the child $Name, not the actual child!
+   * Retrieves the optional node for the $Name child. This is the <code>$Opt</code> node containing the child $Name, not the actual child!
    * @return The optional node for child the $Name child.
    * @apilevel low-level
    */
@@ -128,7 +162,7 @@ $else
   }
 
   /**
-   * Retrieves the optional node for child $Name. This is the <code>Opt</code> node containing the child $Name, not the actual child!
+   * Retrieves the optional node for child $Name. This is the <code>$Opt</code> node containing the child $Name, not the actual child!
    * <p><em>This method does not invoke AST transformations.</em></p>
    * @return The optional node for child $Name.
    * @apilevel low-level
