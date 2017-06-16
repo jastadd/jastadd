@@ -290,6 +290,10 @@ public class JastAddTask extends Task {
     setOption(config.statisticsOption, arg);
   }
 
+  public void setEmptyContainerSingletons(boolean enable) {
+    setOption(config.emptyContainerSingletons, enable);
+  }
+
   @Override
   public void execute() throws BuildException {
     System.err.println("generating node types and weaving aspects");

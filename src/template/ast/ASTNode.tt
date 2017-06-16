@@ -296,6 +296,7 @@ $endif
       $include(ASTNode.incHookSetChild3)
     }
     $include(ASTNode.incHookSetChild4)
+$if(EmptyContainerSingletons)
     if ($include(Opt.isEmpty)) {
       children[i] = $Opt.EMPTY;
     } else if ($include(List.isEmpty)) {
@@ -303,6 +304,9 @@ $endif
     } else {
       children[i] = node;
     }
+$else
+    children[i] = node;
+$endif
     if (i >= numChildren) {
       numChildren = i+1;
     }

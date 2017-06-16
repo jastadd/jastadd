@@ -29,34 +29,34 @@
 List.isEmpty [[node instanceof $List && (($List) node).numChildren() <= 0]]
 
 List.additionalDeclarations [[
-
+$if(EmptyContainerSingletons)
 protected static final $List $List.EMPTY = new $(List)() {
   @Override
   public $List add($ASTNode node) {
-      throw new Error("attempting to add() on empty $(List) singleton!");
+    throw new Error("attempting to add() on empty $(List) singleton!");
   }
   @Override
   public $List addAll(Iterable c) {
-      throw new Error("attempting to addAll() on empty $(List) singleton!");
+    throw new Error("attempting to addAll() on empty $(List) singleton!");
   }
   @Override
   public void insertChild($ASTNode node, int i) {
-      throw new Error("attempting to insertChild() on empty $(List) singleton!");
+    throw new Error("attempting to insertChild() on empty $(List) singleton!");
   }
   @Override
   public void addChild($ASTNode node) {
-      throw new Error("attempting to addChild() on empty $(List) singleton!");
+    throw new Error("attempting to addChild() on empty $(List) singleton!");
   }
   @Override
   public void removeChild(int i) {
-      throw new Error("attempting to removeChild() on empty $(List) singleton!");
+    throw new Error("attempting to removeChild() on empty $(List) singleton!");
   }
   @Override
   public void setChild($ASTNode child, int pos) {
     throw new Error("attempting to setChild() in empty $List singleton!");
   }
  };
-
+$endif
 ]]
 
 # List component boilerplate code for accessing children etc.
@@ -144,11 +144,15 @@ $endif
   $Modifier void $Host.add$Name($Type node) {
     $SynchBegin
     $ListType list = (parent == null) ? get$(Name)ListNoTransform() : get$(Name)List();
+$if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
       setChild(new $List(node), $Index);
     } else {
-    list.addChild(node);
+      list.addChild(node);
     }
+$else
+    list.addChild(node);
+$endif
     $SynchEnd
   }
 
@@ -156,11 +160,15 @@ $endif
   $Modifier void $Host.add$(Name)NoTransform($Type node) {
     $SynchBegin
     $ListType list = get$(Name)ListNoTransform();
+$if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
       setChild(new $List(node), $Index);
     } else {
-    list.addChild(node);
+      list.addChild(node);
     }
+$else
+    list.addChild(node);
+$endif
     $SynchEnd
   }
 
@@ -174,11 +182,15 @@ $endif
     $SynchBegin
     $ListType list = get$(Name)List();
     $include(State.incHookConstructionStart)
+$if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
       setChild(new $List(node), $Index);
     } else {
-    list.setChild(node, i);
+      list.setChild(node, i);
     }
+$else
+    list.setChild(node, i);
+$endif
     $include(State.incHookConstructionEnd)
     $SynchEnd
   }

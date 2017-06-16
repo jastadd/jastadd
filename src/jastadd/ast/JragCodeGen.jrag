@@ -555,7 +555,9 @@ aspect JragCodeGen {
    * in the grammar
    */
   public boolean AttrDecl.isOptNTA() {
-    if (!getName().startsWith("get")) return false;
+    if (!getName().startsWith("get")) {
+      return false;
+    }
     String attrName = getName().substring(3);
     TypeDecl c = hostClass();
     while (c != null) {
@@ -577,7 +579,9 @@ aspect JragCodeGen {
    * in the grammar
    */
   public boolean AttrDecl.isListNTA() {
-    if (!getName().startsWith("get")) return false;
+    if (!getName().startsWith("get")) {
+      return false;
+    }
     String attrName = getName().substring(3);
     TypeDecl c = hostClass();
     while (c != null) {

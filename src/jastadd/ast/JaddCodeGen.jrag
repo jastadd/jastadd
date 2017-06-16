@@ -138,10 +138,18 @@ aspect JaddCodeGen {
     int i = 0;
     for (Component c : components()) {
       if (c instanceof ListComponent) {
-        childInit.append("setChild(" + config().listType() + ".EMPTY, " + i + ");\n");
+        if (config().emptyContainerSingletons()) {
+          childInit.append("setChild(" + config().listType() + ".EMPTY, " + i + ");\n");
+        } else {
+          childInit.append("setChild(new " + config().listType() + "(), " + i + ");\n");
+        }
         i++;
       } else if (c instanceof OptionalComponent) {
-        childInit.append("setChild(" + config().optType() + ".EMPTY, " + i + ");\n");
+        if (config().emptyContainerSingletons()) {
+          childInit.append("setChild(" + config().optType() + ".EMPTY, " + i + ");\n");
+        } else {
+          childInit.append("setChild(new " + config().optType() + "(), " + i + ");\n");
+        }
         i++;
       } else if (c instanceof AggregateComponent) {
         i++;

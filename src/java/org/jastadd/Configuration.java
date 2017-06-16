@@ -389,6 +389,11 @@ public class Configuration {
 
   Collection<String> filenames = new LinkedList<String>();
 
+  Option<Boolean> emptyContainerSingletons = new FlagOption("emptyContainerSingletons",
+      "singleton optimization for empty container nodes")
+      .templateVariable("EmptyContainerSingletons")
+      .nonStandard();
+
   /**
    * Indicates if there were unknown command-line options
    */
@@ -469,6 +474,9 @@ public class Configuration {
 
     // New since 2.2.3:
     allOptions.add(statisticsOption);
+
+    // New since 2.2.4:
+    allOptions.add(emptyContainerSingletons);
 
     // Deprecated in 2.1.5.
     allOptions.add(doxygenOption);
@@ -1287,5 +1295,12 @@ public class Configuration {
    */
   public boolean generateAnnotations() {
     return generateAnnotations.value(); 
+  }
+
+  /**
+   * @return {@code true} if the empty container singleton optimization should be used.
+   */
+  public boolean emptyContainerSingletons() {
+    return emptyContainerSingletons.value();
   }
 }

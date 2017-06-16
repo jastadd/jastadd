@@ -93,7 +93,11 @@ aspect ASTCloneNode {
         while (iter.hasNext()) {
           skipNTAs += "case " + (iter.next()) + ":\n";
         }
-        skipNTAs += ind + "tree.children[i] = " + config().optType() + ".EMPTY;\n";
+        if (config().emptyContainerSingletons()) {
+          skipNTAs += ind + "tree.children[i] = " + config().optType() + ".EMPTY;\n";
+        } else {
+          skipNTAs += ind + "tree.children[i] = new " + config().optType() + "();\n";
+        }
         skipNTAs += ind + "continue;\n";
       }
       if (!ntaListIndices.isEmpty()) {
@@ -101,7 +105,11 @@ aspect ASTCloneNode {
         while (iter.hasNext()) {
           skipNTAs += "case " + (iter.next()) + ":\n";
         }
-        skipNTAs += ind + "tree.children[i] = " + config().listType() + ".EMPTY;\n";
+        if (config().emptyContainerSingletons()) {
+          skipNTAs += ind + "tree.children[i] = " + config().listType() + ".EMPTY;\n";
+        } else {
+          skipNTAs += ind + "tree.children[i] = new " + config().listType() + "();\n";
+        }
         skipNTAs += ind + "continue;\n";
       }
       skipNTAs += "}\n";

@@ -295,12 +295,18 @@ AttrDecl.emitEquation [[
     $include(AttrDecl.enterLazyAttribute)
     $include(AttrDecl.traceComputeBegin)
     #computeLhs = $ComputeRhs;
+$if(EmptyContainerSingletons)
   $if(#isOptNTA)
-    if(#(signature)_value.numChildren() <= 0) #(signature)_value  = Opt.EMPTY;
+    if(#(signature)_value.numChildren() <= 0) {
+      #(signature)_value  = Opt.EMPTY;
+    }
   $endif
   $if(#isListNTA)
-    if(#(signature)_value.numChildren() <= 0) #(signature)_value  = List.EMPTY;
+    if(#(signature)_value.numChildren() <= 0) {
+      #(signature)_value  = List.EMPTY;
+    }
   $endif
+$endif
     $include(AttrDecl.traceComputeEnd)
     #higherOrderAttributeCode
     $include(AttrDecl.cacheUpdate)
