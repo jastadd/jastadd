@@ -456,14 +456,14 @@ aspect JaddCodeGen {
     TemplateContext tt = templateContext();
     tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    return tt.expand("AggregateComponents.checkComponentStructure");
+    return tt.expand("OptionalComponent.checkComponentStructure");
   }
 
   eq AggregateComponent.checkComponentStructure(int childIndex) {
     TemplateContext tt = templateContext();
     tt.bind("ChildIndex", "" + childIndex);
     tt.bind("HostClassName", hostClass().name());
-    return tt.expand("AggregateComponents.checkComponentStructure");
+    return tt.expand("AggregateComponent.checkComponentStructure");
   }
 
   syn String ASTDecl.jjtGenPrintChildren() {

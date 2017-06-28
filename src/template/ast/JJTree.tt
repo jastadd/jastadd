@@ -88,7 +88,21 @@ ListComponent.checkComponentStructure = [[
   }
 ]]
 
-AggregateComponents.checkComponentStructure = [[
+OptionalComponent.checkComponentStructure = [[
+if (i == $ChildIndex) {
+  if (!(n instanceof $Opt)) {
+    throw new Error("Child number $ChildIndex of $HostClassName has the type " +
+        n.getClass().getName() + " which is not an instance of $Opt");
+  }
+  if ((($Opt) n).getNumChildNoTransform() != 0 && !((($Opt) n).getChildNoTransform(0) instanceof #type)) {
+    throw new Error("Optional name() has the type " +
+        (($Opt) n).getChildNoTransform(0).getClass().getName() +
+        " which is not an instance of #type");
+  }
+}
+]]
+
+AggregateComponent.checkComponentStructure = [[
 if (i == $ChildIndex && !(n instanceof #type)) {
  throw new Error("Child number $ChildIndex of $HostClassName has the type " +
    n.getClass().getName() + " which is not an instance of #type");
