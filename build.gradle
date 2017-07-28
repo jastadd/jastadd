@@ -90,11 +90,13 @@ task copyResources(type: Copy) {
 	into 'src/gen-res/template'
 }
 
-task release(dependsOn: [ 'sourceZip', 'binaryZip' ]) << {
-	if (!project.hasProperty('newVersion')) {
-		throw new GradleException('You should add -PnewVersion=<VERSION> so the release task embeds the correct version string!')
+task release(dependsOn: [ 'sourceZip', 'binaryZip' ]) {
+	doLast {
+		if (!project.hasProperty('newVersion')) {
+			throw new GradleException('You should add -PnewVersion=<VERSION> so the release task embeds the correct version string!')
+		}
+		assert version.equals(newVersion)
 	}
-	assert version.equals(newVersion)
 }
 
 task sourceZip(type: Zip, dependsOn: 'documentation') {
@@ -164,24 +166,26 @@ task binaryZip(type: Zip) {
 	into 'jastadd2-bin'
 }
 
-task documentation << {
-	println 'Processing Markdown files'
-	ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {
-		filterset {
-			filter(token: 'VERSION', value: version)
+task documentation {
+  doLast {
+		println 'Processing Markdown files'
+		ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {
+			filterset {
+				filter(token: 'VERSION', value: version)
+			}
 		}
-	}
-	ant.chainedmapper(id: 'mdmapper') {
-		flattenmapper()
-		globmapper(from: '*.md', to: "doc${File.separator}*.html")
-	}
-	ant.apply(executable: 'python', dest: 'doc') {
-		arg(value: 'tools/pymarkdown.py')
-		srcfile()
-		fileset(dir: 'doc', includes: '*.md')
-		mapper(refid: 'mdmapper')
-		redirector {
-			outputmapper(refid: 'mdmapper')
+		ant.chainedmapper(id: 'mdmapper') {
+			flattenmapper()
+			globmapper(from: '*.md', to: "doc${File.separator}*.html")
+		}
+		ant.apply(executable: 'python', dest: 'doc') {
+			arg(value: 'tools/pymarkdown.py')
+			srcfile()
+			fileset(dir: 'doc', includes: '*.md')
+			mapper(refid: 'mdmapper')
+			redirector {
+				outputmapper(refid: 'mdmapper')
+			}
 		}
 	}
 }
