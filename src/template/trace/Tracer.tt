@@ -106,22 +106,11 @@ public static class Trace {
   }
 
   /**
-   * Add a trace event for an attribute instance.
-   * @param node The host node.
-   * @param attr The attribute name.
-   * @param params The parameter list.
-   * @param value The current value of the attribute instance.
-   */
-  private void add($StateClass.Trace.Event evt, $ASTNode node, String attr, Object params, Object value) {
-    receiver.accept(evt, node, attr, params, value);
-  }
-
-  /**
    * Trace that an attribute instance started its computation.
    * @param value The value of the attribute instance.
    */
   public void computeBegin($ASTNode node, String attr, Object params, Object value) {
-    add(Event.COMPUTE_BEGIN, node, attr, params, value);
+    receiver.accept(Event.COMPUTE_BEGIN, node, attr, params, value);
   }
 
   /**
@@ -129,7 +118,7 @@ public static class Trace {
    * @param value The value of the attribute instance.
    */
   public void computeEnd($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.COMPUTE_END, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.COMPUTE_END, node, attr, params, value);
   }
 
   /**
@@ -137,7 +126,7 @@ public static class Trace {
    * @param value The value of the attribute instance.
    */
   public void cacheRead($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CACHE_READ, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CACHE_READ, node, attr, params, value);
   }
 
   /**
@@ -145,7 +134,7 @@ public static class Trace {
    * @param value The value of the attribute instance.
    */
   public void cacheWrite($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CACHE_WRITE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CACHE_WRITE, node, attr, params, value);
   }
 
   /**
@@ -153,7 +142,7 @@ public static class Trace {
    * @param value The value of the attribute instance.
    */
   public void cacheAbort($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CACHE_ABORT, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CACHE_ABORT, node, attr, params, value);
   }
 
   /**
@@ -161,7 +150,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void enterRewriteCase1($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.REWRITE_CASE1_START, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_START, node, attr, params, value);
   }
 
   /**
@@ -169,7 +158,7 @@ public static class Trace {
    * @param value The value of the rewrite before and after.
    */
   public void rewriteChange($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.REWRITE_CASE1_CHANGE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_CHANGE, node, attr, params, value);
   }
 
   /**
@@ -177,7 +166,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void exitRewriteCase1($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.REWRITE_CASE1_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_RETURN, node, attr, params, value);
   }
 
   /**
@@ -185,7 +174,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void exitRewriteCase2($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.REWRITE_CASE2_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE2_RETURN, node, attr, params, value);
   }
 
   /**
@@ -193,7 +182,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void exitRewriteCase3($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.REWRITE_CASE3_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
@@ -201,7 +190,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance.
    */
   public void enterCircularCase1($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE1_START, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_START, node, attr, params, value);
   }
 
   /**
@@ -209,7 +198,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance, before and after.
    */
   public void circularCase1Change($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE1_CHANGE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_CHANGE, node, attr, params, value);
   }
 
   /**
@@ -217,7 +206,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance.
    */
   public void exitCircularCase1($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE1_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_RETURN, node, attr, params, value);
   }
 
   /**
@@ -225,7 +214,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance.
    */
   public void enterCircularCase2($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE2_START, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_START, node, attr, params, value);
   }
 
   /**
@@ -233,7 +222,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance, before and after.
    */
   public void circularCase2Change($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE2_CHANGE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_CHANGE, node, attr, params, value);
   }
 
   /**
@@ -241,7 +230,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance.
    */
   public void exitCircularCase2($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE2_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_RETURN, node, attr, params, value);
   }
 
   /**
@@ -249,7 +238,7 @@ public static class Trace {
    * @param value The value of the circular attribute instance.
    */
   public void exitCircularCase3($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_CASE3_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
@@ -257,7 +246,7 @@ public static class Trace {
    * @param value The value of the circular NTA.
    */
   public void enterCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START, node, attr, params, value);
   }
 
   /**
@@ -265,7 +254,7 @@ public static class Trace {
    * @param value The value of the circular NTA, before and after.
    */
   public void circularNTACase1Change($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_CHANGE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_CHANGE, node, attr, params, value);
   }
 
   /**
@@ -273,7 +262,7 @@ public static class Trace {
    * @param value The value of the circular NTA.
    */
   public void exitCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN, node, attr, params, value);
   }
 
   /**
@@ -281,7 +270,7 @@ public static class Trace {
    * @param value The value of the circular NTA.
    */
   public void enterCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START, node, attr, params, value);
   }
 
   /**
@@ -289,7 +278,7 @@ public static class Trace {
    * @param value The value of the circular NTA, before and after.
    */
   public void circularNTACase2Change($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_CHANGE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_CHANGE, node, attr, params, value);
   }
 
   /**
@@ -297,7 +286,7 @@ public static class Trace {
    * @param value The value of the circular NTA.
    */
   public void exitCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN, node, attr, params, value);
   }
 
   /**
@@ -305,7 +294,7 @@ public static class Trace {
    * @param value The value of the circular NTA.
    */
   public void exitCircularNTACase3($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.CIRCULAR_NTA_CASE3_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE3_RETURN, node, attr, params, value);
   }
 
   /**
@@ -314,7 +303,7 @@ public static class Trace {
    * @param value The value of the node.
    */
   public void copyNode($ASTNode node, Object value) {
-    add($StateClass.Trace.Event.COPY_NODE, node, "ASTNode.copy", "", value);
+    receiver.accept($StateClass.Trace.Event.COPY_NODE, node, "ASTNode.copy", "", value);
   }
 
   /**
@@ -322,7 +311,7 @@ public static class Trace {
    * @param value The value of the attribute.
    */
   public void flushAttr($ASTNode node, String attr, Object params, Object value) {
-    add($StateClass.Trace.Event.FLUSH_ATTR, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.FLUSH_ATTR, node, attr, params, value);
   }
 }
 $endif
