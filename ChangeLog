@@ -1,3 +1,12 @@
+2017-08-29  Jesper Öqvist <jesper.oqvist@cs.lth.se>
+
+    * Added the --concurrent option to generate thread-safe attribute evaluation code.
+    * Added possibility to parallelize collection attributes using annotations.
+    The @Parallel annotation causes the collection phase to be parallelized,
+    and the @ParallelSurvey annotation causes the survey phase to be parallelized.
+    The number of threads used in parallel collection attribute evaluation is
+    controlled using the --num_threads option.
+
 2017-03-01  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Upgraded bootstrapping JastAdd version from 2.2.0 to 2.2.2.

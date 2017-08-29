@@ -114,6 +114,14 @@ public class JastAddTask extends Task {
     setOption(config.beaverOption, enable);
   }
 
+  public void setConcurrent(boolean enable) {
+    setOption(config.concurrentOption, enable);
+  }
+
+  public void setnum_threads(int num) {
+    setOption(config.numThreadsOption, "" + num);
+  }
+
   public void setLineColumnNumbers(boolean enable) {
     setOption(config.lineColumnNumbersOption, enable);
   }

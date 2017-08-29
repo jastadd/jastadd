@@ -51,6 +51,16 @@ aspect AttributeKind {
 aspect JragCodeGen {
 
   /**
+   * When generating concurrent evaluation code, the collection survey phase needs to
+   * be synchronized for parallelized collection attributes.
+   *
+   * <p>Note: collection attributes are not parallelized unless specified by annotation.
+   */
+  syn String AttrDecl.synchronizedModifier() = "";
+  eq CollDecl.synchronizedModifier() =
+      config().concurrentEval() && (parallel() || parallelSurvey()) ? "synchronized " : "";
+
+  /**
    * Generate the declaredat documentation tag. If no file name is available
    * then no tag is generated.
    *
@@ -111,6 +121,21 @@ aspect JragCodeGen {
 
   public String Grammar.genImportsList() {
     Set imports = new LinkedHashSet();
+    if (config().concurrentEval()) {
+      // Extra import declarations needed for concurrent code generation.
+      imports.add("import java.util.concurrent.atomic.AtomicInteger;");
+      imports.add("import java.util.concurrent.atomic.AtomicReference;");
+      imports.add("import java.util.concurrent.Future;");
+      imports.add("import java.util.concurrent.Executors;");
+      imports.add("import java.util.concurrent.ExecutorService;");
+      imports.add("import java.util.concurrent.ExecutionException;");
+      imports.add("import java.util.concurrent.Callable;");
+      imports.add("import java.util.concurrent.ConcurrentMap;");
+      imports.add("import java.util.concurrent.ConcurrentHashMap;");
+      imports.add("import java.util.ArrayList;");
+      imports.add("import java.util.LinkedList;");
+      imports.add("import java.util.Collection;");
+    }
     for (org.jastadd.jrag.AST.ASTCompilationUnit u : compilationUnits) {
       imports.addAll(Unparser.getImports(u));
     }
@@ -298,6 +323,33 @@ aspect JragCodeGen {
   }
 
   syn boolean TokenComponent.isPrimitive() = AttrDecl.isPrimitiveType(getTokenId().getTYPE());
+
+  /**
+   * @return {@code true} if this attribute returns only non-nullable values.
+   */
+  syn boolean AttrDecl.isNonNull() = isPrimitive(); // || declaredNonNull(); // TODO: implement annotation.
+
+  /**
+   * Returns {@code true} if the result of this attribute is always identical
+   * when evaluated multiple times. This is true for primitive attributes and
+   * pure reference attributes, but not for attributes that construct a new
+   * object as the result.
+   */
+  syn boolean AttrDecl.isIdentityComparable() =
+      !(declaredNTA() || isAttrNTA()) && (isPrimitive() || isReferenceAttribute());
+
+  /**
+   * @return {@code true} if the return type is among the AST node types in the abstract grammar.
+   */
+  syn boolean AttrDecl.isReferenceAttribute() {
+    if (!isPrimitive()) {
+      TypeDecl typeDecl = grammar().lookup(getType());
+      if (typeDecl instanceof ASTDecl) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   public String AttrDecl.parameterStructure() {
     if (!isParameterized() || (!isMemoized() && !config().visitCheckEnabled())) {
@@ -498,14 +550,14 @@ aspect JragCodeGen {
   /**
    * Generate code to test if two attribute values differ based on the type of the attribute.
    */
-  public String AttrDecl.valueComparisonExpr(String oldValue, String newValue) {
-    if (isPrimitive() || isCircularRewrite()) {
+  public String AttrDecl.valueComparisonExpr(String newValue, String oldValue) {
+    if (isPrimitive()) {
       return String.format("%s != %s", oldValue, newValue);
-    } else if (declaredNTA() && isCircular()) {
-      return String.format("!is$Equal(%s, %s)", oldValue, newValue);
+    } else if (isCircularRewrite()) {
+      return String.format("%s != %s || %s.canRewrite()", oldValue, newValue, newValue);
     } else {
-      return String.format("(%s == null && %s != null) || (%s != null && !%s.equals(%s))",
-          oldValue, newValue, oldValue, oldValue, newValue);
+      return String.format("!AttributeValue.equals(%s, %s)",
+          oldValue, newValue);
     }
   }
 
@@ -526,7 +578,7 @@ aspect JragCodeGen {
     } else {
       // Parameterized, circular attribute.
       attr.emitResetMethod(out);
-      if (attr.declaredNTA()) {
+      if (attr.declaredNTA() || (config().concurrentEval() && attr.isCircular())) {
         attr.emitCacheDeclarations(out);
       } else if (config().lazyMaps()) {
         out.format("%sprotected %s %s_values;%n",
@@ -677,7 +729,11 @@ aspect JragCodeGen {
       if (comp.name().equals(attrName) && comp instanceof AggregateComponentNTA
           || attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA
           || attrName.equals(comp.name() + "List") && comp instanceof ListComponentNTA) {
-        return "setChild(" + signature() + "_value, get" + attrName + "ChildPosition());\n";
+        if (config().concurrentEval()) {
+          return "setChild(_result, get" + attrName + "ChildPosition());\n";
+        } else {
+          return "setChild(" + signature() + "_value, get" + attrName + "ChildPosition());\n";
+        }
       }
       // Token components are not stored in child vector.
       return "";
@@ -843,4 +899,6 @@ aspect Compute {
 
   syn boolean AttrDecl.simpleCacheCheck() =
       !config().safeLazy() || isCircular() || declaredNTA() || isAttrNTA();
+
+  syn boolean AttrDecl.cacheInCycle() = !simpleCacheCheck();
 }

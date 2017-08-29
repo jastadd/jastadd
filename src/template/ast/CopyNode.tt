@@ -47,6 +47,9 @@ $if(IncrementalEnabled)
       node.children_computed = null;
       inc_copyHandlers(node);
 $endif
+$if(Concurrent)
+      node.makeFreshNode();
+$endif
       return node;
     } catch (CloneNotSupportedException e) {
       throw new Error("Error: clone not supported for " + getClass().getName());

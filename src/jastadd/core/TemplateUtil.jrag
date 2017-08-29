@@ -86,6 +86,14 @@ aspect TemplateUtil {
     loadTemplates(tt, "trace/Tracer");
     loadTemplates(tt, "trace/TraceHooks");
 
+    if (config().concurrentEval()) {
+      loadTemplates(tt, "concurrent/Attributes");
+      loadTemplates(tt, "concurrent/InheritedAttributes");
+      loadTemplates(tt, "concurrent/Collections");
+      loadTemplates(tt, "concurrent/Flush");
+      loadTemplates(tt, "concurrent/Circular");
+      loadTemplates(tt, "concurrent/Trace");
+    }
     return new SimpleContext(tt, this);
   }
 

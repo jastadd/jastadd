@@ -90,6 +90,13 @@ public static class Trace {
         Object params, Object value);
   }
 
+  public Trace(Receiver receiver) {
+    this.receiver = receiver;
+  }
+
+  public Trace() {
+  }
+
   // The default event receiver does nothing.
   private Receiver receiver = new Receiver() {
     public void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
@@ -103,6 +110,10 @@ public static class Trace {
    */
   public void setReceiver($StateClass.Trace.Receiver receiver) {
     this.receiver = receiver;
+  }
+
+  public Receiver getReceiver() {
+    return receiver;
   }
 
   /**

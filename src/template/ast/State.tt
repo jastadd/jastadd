@@ -26,28 +26,100 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ASTState = [[
+/** Wrapper class for storing nullable attribute values. */
+public class AttributeValue<T> {
+  /**
+   * This singleton object is an illegal, unused, attribute value.
+   * It represents that an attribute has not been memoized, or that
+   * a circular attribute approximation has not been initialized.
+   */
+  public static final Object NONE = new Object();
+
+  public final T value;
+
+  public AttributeValue(T value) {
+    this.value = value;
+  }
+
+  public static <V> boolean equals(AttributeValue<V> v1, AttributeValue<V> v2) {
+    if (v1 == null || v2 == null) {
+      return v1 == v2;
+    } else {
+      return equals(v1.value, v2.value);
+    }
+  }
+
+  public static <V> boolean equals(V v1, V v2) {
+    if (v1 == null || v2 == null) {
+      return v1 == v2;
+    } else {
+      return v1 == v2 || v1.equals(v2);
+    }
+  }
+}
+
+$if(Concurrent)
+/**
+ * Tuple for storing attribute value and done flag.
+ * <p>Used in concurrent circular attribute evaluation.
+ */
+public class CircularAttributeValue {
+  public volatile boolean done;
+  public final AtomicReference value;
+
+  public CircularAttributeValue() {
+    this.value = new AtomicReference(AttributeValue.NONE);
+  }
+
+  public CircularAttributeValue(Object value) {
+    this.value = new AtomicReference(value);
+  }
+
+  public boolean compareAndSet(Object expected, Object next) {
+    return value.compareAndSet(expected, next);
+  }
+
+  public Object get() {
+    return value.get();
+  }
+}
+
+$endif
 /** @apilevel internal */
 public class $StateClass {
-  /** @apilevel internal */
+  /**
+   * This class stores an attribute value tagged with an iteration ID for
+   * a circular evaluation.
+   *
+   * @apilevel internal
+   */
   protected static class CircularValue {
     Object value;
     Cycle cycle;
   }
 
   /**
-   * Instances of this class are used to uniquely identify circular evaluation cycles.
+   * Instances of this class are used to uniquely identify circular evaluation iterations.
+   * These iteration ID objects are created for each new fixed-point iteration in
+   * a circular evaluation.
+   *
    * @apilevel internal
    */
   protected static class Cycle {
   }
 
-  /** The cycle ID used outside of circular evaluation. */
+  /**
+   * The iteration ID used outside of circular evaluation.
+   *
+   * <p>This is the iteration ID when no circular evaluation is ongoing.
+   */
   public static final Cycle NON_CYCLE = new Cycle();
 
   /**
    * Tracks the state of the current circular evaluation. This class defines a
    * stack structure where the next element on the stack is pointed to by the
    * {@code next} field.
+   *
    * @apilevel internal
    */
   protected static class CircleState {
@@ -71,10 +143,46 @@ $endif
     /** Cycle ID of the latest cycle in this circular evaluation. */
     Cycle cycle = NON_CYCLE;
 
+$if(Concurrent)
+    /**
+     * Tracks attribute value observations during circular evaluation.
+     *
+     * <p>The purpose of this map is a little different when evaluating
+     * a circular attribute and when evaluating a non-circular attribute
+     * during a fixed-point evaluation.
+     * For a circularly evaluated attribute, this map is only used to track
+     * iteration IDs. For a non-circularly evaluated attribute, the map
+     * stores thread-local attribute approximations.
+     */
+    final java.util.Map<Object, Observation> observations;
+$endif
+
     protected CircleState(CircleState next) {
       this.next = next;
+$if(Concurrent)
+      if (next != null) {
+        observations = new java.util.IdentityHashMap<Object, Observation>();
+      } else {
+        // The bottom observation map is immutable.
+        // This makes it easier to detect if something breaks the rule of
+        // not storing observations in the bottom state.
+        observations = java.util.Collections.emptyMap();
+      }
+$endif
     }
   }
+
+$if(Concurrent)
+  class Observation {
+    public final Object value;
+    public final Cycle cycle;
+
+    public Observation(Object value, Cycle cycle) {
+      this.value = value;
+      this.cycle = cycle;
+    }
+  }
+$endif
 
   /** Sentinel circle state representing non-circular evaluation. */
   private static final CircleState CIRCLE_BOTTOM = new CircleState(null);
@@ -109,6 +217,84 @@ $endif
   protected void enterCircle() {
     CircleState next = new CircleState(circle);
     circle = next;
+  }
+
+$if(Concurrent)
+  /**
+   * Store an attribute value and iteration index for an attribute.
+   *
+   * <p>This is used by memoized attributes during circular evaluation to store the thread-local
+   * approximation tagged with the current iteration ID.
+   */
+  public void observe(Object attributeId, Object value) {
+    circle.observations.put(attributeId, new Observation(value, circle.cycle));
+  }
+
+  /**
+   * Update iteration ID for circular attribute.
+   *
+   * <p>Because circular attributes don't use the observed value, the observation value is
+   * set to NONE.
+   */
+  public void updateIteration(Object attributeId) {
+    circle.observations.put(attributeId, new Observation(AttributeValue.NONE, circle.cycle));
+  }
+
+  /**
+   * Check if the stored iteration ID for the attribute is equal to the
+   * current iteration id.
+   *
+   * @return {@code true} if the attribute was observed on the current cycle.
+   */
+  public boolean observedInCycle(Object attributeId) {
+    Observation observation = circle.observations.get(attributeId);
+    return observation != null && observation.cycle == circle.cycle;
+  }
+
+  /**
+   * Used by non-circularly evaluated attributes during fixed-point computation
+   * to get the most recent approximation for the attribute.
+   *
+   * @return the last observed attribute value for the given attribute.
+   */
+  public <T> T lastObservedValue(Object attributeId) {
+    Observation observation = circle.observations.get(attributeId);
+    return observation == null ? null : (T) observation.value;
+  }
+$endif
+
+  /**
+   * Maps circular attribute to last evaluated cycle index.
+   * @apilevel internal
+   */
+  private java.util.Map<Object, Integer> visited = new java.util.IdentityHashMap<Object, Integer>();
+
+  /**
+   * Check if attribute was already visited during the current cycle.
+   * @apilevel internal
+   * @return {@code true} if the attribute was already visited.
+   */
+  protected boolean checkAndSetVisited(Object attribute, int cycle) {
+    boolean result = visited.containsKey(attribute) && visited.get(attribute) == cycle;
+    visited.put(attribute, cycle);
+    return result;
+  }
+
+  /**
+   * Reset visited cycle tracking for this thread.
+   * @apilevel internal
+   */
+  protected void clearVisited() {
+    visited.clear();
+  }
+
+  // TODO(joqvist): may not be necessary.
+  /**
+   * Reset visit tracker for a single attribute.
+   * @apilevel internal
+   */
+  protected void resetVisited(Object attribute) {
+    visited.remove(attribute);
   }
 
   /** @apilevel internal */
@@ -241,17 +427,95 @@ $endif
   $include(State.incHook)
 
 $if(TracingEnabled)
+  public interface ReceiverFactory {
+    Trace.Receiver build();
+  }
+
+  public static ReceiverFactory receiverFactory = new ReceiverFactory() {
+    public Trace.Receiver build() {
+      return new Trace.Receiver() {
+        public void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
+            Object params, Object value) {
+        }
+      };
+    }
+  };
+
   private Trace trace = null;
 
   /** @return the tracer instance used for tracing attribute evaluation in this AST. */
   public Trace trace() {
     if (trace == null) {
-      trace = new Trace();
+      trace = new Trace(receiverFactory.build());
     }
     return trace;
   }
 
   $include(TraceClass)
+$endif
+$if(Concurrent)
+  public static int NUM_THREADS = $NumThreads;
+
+  /** State-global thread pool. */
+  private java.util.concurrent.ExecutorService threadPool = null;
+
+  public synchronized java.util.concurrent.ExecutorService threadPool() {
+    if (threadPool != null) {
+      return threadPool;
+    } else {
+      threadPool = newDaemonThreadPool(NUM_THREADS);
+      return threadPool;
+    }
+  }
+
+  /**
+   * Worker threads will shut down when the JVM stops, but this method can be called
+   * to force them to stop prematurely.
+   */
+  public synchronized void stopWorkers() {
+    threadPool.shutdown();
+    threadPool = null;
+  }
+  /** Global thread pool. */
+  private static java.util.concurrent.ExecutorService globalThreadPool = null;
+
+  public static java.util.concurrent.ExecutorService globalThreadPool() {
+    synchronized ($StateClass.class) {
+      if (globalThreadPool != null) {
+        return globalThreadPool;
+      } else {
+        globalThreadPool = newDaemonThreadPool(NUM_THREADS);
+        return globalThreadPool;
+      }
+    }
+  }
+
+  /**
+   * Starts a thread pool with worker threads. The .shutdown() method should
+   * be called once the work is finished, otherwise the worker threads prevent
+   * Java VM from shutting down.
+   */
+  public static java.util.concurrent.ExecutorService newThreadPool(int numThreads) {
+    return java.util.concurrent.Executors.newFixedThreadPool(numThreads);
+  }
+
+  /**
+   * Starts a thread pool with daemon worker threads. Daemon threads do not
+   * prevent the Java VM from shutting down.
+   */
+  public static java.util.concurrent.ExecutorService newDaemonThreadPool(int numThreads) {
+    final java.util.concurrent.ThreadFactory threadFactory =
+        java.util.concurrent.Executors.defaultThreadFactory();
+    return java.util.concurrent.Executors.newFixedThreadPool(numThreads,
+        new java.util.concurrent.ThreadFactory() {
+          @Override
+          public Thread newThread(Runnable r) {
+            Thread thread = threadFactory.newThread(r);
+            thread.setDaemon(true);
+            return thread;
+          }
+        });
+  }
 $endif
 }
 ]]

@@ -1,0 +1,198 @@
+# Copyright (c) 2013-2017, The JastAdd Team
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Lund University nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+CollDecl.collectContributions [[
+$if(#parallel)
+final java.util.Set<$ASTNode> _contributorSet = root.contributorMap_#collectionId.get(this);
+final ArrayList<$ASTNode> _contributors = new ArrayList<$ASTNode>();
+if (_contributorSet != null) {
+  _contributors.addAll(_contributorSet);
+}
+final AtomicInteger nextContributor = new AtomicInteger(0);
+java.util.concurrent.ExecutorService threadPool = state().threadPool();
+Collection<Future<LinkedList<#componentType>>> futures =
+    new LinkedList<Future<LinkedList<#componentType>>>();
+for (int i = 0; i < $StateClass.NUM_THREADS; ++i) {
+  futures.add(threadPool.submit(new Callable<LinkedList<#componentType>>() {
+      @Override
+      public LinkedList<#componentType> call() {
+        LinkedList<#componentType> value = new LinkedList<#componentType>();
+        while (true) {
+          int next = nextContributor.getAndIncrement();
+          if (next >= _contributors.size()) {
+            return value;
+          }
+          $ASTNode contributor = _contributors.get(next);
+          contributor.contributeTo_#(signature)(value);
+        }
+      }
+    }));
+}
+for (Future<LinkedList<#componentType>> future : futures) {
+  try {
+    _computedValue.addAll(future.get());
+  } catch (ExecutionException e) {
+    throw new RuntimeException(e);
+  } catch (InterruptedException e) {
+    throw new RuntimeException(e);
+  }
+}
+$else
+if (root.contributorMap_#collectionId.containsKey(this)) {
+  for ($ASTNode contributor : root.contributorMap_#collectionId.get(this)) {
+    contributor.contributeTo_#(signature)(_computedValue);
+  }
+}
+$endif
+]]
+
+CollDecl.contributeTo:default [[
+$if(#parallel)
+  protected void contributeTo_#(signature)(java.util.Collection<#componentType> collection) {
+  }
+$else
+  protected void contributeTo_#(signature)(#getType collection) {
+  }
+$endif
+]]
+
+CollDecl.contributeTo:header [[
+$if(#parallel)
+  protected void contributeTo_#(signature)(java.util.Collection<#componentType> collection) {
+$if(!IsAstNode)
+    super.contributeTo_#(signature)(collection);
+$endif
+$else
+  protected void contributeTo_#(signature)(#getType collection) {
+$if(!IsAstNode)
+    super.contributeTo_#(signature)(collection);
+$endif
+$endif
+]]
+
+# The method to start the survey phase (collecting contributors).
+CollDecl.surveyMethod [[
+$if(#onePhase)
+private boolean collect_contributors_#collectionId = false;
+$else
+protected java.util.Map<$ASTNode, java.util.Set<$ASTNode>> contributorMap_#collectionId = null;
+$if(Concurrent)
+private Object surveyLock_#collectionId = new Object();
+$endif
+$endif
+
+$if(#isCircular)
+  public boolean collecting_contributors_#collectionId = false;
+
+$endif
+  protected void survey_#collectionId() {
+    synchronized (surveyLock_#collectionId) {
+$if(#onePhase)
+    if (!collect_contributors_#collectionId) {
+      collect_contributors_#collectionId = true;
+$else
+    if (contributorMap_#collectionId == null) {
+      contributorMap_#collectionId = new java.util.IdentityHashMap<$ASTNode, java.util.Set<$ASTNode>>();
+$endif
+$if(#isCircular)
+      collecting_contributors_#collectionId = true;
+$endif
+$if(#onePhase)
+      collect_contributors_#collectionId(this);
+$else
+  $if(#parallelSurvey)
+      final #rootType root = this;
+      final java.util.Queue<ASTNode> queue =
+          new java.util.concurrent.ConcurrentLinkedQueue<ASTNode>();
+      queue.add(this);
+      java.util.concurrent.ExecutorService threadPool = state().threadPool();
+      LinkedList<Future<Map<$ASTNode, java.util.Set<$ASTNode>>>> futures =
+          new LinkedList<Future<Map<$ASTNode, java.util.Set<$ASTNode>>>>();
+      for (int i = 0; i < $StateClass.NUM_THREADS; ++i) {
+        futures.add(threadPool.submit(new Callable<Map<$ASTNode, java.util.Set<$ASTNode>>>() {
+              @Override
+              public Map<$ASTNode, java.util.Set<$ASTNode>> call() {
+                Map<$ASTNode, java.util.Set<$ASTNode>> result =
+                    new java.util.IdentityHashMap<$ASTNode, java.util.Set<$ASTNode>>();
+                $ASTNode next = queue.poll();
+                while (next != null) {
+                  next.collect_contributors_#collectionId(root, result);
+                  if (next.getNumChild() > 0) {
+                    for (int i = 1; i < next.getNumChild(); ++i) {
+                      $ASTNode child = next.getChild(i);
+                      if (child != null) {
+                        queue.add(child);
+                      }
+                    }
+                    next = next.getChild(0);
+                    if (next == null) {
+                      next = queue.poll();
+                    }
+                  } else {
+                    next = queue.poll();
+                  }
+                }
+                return result;
+              }
+            }));
+      }
+      for (Future<Map<$ASTNode, java.util.Set<$ASTNode>>> future : futures) {
+        try {
+          for (Map.Entry<$ASTNode, java.util.Set<$ASTNode>> entry : future.get().entrySet()) {
+            java.util.Set<$ASTNode> contributors = contributorMap_#collectionId.get(entry.getKey());
+            if (contributors == null) {
+              contributors = new java.util.HashSet<$ASTNode>();
+              contributorMap_#collectionId.put(entry.getKey(), contributors);
+            }
+            contributors.addAll(entry.getValue());
+          }
+        } catch (ExecutionException e) {
+          throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+      }
+  $else
+      collect_contributors_#collectionId(this, contributorMap_#collectionId);
+  $endif
+$endif
+$if(#isCircular)
+      collecting_contributors_#collectionId = false;
+$endif
+    }
+    }
+  }
+]]
+
+CollDecl.collectContributors:end [[
+$if(#onePhase)
+    super.collect_contributors_#collectionId(_root);
+$else
+    super.collect_contributors_#collectionId(_root, _map);
+$endif
+  }
+]]

@@ -1,0 +1,346 @@
+# Copyright (c) 2013-2017, The JastAdd Team
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Lund University nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+AttrDecl.returnStmt [[
+$if(#isAttrNTA)
+#(getType) node = (#boxedType) this.getChild(#(signature)ChildPosition());
+$include(AttrDecl.incHookAttrCompEnd)
+return node;
+$else
+  $if(!#isCircular)
+$include(AttrDecl.incHookAttrCompEnd)
+  $endif
+return _result;
+$endif
+]]
+
+AttrDecl.cacheDeclarations [[
+$if(#isParameterized)
+  $if(#declaredNTA)
+  /** @apilevel internal */
+  protected $List<#getType> #(signature)_list;
+  {
+    #(signature)_list = new $List<#getType>();
+    #(signature)_list.setParent(this);
+  }
+
+  $endif
+  $if(#isCircular)
+  /** @apilevel internal */
+  protected ConcurrentMap<Object, CircularAttributeValue> #(signature)_values =
+      new $ConcurrentMap<Object, CircularAttributeValue>();
+  $else
+  /** @apilevel internal */
+  protected ConcurrentMap<Object, AtomicReference> #(signature)_values = new $ConcurrentMap<Object, AtomicReference>();
+  $endif
+$else
+  $if(#isCircular)
+  /** @apilevel internal */
+  protected CircularAttributeValue #(signature)_value = new CircularAttributeValue();
+  $else
+    $if(#isIdentityComparable)
+  /** @apilevel internal */
+  protected #getType #(signature)_value;
+
+  /** @apilevel internal */
+  protected volatile boolean #(signature)_computed;
+      $if(#cacheInCycle)
+
+  protected Object #(signature)_id = new Object();
+      $endif
+    $else
+  /** @apilevel internal */
+  protected AtomicReference<Object> #(signature)_value = new AtomicReference<Object>(AttributeValue.NONE);
+    $endif
+  $endif
+$endif
+]]
+
+AttrDecl.emitInlineComputeWithTry [[
+#docComment
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #synchronizedModifier#getType #name($ParamDecl) {
+    #parameterStructure
+    $include(AttrDecl.cacheCheck)
+    $include(AttrDecl.enterLazyAttribute)
+    #lazyState
+    $include(AttrDecl.traceComputeBegin)
+    try $ComputeBody
+    finally {
+      $include(AttrDecl.leaveLazyAttribute)
+      #higherOrderAttributeCode
+      $include(AttrDecl.traceComputeEndInline)
+    }
+  }
+]]
+
+AttrDecl.emitInlineComputeWithoutTry [[
+#docComment
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #synchronizedModifier#getType #name($ParamDecl) {
+    #parameterStructure
+    #lazyState
+    $include(AttrDecl.cacheCheck)
+    $include(AttrDecl.traceComputeBegin)
+    $ComputeBody
+  }
+]]
+
+AttrDecl.visitedDeclaration [[
+]]
+
+SynDecl.higherOrderAttributeCode:norewrite [[
+$if(#isParameterized)
+_result.setParent(#(signature)_list);
+$else
+_result.setParent(this);
+$endif
+]]
+
+SynDecl.higherOrderAttributeCode:rewritesEnabled [[
+$if(#isParameterized)
+_result.setParent(#(signature)_list);
+$else
+_result.setParent(this);
+$endif
+]]
+
+AttrDecl.emitEquation [[
+#docComment
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #synchronizedModifier#getType #name($ParamDecl) {
+    #parameterStructure
+    #lazyState
+    $include(AttrDecl.cacheCheck)
+    $include(AttrDecl.incHookAttrCompStart)
+    $include(AttrDecl.cacheInit)
+    $include(AttrDecl.enterLazyAttribute)
+    $include(AttrDecl.traceComputeBegin)
+$if(#isMemoized)
+    #getType _result = $ComputeRhs;
+  $if(!#isParameterized)
+    #boxedType _value = _result;
+  $endif
+$else
+    #getType _result = $ComputeRhs;
+$endif
+    $include(AttrDecl.traceComputeEnd)
+    #higherOrderAttributeCode
+    $include(AttrDecl.cacheUpdate)
+    $include(AttrDecl.leaveLazyAttribute)
+    $include(AttrDecl.returnStmt)
+  }
+]]
+
+AttrDecl.cacheCheck [[
+$if(#isMemoized)
+$include(AttrDecl.incHookAttrRead)
+$if(#isPrimitive)
+  $if(#isParameterized)
+AtomicReference _container = #(signature)_values.get(_parameters);
+if (_container == null) {
+  AtomicReference _reg = new AtomicReference(AttributeValue.NONE);
+  _container = #(signature)_values.putIfAbsent(_parameters, _reg);
+  if (_container == null) {
+    _container = _reg;
+  }
+}
+if (_container.get() != AttributeValue.NONE) {
+  return (#boxedType) _container.get();
+  $else
+if (#(signature)_computed) {
+  return #(signature)_value;
+  $endif
+  $if(#cacheInCycle)
+} else {
+    $if(#isParameterized)
+  if (state.observedInCycle(_container)) {
+    #boxedType _value = state.<#boxedType>lastObservedValue(_container);
+    $include(AttrDecl.traceCacheRead)
+    return _value;
+  }
+    $else
+  if (state.observedInCycle(#(signature)_id)) {
+    #boxedType _value = state.<#boxedType>lastObservedValue(#(signature)_id);
+    $include(AttrDecl.traceCacheRead)
+    return _value;
+  }
+    $endif
+  $endif
+}
+$else
+  $if(#isParameterized)
+AtomicReference _container = #(signature)_values.get(_parameters);
+if (_container == null) {
+  AtomicReference _reg = new AtomicReference(AttributeValue.NONE);
+  _container = #(signature)_values.putIfAbsent(_parameters, _reg);
+  if (_container == null) {
+    _container = _reg;
+  }
+}
+if (_container.get() != AttributeValue.NONE) {
+  return (#boxedType) _container.get();
+  $else
+    $if(#isIdentityComparable)
+if (#(signature)_computed) {
+  return #(signature)_value;
+    $else
+Object cached_value = #(signature)_value.get();
+if (cached_value != AttributeValue.NONE) {
+  #boxedType _value = (#boxedType) cached_value;
+  $include(AttrDecl.traceCacheRead)
+  return _value;
+    $endif
+  $endif
+  $if(#cacheInCycle)
+} else {
+    $if(#isParameterized)
+  if (state.observedInCycle(_container)) {
+    #boxedType _value = state.<#boxedType>lastObservedValue(_container);
+    $include(AttrDecl.traceCacheRead)
+    return _value;
+  }
+    $else
+      $if(#isIdentityComparable)
+  if (state.observedInCycle(#(signature)_id)) {
+    #boxedType _value = state.<#boxedType>lastObservedValue(#(signature)_id);
+    return _value;
+  }
+      $else
+  if (state.observedInCycle(#(signature)_value)) {
+    #boxedType _value = state.<#boxedType>lastObservedValue(#(signature)_value);
+    $include(AttrDecl.traceCacheRead)
+    return _value;
+  }
+      $endif
+    $endif
+  $endif
+}
+$endif
+$endif
+]]
+
+AttrDecl.cacheUpdate [[
+$if(#isMemoized)
+$if(#isPrimitive)
+  $if(#simpleCacheCheck)
+    $if(#isParameterized)
+_container.compareAndSet(AttributeValue.NONE, _result);
+    $else
+#(signature)_value = _result;
+#(signature)_computed = true;
+      $if(TraceCache)
+state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", _result);
+      $endif
+    $endif
+  $else
+if (state.inCircle()) {
+    $if(#cacheInCycle)
+      $if(#isParameterized)
+  state.observe(_container, _result);
+      $else
+  state.observe(#(signature)_id, _result);
+      $endif
+} else {
+    $endif
+    $if(#isParameterized)
+  _container.compareAndSet(AttributeValue.NONE, _result);
+    $else
+  #(signature)_value = _result;
+  #(signature)_computed = true;
+      $if(TraceCache)
+  state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", _result);
+      $endif
+    $endif
+}
+  $endif
+$else
+  $if(#simpleCacheCheck)
+    $if(#isParameterized)
+_container.compareAndSet(AttributeValue.NONE, _result);
+_result = (#boxedType) _container.get();
+    $else
+      $if(#isIdentityComparable)
+#(signature)_value = _result;
+#(signature)_computed = true;
+      $if(TraceCache)
+state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", _result);
+      $endif
+      $else
+if (!#(signature)_value.compareAndSet(AttributeValue.NONE, _value)) {
+  _result = (#boxedType) #(signature)_value.get();
+        $if(TraceCache)
+  state().trace().cacheWrite(this, "-#hostClassName.#signatureJavaStyle", "", _result);
+} else {
+  state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", _result);
+        $endif
+}
+      $endif
+    $endif
+  $else
+if (state.inCircle()) {
+    $if(#cacheInCycle)
+      $if(#isParameterized)
+  state.observe(_container, _result);
+      $else
+        $if(#isIdentityComparable)
+  state.observe(#(signature)_id, _result);
+        $else
+  state.observe(#(signature)_value, _result);
+        $endif
+      $endif
+} else {
+    $endif
+    $if(#isParameterized)
+  _container.compareAndSet(AttributeValue.NONE, _result);
+  _result = (#boxedType) _container.get();
+    $else
+      $if(#isIdentityComparable)
+  #(signature)_value = _result;
+  #(signature)_computed = true;
+      $if(TraceCache)
+  state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", _result);
+      $endif
+      $else
+  if (!#(signature)_value.compareAndSet(AttributeValue.NONE, _value)) {
+    _result = (#boxedType) #(signature)_value.get();
+        $if(TraceCache)
+    state().trace().cacheWrite(this, "-#hostClassName.#signatureJavaStyle", "", _result);
+  } else {
+    state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", _result);
+        $endif
+  }
+      $endif
+    $endif
+}
+  $endif
+$endif
+$endif
+]]

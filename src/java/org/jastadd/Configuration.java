@@ -387,6 +387,22 @@ public class Configuration {
       "safe in-cycle caching of non-circular attributes")
       .nonStandard();
 
+  Option<Boolean> concurrentOption = new BooleanOption("concurrent",
+      "generate concurrent attribute evaluation code")
+      .templateVariable("Concurrent");
+
+  Option<String> numThreadsOption = new ValueOption("num_threads",
+      "number of parallel threads to use for parallelized attributes")
+      .acceptAnyValue()
+      .defaultValue("4")
+      .templateVariable("NumThreads");
+
+  Option<String> concurrentMap = new ValueOption("concurrentmap",
+      "concurrent map implementation for concurrent parameterized memoization")
+      .acceptAnyValue()
+      .defaultValue("ConcurrentHashMap")
+      .templateVariable("ConcurrentMap");
+
   Collection<String> filenames = new LinkedList<String>();
 
   Option<Boolean> emptyContainerSingletons = new FlagOption("emptyContainerSingletons",
@@ -477,6 +493,9 @@ public class Configuration {
 
     // New since 2.2.4:
     allOptions.add(emptyContainerSingletons);
+    allOptions.add(concurrentOption);
+    allOptions.add(numThreadsOption);
+    allOptions.add(concurrentMap);
 
     // Deprecated in 2.1.5.
     allOptions.add(doxygenOption);
@@ -593,7 +612,6 @@ public class Configuration {
     tt.bind("CacheCycle", cacheCycle());
     tt.bind("StaticState", staticState());
     tt.bind("LazyMaps", lazyMaps());
-
     return root;
   }
 
@@ -1302,5 +1320,10 @@ public class Configuration {
    */
   public boolean emptyContainerSingletons() {
     return emptyContainerSingletons.value();
+  }
+
+  /** @return {@code true} if concurrent evaluation is enabled. */
+  public boolean concurrentEval() {
+    return concurrentOption.value();
   }
 }

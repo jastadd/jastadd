@@ -84,6 +84,20 @@ aspect CollectionAttributes {
   syn boolean CollEq.implicitTarget() = getReference().isEmpty();
 
   /**
+   * This gives the element type of the collection attribute's collection type.
+   *
+   * Note: only uses the declared typename for the collection attribute, can't handle
+   * for example a subclass of {@code List<Foo>}.
+   */
+  syn String CollDecl.componentType() {
+    String type = config().astNodeType();
+    if (getType().indexOf('<') < getType().indexOf('>')) {
+      type = getType().substring(getType().indexOf('<') + 1, getType().indexOf('>'));
+    }
+    return type;
+  }
+
+  /**
    * Find interface collection attribute declarations.
    */
   public Collection<CollDecl> TypeDecl.interfaceCollDecls() {
@@ -171,15 +185,22 @@ aspect CollectionAttributes {
    *
    * <p>Defaults to {@code true}.
    */
-  syn boolean AttrDecl.lazyCondition() = hasAnnotation("@LazyCondition");
+  syn boolean AttrDecl.lazyCondition() =
+      hasAnnotation("@LazyCondition")
+      || hasAnnotation("@Parallel");
+
   syn boolean AttrEq.lazyCondition() = decl().lazyCondition();
+
+  syn boolean AttrDecl.parallel() = hasAnnotation("@Parallel");
+
+  syn boolean AttrDecl.parallelSurvey() = hasAnnotation("@ParallelSurvey");
 
   /**
    * One phase evaluation combines the survey and combination phases.
    *
    * <p>Defaults to {@code false}.
    */
-  syn boolean AttrDecl.onePhase() = hasAnnotation("@OnePhase");
+  syn boolean AttrDecl.onePhase() = hasAnnotation("@OnePhase") && !config().concurrentEval();
   syn boolean AttrEq.onePhase() = decl().onePhase();
 
   /**
@@ -341,6 +362,8 @@ aspect CollectionAttributes {
       }
       if (skipSuperCall) {
         out.println(config().indent + "}");
+      } else if (isASTNodeDecl() && !decl.parallelSurvey()) {
+        decl.templateContext().expand("CollDecl.collectContributors:default", out);
       } else {
         if (isASTNodeDecl()) {
           decl.templateContext().expand("CollDecl.collectContributors:default", out);

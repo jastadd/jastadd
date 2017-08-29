@@ -1,0 +1,263 @@
+# Copyright (c) 2013-2017, The JastAdd Team
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Lund University nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+AttrDecl.cycleDeclaration [[
+]]
+
+AttrDecl.circularEquation:unparameterized [[
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #getType #name() {
+    if (#(signature)_value.done) {
+      return (#boxedType) #(signature)_value.get();
+    }
+    Object _previous = #(signature)_value.get();
+    if (_previous == AttributeValue.NONE) {
+$if(#isCollection)
+      $ASTNode _node = this;
+      while (_node != null && !(_node instanceof #rootType)) {
+        _node = _node.getParent();
+      }
+      $include(CollDecl.collDebugCheck)
+      #rootType root = (#rootType) _node;
+      if (root.collecting_contributors_#collectionId) {
+        throw new RuntimeException("Circularity during survey phase");
+      }
+      root.survey_#collectionId();
+$endif
+      #boxedType _bottom = $BottomValue;
+$if(#getNTA)
+      if (_bottom != null) {
+        _bottom.setParent(#ntaParent);
+      }
+$endif
+      if (!#(signature)_value.compareAndSet(AttributeValue.NONE, _bottom)) {
+        _bottom = (#boxedType) #(signature)_value.get();
+      }
+      _previous = _bottom;
+      $StateClass state = state();
+    }
+    $StateClass state = state();
+    Object _id = #(signature)_value;
+    if (!state.inCircle() || state.calledByLazyAttribute()) {
+      $include(AttrDecl.traceCircularEnterCase1)
+      state.enterCircle();
+      #tracePrintCycleBeginString
+      do {
+        state.nextCycle();
+        state.updateIteration(_id);
+        #tracePrintBeginComputingValue
+        $include(AttrDecl.incHookAttrCompStartCircular)
+        $include(AttrDecl.traceComputeBegin)
+        #boxedType _next = $CircularComputeRhs;
+        $include(AttrDecl.traceComputeEnd)
+        $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isCircularNta)
+        if (_previous != _next || _next.canRewrite()) {
+$else
+        if (!AttributeValue.equals(_previous, _next)) {
+$endif
+          state.setChangeInCycle();
+          $include(AttrDecl.traceCircularCase1Change)
+        }
+$if(#getNTA)
+        if (_next != null) {
+          _next.setParent(#ntaParent);
+        }
+$endif
+        // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
+        if (!#(signature)_value.compareAndSet(_previous, _next)) {
+          _next = (#boxedType) #(signature)_value.get();
+        }
+        _previous = _next;
+        #tracePrintStartingCycle
+        #cycleLimitCheck
+      } while (state.testAndClearChangeInCycle());
+      $TracePrintReturnNewValue
+      #tracePrintCycleEndString
+      $include(AttrDecl.traceCircularExitCase1)
+      state.leaveCircle();
+      #(signature)_value.done = true;
+      return (#boxedType) _previous;
+    } else if (!state.observedInCycle(_id)) {
+      $include(AttrDecl.traceCircularEnterCase2)
+      state.updateIteration(_id);
+      #tracePrintBeginComputingValue
+      $include(AttrDecl.incHookAttrCompStartCircular)
+      $include(AttrDecl.traceComputeBegin)
+      #boxedType _next = $CircularComputeRhs;
+      $include(AttrDecl.traceComputeEnd)
+      $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isCircularNta)
+      if (_previous != _next || _next.canRewrite()) {
+$else
+      if (!AttributeValue.equals(_previous, _next)) {
+$endif
+        state.setChangeInCycle();
+        $include(AttrDecl.traceCircularCase2Change)
+      }
+      // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
+$if(#getNTA)
+      if (_next != null) {
+        _next.setParent(#ntaParent);
+      }
+$endif
+      if (!#(signature)_value.compareAndSet(_previous, _next)) {
+        _next = (#boxedType) #(signature)_value.get();
+      }
+      state.updateIteration(_id);
+      $TracePrintReturnNewValue
+      $include(AttrDecl.traceCircularExitCase2)
+      return _next;
+    } else {
+      $TracePrintReturnPreviousValue
+      $include(AttrDecl.traceCircularExitCase3)
+      return (#boxedType) _previous;
+    }
+  }
+]]
+
+AttrDecl.circularEquation:parameterized [[
+  #annotations
+  $include(AttrDecl.generatedAnnotations)
+  public #getType #name($ParamDecl) {
+    #parameterStructure
+    CircularAttributeValue _value;
+    #boxedType _previous;
+    if (#(signature)_values.containsKey(_parameters)) {
+      _value = #(signature)_values.get(_parameters);
+      _previous = (#boxedType) _value.get();
+      if (_value.done) {
+        return _previous;
+      }
+    } else {
+      #getType _bottom = $BottomValue;
+$if(#getNTA)
+      if (_bottom != null) {
+        if (#(signature)_list.get() == null) {
+          $List _list _list = new $List();
+          _list.setParent(#ntaParent);
+          #(signature)_list.compareAndSet(null, _list);
+        }
+        (($ASTNode) _bottom).setParent(#(signature)_list.get());
+      }
+$endif
+      _value = new CircularAttributeValue(_bottom);
+      #(signature)_values.putIfAbsent(_parameters, _value);
+      _value = #(signature)_values.get(_parameters);
+      _previous = (#boxedType) _value.get();
+      $StateClass state = state();
+    }
+    $StateClass state = state();
+    Object _id = _value;
+    #getType _result;
+    if (!state.inCircle() || state.calledByLazyAttribute()) {
+      $include(AttrDecl.traceCircularEnterCase1)
+      state.enterCircle();
+      #tracePrintCycleBeginString
+      do {
+        state.nextCycle();
+        state.updateIteration(_id);
+        #tracePrintBeginComputingValue
+        $include(AttrDecl.incHookAttrCompStartCircular)
+        $include(AttrDecl.traceComputeBegin)
+        #boxedType _next = $CircularComputeRhs;
+        $include(AttrDecl.traceComputeEnd)
+        $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isCircularNta)
+        if (_previous != _next || _next.canRewrite()) {
+$else
+        if (!AttributeValue.equals(_previous, _next)) {
+$endif
+          state.setChangeInCycle();
+          $include(AttrDecl.traceCircularCase1Change)
+        }
+        // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
+$if(#getNTA)
+        if (_next != null) {
+          if (#(signature)_list.get() == null) {
+            $List _list _list = new $List();
+            _list.setParent(#ntaParent);
+            #(signature)_list.compareAndSet(null, _list);
+          }
+          (($ASTNode) _next).setParent(#(signature)_list.get());
+        }
+$endif
+        if (!_value.compareAndSet(_previous, _next)) {
+          _previous = (#boxedType) _value.get();
+        }
+        #tracePrintStartingCycle
+        #cycleLimitCheck
+      } while (state.testAndClearChangeInCycle());
+      $TracePrintReturnNewValue
+      #tracePrintCycleEndString
+      $include(AttrDecl.traceCircularExitCase1)
+      state.leaveCircle();
+      _value.done = true;
+      return _previous;
+    } else if (!state.observedInCycle(_id)) {
+      $include(AttrDecl.traceCircularEnterCase2)
+      state.updateIteration(_id);
+      #tracePrintBeginComputingValue
+      $include(AttrDecl.incHookAttrCompStartCircular)
+      $include(AttrDecl.traceComputeBegin)
+      #boxedType _next = $CircularComputeRhs;
+      $include(AttrDecl.traceComputeEnd)
+      $include(AttrDecl.incHookAttrCompEndCircular)
+$if(#isCircularNta)
+      if (_previous != _next || _next.canRewrite()) {
+$else
+      if (!AttributeValue.equals(_previous, _next)) {
+$endif
+        state.setChangeInCycle();
+        $include(AttrDecl.traceCircularCase2Change)
+      }
+      // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
+$if(#getNTA)
+      if (_next != null) {
+        if (#(signature)_list.get() == null) {
+          $List _list _list = new $List();
+          _list.setParent(#ntaParent);
+          #(signature)_list.compareAndSet(null, _list);
+        }
+        (($ASTNode) _next).setParent(#(signature)_list.get());
+      }
+$endif
+      if (!_value.compareAndSet(_previous, _next)) {
+        _next = (#boxedType) _value.get();
+      }
+      state.updateIteration(_id);
+      $TracePrintReturnNewValue
+      $include(AttrDecl.traceCircularExitCase2)
+      return _next;
+    } else {
+      $TracePrintReturnPreviousValue
+      $include(AttrDecl.traceCircularExitCase3)
+      return (#boxedType) _previous;
+    }
+  }
+]]

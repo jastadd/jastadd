@@ -168,9 +168,16 @@ aspect Rewrites {
       // this node inherites the rewrittenNode attribute).
       CircularRewriteDecl decl = getCircularRewriteDecl();
       TemplateContext tt = decl.templateContext();
-      String newValue = "new_" + decl.signature() + "_value";
-      String oldValue = decl.signature() + "_value";
-      tt.bind("CircularComputeRhs", oldValue + ".rewriteTo()");
+      String newValue, oldValue;
+      if (config().concurrentEval()) {
+        newValue = "_next";
+        oldValue = "_previous.value";
+        tt.bind("CircularComputeRhs", "((" + config().astNodeType() + ") " + decl.signature() + "_value.get()).rewriteTo()");
+      } else {
+        newValue = "new_" + decl.signature() + "_value";
+        oldValue = decl.signature() + "_value";
+        tt.bind("CircularComputeRhs", oldValue + ".rewriteTo()");
+      }
       tt.bind("ChangeCondition", String.format("%s != %s || %s.canRewrite()",
             newValue, oldValue, newValue));
       tt.bind("BottomValue", "this");
@@ -188,6 +195,10 @@ aspect Rewrites {
           config().astNodeType());
     }
   }
+
+  syn boolean AttrDecl.isCircularNta() = false;
+
+  eq CircularRewriteDecl.isCircularNta() = true;
 
   syn lazy CircularRewriteDecl ASTDecl.getCircularRewriteDecl() =
       new CircularRewriteDecl(

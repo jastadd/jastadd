@@ -41,8 +41,15 @@ aspect Flush {
     for (AttrDecl attr : listOfCachedAttributes()) {
       sb.append(attr.signature() + "_reset();\n");
     }
-
     tt.bind("FlushAttrCacheBody", sb.toString());
+
+    StringBuilder fresh = new StringBuilder();
+    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
+      AttrDecl attr = (AttrDecl) itr.next();
+      fresh.append(attr.signature() + "_fresh();\n");
+    }
+    tt.bind("MakeFreshNodeBody", fresh.toString());
+
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
   }

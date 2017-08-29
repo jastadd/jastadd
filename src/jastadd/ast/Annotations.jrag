@@ -58,7 +58,9 @@ aspect Annotations {
         || a.isAnnotation("@LazyCondition")
         || a.isAnnotation("@Circular")
         || a.isAnnotation("@CollectionGroup")
-        || a.isAnnotation("@Naive");
+        || a.isAnnotation("@Naive")
+        || a.isAnnotation("@Parallel")
+        || a.isAnnotation("@ParallelSurvey");
   }
 
   /**

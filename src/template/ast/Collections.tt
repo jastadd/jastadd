@@ -62,13 +62,17 @@ CollDecl.computeMethod:twoPhase [[
     #rootType root = (#rootType) node;
     root.survey_#collectionId();
     #getType _computedValue = $BottomValue;
-    if (root.contributorMap_#collectionId.containsKey(this)) {
-      for ($ASTNode contributor : root.contributorMap_#collectionId.get(this)) {
-        contributor.contributeTo_#(signature)(_computedValue);
-      }
-    }
+    $include(CollDecl.collectContributions)
     return _computedValue;
   }
+]]
+
+CollDecl.collectContributions [[
+if (root.contributorMap_#collectionId.containsKey(this)) {
+  for ($ASTNode contributor : root.contributorMap_#collectionId.get(this)) {
+    contributor.contributeTo_#(signature)(_computedValue);
+  }
+}
 ]]
 
 CollEq.collectContributors:onePhase [[

@@ -73,9 +73,6 @@ $endif
   /** @apilevel internal */
   public static final boolean $ASTNode.generatedWithCacheCycle = $CacheCycle;
 
-  /** @apilevel internal */
-  public static final boolean $ASTNode.generatedWithComponentCheck = $ComponentCheck;
-
 $if(!JJTree)
   /** @apilevel low-level */
   protected $ASTNode $ASTNode.parent;
@@ -90,7 +87,39 @@ $if(TracingEnabled)
   }
 $endif
 
-$if(StaticState)
+$if(Concurrent)
+  /** @apilevel internal */
+  private static ThreadLocal<$StateClass> $ASTNode.state = new ThreadLocal<$StateClass>() {
+    @Override
+    public $StateClass initialValue() {
+      $StateClass state = new $StateClass();
+      threadStates.add(state);
+      return state;
+    }
+  };
+
+  public static java.util.Queue<$StateClass> $ASTNode.threadStates =
+      new java.util.concurrent.ConcurrentLinkedQueue<$StateClass>();
+
+
+  /** @apilevel internal */
+  public final static $StateClass $ASTNode.state() {
+    return state.get();
+  }
+
+  /** @apilevel internal */
+  public final static void $ASTNode.resetState() {
+    state = new ThreadLocal<$StateClass>() {
+      @Override
+      public $StateClass initialValue() {
+        $StateClass state = new $StateClass();
+        threadStates.add(state);
+        return state;
+      }
+    };
+  }
+$else
+  $if(StaticState)
   /** @apilevel internal */
   private static $StateClass $ASTNode.state = new $StateClass();
 
@@ -98,9 +127,19 @@ $if(StaticState)
   public final $StateClass $ASTNode.state() {
     return state;
   }
-$else
+
+  /** @apilevel internal */
+  public final static $StateClass $ASTNode.resetState() {
+    return state = new $StateClass();
+  }
+  $else
   /** @apilevel internal */
   private $StateClass $ASTNode.state = null;
+
+  /** @apilevel internal */
+  public final void $ASTNode.resetState() {
+    state = null;
+  }
 
   /** @apilevel internal */
   public final $StateClass $ASTNode.state() {
@@ -114,6 +153,7 @@ $else
     }
     return state;
   }
+  $endif
 $endif
 
 $if(LegacyRewrite)
