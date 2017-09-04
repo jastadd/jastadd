@@ -64,6 +64,7 @@ $endif
     $StateClass state = state();
     Object _id = #(signature)_value;
     if (!state.inCircle() || state.calledByLazyAttribute()) {
+      // CASE1 - start fixed-point loop.
       $include(AttrDecl.traceCircularEnterCase1)
       state.enterCircle();
       #tracePrintCycleBeginString
@@ -104,6 +105,7 @@ $endif
       #(signature)_value.done = true;
       return (#boxedType) _previous;
     } else if (!state.observedInCycle(_id)) {
+      // CASE2 - compute new approximation.
       $include(AttrDecl.traceCircularEnterCase2)
       state.updateIteration(_id);
       #tracePrintBeginComputingValue
@@ -129,11 +131,11 @@ $endif
       if (!#(signature)_value.compareAndSet(_previous, _next)) {
         _next = (#boxedType) #(signature)_value.get();
       }
-      state.updateIteration(_id);
       $TracePrintReturnNewValue
       $include(AttrDecl.traceCircularExitCase2)
       return _next;
     } else {
+      // CASE3 - reuse previous approximation.
       $TracePrintReturnPreviousValue
       $include(AttrDecl.traceCircularExitCase3)
       return (#boxedType) _previous;
@@ -176,6 +178,7 @@ $endif
     Object _id = _value;
     #getType _result;
     if (!state.inCircle() || state.calledByLazyAttribute()) {
+      // CASE1 - start fixed-point loop.
       $include(AttrDecl.traceCircularEnterCase1)
       state.enterCircle();
       #tracePrintCycleBeginString
@@ -220,6 +223,7 @@ $endif
       _value.done = true;
       return _previous;
     } else if (!state.observedInCycle(_id)) {
+      // CASE2 - compute new approximation.
       $include(AttrDecl.traceCircularEnterCase2)
       state.updateIteration(_id);
       #tracePrintBeginComputingValue
@@ -250,11 +254,11 @@ $endif
       if (!_value.compareAndSet(_previous, _next)) {
         _next = (#boxedType) _value.get();
       }
-      state.updateIteration(_id);
       $TracePrintReturnNewValue
       $include(AttrDecl.traceCircularExitCase2)
       return _next;
     } else {
+      // CASE3 - reuse previous approximation.
       $TracePrintReturnPreviousValue
       $include(AttrDecl.traceCircularExitCase3)
       return (#boxedType) _previous;
