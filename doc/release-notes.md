@@ -1,6 +1,63 @@
 JastAdd2 Release Notes
 ======================
 
+2.3.0 - 2017-09-08
+------------------
+
+### Concurrent Attribute Evaluation
+
+A new option to enable concurrent attribute evaluation has been added.  This
+option makes the generated code for attributes safe to run in multiple threads
+concurrently.  Automatic parallelization is also available via parallelized
+collection attributes.  To be able to safely use circular attributes with
+concurrent evaluation, all generated code (except for the parallelized
+collection attributes) is lock-free.
+
+To enable concurrent code generation, add the `--concurrent` option.
+Collection attributes can be parallelized by annotating the attribute
+declarations with `@Parallel` and/or `@ParallelSurvey`.
+
+## Empty Container Singletons
+
+The new `--emptyContainerSingletons` option has been added to reduce runtime
+memory use.  This option was developed by Axel M&aring;rtensson for his Master
+Thesis. He found a 5-24% memory reduction using this option on ExtendJ and
+JModelica.
+
+The option alters the `setChild` method for list and optional children so that
+it replaces empty lists and optionals by singleton objects representing these
+empty containers. The singleton objects are non-mutable, and they throw
+exceptions if you try to mutate them. This works well with the way JastAdd ASTs
+are usually constructed: they are typically only mutated during parsing via the
+`setChild` methods.
+
+## Circular Rewrite Equality Test
+
+The way circular rewrites are evaluated has been changed: the
+`Object.equals(Object)` method is now used, instead of
+`ASTNode.is$Equal(ASTNode,ASTNode)`, to test if the rewritten node is equal to the
+previous node. This means that it is possible to define a custom node
+comparison method. The previous way rewrite values were compared was to compare
+the AST structure and tokens. The old behaviour can easily be reimplemented if
+it is desired and if not then a simpler equality test can be used.
+
+This change affects rewrites that don't have a rewrite condition and rewrite to
+the same node type.
+
+## Other Changes
+
+Removed an obsolete variant of the `refine` statement.
+
+The refinement syntax for methods and synthesized equations had a variation
+where the equation or code block was replaced by "to refine", for example:
+    
+    refine Aspect1 eq A.x() to refine Aspect2 eq A.y() = ...;
+
+This could be used to rename an attribute, however a similar effect can be
+achieved by simply creating a new attribute calling the old one. The only
+difference is that the old attribute remains.
+
+
 2.2.3 - 2017-05-08
 ------------------
 

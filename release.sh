@@ -170,6 +170,7 @@ done
 git add doc/release-notes.md
 
 # Show staged changes.
+echo 'Staged changes will be added in release commit:'
 git status -sb
 
 echo "Building release ${VERSION}..."
