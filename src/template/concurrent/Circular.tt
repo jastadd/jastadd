@@ -84,15 +84,14 @@ $else
 $endif
           state.setChangeInCycle();
           $include(AttrDecl.traceCircularCase1Change)
-        }
 $if(#getNTA)
-        if (_next != null) {
-          _next.setParent(#ntaParent);
-        }
+          if (_next != null) {
+            _next.setParent(#ntaParent);
+          }
 $endif
-        // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
-        if (!#(signature)_value.compareAndSet(_previous, _next)) {
-          _next = (#boxedType) #(signature)_value.get();
+          if (!#(signature)_value.compareAndSet(_previous, _next)) {
+            _next = (#boxedType) #(signature)_value.get();
+          }
         }
         _previous = _next;
         #tracePrintStartingCycle
@@ -121,15 +120,14 @@ $else
 $endif
         state.setChangeInCycle();
         $include(AttrDecl.traceCircularCase2Change)
-      }
-      // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
 $if(#getNTA)
-      if (_next != null) {
-        _next.setParent(#ntaParent);
-      }
+        if (_next != null) {
+          _next.setParent(#ntaParent);
+        }
 $endif
-      if (!#(signature)_value.compareAndSet(_previous, _next)) {
-        _next = (#boxedType) #(signature)_value.get();
+        if (!#(signature)_value.compareAndSet(_previous, _next)) {
+          _next = (#boxedType) #(signature)_value.get();
+        }
       }
       $TracePrintReturnNewValue
       $include(AttrDecl.traceCircularExitCase2)
@@ -198,20 +196,19 @@ $else
 $endif
           state.setChangeInCycle();
           $include(AttrDecl.traceCircularCase1Change)
-        }
-        // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
 $if(#getNTA)
-        if (_next != null) {
-          if (#(signature)_list.get() == null) {
-            $List _list _list = new $List();
-            _list.setParent(#ntaParent);
-            #(signature)_list.compareAndSet(null, _list);
+          if (_next != null) {
+            if (#(signature)_list.get() == null) {
+              $List _list _list = new $List();
+              _list.setParent(#ntaParent);
+              #(signature)_list.compareAndSet(null, _list);
+            }
+            (($ASTNode) _next).setParent(#(signature)_list.get());
           }
-          (($ASTNode) _next).setParent(#(signature)_list.get());
-        }
 $endif
-        if (!_value.compareAndSet(_previous, _next)) {
-          _previous = (#boxedType) _value.get();
+          if (!_value.compareAndSet(_previous, _next)) {
+            _previous = (#boxedType) _value.get();
+          }
         }
         #tracePrintStartingCycle
         #cycleLimitCheck
@@ -239,20 +236,19 @@ $else
 $endif
         state.setChangeInCycle();
         $include(AttrDecl.traceCircularCase2Change)
-      }
-      // Always update the approximation, so that the !canRewrite() NTA case is handled correctly.
 $if(#getNTA)
-      if (_next != null) {
-        if (#(signature)_list.get() == null) {
-          $List _list _list = new $List();
-          _list.setParent(#ntaParent);
-          #(signature)_list.compareAndSet(null, _list);
+        if (_next != null) {
+          if (#(signature)_list.get() == null) {
+            $List _list _list = new $List();
+            _list.setParent(#ntaParent);
+            #(signature)_list.compareAndSet(null, _list);
+          }
+          (($ASTNode) _next).setParent(#(signature)_list.get());
         }
-        (($ASTNode) _next).setParent(#(signature)_list.get());
-      }
 $endif
-      if (!_value.compareAndSet(_previous, _next)) {
-        _next = (#boxedType) _value.get();
+        if (!_value.compareAndSet(_previous, _next)) {
+          _next = (#boxedType) _value.get();
+        }
       }
       $TracePrintReturnNewValue
       $include(AttrDecl.traceCircularExitCase2)
