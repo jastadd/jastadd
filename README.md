@@ -1,5 +1,4 @@
-JastAdd2
-========
+# JastAdd2
 
 JastAdd2 was developed at Lund University by Torbjörn Ekman, Görel
 Hedin, and Eva Magnusson. JastAdd2 has recieved additional contributions from
@@ -7,21 +6,19 @@ Emma Söderberg, Jesper Öqvist and Niklas Fors.
 
 For additional contributors, see the change logs.
 
-License
--------
+## License
 
 Copyright (c) 2005-2016, The JastAdd Team. All rights reserved.
 
 JastAdd2 is covered by the modified BSD License. For the full license text
 see the LICENSE file.
 
-Obtaining JastAdd2
-------------------
+## Obtaining JastAdd2
 
-The latest version of JastAdd2 can be found at [jastadd.org](http://jastadd.org).
+The latest version of JastAdd2 can be found at [jastadd.org][1].
 
-Dependencies
-------------
+
+## Dependencies
 
 JastAdd2 requires a Java Runtime Environment (JRE) to run, and a JDK to build.
 The minimum required Java version for JastAdd2 is Java SE 6.
@@ -38,34 +35,25 @@ script during the build script. The Python script requires the Python-Markdown
 package for Python. The Python-Markdown package can be installed using `pip
 install markdown`.
 
-Building
---------
 
-Builds are done by using the Apache Ant script build.xml:
+## Building
 
-* Ordinary build (generate and compile):
+Builds are done by using the Gradle script (`gradlew` on Unix-likes, `gradlew.bat` on Windows):
 
-        > ant
+* Build `jastadd2.jar`:
 
-* Create a new jar file (jastadd2.jar)
+        > ./gradlew
 
-        > ant jar
+* Build a new release (builds jar file, source- and binary zip files):
 
-* Make a new release (builds jar file, source- and binary zip files):
+        > ./gradlew release
 
-        > ant release
+* Delete generated files:
 
-* Delete generated files
+        > ./gradlew clean
 
-        > ant clean
 
-* Bootstrap jastadd2 (replace the jastadd2.jar used to build jastadd2).
-  For stability, bootstrap is done seldom and only with extra testing.
-
-        > ant bootstrap
-
-File Types
-----------
+## File Types
 
 * `.ast`      JastAdd abstract syntax tree files
 * `.jrag`     JastAdd semantics files. Usually declarative.
@@ -73,8 +61,8 @@ File Types
 * `.java`     Regular Java sources
 * `.jjt`      JavaCC files, using the JJTree AST-building commands.
 
-Directory Structure
--------------------
+
+## Directory Structure
 
 * `src/java` Java source files.
     - `src/java/org/jastadd/`
@@ -103,8 +91,7 @@ Directory Structure
     A textfile containing cvs log messages until 2010 when the
     system was moved to svn.
 
-Understanding the Implementation
---------------------------------
+## Understanding the Implementation
 
 Overall behavior when running JastAdd:
 
@@ -115,8 +102,8 @@ Overall behavior when running JastAdd:
 * Then, possible errors are printed.
 * Then, target AST classes are generated.
 
-Parsing
--------
+
+## Parsing
 
 JavaCC and its tree-building extension, JJTree, are used for parsing. They
 assume top classes called Node and SimpleNode. Normally, JJTree generates its
@@ -127,3 +114,5 @@ However, we let JJTree generate the AST classes for the Java code used inside
 equations in .jrag files. This is because these expressions are not analyzed by
 JastAdd. They are just unparsed at appropriate places in the generated Java
 code.
+
+[1]: http://jastadd.org
