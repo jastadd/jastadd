@@ -5,60 +5,42 @@ apply plugin: 'signing'
 
 defaultTasks 'jar'
 
-/** Helper function to run a command. Returns the command output if the command succeeded. */
-def tryCommand(List command) {
-	def out = new StringBuilder()
-	def err = new StringBuilder()
-	// The project.projectDir argument to execute() sets the working directory for the
-	// command to the project directory.
-	def proc = command.execute(null, project.projectDir)
-	proc.waitForProcessOutput(out, err)
-	if (proc.exitValue()) {
-		def msg = "failed to run '${command[0]}' command (args: ${command.tail()})\n$err$out"
-		print 'Warning: '
-		println msg
-		""
-	} else {
-		if (err) {
-			println "${err}"
-		}
-		out.toString()
-	}
-}
-
-/** Helper function to retrieve the current version string. */
-def getVersion() {
-	if (hasProperty('newVersion')) {
-		// A new version string should be saved.
-		def date = new Date()
-		Properties version = new Properties()
-		version['version'] = newVersion
-		version['timestamp'] = date.format("yyyy-MM-dd'T'HH:mm'Z'")
-		version['build.date'] = date.format('yyyy-MM-dd')
-		version.store(file('src/res/Version.properties').newWriter(), null)
-		return newVersion
-	} else {
-		def output = tryCommand(['git', 'describe'])
-		if (output) {
-			// Use Git describe output.
-			output.readLines()[0]
+def fullVersion
+if (hasProperty('newVersion')) {
+	// A new version string should be saved.
+	def date = new Date()
+	def props = new Properties()
+	props['version'] = newVersion
+	props['timestamp'] = date.format("yyyy-MM-dd'T'HH:mm'Z'")
+	props['build.date'] = date.format('yyyy-MM-dd')
+	props.store(file('src/res/Version.properties').newWriter(), null)
+	version = fullVersion = newVersion
+} else {
+	try {
+		def proc = 'git describe'.execute(null, rootDir)
+		if	(proc.waitFor() == 0) {
+			fullVersion = proc.text.trim()
+			// Trim to get latest tag:
+			version = (fullVersion =~ /-\d+\-g.+$/).replaceAll('')
 		} else {
-			// Git command failed. Read the previous version string instead.
-			Properties version = new Properties()
-			version.load(new FileInputStream(file('src/res/Version.properties')))
-			version['version']
+			logger.warn('No git tags found.')
 		}
+	} catch (IOException e) {
+		logger.warn("Failded to run git describe (${e.getMessage()}).")
+	}
+	if (!fullVersion?.trim()) {
+		logger.warn('Reading stored version string.')
+		def props = new Properties()
+		file('src/res/Version.properties').withInputStream { stream -> props.load(stream) }
+		version = fullVersion = props['version']
 	}
 }
+println "Building JastAdd version ${fullVersion}"
 
-project.version = getVersion()
-project.group = 'org.jastadd'
-project.archivesBaseName = 'jastadd'
+group = 'org.jastadd'
+archivesBaseName = 'jastadd'
 
-println("Building version: ${project.version}")
-
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
+sourceCompatibility = targetCompatibility = '1.6'
 
 mainClassName = 'org.jastadd.JastAdd'
 jar.manifest.attributes 'Main-Class': mainClassName
@@ -167,7 +149,7 @@ task binaryZip(type: Zip) {
 }
 
 task documentation {
-  doLast {
+	doLast {
 		println 'Processing Markdown files'
 		ant.copy(file: 'doc/index.md.in', toFile: 'doc/index.md', overwrite: 'true') {
 			filterset {
@@ -199,17 +181,17 @@ task updateVersionString {
 		if (output.isFile()) {
 			output.withInputStream { stream -> props.load(stream) }
 		}
-		props['version'] == project.version
+		props['version'] == fullVersion
 	}
 
 	doLast {
 		file('src/gen-res').mkdirs()
 		def date = new Date()
-		Properties version = new Properties()
-		version['version'] = project.version
-		version['timestamp'] = date.format("yyyy-MM-dd'T'HH:mm'Z'")
-		version['build.date'] = date.format('yyyy-MM-dd')
-		version.store(file('src/gen-res/Version.properties').newWriter(), null)
+		Properties props = new Properties()
+		props['version'] = fullVersion
+		props['timestamp'] = date.format("yyyy-MM-dd'T'HH:mm'Z'")
+		props['build.date'] = date.format('yyyy-MM-dd')
+		props.store(file('src/gen-res/Version.properties').newWriter(), null)
 	}
 }
 
@@ -340,8 +322,8 @@ artifacts {
 }
 
 signing {
-	// Require OSSRH credentials for signing artifacts:
-	required { project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword') }
+	// Require keyId to sign:
+	required { project.hasProperty('signing.keyId') }
 	sign configurations.archives
 }
 
@@ -360,65 +342,63 @@ sourceSets {
 	}
 }
 
-uploadArchives {
-	repositories.mavenDeployer {
-		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+if (project.hasProperty('ossrhUsername')) {
+	uploadArchives {
+		repositories.mavenDeployer {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-		repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-			if (project.hasProperty('ossrhUsername')) {
+			repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
 				authentication(userName: ossrhUsername, password: ossrhPassword)
 			}
-		}
 
-		snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
-			if (project.hasProperty('ossrhUsername')) {
+			snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
 				authentication(userName: ossrhUsername, password: ossrhPassword)
 			}
-		}
 
-		pom.project {
-			name 'JastAdd2'
-			packaging 'jar'
-			description 'A metacompilation framework for Java using attribute grammars.'
-			url 'http://jastadd.org'
-			organization {
-				name 'The JastAdd Team'
+			pom.project {
+				name 'JastAdd2'
+				packaging 'jar'
+				description 'A metacompilation framework for Java using attribute grammars.'
 				url 'http://jastadd.org'
-			}
-			licenses {
-				license {
-					name 'Modified BSD License'
-					url 'http://opensource.org/licenses/BSD-3-Clause'
-					distribution 'repo'
+				organization {
+					name 'The JastAdd Team'
+					url 'http://jastadd.org'
 				}
-			}
-			developers {
-				developer {
-					name 'Görel Hedin'
-					email 'gorel.hedin@cs.lth.se'
+				licenses {
+					license {
+						name 'Modified BSD License'
+						url 'http://opensource.org/licenses/BSD-3-Clause'
+						distribution 'repo'
+					}
 				}
-				developer {
-					name 'Eva Magnusson'
+				developers {
+					developer {
+						name 'Görel Hedin'
+						email 'gorel.hedin@cs.lth.se'
+					}
+					developer {
+						name 'Eva Magnusson'
+					}
+					developer {
+						name 'Torbjörn Ekman'
+					}
+					developer {
+						name 'Emma Söderberg'
+						email 'emso@google.com'
+					}
+					developer {
+						name 'Jesper Öqvist'
+						email 'jesper.oqvist@cs.lth.se'
+					}
+					developer {
+						name 'Niklas Fors'
+						email 'niklas.fors@cs.lth.se'
+					}
 				}
-				developer {
-					name 'Torbjörn Ekman'
+				scm {
+					connection 'scm:git:https://bitbucket.org/jastadd/jastadd2.git'
+					url 'https://bitbucket.org/jastadd/jastadd2'
 				}
-				developer {
-					name 'Emma Söderberg'
-					email 'emso@google.com'
-				}
-				developer {
-					name 'Jesper Öqvist'
-					email 'jesper.oqvist@cs.lth.se'
-				}
-				developer {
-					name 'Niklas Fors'
-					email 'niklas.fors@cs.lth.se'
-				}
-			}
-			scm {
-				connection 'scm:git:https://bitbucket.org/jastadd/jastadd2.git'
-				url 'https://bitbucket.org/jastadd/jastadd2'
 			}
 		}
 	}
