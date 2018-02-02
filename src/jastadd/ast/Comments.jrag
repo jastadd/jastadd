@@ -28,12 +28,18 @@
 
 aspect Comments {
 
+  /**
+   * Helper class for documentation comment handling.
+   */
   class JavaDocParser {
     private static final String NL = System.getProperty("line.separator", "\n");
     int i;
     char[] javadoc;
     StringBuilder out;
 
+    /**
+     * Strips comment syntax, returning only the raw comment text.
+     */
     String parse(String comments) {
       if (comments == null)
         return "";

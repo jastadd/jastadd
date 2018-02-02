@@ -41,7 +41,7 @@ aspect Lookup {
   public TypeDecl Grammar.findClassDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if (!comment.startsWith("//") || !comment.startsWith("/*")) {
+    if (!comment.startsWith("//") && !comment.startsWith("/*")) {
       comment = "";
     }
     TypeDecl t = lookup(name);
@@ -58,7 +58,7 @@ aspect Lookup {
   public TypeDecl Grammar.findInterfaceDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if (!comment.startsWith("//") || !comment.startsWith("/*")) {
+    if (!comment.startsWith("//") && !comment.startsWith("/*")) {
       comment = "";
     }
     TypeDecl t = lookup(name);
@@ -74,7 +74,7 @@ aspect Lookup {
   public TypeDecl Grammar.findEnumDecl(String name, String comment,
       String fileName, int beginLine, String enclosingAspect) {
     comment = comment.trim();
-    if (!comment.startsWith("//") || !comment.startsWith("/*")) {
+    if (!comment.startsWith("//") && !comment.startsWith("/*")) {
       comment = "";
     }
     TypeDecl t = lookup(name);

@@ -120,7 +120,7 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Emits the (nta) child initialization method
+   * Emits the (nta) child initialization method.
    */
   public void ASTDecl.emitChildInitMethod(PrintWriter out) {
     TemplateContext tt = templateContext();
@@ -162,7 +162,7 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Emits the constructor body for tree building constructors
+   * Emits the constructor body for tree building constructors.
    */
   public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
     TemplateContext tt = templateContext();
@@ -200,7 +200,8 @@ aspect JaddCodeGen {
 
   /**
    * Emits annotation on the constructor with information about the arguments.
-   * Three arrays are generated for the constructor, one with the name of the
+   *
+   * <p>Three arrays are generated for the constructor, one with the name of the
    * children, one with the type and one with the kind(Child, List, Opt or Token).
    */
   private void ASTDecl.emitConstructorAnnotation(PrintWriter out){
@@ -248,18 +249,16 @@ aspect JaddCodeGen {
   }
 
   /**
-   * Constructor to build trees bottom up
+   * Constructor to build trees bottom up.
    */
   public void ASTDecl.emitBuildingConstructor(PrintWriter out) {
     if (components().isEmpty()) {
       // We only build constructors if there are components.
       return;
     }
-    if(config().generateAnnotations()){
+    if (config().generateAnnotations()){
         emitConstructorAnnotation(out);
     }
-
-
 
     out.print(config().indent + "public " + name() + "." + name() + "(");
     int paramIndex = 0;
@@ -327,10 +326,9 @@ aspect JaddCodeGen {
    * List nodes use the minimum list size as the initial child
    * array size.
    */
-  syn String ASTDecl.initialChildArraySize() {
-    return String.format("(i + 1 > %d || !(this instanceof %s)) ? i + 1 : %d",
-        config().minListSize(), config().listType(), config().minListSize());
-  }
+  syn String ASTDecl.initialChildArraySize() =
+      String.format("(i + 1 > %d || !(this instanceof %s)) ? i + 1 : %d",
+          config().minListSize(), config().listType(), config().minListSize());
 
   /**
    * Checks that ASTNode.state can be evaluated.
@@ -627,7 +625,7 @@ aspect JaddCodeGen {
     jp.root = grammar();
 
     // The file name is not meaningful, as the component is completely generated
-    // from a node type specification
+    // from a node type specification.
     jp.setFileName("");
 
     try {

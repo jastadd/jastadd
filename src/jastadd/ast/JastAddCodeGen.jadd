@@ -281,7 +281,7 @@ aspect JastAddCodeGen {
       stream.println("}");
       stream.close();
     } catch (FileNotFoundException f) {
-      System.err.format("Could not create file %s in %s%n", file.getName(), file.getParent());
+      System.err.format("Could not create file %s in %s.%n", file.getName(), file.getParent());
       System.exit(1);
     }
   }
