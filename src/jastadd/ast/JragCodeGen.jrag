@@ -484,17 +484,16 @@ aspect JragCodeGen {
 
   /**
    * Generates the method to compute an attribute with a specific equation
-   * @param out
-   * @param equ the equation to generate code for
+   * @param equ the equation to generate code for.
    */
-  public void AttrDecl.emitAttrEquation(PrintStream out, AttrEq equ) {
+  public void AttrDecl.emitSynEquation(PrintStream out, AttrEq equ) {
     if (equ.canInlineExpression()) {
       if (isCircular()) {
         templateContext().bind("CircularComputeRhs", equ.computeCode());
       } else {
         templateContext().bind("ComputeRhs", equ.computeCode());
       }
-      emitAttrEquation(out, equ.parametersDecl());
+      emitAttrEquationWithComment(out, equ.parametersDecl(), equ.docComment());
     } else if (equ.canInlineBlock(this)) {
       if (!declaredNTA() && !config().traceCompute()
           && !config().visitCheckEnabled()
@@ -509,14 +508,13 @@ aspect JragCodeGen {
       } else {
         templateContext().bind("ComputeRhs", computeRhs());
       }
-      emitAttrEquation(out, equ.parametersDecl());
+      emitAttrEquationWithComment(out, equ.parametersDecl(), equ.docComment());
       equ.emitComputeMethod(out);
     }
   }
 
   /**
    * Generates the Java method to evaluate an attribute.
-   * @param out
    */
   public void AttrDecl.emitAttrEquation(PrintStream out) {
     if (isCircular()) {
@@ -524,15 +522,18 @@ aspect JragCodeGen {
     } else {
       templateContext().bind("ComputeRhs", computeRhs());
     }
-    emitAttrEquation(out, parametersDecl());
+    emitAttrEquationWithComment(out, parametersDecl(), docComment());
   }
 
   /**
    * Generates the Java method to evaluate an attribute.
-   * @param out
-   * @param paramDecl
+   *
+   * @param paramDecl parameter declaration string.
+   * @param docComment documentation comment.
    */
-  public void AttrDecl.emitAttrEquation(PrintStream out, String paramDecl) {
+  public void AttrDecl.emitAttrEquationWithComment(PrintStream out, String paramDecl,
+      String docComment) {
+    templateContext().bind("DocComment", docComment);
     if (isCircular()) {
       TemplateContext tt = templateContext();
       if (getNumParameter() == 0) {
@@ -597,7 +598,7 @@ aspect JragCodeGen {
        AttrEq equ = getSynEq(i);
        AttrDecl attr = equ.decl();
        emitCacheDeclarations(out, attr);
-       attr.emitAttrEquation(out, equ);
+       attr.emitSynEquation(out, equ);
     }
   }
 
