@@ -127,8 +127,8 @@ aspect JastAddCodeGen {
     File csv = new File(filename);
     PrintStream out = new PrintStream(new FileOutputStream(csv));
     out.println("node,syndecl,syneq,inhdecl,inheq,colldecl,colleq");
-    for (int i = 0; i < getNumTypeDecl(); i++) {
-      getTypeDecl(i).writeStatistics(out);
+    for (TypeDecl type : getTypeDeclList()) {
+      type.writeStatistics(out);
     }
     out.close();
   }

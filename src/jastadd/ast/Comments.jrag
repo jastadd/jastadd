@@ -181,9 +181,9 @@ outer: while (true) {
    */
   public String ASTDecl.componentString() {
     StringBuffer components = new StringBuffer();
-    for (int i = 0; i < getNumComponent(); ++i) {
+    for (Component comp : components()) {
       components.append(" ");
-      components.append(getComponent(i).componentString());
+      components.append(comp.componentString());
     }
     return components.toString();
   }
@@ -283,7 +283,7 @@ outer: while (true) {
     if (hasSuperClass()) {
       production.append(" : ").append(getSuperClass().getID());
     }
-    if (getNumComponent() > 0) {
+    if (!components().isEmpty()) {
       production.append(" ::=").append(componentString());
     }
     return String.format(
