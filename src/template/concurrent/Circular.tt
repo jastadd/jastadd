@@ -158,12 +158,13 @@ AttrDecl.circularEquation:parameterized [[
       #getType _bottom = $BottomValue;
 $if(#getNTA)
       if (_bottom != null) {
-        if (#(signature)_list.get() == null) {
-          $List _list _list = new $List();
-          _list.setParent(#ntaParent);
-          #(signature)_list.compareAndSet(null, _list);
+        if (#(signature)_proxy.get() == null) {
+          // Initialize NTA proxy object.
+          $ASTNode _proxy = new $ASTNode();
+          _proxy.setParent(#ntaParent);
+          #(signature)_proxy.compareAndSet(null, _proxy);
         }
-        (($ASTNode) _bottom).setParent(#(signature)_list.get());
+        (($ASTNode) _bottom).setParent(#(signature)_proxy.get());
       }
 $endif
       _value = new CircularAttributeValue(_bottom);
@@ -198,12 +199,13 @@ $endif
           $include(AttrDecl.traceCircularCase1Change)
 $if(#getNTA)
           if (_next != null) {
-            if (#(signature)_list.get() == null) {
-              $List _list _list = new $List();
-              _list.setParent(#ntaParent);
-              #(signature)_list.compareAndSet(null, _list);
+            if (#(signature)_proxy.get() == null) {
+              // Initialize NTA proxy object.
+              $ASTNode _proxy = new $ASTNode();
+              _proxy.setParent(#ntaParent);
+              #(signature)_proxy.compareAndSet(null, _proxy);
             }
-            (($ASTNode) _next).setParent(#(signature)_list.get());
+            (($ASTNode) _next).setParent(#(signature)_proxy.get());
           }
 $endif
           if (!_value.compareAndSet(_previous, _next)) {
@@ -238,12 +240,13 @@ $endif
         $include(AttrDecl.traceCircularCase2Change)
 $if(#getNTA)
         if (_next != null) {
-          if (#(signature)_list.get() == null) {
-            $List _list _list = new $List();
-            _list.setParent(#ntaParent);
-            #(signature)_list.compareAndSet(null, _list);
+          if (#(signature)_proxy.get() == null) {
+            // Initialize NTA proxy object.
+            $ASTNode _proxy = new $ASTNode();
+            _proxy.setParent(#ntaParent);
+            #(signature)_proxy.compareAndSet(null, _proxy);
           }
-          (($ASTNode) _next).setParent(#(signature)_list.get());
+          (($ASTNode) _next).setParent(#(signature)_proxy.get());
         }
 $endif
         if (!_value.compareAndSet(_previous, _next)) {

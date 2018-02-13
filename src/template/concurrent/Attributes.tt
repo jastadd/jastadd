@@ -42,11 +42,7 @@ AttrDecl.cacheDeclarations [[
 $if(#isParameterized)
   $if(#declaredNTA)
   /** @apilevel internal */
-  protected $List<#getType> #(signature)_list;
-  {
-    #(signature)_list = new $List<#getType>();
-    #(signature)_list.setParent(this);
-  }
+  protected AtomicReference<$ASTNode> #(signature)_proxy = new AtomicReference<$ASTNode>(null);
 
   $endif
   $if(#isCircular)
@@ -115,17 +111,16 @@ AttrDecl.emitInlineComputeWithoutTry [[
 AttrDecl.visitedDeclaration [[
 ]]
 
-SynDecl.higherOrderAttributeCode:norewrite [[
-$if(#isParameterized)
-_result.setParent(#(signature)_list);
-$else
-_result.setParent(this);
-$endif
-]]
-
+SynDecl.higherOrderAttributeCode:norewrite =
 SynDecl.higherOrderAttributeCode:rewritesEnabled [[
 $if(#isParameterized)
-_result.setParent(#(signature)_list);
+if (#(signature)_proxy.get() == null) {
+  // Initialize NTA proxy object.
+  $ASTNode _proxy = new $ASTNode();
+  _proxy.setParent(#ntaParent);
+  #(signature)_proxy.compareAndSet(null, _proxy);
+}
+_result.setParent(#(signature)_proxy.get());
 $else
 _result.setParent(this);
 $endif

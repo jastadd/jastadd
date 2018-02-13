@@ -56,8 +56,7 @@ AttrDecl.resetMethod [[
   private void #(signature)_fresh() {
 $if(#isParameterized)
   $if(#declaredNTA)
-    #(signature)_list = new $List<#getType>();
-    #(signature)_list.setParent(this);
+    #(signature)_proxy.set(null);
   $endif
   $if(#isCircular)
     #(signature)_values = new $ConcurrentMap<Object, CircularAttributeValue>();
