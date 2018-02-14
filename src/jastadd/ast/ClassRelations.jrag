@@ -145,7 +145,7 @@ aspect Parents {
         }
         for (SynthesizedNta component : decl.synNtaDecls()) {
           TypeDecl t = lookup(component.getType());
-          if (t != null) {
+          if (t instanceof ASTDecl) {
             map.get(t).add(decl);
           }
         }
