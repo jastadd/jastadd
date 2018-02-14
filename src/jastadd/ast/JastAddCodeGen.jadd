@@ -41,17 +41,24 @@ import org.jastadd.jrag.ClassBodyObject;
 
 aspect JastAddCodeGen {
   public void Grammar.weaveInterfaceIntroductions() {
-    for (int i = 0; i < getNumTypeDecl(); i++) {
-      if (getTypeDecl(i) instanceof InterfaceDecl) {
-        InterfaceDecl d = (InterfaceDecl)getTypeDecl(i);
+    for (TypeDecl decl : getTypeDeclList()) {
+      if (decl instanceof InterfaceDecl) {
+        InterfaceDecl d = (InterfaceDecl) decl;
         String name = d.name();
-        for (int j = 0; j < getNumTypeDecl(); j++) {
-          if (getTypeDecl(j) instanceof ASTDecl) {
-            ASTDecl dest = (ASTDecl)getTypeDecl(j);
+        for (TypeDecl decl2 : getTypeDeclList()) {
+          if (decl2 instanceof ASTDecl) {
+            ASTDecl dest = (ASTDecl) decl2;
             if (dest.implementsInterface(name)) {
               for (ClassBodyObject o : d.classBodyDecls) {
-                if (o.node instanceof ASTAspectMethodDeclaration
-                    || o.node instanceof ASTAspectFieldDeclaration) {
+                if (o.node instanceof ASTAspectMethodDeclaration) {
+                  // Only add interface method if it has a body.
+                  if (hasMethodBody((ASTAspectMethodDeclaration) o.node)) {
+                    if (!dest.hasClassBodyDecl(o.signature())) {
+                      dest.classBodyDecls.add(new ClassBodyObject(o.node, o.fileName, o.line,
+                            o.getAspectName()));
+                    }
+                  }
+                } else if (o.node instanceof ASTAspectFieldDeclaration) {
                   if (!dest.hasClassBodyDecl(o.signature())) {
                     dest.classBodyDecls.add(new ClassBodyObject(o.node, o.fileName, o.line,
                           o.getAspectName()));
@@ -100,6 +107,21 @@ aspect JastAddCodeGen {
         }
       }
     }
+  }
+
+  /**
+   * Used to test if an interface method provides an implementation (and should
+   * be woven into implementing classes).
+   *
+   * @return {@code true} if the given method has a method body.
+   */
+  private static boolean Grammar.hasMethodBody(ASTAspectMethodDeclaration decl) {
+    for (int i = 0; i < decl.jjtGetNumChildren(); ++i) {
+      if (decl.jjtGetChild(i) instanceof ASTBlock) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean ASTDecl.hasClassBodyDecl(String signature) {
