@@ -1,6 +1,24 @@
 JastAdd2 Release Notes
 ======================
 
+2.3.1 - 2018-02-15
+------------------
+
+* [Issue 282:](https://bitbucket.org/jastadd/jastadd2/issues/282/abstract-interface-methods-are-added-to)
+  Improved interface weaving: abstract methods are not woven into implementing
+  classes.
+* [Iussue 284,](https://bitbucket.org/jastadd/jastadd2/issues/284/documentation-comment-not-retained-for)
+  [285,](https://bitbucket.org/jastadd/jastadd2/issues/285/incorrect-source-location-in-declared-at)
+  [288:](https://bitbucket.org/jastadd/jastadd2/issues/288/include-inherited-members-in-the-astdecl)
+  Improved documentation comment generation.
+* [Issue 280:](https://bitbucket.org/jastadd/jastadd2/issues/280/genrate-warning-when-nta-not-subclass-of)
+  Fixed error reporting for NTAs with non AST class result type.
+* Fixed an incorrect unconditional approximation update in concurrent circular
+  attributes.
+* [Issue 287:](https://bitbucket.org/jastadd/jastadd2/issues/287/parameterized-nta-on-astnode-do-not-work)
+  Fixed a code generation issue in concurrent mode.
+
+
 2.3.0 - 2017-09-08
 ------------------
 
