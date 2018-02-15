@@ -158,7 +158,7 @@ while true; do
   case $yn in
     [Yy]* )
       ${EDITOR:-vim} doc/release-notes.md
-      gradle documentation
+      ./gradlew documentation
       echo "Generated doc/release-notes.html - check that the markup looks OK"
       break
       ;;
@@ -174,7 +174,7 @@ echo 'Staged changes will be added in release commit:'
 git status -sb
 
 echo "Building release ${VERSION}..."
-gradle clean release "-PnewVersion=${VERSION}"
+./gradlew clean release "-PnewVersion=${VERSION}"
 VERSIONFILE='src/res/Version.properties'
 git add "${VERSIONFILE}"
 git commit -m "Release ${VERSION}"
@@ -197,4 +197,4 @@ git push origin master
 git push origin "${VERSION}"
 
 echo "Release finished. To upload artifacts to the Central Repository, use this command:"
-echo "    gradle uploadArchives"
+echo "    ./gradlew uploadArchives"
