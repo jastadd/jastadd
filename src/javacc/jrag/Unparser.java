@@ -814,4 +814,20 @@ public class Unparser implements JragParserVisitor {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
+  public Object visit(ASTLambdaExpression self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
+    return null;
+  }
+  public Object visit(ASTLambdaParameters self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
+    return null;
+  }
+  public Object visit(ASTTypedLambdaParameters self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
+    return null;
+  }
+  public Object visit(ASTUntypedLambdaParameters self, Object data) {
+    Unparser.unparseSimple(this, self, (StringBuffer) data);
+    return null;
+  }
 }
