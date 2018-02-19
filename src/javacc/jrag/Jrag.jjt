@@ -2288,7 +2288,7 @@ void LambdaParameters() :
 {
   Name()
 |
-  "(" ( LOOKAHEAD(2) TypedLambdaParameters() | UntypedLambdaParameters() ) ")"
+  "(" [ LOOKAHEAD(2) TypedLambdaParameters() | UntypedLambdaParameters() ] ")"
 }
 
 void TypedLambdaParameters() :
