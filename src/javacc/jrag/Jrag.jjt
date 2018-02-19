@@ -2294,13 +2294,13 @@ void LambdaParameters() :
 void TypedLambdaParameters() :
 {}
 {
-  Type() Name() ( "," TypedLambdaParameters() )*
+  Type() Name() ( "," Type() Name() )*
 }
 
 void UntypedLambdaParameters() :
 {}
 {
-  Name() ( "," UntypedLambdaParameters() )*
+  Name() ( "," Name() )*
 }
 
 /*
