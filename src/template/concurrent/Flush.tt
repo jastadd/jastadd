@@ -25,17 +25,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-AttrDecl.resetAttrCache [[]]
-
-AttrDecl.resetAttrVisit [[]]
-
-ASTDecl.flushAttrCacheMethod [[
-$if(FlushAttr)
-  /** @apilevel internal */
-  public void #name.flushAttrCache() {
-    // Flushing is not needed. Caches cleared when cloning.
-  }
-$endif
+# Used to refresh a cloned node to a fresh state.
+# Note: atomic references need to be replaced since this is a fresh object,
+# otherwise there would be cache sharing between separate nodes.
+ASTDecl.makeFreshNode [[
   /** @apilevel internal */
   public void #name.makeFreshNode() {
     $if(!#isASTNodeDecl)
@@ -45,13 +38,66 @@ $endif
   }
 ]]
 
-# Reset all attribute caches.
+# Resets all caches for a collection attribute.
+Collection.makeFresh [[
+$if(#onePhase)
+collect_contributors_#collectionId = false;
+$else
+contributorMap_#collectionId = null;
+$if(Concurrent)
+surveyLock_#collectionId = new Object();
+$endif
+$endif
+]]
+
 AttrDecl.resetMethod [[
+$if(FlushAttr)
   /** @apilevel internal */
   private void #(signature)_reset() {
-    // Handled by creating a fresh copy of this node!
+    $include(AttrDecl.traceFlushAttr)
+    $if(Concurrent)
+    $include(AttrDecl.resetAttrCache:concurrent)
+    $include(AttrDecl.resetAttrVisit:concurrent)
+    $else
+    $include(AttrDecl.resetAttrCache)
+    $include(AttrDecl.resetAttrVisit)
+    $endif
   }
+$endif
+]]
 
+# There are some things that don't need to be reset when flushing
+# a node to a non-fresh state:
+#  - NTA proxy objects
+#  - atomic references
+#  - id objects
+# Note: circular attribute values can be reset instead of creating a new
+# object but this not implemented yet.
+AttrDecl.resetAttrCache:concurrent [[
+$if(#isParameterized)
+#(signature)_values.clear();
+$else
+  $if(#isCircular)
+#(signature)_value = new CircularAttributeValue();
+  $else
+    $if(#isIdentityComparable)
+#(signature)_computed = false;
+    $if(#cacheInCycle)
+#(signature)_id = new Object();
+    $endif
+    $else
+#(signature)_value.set(AttributeValue.NONE);
+    $endif
+  $endif
+$endif
+]]
+
+# TODO(joqvist): implement this!
+AttrDecl.resetAttrVisit:concurrent [[
+]]
+
+# Reset all attribute caches.
+AttrDecl.makeFresh [[
   /** @apilevel internal */
   private void #(signature)_fresh() {
 $if(#isParameterized)
@@ -77,5 +123,15 @@ $else
     $endif
   $endif
 $endif
+  }
+]]
+
+# The clone is not flushed in concurrent mode:
+# makeFreshNode() will take care of flushing it in treeCopy().
+ASTDecl.emitCloneNode [[
+  /** @apilevel internal */
+  #annotations
+  public #copyReturnType #name.clone() throws CloneNotSupportedException {
+    return (#name) super.clone();
   }
 ]]

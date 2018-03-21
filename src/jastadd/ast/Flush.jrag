@@ -37,30 +37,52 @@ aspect Flush {
     // TODO: Figure out if flushing of NTAs are missing when this is excluded
     //tt.bind("FlushNTACache", emitFlushNTACacheString());
 
+    if (config().concurrentEval()) {
+      StringBuilder fresh = new StringBuilder();
+      for (AttrDecl attr : listOfCachedAttributes()) {
+        fresh.append(attr.signature() + "_fresh();\n");
+      }
+      for (CollDecl decl : interfaceCollDecls()) {
+        fresh.append(
+            decl.signature() + "_value = new AtomicReference<Object>(AttributeValue.NONE);\n");
+        if (decl.root() == this) {
+          fresh.append(decl.templateContext().expand("Collection.makeFresh"));
+        }
+      }
+      for (CollDecl decl : getCollDeclList()) {
+        fresh.append(
+            decl.signature() + "_value = new AtomicReference<Object>(AttributeValue.NONE);\n");
+        if (decl.root() == this) {
+          fresh.append(decl.templateContext().expand("Collection.makeFresh"));
+        }
+      }
+      tt.bind("MakeFreshNodeBody", fresh.toString());
+      tt.expand("ASTDecl.makeFreshNode", out);
+    }
+
     StringBuilder sb = new StringBuilder();
     for (AttrDecl attr : listOfCachedAttributes()) {
       sb.append(attr.signature() + "_reset();\n");
     }
     tt.bind("FlushAttrCacheBody", sb.toString());
-
-    StringBuilder fresh = new StringBuilder();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl) itr.next();
-      fresh.append(attr.signature() + "_fresh();\n");
-    }
-    tt.bind("MakeFreshNodeBody", fresh.toString());
-
     tt.expand("ASTDecl.flushAttrCacheMethod", out);
     tt.expand("ASTDecl.flushCollectionCacheMethod", out);
   }
 
-  syn String AttrDecl.resetCache() = templateContext().expand("AttrDecl.resetAttrCache");
+  syn String AttrDecl.resetCache() = config().concurrentEval()
+      ? templateContext().expand("AttrDecl.resetAttrCache:concurrent")
+      : templateContext().expand("AttrDecl.resetAttrCache");
 
-  syn String AttrDecl.resetVisit() = templateContext().expand("AttrDecl.resetAttrVisit");
+  syn String AttrDecl.resetVisit() = config().concurrentEval()
+      ? templateContext().expand("AttrDecl.resetAttrVisit:concurrent")
+      : templateContext().expand("AttrDecl.resetAttrVisit");
 
   public void AttrDecl.emitResetMethod(PrintStream out) {
     if (isMemoized()) {
       templateContext().expand("AttrDecl.resetMethod", out);
+      if (config().concurrentEval()) {
+        templateContext().expand("AttrDecl.makeFresh", out);
+      }
     }
   }
 

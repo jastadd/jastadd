@@ -68,14 +68,12 @@ $if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel internal */
   public void #name.flushAttrAndCollectionCache() {
-    $SynchBegin
     $if(FlushAttr)
     flushAttrCache();
     $endif
     $if(FlushColl)
     flushCollectionCache();
     $endif
-    $SynchEnd
   }
 $endif
 $endif
