@@ -69,11 +69,9 @@ $if(!#isNTA)
    * @apilevel high-level
    */
   $Modifier void $Host.set$(Name)List($ListType list) {
-    $SynchBegin
     $include(State.incHookConstructionStart)
     setChild(list, $Index);
     $include(State.incHookConstructionEnd)
-    $SynchEnd
   }
 
 $endif
@@ -95,9 +93,7 @@ $endif
    * @apilevel high-level
    */
   $Modifier int $Host.getNum$Name() {
-    $SynchBegin
     return get$(Name)List().getNumChild();
-    $SynchEnd
   }
 
   /**
@@ -107,9 +103,7 @@ $endif
    * @apilevel low-level
    */
   $Modifier int $Host.getNum$(Name)NoTransform() {
-    $SynchBegin
     return get$(Name)ListNoTransform().getNumChildNoTransform();
-    $SynchEnd
   }
 
   /**
@@ -120,9 +114,7 @@ $endif
    */
   #annotations
   $Modifier $Type $Host.get$Name(int i) {
-    $SynchBegin
     return ($Type) get$(Name)List().getChild(i);
-    $SynchEnd
   }
 
   /**
@@ -131,9 +123,7 @@ $endif
    * @apilevel high-level
    */
   $Modifier boolean $Host.has$Name() {
-    $SynchBegin
     return get$(Name)List().getNumChild() != 0;
-    $SynchEnd
   }
 
   /**
@@ -142,7 +132,6 @@ $endif
    * @apilevel high-level
    */
   $Modifier void $Host.add$Name($Type node) {
-    $SynchBegin
     $ListType list = (parent == null) ? get$(Name)ListNoTransform() : get$(Name)List();
 $if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
@@ -153,12 +142,10 @@ $if(EmptyContainerSingletons)
 $else
     list.addChild(node);
 $endif
-    $SynchEnd
   }
 
   /** @apilevel low-level */
   $Modifier void $Host.add$(Name)NoTransform($Type node) {
-    $SynchBegin
     $ListType list = get$(Name)ListNoTransform();
 $if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
@@ -169,7 +156,6 @@ $if(EmptyContainerSingletons)
 $else
     list.addChild(node);
 $endif
-    $SynchEnd
   }
 
   /**
@@ -179,7 +165,6 @@ $endif
    * @apilevel high-level
    */
   $Modifier void $Host.set$Name($Type node, int i) {
-    $SynchBegin
     $ListType list = get$(Name)List();
     $include(State.incHookConstructionStart)
 $if(EmptyContainerSingletons)
@@ -192,7 +177,6 @@ $else
     list.setChild(node, i);
 $endif
     $include(State.incHookConstructionEnd)
-    $SynchEnd
   }
 
 $if(#isNTA)
@@ -211,9 +195,7 @@ $if(#isNTA)
    * @apilevel low-level
    */
   $Modifier $ListType $Host.get$(Name)ListNoTransform() {
-    $SynchBegin
     return ($ListType) getChildNoTransform($Index);
-    $SynchEnd
   }
 $else
 
@@ -225,10 +207,8 @@ $else
   #annotations
   $include(ListComponent.generatedAnnotations)
   $Modifier $ListType $Host.get$(Name)List() {
-    $SynchBegin
     $ListType list = ($ListType) getChild($Index);
     return list;
-    $SynchEnd
   }
 
   /**
@@ -239,9 +219,7 @@ $else
    */
   #annotations
   $Modifier $ListType $Host.get$(Name)ListNoTransform() {
-    $SynchBegin
     return ($ListType) getChildNoTransform($Index);
-    $SynchEnd
   }
 $endif
 
@@ -250,9 +228,7 @@ $endif
    * triggering rewrites.
    */
   $Modifier $Type $Host.get$(Name)NoTransform(int i) {
-    $SynchBegin
     return ($Type) get$(Name)ListNoTransform().getChildNoTransform(i);
-    $SynchEnd
   }
 
   /**
@@ -261,9 +237,7 @@ $endif
    * @apilevel high-level
    */
   $Modifier $ListType $Host.get$(Name)s() {
-    $SynchBegin
     return get$(Name)List();
-    $SynchEnd
   }
 
   /**
@@ -273,9 +247,7 @@ $endif
    * @apilevel low-level
    */
   $Modifier $ListType $Host.get$(Name)sNoTransform() {
-    $SynchBegin
     return get$(Name)ListNoTransform();
-    $SynchEnd
   }
 ]]
 

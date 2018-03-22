@@ -60,11 +60,9 @@ $if(!#isNTA)
    * @apilevel low-level
    */
   $Modifier void $Host.set$(Name)Opt($OptType opt) {
-    $SynchBegin
     $include(State.incHookConstructionStart)
     setChild(opt, $Index);
     $include(State.incHookConstructionEnd)
-    $SynchEnd
   }
 
 $endif
@@ -86,7 +84,6 @@ $endif
    * @apilevel high-level
    */
   $Modifier void $Host.set$Name($Type node) {
-    $SynchBegin
     $include(State.incHookConstructionStart)
 $if(EmptyContainerSingletons)
   $if(#isNTA)
@@ -103,7 +100,6 @@ $else
     get$(Name)Opt().setChild(node, 0);
 $endif
     $include(State.incHookConstructionEnd)
-    $SynchEnd
   }
 
   /**
@@ -112,9 +108,7 @@ $endif
    * @apilevel high-level
    */
   $Modifier boolean $Host.has$Name() {
-    $SynchBegin
     return get$(Name)Opt().getNumChild() != 0;
-    $SynchEnd
   }
 
   /**
@@ -124,9 +118,7 @@ $endif
    */
   #annotations
   $Modifier $Type $Host.get$Name() {
-    $SynchBegin
     return ($Type) get$(Name)Opt().getChild(0);
-    $SynchEnd
   }
 
 $if(#isNTA)
@@ -138,9 +130,7 @@ $if(#isNTA)
    */
   #annotations
   $Modifier $OptType $Host.get$(Name)OptNoTransform() {
-    $SynchBegin
     return ($OptType) getChildNoTransform($Index);
-    $SynchEnd
   }
 
   /**
@@ -161,9 +151,7 @@ $else
   #annotations
   $include(OptionalComponent.generatedAnnotations)
   $Modifier $OptType $Host.get$(Name)Opt() {
-    $SynchBegin
     return ($OptType) getChild($Index);
-    $SynchEnd
   }
 
   /**
@@ -174,9 +162,7 @@ $else
    */
   #annotations
   $Modifier $OptType $Host.get$(Name)OptNoTransform() {
-    $SynchBegin
     return ($OptType) getChildNoTransform($Index);
-    $SynchEnd
   }
 $endif
 ]]

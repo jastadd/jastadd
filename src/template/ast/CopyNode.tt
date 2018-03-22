@@ -30,7 +30,6 @@ ASTDecl.emitCopyNode [[
   /** @apilevel internal */
   #annotations
   public #copyReturnType #name.copy() {
-    $SynchBegin
     try {
       $include(ASTDecl.traceCopyNode)
       #name node = (#name) clone();
@@ -54,7 +53,6 @@ $endif
     } catch (CloneNotSupportedException e) {
       throw new Error("Error: clone not supported for " + getClass().getName());
     }
-    $SynchEnd
   }
 ]]
 
@@ -90,7 +88,6 @@ $if(#hasAbstract)
   public abstract #copyReturnType #name.treeCopyNoTransform();
 $else
   public #copyReturnType #name.treeCopyNoTransform() {
-    $SynchBegin
     #name tree = (#name) copy();
     if (children != null) {
       for (int i = 0; i < children.length; ++i) {
@@ -108,7 +105,6 @@ $endif
       }
     }
     return tree;
-    $SynchEnd
   }
 $endif
 ]]
@@ -120,11 +116,9 @@ ASTNode.emitDoFullTraversal [[
    */
   #annotations
   public void $ASTNode.doFullTraversal() {
-    $SynchBegin
     for (int i = 0; i < getNumChild(); i++) {
       getChild(i).doFullTraversal();
     }
-    $SynchEnd
   }
 ]]
 
@@ -141,7 +135,6 @@ $if(#hasAbstract)
   public abstract #copyReturnType #name.treeCopy();
 $else
   public #copyReturnType #name.treeCopy() {
-    $SynchBegin
   $if(LegacyRewrite)
     doFullTraversal();
     return treeCopyNoTransform();
@@ -164,7 +157,6 @@ $else
     }
     return tree;
   $endif
-    $SynchEnd
   }
 $endif
 ]]
@@ -178,7 +170,6 @@ ASTDecl.emitCloneNode [[
   /** @apilevel internal */
   #annotations
   public #copyReturnType #name.clone() throws CloneNotSupportedException {
-    $SynchBegin
     #name node = (#name) super.clone();
 $if(#isASTNodeDecl)
   $if(LegacyRewrite)
@@ -193,6 +184,5 @@ $if(#isASTNodeDecl)
   $endif
 $endif
     return node;
-    $SynchEnd
   }
 ]]

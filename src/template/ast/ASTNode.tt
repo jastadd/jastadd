@@ -188,7 +188,6 @@ $endif
    * The iterator does not allow removing children.
    */
   public java.util.Iterator<T> $ASTNode.astChildIterator() {
-    $SynchBegin
     return new java.util.Iterator<T>() {
       private int index = 0;
 
@@ -207,7 +206,6 @@ $endif
         throw new UnsupportedOperationException();
       }
     };
-    $SynchEnd
   }
 
   /** @return an object that can be used to iterate over the children of this node */
@@ -260,17 +258,14 @@ $endif
 ASTNode.setParent [[
   /** @apilevel low-level */
   public void $ASTNode.setParent($ASTNode node) {
-    $SynchBegin
     $include(ASTNode.incHookSetParent)
     parent = node;
-    $SynchEnd
   }
 ]]
 
 ASTNode.getParent [[
   /** @apilevel low-level */
   public $ASTNode $ASTNode.getParent() {
-    $SynchBegin
 $if(LegacyRewrite)
     if (parent != null && (($ASTNode) parent).is$$Final() != is$$Final()) {
       state().boundariesCrossed++;
@@ -278,7 +273,6 @@ $if(LegacyRewrite)
 $endif
     $include(ASTNode.incHookGetParent)
     return ($ASTNode) parent;
-    $SynchEnd
   }
 ]]
 
@@ -302,9 +296,7 @@ ASTNode.numChildren [[
 
   /** @apilevel low-level */
   public int $ASTNode.getNumChild() {
-    $SynchBegin
     return numChildren();
-    $SynchEnd
   }
 
   /**
@@ -312,16 +304,13 @@ ASTNode.numChildren [[
     * @apilevel low-level
     */
   public final int $ASTNode.getNumChildNoTransform() {
-    $SynchBegin
     return numChildren();
-    $SynchEnd
   }
 ]]
 
 ASTNode.setChild [[
   /** @apilevel low-level */
   public void $ASTNode.setChild($ASTNode node, int i) {
-    $SynchBegin
 $if(DebugMode)
     debugNodeAttachment(node);
 $endif
@@ -355,14 +344,12 @@ $endif
       node.childIndex = i;
     }
     $include(ASTNode.incHookSetChild5)
-    $SynchEnd
   }
 ]]
 
 ASTNode.insertChild [[
   /** @apilevel low-level */
   public void $ASTNode.insertChild($ASTNode node, int i) {
-    $SynchBegin
 $if(DebugMode)
     debugNodeAttachment(node);
 $endif
@@ -391,14 +378,12 @@ $endif
       node.setParent(this);
       node.childIndex = i;
     }
-    $SynchEnd
   }
 ]]
 
 ASTNode.removeChild [[
   /** @apilevel low-level */
   public void $ASTNode.removeChild(int i) {
-    $SynchBegin
     if (children != null) {
       $include(ASTNode.incHookRemoveChild1)
       $ASTNode child = ($ASTNode) children[i];
@@ -426,7 +411,6 @@ ASTNode.removeChild [[
       }
       $include(ASTNode.incHookRemoveChild3)
     }
-    $SynchEnd
   }
 ]]
 
@@ -445,7 +429,6 @@ $if(RewriteEnabled)
     }
     return (T) node;
  $else
-    $SynchBegin
     $ASTNode node = this.getChildNoTransform(i);
     if (node == null) {
       return null;
@@ -501,7 +484,6 @@ $if(RewriteEnabled)
     $include(ASTNode.incHookGetChild11)
     $include(ASTNode.incHookGetChild12)
     return (T) node;
-    $SynchEnd
  $endif
 $else
     $ASTNode child = getChildNoTransform(i);
@@ -522,14 +504,12 @@ ASTNode.getChildNoTransform [[
   $else
   public final T $ASTNode.getChildNoTransform(int i) {
   $endif
-    $SynchBegin
     if (children == null) {
       return null;
     }
     T child = (T)children[i];
     $include(ASTNode.incHookGetChildNT)
     return child;
-    $SynchEnd
   }
 ]]
 

@@ -35,7 +35,6 @@ $if(#needsListTouched)
 $endif
 
   public $List<T> $List.add(T node) {
-    $SynchBegin
 $if(DebugMode)
     if (node instanceof $List) {
       throw new RuntimeException("Lists can not have children of type $List");
@@ -46,7 +45,6 @@ $if(DebugMode)
 $endif
     addChild(node);
     return this;
-    $SynchEnd
   }
 
   public $List<T> $List.addAll(Iterable<? extends T> c) {
@@ -67,35 +65,28 @@ $endif
   }
 
   public void $List.insertChild($ASTNode node, int i) {
-    $SynchBegin
 $if(#needsListTouched)
     list$$touched = true;
 $endif
     super.insertChild(node, i);
-    $SynchEnd
   }
 
   public void $List.addChild(T node) {
-    $SynchBegin
 $if(#needsListTouched)
     list$$touched = true;
 $endif
     super.addChild(node);
-    $SynchEnd
   }
 
   /** @apilevel low-level */
   public void $List.removeChild(int i) {
-    $SynchBegin
 $if(#needsListTouched)
     list$$touched = true;
 $endif
     super.removeChild(i);
-    $SynchEnd
   }
 
   public int $List.getNumChild() {
-    $SynchBegin
 $if(#needsListTouched)
     if (list$$touched) {
       for (int i = 0; i < getNumChildNoTransform(); i++) {
@@ -105,7 +96,6 @@ $if(#needsListTouched)
     }
 $endif
     return getNumChildNoTransform();
-    $SynchEnd
   }
 
   /** @return an iterator to iterate over elements in this list node. */

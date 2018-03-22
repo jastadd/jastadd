@@ -92,7 +92,6 @@ AttrDecl.emitInlineComputeWithTry [[
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name($ParamDecl) {
-    $SynchBegin
     #parameterStructure
     #initLazyMaps
     $include(AttrDecl.cacheCheck)
@@ -108,7 +107,6 @@ AttrDecl.emitInlineComputeWithTry [[
       $include(AttrDecl.clearVisited)
       $include(AttrDecl.traceComputeEndInline)
     }
-    $SynchEnd
   }
 ]]
 
@@ -117,7 +115,6 @@ AttrDecl.emitInlineComputeWithoutTry [[
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name($ParamDecl) {
-    $SynchBegin
     #parameterStructure
     #initLazyMaps
     #lazyState
@@ -126,7 +123,6 @@ AttrDecl.emitInlineComputeWithoutTry [[
     $include(AttrDecl.setVisited)
     $include(AttrDecl.traceComputeBegin)
     $ComputeBody
-    $SynchEnd
   }
 ]]
 
@@ -283,7 +279,6 @@ $DocComment
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name($ParamDecl) {
-    $SynchBegin
     #parameterStructure
     #initLazyMaps
     #lazyState
@@ -313,7 +308,6 @@ $endif
     $include(AttrDecl.leaveLazyAttribute)
     $include(AttrDecl.clearVisited)
     $include(AttrDecl.returnStmt)
-    $SynchEnd
   }
 ]]
 

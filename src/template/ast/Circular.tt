@@ -36,7 +36,6 @@ AttrDecl.circularEquation:unparameterized [[
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name() {
-    $SynchBegin
     $include(AttrDecl.cacheCheck)
     $StateClass state = state();
     if (!#(signature)_initialized) {
@@ -139,7 +138,6 @@ $endif
       $include(AttrDecl.traceCircularExitCase3)
     }
     $include(AttrDecl.returnStmt)
-    $SynchEnd
   }
 ]]
 
@@ -147,7 +145,6 @@ AttrDecl.circularEquation:parameterized [[
   #annotations
   $include(AttrDecl.generatedAnnotations)
   public #getType #name($ParamDecl) {
-    $SynchBegin
     #parameterStructure
     #initLazyMaps
     $StateClass.CircularValue _value;
@@ -265,7 +262,6 @@ $endif
       $include(AttrDecl.traceCircularExitCase3)
       return (#boxedType) _value.value;
     }
-    $SynchEnd
   }
 ]]
 

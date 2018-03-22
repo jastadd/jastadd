@@ -210,10 +210,6 @@ public class JastAddTask extends Task {
     setOption(config.debugOption, enable);
   }
 
-  public void setSynch(boolean enable) {
-    setOption(config.synchOption, enable);
-  }
-
   public void setStaticState(boolean enable) {
     setOption(config.staticStateOption, enable);
   }

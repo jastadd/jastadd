@@ -33,11 +33,9 @@ $if(!#isNTA)
    * @apilevel high-level
    */
   public void $Host.set$Name($Type node) {
-    $SynchBegin
     $include(State.incHookConstructionStart)
     setChild(node, $Index);
     $include(State.incHookConstructionEnd)
-    $SynchEnd
   }
 
 $endif
@@ -61,9 +59,7 @@ $if(#isNTA)
    * @apilevel low-level
    */
   public $Type $Host.get$(Name)NoTransform() {
-    $SynchBegin
     return ($Type) getChildNoTransform($Index);
-    $SynchEnd
   }
   /**
    * Retrieves the child position of the optional child $Name.
@@ -81,9 +77,7 @@ $else
    */
   $include(AggregateComponent.generatedAnnotations)
   public $Type $Host.get$Name() {
-    $SynchBegin
     return ($Type) getChild($Index);
-    $SynchEnd
   }
   /**
    * Retrieves the $Name child.
@@ -92,9 +86,7 @@ $else
    * @apilevel low-level
    */
   public $Type $Host.get$(Name)NoTransform() {
-    $SynchBegin
     return ($Type) getChildNoTransform($Index);
-    $SynchEnd
   }
 $endif
 ]]

@@ -523,12 +523,10 @@ $endif
 ASTState.reset [[
   /** @apilevel internal */
   public void $StateClass.reset() {
-    $SynchBegin
     // Reset circular evaluation state.
     circle = CIRCLE_BOTTOM;
 $if(LegacyRewrite)
     boundariesCrossed = 0;
 $endif
-    $SynchEnd
   }
 ]]

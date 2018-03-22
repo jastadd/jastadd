@@ -166,7 +166,6 @@ aspect JaddCodeGen {
    */
   public void ASTDecl.emitBuildingConstructorBody(PrintWriter out) {
     TemplateContext tt = templateContext();
-    out.print(config().synchronizedBlockBegin(tt));
     tt.expand("State.incHookConstructionStart", out);
 
     int param = 0;
@@ -195,7 +194,6 @@ aspect JaddCodeGen {
     }
 
     tt.expand("State.incHookConstructionEnd", out);
-    out.print(config().synchronizedBlockEnd(tt));
   }
 
   /**

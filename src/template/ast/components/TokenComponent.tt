@@ -36,10 +36,8 @@ $if(!#isNTA)
    * @apilevel high-level
    */
   $Modifier void $Host.set$Id($Type value) {
-    $SynchBegin
     token$(TypeInSignature)_$Id = value;
     $include(TokenComponent.incHookSetToken)
-    $SynchEnd
   }
 
 $endif
@@ -73,14 +71,12 @@ $if(!#isNTA)
    * @apilevel internal
    */
   $Modifier void $Host.set$Id(beaver.Symbol symbol) {
-    $SynchBegin
     if (symbol.value != null && !(symbol.value instanceof String))
     throw new UnsupportedOperationException("set$Id is only valid for String lexemes");
     token$(TypeInSignature)_$Id = (String)symbol.value;
     $(Id)start = symbol.getStart();
     $(Id)end = symbol.getEnd();
     $include(TokenComponent.incHookSetToken)
-    $SynchEnd
   }
     $endif
   /**
@@ -90,10 +86,8 @@ $if(!#isNTA)
    */
   $include(TokenComponent.generatedAnnotations)
   $Modifier $Type $Host.get$Id() {
-    $SynchBegin
     $include(TokenComponent.incHookGetToken)
     return token$(TypeInSignature)_$Id != null ? token$(TypeInSignature)_$Id : "";
-    $SynchEnd
   }
   $else
   /**
@@ -103,10 +97,8 @@ $if(!#isNTA)
    */
   @ASTNodeAnnotation.Token(name="$Id")
   $Modifier $Type $Host.get$Id() {
-    $SynchBegin
     $include(TokenComponent.incHookGetToken)
     return token$(TypeInSignature)_$Id;
-    $SynchEnd
   }
   $endif
 $endif

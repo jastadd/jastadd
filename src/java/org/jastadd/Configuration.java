@@ -282,10 +282,6 @@ public class Configuration {
   Option<Boolean> debugOption = new FlagOption("debug", "generate run-time checks for debugging")
       .templateVariable("DebugMode");
 
-  Option<Boolean> synchOption = new FlagOption("synch",
-      "generate synchronized blocks around all AST-accessing methods")
-      .nonStandard();
-
   Option<Boolean> staticStateOption = new BooleanOption("staticState",
       "the generated state field is static")
       .defaultValue(true)
@@ -463,7 +459,6 @@ public class Configuration {
     allOptions.add(refineLegacyOption);
     allOptions.add(licenseOption);
     allOptions.add(debugOption);
-    allOptions.add(synchOption);
     allOptions.add(outputDirOption);
     allOptions.add(staticStateOption);
     allOptions.add(tracingOption);
@@ -550,11 +545,6 @@ public class Configuration {
 
     // Configuration object must be set before creating root template context!
     TemplateContext tt = root.templateContext();
-
-    // Configure global locking.
-    // TODO(joqvist): remove this.
-    tt.bind("SynchBegin", synchronizedBlockBegin(tt));
-    tt.bind("SynchEnd", synchronizedBlockEnd(tt));
 
     for (Option<?> option: allOptions()) {
       option.bind(tt);
@@ -974,20 +964,6 @@ public class Configuration {
       }
     }
     return "";
-  }
-
-  /**
-   * @return the start of the synchronized block in attribute evaluator
-   */
-  public String synchronizedBlockBegin(TemplateContext tc) {
-    return synchOption.value() ? tc.expand("SynchronizedBlockBegin") : "";
-  }
-
-  /**
-   * @return the end of the synchronized block in attribute evaluator
-   */
-  public String synchronizedBlockEnd(TemplateContext tc) {
-    return synchOption.value() ? tc.expand("SynchronizedBlockEnd") : "";
   }
 
   /**
