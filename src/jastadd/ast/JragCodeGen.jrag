@@ -731,7 +731,8 @@ aspect JragCodeGen {
           || attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA
           || attrName.equals(comp.name() + "List") && comp instanceof ListComponentNTA) {
         if (config().concurrentEval()) {
-          return "setChild(_result, get" + attrName + "ChildPosition());\n";
+          // Only link result with parent. Child vector is not used for NTAs in concurrent mode.
+          return "_result.setParent(this);\n";
         } else {
           return "setChild(" + signature() + "_value, get" + attrName + "ChildPosition());\n";
         }

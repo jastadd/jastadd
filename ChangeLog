@@ -1,6 +1,12 @@
 2018-04-04  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Fixed aliasing issue for parameterized NTAs in concurrent mode.
+    * Fixed race conditions for grammar-declared NTAs in concurrent mode.
+      See issue 291 and 292 on the issue tracker.
+    * Grammar-declared NTAs have been moved out of the child vector in
+      concurrent mode.
+    * Added a new internal helper method to ASTNode:
+      getChildNoTransformBase().
 
 2018-03-22  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 

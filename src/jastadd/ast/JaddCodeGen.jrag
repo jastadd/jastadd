@@ -105,6 +105,43 @@ aspect JaddCodeGen {
     return i;
   }
 
+  public void ASTDecl.emitConcurrentGetChild(PrintWriter out) {
+    // Build list of NTA indices.
+    String getNta = "";
+    int numNta = 0;
+    int i = 0;
+    for (Component c : components()) {
+      if (c instanceof TokenComponent) {
+        // Tokens are not stored in the child array.
+        continue;
+      }
+
+      String attrName = null;
+      if (c instanceof ListComponentNTA) {
+        attrName = "get" + c.name() + "List";
+      } else if (c instanceof OptionalComponentNTA) {
+        attrName = "get" + c.name() + "Opt";
+      } else if (c instanceof AggregateComponentNTA) {
+        attrName = "get" + c.name();
+      }
+
+      if (attrName != null) {
+        getNta += "case " + i + ":\n";
+        getNta += "  _value = " + attrName + "_value.get();\n";
+        getNta += "  break;\n";
+        numNta += 1;
+      }
+      i += 1;
+    }
+    TemplateContext tt = templateContext();
+    if (numNta > 0) {
+      tt.bind("GetNTAs", getNta);
+      tt.expand("ASTDecl.getChildNoTransform:concurrent", out);
+    } else {
+      tt.expand("ASTDecl.getChildNoTransform:concurrent:empty", out);
+    }
+  }
+
   /**
    * Default constructor: creates list and opt nodes for
    * all list and opt children. Initializes NTAs.
@@ -558,6 +595,14 @@ aspect JaddCodeGen {
     emitCopyNode(out);
     emitFullCopy(out);
     emitIsEqualMethods(out);
+
+    if (config().concurrentEval()
+        && !isASTNodeDecl()
+        && !isOptDecl()
+        && !isListDecl()) {
+      emitConcurrentGetChild(out);
+    }
+
     genIncremental(out);
   }
 

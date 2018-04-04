@@ -495,15 +495,18 @@ $endif
 
 ASTNode.getChildNoTransform [[
   /**
-    * <p><em>This method does not invoke AST transformations.</em></p>
+    * Gets a child without triggering rewrites.
     * @apilevel low-level
     */
-  $if(IncrementalEnabled)
   public T $ASTNode.getChildNoTransform(int i) {
-  // Must be able to override get child methods for incremental evaluation
-  $else
-  public final T $ASTNode.getChildNoTransform(int i) {
-  $endif
+    return getChildNoTransformBase(i);
+  }
+
+  /**
+   * Directly accesses the child vector.
+   * @apilevel internal
+   */
+  public T $ASTNode.getChildNoTransformBase(int i) {
     if (children == null) {
       return null;
     }
