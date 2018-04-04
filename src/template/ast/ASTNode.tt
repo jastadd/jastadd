@@ -499,6 +499,7 @@ ASTNode.getChildNoTransform [[
     * @apilevel low-level
     */
   public T $ASTNode.getChildNoTransform(int i) {
+$if(Concurrent)
     return getChildNoTransformBase(i);
   }
 
@@ -507,10 +508,11 @@ ASTNode.getChildNoTransform [[
    * @apilevel internal
    */
   public T $ASTNode.getChildNoTransformBase(int i) {
+$endif
     if (children == null) {
       return null;
     }
-    T child = (T)children[i];
+    T child = (T) children[i];
     $include(ASTNode.incHookGetChildNT)
     return child;
   }

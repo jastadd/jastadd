@@ -91,7 +91,7 @@ task sourceZip(type: Zip, dependsOn: 'documentation') {
 		include 'src/javacc/**/*'
 		include 'src/res/**/*'
 		include 'src/template/**/*'
-		include 'tools/Markdown.pl'
+		include 'tools/pymarkdown.py'
 		include 'tools/*.jar'
 		include 'tinytemplate/src/**/*'
 		include 'tinytemplate/LICENSE.txt'
@@ -119,7 +119,6 @@ task binaryDistReadme(type: Exec) {
 	description 'Generate the README for binary distributions'
 	commandLine 'python', file('tools/pymarkdown.py').path, 'README-binary-dist.md'
 
-	inputs.file 'tools/Markdown.pl'
 	inputs.file 'README-binary-dist.md'
 	outputs.file 'README.html'
 
