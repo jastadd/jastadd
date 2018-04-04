@@ -186,6 +186,9 @@ aspect Rewrites {
       tt.bind("TracePrintReturnPreviousValue",
           decl.tracePrintReturnPreviousValue(decl.signature() + "_value"));
       tt.expand("AttrDecl.resetMethod", out);
+      if (config().concurrentEval()) {
+        tt.expand("AttrDecl.makeFresh", out);
+      }
       tt.expand("AttrDecl.cycleDeclaration", out);
       tt.expand("AttrDecl.cacheDeclarations", out);
       tt.expand("AttrDecl.circularEquation:unparameterized", out);

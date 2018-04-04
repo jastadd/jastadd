@@ -97,12 +97,13 @@ AttrDecl.resetAttrVisit:concurrent [[
 ]]
 
 # Reset all attribute caches.
+# Fresh atomic references are needed to avoid aliasing.
 AttrDecl.makeFresh [[
   /** @apilevel internal */
   private void #(signature)_fresh() {
 $if(#isParameterized)
   $if(#declaredNTA)
-    #(signature)_proxy.set(null);
+    #(signature)_proxy = new AtomicReference<$ASTNode>(null);
   $endif
   $if(#isCircular)
     #(signature)_values = new $ConcurrentMap<Object, CircularAttributeValue>();

@@ -27,7 +27,7 @@
 
 InhEq.emitNTAClause [[
 $if(IsParameterized)
-if (_callerNode == $(AttrSignature)_list) {
+if (_callerNode == $(AttrSignature)_proxy.get()) {
   // #declaredat
   $EvalStmt
 }
