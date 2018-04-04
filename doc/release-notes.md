@@ -1,6 +1,20 @@
 JastAdd2 Release Notes
 ======================
 
+2.3.2 - 2018-04-04
+------------------
+
+* [Issue 192:](https://bitbucket.org/jastadd/jastadd2/issues/192/support-for-java-8-syntax-in-aspects)
+  Added partial support for Java 8 syntax in aspects: lambdas and method references.
+* [Issue 289:](https://bitbucket.org/jastadd/jastadd2/issues/289/collection-attributes-are-not-flushed)
+  Collection attributes are now properly flushed in concurrent mode.
+* [Issue 290,](https://bitbucket.org/jastadd/jastadd2/issues/290/nta-proxy-object-aliasing-in-concurrent)
+  [291,](https://bitbucket.org/jastadd/jastadd2/issues/291/race-condition-for-grammar-declared-ntas)
+  [292:](https://bitbucket.org/jastadd/jastadd2/issues/292/dynamic-child-vector-is-unsafe-in)
+  Fixed race conditions in concurrent NTA evaluation.
+  Grammar-declared NTAs are no longer stored in the child vector in concurrent mode.
+
+
 2.3.1 - 2018-02-15
 ------------------
 
