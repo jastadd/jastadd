@@ -19,6 +19,13 @@ pipeline {
   }
 
   stages {
+    stage('Checkout') {
+      steps {
+        // https://stackoverflow.com/questions/42290133/jenkins-pipeline-git-command-submodule-update
+        sh 'git submodule update --init --recursive'
+      }
+    }
+
     stage('Build') {
       steps {
         sh 'gradle clean jar'
