@@ -42,8 +42,6 @@ $if(IncrementalEnabled)
       for (int i = 0; node.children != null && i < node.children.length; i++) {
         node.children[i] = null;
       }
-      node.init_children = null;
-      node.children_computed = null;
       inc_copyHandlers(node);
 $endif
 $if(Concurrent)

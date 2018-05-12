@@ -212,6 +212,8 @@ $if(IncrementalEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel internal */
   protected $ASTNode $ASTNode.inc_locateInitialCopy() {
+    //TODO(emso): fix this method to work with CNTAs.
+    if (true) return null;
     // locate enclosing rewrite
     $ASTNode child = this;
     $ASTNode parent = getParent();
@@ -219,9 +221,9 @@ $if(#isASTNodeDecl)
     while (parent != null) {
       int index = child.childIndex;
       indexList.addFirst(Integer.valueOf(index));
-      if (parent.init_children != null && index >= 0 && index < parent.init_children.length && parent.init_children[index] != null) {
-        break;
-      }
+      //if (parent.init_children != null && index >= 0 && index < parent.init_children.length && parent.init_children[index] != null) {
+      //  break;
+      //}
       child = parent;
       parent = child.getParent();
     }
@@ -235,7 +237,7 @@ $if(#isASTNodeDecl)
       int index = ((Integer)itr.next()).intValue();
       if (first) {
         first = false;
-        child = parent.init_children[index];
+           //child = parent.init_children[index];
         parent = child;
       } else if (index < parent.getNumChildNoTransform()) {
         child = parent.getChildNoTransform(index);

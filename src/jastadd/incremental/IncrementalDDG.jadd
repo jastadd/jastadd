@@ -60,6 +60,10 @@ aspect IncrementalDDG {
       if (name().equals(config().astNodeType())) {
         tt.expand("ASTDecl.createASTHandlers", out);
       }
+      // Rewrite attribute.
+      if (hasRewriteAttribute()) {
+        tt.expand("ASTDecl.createRewriteAttributeHandler", out);
+      }
       // Collect attributes.
       ArrayList list = new ArrayList();
       for (AttrDecl attr : synDecls()) {

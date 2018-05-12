@@ -277,9 +277,6 @@ $if(#isASTNodeDecl)
     if (child != null) {
       child.inc_throwAway();
     }
-    if (init_children != null && i < init_children.length && init_children[i] != null) {
-      init_children[i].inc_throwAway();
-    }
   }
   $endif
   $if(IncrementalLevelAttr)
@@ -291,9 +288,6 @@ $if(#isASTNodeDecl)
     if (child != null) {
       child.inc_throwAway();
     }
-    if (init_children != null && i < init_children.length && init_children[i] != null) {
-      init_children[i].inc_throwAway();
-    }
   }
   $endif
   $if(IncrementalLevelNode)
@@ -302,9 +296,6 @@ $if(#isASTNodeDecl)
     $ASTNode child = children[i];
     if (child != null) {
       child.inc_throwAway();
-    }
-    if (init_children != null && i < init_children.length && init_children[i] != null) {
-      init_children[i].inc_throwAway();
     }
   }
   $endif
@@ -316,9 +307,6 @@ $if(#isASTNodeDecl)
     $ASTNode child = children[i];
     if (child != null) {
       child.inc_throwAway();
-    }
-    if (init_children != null && i < init_children.length && init_children[i] != null) {
-      init_children[i].inc_throwAway();
     }
   }
   $endif

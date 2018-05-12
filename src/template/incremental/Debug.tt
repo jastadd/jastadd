@@ -117,15 +117,6 @@ $endif
 # Generate code for method dumping cached values
 ASTDecl.dumpCachedValuesMethod = [[
 public void #name.dumpCachedValues() {
-$if (#isASTNodeDecl)
-  // Rewritten children
-  for (int k = 0; children_computed != null && k < children_computed.length; k++) {
-    if (children_computed[k]) {
-      System.out.println(children[k].relativeNodeID() + " rewritten, initial=" +
-        (init_children[k] != null ? init_children[k].relativeNodeID() : null));
-    }
-  }
-$endif
   $DumpAttributeValues
   // TODO: dump collection values
 $if (!#isASTNodeDecl)

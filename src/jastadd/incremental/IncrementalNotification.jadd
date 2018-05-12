@@ -32,10 +32,11 @@
 
     TemplateContext tt = templateContext();
 
-    tt.expand("ASTNode.incFlushRewritesLocateEnclosingRewriteMethod", out);
-    tt.expand("ASTNode.incResetRewritesMethod", out);
-    tt.expand("ASTNode.incRestoreEnclosingRewriteMethod", out);
-    tt.expand("ASTNode.incRestoreInitialForIndexMethod", out);
+//    tt.expand("ASTNode.incFlushRewritesLocateEnclosingRewriteMethod", out);
+//    tt.expand("ASTNode.incResetRewritesMethod", out);
+//    tt.expand("ASTNode.incRestoreEnclosingRewriteMethod", out);
+//    tt.expand("ASTNode.incRestoreInitialForIndexMethod", out);
+
     tt.expand("ASTNode.incLocateInitialCopyMethod", out);
 
     tt.bind("AttrAffectedChecks", emitAttrAffectedChecksString());

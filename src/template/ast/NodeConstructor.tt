@@ -79,7 +79,6 @@ OptDecl.constructor = [[
 ListDecl.constructor = [[
   public $List.$List(T... initialChildren) {
     children = new $ASTNode[initialChildren.length];
-    #genIncrementalInitChildHandlers
     for (int i = 0; i < children.length; ++i) {
       addChild(initialChildren[i]);
     }

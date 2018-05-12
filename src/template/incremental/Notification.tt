@@ -181,34 +181,6 @@ $if(IncrementalChangeFlush)
 
 // flush children
 $if(IncrementalLevelParam)
-$if(#isASTNodeDecl)
-if (attrID.equals("getChild")) {
-  int i = (Integer)_parameters;
-  if (children_computed != null && i < children_computed.length && children_computed[i]) {
-    // Make sure this condition is false before calling notify.
-    // There may be a circular dependency resulting in a double flush otherwise.
-    // A double flush will cause null to be moved in as the initial child.
-    children_computed[i] = false;
-    children[i].inc_resetRewrites();
-    // outer rewrites
-    if (init_children[i] != null) {
-      // set up change
-      $ASTNode oldChild = children[i];
-      $ASTNode newChild = init_children[i];
-      // make change
-      oldChild.inc_flush_subtree(getChild_handler[i]);
-      children[i] = newChild;
-      init_children[i] = null;
-      // set parent and notify
-      newChild.setParent(this);
-      getChild_handler[i].notifyDependencies();
-    } else {
-      // inner rewrites
-      inc_restoreEnclosingRewrite();
-    }
-  }
-}
-$endif
 $endif
 
 $if(IncrementalLevelAttr)

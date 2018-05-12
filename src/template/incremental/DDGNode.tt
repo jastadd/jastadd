@@ -499,6 +499,11 @@ ASTDecl.createNodeHandler = [[
   protected $DDGNodeName #name.handler = new $DDGNodeName(this);
 ]]
 
+# Create DDG node for rewrite attribute.
+ASTDecl.createRewriteAttributeHandler = [[
+  protected $DDGNodeName #name.rewrittenNode_handler;
+]]
+
 # Create DDG node for attribute
 ASTDecl.createAttributeHandler = [[
 $if (IncrementalLevelParam)
