@@ -420,12 +420,15 @@ ASTNode.getChild [[
 $if(RewriteEnabled)
  $if(RewriteCircularNTA)
     $ASTNode node = this.getChildNoTransform(i);
+    $include(ASTNode.incHookGetChild)
     if (node != null && node.mayHaveRewrite()) {
+      $include(ASTNode.incHookGetChildEnterEval)
       $ASTNode rewritten = node.rewrittenNode();
       if (rewritten != node) {
         rewritten.setParent(this);
         node = rewritten;
       }
+      $include(ASTNode.incHookGetChildExitEval)
     }
     return (T) node;
  $else
@@ -513,7 +516,6 @@ $endif
       return null;
     }
     T child = (T) children[i];
-    $include(ASTNode.incHookGetChildNT)
     return child;
   }
 ]]

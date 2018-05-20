@@ -329,6 +329,69 @@ $endif
 $endif
 ]]
 
+ASTNode.incHookGetChild = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+if (getChild_handler[i] == null) {
+  $if(IncrementalPropLimit)
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !child.mayHaveRewrite());
+  $else
+  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+  $endif
+}
+state().addHandlerDepTo(getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelAttr)
+state().addHandlerDepTo(getChild_handler);
+$endif
+
+$if(IncrementalLevelNode)
+if (child != null) {
+  state().addHandlerDepTo(child.handler);
+}
+$endif
+
+$if(IncrementalLevelRegion)
+$if(#isRegionRoot)
+if (state().IN_COMPUTATION > 0 && child != null) {
+  child.handler().addDependant(handler);
+}
+$endif
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChildEnterEval = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+state().enterAttrStoreEval(getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelRegion)
+// TODO(emso): Add region enter getChild eval.
+$endif
+
+$endif
+]]
+
+ASTNode.incHookGetChildExitEval = [[
+$if(IncrementalEnabled)
+
+$if(IncrementalLevelParam)
+state().exitAttrStoreEval(getChild_handler[i]);
+$endif
+
+$if(IncrementalLevelRegion)
+// TODO(emso): Add region exit getChild eval.
+$endif
+
+$endif
+]]
+
 TokenComponent.incHookGetToken = [[
 $if(IncrementalEnabled)
 
