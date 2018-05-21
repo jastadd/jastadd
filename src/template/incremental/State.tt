@@ -156,8 +156,13 @@ $endif
 ]]
 
 ASTDecl.incChangeStateMethod = [[
+private boolean #name.inc_changeState_visited = false;
 /** @apilevel internal */
 public void #name.inc_changeState(int newState) {
+  if (inc_changeState_visited) {
+    return;
+  }
+  inc_changeState_visited = true;
 $if(#isASTNodeDecl)
   inc_state = newState;
 
@@ -214,6 +219,7 @@ $else
 $endif
   $ChangeStateTokens
   $ChangeStateAttributes
+  inc_changeState_visited = false;
 }
 ]]
 
@@ -262,8 +268,13 @@ $endif
 ]]
 
 ASTDecl.incThrowAwayMethod = [[
+private boolean #name.inc_throwAway_visited = false;
 /** @apilevel internal */
 public void #name.inc_throwAway() {
+  if (inc_throwAway_visited) {
+    return;
+  }
+  inc_throwAway_visited = true;
   inc_state = inc_GARBAGE;
 $if(#isASTNodeDecl)
   $if(IncrementalLevelParam)
@@ -315,6 +326,7 @@ $else
 $endif
   $ThrowAwayTokens
   $ThrowAwayAttributes
+  inc_throwAway_visited = false;
 }
 ]]
 

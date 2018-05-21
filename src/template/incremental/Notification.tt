@@ -902,8 +902,13 @@ $endif
 $endif
 
 $if(IncrementalLevelParam)
+  private boolean #name.inc_flush_subtree_visited = false;
   /** @apilevel internal */
   protected void #name.inc_flush_subtree($DDGNodeName h) {
+    if (inc_flush_subtree_visited) {
+      return;
+    }
+    inc_flush_subtree_visited = true;
     inc_state = inc_GARBAGE;
     $FlushNtaSubTrees
     $TransferSetsFromAttrTokenHandlers
@@ -923,6 +928,7 @@ $if(#isASTNodeDecl)
 $else
     super.inc_flush_subtree(h);
 $endif
+    inc_flush_subtree_visited = false;
   }
 $endif
 
