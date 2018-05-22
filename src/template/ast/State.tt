@@ -358,8 +358,15 @@ $if(CacheCycle)
     return circle.lastCycle;
   }
 
-  /** @apilevel internal */
+  /**
+   * This is part of the cacheCycle optimization:
+   * a circular attribute is evaluated one extra time after the
+   * last iteration of Case1, in order to mark all dependencies
+   * used in the last iteration as memoized.
+   * @apilevel internal
+   */
   protected void startLastCycle() {
+    nextCycle();
     circle.lastCycle = true;
   }
 $endif
