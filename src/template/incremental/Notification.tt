@@ -221,7 +221,11 @@ $endif
 ASTDecl.attrFlushCheck = [[
 $if(IncrementalLevelParam)
 $if(IsParameterized)
+$if(!#isCircular)
+if (attrID.equals("$AttrSign") && $(AttrSign)_values != null) {
+$else
 if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
+$endif
   $if(IsNTA)
   $AttrType value = ($AttrType)$(AttrSign)_values.remove(_parameters);
   for (int i = 0; i < $(AttrSign)_proxy.children.length; i++) {
@@ -245,7 +249,11 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_valu
   return;
 }
 $else
+$if(!#isCircular)
+if (attrID.equals("$AttrSign")) {
+$else
 if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+$endif
   $if(IsNTA)
   if ($(AttrSign)_value instanceof $ASTNode) {
     $(AttrSign)_value.setParent(null);
