@@ -58,9 +58,9 @@ $if(IncrementalLevelParam)
 int i = getNumChildNoTransform() - 1;
 if (getChild_handler[i] == null) {
 $if(IncrementalPropLimit)
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
+  getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
 $else
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+  getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
 $endif
 }
 state().addHandlerDepTo(getChild_handler[i]);
@@ -160,9 +160,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (this.getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
+  this.getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
   $else
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+  this.getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
   $endif
 }
 this.state().addHandlerDepTo(this.getChild_handler[i]);
@@ -251,9 +251,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (this.getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
+  this.getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i), !node.mayHaveRewrite());
   $else
-  this.getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+  this.getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
   $endif
 }
 this.state().addHandlerDepTo(this.getChild_handler[i]);
@@ -300,9 +300,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !child.mayHaveRewrite());
+  getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i), !child.mayHaveRewrite());
   $else
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+  getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
   $endif
 }
 state().addHandlerDepTo(getChild_handler[i]);
@@ -335,9 +335,9 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 if (getChild_handler[i] == null) {
   $if(IncrementalPropLimit)
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i), !child.mayHaveRewrite());
+  getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i), !child.mayHaveRewrite());
   $else
-  getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+  getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
   $endif
 }
 state().addHandlerDepTo(getChild_handler[i]);
@@ -432,12 +432,12 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
 if (#(signature)_handler == null) {
-  #(signature)_handler = new $DDGNodeName(this, "#(signature)", null);
+  #(signature)_handler = $DDGNodeName.createAttrHandler(this, "#(signature)", null);
 }
 state().addHandlerDepTo(#(signature)_handler);
 $else
 if (!#(signature)_handler.containsKey(_parameters)) {
-  #(signature)_handler.put(_parameters, new $DDGNodeName(this, "#(signature)", _parameters));
+  #(signature)_handler.put(_parameters, $DDGNodeName.createAttrHandler(this, "#(signature)", _parameters));
 }
 state().addHandlerDepTo(($DDGNodeName)#(signature)_handler.get(_parameters));
 $endif
@@ -487,8 +487,13 @@ $if(IncrementalEnabled)
 $if(#isMemoized)
 
 $if(IncrementalLevelParam)
-$DDGNodeName tmpHandler = new $DDGNodeName(this, "", null);
-state().enterAttrStoreEval(tmpHandler);
+//$DDGNodeName tmpHandler = $DDGNodeName.createAttrHandler(this, "", null);
+//state().enterAttrStoreEval(tmpHandler);
+$if(!#isParameterized)
+state().enterAttrStoreEval(#(signature)_handler);
+$else
+state().enterAttrStoreEval(($DDGNodeName)#(signature)_handler.get(_parameters));
+$endif
 $endif
 
 $if(IncrementalLevelAttr)
@@ -558,7 +563,13 @@ $if(IncrementalEnabled)
 $if(#isMemoized)
 
 $if(IncrementalLevelParam)
-state().exitAttrStoreEval(tmpHandler);
+//state().exitAttrStoreEval(tmpHandler);
+$if(!#isParameterized)
+state().exitAttrStoreEval(#(signature)_handler);
+$else
+state().exitAttrStoreEval(($DDGNodeName)#(signature)_handler.get(_parameters));
+$endif
+
 $endif
 
 $if(IncrementalLevelAttr)
@@ -639,9 +650,9 @@ $if(#isMemoized)
 
 $if(IncrementalLevelParam)
 $if(!#isParameterized)
-#(signature)_handler.transferDependenciesFrom(tmpHandler);
+//#(signature)_handler.transferDependenciesFrom(tmpHandler);
 $else
-(($DDGNodeName)#(signature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
+//(($DDGNodeName)#(signature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
 $endif
 $endif
 

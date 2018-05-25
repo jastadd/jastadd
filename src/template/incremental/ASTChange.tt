@@ -51,11 +51,13 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
   }
 }
 $endif
+/*
 if (node != null) {
   inc_changeState(node.inc_state);
 } else {
   inc_changeState(inc_GARBAGE);
 }
+*/
 $endif
 ]]
 
@@ -78,7 +80,7 @@ if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
     if (getChild_handler[i] != null) {
       getChild_handler[i].notifyDependencies();
     } else {
-      getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+      getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
     }
   }
 $endif
@@ -241,7 +243,7 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
 getChild_handler = new $DDGNodeName[i + 1];
-getChild_handler[i] = new $DDGNodeName(this, "getChild", Integer.valueOf(i));
+getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
 $endif
 
 $endif

@@ -37,20 +37,35 @@ $if (IncrementalLevelParam)
   public String fAttrID;
   protected Object fParams;
 
-  public $DDGNodeName($ASTNode node, String attrID, Object params) {
+  public static $DDGNodeName createAttrHandler($ASTNode node, String attrID, Object params) {
+    return new $DDGNodeName(node, attrID, params, $ASTNode.inc_EMPTY);
+  }
+
+  public static $DDGNodeName createAttrHandler($DDGNodeName handler, $ASTNode node) {
+    return new $DDGNodeName(handler, node, $ASTNode.inc_EMPTY);
+  }
+
+  public static $DDGNodeName createAstHandler($ASTNode node, String attrID, Object params) {
+    return new $DDGNodeName(node, attrID, params, $ASTNode.inc_AST);
+  }
+
+  public static $DDGNodeName createAstHandler($DDGNodeName handler, $ASTNode node) {
+    return new $DDGNodeName(handler, node, $ASTNode.inc_AST);
+  }
+
+
+  private $DDGNodeName($ASTNode node, String attrID, Object params, int state) {
     fNode = node;
     fAttrID = attrID;
     fParams = params;
-    fState = node.inc_state;
-    //createdHandlers.add(this);
+    fState = state;
   }
 
-  public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
+  private $DDGNodeName($DDGNodeName handler, $ASTNode node, int state) {
     fNode = node;
     fAttrID = handler.fAttrID;
     fParams = handler.fParams;
-    fState = node.inc_state;
-    //createdHandlers.add(this);
+    fState = state;
   }
 
   public void setParams(Object params) {
@@ -260,11 +275,9 @@ $endif
 
   // React to change
 
-  private boolean visitedChange = false;
-
   public void dependencyChanged() {
-    if (!visitedChange) {
-      visitedChange = true;
+    if (isComputed()) {
+      setEmpty();
 $if (IncrementalTrack)
       trackedFlushes++;
       System.out.println("not(" + this + ")");
@@ -305,17 +318,12 @@ $if (IncrementalLevelRegion)
 $endif
 	  }
 $endif
-      visitedChange = false;
     }
   }
 
   // State
 
-  protected int fState = $ASTNode.inc_CREATED;
-
-  public void changeState(int newState) {
-    fState = newState;
-  }
+  protected int fState = $ASTNode.inc_EMPTY;
 
   public void throwAway() {
     fState = $ASTNode.inc_GARBAGE;
@@ -323,6 +331,14 @@ $endif
 
   public void keepAlive() {
     fState = $ASTNode.inc_LIVE;
+  }
+
+  public void setComputed() {
+    fState = $ASTNode.inc_COMPUTED;
+  }
+
+  public void setEmpty() {
+    fState = $ASTNode.inc_EMPTY;
   }
 
   public boolean isGarbage() {
@@ -339,6 +355,10 @@ $endif
 
   public boolean isLive() {
     return fState == $ASTNode.inc_LIVE;
+  }
+
+  public boolean isComputed() {
+    return fState == $ASTNode.inc_COMPUTED;
   }
 
 $if (IncrementalDebug)
@@ -379,8 +399,19 @@ $if (IncrementalDebug)
     for ($DDGNodeName node : fListenerSet) {
       sorted.add(node.toString());
     }
-    for (String s : sorted) {
-      System.out.println("dep(" + s + " -> " + this + ")");
+    System.out.println(this + " listeners: " + sorted);
+  }
+
+  public String state() {
+    switch (fState) {
+      case ASTNode.inc_LIVE: return "LIVE";
+      case ASTNode.inc_COMPUTED: return "COMPUTED";
+      case ASTNode.inc_EMPTY: return "EMPTY";
+      case ASTNode.inc_AST: return "AST";
+      case ASTNode.inc_GARBAGE: return "GARBAGE";
+      case ASTNode.inc_CREATED: return "CREATED";
+      case ASTNode.inc_CLONED: return "CLONED";                
+      default: return "UNKNOWN";
     }
   }
 
@@ -388,7 +419,7 @@ $if (IncrementalDebug)
 $if (IncrementalLevelParam)
     return fNode.relativeNodeID() + ":" + fAttrID + (fParams != null ?
             ("[" + (fParams instanceof $ASTNode ? (($ASTNode) fParams).relativeNodeID() : fParams) + "]")
-            : "");
+            : "") + " (" + state() + ")";
 $endif
 $if (IncrementalLevelAttr)
     return fNode.relativeNodeID() + ":" + fAttrID;
@@ -463,9 +494,9 @@ $if(IncrementalEnabled)
 $if (!#isNTA)
 $if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
-  protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id", null, true);
+  protected $DDGNodeName $Host.get$(Id)_handler = $DDGNodeName.createAstHandler(this, "get$Id", null, true);
 $else
-  protected $DDGNodeName $Host.get$(Id)_handler = new $DDGNodeName(this, "get$Id", null);
+  protected $DDGNodeName $Host.get$(Id)_handler = $DDGNodeName.createAstHandler(this, "get$Id", null);
 $endif
 $endif
 $if (IncrementalLevelAttr)
@@ -479,11 +510,11 @@ $endif
 ASTDecl.createASTHandlers = [[
 $if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
-  protected $DDGNodeName $ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null, true);
-  protected $DDGNodeName $ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null, true);
+  protected $DDGNodeName $ASTNode.getParent_handler = $DDGNodeName.createAstHandler(this, "getParent", null, true);
+  protected $DDGNodeName $ASTNode.numChildren_handler = $DDGNodeName.createAstHandler(this, "numChildren", null, true);
 $else
-  protected $DDGNodeName $ASTNode.getParent_handler = new $DDGNodeName(this, "getParent", null);
-  protected $DDGNodeName $ASTNode.numChildren_handler = new $DDGNodeName(this, "numChildren", null);
+  protected $DDGNodeName $ASTNode.getParent_handler = $DDGNodeName.createAstHandler(this, "getParent", null);
+  protected $DDGNodeName $ASTNode.numChildren_handler = $DDGNodeName.createAstHandler(this, "numChildren", null);
 $endif
   protected $DDGNodeName[] $ASTNode.getChild_handler;
 $endif

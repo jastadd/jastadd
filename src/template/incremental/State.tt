@@ -67,15 +67,16 @@ $if(IncrementalTrack)
 $endif
 //  if (!IN_REWRITE_EVAL) {
     IN_ATTR_STORE_EVAL = true;
-    //System.out.println("attr eval stack enter: " + handler.fAttrID);
+    //System.out.println("attr eval stack enter: " + handler);
     pushHandler(handlerAttrStack, handler);
+    handler.setComputed();
 //  }
   }
 
   public void exitAttrStoreEval($ASTNode$$DepGraphNode handler) {
 //  if (!IN_REWRITE_EVAL) {
     popHandler(handlerAttrStack, handler);
-    //System.out.println("attr eval stack exit: " + handler.fAttrID);
+    //System.out.println("attr eval stack exit: " + handler);
     IN_ATTR_STORE_EVAL = !handlerAttrStack.isEmpty();
 //  }
   }
@@ -380,6 +381,9 @@ public static final int $ASTNode.inc_CREATED = 0;
 public static final int $ASTNode.inc_CLONED = 1;
 public static final int $ASTNode.inc_LIVE = 2;
 public static final int $ASTNode.inc_GARBAGE = 3;
+public static final int $ASTNode.inc_EMPTY = 4;
+public static final int $ASTNode.inc_COMPUTED = 5;
+public static final int $ASTNode.inc_AST = 6;
 public int $ASTNode.inc_state = inc_CREATED;
 $endif
 ]]

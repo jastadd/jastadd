@@ -34,11 +34,11 @@ $if (IncrementalLevelParam)
     if (getChild_handler != null) {
       copy.getChild_handler = ($DDGNodeName[])getChild_handler.clone();
     }
-    copy.numChildren_handler = new $DDGNodeName(numChildren_handler, copy);
-    copy.getParent_handler = new $DDGNodeName(getParent_handler, copy);
+    copy.numChildren_handler = $DDGNodeName.createAstHandler(numChildren_handler, copy);
+    copy.getParent_handler = $DDGNodeName.createAstHandler(getParent_handler, copy);
     for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {
       if (getChild_handler[i] != null) {
-        copy.getChild_handler[i] = new $DDGNodeName(getChild_handler[i], copy);
+        copy.getChild_handler[i] = $DDGNodeName.createAttrHandler(getChild_handler[i], copy);
       }
     }
 $endif
@@ -82,7 +82,7 @@ $endif
 # Copy token DDG node
 TokenComponent.copyTokenHandler = [[
     if (get$(Id)_handler != null) {
-      copy.get$(Id)_handler = new $DDGNodeName(get$(Id)_handler, copy);
+      copy.get$(Id)_handler = $DDGNodeName.createAstHandler(get$(Id)_handler, copy);
     }
 ]]
 
@@ -95,7 +95,7 @@ $if (IsParameterized)
     }
 $else
     if ($(AttributeName)_handler != null) {
-      copy.$(AttributeName)_handler = new $DDGNodeName($(AttributeName)_handler, copy);
+      copy.$(AttributeName)_handler = $DDGNodeName.createAttrHandler($(AttributeName)_handler, copy);
     }
 $endif
 $endif
