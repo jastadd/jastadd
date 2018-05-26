@@ -181,6 +181,12 @@ $if(IncrementalChangeFlush)
 
 // flush children
 $if(IncrementalLevelParam)
+$if(#isASTNodeDecl)
+if (attrID.equals("getChild")) {
+  int i = (Integer)_parameters;
+  getChild_handler[i].notifyDependencies();
+}
+$endif
 $endif
 
 $if(IncrementalLevelAttr)
