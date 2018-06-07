@@ -44,7 +44,7 @@ aspect IncrementalDebug {
     tt.bind("DumpAttributeDeps", genDumpAttributeDepsString());
     tt.expand("ASTDecl.dumpDependenciesMethod", out);
     tt.bind("DumpDepsInNTAs", genDumpDepsInNTAsString());
-	tt.expand("ASTDecl.dumpDepsInTreeMethod", out);
+    tt.expand("ASTDecl.dumpDepsInTreeMethod", out);
   }
 
   /**
