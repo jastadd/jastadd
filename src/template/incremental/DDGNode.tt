@@ -185,7 +185,6 @@ $endif
   // Dependency management
 
   public java.util.HashSet<$DDGNodeName> fListenerSet = new java.util.HashSet<$DDGNodeName>(4);
-  public java.util.HashSet<$DDGNodeName> fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
 
   public boolean hasDependants() {
     return !fListenerSet.isEmpty();
@@ -193,33 +192,24 @@ $endif
 
   public void addDependant($DDGNodeName node) {
     fListenerSet.add(node);
-    node.addDependency(this);
   }
 
   public void removeDependant($DDGNodeName node) {
     fListenerSet.remove(node);
   }
 
+  public void cleanupDependants() {
+    java.util.Iterator<$DDGNodeName> itr = fListenerSet.iterator();
+    while (itr.hasNext()) {
+      $DDGNodeName node = itr.next();
+      if (node.isEmpty() || node.isGarbage()) {
+        itr.remove();
+      }
+    }
+  }
+
   public void clearDependants() {
-    for ($DDGNodeName node : fListenerSet) {
-      node.removeDependency(this);
-    }
     fListenerSet.clear();
-  }
-
-  public void clearDependencies() {
-    for ($DDGNodeName node : fDependencySet) {
-      node.removeDependant(this);
-    }
-    fDependencySet.clear();
-  }
-
-  public void addDependency($DDGNodeName node) {
-    fDependencySet.add(node);
-  }
-
-  public void removeDependency($DDGNodeName node) {
-    fDependencySet.remove(node);
   }
 
   /*
@@ -233,24 +223,8 @@ $endif
         this.addDependant(l);
       }
     }
-    node.clearDependencies();
     node.clearDependants();
     node.throwAway();
-  }
-
-  /*
-   * Transfers dependencies from another handler, used in rewrites.
-   */
-  public void transferDependenciesFrom($DDGNodeName node) {
-    if (node == null || this == node)
-      return;
-    for ($DDGNodeName l : node.fDependencySet) {
-      l.addDependant(this);
-    }
-$if (IncrementalPropLimit)
-    setCacheInDependent(node.cacheInDependent);
-$endif
-    node.clearDependencies();
   }
 
   // Notification
@@ -267,7 +241,6 @@ $endif
         if (!node.isGarbage()) {
           node.dependencyChanged();
         }
-        node.removeDependency(this);
       }
       visited = false;
     }
@@ -287,15 +260,7 @@ $if (IncrementalPropLimit)
       if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {
       } else {
 $endif
-        if (!fDependencySet.isEmpty()) {
-          // Remove dependencies
-          java.util.HashSet<$DDGNodeName> k = fDependencySet;
-          fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
-          for ($DDGNodeName node : k) {
-            node.removeDependant(this);
-          }
-          fNode.reactToDependencyChange(fAttrID, fParams);
-        }
+        fNode.reactToDependencyChange(fAttrID, fParams);
 $if (IncrementalPropLimit)
       }
 $endif
@@ -359,6 +324,10 @@ $endif
 
   public boolean isComputed() {
     return fState == $ASTNode.inc_COMPUTED;
+  }
+
+  public boolean isEmpty() {
+    return fState == $ASTNode.inc_EMPTY;
   }
 
 $if (IncrementalDebug)
@@ -555,3 +524,111 @@ $if (IncrementalLevelParam)
   getChild_handler = new $DDGNodeName[children.length];
 $endif
 ]]
+
+# Generate code for cleanup dependants method.
+ASTDecl.cleanupDependantsMethod = [[
+private boolean #name.inc_cleanupDependants_visited = false;
+public void #name.cleanupDependants() {
+  if (inc_cleanupDependants_visited) {
+    return;
+  }
+  inc_cleanupDependants_visited = true;
+$if (#isASTNodeDecl)
+$if (IncrementalLevelParam)
+  getParent_handler.cleanupDependants();
+  numChildren_handler.cleanupDependants();
+  for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {
+    if (getChild_handler[k] != null) {
+      getChild_handler[k].cleanupDependants();
+    }
+  }
+$endif
+$endif
+$if (IncrementalLevelRegion)
+$if (IsRegionRoot)
+  handler.cleanupDependants();
+$endif
+$endif
+  $CleanupTokenDependants
+  $CleanupAttributeDependants
+$if (!#isASTNodeDecl)
+$if (IncrementalLevelRegion)
+$if (!IsRegionRoot)
+  super.cleanupDependants();
+$endif
+$else
+  super.cleanupDependants();
+$endif
+$endif
+  inc_cleanupDependants_visited = false;
+}
+]]
+
+# Generate code for checking token handler and cleaning up dependants.
+ASTDecl.checkAndCleanupTokenDependants = [[
+if (get$(Id)_handler != null) {
+  get$(Id)_handler.cleanupDependants();
+}
+]]
+
+# Generate code for checking attribute handler and cleaning up dependants.
+ASTDecl.checkAndCleanupAttributeDependants = [[
+$if (IncrementalLevelParam)
+$if (IsParameterized)
+for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+  $DDGNodeName handler = ($DDGNodeName)itr.next();
+  handler.cleanupDependants();
+}
+$else
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.cleanupDependants();
+}
+$endif
+$if (IsNTA)
+$if (IsParameterized)
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.cleanupDependants();
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
+  $(AttrSign)_value.cleanupDependants();
+}
+$endif
+$endif
+$endif
+]]
+
+# Generate code for method cleanupDependantsInTree.
+ASTDecl.cleanupDependantsInTreeMethod = [[
+private boolean #name.inc_cleanupDependantsInTree_visited = false;
+public void #name.cleanupDependantsInTree() {
+  if (inc_cleanupDependantsInTree_visited) {
+    return;
+  }
+  inc_cleanupDependantsInTree_visited = true;
+  cleanupDependants();
+  for (int i = 0; children != null && i < children.length; i++) {
+    $ASTNode child = children[i];
+    if (child == null) {
+      continue;
+    }
+    child.cleanupDependantsInTree();
+  }
+  $CleanupDependantsInNTAs
+  inc_cleanupDependantsInTree_visited = false;
+}
+]]
+
+# Generate string with code for cleaning up dependants in NTAs.
+ASTDecl.checkAndCleanupNTADependants = [[
+$if (IsParameterized)
+if ($(AttrSign)_proxy != null) {
+  $(AttrSign)_proxy.cleanupDependantsInTree();
+}
+$else
+if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
+  $(AttrSign)_value.cleanupDependantsInTree();
+}
+$endif
+]]
+
