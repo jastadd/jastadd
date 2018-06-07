@@ -39,7 +39,7 @@ aspect IncrementalDDG {
   /**
    * Generate DDG cleanup methods,
    *
-   * Methods: cleanupDependants, cleanupDependantsInTree
+   * Methods: cleanupListeners, cleanupListenersInTree
    *
    * After introducing single direction edges in the DDG flushed (emptied)
    * dependants (or listeners) may remain in the DDG. The purpose of these
@@ -48,11 +48,11 @@ aspect IncrementalDDG {
   public void ASTDecl.genIncrementalCleanup(PrintWriter out) {
     if (!config().incremental()) return;
     TemplateContext tt = templateContext();
-    tt.bind("CleanupTokenDependants", genCleanupTokenDependantsString());
-    tt.bind("CleanupAttributeDependants", genCleanupAttributeDependantsString());
-    tt.expand("ASTDecl.cleanupDependantsMethod", out);
-    tt.bind("CleanupDependantsInNTAs", genCleanupDependantsInNTAsString());
-    tt.expand("ASTDecl.cleanupDependantsInTreeMethod", out);
+    tt.bind("CleanupTokenListeners", genCleanupTokenListenersString());
+    tt.bind("CleanupAttributeListeners", genCleanupAttributeListenersString());
+    tt.expand("ASTDecl.cleanupListenersMethod", out);
+    tt.bind("CleanupListenersInNTAs", genCleanupListenersInNTAsString());
+    tt.expand("ASTDecl.cleanupListenersInTreeMethod", out);
   }
 
   /**
@@ -142,7 +142,7 @@ aspect IncrementalDDG {
   /**
    * Generate string with code for cleaning up dependants in NTAs.
    */
-  public String ASTDecl.genCleanupDependantsInNTAsString() {
+  public String ASTDecl.genCleanupListenersInNTAsString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
@@ -150,7 +150,7 @@ aspect IncrementalDDG {
          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.signature());
-        res.append(tt.expand("ASTDecl.checkAndCleanupNTADependants"));
+        res.append(tt.expand("ASTDecl.checkAndCleanupNTAListeners"));
       }
     }
     return res.toString();
@@ -159,7 +159,7 @@ aspect IncrementalDDG {
   /**
    * Generate string with code for cleaning up dependants.
    */
-  public String ASTDecl.genCleanupAttributeDependantsString() {
+  public String ASTDecl.genCleanupAttributeListenersString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     // Add dump string for each attribute
@@ -168,7 +168,7 @@ aspect IncrementalDDG {
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
             !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("AttrSign",  attr.signature());
-      res.append(tt.expand("ASTDecl.checkAndCleanupAttributeDependants"));
+      res.append(tt.expand("ASTDecl.checkAndCleanupAttributeListeners"));
     }
     return res.toString();
   }
@@ -176,14 +176,14 @@ aspect IncrementalDDG {
   /**
    * Generate string with code for cleaning up token dependants.
    */
-  public String ASTDecl.genCleanupTokenDependantsString() {
+  public String ASTDecl.genCleanupTokenListenersString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       for (Component c : components()) {
         if (c instanceof TokenComponent && !c.isNTA()) {
           tt.bind("Id",  ((TokenComponent)c).getTokenId().getID());
-          res.append(tt.expand("ASTDecl.checkAndCleanupTokenDependants"));
+          res.append(tt.expand("ASTDecl.checkAndCleanupTokenListeners"));
         }
       }
     }

@@ -50,7 +50,7 @@ $endif
     if (!handlerStack.isEmpty()) {
       //throw new Error("Handler stack is empty at addition of dependency!");
       $ASTNode$$DepGraphNode top = ($ASTNode$$DepGraphNode) handlerStack.peek();
-      handler.addDependant(top);
+      handler.addListener(top);
 
 $if(IncrementalPropLimit)
       if (!handler.cacheInDependent)

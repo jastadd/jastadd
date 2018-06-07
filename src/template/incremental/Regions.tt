@@ -90,7 +90,7 @@ ASTDecl.trackGetParentForRegionMethod = [[
 public $ASTNode #name.getParent() {
   $ASTNode parent = super.getParent();
   if (state().IN_COMPUTATION > 0 && parent != null) {
-    parent.handler().addDependant(handler);
+    parent.handler().addListener(handler);
   }
   return parent;
 }
@@ -104,7 +104,7 @@ $if(IsListOrOpt)
 public T #name.getChild(int i) {
   $ASTNode child = super.getChild(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
-    child.handler().addDependant(handler());
+    child.handler().addListener(handler());
   }
   return (T) child;
 }
@@ -112,7 +112,7 @@ $else
 public $ASTNode #name.getChild(int i) {
   $ASTNode child = super.getChild(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
-    child.handler().addDependant(handler());
+    child.handler().addListener(handler());
   }
   return child;
 }
@@ -127,7 +127,7 @@ $if(IsListOrOpt)
 public T #name.getChildNoTransform(int i) {
   $ASTNode child = super.getChildNoTransform(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
-    child.handler().addDependant(handler());
+    child.handler().addListener(handler());
   }
   return (T) child;
 }
@@ -135,7 +135,7 @@ $else
 public $ASTNode #name.getChildNoTransform(int i) {
   $ASTNode child = super.getChildNoTransform(i);
   if (state().IN_COMPUTATION > 0 && child.isRegionRoot()) {
-    child.handler().addDependant(handler());
+    child.handler().addListener(handler());
   }
   return child;
 }

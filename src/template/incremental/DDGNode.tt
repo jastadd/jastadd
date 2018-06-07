@@ -120,7 +120,7 @@ $if (IncrementalLevelAttr)
     java.util.HashSet<$DDGNodeName> k = fDependencySet;
     fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
     for ($DDGNodeName node : k) {
-      node.removeDependant(this);
+      node.removeListener(this);
     }
     fNode.reactToDependencyChange(fAttrID);
   }
@@ -148,7 +148,7 @@ $if (IncrementalLevelNode)
     java.util.HashSet<$DDGNodeName> k = fDependencySet;
     fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
     for ($DDGNodeName node : k) {
-      node.removeDependant(this);
+      node.removeListener(this);
     }
     fNode.reactToDependencyChange();
   }
@@ -176,7 +176,7 @@ $if (IncrementalLevelRegion)
     java.util.HashSet<$DDGNodeName> k = fDependencySet;
     fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
     for ($DDGNodeName node : k) {
-      node.removeDependant(this);
+      node.removeListener(this);
     }
     fNode.reactToDependencyChange();
   }
@@ -186,19 +186,19 @@ $endif
 
   public java.util.HashSet<$DDGNodeName> fListenerSet = new java.util.HashSet<$DDGNodeName>(4);
 
-  public boolean hasDependants() {
+  public boolean hasListeners() {
     return !fListenerSet.isEmpty();
   }
 
-  public void addDependant($DDGNodeName node) {
+  public void addListener($DDGNodeName node) {
     fListenerSet.add(node);
   }
 
-  public void removeDependant($DDGNodeName node) {
+  public void removeListener($DDGNodeName node) {
     fListenerSet.remove(node);
   }
 
-  public void cleanupDependants() {
+  public void cleanupListeners() {
     java.util.Iterator<$DDGNodeName> itr = fListenerSet.iterator();
     while (itr.hasNext()) {
       $DDGNodeName node = itr.next();
@@ -208,7 +208,7 @@ $endif
     }
   }
 
-  public void clearDependants() {
+  public void clearListeners() {
     fListenerSet.clear();
   }
 
@@ -220,10 +220,10 @@ $endif
       return;
     for ($DDGNodeName l : node.fListenerSet) {
       if (!l.isGarbage()) {
-        this.addDependant(l);
+        this.addListener(l);
       }
     }
-    node.clearDependants();
+    node.clearListeners();
     node.throwAway();
   }
 
@@ -270,7 +270,7 @@ $else
         java.util.HashSet<$DDGNodeName> k = fDependencySet;
         fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
         for ($DDGNodeName node : k) {
-          node.removeDependant(this);
+          node.removeListener(this);
         }
 $if (IncrementalLevelAttr)
         fNode.reactToDependencyChange(fAttrID);
@@ -525,109 +525,109 @@ $if (IncrementalLevelParam)
 $endif
 ]]
 
-# Generate code for cleanup dependants method.
-ASTDecl.cleanupDependantsMethod = [[
-private boolean #name.inc_cleanupDependants_visited = false;
-public void #name.cleanupDependants() {
-  if (inc_cleanupDependants_visited) {
+# Generate code for cleanup listeners method.
+ASTDecl.cleanupListenersMethod = [[
+private boolean #name.inc_cleanupListeners_visited = false;
+public void #name.cleanupListeners() {
+  if (inc_cleanupListeners_visited) {
     return;
   }
-  inc_cleanupDependants_visited = true;
+  inc_cleanupListeners_visited = true;
 $if (#isASTNodeDecl)
 $if (IncrementalLevelParam)
-  getParent_handler.cleanupDependants();
-  numChildren_handler.cleanupDependants();
+  getParent_handler.cleanupListeners();
+  numChildren_handler.cleanupListeners();
   for (int k = 0; getChild_handler != null && k < getChild_handler.length; k++) {
     if (getChild_handler[k] != null) {
-      getChild_handler[k].cleanupDependants();
+      getChild_handler[k].cleanupListeners();
     }
   }
 $endif
 $endif
 $if (IncrementalLevelRegion)
 $if (IsRegionRoot)
-  handler.cleanupDependants();
+  handler.cleanupListeners();
 $endif
 $endif
-  $CleanupTokenDependants
-  $CleanupAttributeDependants
+  $CleanupTokenListeners
+  $CleanupAttributeListeners
 $if (!#isASTNodeDecl)
 $if (IncrementalLevelRegion)
 $if (!IsRegionRoot)
-  super.cleanupDependants();
+  super.cleanupListeners();
 $endif
 $else
-  super.cleanupDependants();
+  super.cleanupListeners();
 $endif
 $endif
-  inc_cleanupDependants_visited = false;
+  inc_cleanupListeners_visited = false;
 }
 ]]
 
-# Generate code for checking token handler and cleaning up dependants.
-ASTDecl.checkAndCleanupTokenDependants = [[
+# Generate code for checking token handler and cleaning up listeners.
+ASTDecl.checkAndCleanupTokenListeners = [[
 if (get$(Id)_handler != null) {
-  get$(Id)_handler.cleanupDependants();
+  get$(Id)_handler.cleanupListeners();
 }
 ]]
 
-# Generate code for checking attribute handler and cleaning up dependants.
-ASTDecl.checkAndCleanupAttributeDependants = [[
+# Generate code for checking attribute handler and cleaning up listeners.
+ASTDecl.checkAndCleanupAttributeListeners = [[
 $if (IncrementalLevelParam)
 $if (IsParameterized)
 for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
-  handler.cleanupDependants();
+  handler.cleanupListeners();
 }
 $else
 if ($(AttrSign)_handler != null) {
-  $(AttrSign)_handler.cleanupDependants();
+  $(AttrSign)_handler.cleanupListeners();
 }
 $endif
 $if (IsNTA)
 $if (IsParameterized)
 if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.cleanupDependants();
+  $(AttrSign)_proxy.cleanupListeners();
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.cleanupDependants();
+  $(AttrSign)_value.cleanupListeners();
 }
 $endif
 $endif
 $endif
 ]]
 
-# Generate code for method cleanupDependantsInTree.
-ASTDecl.cleanupDependantsInTreeMethod = [[
-private boolean #name.inc_cleanupDependantsInTree_visited = false;
-public void #name.cleanupDependantsInTree() {
-  if (inc_cleanupDependantsInTree_visited) {
+# Generate code for method cleanupListenersInTree.
+ASTDecl.cleanupListenersInTreeMethod = [[
+private boolean #name.inc_cleanupListenersInTree_visited = false;
+public void #name.cleanupListenersInTree() {
+  if (inc_cleanupListenersInTree_visited) {
     return;
   }
-  inc_cleanupDependantsInTree_visited = true;
-  cleanupDependants();
+  inc_cleanupListenersInTree_visited = true;
+  cleanupListeners();
   for (int i = 0; children != null && i < children.length; i++) {
     $ASTNode child = children[i];
     if (child == null) {
       continue;
     }
-    child.cleanupDependantsInTree();
+    child.cleanupListenersInTree();
   }
-  $CleanupDependantsInNTAs
-  inc_cleanupDependantsInTree_visited = false;
+  $CleanupListenersInNTAs
+  inc_cleanupListenersInTree_visited = false;
 }
 ]]
 
-# Generate string with code for cleaning up dependants in NTAs.
-ASTDecl.checkAndCleanupNTADependants = [[
+# Generate string with code for cleaning up listeners in NTAs.
+ASTDecl.checkAndCleanupNTAListeners = [[
 $if (IsParameterized)
 if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.cleanupDependantsInTree();
+  $(AttrSign)_proxy.cleanupListenersInTree();
 }
 $else
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.cleanupDependantsInTree();
+  $(AttrSign)_value.cleanupListenersInTree();
 }
 $endif
 ]]

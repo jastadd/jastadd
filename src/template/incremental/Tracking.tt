@@ -44,7 +44,7 @@ $endif
 $if (IncrementalLevelRegion)
 $if (#isRegionRoot)
 if (state().IN_COMPUTATION > 0 && parent != null) {
-  parent.handler().addDependant(handler);
+  parent.handler().addListener(handler);
 }
 $endif
 $endif
@@ -266,14 +266,14 @@ $endif
 $if(IncrementalLevelNode)
 if (node != null) {
   this.state().addHandlerDepTo(node.handler);
-  this.handler.addDependant(node.handler);
+  this.handler.addListener(node.handler);
 }
 $endif
 
 $if(IncrementalLevelRegion)
   if (node != null && node.isRegionRoot()) {
-    this.handler().addDependant(node.handler());
-    node.handler().addDependant(this.handler());
+    this.handler().addListener(node.handler());
+    node.handler().addListener(this.handler());
   }
 $endif
 
@@ -286,7 +286,7 @@ $if(IncrementalEnabled)
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
 if (state().IN_COMPUTATION > 0) {
-  node.handler().addDependant(handler);
+  node.handler().addListener(handler);
 }
 $endif
 $endif
@@ -321,7 +321,7 @@ $endif
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
 if (state().IN_COMPUTATION > 0 && child != null) {
-  child.handler().addDependant(handler);
+  child.handler().addListener(handler);
 }
 $endif
 $endif
@@ -356,7 +356,7 @@ $endif
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
 if (state().IN_COMPUTATION > 0 && child != null) {
-  child.handler().addDependant(handler);
+  child.handler().addListener(handler);
 }
 $endif
 $endif
@@ -417,7 +417,7 @@ $if(IncrementalLevelRegion)
 $if(!IsStringToken)
 $if(!#isPrimitive)
 if (token$(TypeInSignature)_$(Id) instanceof $ASTNode && token$(TypeInSignature)_$(Id).isRegionRoot()) {
-  (($ASTNode) token$(TypeInSignature)_$(Id)).handler().addDependant(handler());
+  (($ASTNode) token$(TypeInSignature)_$(Id)).handler().addListener(handler());
 }
 $endif
 $endif
@@ -506,7 +506,7 @@ $if(#getNTA)
 // Creating a dummy handler to collect dependencies
 $DDGNodeName newHandler = new $DDGNodeName(this);
 // Adding dependency to this region because it may be read during the computation
-handler.addDependant(newHandler);
+handler.addListener(newHandler);
 state().enterAttrStoreEval(newHandler);
 $else
 $DDGNodeName tmpHandler = new $DDGNodeName(this);
@@ -543,7 +543,7 @@ $if(#getNTA)
 // Creating a dummy handler to collect dependencies
 $DDGNodeName newHandler = new $DDGNodeName(this);
 // Adding dep. to this region because it may be read during the computation
-handler.addDependant(newHandler);
+handler.addListener(newHandler);
 state().enterAttrStoreEval(newHandler);
 $else
 state().enterAttrStoreEval(handler);
@@ -592,8 +592,8 @@ state().IN_COMPUTATION--;
 $if(#getNTA)
 if (#(signature)_value != null && #(signature)_value.isRegionRoot()) {
   $DDGNodeName nodeHandler = handler();
-  nodeHandler.addDependant(#(signature)_value.handler());
-  #(signature)_value.handler().addDependant(nodeHandler);
+  nodeHandler.addListener(#(signature)_value.handler());
+  #(signature)_value.handler().addListener(nodeHandler);
 }
 $endif
 $endif
@@ -634,8 +634,8 @@ state().IN_COMPUTATION--;
 $if(#getNTA)
 if (#(signature)_value.isRegionRoot()) {
   $DDGNodeName nodeHandler = handler();
-  nodeHandler.addDependant(#(signature)_value.handler());
-  #(signature)_value.handler().addDependant(nodeHandler);
+  nodeHandler.addListener(#(signature)_value.handler());
+  #(signature)_value.handler().addListener(nodeHandler);
 }
 $endif
 $endif
