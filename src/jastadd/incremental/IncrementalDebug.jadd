@@ -90,7 +90,7 @@ aspect IncrementalDebug {
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       for (Component c : components()) {
         if (c instanceof TokenComponent && !c.isNTA()) {
-          tt.bind("Id",  ((TokenComponent)c).getTokenId().getID());
+          tt.bind("Id",  ((TokenComponent) c).name());
           res.append(tt.expand("ASTDecl.checkAndDumpTokenDeps"));
         }
       }

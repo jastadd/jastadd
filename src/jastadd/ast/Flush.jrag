@@ -95,11 +95,11 @@ aspect Flush {
     for (int c = 0; c < getNumComponent(); c++) {
       Component comp = getComponent(c);
       if (comp instanceof TokenComponent) {
-        TokenComponent tokenComp = (TokenComponent)comp;
-        String type = tokenComp.getTokenId().getTYPE();
+        TokenComponent tokenComp = (TokenComponent) comp;
+        String type = tokenComp.type();
         tt.bind("IsStringToken", type.equals("String") || type.equals("java.lang.String"));
         tt.bind("IsPrimitive", tokenComp.isPrimitive());
-        tt.bind("Id", tokenComp.getTokenId().getID());
+        tt.bind("Id", tokenComp.name());
         tt.bind("TypeSign", ASTNode.convTypeNameToSignature(type));
         res.append(tt.expand("TokenComponent.flushNTACache"));
       }

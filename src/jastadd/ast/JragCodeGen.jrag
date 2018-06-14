@@ -322,7 +322,7 @@ aspect JragCodeGen {
         || type.equals("char") || type.equals("byte");
   }
 
-  syn boolean TokenComponent.isPrimitive() = AttrDecl.isPrimitiveType(getTokenId().getTYPE());
+  syn boolean TokenComponent.isPrimitive() = AttrDecl.isPrimitiveType(type());
 
   /**
    * @return {@code true} if this attribute returns only non-nullable values.

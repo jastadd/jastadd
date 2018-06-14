@@ -197,10 +197,6 @@ outer: while (true) {
     }
   }
 
-  public String TokenId.componentString() {
-    return getID() + ":" + getTYPE();
-  }
-
   public abstract String Component.componentString();
 
   public String ListComponent.componentString() {
@@ -212,7 +208,7 @@ outer: while (true) {
   }
 
   public String TokenComponent.componentString() {
-    return "<" + getTokenId().componentString() + ">";
+    return "<" + getId().componentString() + ">";
   }
 
   public String AggregateComponent.componentString() {
@@ -241,10 +237,6 @@ outer: while (true) {
     return id;
   }
 
-  public String TokenId.componentHtml() {
-    return getID() + ":" + getTYPE();
-  }
-
   public abstract String Component.componentHtml();
 
   public String ListComponent.componentHtml() {
@@ -256,7 +248,7 @@ outer: while (true) {
   }
 
   public String TokenComponent.componentHtml() {
-    return "&lt;" + getTokenId().componentHtml() + "&gt;";
+    return "&lt;" + getId().componentHtml() + "&gt;";
   }
 
   public String AggregateComponent.componentHtml() {

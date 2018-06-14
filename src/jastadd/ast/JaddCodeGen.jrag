@@ -210,9 +210,8 @@ aspect JaddCodeGen {
     for (Component c : components()) {
       if (!c.isNTA()) {
         if (c instanceof TokenComponent) {
-          TokenComponent t = (TokenComponent)c;
-          String tokenId = t.getTokenId().getID();
-          out.format("%sset%s(p%d);%n", config().ind(2), tokenId, param);
+          TokenComponent t = (TokenComponent) c;
+          out.format("%sset%s(p%d);%n", config().ind(2), t.name(), param);
         } else {
           out.format("%ssetChild(p%d, %d);%n", config().ind(2), param, childIndex);
           childIndex++;
@@ -503,9 +502,8 @@ aspect JaddCodeGen {
     StringBuilder buf = new StringBuilder();
     for (Component c : components()) {
       if (c instanceof TokenComponent) {
-        TokenComponent t = (TokenComponent)c;
-        String id = t.getTokenId().getID();
-        buf.append("out.print(\"\\\"\" + get" + id + "() + \"\\\"\");\n");
+        TokenComponent t = (TokenComponent) c;
+        buf.append("out.print(\"\\\"\" + get" + t.name() + "() + \"\\\"\");\n");
       }
     }
     return buf.toString();
@@ -635,14 +633,14 @@ aspect JaddCodeGen {
 
   public void TokenComponent.jaddGen(int index, boolean publicModifier, ASTDecl decl) {
     TemplateContext tt = templateContext();
-    tt.bind("Id", getTokenId().getID());
-    tt.bind("Type", getTokenId().getTYPE());
-    tt.bind("TypeInSignature", ASTNode.convTypeNameToSignature(getTokenId().getTYPE()));
+    tt.bind("Id", name());
+    tt.bind("Type", type());
+    tt.bind("TypeInSignature", ASTNode.convTypeNameToSignature(type()));
     tt.bind("Host", decl.name());
     tt.bind("Modifier", publicModifier ? "public" : "private");
 
-    boolean isStringToken = getTokenId().getTYPE().equals("String")
-        || getTokenId().getTYPE().equals("java.lang.String");
+    boolean isStringToken = type().equals("String")
+        || type().equals("java.lang.String");
     boolean isRedefined = decl.redefinesTokenComponent(this);
     tt.bind("IsStringToken", isStringToken);
     tt.bind("IsRedefined", isRedefined);

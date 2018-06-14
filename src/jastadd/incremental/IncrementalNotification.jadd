@@ -101,7 +101,7 @@
     for (int c = 0; c < getNumComponent(); c++) {
       Component comp = getComponent(c);
       if (comp instanceof TokenComponent) {
-        tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
+        tt.bind("Id", ((TokenComponent) comp).name());
         res.append(tt.expand("ASTDecl.transferSetsFromTokenHandler"));
       }
     }

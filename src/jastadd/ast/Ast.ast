@@ -71,7 +71,12 @@ OptionalComponent : Component ::= Id;
 
 OptionalComponentNTA : OptionalComponent;
 
-TokenComponent : Component ::= TokenId;
+/**
+ * A terminal/token of the grammar. The default type for terminals is String.
+ *
+ * <p>This component kind can also be used as an intrinsic nonterminal reference.
+ */
+TokenComponent : Component ::= Id;
 
 TokenComponentNTA : TokenComponent;
 
@@ -86,8 +91,6 @@ NameNode ::= <ID:String>;
 IdUse ::= <ID:String>;
 
 IdDecl ::= <ID:String>;
-
-TokenId ::= <ID:String> <TYPE:String>;
 
 /**
  * Used to represent synthesized NTA components.

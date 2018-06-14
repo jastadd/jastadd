@@ -182,7 +182,7 @@ aspect IncrementalDDG {
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       for (Component c : components()) {
         if (c instanceof TokenComponent && !c.isNTA()) {
-          tt.bind("Id",  ((TokenComponent)c).getTokenId().getID());
+          tt.bind("Id",  ((TokenComponent) c).name());
           res.append(tt.expand("ASTDecl.checkAndCleanupTokenListeners"));
         }
       }
@@ -200,7 +200,7 @@ aspect IncrementalDDG {
       for (int c = 0; c < getNumComponent(); c++) {
         Component comp = getComponent(c);
         if (comp instanceof TokenComponent) {
-          tt.bind("Id", ((TokenComponent)comp).getTokenId().getID());
+          tt.bind("Id", ((TokenComponent) comp).name());
           res.append(tt.expand("TokenComponent.copyTokenHandler"));
         }
       }

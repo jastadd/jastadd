@@ -277,15 +277,15 @@ void IdDecl() #IdDecl():
   }
 }
 
-void TokenId() #TokenId():
+void TokenId() #Id():
 { Token t;
   String type = null;
   boolean hasType = false;
 }
 { t = <ID> [ ":" type = Type() { hasType = true; } ]
   // Default type is String for backward compability.
-  { jjtThis.setID(t.image);
-    jjtThis.setTYPE(hasType ? type : "String");
+  { jjtThis.setNameNode(new NameNode(t.image));
+    jjtThis.setIdUse(new IdUse(hasType ? type : "String"));
   }
 }
 

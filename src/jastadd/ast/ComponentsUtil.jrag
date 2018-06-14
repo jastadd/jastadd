@@ -120,7 +120,7 @@ aspect ConstructorParameterTypes {
   syn String Component.constrParmType();
   eq ListComponent.constrParmType() = config().listType() + "<" + getId().type() + ">";
   eq OptionalComponent.constrParmType() = config().optType() + "<" + getId().type() + ">";
-  eq TokenComponent.constrParmType() = getTokenId().getTYPE();
+  eq TokenComponent.constrParmType() = type();
   eq AggregateComponent.constrParmType() = getId().type();
 }
 

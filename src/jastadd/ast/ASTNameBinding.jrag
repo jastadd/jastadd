@@ -106,15 +106,13 @@ aspect Names {
   syn String Component.name();
   eq ListComponent.name() = getId().name();
   eq OptionalComponent.name() = getId().name();
-  eq TokenComponent.name() = getTokenId().name();
+  eq TokenComponent.name() = getId().name();
   eq AggregateComponent.name() = getId().name();
 
   syn String Id.name() = hasNameNode() ?  getNameNode().name() : getIdUse().name();
 
   syn String NameNode.name() = getID();
   syn String IdUse.name() = getID();
-
-  syn String TokenId.name() = getID();
 
   syn String RegionDecl.name() = getIdUse().name();
 }
@@ -123,12 +121,10 @@ aspect Types {
   syn String Component.type();
   eq ListComponent.type() = getId().type();
   eq OptionalComponent.type() = getId().type();
-  eq TokenComponent.type() = getTokenId().type();
+  eq TokenComponent.type() = getId().type();
   eq AggregateComponent.type() = getId().type();
 
   syn String Id.type() = getIdUse().name();
-
-  syn String TokenId.type() = getTYPE();
 }
 
 aspect ComponentHostClass {
