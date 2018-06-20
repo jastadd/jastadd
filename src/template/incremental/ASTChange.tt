@@ -121,18 +121,6 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
   }
 $endif
 
-  $ASTNode initial  = inc_locateInitialCopy();
-  if (initial != null) {
-    state().enterConstruction();
-    if (i >= initial.numChildren) {
-      initial.addChild(node);
-    } else {
-      initial.setChild(node, i);
-    }
-    state().exitConstruction();
-    return;
-  }
-
 }
 $endif
 ]]
@@ -225,14 +213,6 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
   }
 $endif
 
-  $ASTNode initial = inc_locateInitialCopy();
-  if (initial != null) {
-    state().enterConstruction();
-    initial.insertChild(node, i);
-    state().exitConstruction();
-    return;
-  }
-
 }
 
 $endif
@@ -315,14 +295,6 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
     }
   }
 $endif
-
-  $ASTNode initial = inc_locateInitialCopy();
-  if (initial != null) {
-    state().enterConstruction();
-    initial.removeChild(i);
-    state().exitConstruction();
-    return;
-  }
 
 }
 
@@ -420,16 +392,6 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
   $endif
   $endif
 $endif
-
-  $if(!#isNTA)
-  $ASTNode initial = inc_locateInitialCopy();
-  if (initial != null) {
-    state().enterConstruction();
-    (($Host)initial).set$(Id)(token$(TypeInSignature)_$Id);
-    state().exitConstruction();
-    return;
-  }
-  $endif
 
 }
 
