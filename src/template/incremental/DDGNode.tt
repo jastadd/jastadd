@@ -162,22 +162,14 @@ $if (IncrementalLevelRegion)
   public $DDGNodeName($ASTNode node) {
     fNode = node;
     fState = node.inc_state;
-    //createdHandlers.add(this);
   }
 
   public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
     fNode = node;
     fState = node.inc_state;
-    //createdHandlers.add(this);
   }
 
   public void flushRegion() {
-    // Remove dependencies
-    java.util.HashSet<$DDGNodeName> k = fDependencySet;
-    fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
-    for ($DDGNodeName node : k) {
-      node.removeListener(this);
-    }
     fNode.reactToDependencyChange();
   }
 $endif
@@ -265,23 +257,15 @@ $if (IncrementalPropLimit)
       }
 $endif
 $else
-      if (!fDependencySet.isEmpty()) {
-        // Remove dependencies
-        java.util.HashSet<$DDGNodeName> k = fDependencySet;
-        fDependencySet = new java.util.HashSet<$DDGNodeName>(4);
-        for ($DDGNodeName node : k) {
-          node.removeListener(this);
-        }
 $if (IncrementalLevelAttr)
-        fNode.reactToDependencyChange(fAttrID);
+      fNode.reactToDependencyChange(fAttrID);
 $endif
 $if (IncrementalLevelNode)
-        fNode.reactToDependencyChange();
+      fNode.reactToDependencyChange();
 $endif
 $if (IncrementalLevelRegion)
-        fNode.reactToDependencyChange();
+      fNode.reactToDependencyChange();
 $endif
-	  }
 $endif
     }
   }

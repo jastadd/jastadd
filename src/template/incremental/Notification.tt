@@ -67,7 +67,6 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_valu
   $(AttrSign)_values.remove(_parameters);
   // clear dependencies in handler
   $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.get(_parameters);
-  handler.clearDependencies();
   // compute new value
   $if(IsAttrWithOneParam)
   $(AttrType) newValue = $AttrName(($ParamTypeSignature)_parameters);
@@ -81,7 +80,6 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_valu
   $(AttrSign)_values.remove(_parameters);
   // clear dependencies in handler
   $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.get(_parameters);
-  handler.clearDependencies();
   // compute new value
   $if(IsAttrWithOneParam)
   $AttrType newValue = $(AttrName)(($ParamTypeSignature)_parameters);
@@ -97,7 +95,6 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
   $AttrResetVisit
   $AttrResetCache
   // clear dependencies in handler
-  $(AttrSign)_handler.clearDependencies();
   // compute new value
   $AttrType newValue = $AttrName();
 $endif
@@ -213,7 +210,6 @@ $endif
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
 if (inc_flushRegionRoot()) {
-  handler.clearDependencies();
   handler.notifyDependencies();
 }
 $endif
@@ -407,7 +403,6 @@ $if(IncrementalLevelNode)
       int childIndex = getIndexOfChild(node);
       removeChild(childIndex);
       node.inc_flush_subtree(node.handler());
-      node.handler().clearDependencies();
       state().exitConstruction();
       if (inc_internalNTAList_map.containsValue(node)) {
         for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {
@@ -427,7 +422,6 @@ $if(IncrementalLevelNode)
         int childIndex = getIndexOfChild(node);
         removeChild(childIndex);
         node.inc_flush_subtree(node.handler());
-        node.handler().clearDependencies();
         state().exitConstruction();
         return true;
       }
@@ -441,7 +435,6 @@ $if(IncrementalLevelNode)
         state().enterConstruction();
         node.setParent(null);
         node.inc_flush_subtree(node.handler());
-        node.handler().clearDependencies();
         state().exitConstruction();
         return true;
       }
@@ -464,7 +457,6 @@ $if(IncrementalLevelRegion)
       int childIndex = getIndexOfChild(node);
       removeChild(childIndex);
       node.inc_flush_subtree(node.handler());
-      node.handler().clearDependencies();
       state().exitConstruction();
       if (inc_internalNTAList_map.containsValue(node)) {
         for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {
@@ -484,7 +476,6 @@ $if(IncrementalLevelRegion)
         int childIndex = getIndexOfChild(node);
         removeChild(childIndex);
         node.inc_flush_subtree(node.handler());
-        node.handler().clearDependencies();
         state().exitConstruction();
         return true;
       }
@@ -498,7 +489,6 @@ $if(IncrementalLevelRegion)
         state().enterConstruction();
         node.setParent(null);
         node.inc_flush_subtree(node.handler());
-        node.handler().clearDependencies();
         state().exitConstruction();
         return true;
       }
@@ -522,7 +512,6 @@ if ($(AttrSign)_value == node) {
   $(AttrSign)_value.setParent(null);
   state().exitConstruction();
   $(AttrSign)_value.inc_flush_subtree(node.handler());
-  node.handler().clearDependencies();
   $AttrResetVisit
   $AttrResetCache
 }

@@ -320,8 +320,8 @@ $endif
 
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
-if (state().IN_COMPUTATION > 0 && child != null) {
-  child.handler().addListener(handler);
+if (state().IN_COMPUTATION > 0 && node != null) {
+  node.handler().addListener(handler);
 }
 $endif
 $endif
@@ -355,8 +355,8 @@ $endif
 
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
-if (state().IN_COMPUTATION > 0 && child != null) {
-  child.handler().addListener(handler);
+if (state().IN_COMPUTATION > 0 && node != null) {
+  node.handler().addListener(handler);
 }
 $endif
 $endif
@@ -372,7 +372,7 @@ state().enterAttrStoreEval(getChild_handler[i]);
 $endif
 
 $if(IncrementalLevelRegion)
-// TODO(emso): Add region enter getChild eval.
+state().enterAttrStoreEval(handler());
 $endif
 
 $endif
@@ -382,11 +382,11 @@ ASTNode.incHookGetChildExitEval = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
-state().exitAttrStoreEval(getChild_handler[i]);
+//state().exitAttrStoreEval(getChild_handler[i]);
 $endif
 
 $if(IncrementalLevelRegion)
-// TODO(emso): Add region exit getChild eval.
+//state().exitAttrStoreEval(handler());
 $endif
 
 $endif
