@@ -382,11 +382,11 @@ ASTNode.incHookGetChildExitEval = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
-//state().exitAttrStoreEval(getChild_handler[i]);
+state().exitAttrStoreEval(getChild_handler[i]);
 $endif
 
 $if(IncrementalLevelRegion)
-//state().exitAttrStoreEval(handler());
+state().exitAttrStoreEval(handler());
 $endif
 
 $endif

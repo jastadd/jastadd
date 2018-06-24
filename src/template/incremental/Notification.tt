@@ -373,18 +373,6 @@ $if(IncrementalLevelNode)
   }
 $endif
 
-$if(IncrementalLevelRegion)
-  /** @apilevel internal */
-  public boolean $ASTNode.inc_flush_child($ASTNode node) {
-    for (int i = 0; node.mayHaveRewrite() && i < children.length; i++) {
-      if (children[i] == node) {
-        return inc_restoreInitialForIndex(i, node.handler());
-      }
-    }
-    return true;
-  }
-$endif
-
 $endif
 $endif
 $endif
@@ -525,80 +513,14 @@ $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
   /** @apilevel internal */
   public boolean #name.inc_flushRegionRoot() {
-    // Check for rewrites
-    // check for inner rewrite in region root
-    boolean rewriteFlushed = true;
-    if (parent != null) {
-      rewriteFlushed = parent.inc_flush_child(this);
-      // region root had an outer rewrite which was flushed (parent == null) -> done
-      if (rewriteFlushed && parent == null) {
-        return true;
-      }
-    }
-    boolean innerRewrite = false;
-    if (rewriteFlushed) {
-      // the region may have inner rewrites
-      innerRewrite = inc_checkRegionForInnerRewrite();
-    } else {
-      // region root had an inner rewrite which wasn't flushed
-      innerRewrite = true;
-    }
-    // Inner rewrites in the region (including the root) means abort and notify the enclosing rewritten node
-    if (innerRewrite) {
-      $ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
-      enclosingNode.handler().flushRegion();
-      return false;
-    }
-    // Check NTAs, this may remove the region
-    boolean regionRemoved = false;
-    if (parent != null) {
-      regionRemoved = parent.inc_flush_NTA(this);     // check NTA
-    }
-    // region is still here, flush remaining values and outer rewrites
-    if (!regionRemoved) {
-      inc_flushRegion_rewrites();
-      inc_flushRegion();
-    }
+    inc_flushRegion();
     return true;
   }
 $else
 $if(#isASTNodeDecl)
   /** @apilevel internal */
   public boolean #name.inc_flushRegionRoot() {
-    // Check for rewrites
-    // check for inner rewrite in region root
-    boolean rewriteFlushed = true;
-    if (parent != null) {
-      rewriteFlushed = parent.inc_flush_child(this);
-      // region root had an outer rewrite which was flushed (parent == null) -> done
-      if (rewriteFlushed && parent == null) {
-        return true;
-      }
-    }
-    boolean innerRewrite = false;
-    if (rewriteFlushed) {
-      // the region may have inner rewrites
-      innerRewrite = inc_checkRegionForInnerRewrite();
-    } else {
-      // region root had an inner rewrite which wasn't flushed
-      innerRewrite = true;
-    }
-    // Inner rewrites in the region (including the root) means abort and notify the enclosing rewritten node
-    if (innerRewrite) {
-      $ASTNode enclosingNode = inc_locateEnclosingRewrittenNode();
-      enclosingNode.handler().flushRegion();
-      return false;
-    }
-    // Check NTAs, this may remove the region
-    boolean regionRemoved = false;
-    if (parent != null) {
-      regionRemoved = parent.inc_flush_NTA(this);     // check NTA
-    }
-    // region is still here, flush remaining values and outer rewrites
-    if (!regionRemoved) {
-      inc_flushRegion_rewrites();
-      inc_flushRegion();
-    }
+    inc_flushRegion();
     return true;
   }
 $endif
@@ -638,29 +560,6 @@ $endif
 ASTNode.incCheckRegionForInnerRewriteMethod = [[
 $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
-
-$if(IncrementalLevelRegion)
-$if(#isASTNodeDecl)
-  /** @apilevel internal */
-  public boolean $ASTNode.inc_checkRegionForInnerRewrite() {
-    for (int i = 0; children != null && children_computed != null && i < children.length && i < children_computed.length; i++) {
-      $ASTNode child = children[i];
-      if (child != null && !child.isRegionRoot()) {
-        if (children_computed[i]) {
-          if (init_children != null && i < init_children.length && init_children[i] == null) {
-            return true;
-          }
-        } else {
-          if (child.inc_checkRegionForInnerRewrite()) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-$endif
-$endif
 
 $if(IncrementalLevelNode)
 $if(#isASTNodeDecl)
@@ -781,32 +680,6 @@ $endif
 ASTNode.incFlushRegionRewritesMethod = [[
 $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
-
-$if(IncrementalLevelRegion)
-$if(#isASTNodeDecl)
-  /** @apilevel internal */
-  public boolean $ASTNode.inc_flushRegion_rewrites() {
-    for (int i = 0; children != null && i < children.length; i++) {
-      $ASTNode child = children[i];
-      if (child == null || child.isRegionRoot()) {
-        continue;
-      }
-      // rewritten child
-      if (children_computed != null && i < children_computed.length && children_computed[i]) {
-        if (!inc_restoreInitialForIndex(i, handler())) {
-          return false;
-        }
-      } else {
-        // not rewritten child
-        if (!child.inc_flushRegion_rewrites()) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-$endif
-$endif
 
 $if(IncrementalLevelAttr)
 $if(#isASTNodeDecl)
