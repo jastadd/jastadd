@@ -209,9 +209,8 @@ $endif
 
 $if(IncrementalLevelRegion)
 $if(#isRegionRoot)
-if (inc_flushRegionRoot()) {
-  handler.notifyDependencies();
-}
+inc_flushRegion();
+handler.notifyDependencies();
 $endif
 $endif
 
@@ -508,24 +507,6 @@ if ($(AttrSign)_value == node) {
 ASTDecl.incFlushRegionRootMethod = [[
 $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
-
-$if(IncrementalLevelRegion)
-$if(#isRegionRoot)
-  /** @apilevel internal */
-  public boolean #name.inc_flushRegionRoot() {
-    inc_flushRegion();
-    return true;
-  }
-$else
-$if(#isASTNodeDecl)
-  /** @apilevel internal */
-  public boolean #name.inc_flushRegionRoot() {
-    inc_flushRegion();
-    return true;
-  }
-$endif
-$endif
-$endif
 
 $if(IncrementalLevelNode)
 $if(#isASTNodeDecl)

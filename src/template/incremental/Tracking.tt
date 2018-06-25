@@ -589,6 +589,7 @@ $endif
 
 $if(IncrementalLevelRegion)
 state().IN_COMPUTATION--;
+handler().setComputed();
 $if(#getNTA)
 if (#(signature)_value != null && #(signature)_value.isRegionRoot()) {
   $DDGNodeName nodeHandler = handler();

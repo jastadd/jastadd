@@ -170,6 +170,7 @@ $if (IncrementalLevelRegion)
   }
 
   public void flushRegion() {
+    setEmpty();
     fNode.reactToDependencyChange();
   }
 $endif
@@ -381,7 +382,7 @@ $if (IncrementalLevelNode)
     return fNode.relativeNodeID();
 $endif
 $if (IncrementalLevelRegion)
-    return fNode.relativeNodeID();
+    return fNode.relativeNodeID() + "(" + state() + ")";
 $endif
   }
 $endif
