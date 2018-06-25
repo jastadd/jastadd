@@ -166,7 +166,6 @@ $endif
    */
   $Modifier void $Host.set$Name($Type node, int i) {
     $ListType list = get$(Name)List();
-    $include(State.incHookConstructionStart)
 $if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
       setChild(new $List(node), $Index);
@@ -176,7 +175,6 @@ $if(EmptyContainerSingletons)
 $else
     list.setChild(node, i);
 $endif
-    $include(State.incHookConstructionEnd)
   }
 
 $if(#isNTA)
