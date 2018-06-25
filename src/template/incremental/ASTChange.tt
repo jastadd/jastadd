@@ -116,7 +116,7 @@ if (!state().IN_CONSTRUCTION && !(state().IN_COMPUTATION > 0)) {
   if (h != null) {
     h.notifyDependencies();
   }
-  if (i == numChildren) {
+  if (i == numChildren && h != handler()) {
     handler().notifyDependencies();
   }
 $endif

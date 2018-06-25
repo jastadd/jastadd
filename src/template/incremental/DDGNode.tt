@@ -242,7 +242,7 @@ $endif
   // React to change
 
   public void dependencyChanged() {
-    if (isComputed()) {
+    if (isComputed() || isCreated()) {
       setEmpty();
 $if (IncrementalTrack)
       trackedFlushes++;
