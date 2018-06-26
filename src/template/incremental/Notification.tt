@@ -692,8 +692,13 @@ $if(IncrementalEnabled)
 $if(IncrementalChangeFlush)
 
 $if(IncrementalLevelRegion)
+  private boolean #name.inc_flush_subtree_visited = false;
   /** @apilevel internal */
   protected void #name.inc_flush_subtree($DDGNodeName h) {
+    if (inc_flush_subtree_visited) {
+      return;
+    }
+    inc_flush_subtree_visited = true;
     inc_state = inc_GARBAGE;
     $FlushNtaSubTrees
   $if(#isASTNodeDecl)
