@@ -55,7 +55,9 @@ $endif
       #(signature)_value = $BottomValue;
 $if(#getNTA)
       if (#(signature)_value != null) {
+        $include(State.incHookConstructionStart)
         #(signature)_value.setParent(#ntaParent);
+        $include(State.incHookConstructionEnd)
       }
 $endif
     }
@@ -81,7 +83,9 @@ $endif
         #(signature)_value = new_#(signature)_value;
 $if(#getNTA)
         if (#(signature)_value != null) {
+          $include(State.incHookConstructionStart)
           #(signature)_value.setParent(#ntaParent);
+          $include(State.incHookConstructionEnd)
         }
 $endif
         #tracePrintStartingCycle
@@ -128,7 +132,9 @@ $endif
       #(signature)_value = new_#(signature)_value;
 $if(#getNTA)
       if (#(signature)_value != null) {
+        $include(State.incHookConstructionStart)
         #(signature)_value.setParent(#ntaParent);
+        $include(State.incHookConstructionEnd)
       }
 $endif
       $TracePrintReturnNewValue

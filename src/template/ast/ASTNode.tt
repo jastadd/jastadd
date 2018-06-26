@@ -425,7 +425,9 @@ $if(RewriteEnabled)
       $include(ASTNode.incHookGetChildEnterEval)
       $ASTNode rewritten = node.rewrittenNode();
       if (rewritten != node) {
+        $include(State.incHookConstructionStart)
         rewritten.setParent(this);
+        $include(State.incHookConstructionEnd)
         node = rewritten;
       }
       $include(ASTNode.incHookGetChildExitEval)
