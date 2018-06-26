@@ -185,6 +185,9 @@ $endif
 
   public void addListener($DDGNodeName node) {
     fListenerSet.add(node);
+$if (IncrementalLevelRegion)
+    node.setComputed();
+$endif
   }
 
   public void removeListener($DDGNodeName node) {
