@@ -642,7 +642,7 @@ if ($(AttrSign)_proxy != null) {
 }
 $else
 $if(IsNtaWithTree)
-if ($(AttrSign)_value != null && !$(AttrSign)_value.isRegionRoot()) {
+if ($(AttrSign)_value != null) {
   state().enterConstruction();
   $(AttrSign)_value.setParent(null);
   state().exitConstruction();
