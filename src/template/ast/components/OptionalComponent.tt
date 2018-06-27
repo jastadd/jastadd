@@ -60,9 +60,7 @@ $if(!#isNTA)
    * @apilevel low-level
    */
   $Modifier void $Host.set$(Name)Opt($OptType opt) {
-    $include(State.incHookConstructionStart)
     setChild(opt, $Index);
-    $include(State.incHookConstructionEnd)
   }
 
 $endif
@@ -84,7 +82,6 @@ $endif
    * @apilevel high-level
    */
   $Modifier void $Host.set$Name($Type node) {
-    $include(State.incHookConstructionStart)
 $if(EmptyContainerSingletons)
   $if(#isNTA)
     // TODO: should also check if getOpt() is the empty singleton, since we check the _value on return.
@@ -99,7 +96,6 @@ $if(EmptyContainerSingletons)
 $else
     get$(Name)Opt().setChild(node, 0);
 $endif
-    $include(State.incHookConstructionEnd)
   }
 
   /**

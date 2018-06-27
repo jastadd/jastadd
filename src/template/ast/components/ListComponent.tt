@@ -69,9 +69,7 @@ $if(!#isNTA)
    * @apilevel high-level
    */
   $Modifier void $Host.set$(Name)List($ListType list) {
-    $include(State.incHookConstructionStart)
     setChild(list, $Index);
-    $include(State.incHookConstructionEnd)
   }
 
 $endif

@@ -33,9 +33,7 @@ $if(!#isNTA)
    * @apilevel high-level
    */
   public void $Host.set$Name($Type node) {
-    $include(State.incHookConstructionStart)
     setChild(node, $Index);
-    $include(State.incHookConstructionEnd)
   }
 
 $endif
