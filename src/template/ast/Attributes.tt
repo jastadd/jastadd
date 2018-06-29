@@ -231,7 +231,6 @@ SynDecl.higherOrderAttributeCode:norewrite [[
 $if(#isParameterized)
 if (#(signature)_proxy == null) {
   #(signature)_proxy = new $ASTNode();
-  $include(AttrDecl.incHookCreateNtaList)
   #(signature)_proxy.setParent(this);
 }
 if (#(signature)_value != null) {
@@ -246,7 +245,6 @@ SynDecl.higherOrderAttributeCode:rewritesEnabled [[
 $if(#isParameterized)
 if (#(signature)_proxy == null) {
   #(signature)_proxy = new $ASTNode();
-  $include(AttrDecl.incHookCreateNtaList)
   $if(LegacyRewrite)
   #(signature)_proxy.is$$Final = true;
   $endif

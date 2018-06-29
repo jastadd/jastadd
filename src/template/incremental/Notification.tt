@@ -439,51 +439,8 @@ $if(IncrementalLevelRegion)
   /** @apilevel internal */
   public boolean #name.inc_flush_NTA($ASTNode node) {
   $if(#isListDecl)
-    if (inc_internalNTAList) {
-      state().enterConstruction();
-      int childIndex = getIndexOfChild(node);
-      removeChild(childIndex);
-      node.inc_flush_subtree(node.handler());
-      state().exitConstruction();
-      if (inc_internalNTAList_map.containsValue(node)) {
-        for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {
-          Object key = itr.next();
-          if (inc_internalNTAList_map.get(key) == node) {
-            inc_internalNTAList_map.remove(key);
-            break;
-          }
-        }
-      }
-      return true;
-    }
-    if (parent != null) {
-      int index = parent.getIndexOfChild(this);
-      if (index >= 0 && parent.childIsNTA(index)) {
-        state().enterConstruction();
-        int childIndex = getIndexOfChild(node);
-        removeChild(childIndex);
-        node.inc_flush_subtree(node.handler());
-        state().exitConstruction();
-        return true;
-      }
-      return false;
-    }
   $else
-    $if(#isListDecl)
-    if (parent != null) {
-      int index = parent.getIndexOfChild(this);
-      if (index >= 0 && parent.childIsNTA(index)) {
-        state().enterConstruction();
-        node.setParent(null);
-        node.inc_flush_subtree(node.handler());
-        state().exitConstruction();
-        return true;
-      }
-      return false;
-    }
-    $else
     $FlushNTAs
-    $endif
   $endif
     return false;
   }
@@ -619,6 +576,11 @@ $if(IncrementalChangeFlush)
 $if(IsNTA)
 $if(IsParameterized)
 if ($(AttrSign)_proxy != null) {
+  for (Object v : $(AttrSign)_values.values()) {
+    ((ASTNode)v).inc_flush_subtree(handler());
+  }
+  $(AttrSign)_values.clear();
+/*
   for (int index = 0; index < $(AttrSign)_proxy.numChildren; index++) {
     $ASTNode value = $(AttrSign)_proxy.children[index];
     if (!value.isRegionRoot()) {
@@ -639,6 +601,7 @@ if ($(AttrSign)_proxy != null) {
       }
     }
   }
+*/
 }
 $else
 $if(IsNtaWithTree)

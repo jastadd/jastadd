@@ -38,8 +38,6 @@ aspect IncrementalEval {
 
     tt.expand("ASTDecl.relativeNodeIDMethodWithRewrite", out);
 
-    tt.expand("List.internalNTAList", out);
-
     tt.bind("NtaIndexCheck", emitNtaIndexCheckString());
     tt.expand("ASTDecl.childIsNtaMethod", out);
 
