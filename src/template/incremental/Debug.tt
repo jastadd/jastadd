@@ -118,7 +118,7 @@ $endif
 ASTDecl.dumpCachedValuesMethod = [[
 public void #name.dumpCachedValues() {
   $DumpAttributeValues
-  // TODO: dump collection values
+  $DumpCollAttributeValues
 $if (!#isASTNodeDecl)
   super.dumpCachedValues();
 $endif
@@ -149,6 +149,14 @@ $else
 $endif
 }
 $endif
+]]
+
+# Generate code for dumping a collection attribute value.
+# TODO: Add support for parameterized/NTA collection attributes.
+ASTDecl.dumpCollAttributeValue = [[
+if ($(AttrSign)_computed) {
+  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
+}
 ]]
 
 # Generate code for method dumping dependencies

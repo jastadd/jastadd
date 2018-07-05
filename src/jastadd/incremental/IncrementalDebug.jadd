@@ -39,6 +39,7 @@ aspect IncrementalDebug {
     tt.expand("ASTDecl.printParamListMethod", out);
     tt.expand("ASTDecl.printValueMethod", out);
     tt.bind("DumpAttributeValues", genDumpAttributeValuesString());
+    tt.bind("DumpCollAttributeValues", genDumpCollAttributeValuesString());
     tt.expand("ASTDecl.dumpCachedValuesMethod", out);
     tt.bind("DumpTokenDeps", genDumpTokenDepsString());
     tt.bind("DumpAttributeDeps", genDumpAttributeDepsString());
@@ -125,6 +126,20 @@ aspect IncrementalDebug {
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));
+    }
+    return res.toString();
+  }
+
+  /**
+   * Generate string with code for dumping collection attribute values.
+   */
+  public String ASTDecl.genDumpCollAttributeValuesString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    for (int k = 0; k < getNumCollDecl(); k++) {
+      CollDecl attr = getCollDecl(k);
+      tt.bind("AttrSign", attr.signature());
+      res.append(tt.expand("ASTDecl.dumpCollAttributeValue"));
     }
     return res.toString();
   }
