@@ -176,9 +176,9 @@ $endif
 ASTDecl.incChangeFlush = [[
 $if(IncrementalChangeFlush)
 
-// flush children
 $if(IncrementalLevelParam)
 $if(#isASTNodeDecl)
+// flush children
 if (attrID.equals("getChild")) {
   int i = (Integer)_parameters;
   getChild_handler[i].notifyDependencies();
@@ -214,8 +214,20 @@ handler.notifyDependencies();
 $endif
 $endif
 
+$CollAttrFlushChecks
 $AttrFlushChecks
 
+$endif
+]]
+
+ASTDecl.collAttrFlushCheck = [[
+$if(IncrementalLevelParam)
+if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+  $AttrResetVisit
+  $AttrResetCache
+  $CollectionReset
+  $(AttrSign)_handler.notifyDependencies();
+}
 $endif
 ]]
 
