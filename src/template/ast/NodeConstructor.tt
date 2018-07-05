@@ -80,6 +80,7 @@ ListDecl.constructor = [[
   public $List.$List(T... initialChildren) {
     $include(State.incHookConstructionStart)
     children = new $ASTNode[initialChildren.length];
+    $include(ASTDecl.incrementalInitChildHandlers)
     for (int i = 0; i < children.length; ++i) {
       addChild(initialChildren[i]);
     }
