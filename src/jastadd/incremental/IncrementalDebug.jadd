@@ -42,6 +42,7 @@ aspect IncrementalDebug {
     tt.expand("ASTDecl.dumpCachedValuesMethod", out);
     tt.bind("DumpTokenDeps", genDumpTokenDepsString());
     tt.bind("DumpAttributeDeps", genDumpAttributeDepsString());
+    tt.bind("DumpCollAttributeDeps", genDumpCollAttributeDepsString());
     tt.expand("ASTDecl.dumpDependenciesMethod", out);
     tt.bind("DumpDepsInNTAs", genDumpDepsInNTAsString());
     tt.expand("ASTDecl.dumpDepsInTreeMethod", out);
@@ -65,6 +66,21 @@ aspect IncrementalDebug {
   }
 
   /**
+   * Generate string with code for dumping collection attribute dependencies.
+   */
+  public String ASTDecl.genDumpCollAttributeDepsString() {
+    StringBuffer res = new StringBuffer();
+    TemplateContext tt = templateContext();
+    // Add dump string for each coll attribute.
+    for (int k = 0; k < getNumCollDecl(); k++) {
+      CollDecl attr = getCollDecl(k);
+      tt.bind("AttrSign",  attr.signature());
+      res.append(tt.expand("ASTDecl.checkAndDumpCollAttributeDeps"));
+    }
+    return res.toString();
+  }
+
+  /**
    * Generate string with code for dumping attribute dependencies.
    */
   public String ASTDecl.genDumpAttributeDepsString() {
@@ -78,7 +94,7 @@ aspect IncrementalDebug {
       tt.bind("AttrSign",  attr.signature());
       res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
     }
-  	return res.toString();
+    return res.toString();
   }
 
   /**

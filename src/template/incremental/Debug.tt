@@ -185,7 +185,7 @@ $endif
 $endif
   $DumpTokenDeps
   $DumpAttributeDeps
-  // TODO: dump collection attribute dependencies
+  $DumpCollAttributeDeps
 $if (!#isASTNodeDecl)
 $if (IncrementalLevelRegion)
 $if (!IsRegionRoot)
@@ -204,6 +204,16 @@ ASTDecl.checkAndDumpTokenDeps = [[
 if (get$(Id)_handler != null) {
   get$(Id)_handler.dumpDeps();
 }
+]]
+
+# Generate code for checking collection attribute handler and dumping its dependencies
+# TODO: Support parameterized/NTA coll attributes.
+ASTDecl.checkAndDumpCollAttributeDeps = [[
+$if (IncrementalLevelParam)
+if ($(AttrSign)_handler != null) {
+  $(AttrSign)_handler.dumpDeps();
+}
+$endif
 ]]
 
 # Generate code for checking an attribute handler and dumping its dependencies
