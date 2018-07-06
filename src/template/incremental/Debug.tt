@@ -155,7 +155,11 @@ $endif
 # TODO: Add support for parameterized/NTA collection attributes.
 ASTDecl.dumpCollAttributeValue = [[
 if ($(AttrSign)_computed) {
-  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
+  System.out.print("value(" + relativeNodeID() + ":$(AttrSign), [");
+  for (Object obj : $(AttrSign)_value) { 
+    System.out.print((obj instanceof $ASTNode ? (($ASTNode) obj).relativeNodeID() : obj) + " ");
+  }
+  System.out.println("])");
 }
 ]]
 
