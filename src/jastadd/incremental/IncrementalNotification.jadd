@@ -226,6 +226,7 @@
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
       tt.bind("CollectionReset", collectionReset());
+      tt.bind("RootType", attr.rootType());
       res.append(tt.expand("ASTDecl.collAttrFlushCheck"));
       firstAttr = false;
     }

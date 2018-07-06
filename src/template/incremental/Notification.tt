@@ -225,7 +225,14 @@ $if(IncrementalLevelParam)
 if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
   $AttrResetVisit
   $AttrResetCache
-  $CollectionReset
+  $include(State.incHookConstructionStart)
+  ASTNode node = this;
+  while (node != null && !(node instanceof $RootType)) {
+    node = node.getParent();
+  }
+  $include(State.incHookConstructionEnd)
+  $RootType root = ($RootType)node;
+  root.contributorMap_$(AttrSign) = null;
   $(AttrSign)_handler.notifyDependencies();
 }
 $endif
