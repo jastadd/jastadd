@@ -232,6 +232,9 @@ if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
   }
   $include(State.incHookConstructionEnd)
   $RootType root = ($RootType)node;
+  for ($ASTNode n : root.contributorMap_$(AttrSign).keySet()) {
+    n.reactToDependencyChange(attrID, _parameters);
+  }
   root.contributorMap_$(AttrSign) = null;
   $(AttrSign)_handler.notifyDependencies();
 }
