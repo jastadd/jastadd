@@ -152,6 +152,9 @@ AttrDecl.circularEquation:parameterized [[
   $include(AttrDecl.generatedAnnotations)
   public #getType #name($ParamDecl) {
     #parameterStructure
+
+    $include(AttrDecl.incHookAttrRead)
+
     #initLazyMaps
     $StateClass.CircularValue _value;
     if (#(signature)_values.containsKey(_parameters)) {
