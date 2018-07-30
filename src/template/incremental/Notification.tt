@@ -287,6 +287,9 @@ $endif
   $AttrResetVisit
   $AttrResetCache
   $(AttrSign)_handler.notifyDependencies();
+  $if (TraceFlush)
+  state().trace().flushIncAttr(this, "$AttrSign", "", "");
+  $endif
   $if(!#isASTNodeDecl)
   super.reactToDependencyChange(attrID, _parameters);
   $endif
