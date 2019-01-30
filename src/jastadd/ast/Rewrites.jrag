@@ -165,7 +165,7 @@ aspect Rewrites {
     if (hasRewriteAttribute()) {
       // Generate the rewrittenNode attribute only if this node has rewrites and
       // a supertype does not have rewrites (if the supertype has rewrites then
-      // this node inherites the rewrittenNode attribute).
+      // this node inherits the rewrittenNode attribute).
       CircularRewriteDecl decl = getCircularRewriteDecl();
       TemplateContext tt = decl.templateContext();
       String newValue, oldValue;
