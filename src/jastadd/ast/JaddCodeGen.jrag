@@ -111,9 +111,11 @@ aspect JaddCodeGen {
         return true;
       }
     }
+    if (superClass() != null) {
+      return superClass().hasSynEq(name);
+    }
     return false;
   }
-
 
   /**
    * Generates a variant of getChildNoTransform used in concurrent evaluation.
