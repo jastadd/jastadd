@@ -9,7 +9,9 @@ pipeline {
   }
 
   tools {
-    jdk 'oracle-jdk-7'
+    // Use JDK8 to avoid TLS protocol version problem for Maven.
+    // https://stackoverflow.com/questions/51090914/received-fatal-alert-protocol-version-build-failure-gradle-maven
+    jdk 'oracle-jdk-8'
     gradle 'gradle-4.4.1'
   }
 

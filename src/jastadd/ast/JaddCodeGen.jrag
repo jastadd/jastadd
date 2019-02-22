@@ -105,6 +105,26 @@ aspect JaddCodeGen {
     return i;
   }
 
+  syn boolean ASTDecl.hasSynEq(String name) {
+    for (SynEq eq : getSynEqList()) {
+      if (eq.name().equals(name)) {
+        return true;
+      }
+    }
+    if (superClass() != null) {
+      return superClass().hasSynEq(name);
+    }
+    return false;
+  }
+
+  /**
+   * Generates a variant of getChildNoTransform used in concurrent evaluation.
+   *
+   * <p>Special handing of NTAs is needed in concurrent evaluation
+   * to avoid extra NTA evaluation when evaluating inherited attributes.
+   * The goal is to avoid evaluating an NTA when checking which child
+   * an inherited attribute is evaluated on.
+   */
   public void ASTDecl.emitConcurrentGetChild(PrintWriter out) {
     // Build list of NTA indices.
     String getNta = "";
@@ -125,7 +145,8 @@ aspect JaddCodeGen {
         attrName = "get" + c.name();
       }
 
-      if (attrName != null) {
+      if (attrName != null && hasSynEq(attrName)) {
+        // Only generate this code if the NTA has an equation on this class.
         getNta += "case " + i + ":\n";
         getNta += "  _value = " + attrName + "_value.get();\n";
         getNta += "  break;\n";
