@@ -317,7 +317,8 @@ public class Configuration {
       .addAcceptedValue("full", "flushing of all computed values (combines attr, coll, and rewrite)")
       .addDefaultValue("attr", "adds flushing of attributes (syn,inh)")
       .addDefaultValue("coll", "adds flushing of collection attributes")
-      .addAcceptedValue("rewrite", "adds flushing of rewrites");
+      .addAcceptedValue("rewrite", "adds flushing of rewrites")
+      .addAcceptedValue("api", "flushing is disabled, but generate methods");
 
   ValueOption packageNameOption = new ValueOption("package",
       "optional package name for generated classes");
@@ -1155,10 +1156,10 @@ public class Configuration {
   }
 
   /**
-   * @return {@code true} if --flush=none
+   * @return {@code true} if not --flush=api
    */
   public boolean flushEnabled() {
-    return !flushOption.hasValue("none");
+    return !flushOption.hasValue("api");
   }
 
   /**

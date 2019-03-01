@@ -26,10 +26,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ASTNode.flushTreeCacheMethod [[
-$if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel low-level */
   public void $ASTNode.flushTreeCache() {
+$if(FlushEnabled)
     flushCache();
     if (children != null) {
       for (int i = 0; i < children.length; i++) {
@@ -42,61 +42,65 @@ $if(#isASTNodeDecl)
         }
       }
     }
-  }
 $endif
+  }
 $endif
 ]]
 
 ASTDecl.flushCacheMethod [[
-$if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel low-level */
   public void #name.flushCache() {
+$if(FlushEnabled)
     flushAttrAndCollectionCache();
-  }
 $endif
+  }
 $endif
 ]]
 
 
 ASTDecl.flushAttrAndCollectionCacheMethod [[
-$if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel internal */
   public void #name.flushAttrAndCollectionCache() {
+$if(FlushEnabled)
     $if(FlushAttr)
     flushAttrCache();
     $endif
     $if(FlushColl)
     flushCollectionCache();
     $endif
-  }
 $endif
+  }
 $endif
 ]]
 
 ASTDecl.flushAttrCacheMethod [[
-$if(FlushAttr)
   /** @apilevel internal */
   public void #name.flushAttrCache() {
+$if(FlushEnabled)
+  $if(FlushAttr)
     $if(!#isASTNodeDecl)
     super.flushAttrCache();
     $endif
     $FlushAttrCacheBody
-  }
+  $endif
 $endif
+  }
 ]]
 
 ASTDecl.flushCollectionCacheMethod [[
-$if(FlushColl)
   /** @apilevel internal */
   public void #name.flushCollectionCache() {
+$if(FlushEnabled)
+  $if(FlushColl)
     $if(!#isASTNodeDecl)
     super.flushCollectionCache();
     $endif
     #flushCollectionCacheCode
-  }
+  $endif
 $endif
+  }
 ]]
 
 # TODO: Figure out if this can be removed
