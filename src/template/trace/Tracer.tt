@@ -78,7 +78,8 @@ public static class Trace {
     // Flag: --tracing=flush
     FLUSH_ATTR,
     FLUSH_REWRITE,
-    FLUSH_REWRITE_INIT;
+    FLUSH_REWRITE_INIT,
+    INC_FLUSH_ATTR;
   }
 
   /**
@@ -323,6 +324,13 @@ public static class Trace {
    */
   public void flushAttr($ASTNode node, String attr, Object params, Object value) {
     receiver.accept($StateClass.Trace.Event.FLUSH_ATTR, node, attr, params, value);
+  }
+
+  /**
+   * Trace that an attribute was flushed by incremental evaluation.
+   */
+  public void flushIncAttr($ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.INC_FLUSH_ATTR, node, attr, params, value);
   }
 }
 $endif
