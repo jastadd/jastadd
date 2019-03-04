@@ -222,7 +222,7 @@ ASTNode.incHookInsertChild2 = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
-getChild_handler = new $DDGNodeName[(i + 1 > 4 || !(this instanceof List)) ? i + 1 : 4];
+getChild_handler = new $DDGNodeName[(i + 1 > 4 || !(this instanceof $List)) ? i + 1 : 4];
 getChild_handler[i] = $DDGNodeName.createAttrHandler(this, "getChild", Integer.valueOf(i));
 $endif
 
