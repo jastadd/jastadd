@@ -148,7 +148,7 @@ aspect JastAddCodeGen {
     System.out.println("Writing attribute statistics to " + filename);
     File csv = new File(filename);
     PrintStream out = new PrintStream(new FileOutputStream(csv));
-    out.println("node,syndecl,syneq,inhdecl,inheq,colldecl,colleq");
+    out.println("node,is_ast,syndecl,syneq,inhdecl,inheq,colldecl,colleq,refinesyn,refineinh,refineitd");
     for (TypeDecl type : getTypeDeclList()) {
       type.writeStatistics(out);
     }
@@ -156,13 +156,23 @@ aspect JastAddCodeGen {
   }
 
   public void TypeDecl.writeStatistics(PrintStream out) {
+    out.format("%s,FALSE,%d,%d,%d,%d,%d,%d,%d,%d,%d%n", name(),
+        synDecls().getNumChild(), getNumSynEq(),
+        getNumInhDecl(), inhAttrSet().size(),
+        getNumCollDecl(), 0,
+        numRefinedSynEqs,
+        numRefinedInhEqs,
+        numRefinedCBDecls);
   }
 
   public void ASTDecl.writeStatistics(PrintStream out) {
-    out.format("%s,%d,%d,%d,%d,%d,%d%n", name(),
+    out.format("%s,TRUE,%d,%d,%d,%d,%d,%d,%d,%d,%d%n", name(),
         synDecls().getNumChild(), getNumSynEq(),
         getNumInhDecl(), inhAttrSet().size(),
-        getNumCollDecl(), getNumCollEq());
+        getNumCollDecl(), getNumCollEq(),
+        numRefinedSynEqs,
+        numRefinedInhEqs,
+        numRefinedCBDecls);
   }
 
   public String TypeDecl.modifiers = "";

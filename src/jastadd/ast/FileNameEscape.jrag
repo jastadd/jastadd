@@ -27,25 +27,28 @@
  */
 
 /**
- * Escape file names when they should be inserted into string literals
- * in generated Java code.
+ * Utility function for escaping file names when they are inserted into
+ * string literals in generated Java code.
  *
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>
  */
 aspect FileNameEscape {
 
   /**
-   * Escape backslashes and quote characters so that the file name string can
-   * be inserted into a documentation comment.
+   * Escapes filenames for declared-at documentation comments.
    *
-   * This avoids creating unintentional (and possibly illegal) unicode escape
-   * sequences.
+   * <p>
+   * Backslashes and quote characters are escaped, as well as
+   * unintentional (and probably illegal) Unicode escape sequences.
    *
    * @param fileName The file name to escape
    * @return The escaped file name
    */
   public static String ASTNode.escapedFileName(String fileName) {
-    return fileName.replace("\\", "\\\\").replace("\"", "\\\"");
+    return fileName
+        .replace("\\\u0075", "\\\u00750075")
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"");
   }
 
   syn String Rewrite.getFileNameEscaped() = escapedFileName(getFileName());

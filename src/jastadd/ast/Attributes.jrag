@@ -473,6 +473,7 @@ public aspect Attributes {
     }
   }
 
+  public int TypeDecl.numRefinedSynEqs = 0;
   public Collection<SynEq> TypeDecl.refinedSynEqs = new LinkedList<SynEq>();
 
   public void Grammar.addRefinedSynEq(String name, String className,
@@ -492,6 +493,7 @@ public aspect Attributes {
       equ.setComment(Unparser.unparseComment(node));
       equ.setAspectName(declaredAspect);
       c.refinedSynEqs.add(equ);
+      c.numRefinedSynEqs += 1;
     } else {
       error("can not add equation for synthesized attribute " + name + " to unknown class "
           + className, fileName, startLine);
@@ -599,6 +601,7 @@ public aspect Attributes {
     equ.setAspectName(refinedEqu.getAspectName());
   }
 
+  public int TypeDecl.numRefinedInhEqs = 0;
   public Collection<InhEq> TypeDecl.refinedInhEqs = new LinkedList<InhEq>();
 
   public void Grammar.addRefinedInhEq(String childName, String name, String className,
@@ -630,6 +633,7 @@ public aspect Attributes {
           equ.setIndex(p);
         }
         c.refinedInhEqs.add(equ); // Sort in alphabetical order, then non-NTAs first.
+        c.numRefinedInhEqs += 1;
     } else {
       error("can not add equation for inherited attribute " + name + " to unknown class "
           + className, fileName, startLine);
@@ -734,6 +738,7 @@ public aspect Attributes {
     equ.setAspectName(refinedEqu.getAspectName());
   }
 
+  public int TypeDecl.numRefinedCBDecls = 0;
   public Collection<ClassBodyObject> TypeDecl.refinedClassBodyDecls =
       new LinkedList<ClassBodyObject>();
 
@@ -744,6 +749,7 @@ public aspect Attributes {
       ClassBodyObject o = new ClassBodyObject(n, fileName, n.firstToken.beginLine, declaredAspect);
       o.refinesAspect = aspectName;
       c.refinedClassBodyDecls.add(o);
+      c.numRefinedCBDecls += 1;
     } else {
       error("can not add member to unknown class " + className + " in " + fileName);
     }
