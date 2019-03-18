@@ -43,15 +43,6 @@ aspect ASTErrors {
       [new LinkedList<Problem>()]
       root Grammar;
 
-  syn boolean TypeDecl.isRootNode() = false;
-
-  eq ASTDecl.isRootNode() = isPotentialRootNode() && parents().isEmpty();
-
-  syn boolean TypeDecl.isPotentialRootNode() = false;
-
-  eq ASTDecl.isPotentialRootNode() =
-      !hasAbstract() && !isASTNodeDecl() && !isOptSubtype() && !isListSubtype();
-
   Grammar contributes Problem.builder()
           .message("there is no root node in the grammar!")
           .buildWarning()
