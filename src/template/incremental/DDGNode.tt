@@ -54,14 +54,14 @@ $if (IncrementalLevelParam)
   }
 
 
-  private $DDGNodeName($ASTNode node, String attrID, Object params, int state) {
+  $DDGNodeName($ASTNode node, String attrID, Object params, int state) {
     fNode = node;
     fAttrID = attrID;
     fParams = params;
     fState = state;
   }
 
-  private $DDGNodeName($DDGNodeName handler, $ASTNode node, int state) {
+  $DDGNodeName($DDGNodeName handler, $ASTNode node, int state) {
     fNode = node;
     fAttrID = handler.fAttrID;
     fParams = handler.fParams;

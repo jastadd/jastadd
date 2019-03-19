@@ -262,6 +262,7 @@ $else
 /** @apilevel internal */
 protected java.util.Map<$ASTNode, java.util.Set<$ASTNode>> contributorMap_#collectionId = null;
 $endif
+$include(CollDecl.incSurveyHandlerDecl)
 
 $if(#isCircular)
   /** @apilevel internal */
@@ -270,6 +271,7 @@ $if(#isCircular)
 $endif
   /** @apilevel internal */
   protected void survey_#collectionId() {
+    $include(CollDecl.incHookCollectionSurveyHandler)
 $if(#onePhase)
     if (!collect_contributors_#collectionId) {
       collect_contributors_#collectionId = true;
@@ -277,6 +279,7 @@ $else
     if (contributorMap_#collectionId == null) {
       contributorMap_#collectionId = new java.util.IdentityHashMap<$ASTNode, java.util.Set<$ASTNode>>();
 $endif
+      $include(CollDecl.incHookCollectionSurveyStart)
 $if(#isCircular)
       collecting_contributors_#collectionId = true;
 $endif
@@ -288,6 +291,7 @@ $endif
 $if(#isCircular)
       collecting_contributors_#collectionId = false;
 $endif
+      $include(CollDecl.incHookCollectionSurveyEnd)
     }
   }
 ]]
