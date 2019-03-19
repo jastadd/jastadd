@@ -104,7 +104,7 @@ aspect IncrementalDDG {
       // Attribute code.
       for (AttrDecl attr : decls) {
         tt.bind("AttributeName", attr.signature()); // TODO(joqvist): rename template variable?
-        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        tt.bind("IsParameterized", attr.isParameterized());
         tt.expand("ASTDecl.createAttributeHandler", out);
       }
     }
@@ -146,7 +146,7 @@ aspect IncrementalDDG {
     for (AttrDecl attr : listOfCachedAttributes()) {
       if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
          !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        tt.bind("IsParameterized", attr.isParameterized());
         tt.bind("AttrSign", attr.signature());
         res.append(tt.expand("ASTDecl.checkAndCleanupNTAListeners"));
       }
@@ -162,7 +162,7 @@ aspect IncrementalDDG {
     TemplateContext tt = templateContext();
     // Add dump string for each attribute
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsParameterized", attr.getNumParameter() > 0);
+      tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
             !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
       tt.bind("AttrSign",  attr.signature());
@@ -228,7 +228,7 @@ aspect IncrementalDDG {
       TemplateContext tt = templateContext();
       for (AttrDecl attr : decls) {
         tt.bind("AttributeName", attr.signature());// TODO rename template variable?
-        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        tt.bind("IsParameterized", attr.isParameterized());
         res.append(tt.expand("ASTDecl.copyAttributeHandler"));
       }
     }
