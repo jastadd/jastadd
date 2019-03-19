@@ -84,27 +84,25 @@ aspect IncrementalDDG {
         tt.expand("ASTDecl.createRewriteAttributeHandler", out);
       }
       // Collect attributes.
-      ArrayList list = new ArrayList();
+      ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
       for (AttrDecl attr : synDecls()) {
         if (attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
-      for (int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
+      for (AttrDecl attr : getInhDeclList()) {
         if (attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
-      for (CollDecl decl: interfaceCollDecls()) {
-        list.add(decl);
+      for (CollDecl decl : interfaceCollDecls()) {
+        decls.add(decl);
       }
-      for (CollDecl decl: getCollDeclList()) {
-        list.add(decl);
+      for (CollDecl decl : getCollDeclList()) {
+        decls.add(decl);
       }
       // Attribute code.
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
+      for (AttrDecl attr : decls) {
         tt.bind("AttributeName", attr.signature()); // TODO(joqvist): rename template variable?
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.expand("ASTDecl.createAttributeHandler", out);
@@ -215,22 +213,20 @@ aspect IncrementalDDG {
     StringBuilder res = new StringBuilder();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       // Collect attributes.
-      ArrayList list = new ArrayList();
+      ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
       for (AttrDecl attr : synDecls()) {
         if (attr != null && attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
-      for (int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
+      for (AttrDecl attr : getInhDeclList()) {
         if (attr != null && attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
       // Attribute code.
       TemplateContext tt = templateContext();
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
+      for (AttrDecl attr : decls) {
         tt.bind("AttributeName", attr.signature());// TODO rename template variable?
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         res.append(tt.expand("ASTDecl.copyAttributeHandler"));
