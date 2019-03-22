@@ -45,16 +45,13 @@ CollDecl.incHookCollectionSurveyHandler = [[
 $if(IncrementalEnabled)
 if (#(signature)_survey_handler == null) {
   #(signature)_survey_handler = new $DDGNodeName(this, "#(signature)", null, $ASTNode.inc_EMPTY) {
-    @Override public void dependencyChanged() {
-      if (isComputed() || isCreated()) {
-        setEmpty();
+    @Override public void reactToDependencyChange() {
 $if(#onePhase)
-        collect_contributors_#collectionId = false;
+      collect_contributors_#collectionId = false;
 $endif
-        if (contributorMap_#collectionId != null) {
-          contributorMap_#collectionId = null;
-          notifyDependencies();
-        }
+      if (contributorMap_#collectionId != null) {
+        contributorMap_#collectionId = null;
+        notifyDependencies();
       }
     }
   };

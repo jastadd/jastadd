@@ -251,27 +251,30 @@ $if (IncrementalTrack)
       trackedFlushes++;
       System.out.println("not(" + this + ")");
 $endif
-$if (IncrementalLevelParam)
 $if (IncrementalPropLimit)
       if (noCacheRead && !fNode.inc_valueAffected(fAttrID, fParams)) {
       } else {
-$endif
-        fNode.reactToDependencyChange(fAttrID, fParams);
-$if (IncrementalPropLimit)
+        reactToDependencyChange();
       }
-$endif
 $else
-$if (IncrementalLevelAttr)
-      fNode.reactToDependencyChange(fAttrID);
-$endif
-$if (IncrementalLevelNode)
-      fNode.reactToDependencyChange();
-$endif
-$if (IncrementalLevelRegion)
-      fNode.reactToDependencyChange();
-$endif
+      reactToDependencyChange();
 $endif
     }
+  }
+
+  public void reactToDependencyChange() {
+$if(IncrementalLevelParam)
+    fNode.reactToDependencyChange(fAttrID, fParams);
+$endif
+$if(IncrementalLevelAttr)
+    fNode.reactToDependencyChange(fAttrID);
+$endif
+$if(IncrementalLevelNode)
+    fNode.reactToDependencyChange();
+$endif
+$if(IncrementalLevelRegion)
+    fNode.reactToDependencyChange();
+$endif
   }
 
   // State
