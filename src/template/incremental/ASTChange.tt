@@ -171,10 +171,8 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
 if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
-  if (children == null || i > numChildren) {
-    numChildren_handler.notifyDependencies();
-  } else {
-    numChildren_handler.notifyDependencies();
+  numChildren_handler.notifyDependencies();
+  if (children != null && i <= numChildren) {
     for (int k = i; k < children.length; k++) {
       if (getChild_handler[k] != null) {
         getChild_handler[k].notifyDependencies();
@@ -185,10 +183,8 @@ $endif
 
 $if(IncrementalLevelAttr)
 if (!state().IN_CONSTRUCTION && !state().IN_ATTR_STORE_EVAL) {
-  if (children == null || i > numChildren) {
-    numChildren_handler.notifyDependencies();
-  } else {
-    numChildren_handler.notifyDependencies();
+  numChildren_handler.notifyDependencies();
+  if (children != null && i <= numChildren) {
     getChild_handler.flushRegion();
   }
 $endif
