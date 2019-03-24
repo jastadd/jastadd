@@ -105,14 +105,12 @@ $if (IncrementalLevelAttr)
     fNode = node;
     fAttrID = attrID;
     fState = node.inc_state;
-    //createdHandlers.add(this);
   }
 
   public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
     fNode = node;
     fAttrID = handler.fAttrID;
     fState = node.inc_state;
-    //createdHandlers.add(this);
   }
 
   public void flushRegion() {
@@ -122,7 +120,7 @@ $if (IncrementalLevelAttr)
     for ($DDGNodeName node : k) {
       node.removeListener(this);
     }
-    fNode.reactToDependencyChange(fAttrID);
+    reactToDependencyChange(fAttrID);
   }
 $endif
 
@@ -134,13 +132,11 @@ $if (IncrementalLevelNode)
   public $DDGNodeName($ASTNode node) {
     fNode = node;
     fState = node.inc_state;
-    //createdHandlers.add(this);
   }
 
   public $DDGNodeName($DDGNodeName handler, $ASTNode node) {
     fNode = node;
     fState = node.inc_state;
-    //createdHandlers.add(this);
   }
 
   public void flushRegion() {
@@ -150,7 +146,7 @@ $if (IncrementalLevelNode)
     for ($DDGNodeName node : k) {
       node.removeListener(this);
     }
-    fNode.reactToDependencyChange();
+    reactToDependencyChange();
   }
 $endif
 
@@ -171,7 +167,7 @@ $if (IncrementalLevelRegion)
 
   public void flushRegion() {
     setEmpty();
-    fNode.reactToDependencyChange();
+    reactToDependencyChange();
   }
 $endif
 
@@ -410,19 +406,6 @@ $endif
       }
     }
   }
-
-  /*
-  public static LinkedList<$DDGNodeName> createdHandlers = new LinkedList<$DDGNodeName>();
-  public static void doCleanUp() {
-    Iterator itr = createdHandlers.iterator();
-    while (itr.hasNext()) {
-      $DDGNodeName node = ($DDGNodeName)itr.next();
-      if (node.isGarbage() || node.isCreated())
-        itr.remove();
-      else node.cleanUpGarbage();
-    }
-  }
-  */
 
 $if(IncrementalTrack)
   // Tracking
