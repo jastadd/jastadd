@@ -28,49 +28,14 @@
 aspect IncrementalState {
 
   public void ASTDecl.genIncrementalState(PrintWriter out) {
-
-	TemplateContext tt = templateContext();
-
-	tt.expand("ASTDecl.incStateFields", out);
-
-	//tt.bind("ChangeStateTokens", emitChangeStateTokensString());
-	//tt.bind("ChangeStateAttributes", emitChangeStateAttributesString());
-	//tt.expand("ASTDecl.incChangeStateMethod", out);
-
-	tt.bind("ThrowAwayTokens", emitThrowAwayTokensString());
-	tt.bind("ThrowAwayAttributes", emitThrowAwayAttributesString());
-	tt.expand("ASTDecl.incThrowAwayMethod", out);
-
-  }
-
-/*
-  public String ASTDecl.emitChangeStateTokensString() {
-    StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (int c = 0; c < getNumComponent(); c++) {
-      Component comp = getComponent(c);
-      if (comp instanceof TokenComponent) {
-        tt.bind("Id", ((TokenComponent) comp).name());
-        res.append(tt.expand("ASTDecl.changeStateTokenHandler"));
-      }
-    }
- 	  return res.toString();
-  }
 
-  public String ASTDecl.emitChangeStateAttributesString() {
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParameterized", attr.isParameterized());
-      tt.bind("AttrSign", attr.signature());
-      tt.bind("ChangeStateValue", (attr.isNTA() || attr.getNTA()) &&
-          !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
-      res.append(tt.expand("ASTDecl.changeStateAttributeHandler"));
-    }
-    return res.toString();
+    tt.expand("ASTDecl.incStateFields", out);
+
+    tt.bind("ThrowAwayTokens", emitThrowAwayTokensString());
+    tt.bind("ThrowAwayAttributes", emitThrowAwayAttributesString());
+    tt.expand("ASTDecl.incThrowAwayMethod", out);
   }
-*/
 
   public String ASTDecl.emitThrowAwayTokensString() {
     StringBuffer res = new StringBuffer();
@@ -82,7 +47,7 @@ aspect IncrementalState {
         res.append(tt.expand("ASTDecl.throwAwayTokenHandler"));
       }
     }
- 	return res.toString();
+    return res.toString();
   }
 
   public String ASTDecl.emitThrowAwayAttributesString() {
