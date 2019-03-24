@@ -213,77 +213,47 @@ inc_flushRegion();
 handler.notifyDependencies();
 $endif
 $endif
-
-$CollAttrFlushChecks
-$AttrFlushChecks
-
 $endif
 ]]
 
-ASTDecl.collAttrFlushCheck = [[
+AttrDecl.reactToDepChange = [[
 $if(IncrementalLevelParam)
-if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
-}
-$endif
-]]
-
-ASTDecl.attrFlushCheck = [[
-$if(IncrementalLevelParam)
-$if(IsParameterized)
-$if(!#isCircular)
-if (attrID.equals("$AttrSign") && $(AttrSign)_values != null) {
-$else
-if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
-$endif
-  $(AttrSign)_values.remove(_parameters);
-  $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.remove(_parameters);
+$if(#isParameterized)
+if (#(signature)_values != null && #(signature)_values.containsKey(_parameters)) {
+  #(signature)_values.remove(_parameters);
+  $DDGNodeName handler = ($DDGNodeName) #(signature)_handler.remove(_parameters);
   handler.throwAway();
   handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID, _parameters);
-  $endif
-  return;
 }
 $else
-$if(!#isCircular)
-if (attrID.equals("$AttrSign")) {
+$if(#isCircular)
+if (#(signature)_computed) {
 $else
-if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+{
 $endif
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID, _parameters);
-  $endif
-  return;
+  #resetVisit
+  #resetCache
+  #(signature)_handler.notifyDependencies();
 }
 $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsParameterized)
-if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID);
-  $endif
-  return;
+$if(#isParameterized)
+if (#(signature)_values != null && !#(signature)_values.isEmpty()) {
+  #resetVisit
+  #resetCache
+  #(signature)_handler.notifyDependencies();
 }
 $else
-if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID);
-  $endif
-  return;
+$if(#isCircular)
+if (#(signature)_computed) {
+$else
+{
+$endif
+  #resetVisit
+  #resetCache
+  #(signature)_handler.notifyDependencies();
 }
 $endif
 $endif

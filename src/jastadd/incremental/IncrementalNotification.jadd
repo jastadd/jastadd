@@ -41,8 +41,6 @@
     tt.bind("AttrAffectedChecks", emitAttrAffectedChecksString());
     tt.expand("ASTDecl.incValueAffectedMethod", out);
 
-    tt.bind("AttrFlushChecks", emitAttrFlushChecksString());
-    tt.bind("CollAttrFlushChecks", emitCollAttrFlushChecksString());
     tt.expand("ASTDecl.incReactToDepChangeMethod", out);
 
     tt.bind("FlushAttrs", emitFlushAttrsString());
@@ -129,57 +127,6 @@
       tt.bind("AttrObjectType", attrObjectType);
       tt.bind("ParamTypeSignature", attr.getNumParameter() > 0 ? attr.getParameter(0).getTypeInSignature(): "");
       res.append(tt.expand("ASTDecl.checkAttrValueAffected"));
-      firstAttr = false;
-    }
-    return res.toString();
-  }
-
-  /**
-   * Creates string with code checking if an attribute, identified with
-   * name and parameters, should be flushed and dependencies notified.
-   */
-  public String ASTDecl.emitAttrFlushChecksString() {
-    if (config().incrementalLevelNode() || config().incrementalLevelRegion()) {
-      return "";
-    }
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    boolean firstAttr = true;
-    for (AttrDecl attr : listOfCachedAttributes()) {
-      res.append(firstAttr ? "" : "else ");
-      tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("AttrSign", attr.signature());
-      tt.bind("AttrType", attr.type());
-      tt.bind("AttrResetVisit", attr.resetVisit());
-      tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("IsNTA", attr.isHOA());
-      res.append(tt.expand("ASTDecl.attrFlushCheck"));
-      firstAttr = false;
-    }
-    return res.toString();
-  }
-
-  /**
-   * Creates string with code checking if a collection attribute should be
-   * flushed and dependencies notified.
-   */
-  public String ASTDecl.emitCollAttrFlushChecksString() {
-    if (config().incrementalLevelNode() || config().incrementalLevelRegion()) {
-      return "";
-    }
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    boolean firstAttr = true;
-    for (int k = 0; k < getNumCollDecl(); k++) {
-      CollDecl attr = getCollDecl(k);
-      res.append(firstAttr ? "" : "else ");
-      tt.bind("AttrSign", attr.signature());
-      tt.bind("AttrType", attr.type());
-      tt.bind("AttrResetVisit", attr.resetVisit());
-      tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("CollectionReset", collectionReset());
-      tt.bind("RootType", attr.rootType());
-      res.append(tt.expand("ASTDecl.collAttrFlushCheck"));
       firstAttr = false;
     }
     return res.toString();

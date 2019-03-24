@@ -430,22 +430,34 @@ AttrDecl.incHookAttrRead = [[
 $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
-$if(!#isParameterized)
-if (#(signature)_handler == null) {
-  #(signature)_handler = $DDGNodeName.createAttrHandler(this, "#(signature)", null);
-}
-state().addHandlerDepTo(#(signature)_handler);
-$else
+$if(#isParameterized)
 if (!#(signature)_handler.containsKey(_parameters)) {
-  #(signature)_handler.put(_parameters, $DDGNodeName.createAttrHandler(this, "#(signature)", _parameters));
+  #(signature)_handler.put(_parameters, new $DDGNodeName(this, "#(signature)", _parameters, $ASTNode.inc_EMPTY) {
+    @Override public void reactToDependencyChange() {
+      $include(AttrDecl.reactToDepChange)
+    }
+  });
 }
 state().addHandlerDepTo(($DDGNodeName)#(signature)_handler.get(_parameters));
+$else
+if (#(signature)_handler == null) {
+  #(signature)_handler = new $DDGNodeName(this, "#(signature)", null, $ASTNode.inc_EMPTY) {
+    @Override public void reactToDependencyChange() {
+      $include(AttrDecl.reactToDepChange)
+    }
+  };
+}
+state().addHandlerDepTo(#(signature)_handler);
 $endif
 $endif
 
 $if(IncrementalLevelAttr)
 if (#(signature)_handler == null) {
-  #(signature)_handler = new $DDGNodeName(this, "#(signature)");
+  #(signature)_handler = new $DDGNodeName(this, "#(signature)", null, $ASTNode.inc_EMPTY) {
+    @Override public void reactToDependencyChange() {
+      $include(AttrDecl.reactToDepChange)
+    }
+  };
 }
 state().addHandlerDepTo(#(signature)_handler);
 $endif
