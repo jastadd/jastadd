@@ -204,21 +204,6 @@ $endif
     fListenerSet.clear();
   }
 
-  /*
-   * Transfers listeners from another handler, used in rewrites.
-   */
-  public void transferSetsFrom($DDGNodeName node) {
-    if (node == null || this == node)
-      return;
-    for ($DDGNodeName l : node.fListenerSet) {
-      if (!l.isGarbage()) {
-        this.addListener(l);
-      }
-    }
-    node.clearListeners();
-    node.throwAway();
-  }
-
   // Notification
 
   private boolean visited = false;

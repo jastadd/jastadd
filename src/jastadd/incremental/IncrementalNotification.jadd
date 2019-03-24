@@ -62,49 +62,7 @@
 
     tt.expand("ASTNode.incFlushRegionRewritesMethod", out);
 
-    tt.bind("FlushNtaSubTrees", emitFlushNtaSubTreesString());
-    tt.bind("TransferSetsFromAttrTokenHandlers", emitTransferSetsFromAttrTokenHandlersString());
-    tt.expand("ASTDecl.incFlushSubTreeMethod", out);
-
     tt.expand("ASTNode.incNotifyForRemoveMethod", out);
-  }
-
-  /**
-   * Creates string with code flushing NTA substrings.
-   */
-  public String ASTDecl.emitFlushNtaSubTreesString() {
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsNTA", attr.isHOA());
-      tt.bind("IsParameterized", attr.isParameterized());
-      Component comp = attr.findCorrespondingNTA();
-      tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA));
-      tt.bind("AttrSign", attr.signature());
-      res.append(tt.expand("ASTDecl.flushNtaSubtree"));
-    }
-    return res.toString();
-  }
-
-  /**
-   * Creates string with code transfering sets from attribute and token handlers.
-   */
-  public String ASTDecl.emitTransferSetsFromAttrTokenHandlersString() {
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsParameterized", attr.isParameterized());
-      tt.bind("AttrSign", attr.signature());
-      res.append(tt.expand("ASTDecl.transferSetsFromAttributeHandler"));
-    }
-    for (int c = 0; c < getNumComponent(); c++) {
-      Component comp = getComponent(c);
-      if (comp instanceof TokenComponent) {
-        tt.bind("Id", ((TokenComponent) comp).name());
-        res.append(tt.expand("ASTDecl.transferSetsFromTokenHandler"));
-      }
-    }
-    return res.toString();
   }
 
   /**
