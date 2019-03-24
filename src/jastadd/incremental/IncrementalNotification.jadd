@@ -76,8 +76,7 @@
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
-              && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("IsNTA", attr.isHOA());
       tt.bind("IsParameterized", attr.isParameterized());
       Component comp = attr.findCorrespondingNTA();
       tt.bind("IsNtaWithTree", comp == null || !(comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA));
@@ -115,8 +114,7 @@
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive()
-            && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("IsNTA", attr.isHOA());
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("AttrSign", attr.signature());
       Component comp = attr.findCorrespondingNTA();
@@ -135,9 +133,7 @@
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
-      		!(attr.type().equals("String") || attr.type().equals("java.lang.String")) &&
-      		attr.getNumParameter() == 0) {
+      if (attr.isHOA() && !attr.isParameterized()) {
         Component comp = attr.findCorrespondingNTA();
         if (comp == null || comp instanceof OptionalComponentNTA || comp instanceof ListComponentNTA) {
           tt.bind("AttrSign", attr.signature());
@@ -163,7 +159,7 @@
       res.append(firstAttr ? "" : "else ");
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("IsNTA", attr.getNTA() || attr.isNTA());
+      tt.bind("IsNTA", attr.isHOA());
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
       tt.bind("IsAttrWithOneParam", attr.getNumParameter() == 1);
       tt.bind("IsPrimitiveAttr", attr.isPrimitive());
@@ -198,9 +194,7 @@
       tt.bind("AttrType", attr.type());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) &&
-      		!attr.isPrimitive() && !(attr.type().equals("String") ||
-      		attr.type().equals("java.lang.String")));
+      tt.bind("IsNTA", attr.isHOA());
       res.append(tt.expand("ASTDecl.attrFlushCheck"));
       firstAttr = false;
     }
@@ -244,9 +238,7 @@
       tt.bind("AttrSign", attr.signature());
       tt.bind("AttrResetVisit", attr.resetVisit());
       tt.bind("AttrResetCache", attr.resetCache());
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) &&
-      		!attr.isPrimitive() && !(attr.type().equals("String") ||
-      		attr.type().equals("java.lang.String")));
+      tt.bind("IsNTA", attr.isHOA());
       res.append(tt.expand("ASTDecl.attrFlush"));
     }
     return res.toString();

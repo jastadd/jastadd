@@ -57,8 +57,7 @@ aspect IncrementalState {
       AttrDecl attr = (AttrDecl)itr.next();
       tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("AttrSign", attr.signature());
-      tt.bind("ThrowAwayValue", (attr.isNTA() || attr.getNTA()) &&
-          !attr.isPrimitive() && !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("ThrowAwayValue", attr.isHOA());
       res.append(tt.expand("ASTDecl.throwAwayAttributeHandler"));
     }
     return res.toString();
