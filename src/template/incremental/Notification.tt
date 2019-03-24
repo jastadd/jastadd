@@ -591,28 +591,6 @@ if ($(AttrSign)_proxy != null) {
     ((ASTNode)v).inc_flush_subtree(handler());
   }
   $(AttrSign)_values.clear();
-/*
-  for (int index = 0; index < $(AttrSign)_proxy.numChildren; index++) {
-    $ASTNode value = $(AttrSign)_proxy.children[index];
-    if (!value.isRegionRoot()) {
-      state().enterConstruction();
-      $(AttrSign)_proxy.removeChild(index);
-      // removeChild will decrease the index of all remaining children and numChildren
-      // hence, to visit the remainder of the list index need to be decreased by one for each removeChild
-      index--;
-      state().exitConstruction();
-      value.inc_flush_subtree(handler());
-      // remove the value in the NTA values map
-      for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator(); itr.hasNext();) {
-        Object key = itr.next();
-        if ($(AttrSign)_values.get(key) == value) {
-          $(AttrSign)_values.remove(key);
-          break;
-        }
-      }
-    }
-  }
-*/
 }
 $else
 $if(IsNtaWithTree)
