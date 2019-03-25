@@ -219,9 +219,9 @@ $endif
 AttrDecl.reactToDepChange = [[
 $if(IncrementalLevelParam)
 $if(#isParameterized)
-if (#(signature)_values != null && #(signature)_values.containsKey(_parameters)) {
-  #(signature)_values.remove(_parameters);
-  $DDGNodeName handler = ($DDGNodeName) #(signature)_handler.remove(_parameters);
+if (#(signature)_values != null && #(signature)_values.containsKey(fParams)) {
+  #(signature)_values.remove(fParams);
+  $DDGNodeName handler = ($DDGNodeName) #(signature)_handler.remove(fParams);
   handler.throwAway();
   handler.notifyDependencies();
 }
