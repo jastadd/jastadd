@@ -84,29 +84,27 @@ aspect IncrementalDDG {
         tt.expand("ASTDecl.createRewriteAttributeHandler", out);
       }
       // Collect attributes.
-      ArrayList list = new ArrayList();
+      ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
       for (AttrDecl attr : synDecls()) {
         if (attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
-      for (int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
+      for (AttrDecl attr : getInhDeclList()) {
         if (attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
-      for (CollDecl decl: interfaceCollDecls()) {
-        list.add(decl);
+      for (CollDecl decl : interfaceCollDecls()) {
+        decls.add(decl);
       }
-      for (CollDecl decl: getCollDeclList()) {
-        list.add(decl);
+      for (CollDecl decl : getCollDeclList()) {
+        decls.add(decl);
       }
       // Attribute code.
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
+      for (AttrDecl attr : decls) {
         tt.bind("AttributeName", attr.signature()); // TODO(joqvist): rename template variable?
-        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        tt.bind("IsParameterized", attr.isParameterized());
         tt.expand("ASTDecl.createAttributeHandler", out);
       }
     }
@@ -146,9 +144,8 @@ aspect IncrementalDDG {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
-         !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
-        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+      if (attr.isHOA()) {
+        tt.bind("IsParameterized", attr.isParameterized());
         tt.bind("AttrSign", attr.signature());
         res.append(tt.expand("ASTDecl.checkAndCleanupNTAListeners"));
       }
@@ -164,9 +161,8 @@ aspect IncrementalDDG {
     TemplateContext tt = templateContext();
     // Add dump string for each attribute
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
-            !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("IsParameterized", attr.isParameterized());
+      tt.bind("IsNTA", attr.isHOA());
       tt.bind("AttrSign",  attr.signature());
       res.append(tt.expand("ASTDecl.checkAndCleanupAttributeListeners"));
     }
@@ -215,24 +211,22 @@ aspect IncrementalDDG {
     StringBuilder res = new StringBuilder();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
       // Collect attributes.
-      ArrayList list = new ArrayList();
+      ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
       for (AttrDecl attr : synDecls()) {
         if (attr != null && attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
-      for (int k = 0; k < getNumInhDecl(); k++) {
-        AttrDecl attr = getInhDecl(k);
+      for (AttrDecl attr : getInhDeclList()) {
         if (attr != null && attr.isMemoized()) {
-          list.add(attr);
+          decls.add(attr);
         }
       }
       // Attribute code.
       TemplateContext tt = templateContext();
-      for (Iterator itr = list.iterator(); itr.hasNext();) {
-        AttrDecl attr = (AttrDecl)itr.next();
+      for (AttrDecl attr : decls) {
         tt.bind("AttributeName", attr.signature());// TODO rename template variable?
-        tt.bind("IsParameterized", attr.getNumParameter() > 0);
+        tt.bind("IsParameterized", attr.isParameterized());
         res.append(tt.expand("ASTDecl.copyAttributeHandler"));
       }
     }

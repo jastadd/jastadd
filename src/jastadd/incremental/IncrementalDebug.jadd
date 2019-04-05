@@ -56,8 +56,7 @@ aspect IncrementalDebug {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
-      if ((attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
-         !(attr.type().equals("String") || attr.type().equals("java.lang.String"))) {
+      if (attr.isHOA()) {
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.signature());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
@@ -89,9 +88,8 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     // Add dump string for each attribute
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("IsNTA", (attr.isNTA() || attr.getNTA()) && !attr.isPrimitive() &&
-            !(attr.type().equals("String") || attr.type().equals("java.lang.String")));
+      tt.bind("IsParameterized", attr.isParameterized());
+      tt.bind("IsNTA", attr.isHOA());
       tt.bind("AttrSign",  attr.signature());
       res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
     }

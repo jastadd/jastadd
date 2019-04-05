@@ -213,125 +213,50 @@ inc_flushRegion();
 handler.notifyDependencies();
 $endif
 $endif
-
-$CollAttrFlushChecks
-$AttrFlushChecks
-
 $endif
 ]]
 
-ASTDecl.collAttrFlushCheck = [[
+AttrDecl.reactToDepChange = [[
 $if(IncrementalLevelParam)
-if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
-  $AttrResetVisit
-  $AttrResetCache
-  $include(State.incHookConstructionStart)
-  ASTNode node = this;
-  while (node != null && !(node instanceof $RootType)) {
-    node = node.getParent();
-  }
-  $include(State.incHookConstructionEnd)
-  $RootType root = ($RootType)node;
-  for ($ASTNode n : root.contributorMap_$(AttrSign).keySet()) {
-    n.reactToDependencyChange(attrID, _parameters);
-  }
-  root.contributorMap_$(AttrSign) = null;
-  $(AttrSign)_handler.notifyDependencies();
-}
-$endif
-]]
-
-ASTDecl.attrFlushCheck = [[
-$if(IncrementalLevelParam)
-$if(IsParameterized)
-$if(!#isCircular)
-if (attrID.equals("$AttrSign") && $(AttrSign)_values != null) {
-$else
-if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && $(AttrSign)_values.containsKey(_parameters)) {
-$endif
-  $if(IsNTA)
-  $AttrType value = ($AttrType)$(AttrSign)_values.remove(_parameters);
-  for (int i = 0; i < $(AttrSign)_proxy.children.length; i++) {
-    $ASTNode child = $(AttrSign)_proxy.children[i];
-    if (child != null && value == child) {
-      // using dummy node to flush dependencies from NTA
-      value.inc_flush_subtree(($DDGNodeName)$(AttrSign)_handler.get(_parameters));
-      $(AttrSign)_proxy.removeChild(i);
-      break;
-    }
-  }
-  $else
-  $(AttrSign)_values.remove(_parameters);
-  $endif
-  $DDGNodeName handler = ($DDGNodeName)$(AttrSign)_handler.remove(_parameters);
+$if(#isParameterized)
+if (#(signature)_values != null && #(signature)_values.containsKey(fParams)) {
+  #(signature)_values.remove(fParams);
+  $DDGNodeName handler = ($DDGNodeName) #(signature)_handler.remove(fParams);
   handler.throwAway();
   handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID, _parameters);
-  $endif
-  return;
 }
 $else
-$if(!#isCircular)
-if (attrID.equals("$AttrSign")) {
+$if(#isCircular)
+if (#(signature)_computed) {
 $else
-if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
+{
 $endif
-  $if(IsNTA)
-  if ($(AttrSign)_value instanceof $ASTNode) {
-    $(AttrSign)_value.setParent(null);
-    // using dummy node to flush dependencies from NTA
-    $(AttrSign)_value.inc_flush_subtree($(AttrSign)_handler);
-  }
-  $endif
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
+  #resetVisit
+  #resetCache
+  #(signature)_handler.notifyDependencies();
   $if (TraceFlush)
   state().trace().flushIncAttr(this, "$AttrSign", "", "");
   $endif
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID, _parameters);
-  $endif
-  return;
 }
 $endif
 $endif
 
 $if(IncrementalLevelAttr)
-$if(IsParameterized)
-if (attrID.equals("$AttrSign") && $(AttrSign)_values != null && !$(AttrSign)_values.isEmpty()) {
-  $if(IsNTA)
-  if ($(AttrSign)_proxy != null) {
-    $(AttrSign)_proxy.setParent(null);
-    // using dummy node to flush dependencies from NTA
-    $(AttrSign)_proxy.inc_flush_subtree($(AttrSign)_handler);
-  }
-  $endif
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID);
-  $endif
-  return;
+$if(#isParameterized)
+if (#(signature)_values != null && !#(signature)_values.isEmpty()) {
+  #resetVisit
+  #resetCache
+  #(signature)_handler.notifyDependencies();
 }
 $else
-if (attrID.equals("$AttrSign") && $(AttrSign)_computed) {
-  $if(IsNTA)
-  if ($(AttrSign)_value instanceof $ASTNode) {
-    $(AttrSign)_value.setParent(null);
-    // using dummy node to flush dependencies from NTA
-    $(AttrSign)_value.inc_flush_subtree(new $DDGNodeName(new $Opt(), ""));
-  }
-  $endif
-  $AttrResetVisit
-  $AttrResetCache
-  $(AttrSign)_handler.notifyDependencies();
-  $if(!#isASTNodeDecl)
-  super.reactToDependencyChange(attrID);
-  $endif
-  return;
+$if(#isCircular)
+if (#(signature)_computed) {
+$else
+{
+$endif
+  #resetVisit
+  #resetCache
+  #(signature)_handler.notifyDependencies();
 }
 $endif
 $endif
@@ -414,7 +339,6 @@ $if(IncrementalLevelNode)
       state().enterConstruction();
       int childIndex = getIndexOfChild(node);
       removeChild(childIndex);
-      node.inc_flush_subtree(node.handler());
       state().exitConstruction();
       if (inc_internalNTAList_map.containsValue(node)) {
         for (java.util.Iterator itr = inc_internalNTAList_map.keySet().iterator(); itr.hasNext();) {
@@ -433,7 +357,6 @@ $if(IncrementalLevelNode)
         state().enterConstruction();
         int childIndex = getIndexOfChild(node);
         removeChild(childIndex);
-        node.inc_flush_subtree(node.handler());
         state().exitConstruction();
         return true;
       }
@@ -446,7 +369,6 @@ $if(IncrementalLevelNode)
       if (index >= 0 && parent.childIsNTA(index)) {
         state().enterConstruction();
         node.setParent(null);
-        node.inc_flush_subtree(node.handler());
         state().exitConstruction();
         return true;
       }
@@ -480,7 +402,6 @@ if ($(AttrSign)_value == node) {
   state().enterConstruction();
   $(AttrSign)_value.setParent(null);
   state().exitConstruction();
-  $(AttrSign)_value.inc_flush_subtree(node.handler());
   $AttrResetVisit
   $AttrResetCache
 }
@@ -601,32 +522,7 @@ $if(IncrementalChangeFlush)
 $if(IsNTA)
 $if(IsParameterized)
 if ($(AttrSign)_proxy != null) {
-  for (Object v : $(AttrSign)_values.values()) {
-    ((ASTNode)v).inc_flush_subtree(handler());
-  }
   $(AttrSign)_values.clear();
-/*
-  for (int index = 0; index < $(AttrSign)_proxy.numChildren; index++) {
-    $ASTNode value = $(AttrSign)_proxy.children[index];
-    if (!value.isRegionRoot()) {
-      state().enterConstruction();
-      $(AttrSign)_proxy.removeChild(index);
-      // removeChild will decrease the index of all remaining children and numChildren
-      // hence, to visit the remainder of the list index need to be decreased by one for each removeChild
-      index--;
-      state().exitConstruction();
-      value.inc_flush_subtree(handler());
-      // remove the value in the NTA values map
-      for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator(); itr.hasNext();) {
-        Object key = itr.next();
-        if ($(AttrSign)_values.get(key) == value) {
-          $(AttrSign)_values.remove(key);
-          break;
-        }
-      }
-    }
-  }
-*/
 }
 $else
 $if(IsNtaWithTree)
@@ -634,7 +530,6 @@ if ($(AttrSign)_value != null) {
   state().enterConstruction();
   $(AttrSign)_value.setParent(null);
   state().exitConstruction();
-  $(AttrSign)_value.inc_flush_subtree(handler());
   $AttrResetVisit
   $AttrResetCache
 }
@@ -671,172 +566,6 @@ $if(#isASTNodeDecl)
 $endif
 $endif
 
-$endif
-$endif
-]]
-
-ASTDecl.incFlushSubTreeMethod = [[
-$if(IncrementalEnabled)
-$if(IncrementalChangeFlush)
-
-$if(IncrementalLevelRegion)
-  private boolean #name.inc_flush_subtree_visited = false;
-  /** @apilevel internal */
-  protected void #name.inc_flush_subtree($DDGNodeName h) {
-    if (inc_flush_subtree_visited) {
-      return;
-    }
-    inc_flush_subtree_visited = true;
-    inc_state = inc_GARBAGE;
-    $FlushNtaSubTrees
-  $if(#isASTNodeDecl)
-    // flush subtree of values, take sets from encountered handler and remove it from DDG
-    if (isRegionRoot()) {
-      h.transferSetsFrom(handler());
-    }
-    inc_flush();
-    for (int i = 0; children != null && i < children.length; i++) {
-      $ASTNode child = children[i];
-      if (child != null) {
-        child.inc_flush_subtree(h);
-      }
-    }
-  $else
-    super.inc_flush_subtree(h);
-  $endif
-  }
-$endif
-
-$if(IncrementalLevelNode)
-  /** @apilevel internal */
-  protected void #name.inc_flush_subtree($DDGNodeName h) {
-    inc_state = inc_GARBAGE;
-    $FlushNtaSubTrees
-$if(#isASTNodeDecl)
-    // flush subtree of values, take sets from encountered handler and remove it from DDG
-    h.transferSetsFrom(handler());
-    inc_flush();
-    for (int i = 0; children != null && i < children.length; i++) {
-      $ASTNode child = children[i];
-      if (child != null) {
-        child.inc_flush_subtree(h);
-      }
-    }
-$else
-    super.inc_flush_subtree(h);
-$endif
-  }
-$endif
-
-$if(IncrementalLevelAttr)
-  /** @apilevel internal */
-  protected void #name.inc_flush_subtree($DDGNodeName h) {
-    inc_state = inc_GARBAGE;
-    $FlushNtaSubTrees
-    $TransferSetsFromAttrTokenHandlers
-$if(#isASTNodeDecl)
-    // flush subtree of values, take sets from encountered handler and remove it from DDG
-    h.transferSetsFrom(getParent_handler);
-    h.transferSetsFrom(getChild_handler);
-    h.transferSetsFrom(numChildren_handler);
-    for (int i = 0; children != null && i < children.length; i++) {
-      $ASTNode child = children[i];
-      if (child != null) {
-        child.inc_flush_subtree(h);
-      }
-    }
-$else
-    super.inc_flush_subtree(h);
-$endif
-  }
-$endif
-
-$if(IncrementalLevelParam)
-  private boolean #name.inc_flush_subtree_visited = false;
-  /** @apilevel internal */
-  protected void #name.inc_flush_subtree($DDGNodeName h) {
-    if (inc_flush_subtree_visited) {
-      return;
-    }
-    inc_flush_subtree_visited = true;
-    inc_state = inc_GARBAGE;
-    $FlushNtaSubTrees
-    $TransferSetsFromAttrTokenHandlers
-$if(#isASTNodeDecl)
-    // flush subtree of values, take sets from encountered handler and remove it from DDG
-    h.transferSetsFrom(getParent_handler);
-    h.transferSetsFrom(numChildren_handler);
-    for (int i = 0; getChild_handler != null && i < getChild_handler.length; i++) {
-      h.transferSetsFrom(getChild_handler[i]);
-    }
-    for (int i = 0; children != null && i < children.length; i++) {
-      $ASTNode child = children[i];
-      if (child != null) {
-        child.inc_flush_subtree(h);
-      }
-    }
-$else
-    super.inc_flush_subtree(h);
-$endif
-    inc_flush_subtree_visited = false;
-  }
-$endif
-
-
-$endif
-$endif
-]]
-
-ASTDecl.transferSetsFromAttributeHandler = [[
-$if(IncrementalEnabled)
-$if(IncrementalChangeFlush)
-$if(IncrementalLevelAttr)
-h.transferSetsFrom($(AttrSign)_handler);
-$endif
-$if(IncrementalLevelParam)
-$if(IsParameterized)
-if ($(AttrSign)_handler != null) {
-  for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
-    h.transferSetsFrom(($DDGNodeName)itr.next());
-  }
-}
-$else
-h.transferSetsFrom($(AttrSign)_handler);
-$endif
-$endif
-$endif
-$endif
-]]
-
-ASTDecl.transferSetsFromTokenHandler = [[
-$if(IncrementalEnabled)
-$if(IncrementalChangeFlush)
-$if(IncrementalLevelAttr)
-h.transferSetsFrom(get$(Id)_handler);
-$endif
-$if(IncrementalLevelParam)
-h.transferSetsFrom(get$(Id)_handler);
-$endif
-$endif
-$endif
-]]
-
-ASTDecl.flushNtaSubtree = [[
-$if(IncrementalEnabled)
-$if(IncrementalChangeFlush)
-$if(IsNTA)
-$if(IsParameterized)
-if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.inc_flush_subtree(h);
-}
-$else
-$if(IsNtaWithTree)
-if ($(AttrSign)_value != null) {
-  $(AttrSign)_value.inc_flush_subtree(h);
-}
-$endif
-$endif
-$endif
 $endif
 $endif
 ]]

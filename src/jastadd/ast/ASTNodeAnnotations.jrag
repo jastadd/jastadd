@@ -43,7 +43,7 @@ aspect ASTNodeAnnotations {
     if (isCircular()) {
       sb.append(", isCircular=true");
     }
-    if (getNTA() || isNTA()) {
+    if (isHOA()) {
       sb.append(", isNTA=true");
     }
     return sb.toString();

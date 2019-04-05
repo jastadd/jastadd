@@ -1,5 +1,28 @@
-JastAdd2 Release Notes
-======================
+# JastAdd2 Release Notes
+
+## 2.3.3 - 2019-03-21
+
+### Collection Attributes
+
+A collection attribute with implicit collection root can now be used in
+grammars with multiple root node types. The collection root will then be the
+root of the current AST (dynamically found).
+See [issue 294](https://bitbucket.org/jastadd/jastadd2/issues/294).
+
+### Bugfixes
+
+* [Issue 297:](https://bitbucket.org/jastadd/jastadd2/issues/297)
+  Escape Unicode characters in generated documentation comments. This fixes
+  Java compilation errors in generated code, especially on Windows.
+* [Issue 298,](https://bitbucket.org/jastadd/jastadd2/issues/298)
+  [299:](https://bitbucket.org/jastadd/jastadd2/issues/299)
+  Fixed errors in concurrent code generation.
+* [Issue 300:](https://bitbucket.org/jastadd/jastadd2/issues/300)
+  Fixed error in incremental code generation.
+* [Issue 302,](https://bitbucket.org/jastadd/jastadd2/issues/302)
+  [303:](https://bitbucket.org/jastadd/jastadd2/issues/303)
+  Fixed correctness issue for incremental collection attributes which could
+  cause null pointer exceptions and missing incremental updates.
 
 2.3.2 - 2018-04-04
 ------------------

@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2016, The JastAdd Team
+/* Copyright (c) 2005-2019, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,9 @@ aspect CollectionAttributes {
 
   /** @return the type name of the collection root node */
   syn String CollDecl.rootType() = root().name();
+
+  /** Returns {@code true} if the declaration does not have an explicit root type. */
+  syn boolean CollDecl.implicitRoot() = root == null;
 
   /** @return the type name of the collection root node */
   syn String CollEq.rootType() = decl().rootType();
@@ -134,9 +137,18 @@ aspect CollectionAttributes {
     }
   }
 
-  syn TypeDecl AttrDecl.root() = grammar().root();
-
-  eq CollDecl.root() = root != null ? grammar().lookup(root) : super.root();
+  syn TypeDecl CollDecl.root() {
+    if (root != null) {
+      return grammar().lookup(root);
+    } else {
+      Collection<ASTDecl> roots = grammar().roots();
+      if (roots.size() == 1) {
+        return roots.iterator().next();
+      } else {
+        return grammar().lookup(config().astNodeType());
+      }
+    }
+  }
 
   // Only used by circular collection attributes.
   public void AttrDecl.emitCircularCollectionEval(PrintStream out) {
@@ -428,6 +440,10 @@ aspect CollectionAttributes {
     return s.toString();
   }
 
+  /**
+   * Finds all roots in the grammar.
+   * A root is not a child of any other node.
+   */
   syn lazy Collection<ASTDecl> Grammar.roots() {
     Collection<ASTDecl> roots = new HashSet<ASTDecl>();
     for (TypeDecl decl : getTypeDeclList()) {
@@ -438,7 +454,18 @@ aspect CollectionAttributes {
     return roots;
   }
 
-  syn ASTDecl Grammar.root() = roots().isEmpty() ? null : roots().iterator().next();
+  /**
+   * Returns {@code true} if this type is a root in the abstract grammar.
+   * A root is not abstract and not a child of any other type in the grammar.
+   */
+  syn boolean TypeDecl.isRootNode() = false;
+
+  eq ASTDecl.isRootNode() = isPotentialRootNode() && parents().isEmpty();
+
+  syn boolean TypeDecl.isPotentialRootNode() = false;
+
+  eq ASTDecl.isPotentialRootNode() =
+      !hasAbstract() && !isASTNodeDecl() && !isOptSubtype() && !isListSubtype();
 
   eq ASTDecl.getCollDecl().hostClass() = this;
 

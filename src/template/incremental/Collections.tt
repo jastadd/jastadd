@@ -1,0 +1,74 @@
+# Copyright (c) 2019, The JastAdd Team
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Lund University nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+# Incremental tracking for collection attributes.
+# The survey phase is treated as if it was an attribute so that
+# all collection attribute instances depend on the same survey.
+# This makes sure that all collection attribute instances are properly flushed
+# when some change flushes the survey result.
+#
+# NOTE(joqvist): this implementation currently only suuports incremental=param!
+
+# Cache field for the survey attribute dependency handler.
+CollDecl.incSurveyHandlerDecl = [[
+$if(IncrementalEnabled)
+  protected $DDGNodeName #(signature)_survey_handler;
+$endif
+]]
+
+# Create the survey phase dependency handler.
+CollDecl.incHookCollectionSurveyHandler = [[
+$if(IncrementalEnabled)
+if (#(signature)_survey_handler == null) {
+  #(signature)_survey_handler = new $DDGNodeName(this, "#(signature)", null, $ASTNode.inc_EMPTY) {
+    @Override public void reactToDependencyChange() {
+$if(#onePhase)
+      collect_contributors_#collectionId = false;
+$endif
+      if (contributorMap_#collectionId != null) {
+        contributorMap_#collectionId = null;
+        notifyDependencies();
+      }
+    }
+  };
+}
+state().addHandlerDepTo(#(signature)_survey_handler);
+$endif
+]]
+
+CollDecl.incHookCollectionSurveyStart = [[
+$if(IncrementalEnabled)
+state().enterAttrStoreEval(#(signature)_survey_handler);
+$endif
+]]
+
+# Pop the survey handler off the stack after survey is finished.
+CollDecl.incHookCollectionSurveyEnd = [[
+$if(IncrementalEnabled)
+state().exitAttrStoreEval(#(signature)_survey_handler);
+$endif
+]]

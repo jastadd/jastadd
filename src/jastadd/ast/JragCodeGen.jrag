@@ -278,13 +278,23 @@ aspect JragCodeGen {
   }
 
   /**
-   * @return {@code true} if the attribute is declared as NTA in the aspect file
+   * Return {@code true} if the attribute is declared as NTA in the aspect file.
    */
   syn boolean AttrDecl.declaredNTA() = false;
 
   eq SynDecl.declaredNTA() = getNTA();
 
   eq InhDecl.declaredNTA() = getNTA();
+
+  /**
+   * Returns {@code true} if this attribute is an NTA
+   * (declared in the abstract grammar or not).
+   *
+   * <p>Note: {@code isNTA()} only tests if the NTA is declared in the aspect file,
+   * and {@code getNTA()} checks if an attribute was declared as an NTA component.
+   * To test if an attribute is any form of NTA we need to check both.
+   */
+  syn boolean AttrDecl.isHOA() = isNTA() || getNTA();
 
   public static String ASTNode.boxedType(String type) {
     if (type.equals("int")) {
@@ -660,8 +670,9 @@ aspect JragCodeGen {
   }
 
   /**
-   * @return {@code true} if there is a corresponding NTA component.
-   * Note: does not return true if the attribute is declared only with the
+   * Returns {@code true} if there is a corresponding NTA component.
+   *
+   * <p>Note: does not return true if the attribute is declared only with the
    * nta keyword! Use getNTA to check for the nta keyword.
    */
   public boolean SynDecl.isNTA() {

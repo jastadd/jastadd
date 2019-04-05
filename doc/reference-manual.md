@@ -1388,9 +1388,30 @@ added a number of *C* nodes (two in this example).
 
 ### <a id="Collection"></a>Collection attributes
 
-Collection attributes have composite values that are defined by so called
-*contributions* that each add a small piece to the composite value. The
-contributions may be located in any nodes in the AST.
+Collection attributes have composite values defined by so called
+*contributions*. Contributions are similar to sythesized attributes which
+add their value to the collection attribute value. Contributions may be
+located in any node in the subtree of the collection root node.
+
+Collection attributes are evaluated in two phases: first a survey phase which
+searches for nodes that can contribute to the collection value and then
+a collection phase in which all contributions are computed.
+
+In the survey phase, the attribute evaluator first finds the collection root
+node and then searches the subtree of the root node to find all contributing
+nodes. If no root node is declared, the grammar root node is used (if one
+exists).
+
+#### Examples
+
+Collection attributes are commonly used to collect error messages. For example:
+
+    coll ArrayList<String> Program.errors();
+    Div contributes
+        "Division by zero is not allowed!"
+        when getRight().isZero()
+        to Program.errors();
+
 
 #### Declaration syntax
 
@@ -1399,32 +1420,32 @@ The syntax for declaring a collection attribute looks like this:
     coll T A.c() [fresh] with m root R;
 
 
-The individual parts of the declaration above are:
+where
 
-1. **T** is the type of the attribute. Usually `T` is a subtype of
-   `java.lang.Collection`.
-2. **A** is AST class on which the attribute is evaluated.
-3. The **.c()** part declares the attribute name, in this case `c`.
-4. (optional) **[fresh]** tells JastAdd how the intermediate collection result
-   is initialized. The Java expression **fresh** creates an empty instance of
-   the result type.  This part is optional if `T` is a concrete type with a
-   default constructor, if it is omitted the default constructor of the type
-   `T` is used, i.e. `new T()`.
-5. (optional) **with m** specifies the name of a method to be used for updating
-   the intermediate collection object. This part is optional and the default
-   method `add` is used if no update method is specified.  The update method
-   must fulfill these requirements:
+* **T** is the type of the attribute. Usually `T` is a subtype of
+  `java.lang.Collection`.
+* **A** is AST class on which the attribute is evaluated.
+* The **.c()** part declares the attribute name, in this case `c`.
+* (optional) **[fresh]** tells JastAdd how the intermediate collection result
+  is initialized. The Java expression **fresh** creates an empty instance of
+  the result type.  This part is optional if `T` is a concrete type with a
+  default constructor, if it is omitted the default constructor of the type
+  `T` is used, i.e. `new T()`.
+* (optional) **with m** specifies the name of a method to be used for updating
+  the intermediate collection object. This part is optional and the default
+  method `add` is used if no update method is specified.  The update method
+  must fulfill these requirements:
     * The method `m`, should be a one-argument method of `T`.
     * The method `m` should mutate the `T` object by adding one object to it.
     * The method `m` should be commutative, in the sense that the order of
       calling `m` for different contributions should yield the same resulting
       `T` value.
-6. (optional) The **root R** part declares the collection root type. The
-   collection mechanism starts by finding the nearest ancestor node of type `R`
-   for the `A` node which the collection attribute is evaluated on. The subtree
-   rooted at that nearest `R` ancestor is searched for contributions to
-   `A.c()`, this means that the collection is scoped to the subtree of `R`, and
-   contributions outside that tree are not visible.
+* (optional) The **root R** part declares the collection root type. The
+  collection mechanism starts by finding the nearest ancestor node of type `R`
+  for the `A` node which the collection attribute is evaluated on. The subtree
+  rooted at that nearest `R` ancestor is searched for contributions to
+  `A.c()`, this means that the collection is scoped to the subtree of `R`, and
+  contributions outside that tree are not visible.
 
 
 #### Contribution declaration
