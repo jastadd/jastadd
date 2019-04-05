@@ -235,7 +235,7 @@ $endif
   #resetCache
   #(signature)_handler.notifyDependencies();
   $if (TraceFlush)
-  state().trace().flushIncAttr(this, "$AttrSign", "", "");
+  state().trace().flushIncAttr(this, "#signature", "", "");
   $endif
 }
 $endif

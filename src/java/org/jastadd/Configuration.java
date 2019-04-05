@@ -311,14 +311,15 @@ public class Configuration {
           + "the result is available via the API in org.jastadd.Tracer");
 
   ValueOption flushOption = new ValueOption("flush",
-      "adds flushing of cached values")
+      "generate methods for flushing attribute caches")
       .acceptMultipleValues(true)
       .needsValue(false)
-      .addAcceptedValue("full", "flushing of all computed values (combines attr, coll, and rewrite)")
-      .addDefaultValue("attr", "adds flushing of attributes (syn,inh)")
-      .addDefaultValue("coll", "adds flushing of collection attributes")
-      .addAcceptedValue("rewrite", "adds flushing of rewrites")
-      .addAcceptedValue("api", "flushing is disabled, but generate methods");
+      .addAcceptedValue("full", "flushing of all caches (combines attr, coll, and rewrite)")
+      .addDefaultValue("attr", "flushing of attributes (syn, inh)")
+      .addDefaultValue("coll", "flushing of collection attributes")
+      .addAcceptedValue("none", "do not generate any flushing methods")
+      .addAcceptedValue("api", "all generated flushing methods are empty")
+      .addDefaultValue("rewrite", "deprecated, has no effect");
 
   ValueOption packageNameOption = new ValueOption("package",
       "optional package name for generated classes");
@@ -568,10 +569,20 @@ public class Configuration {
     tt.bind("RewriteCircularNTA", rewriteCircularNTA());
     tt.bind("LegacyRewrite", legacyRewrite());
 
-    // Flush options.
-    tt.bind("FlushEnabled", flushEnabled());
-    tt.bind("FlushAttr", flushAttr());
-    tt.bind("FlushColl", flushColl());
+    {
+      // Flush options.
+      boolean flushEnabled = !flushOption.hasValue("none");
+      boolean flushApi = flushOption.hasValue("api");
+      boolean flushAll = flushOption.hasValue("full")
+          || (!flushOption.hasValue("attr") && !flushOption.hasValue("coll"));
+      tt.bind("FlushEnabled", flushEnabled);
+      tt.bind("FlushAPI", flushApi);
+      tt.bind("FlushAttr",
+          flushEnabled && (flushOption.hasValue("attr") || flushAll));
+      tt.bind("FlushColl",
+          flushEnabled && (flushOption.hasValue("coll") || flushAll));
+    }
+
 
     // Incremental options.
     tt.bind("IncrementalEnabled", incremental());
@@ -1153,31 +1164,6 @@ public class Configuration {
    */
   public boolean jjtree() {
     return jjtreeOption.value();
-  }
-
-  /**
-   * @return {@code true} if not --flush=api
-   */
-  public boolean flushEnabled() {
-    return !flushOption.hasValue("api");
-  }
-
-  /**
-   * @return {@code true} if --flush=attr || --flush=full
-   */
-  public boolean flushAttr() {
-    return flushOption.hasValue("attr")
-        || flushOption.value().isEmpty()
-        || flushOption.hasValue("full");
-  }
-
-  /**
-   * @return {@code true} if --flush=coll || --flush=full
-   */
-  public boolean flushColl() {
-    return flushOption.hasValue("coll")
-        || flushOption.value().isEmpty()
-        || flushOption.hasValue("full");
   }
 
   /**

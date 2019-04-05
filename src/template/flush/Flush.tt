@@ -26,89 +26,97 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 ASTNode.flushTreeCacheMethod [[
+$if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel low-level */
   public void $ASTNode.flushTreeCache() {
-$if(FlushEnabled)
+    $if(!FlushAPI)
     flushCache();
     if (children != null) {
       for (int i = 0; i < children.length; i++) {
-  $if(LegacyRewrite)
+        $if(LegacyRewrite)
         if (children[i] != null && (($ASTNode) children[i]).is$$Final) {
-  $else
+        $else
         if (children[i] != null) {
-  $endif
+        $endif
           (($ASTNode) children[i]).flushTreeCache();
         }
       }
     }
-$endif
+    $endif
   }
+$endif
 $endif
 ]]
 
 ASTDecl.flushCacheMethod [[
+$if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel low-level */
   public void #name.flushCache() {
-$if(FlushEnabled)
+    $if(!FlushAPI)
     flushAttrAndCollectionCache();
-$endif
+    $endif
   }
+$endif
 $endif
 ]]
 
 
 ASTDecl.flushAttrAndCollectionCacheMethod [[
+$if(FlushEnabled)
 $if(#isASTNodeDecl)
   /** @apilevel internal */
   public void #name.flushAttrAndCollectionCache() {
-$if(FlushEnabled)
-    $if(FlushAttr)
+    $if(!FlushAPI)
+      $if(FlushAttr)
     flushAttrCache();
-    $endif
-    $if(FlushColl)
+      $endif
+      $if(FlushColl)
     flushCollectionCache();
+      $endif
     $endif
-$endif
   }
+$endif
 $endif
 ]]
 
 ASTDecl.flushAttrCacheMethod [[
+$if(FlushAttr)
   /** @apilevel internal */
   public void #name.flushAttrCache() {
-$if(FlushEnabled)
-  $if(FlushAttr)
-    $if(!#isASTNodeDecl)
+    $if(!FlushAPI)
+      $if(!#isASTNodeDecl)
     super.flushAttrCache();
-    $endif
+      $endif
     $FlushAttrCacheBody
-  $endif
-$endif
+    $endif
   }
+$endif
 ]]
 
 ASTDecl.flushCollectionCacheMethod [[
+$if(FlushColl)
   /** @apilevel internal */
   public void #name.flushCollectionCache() {
-$if(FlushEnabled)
-  $if(FlushColl)
-    $if(!#isASTNodeDecl)
+    $if(!FlushAPI)
+      $if(!#isASTNodeDecl)
     super.flushCollectionCache();
-    $endif
+      $endif
     #flushCollectionCacheCode
-  $endif
-$endif
+    $endif
   }
+$endif
 ]]
 
 # TODO: Figure out if this can be removed
 TokenComponent.flushNTACache [[
 $if(FlushAttr)
+$if(!FlushAPI)
 if (((Object)token$(TypeSign)_$Id) instanceof $ASTNode) {
   token$(TypeSign)_$Id = null;
 }
+$endif
 $endif
 ]]
 
