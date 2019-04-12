@@ -497,11 +497,13 @@ aspect JragCodeGen {
    * @param equ the equation to generate code for.
    */
   public void AttrDecl.emitSynEquation(PrintStream out, AttrEq equ) {
+    TemplateContext tc = templateContext();
+    tc.bind("HostClass", equ.hostClass()); // Host class of the attribute equation.
     if (equ.canInlineExpression()) {
       if (isCircular()) {
-        templateContext().bind("CircularComputeRhs", equ.computeCode());
+        tc.bind("CircularComputeRhs", equ.computeCode());
       } else {
-        templateContext().bind("ComputeRhs", equ.computeCode());
+        tc.bind("ComputeRhs", equ.computeCode());
       }
       emitAttrEquationWithComment(out, equ.parametersDecl(), equ.docComment());
     } else if (equ.canInlineBlock(this)) {
@@ -514,9 +516,9 @@ aspect JragCodeGen {
       }
     } else {
       if (isCircular()) {
-        templateContext().bind("CircularComputeRhs", circularComputeRhs());
+        tc.bind("CircularComputeRhs", circularComputeRhs());
       } else {
-        templateContext().bind("ComputeRhs", computeRhs());
+        tc.bind("ComputeRhs", computeRhs());
       }
       emitAttrEquationWithComment(out, equ.parametersDecl(), equ.docComment());
       equ.emitComputeMethod(out);
