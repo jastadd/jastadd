@@ -5,6 +5,11 @@ apply plugin: 'signing'
 
 defaultTasks 'jar'
 
+if (!file('tinytemplate/README.md').exists()) {
+  throw new GradleException('Submodule tinytemplate seems to be missing. '
+      + 'Please run "git submodule init" and then "git submodule update".')
+}
+
 def fullVersion
 if (hasProperty('newVersion')) {
 	// A new version string should be saved.
