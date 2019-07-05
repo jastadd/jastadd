@@ -70,6 +70,7 @@ $if(!#isNTA)
    */
   $Modifier $Host $Host.set$(Name)List($ListType list) {
     setChild(list, $Index);
+    return this;
   }
 
 $endif
