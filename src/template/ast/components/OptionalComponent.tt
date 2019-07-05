@@ -31,11 +31,11 @@ Opt.additionalDeclarations [[
 $if(EmptyContainerSingletons)
   protected static final $Opt $Opt.EMPTY = new $Opt() {
     @Override
-    public void insertChild($ASTNode node, int i) {
+    public $Host insertChild($ASTNode node, int i) {
       throw new Error("attempting to insertChild() on empty $(Opt) singleton!");
     }
     @Override
-    public void addChild($ASTNode node) {
+    public $Host addChild($ASTNode node) {
       throw new Error("attempting to addChild() on empty $(Opt) singleton!");
     }
     @Override
@@ -43,7 +43,7 @@ $if(EmptyContainerSingletons)
       throw new Error("attempting to removeChild() on empty $(Opt) singleton!");
     }
     @Override
-    public void setChild($ASTNode child, int pos) {
+    public $Host setChild($ASTNode child, int pos) {
       throw new Error("attempting to setChild() in empty $Opt singleton!");
     }
   };
@@ -59,8 +59,9 @@ $if(!#isNTA)
    * @param opt The new node to be used as the optional node for the $Name child.
    * @apilevel low-level
    */
-  $Modifier void $Host.set$(Name)Opt($OptType opt) {
+  $Modifier $Host $Host.set$(Name)Opt($OptType opt) {
     setChild(opt, $Index);
+    return this;
   }
 
 $endif
@@ -81,7 +82,7 @@ $endif
    * @param node The new node to be used as the $Name child.
    * @apilevel high-level
    */
-  $Modifier void $Host.set$Name($Type node) {
+  $Modifier $Host $Host.set$Name($Type node) {
 $if(EmptyContainerSingletons)
   $if(#isNTA)
     // TODO: should also check if getOpt() is the empty singleton, since we check the _value on return.
@@ -96,6 +97,7 @@ $if(EmptyContainerSingletons)
 $else
     get$(Name)Opt().setChild(node, 0);
 $endif
+    return this;
   }
 
   /**
@@ -162,4 +164,3 @@ $else
   }
 $endif
 ]]
-

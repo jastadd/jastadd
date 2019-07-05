@@ -278,9 +278,10 @@ $endif
 
 ASTNode.addChild [[
   /** @apilevel low-level */
-  public void $ASTNode.addChild(T node) {
+  public $ASTNode $ASTNode.addChild(T node) {
     setChild(node, getNumChildNoTransform());
     $include(ASTNode.incHookAddChild)
+    return this;
   }
 ]]
 
@@ -310,7 +311,7 @@ ASTNode.numChildren [[
 
 ASTNode.setChild [[
   /** @apilevel low-level */
-  public void $ASTNode.setChild($ASTNode node, int i) {
+  public $ASTNode $ASTNode.setChild($ASTNode node, int i) {
 $if(DebugMode)
     debugNodeAttachment(node);
 $endif
@@ -344,12 +345,13 @@ $endif
       node.childIndex = i;
     }
     $include(ASTNode.incHookSetChild5)
+    return this;
   }
 ]]
 
 ASTNode.insertChild [[
   /** @apilevel low-level */
-  public void $ASTNode.insertChild($ASTNode node, int i) {
+  public $ASTNode $ASTNode.insertChild($ASTNode node, int i) {
 $if(DebugMode)
     debugNodeAttachment(node);
 $endif
@@ -378,6 +380,7 @@ $endif
       node.setParent(this);
       node.childIndex = i;
     }
+    return this;
   }
 ]]
 

@@ -40,11 +40,11 @@ protected static final $List $List.EMPTY = new $(List)() {
     throw new Error("attempting to addAll() on empty $(List) singleton!");
   }
   @Override
-  public void insertChild($ASTNode node, int i) {
+  public $List insertChild($ASTNode node, int i) {
     throw new Error("attempting to insertChild() on empty $(List) singleton!");
   }
   @Override
-  public void addChild($ASTNode node) {
+  public $List addChild($ASTNode node) {
     throw new Error("attempting to addChild() on empty $(List) singleton!");
   }
   @Override
@@ -52,7 +52,7 @@ protected static final $List $List.EMPTY = new $(List)() {
     throw new Error("attempting to removeChild() on empty $(List) singleton!");
   }
   @Override
-  public void setChild($ASTNode child, int pos) {
+  public $List setChild($ASTNode child, int pos) {
     throw new Error("attempting to setChild() in empty $List singleton!");
   }
  };
@@ -68,7 +68,7 @@ $if(!#isNTA)
    * @param list The new list node to be used as the $Name list.
    * @apilevel high-level
    */
-  $Modifier void $Host.set$(Name)List($ListType list) {
+  $Modifier $Host $Host.set$(Name)List($ListType list) {
     setChild(list, $Index);
   }
 
@@ -80,7 +80,7 @@ $if(#ntaShadowingNonNTA)
    * @param node
    * @apilevel internal
    */
-  public void $Host.set$(Name)List($ListType node) {
+  public $Host $Host.set$(Name)List($ListType node) {
     throw new Error("Can not replace NTA child $(Name)List in $Host!");
   }
 
@@ -129,7 +129,7 @@ $endif
    * @param node The element to append to the $Name list.
    * @apilevel high-level
    */
-  $Modifier void $Host.add$Name($Type node) {
+  $Modifier $Host $Host.add$Name($Type node) {
     $ListType list = (parent == null) ? get$(Name)ListNoTransform() : get$(Name)List();
 $if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
@@ -140,10 +140,11 @@ $if(EmptyContainerSingletons)
 $else
     list.addChild(node);
 $endif
+    return this;
   }
 
   /** @apilevel low-level */
-  $Modifier void $Host.add$(Name)NoTransform($Type node) {
+  $Modifier $Host $Host.add$(Name)NoTransform($Type node) {
     $ListType list = get$(Name)ListNoTransform();
 $if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
@@ -154,6 +155,7 @@ $if(EmptyContainerSingletons)
 $else
     list.addChild(node);
 $endif
+    return this;
   }
 
   /**
@@ -162,7 +164,7 @@ $endif
    * @param i The list index of the node to be replaced.
    * @apilevel high-level
    */
-  $Modifier void $Host.set$Name($Type node, int i) {
+  $Modifier $Host $Host.set$Name($Type node, int i) {
     $ListType list = get$(Name)List();
 $if(EmptyContainerSingletons)
     if (list == $List.EMPTY) {
@@ -173,6 +175,7 @@ $if(EmptyContainerSingletons)
 $else
     list.setChild(node, i);
 $endif
+    return this;
   }
 
 $if(#isNTA)
@@ -246,4 +249,3 @@ $endif
     return get$(Name)ListNoTransform();
   }
 ]]
-
