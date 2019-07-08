@@ -2528,7 +2528,7 @@ void TryStatement() :
   // Java 7 extension (resource declarations):
   [ "(" LocalVariableDeclaration() ( LOOKAHEAD(2) ";" LocalVariableDeclaration() )* [ ";" ] ")" ]
   Block()
-  ( "catch" "(" FormalParameter() ")" Block() )*
+  ( "catch" "(" ["final"] Type() ( "|" ["final"] Type() )* VariableDeclaratorId() ")" Block() )*
   [ "finally" Block() ]
 }
 
