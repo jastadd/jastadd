@@ -72,7 +72,7 @@ $if(#ntaShadowingNonNTA)
    * @param node
    * @apilevel internal
    */
-  public void $Host.set$(Name)Opt($OptType node) {
+  public $Host $Host.set$(Name)Opt($OptType node) {
     throw new Error("Can not replace NTA child $(Name)Opt in $Host!");
   }
 
