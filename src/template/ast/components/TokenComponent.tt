@@ -35,9 +35,10 @@ $if(!#isNTA)
    * @param value The new value for the lexeme $Id.
    * @apilevel high-level
    */
-  $Modifier void $Host.set$Id($Type value) {
+  $Modifier $Host $Host.set$Id($Type value) {
     token$(TypeInSignature)_$Id = value;
     $include(TokenComponent.incHookSetToken)
+    return this;
   }
 
 $endif
@@ -48,7 +49,7 @@ $if(#ntaShadowingNonNTA)
    * @param node
    * @apilevel internal
    */
-  public void $Host.set$Id($Type node) {
+  public $Host $Host.set$Id($Type node) {
     throw new Error("Can not replace NTA child $Id in $Host!");
   }
 
@@ -70,13 +71,14 @@ $if(!#isNTA)
    * @param symbol Symbol containing the new value for the lexeme $Id
    * @apilevel internal
    */
-  $Modifier void $Host.set$Id(beaver.Symbol symbol) {
+  $Modifier $Host $Host.set$Id(beaver.Symbol symbol) {
     if (symbol.value != null && !(symbol.value instanceof String))
     throw new UnsupportedOperationException("set$Id is only valid for String lexemes");
     token$(TypeInSignature)_$Id = (String)symbol.value;
     $(Id)start = symbol.getStart();
     $(Id)end = symbol.getEnd();
     $include(TokenComponent.incHookSetToken)
+    return this;
   }
     $endif
   /**

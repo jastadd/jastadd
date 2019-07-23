@@ -32,8 +32,9 @@ $if(!#isNTA)
    * @param node The new node to replace the $Name child.
    * @apilevel high-level
    */
-  public void $Host.set$Name($Type node) {
+  public $Host $Host.set$Name($Type node) {
     setChild(node, $Index);
+    return this;
   }
 
 $endif
@@ -44,7 +45,7 @@ $if(#ntaShadowingNonNTA)
    * @param node
    * @apilevel internal
    */
-  public void $Host.set$Name($Type node) {
+  public $Host $Host.set$Name($Type node) {
     throw new Error("Can not replace NTA child $Name in $Host!");
   }
 

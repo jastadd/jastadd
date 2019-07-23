@@ -64,18 +64,20 @@ $endif
     return this;
   }
 
-  public void $List.insertChild($ASTNode node, int i) {
+  public $List<T> $List.insertChild($ASTNode node, int i) {
 $if(#needsListTouched)
     list$$touched = true;
 $endif
     super.insertChild(node, i);
+    return this;
   }
 
-  public void $List.addChild(T node) {
+  public $List<T> $List.addChild(T node) {
 $if(#needsListTouched)
     list$$touched = true;
 $endif
     super.addChild(node);
+    return this;
   }
 
   /** @apilevel low-level */
