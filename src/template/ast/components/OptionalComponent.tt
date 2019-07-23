@@ -31,11 +31,11 @@ Opt.additionalDeclarations [[
 $if(EmptyContainerSingletons)
   protected static final $Opt $Opt.EMPTY = new $Opt() {
     @Override
-    public $Host insertChild($ASTNode node, int i) {
+    public $Opt insertChild($ASTNode node, int i) {
       throw new Error("attempting to insertChild() on empty $(Opt) singleton!");
     }
     @Override
-    public $Host addChild($ASTNode node) {
+    public $Opt addChild($ASTNode node) {
       throw new Error("attempting to addChild() on empty $(Opt) singleton!");
     }
     @Override
@@ -43,7 +43,7 @@ $if(EmptyContainerSingletons)
       throw new Error("attempting to removeChild() on empty $(Opt) singleton!");
     }
     @Override
-    public $Host setChild($ASTNode child, int pos) {
+    public $Opt setChild($ASTNode child, int pos) {
       throw new Error("attempting to setChild() in empty $Opt singleton!");
     }
   };
