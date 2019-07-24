@@ -29,6 +29,7 @@
 import org.jastadd.ast.AST.*;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import java.util.*;
 
@@ -228,17 +229,8 @@ aspect JastAddCodeGen {
   public void InterfaceDecl.jastAddGen(boolean publicModifier) {
     File file = grammar().targetJavaFile(name());
     try {
-      PrintStream stream = new PrintStream(new FileOutputStream(file));
-      if ( !config().license.isEmpty()) {
-        stream.println(config().license);
-      }
-
-      // TODO(joqvist): move to template.
-      if (!config().packageName().isEmpty()) {
-        stream.println("package " + config().packageName() + ";\n");
-      }
-
-      stream.print(grammar().genImportsList());
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      PrintStream stream = new PrintStream(bos, true, "UTF-8");
       stream.println(docComment());
       stream.println(typeDeclarationString());
 
@@ -248,7 +240,22 @@ aspect JastAddCodeGen {
 
       stream.println("}");
       stream.close();
-    } catch (FileNotFoundException f) {
+      String code = new String(bos.toByteArray(), StandardCharsets.UTF_8);
+
+      PrintStream fstream = new PrintStream(new FileOutputStream(file));
+      if ( !config().license.isEmpty()) {
+        fstream.println(config().license);
+      }
+
+      // TODO(joqvist): move to template.
+      if (!config().packageName().isEmpty()) {
+        fstream.println("package " + config().packageName() + ";\n");
+      }
+
+      fstream.println(grammar().genImportsList(code));
+      fstream.print(code);
+      fstream.close();
+    } catch (IOException e) {
       System.err.println("Could not create file " + file.getName() + " in " + file.getParent());
       System.exit(1);
     }
@@ -259,24 +266,28 @@ aspect JastAddCodeGen {
   public void EnumDecl.jastAddGen(boolean publicModifier) {
     File file = grammar().targetJavaFile(name());
     try {
-      PrintStream stream = new PrintStream(new FileOutputStream(file));
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      PrintStream stream = new PrintStream(bos, true, "UTF-8");
+      stream.println(Unparser.unparse(simpleNode));
+      stream.close();
+      String code = new String(bos.toByteArray(), StandardCharsets.UTF_8);
+
+      PrintStream fstream = new PrintStream(new FileOutputStream(file));
       if (!config().license.isEmpty()) {
-        stream.println(config().license);
+        fstream.println(config().license);
       }
 
       // TODO(joqvist): move to template.
       if (!config().packageName().isEmpty()) {
-        stream.println("package " + config().packageName() + ";\n");
+        fstream.println("package " + config().packageName() + ";\n");
       }
 
-      stream.print(grammar().genImportsList());
-      stream.println(docComment());
-
-      stream.println(Unparser.unparse(simpleNode));
-
-      stream.close();
-    } catch (FileNotFoundException f) {
-      System.err.println("Could not create file " + file.getName() + " in " + file.getParent());
+      fstream.print(grammar().genImportsList(code));
+      fstream.println(docComment());
+      fstream.println(code);
+      fstream.close();
+    } catch (IOException f) {
+      System.err.format("Could not create file %s in %s.%n", file.getName(), file.getParent());
       System.exit(1);
     }
   }
@@ -284,18 +295,8 @@ aspect JastAddCodeGen {
   public void ClassDecl.jastAddGen(boolean publicModifier) {
     File file = grammar().targetJavaFile(name());
     try {
-      PrintStream stream = new PrintStream(new FileOutputStream(file));
-      if ( !config().license.isEmpty()) {
-        stream.println(config().license);
-      }
-
-      // TODO(joqvist): move to template.
-      if (!config().packageName().isEmpty()) {
-        stream.println("package " + config().packageName() + ";\n");
-      }
-
-      stream.print(grammar().genImportsList());
-      stream.println(docComment());
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      PrintStream stream = new PrintStream(bos, true, "UTF-8");
       stream.println(typeDeclarationString());
       StringBuffer buf = new StringBuffer();
       for (ClassBodyObject obj : classBodyDecls) {
@@ -306,13 +307,27 @@ aspect JastAddCodeGen {
         buf.append("\n\n");
       }
       stream.println(buf.toString());
-
       emitAbstractSyns(stream);
       emitInhDeclarations(stream);
-
-      stream.println("}");
       stream.close();
-    } catch (FileNotFoundException f) {
+      String code = new String(bos.toByteArray(), StandardCharsets.UTF_8);
+
+      PrintStream fstream = new PrintStream(new FileOutputStream(file));
+      if ( !config().license.isEmpty()) {
+        fstream.println(config().license);
+      }
+
+      // TODO(joqvist): move to template.
+      if (!config().packageName().isEmpty()) {
+        fstream.println("package " + config().packageName() + ";\n");
+      }
+
+      fstream.print(grammar().genImportsList(code));
+      fstream.println(docComment());
+      fstream.println(code);
+      fstream.println("}");
+      fstream.close();
+    } catch (IOException f) {
       System.err.format("Could not create file %s in %s.%n", file.getName(), file.getParent());
       System.exit(1);
     }
@@ -321,24 +336,9 @@ aspect JastAddCodeGen {
   public void ASTDecl.jastAddGen(boolean publicModifier) {
     File file = grammar().targetJavaFile(name());
     try {
-      PrintStream stream = new PrintStream(new FileOutputStream(file));
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      PrintStream stream = new PrintStream(bos, true, "UTF-8");
 
-      // Insert comment notifying that this is a generated file.
-      stream.format("/* This file was generated with %s */%n",
-          JastAdd.getLongVersionString());
-
-      if (!config().license.isEmpty()) {
-        stream.println(config().license);
-      }
-
-      // TODO(joqvist): move to template.
-      if (!config().packageName().isEmpty()) {
-        stream.format("package %s;%n", config().packageName());
-      }
-
-      stream.print(grammar().genImportsList());
-
-      stream.println(docComment());
       stream.print("public ");
       if (hasAbstract()) {
         stream.print("abstract ");
@@ -363,11 +363,30 @@ aspect JastAddCodeGen {
       }
       stream.print(jastAddImplementsList());
       stream.println(" {");
-
       jastAddAttributes(stream);
-      stream.println("}");
       stream.close();
-    } catch (FileNotFoundException f) {
+      String code = new String(bos.toByteArray(), StandardCharsets.UTF_8);
+
+      PrintStream fstream = new PrintStream(new FileOutputStream(file));
+
+      // Insert comment notifying that this is a generated file.
+      fstream.format("/* This file was generated with %s */%n",
+          JastAdd.getLongVersionString());
+
+      if (!config().license.isEmpty()) {
+        fstream.println(config().license);
+      }
+
+      // TODO(joqvist): move to template.
+      if (!config().packageName().isEmpty()) {
+        fstream.format("package %s;%n", config().packageName());
+      }
+      fstream.print(grammar().genImportsList(code));
+      fstream.println(docComment());
+      fstream.println(code);
+      fstream.println("}");
+      fstream.close();
+    } catch (IOException f) {
       System.err.format("Could not create file %s in %s%n", file.getName(), file.getParent());
       System.exit(1);
     }

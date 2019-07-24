@@ -408,6 +408,10 @@ public class Configuration {
       .templateVariable("EmptyContainerSingletons")
       .nonStandard();
 
+  public final Option<Boolean> optimizeImports = new FlagOption("optimize-imports",
+      "remove unused imports in generated code")
+      .nonStandard();
+
   /**
    * Indicates if there were unknown command-line options
    */
@@ -493,6 +497,9 @@ public class Configuration {
     allOptions.add(concurrentOption);
     allOptions.add(numThreadsOption);
     allOptions.add(concurrentMap);
+
+    // New since 2.3.4
+    allOptions.add(optimizeImports);
 
     // Deprecated in 2.1.5.
     allOptions.add(doxygenOption);

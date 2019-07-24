@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, The JastAdd Team
+/* Copyright (c) 2005-2019, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -296,6 +296,10 @@ public class JastAddTask extends Task {
 
   public void setEmptyContainerSingletons(boolean enable) {
     setOption(config.emptyContainerSingletons, enable);
+  }
+
+  public void setOptimizeImports(boolean enable) {
+    setOption(config.optimizeImports, enable);
   }
 
   @Override

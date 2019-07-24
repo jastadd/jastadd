@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2016, The JastAdd Team
+/* Copyright (c) 2005-2019, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,31 +118,133 @@ aspect JragCodeGen {
     throw new Error("unhandled cache mode");
   }
 
+  public class ImportDecl {
+    public final String modifier;
+    public final String name;
 
-  public String Grammar.genImportsList() {
-    Set imports = new LinkedHashSet();
+    public ImportDecl(String modifier, String name) {
+      this.modifier = modifier;
+      this.name = name;
+    }
+
+    public ImportDecl(String name) {
+      this("", name);
+    }
+
+    @Override public int hashCode() {
+      return getClass().hashCode() ^ modifier.hashCode() ^ name.hashCode();
+    }
+
+    @Override public boolean equals(Object other) {
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      ImportDecl o = (ImportDecl) other;
+      return o.name.equals(name) && o.modifier.equals(modifier);
+    }
+
+    @Override public String toString() {
+      return String.format("import%s %s;", modifier, name);
+    }
+  }
+
+  public class MultiImportDecl extends ImportDecl {
+    public MultiImportDecl(String modifier, String name) {
+      super(modifier, name);
+    }
+
+    public MultiImportDecl(String name) {
+      this("", name);
+    }
+  }
+
+  class ImportSet {
+    public final Map<String, Node> all = new HashMap<String, Node>();
+    public final Map<String, Node> unmatched = new HashMap<String, Node>();
+
+    static class Node {
+        public final Collection<ImportDecl> decls = new ArrayList<ImportDecl>();
+        public boolean matched = false;
+    }
+
+    public ImportSet(Collection<ImportDecl> imports) {
+      for (ImportDecl decl : imports) {
+        if (decl instanceof MultiImportDecl) {
+          continue;
+        }
+        int i = decl.name.lastIndexOf('.');
+        String name = decl.name.substring(i+1);
+        Node node = all.get(name);
+        if (node == null) {
+          node = new Node();
+          all.put(name, node);
+          unmatched.put(name, node);
+        }
+        node.decls.add(decl);
+      }
+    }
+  }
+
+  public Set<ImportDecl> Grammar.importDecls() {
+    Set<ImportDecl> imports = new LinkedHashSet<ImportDecl>();
     if (config().concurrentEval()) {
       // Extra import declarations needed for concurrent code generation.
-      imports.add("import java.util.concurrent.atomic.AtomicInteger;");
-      imports.add("import java.util.concurrent.atomic.AtomicReference;");
-      imports.add("import java.util.concurrent.Future;");
-      imports.add("import java.util.concurrent.Executors;");
-      imports.add("import java.util.concurrent.ExecutorService;");
-      imports.add("import java.util.concurrent.ExecutionException;");
-      imports.add("import java.util.concurrent.Callable;");
-      imports.add("import java.util.concurrent.ConcurrentMap;");
-      imports.add("import java.util.concurrent.ConcurrentHashMap;");
-      imports.add("import java.util.ArrayList;");
-      imports.add("import java.util.LinkedList;");
-      imports.add("import java.util.Collection;");
+      imports.add(new ImportDecl("java.util.concurrent.atomic.AtomicInteger"));
+      imports.add(new ImportDecl("java.util.concurrent.atomic.AtomicReference"));
+      imports.add(new ImportDecl("java.util.concurrent.Future"));
+      imports.add(new ImportDecl("java.util.concurrent.Executors"));
+      imports.add(new ImportDecl("java.util.concurrent.ExecutorService"));
+      imports.add(new ImportDecl("java.util.concurrent.ExecutionException"));
+      imports.add(new ImportDecl("java.util.concurrent.Callable"));
+      imports.add(new ImportDecl("java.util.concurrent.ConcurrentMap"));
+      imports.add(new ImportDecl("java.util.concurrent.ConcurrentHashMap"));
+      imports.add(new ImportDecl("java.util.ArrayList"));
+      imports.add(new ImportDecl("java.util.LinkedList"));
+      imports.add(new ImportDecl("java.util.Collection"));
     }
     for (org.jastadd.jrag.AST.ASTCompilationUnit u : compilationUnits) {
       imports.addAll(Unparser.getImports(u));
     }
+    return imports;
+  }
+
+  public String Grammar.genImportsList(String code) {
+    Set<ImportDecl> imports = importDecls();
+    ImportSet set = new ImportSet(imports);
+    boolean optimize = config().optimizeImports.value();
+    if (optimize) {
+      for (int i = 0; i < code.length(); ++i) {
+        if (Character.isJavaIdentifierStart(code.charAt(i))) {
+          int end = i+1;
+          while (end < code.length() && Character.isJavaIdentifierPart(code.charAt(end))) {
+            end += 1;
+          }
+          String id = code.substring(i, end);
+          if (set.unmatched.containsKey(id)) {
+            set.unmatched.get(id).matched = true;
+            set.unmatched.remove(id);
+            if (set.unmatched.isEmpty()) {
+              break;
+            }
+          }
+          i = end-1;
+        }
+      }
+    }
     StringBuilder buf = new StringBuilder();
-    for (Iterator iter = imports.iterator(); iter.hasNext(); ) {
-      buf.append(iter.next());
-      buf.append('\n');
+    for (ImportDecl decl : imports) {
+      if (decl instanceof MultiImportDecl) {
+        buf.append(decl);
+        buf.append('\n');
+      }
+    }
+    for (ImportSet.Node node : set.all.values()) {
+      if (!optimize || node.matched) {
+        for (ImportDecl decl : node.decls) {
+          buf.append(decl);
+          buf.append('\n');
+        }
+      }
     }
     return buf.toString();
   }

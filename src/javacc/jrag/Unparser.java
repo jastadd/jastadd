@@ -4,18 +4,20 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 
 import org.jastadd.jrag.AST.*;
+import org.jastadd.ast.AST.ImportDecl;
+import org.jastadd.ast.AST.MultiImportDecl;
 
 public class Unparser implements JragParserVisitor {
 
-  public static Set getImports(ASTCompilationUnit self) {
-    Set imports = new LinkedHashSet();
+  public static Set<ImportDecl> getImports(ASTCompilationUnit self) {
+    Set<ImportDecl> imports = new LinkedHashSet<ImportDecl>();
     for (int i = 0; i < self.jjtGetNumChildren(); i++) {
       Unparser.getImports((SimpleNode) self.jjtGetChild(i), imports);
     }
     return imports;
   }
 
-  public static void getImports(SimpleNode self, Set imports) {
+  public static void getImports(SimpleNode self, Set<ImportDecl> imports) {
     if (self instanceof ASTImportDeclaration) {
       Token t = new Token();
       t.next = self.firstToken;
@@ -27,7 +29,18 @@ public class Unparser implements JragParserVisitor {
         }
         buf.append(Util.addUnicodeEscapes(t.image));
       }
-      imports.add(buf.toString().trim());
+      String decl = buf.toString().trim();
+      String modifier = "";
+      if (decl.startsWith("import static")) {
+        modifier = " static";
+      }
+      String name = decl.substring(7 + modifier.length());
+      name = name.substring(0, name.length()-1);
+      if (name.endsWith(".*")) {
+        imports.add(new MultiImportDecl(modifier, name));
+      } else {
+        imports.add(new ImportDecl(modifier, name));
+      }
     }
   }
 
