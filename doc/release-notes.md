@@ -1,5 +1,32 @@
 # JastAdd2 Release Notes
 
+## 2.3.4 - 2019-07-25
+
+## Incremental Evaluation
+
+Performance improvements and bugfixes were added for incremental evaluation.
+A very simplified summary of the changes:
+
+* Fixed various bugs in incremental attribute evaluation.
+* Removed unnecessary NTA subtree flushing.
+* Improved attribute flushing dependency (removed linear search over attributes
+  for each flushed instance).
+
+## Fluent Interface for AST Construction
+
+The component setting methods (setChild, addChild, setX, etc.) now return the
+reference to the modified node so that AST construction calls can be chained
+together in a sequence of method calls.
+
+This feature was contributed by Alexandru Dura in [pull request
+10](https://bitbucket.org/jastadd/jastadd2/pull-requests/10/fluent-interface-for-ast-nodes).
+
+## Option to Optimizie Imports
+
+JastAdd can now remove most unused imports in generated code.  Enable this by
+adding the `--optimize-imports` option to the JastAdd command.
+
+
 ## 2.3.3 - 2019-03-21
 
 ### Collection Attributes
