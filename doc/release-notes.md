@@ -26,6 +26,11 @@ This feature was contributed by Alexandru Dura in [pull request
 JastAdd can now remove most unused imports in generated code.  Enable this by
 adding the `--optimize-imports` option to the JastAdd command.
 
+## Bugfixes
+
+* [Issue 308:](https://bitbucket.org/jastadd/jastadd2/issues/308/java-7-multi-catch-clauses-are-not)
+  Java 7 multi-catch syntax is now allowed in JastAdd aspects.
+
 
 ## 2.3.3 - 2019-03-21
 
