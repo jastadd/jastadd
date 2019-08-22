@@ -97,7 +97,7 @@ $if(!#isNTA)
    * @return The value for the lexeme $Id.
    * @apilevel high-level
    */
-  @ASTNodeAnnotation.Token(name="$Id")
+  $include(TokenComponent.generatedAnnotations)
   $Modifier $Type $Host.get$Id() {
     $include(TokenComponent.incHookGetToken)
     return token$(TypeInSignature)_$Id;
