@@ -141,13 +141,9 @@ aspect IncrementalDDG {
    */
   public String ASTDecl.genCleanupAttributeListenersString() {
     StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
     // Add dump string for each attribute
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsParameterized", attr.isParameterized());
-      tt.bind("IsNTA", attr.isHOA());
-      tt.bind("AttrSign",  attr.signature());
-      res.append(tt.expand("ASTDecl.checkAndCleanupAttributeListeners"));
+      res.append(attr.templateContext().expand("ASTDecl.checkAndCleanupAttributeListeners"));
     }
     return res.toString();
   }

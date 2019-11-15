@@ -398,6 +398,8 @@ aspect JragCodeGen {
    */
   syn boolean AttrDecl.isHOA() = isNTA() || getNTA();
 
+  syn boolean AttrDecl.isToken() = findCorrespondingNTA() instanceof TokenComponentNTA;
+
   public static String ASTNode.boxedType(String type) {
     if (type.equals("int")) {
       return "Integer";

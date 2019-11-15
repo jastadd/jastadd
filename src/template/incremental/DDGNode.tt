@@ -533,27 +533,29 @@ if (get$(Id)_handler != null) {
 # Generate code for checking attribute handler and cleaning up listeners.
 ASTDecl.checkAndCleanupAttributeListeners = [[
 $if (IncrementalLevelParam)
-$if (IsParameterized)
-for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+  $if (#isParameterized)
+for (java.util.Iterator itr = #(signature)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
   handler.cleanupListeners();
 }
-$else
-if ($(AttrSign)_handler != null) {
-  $(AttrSign)_handler.cleanupListeners();
+  $else
+if (#(signature)_handler != null) {
+  #(signature)_handler.cleanupListeners();
 }
-$endif
-$if (IsNTA)
-$if (IsParameterized)
-if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.cleanupListeners();
+  $endif
+  $if (#isHOA)
+    $if (#isParameterized)
+if (#(signature)_proxy != null) {
+  #(signature)_proxy.cleanupListeners();
 }
-$else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.cleanupListeners();
+    $else
+      $if(!#isToken)
+if (#(signature)_computed && (#(signature)_value instanceof $ASTNode)) {
+  #(signature)_value.cleanupListeners();
 }
-$endif
-$endif
+      $endif
+    $endif
+  $endif
 $endif
 ]]
 

@@ -346,32 +346,34 @@ $endif
 
 ASTDecl.throwAwayAttributeHandler = [[
 $if(IncrementalLevelParam)
-$if(IsParameterized)
-for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
-  $DDGNodeName handler = ($DDGNodeName)itr.next();
+  $if(#isParameterized)
+for (java.util.Iterator itr = #(signature)_handler.values().iterator(); itr.hasNext();) {
+  $DDGNodeName handler = ($DDGNodeName) itr.next();
   handler.throwAway();
 }
-$else
-if ($(AttrSign)_handler != null) {
-  $(AttrSign)_handler.throwAway();
+  $else
+if (#(signature)_handler != null) {
+  #(signature)_handler.throwAway();
 }
-$endif
+  $endif
 $endif
 $if(IncrementalLevelAttr)
-if ($(AttrSign)_handler != null) {
-  $(AttrSign)_handler.throwAway();
+if (#(signature)_handler != null) {
+  #(signature)_handler.throwAway();
 }
 $endif
-$if(ThrowAwayValue)
-$if(IsParameterized)
-if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.inc_throwAway();
+$if(#isHOA)
+  $if(#isParameterized)
+if (#(signature)_proxy != null) {
+  #(signature)_proxy.inc_throwAway();
 }
-$else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.inc_throwAway();
+  $else
+    $if(!#isToken)
+if (#(signature)_computed && (#(signature)_value instanceof $ASTNode)) {
+  #(signature)_value.inc_throwAway();
 }
-$endif
+    $endif
+  $endif
 $endif
 ]]
 

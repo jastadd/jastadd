@@ -52,13 +52,8 @@ aspect IncrementalState {
 
   public String ASTDecl.emitThrowAwayAttributesString() {
     StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    for (Iterator itr = listOfCachedAttributes().iterator(); itr.hasNext();) {
-      AttrDecl attr = (AttrDecl)itr.next();
-      tt.bind("IsParameterized", attr.isParameterized());
-      tt.bind("AttrSign", attr.signature());
-      tt.bind("ThrowAwayValue", attr.isHOA());
-      res.append(tt.expand("ASTDecl.throwAwayAttributeHandler"));
+    for (AttrDecl attr : listOfCachedAttributes()) {
+      res.append(attr.templateContext().expand("ASTDecl.throwAwayAttributeHandler"));
     }
     return res.toString();
   }
