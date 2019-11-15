@@ -1,3 +1,7 @@
+2019-11-15  Niklas Fors <niklas.fors@cs.lth.se>
+
+    * Made --gammar optional when using --jjtree
+
 2019-11-15  Jesper Öqvist <jesper.oqvist@cs.lth.se>
 
     * Fixed faulty code generation for incremental attributes with NTA tokens.
@@ -505,7 +509,7 @@
 
 2013-12-03  Niklas Fors <niklas.fors@cs.lth.se>
 
-    * Added the abstract methods fullCopy(), treeCopyNoTransform() and 
+    * Added the abstract methods fullCopy(), treeCopyNoTransform() and
     treeCopy() to abstract classes (with correct return type).
 
 2013-10-30  Jesper Öqvist <jesper.oqvist@cs.lth.se>
@@ -1358,7 +1362,8 @@ Removed errornous rewrite initialization code generated with rewrites disabled
 ----------------------------
 jastadd2.jar revision 1.13
 date: 2004-10-19 11:31:41 +0200;  author: mjolner;  state: Exp;  lines: +636 -627;
-Handle primitive circular attributes.Handle inherited circular attributes.
+Handle primitive circular attributes.
+Handle inherited circular attributes.
 ----------------------------
 jastadd2.jar revision 1.12
 date: 2004-10-13 20:07:20 +0200;  author: torbjorn;  state: Exp;  lines: +417 -424;

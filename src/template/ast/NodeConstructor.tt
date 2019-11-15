@@ -35,10 +35,12 @@ $endif
     $FinalInit
   }
 
+$if(ParserName)
   public #name.#name($ParserName p, int i) {
     this(i);
     parser = p;
   }
+$endif
 
   public #name.#name() {
     this(0);

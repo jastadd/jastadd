@@ -121,11 +121,11 @@ public class Configuration {
       .templateVariable("generateAnnotations");
 
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
-      "use jjtree base node, this requires --grammar to be set")
+      "use jjtree base node")
       .templateVariable("JJTree");
 
   Option<String> grammarOption = new ValueOption("grammar",
-      "the name of the grammar's parser, required when using --jjtree")
+      "parser name when using --jjtree, used for generating visitor methods")
       .templateVariable("ParserName");
 
   Option<String> defaultMapOption = new ValueOption(
@@ -191,7 +191,7 @@ public class Configuration {
 
   // TODO(jesper): make this deprecated.
   Option<Boolean> inhEqCheckOption = new BooleanOption("inhEqCheck",
-      "enalbe check for inherited equations")
+      "enable check for inherited equations")
       .defaultValue(true)
       .nonStandard();
 
@@ -631,11 +631,6 @@ public class Configuration {
   public boolean checkProblems(PrintStream out) {
 
     if (unknownOptions) {
-      return true;
-    }
-
-    if (jjtreeOption.value() && grammarOption.value().isEmpty()) {
-      out.println("Error: No grammar name given. A grammar name is required in JJTree-mode!");
       return true;
     }
 
@@ -1282,7 +1277,7 @@ public class Configuration {
    * @return {@code true} annotations shall be generated.
    */
   public boolean generateAnnotations() {
-    return generateAnnotations.value(); 
+    return generateAnnotations.value();
   }
 
   /**

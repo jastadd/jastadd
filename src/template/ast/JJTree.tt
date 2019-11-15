@@ -49,9 +49,11 @@ JJTree.dumpTree = [[
 ]]
 
 JJTree.jjtAccept = [[
+$if(ParserName)
   public Object #name.jjtAccept($(ParserName)Visitor visitor, Object data) {
     return visitor.visit(this, data);
   }
+$endif
 ]]
 
 JJTree.checkChild = [[
