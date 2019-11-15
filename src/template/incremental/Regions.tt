@@ -32,7 +32,7 @@ $if (IncrementalLevelNode)
     return true;
 $endif
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
     return true;
 $else
 $if (#isASTNodeDecl)
@@ -48,7 +48,7 @@ $endif
 # Create regionRoot method
 ASTDecl.createRegionRootMethod = [[
   public $ASTNode #name.regionRoot() {
-$if (IsRegionRoot)
+$if (#isRegionRoot)
     return this;
 $else
 $if (#isASTNodeDecl)
@@ -64,7 +64,7 @@ $endif
 ASTDecl.createRegionHandlerMethod = [[
   public $DDGNodeName #name.handler() {
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
     return handler;
 $else
 $if (#isASTNodeDecl)

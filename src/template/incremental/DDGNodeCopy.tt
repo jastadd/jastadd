@@ -52,7 +52,7 @@ $if (IncrementalLevelNode)
     copy.handler = new $DDGNodeName(handler, copy);
 $endif
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
     copy.handler = new $DDGNodeName(handler, copy);
 $endif
 $endif
@@ -67,7 +67,7 @@ $if (IncrementalLevelNode)
     copy.handler = new $DDGNodeName(handler, copy);
 $endif
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
     copy.handler = new $DDGNodeName(handler, copy);
 $else
     super.inc_copyHandlers(copy);

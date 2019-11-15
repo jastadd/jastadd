@@ -191,7 +191,7 @@ $if (IncrementalLevelNode)
 $endif
 $endif
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
   handler.dumpDeps();
 $endif
 $endif
@@ -200,7 +200,7 @@ $endif
   $DumpCollAttributeDeps
 $if (!#isASTNodeDecl)
 $if (IncrementalLevelRegion)
-$if (!IsRegionRoot)
+$if (!#isRegionRoot)
   super.dumpDependencies();
 $endif
 $else

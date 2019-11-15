@@ -130,7 +130,6 @@ aspect IncrementalDDG {
       return;
     }
     TemplateContext tt = templateContext();
-    tt.bind("IsRegionRoot", isRegionRoot());
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
     tt.bind("CopyAttributeHandlers", emitCopyAttributeHandlersString());
     tt.expand("ASTDecl.incrementalCopyHandlerMethod", out);
@@ -141,7 +140,6 @@ aspect IncrementalDDG {
    */
   public String ASTDecl.genCleanupAttributeListenersString() {
     StringBuffer res = new StringBuffer();
-    // Add dump string for each attribute
     for (AttrDecl attr : listOfCachedAttributes()) {
       res.append(attr.templateContext().expand("ASTDecl.checkAndCleanupAttributeListeners"));
     }
@@ -223,7 +221,6 @@ aspect IncrementalDDG {
       return;
     }
     TemplateContext tt = templateContext();
-    tt.bind("IsRegionRoot", isRegionRoot());
     if (config().incrementalLevelNode()) {
       tt.expand("ASTDecl.createIsRegionRootMethod", out);
       if (name().equals(config().astNodeType())) {

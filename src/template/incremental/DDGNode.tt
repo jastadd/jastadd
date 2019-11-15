@@ -504,7 +504,7 @@ $if (IncrementalLevelParam)
 $endif
 $endif
 $if (IncrementalLevelRegion)
-$if (IsRegionRoot)
+$if (#isRegionRoot)
   handler.cleanupListeners();
 $endif
 $endif
@@ -512,7 +512,7 @@ $endif
   $CleanupAttributeListeners
 $if (!#isASTNodeDecl)
 $if (IncrementalLevelRegion)
-$if (!IsRegionRoot)
+$if (!#isRegionRoot)
   super.cleanupListeners();
 $endif
 $else
