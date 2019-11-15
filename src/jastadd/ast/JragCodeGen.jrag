@@ -836,11 +836,6 @@ aspect JragCodeGen {
   public String SynDecl.higherOrderAttributeCode() {
     Component comp = findCorrespondingNTA();
     if (comp != null) { // Check for component NTA.
-      if (declaredNTA()) {
-        System.err.println("Warning: the NTA equation " + name()
-            + " was affected by a bug causing the equation value to be discarded! "
-            + "(fixed since version 2.1.11)");
-      }
       String attrName = getName().substring(3);
       if (comp.name().equals(attrName) && comp instanceof AggregateComponentNTA
           || attrName.equals(comp.name() + "Opt") && comp instanceof OptionalComponentNTA
