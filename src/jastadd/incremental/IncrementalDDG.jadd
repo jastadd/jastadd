@@ -51,7 +51,6 @@ aspect IncrementalDDG {
     tt.bind("CleanupTokenListeners", genCleanupTokenListenersString());
     tt.bind("CleanupAttributeListeners", genCleanupAttributeListenersString());
     tt.expand("ASTDecl.cleanupListenersMethod", out);
-    tt.bind("CleanupListenersInNTAs", genCleanupListenersInNTAsString());
     tt.expand("ASTDecl.cleanupListenersInTreeMethod", out);
   }
 
@@ -135,22 +134,6 @@ aspect IncrementalDDG {
     tt.bind("CopyTokenHandlers", emitCopyTokenHandlersString());
     tt.bind("CopyAttributeHandlers", emitCopyAttributeHandlersString());
     tt.expand("ASTDecl.incrementalCopyHandlerMethod", out);
-  }
-
-  /**
-   * Generate string with code for cleaning up dependants in NTAs.
-   */
-  public String ASTDecl.genCleanupListenersInNTAsString() {
-    StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
-    for (AttrDecl attr : listOfCachedAttributes()) {
-      if (attr.isHOA()) {
-        tt.bind("IsParameterized", attr.isParameterized());
-        tt.bind("AttrSign", attr.signature());
-        res.append(tt.expand("ASTDecl.checkAndCleanupNTAListeners"));
-      }
-    }
-    return res.toString();
   }
 
   /**

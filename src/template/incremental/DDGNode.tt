@@ -573,21 +573,6 @@ public void #name.cleanupListenersInTree() {
     }
     child.cleanupListenersInTree();
   }
-  $CleanupListenersInNTAs
   inc_cleanupListenersInTree_visited = false;
 }
 ]]
-
-# Generate string with code for cleaning up listeners in NTAs.
-ASTDecl.checkAndCleanupNTAListeners = [[
-$if (IsParameterized)
-if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.cleanupListenersInTree();
-}
-$else
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.cleanupListenersInTree();
-}
-$endif
-]]
-
