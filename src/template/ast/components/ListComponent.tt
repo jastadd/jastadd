@@ -55,6 +55,9 @@ protected static final $List $List.EMPTY = new $(List)() {
   public $List setChild($ASTNode child, int pos) {
     throw new Error("attempting to setChild() in empty $List singleton!");
   }
+  @Override
+  public void setParent($ASTNode node) {
+  }
  };
 $endif
 ]]

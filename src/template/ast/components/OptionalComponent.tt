@@ -46,6 +46,9 @@ $if(EmptyContainerSingletons)
     public $Opt setChild($ASTNode child, int pos) {
       throw new Error("attempting to setChild() in empty $Opt singleton!");
     }
+    @Override
+    public void setParent($ASTNode node) {
+    }
   };
 $endif
 ]]
