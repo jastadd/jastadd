@@ -464,16 +464,16 @@ ASTDecl.createRewriteAttributeHandler = [[
 ]]
 
 # Create DDG node for attribute
-ASTDecl.createAttributeHandler = [[
+AttrDecl.createAttributeHandler = [[
 $if (IncrementalLevelParam)
-$if (IsParameterized)
-  protected java.util.Map #name.$(AttributeName)_handler = new java.util.HashMap(4);
+$if (#isParameterized)
+  protected java.util.Map #hostClassName.#(signature)_handler = new java.util.HashMap(4);
 $else
-  protected $DDGNodeName #name.$(AttributeName)_handler;
+  protected $DDGNodeName #hostClassName.#(signature)_handler;
 $endif
 $endif
 $if (IncrementalLevelAttr)
-  protected $DDGNodeName #name.$(AttributeName)_handler;
+  protected $DDGNodeName #hostClassName.#(signature)_handler;
 $endif
 ]]
 

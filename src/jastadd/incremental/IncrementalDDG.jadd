@@ -102,9 +102,7 @@ aspect IncrementalDDG {
       }
       // Attribute code.
       for (AttrDecl attr : decls) {
-        tt.bind("AttributeName", attr.signature()); // TODO(joqvist): rename template variable?
-        tt.bind("IsParameterized", attr.isParameterized());
-        tt.expand("ASTDecl.createAttributeHandler", out);
+        attr.templateContext().expand("AttrDecl.createAttributeHandler", out);
       }
     }
   }
@@ -200,11 +198,8 @@ aspect IncrementalDDG {
         }
       }
       // Attribute code.
-      TemplateContext tt = templateContext();
       for (AttrDecl attr : decls) {
-        tt.bind("AttributeName", attr.signature());// TODO rename template variable?
-        tt.bind("IsParameterized", attr.isParameterized());
-        res.append(tt.expand("ASTDecl.copyAttributeHandler"));
+        res.append(attr.templateContext().expand("AttrDecl.copyAttributeHandler"));
       }
     }
     return res.toString();

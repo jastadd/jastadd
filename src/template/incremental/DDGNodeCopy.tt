@@ -87,21 +87,21 @@ TokenComponent.copyTokenHandler = [[
 ]]
 
 # Copy attribute DDG node
-ASTDecl.copyAttributeHandler = [[
+AttrDecl.copyAttributeHandler = [[
 $if (IncrementalLevelParam)
-$if (IsParameterized)
-    if ($(AttributeName)_handler != null) {
-      copy.$(AttributeName)_handler = new java.util.HashMap(4);
+  $if (#isParameterized)
+    if (#(signature)_handler != null) {
+      copy.#(signature)_handler = new java.util.HashMap(4);
     }
-$else
-    if ($(AttributeName)_handler != null) {
-      copy.$(AttributeName)_handler = $DDGNodeName.createAttrHandler($(AttributeName)_handler, copy);
+  $else
+    if (#(signature)_handler != null) {
+      copy.#(signature)_handler = $DDGNodeName.createAttrHandler(#(signature)_handler, copy);
     }
-$endif
+  $endif
 $endif
 $if (IncrementalLevelAttr)
-    if ($(AttributeName)_handler != null) {
-      copy.$(AttributeName)_handler = new $DDGNodeName($(AttributeName)_handler, copy);
+    if (#(signature)_handler != null) {
+      copy.#(signature)_handler = new $DDGNodeName(#(signature)_handler, copy);
     }
 $endif
 ]]
