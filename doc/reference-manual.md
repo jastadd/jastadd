@@ -22,7 +22,9 @@ JastAdd 2.1.13 manual.
     * [Parameterized](#Parameterized), [broadcasting](#Broadcasting),
       [circular](#Circular), [NTAs](#Nonterminal), [collections](#Collection)
 * [Rewrites](#Rewrites)
-* [Command line syntax](#Command)
+* [Building with JastAddGradle](#jastaddgradle)
+* [Command line syntax](#commandline)
+* [Options](#options)
 
 ## <a id="Cheatsheet"></a>Quick syntax overview
 
@@ -1684,51 +1686,99 @@ expression instead of the block, e.g., as follows:
 </table>
 
 
-## <a id="Command"></a>Running JastAdd from the command line
+## <a id="jastaddgradle"></a>Building with JastAddGradle
 
-### Synopsis
+One of the simplest ways to build a JastAdd project is by using the
+[Gradle](https://gradle.org/) build system and the [JastAddGradle
+plugin](https://plugins.gradle.org/plugin/org.jastadd).
+
+To use JastAddGradle, add the following to the plugin block in `build.gradle`:
+
+    plugins {
+      id "org.jastadd" version "1.13.3"
+    }
+
+
+To use JastAddGradle you can, for example, define a new task of type `JastAddTask`:
+
+    task generateAst(type: org.jastadd.JastAddTask) {
+      outputDir = file("src/gen")
+      sources = fileTree("lang")
+      options = [ "--package=lang" ] // Options (see below).
+      doFirst { file('src/gen').mkdirs() }
+    }
+
+
+Remember to also include the generated sources in the Java source set:
+
+    sourceSets { main { java { srcDir "src/gen" } } }
+
+
+More documentation and several examples of how to use JastAddGradle are available in
+the [JastAddGradle GitHub repository](https://github.com/jastadd/jastaddgradle).
+
+
+## <a id="commandline"></a>Running JastAdd from the command line
+
+JastAdd may be run from the command line using the following syntax:
 
     java -jar jastadd2.jar [options] <source files>
 
-Source file arguments are names of `.ast`, `.jrag` and `.jadd` files.  At least
+
+Source file arguments are filepaths ending in `.ast`, `.jrag` and `.jadd`.  At least
 one `.ast` file must be provided, otherwise JastAdd will not generate any code.
 Some of the available options are listed below.
 
 
-### Options
+### <a id="options"></a>Options
 
-More details about JastAdd options can be printed by passing the `--help` option
-to JastAdd.
+JastAdd has a large number of options that control code generation for attributes
+and also enable/disable certain kinds of attributes.
 
-Here is a short summary of available options:
+Here is a summary of available options:
 
 Option                 | Purpose
 -----------------------|--------
-`--help`               | Prints help text and stops.
-`--version`            | Prints version information and stops.
-`--package=PPP`        | Optional package for generated files, default is none.
-`--o=DDD`              | Optional base output directory, default is current directory.
-`--beaver`             | Use beaver base node.
-`--jjtree`             | Use jjtree base node, this requires `--grammar` to be set.
-`--grammar=GGG`        | The parser for the grammar is called GGG, required when using jjtree.
+`--help`               | Print help text.
+`--version`            | Print version information.
+`--package=NAME`       | Optional package for generated files, default is none.
+`--o=PATH`             | Optional base output directory, default is current directory.
+`--ASTNode=NAME`       | Change name of ASTNode class to NAME.
+`--List=NAME`          | Change name of List class to NAME.
+`--Opt=NAME`           | Change name of Opt class to NAME.
+`--stateClassName=NAME` | Change name of ASTState class to NAME.
+`--generateImplicits=yes/no` | Enables code generation for all implicit types (ASTNode, Opt, List). Default is yes.
+`--generateAnnotations=yes/no` | Enables code generation for meta annotations for attributes and classes.
+`--ASTNodeSuper=NAME` | Sets supertype for ASTNode class.
+`--beaver`             | For compatibility with [Beaver](http://beaver.sourceforge.net/) parsers. Use `beaver.Symbol` as ASTNode supertype and add setters for tokens accepting beaver symbols.
+`--jjtree`             | JJTree compatibility mode.
+`--grammar=NAME`       | In JJTree mode, generates accept methods for `NAMEVisitor`.
 `--rewrite=regular`    | Enable ReRAGs support.
 `--visitCheck=false`   | Disable circularity check for attributes.
 `--cacheCycle=false`   | Disable cache cyle optimization for circular attributes.
-`--safeLazy`           | Makes non-circular lazy attributes safe to use in circular evaluations.
-
-### Example
-
-The following command generates classes according to the AST description in
-`Toy.ast`.  The generated classes are placed in the package `ast`. The
-specifications in the Jrag and Jadd files are translated and woven into the
-generated classes.
-
-    java -jar jastadd2.jar --package=ast Toy.ast \
-        NameAnalysis.jrag TypeAnalysis.jrag PrettyPrinter.jadd
-
-### ANT task
-
-The options above are also available in an ANT task. The names for the options
-are the same as above, and for flag options like `--beaver` you specify
-`beaver="true"`, for other multi-value options you specify the option value you
-want, for example `grammar="GGG"` as above.
+`--safeLazy`           | Makes non-circular memoized attributes safe to use in circular attributes. (recommended)
+`--defaultMap=EXPR`    | Replaces the default map consturction expression for memoization with EXPR.
+`--defaultSet=EXPR`    | Replaces the default set construction expression for memoization with EXPR.
+`--lazymaps=yes/no`    | Choose if memoization maps are lazily initialized when evaluating attributes.
+`--private=yes/no`     | Use private modifier for generated methods.
+`--rewrite=none/cnta/regular` | Rewrite implementation: `cnta` is highly recommended for new projects.
+`--lineColumnNumbers=yes/no` | Generate code for handling line/column numbers with Beaver parsers.
+`--traceVisitCheck=yes/no` | Print a message instead of throwing an exception on circularity error.
+`--cacheCycle=yes/no`  | Performance tuning option for circular attributes. (untested)
+`--componentCheck=yes/no` | Check that circular attributes do not depend on memoized non-circular attributes. (obsolete)
+`--inhEqCheck=yes/no`  | Check that equations exist for inherited attributes.
+`--indent=ARG`         | Choose indentation in generated code, can be one of: `tab`, `2space`, `4space`, `8space`.
+`--license=TEXT`       | TEXT is inserted at the top of each generated Java file.
+`--concurrent`         | Enables concurrent attribute evaluation. See [Concurrent Attributes](http://jastadd.org/web/concurrent.php).
+`--numThreads=NUM`     | Number of concurrent workers for parallelized collection attributes.
+`--concurrentMap=NAME` | Name of concurrent map class used in concurrent code generation.
+`--tracing=ARGS`       | See [Attribute Tracing](http://jastadd.org/web/tool-support/tracing.php).
+`--cache=all|none`     | Choose if all attributes are memoized.
+`--incremental=ARGS`   | Experimental incremental attribute evaluation option.
+`--flush=ARGS`         | Generate methods for flushing attribute caches.
+`--dot`                | Generate a DOT graph of the abstract grammar.
+`--emptyContainerSingletons` | Use singleton objects for empty List or Opt nodes.
+`--optimizeImports`    | Remove unused imports in generated code.
+`--statistics=PATH`    | Output attribute statistics in CSV format to a file.
+`--minListSize=NUM`    | Performance tuning: minimum non-empty child list size.
+`--staticState=yes/no` | Performance tuning: use a static field to store reference to AST state object.
