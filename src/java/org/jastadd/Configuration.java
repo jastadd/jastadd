@@ -199,11 +199,6 @@ public class Configuration {
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  Option<Boolean> noStaticOption = new FlagOption(
-      "noStatic", "the generated state field is non-static")
-      .deprecated("2.1.9", "replaced by --staticState=false")
-      .nonStandard();
-
   Option<String> licenseOption = new ValueOption("license",
       "include the given file as a header in each generated file") {
     @Override
@@ -441,9 +436,6 @@ public class Configuration {
 
     // New since 2.3.4
     allOptions.add(optimizeImports);
-
-    // Deprecated in 2.1.9.
-    allOptions.add(noStaticOption);
 
     return allOptions;
   }
@@ -1132,11 +1124,7 @@ public class Configuration {
    * @return {@code true} if the AST state should be stored static
    */
   public boolean staticState() {
-    if (staticStateOption.isMatched()) {
-      return staticStateOption.value();
-    }
-    // Fall back on deprecated option.
-    return !noStaticOption.value();
+    return staticStateOption.value();
   }
 
   /**
