@@ -199,9 +199,6 @@ public class Configuration {
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  Option<Boolean> noInhEqCheckOption = new FlagOption("noInhEqCheck", "")
-      .deprecated("2.1.9", "replaced by --inhEqCheck=false");
-
   Option<Boolean> noStaticOption = new FlagOption(
       "noStatic", "the generated state field is non-static")
       .deprecated("2.1.9", "replaced by --staticState=false")
@@ -446,7 +443,6 @@ public class Configuration {
     allOptions.add(optimizeImports);
 
     // Deprecated in 2.1.9.
-    allOptions.add(noInhEqCheckOption);
     allOptions.add(noStaticOption);
 
     return allOptions;
@@ -1101,11 +1097,7 @@ public class Configuration {
    * @return {@code true} if --inhEqCheck=true
    */
   public boolean inhEqCheck() {
-    if (inhEqCheckOption.isMatched()) {
-      return inhEqCheckOption.value();
-    }
-    // Fallback on deprecated option.
-    return !noInhEqCheckOption.value();
+    return inhEqCheckOption.value();
   }
 
   /**
