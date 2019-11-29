@@ -238,9 +238,6 @@ public class Configuration {
   Option<Boolean> noLazyMapsOption = new FlagOption("noLazyMaps", "")
       .deprecated("2.1.9", "replaced by --lazyMaps=false");
 
-  Option<Boolean> noVisitCheckOption = new FlagOption("noVisitCheck", "")
-      .deprecated("2.1.9", "replaced by --visitCheck=false");
-
   Option<Boolean> noCacheCycleOption = new FlagOption("noCacheCycle", "")
       .deprecated("2.1.9", "replaced by --cacheCycle=false");
 
@@ -514,7 +511,6 @@ public class Configuration {
     allOptions.add(docOption);
     allOptions.add(java1_4Option); // Disabled in 2.1.10.
     allOptions.add(noLazyMapsOption);
-    allOptions.add(noVisitCheckOption);
     allOptions.add(noCacheCycleOption);
     allOptions.add(noRefineLegacyOption);
     allOptions.add(noComponentCheckOption);
@@ -987,11 +983,7 @@ public class Configuration {
     if (debugOption.value()) {
       return true;
     }
-    if (visitCheckOption.isMatched()) {
-      return visitCheckOption.value();
-    }
-    // Fall back on deprecated option.
-    return !noVisitCheckOption.value();
+    return visitCheckOption.value();
   }
 
   /**
