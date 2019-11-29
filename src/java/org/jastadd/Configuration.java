@@ -205,9 +205,6 @@ public class Configuration {
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  Option<Boolean> stagedRewritesOption = new FlagOption("stagedRewrites", "")
-      .deprecated("2.2.1", "this option currently does nothing");
-
   Option<Boolean> doxygenOption = new FlagOption("doxygen", "")
       .deprecated("2.1.5", "this option currently does nothing");
 
