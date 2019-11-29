@@ -1131,16 +1131,16 @@ public class Configuration {
    * @return minimum number of list items in a non-empty List node
    */
   public int minListSize() {
-      try {
-        int size = Integer.parseInt(minListSizeOption.value());
-        if (size < 0) {
-          return 0;
-        } else {
-          return size;
-        }
-      } catch (NumberFormatException e) {
-        return 4;
+    try {
+      int size = Integer.parseInt(minListSizeOption.value());
+      if (size < 0) {
+        return 0;
+      } else {
+        return size;
       }
+    } catch (NumberFormatException e) {
+      return 4;
+    }
   }
 
   /**
