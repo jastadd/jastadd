@@ -195,48 +195,12 @@ public class Configuration {
       .defaultValue(true)
       .nonStandard();
 
-  // TODO(jesper): make this deprecated.
-  Option<Boolean> suppressWarningsOption = new FlagOption("suppressWarnings",
-      "attempt to suppress Java warnings")
-      .deprecated("2.1.2")
-      .nonStandard();
-
   Option<Boolean> refineLegacyOption = new BooleanOption("refineLegacy",
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  Option<Boolean> doxygenOption = new FlagOption("doxygen", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> cacheAllOption = new FlagOption("cacheAll", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> noCachingOption = new FlagOption("noCaching", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> cacheNoneOption = new FlagOption("cacheNone", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> cacheImplicitOption = new FlagOption("cacheImplicit", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> ignoreLazyOption = new FlagOption("ignoreLazy", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> fullFlushOption = new FlagOption("fullFlush", "")
-      .deprecated("2.1.5", "this option currently does nothing");
-
-  Option<Boolean> docOption = new FlagOption("doc", "")
-      .deprecated("2.1.9", "this option currently does nothing");
-
-  Option<Boolean> java1_4Option = new FlagOption("java1.4", "")
-      .deprecated("2.1.9", "this option currently does nothing");
-
   Option<Boolean> noRefineLegacyOption = new FlagOption("noRefineLegacy", "")
       .deprecated("2.1.9", "replaced by --refineLegacy=false");
-
-  Option<Boolean> noComponentCheckOption = new FlagOption("noComponentCheck", "")
-      .deprecated("2.1.9", "currently has no effect");
 
   Option<Boolean> noInhEqCheckOption = new FlagOption("noInhEqCheck", "")
       .deprecated("2.1.9", "replaced by --inhEqCheck=false");
@@ -245,10 +209,6 @@ public class Configuration {
       "noStatic", "the generated state field is non-static")
       .deprecated("2.1.9", "replaced by --staticState=false")
       .nonStandard();
-
-  Option<Boolean> deterministicOption = new FlagOption("deterministic",
-      "ensure deterministic collection attribute iteration order")
-      .deprecated("2.1.9");
 
   Option<String> licenseOption = new ValueOption("license",
       "include the given file as a header in each generated file") {
@@ -449,7 +409,6 @@ public class Configuration {
     allOptions.add(cacheCycleOption);
     allOptions.add(componentCheckOption);
     allOptions.add(inhEqCheckOption);
-    allOptions.add(suppressWarningsOption);
     allOptions.add(refineLegacyOption);
     allOptions.add(licenseOption);
     allOptions.add(debugOption);
@@ -489,23 +448,10 @@ public class Configuration {
     // New since 2.3.4
     allOptions.add(optimizeImports);
 
-    // Deprecated in 2.1.5.
-    allOptions.add(doxygenOption);
-    allOptions.add(cacheAllOption);
-    allOptions.add(noCachingOption);
-    allOptions.add(cacheNoneOption);
-    allOptions.add(cacheImplicitOption);
-    allOptions.add(ignoreLazyOption);
-    allOptions.add(fullFlushOption);
-
     // Deprecated in 2.1.9.
-    allOptions.add(docOption);
-    allOptions.add(java1_4Option); // Disabled in 2.1.10.
     allOptions.add(noRefineLegacyOption);
-    allOptions.add(noComponentCheckOption);
     allOptions.add(noInhEqCheckOption);
     allOptions.add(noStaticOption);
-    allOptions.add(deterministicOption);
 
     return allOptions;
   }
