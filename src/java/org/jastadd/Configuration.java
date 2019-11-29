@@ -199,9 +199,6 @@ public class Configuration {
       "enable the legacy refine syntax")
       .defaultValue(true);
 
-  Option<Boolean> noRefineLegacyOption = new FlagOption("noRefineLegacy", "")
-      .deprecated("2.1.9", "replaced by --refineLegacy=false");
-
   Option<Boolean> noInhEqCheckOption = new FlagOption("noInhEqCheck", "")
       .deprecated("2.1.9", "replaced by --inhEqCheck=false");
 
@@ -449,7 +446,6 @@ public class Configuration {
     allOptions.add(optimizeImports);
 
     // Deprecated in 2.1.9.
-    allOptions.add(noRefineLegacyOption);
     allOptions.add(noInhEqCheckOption);
     allOptions.add(noStaticOption);
 
@@ -1034,11 +1030,7 @@ public class Configuration {
    * @return {@code true} if --refineLegacy
    */
   public boolean refineLegacy() {
-    if (refineLegacyOption.isMatched()) {
-      return refineLegacyOption.value();
-    }
-    // Fall back on deprecated option.
-    return !noRefineLegacyOption.value();
+    return refineLegacyOption.value();
   }
 
   /**
