@@ -235,9 +235,6 @@ public class Configuration {
   Option<Boolean> java1_4Option = new FlagOption("java1.4", "")
       .deprecated("2.1.9", "this option currently does nothing");
 
-  Option<Boolean> noLazyMapsOption = new FlagOption("noLazyMaps", "")
-      .deprecated("2.1.9", "replaced by --lazyMaps=false");
-
   Option<Boolean> noRefineLegacyOption = new FlagOption("noRefineLegacy", "")
       .deprecated("2.1.9", "replaced by --refineLegacy=false");
 
@@ -507,7 +504,6 @@ public class Configuration {
     // Deprecated in 2.1.9.
     allOptions.add(docOption);
     allOptions.add(java1_4Option); // Disabled in 2.1.10.
-    allOptions.add(noLazyMapsOption);
     allOptions.add(noRefineLegacyOption);
     allOptions.add(noComponentCheckOption);
     allOptions.add(noInhEqCheckOption);
@@ -1081,11 +1077,7 @@ public class Configuration {
    * @return {@code true} if --lazyMaps=true
    */
   public boolean lazyMaps() {
-    if (lazyMapsOption.isMatched()) {
-      return lazyMapsOption.value();
-    }
-    // Fallback on deprecated option.
-    return !noLazyMapsOption.value();
+    return lazyMapsOption.value();
   }
 
   /**
