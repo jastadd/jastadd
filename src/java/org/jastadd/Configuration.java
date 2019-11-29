@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015, Jesper Öqvist <jesper.oqvist@cs.lth.se>
+/* Copyright (c) 2013-2019, Jesper Öqvist <jesper.oqvist@cs.lth.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,7 +121,7 @@ public class Configuration {
       .templateVariable("generateAnnotations");
 
   Option<Boolean> jjtreeOption = new FlagOption("jjtree",
-      "use jjtree base node")
+      "use JJTree base node")
       .templateVariable("JJTree");
 
   Option<String> grammarOption = new ValueOption("grammar",
@@ -129,14 +129,14 @@ public class Configuration {
       .templateVariable("ParserName");
 
   Option<String> defaultMapOption = new ValueOption(
-      "defaultMap", "use this expression to construct maps for attribute caches")
+      "defaultMap", "expression used to create maps for attribute caches")
       .acceptAnyValue()
       .defaultValue("new java.util.HashMap(4)")
       .nonStandard()
       .templateVariable("CreateDefaultMap");
 
   Option<String> defaultSetOption = new ValueOption(
-      "defaultSet", "use this expression to construct sets for attribute caches")
+      "defaultSet", "expression used to create sets for attribute caches")
       .acceptAnyValue()
       .defaultValue("new java.util.HashSet(4)")
       .nonStandard()
@@ -145,12 +145,14 @@ public class Configuration {
   Option<Boolean> lazyMapsOption = new BooleanOption("lazyMaps", "use lazy maps")
       .defaultValue(true)
       .templateVariable("LazyMaps")
-      .nonStandard();
+      .nonStandard()
+      .deprecated("2.4.0");
 
   Option<Boolean> privateOption = new FlagOption("private",
       "generated methods will use the private modifier")
       .templateVariable("PrivateModifier")
-      .nonStandard();
+      .nonStandard()
+      .deprecated("2.4.0");
 
   ValueOption rewriteOption = new ValueOption("rewrite",
       "enable and select rewrite mode (ReRAGs)")
@@ -175,7 +177,8 @@ public class Configuration {
   Option<Boolean> traceVisitCheckOption = new BooleanOption("traceVisitCheck",
       "just print an error rather than throwing a circularity check exception")
       .nonStandard()
-      .templateVariable("TraceVisitCheck");
+      .templateVariable("TraceVisitCheck")
+      .deprecated("2.4.0");
 
   Option<Boolean> cacheCycleOption = new BooleanOption("cacheCycle",
       "Circular attributes run one last cycle to cache all\n"
@@ -189,15 +192,16 @@ public class Configuration {
       + "by non-circular attribute is detected.")
       .templateVariable("ComponentCheck");
 
-  // TODO(jesper): make this deprecated.
   Option<Boolean> inhEqCheckOption = new BooleanOption("inhEqCheck",
       "enable check for inherited equations")
       .defaultValue(true)
-      .nonStandard();
+      .nonStandard()
+      .deprecated("2.4.0");
 
   Option<Boolean> refineLegacyOption = new BooleanOption("refineLegacy",
       "enable the legacy refine syntax")
-      .defaultValue(true);
+      .defaultValue(true)
+      .deprecated("2.4.0");
 
   Option<String> licenseOption = new ValueOption("license",
       "include the given file as a header in each generated file") {
@@ -217,7 +221,8 @@ public class Configuration {
   };
 
   Option<Boolean> debugOption = new FlagOption("debug", "generate run-time checks for debugging")
-      .templateVariable("DebugMode");
+      .templateVariable("DebugMode")
+      .deprecated("2.4.0");
 
   Option<Boolean> staticStateOption = new BooleanOption("staticState",
       "the generated state field is static")
@@ -244,8 +249,8 @@ public class Configuration {
       .addAcceptedValue("circularNTA", "trace circular attribute evaluation")
       .addAcceptedValue("copy", "trace node copy operations")
       .addAcceptedValue("flush", "trace flush operations")
-      .additionalDescription("all events are collected by default\n"
-          + "the result is available via the API in org.jastadd.Tracer");
+      .additionalDescription("All events are collected by default.\n"
+          + "Listen to events by calling ASTState.Trace.setReceiver()");
 
   ValueOption flushOption = new ValueOption("flush",
       "generate methods for flushing attribute caches")
