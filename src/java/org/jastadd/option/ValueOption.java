@@ -146,7 +146,7 @@ public class ValueOption extends Option<String> {
     if (restricted && !acceptedValues.isEmpty()) {
       printIndent(out, TAB_2);
       out.format("%s %s of the following%s values:",
-          needsValue ? "requires " : "accepts ",
+          needsValue ? "Requires" : "Accepts",
           acceptsMultipleValues ? "some" : "one",
           needsValue ? "" : " optional");
       out.println();
