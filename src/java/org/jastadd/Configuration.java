@@ -533,9 +533,6 @@ public class Configuration {
     // Set template variables to accommodate deprecated options
     // (the deprecated options may alter the value of the template variable).
     tt.bind("VisitCheckEnabled", visitCheckEnabled());
-    tt.bind("CacheCycle", cacheCycle());
-    tt.bind("StaticState", staticState());
-    tt.bind("LazyMaps", lazyMaps());
     return root;
   }
 
@@ -1111,20 +1108,6 @@ public class Configuration {
    */
   public boolean lineColumnNumbers() {
     return lineColumnNumbersOption.value();
-  }
-
-  /**
-   * @return {@code true} if --cacheCycle
-   */
-  public boolean cacheCycle() {
-    return cacheCycleOption.value();
-  }
-
-  /**
-   * @return {@code true} if the AST state should be stored static
-   */
-  public boolean staticState() {
-    return staticStateOption.value();
   }
 
   /**
