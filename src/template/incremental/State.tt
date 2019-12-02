@@ -77,19 +77,14 @@ $endif
     exitAttrStoreEval(handler);
   }
 
-  public boolean IN_CONSTRUCTION = false;
-
-  private int inc_constructionCount = 0;
+  public int disableDeps = 0;
 
   public void enterConstruction() {
-    IN_CONSTRUCTION = true;
-    inc_constructionCount++;
+    disableDeps++;
   }
 
   public void exitConstruction() {
-    inc_constructionCount--;
-    if (inc_constructionCount == 0)
-    IN_CONSTRUCTION = false;
+    disableDeps--;
   }
 
   protected void pushHandler(java.util.Stack stack, $ASTNode$$DepGraphNode handler) {
