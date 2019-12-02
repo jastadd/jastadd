@@ -210,11 +210,6 @@ $endif
 ]]
 
 ASTNode.incHookGetChild7 = [[
-$if(IncrementalEnabled)
-
-//$ASTNode initial = this.init_children[i];
-
-$endif
 ]]
 
 ASTNode.incHookGetChild8 = [[
@@ -222,24 +217,20 @@ $if(IncrementalEnabled)
 
 $if(IncrementalLevelParam)
 oldNode.inc_flush_subtree(this.getChild_handler[i]);
-//this.init_children[i] = initial;
 $endif
 
 $if(IncrementalLevelAttr)
 oldNode.inc_flush_subtree(this.getChild_handler);
-//this.init_children[i] = initial;
 $endif
 
 $if(IncrementalLevelNode)
 oldNode.inc_flush_subtree(node.handler());
-//this.init_children[i] = initial;
 $endif
 
 $if(IncrementalLevelRegion)
 if (node.isRegionRoot()) {
   oldNode.inc_flush_subtree(node.handler());
 }
-//this.init_children[i] = initial;
 $endif
 
 $endif
@@ -499,8 +490,6 @@ $if(IncrementalEnabled)
 $if(#isMemoized)
 
 $if(IncrementalLevelParam)
-//$DDGNodeName tmpHandler = $DDGNodeName.createAttrHandler(this, "", null);
-//state().enterAttrStoreEval(tmpHandler);
 $if(!#isParameterized)
 state().enterAttrStoreEval(#(signature)_handler);
 $else
@@ -575,7 +564,6 @@ $if(IncrementalEnabled)
 $if(#isMemoized)
 
 $if(IncrementalLevelParam)
-//state().exitAttrStoreEval(tmpHandler);
 $if(!#isParameterized)
 state().exitAttrStoreEval(#(signature)_handler);
 $else
@@ -660,14 +648,6 @@ $endif
 AttrDecl.incHookAttrCompBeforeStore = [[
 $if(IncrementalEnabled)
 $if(#isMemoized)
-
-$if(IncrementalLevelParam)
-$if(!#isParameterized)
-//#(signature)_handler.transferDependenciesFrom(tmpHandler);
-$else
-//(($DDGNodeName)#(signature)_handler.get(_parameters)).transferDependenciesFrom(tmpHandler);
-$endif
-$endif
 
 $if (IncrementalLevelAttr)
 #(signature)_handler.transferDependenciesFrom(tmpHandler);

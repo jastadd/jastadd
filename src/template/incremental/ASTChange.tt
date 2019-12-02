@@ -300,7 +300,7 @@ $endif
 ASTNode.incHookRemoveChild2 = [[
 $if(IncrementalEnabled)
 
-// prevent recursive call during state handling where setParent calls removeChild
+// Prevent recursive call during state handling where setParent calls removeChild.
 child.inc_throwAway();
 
 $endif
