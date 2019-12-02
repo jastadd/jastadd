@@ -838,23 +838,7 @@ aspect B {
         <p>The original method can be called using the keyword "refined". JastAdd
         replaces all occurrences of this keyword with the new name of the refined
         method. Be careful with how you use refined - even occurrences in string
-        literals or comments are replaced!  With the command line flag "--refineLegacy"
-        you can use the legacy syntax for calling the refined method:
-
-        <p><pre>aspect A {
-  void C.m() { ... }
-}
-
-aspect B {
-  refine A void C.m() { // similar to overriding
-    ...
-    AspectFile.C.m();
-    ...
-  }
-}</pre>
-
-        <p><em>Note:</em> AspectFile is the name of the file (minus extension)
-        that contains the original declaration.
+        literals or comments are replaced!
     </td>
 </tr>
 </table>
@@ -1759,14 +1743,10 @@ Option                 | Purpose
 `--safeLazy`           | Makes non-circular memoized attributes safe to use in circular attributes. (recommended)
 `--defaultMap=EXPR`    | Replaces the default map consturction expression for memoization with EXPR.
 `--defaultSet=EXPR`    | Replaces the default set construction expression for memoization with EXPR.
-`--lazymaps=yes/no`    | Choose if memoization maps are lazily initialized when evaluating attributes.
-`--private=yes/no`     | Use private modifier for generated methods.
 `--rewrite=none/cnta/regular` | Rewrite implementation: `cnta` is highly recommended for new projects.
 `--lineColumnNumbers=yes/no` | Generate code for handling line/column numbers with Beaver parsers.
-`--traceVisitCheck=yes/no` | Print a message instead of throwing an exception on circularity error.
 `--cacheCycle=yes/no`  | Performance tuning option for circular attributes. (untested)
 `--componentCheck=yes/no` | Check that circular attributes do not depend on memoized non-circular attributes. (obsolete)
-`--inhEqCheck=yes/no`  | Check that equations exist for inherited attributes.
 `--indent=ARG`         | Choose indentation in generated code, can be one of: `tab`, `2space`, `4space`, `8space`.
 `--license=TEXT`       | TEXT is inserted at the top of each generated Java file.
 `--concurrent`         | Enables concurrent attribute evaluation. See [Concurrent Attributes](http://jastadd.org/web/concurrent.php).
@@ -1782,3 +1762,8 @@ Option                 | Purpose
 `--statistics=PATH`    | Output attribute statistics in CSV format to a file.
 `--minListSize=NUM`    | Performance tuning: minimum non-empty child list size.
 `--staticState=yes/no` | Performance tuning: use a static field to store reference to AST state object.
+`--inhEqCheck=yes/no`  | (deprecated) Check that equations exist for inherited attributes.
+`--traceVisitCheck=yes/no` | (deprecated) Print a message instead of throwing an exception on circularity error.
+`--private=yes/no`     | (deprecated) Use private modifier for generated methods.
+`--lazyMaps=yes/no`    | (deprecated) Choose if memoization maps are lazily initialized when evaluating attributes.
+`--refineLegacy`       | (deprecated) Enables old syntax for calling refined method.
