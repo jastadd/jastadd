@@ -1434,20 +1434,15 @@ void CollectionContribution():
 
 void AspectAddInterface() :
 {
-  Token first, last;
   Token targetName;
-  SimpleNode nameList;
+  SimpleNode name;
 }
 {
-  targetName = <IDENTIFIER> { first = token; }
+  targetName = <IDENTIFIER>
   "implements"
-  nameList = TypeNameList()
+  name = ClassOrInterfaceType(){ root.addInterface(name, targetName.image, fileName); }
+  ( "," name = ClassOrInterfaceType() { root.addInterface(name, targetName.image, fileName); } )*
   ";"
-  {
-    last = token;
-    root.addInterface(nameList, targetName.image, fileName);
-  }
-
 }
 
 void AspectExtendInterface() :
