@@ -2179,6 +2179,7 @@ void PrimarySuffix() :
   LOOKAHEAD(3)
   "." TypeArguments() JavaIdentifier()
 |
+  LOOKAHEAD(2)
   "[" Expression() "]"
 |
   "." JavaIdentifier()
@@ -2190,6 +2191,10 @@ void PrimarySuffix() :
 |
   LOOKAHEAD(2)
   "::" JavaIdentifier()
+|
+  // Array constructor reference
+  LOOKAHEAD(2)
+  "[" "]" "::" "new"
 }
 
 void Literal() :
