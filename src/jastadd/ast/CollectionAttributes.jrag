@@ -547,10 +547,6 @@ aspect CollectionAttributes {
       String fileName, int startLine, int endLine, String startValue,
       String combOp, boolean isCircular, ArrayList<String> annotations,
       org.jastadd.jrag.AST.SimpleNode node, String root, String aspectName) {
-/*
-      errorf("Cannot add collection attribute %s %s to unknown class %s in %s at line %d",
-          type, name, className, fileName, startLine);
-*/
     CollDecl decl = new CollDecl();
     decl.setName(name);
     decl.setType(type);
