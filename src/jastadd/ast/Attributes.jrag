@@ -237,17 +237,13 @@ public aspect Attributes {
 
   public Collection<SynEq> Grammar.synEqs = new ArrayList<SynEq>();
 
-  public String SynDecl.hostName = "";
+  public String AttrDecl.hostName = "";
 
-  public String SynEq.hostName = "";
+  public String AttrEq.hostName = "";
 
   public Collection<InhDecl> Grammar.inhDecls = new ArrayList<InhDecl>();
 
   public Collection<InhEq> Grammar.inhEqs = new ArrayList<InhEq>();
-
-  public String InhDecl.hostName = "";
-
-  public String InhEq.hostName = "";
 
   public void Grammar.addSynDecl(
       String name,

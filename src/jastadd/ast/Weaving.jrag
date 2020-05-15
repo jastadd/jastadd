@@ -50,12 +50,12 @@ aspect AttributeWeaving {
     for (TypeDecl type0 : getTypeDeclList()) {
       if (type0 instanceof InterfaceDecl) {
         InterfaceDecl iface = (InterfaceDecl) type0;
-        Collection<SynDecl> syns = map.get(iface.name());
+        Collection<SynDecl> decls = map.get(iface.name());
         for (TypeDecl type : getTypeDeclList()) {
           if (type instanceof ASTDecl) {
             ASTDecl decl = (ASTDecl) type;
             if (decl.implementsInterface(iface.name())) {
-              map.get(decl.name()).addAll(syns);
+              map.get(decl.name()).addAll(decls);
             }
           }
         }
@@ -69,9 +69,9 @@ aspect AttributeWeaving {
    */
   syn nta List<SynDecl> TypeDecl.synDecls() {
     List<SynDecl> decls = new List<SynDecl>();
-    Collection<SynDecl> syns = grammar().synDeclMap().get(name());
-    if (syns != null) {
-      for (SynDecl decl : syns) {
+    Collection<SynDecl> parsedDecls = grammar().synDeclMap().get(name());
+    if (parsedDecls != null) {
+      for (SynDecl decl : parsedDecls) {
         decls.add((SynDecl) decl.fullCopy());
       }
     }
