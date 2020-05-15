@@ -8,7 +8,7 @@ For additional contributors, see the change logs.
 
 ## License
 
-Copyright (c) 2005-2016, The JastAdd Team. All rights reserved.
+Copyright (c) 2005-2020, The JastAdd Team. All rights reserved.
 
 JastAdd2 is covered by the modified BSD License. For the full license text
 see the LICENSE file.

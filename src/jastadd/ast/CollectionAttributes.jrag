@@ -283,7 +283,7 @@ aspect CollectionAttributes {
       CollDecl decl = grammar.lookupCollDecl(collHost, collName);
       if (decl == null) {
         throw new Error(String.format(
-              "%s:%d: Can not add custom survey code for unknown collection attribute: %s.%s()",
+              "%s:%d: Cannot add custom survey code for unknown collection attribute: %s.%s()",
               fileName, startLine, collHost, collName));
       }
       return decl;
@@ -593,7 +593,7 @@ aspect CollectionAttributes {
       // TODO(joqvist): defer collection attribute weaving.
       ((TypeDecl) c).addCollDecl(decl);
     } else {
-      errorf("Can not add collection attribute %s %s to unknown class %s in %s at line %d",
+      errorf("Cannot add collection attribute %s %s to unknown class %s in %s at line %d",
           type, name, className, fileName, startLine);
     }
   }
@@ -651,7 +651,7 @@ aspect CollectionAttributes {
         errorf("annotation %s not allowed for custom survey blocks.", annotation);
       }
     } else {
-      errorf("Can not add custom collection survey code to unknown class %s in %s at line %d",
+      errorf("Cannot add custom collection survey code to unknown class %s in %s at line %d",
           nodeType, fileName, startLine);
     }
   }
@@ -685,7 +685,7 @@ aspect CollectionAttributes {
         errorf("annotation %s not allowed for custom survey blocks.", annotation);
       }
     } else {
-      errorf("Can not add custom collection survey code to unknown class %s in %s at line %d",
+      errorf("Cannot add custom collection survey code to unknown class %s in %s at line %d",
           nodeType, fileName, startLine);
     }
   }
@@ -721,7 +721,7 @@ aspect CollectionAttributes {
       ((ASTDecl) type).addCollEq(equ);
       return equ;
     } else {
-      errorf("Can not add collection contribution to unknown class %s in %s at line %d",
+      errorf("Cannot add collection contribution to unknown class %s in %s at line %d",
           nodeType, fileName, startLine);
       // TODO(joqvist): defer weaving so we can return non-null.
       return null;
