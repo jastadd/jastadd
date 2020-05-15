@@ -94,10 +94,7 @@ aspect IncrementalDDG {
           decls.add(attr);
         }
       }
-      for (CollDecl decl : interfaceCollDecls()) {
-        decls.add(decl);
-      }
-      for (CollDecl decl : getCollDeclList()) {
+      for (CollDecl decl : collDecls()) {
         decls.add(decl);
       }
       // Attribute code.

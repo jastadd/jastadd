@@ -212,6 +212,7 @@ aspect AttributeProblems {
 
   TypeDecl contributes {
     synDecls().collectContributions();
+    collDecls().collectContributions();
     super.collectContributions();
   } to TypeDecl.attributeProblems();
 
@@ -431,6 +432,19 @@ aspect AttributeProblems {
     return error(buf.toString());
   }
 
+  Grammar contributes {
+    for (CollDecl decl : collDecls) {
+      decl.collectContributions();
+    }
+    super.collectContributions();
+  } to Grammar.problems();
+
+  CollDecl contributes errorf(
+          "cannot add collection attribute %s %s to unknown class %s",
+          getType(), getName(), hostName, getFileName(), getStartLine())
+      when grammar.lookup(hostName) == null
+      to Grammar.problems();
+
   CollDecl contributes collectionGroupProblem()
       when hasCollectionGroupProblem()
       to TypeDecl.attributeProblems()
@@ -488,7 +502,7 @@ aspect AttributeProblems {
       to TypeDecl.attributeProblems()
       for hostClass();
 
-  CollDecl contributes errorf("Unknown collection root: \"%s\"", root)
+  CollDecl contributes errorf("unknown collection root: \"%s\"", root)
       when root != null && root() == null
       to TypeDecl.attributeProblems()
       for hostClass();

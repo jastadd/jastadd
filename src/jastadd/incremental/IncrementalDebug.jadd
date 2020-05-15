@@ -72,9 +72,8 @@ aspect IncrementalDebug {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     // Add dump string for each coll attribute.
-    for (int k = 0; k < getNumCollDecl(); k++) {
-      CollDecl attr = getCollDecl(k);
-      tt.bind("AttrSign",  attr.signature());
+    for (CollDecl decl : collDecls()) {
+      tt.bind("AttrSign",  decl.signature());
       res.append(tt.expand("ASTDecl.checkAndDumpCollAttributeDeps"));
     }
     return res.toString();
@@ -134,9 +133,8 @@ aspect IncrementalDebug {
   public String ASTDecl.genDumpCollAttributeValuesString() {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
-    for (int k = 0; k < getNumCollDecl(); k++) {
-      CollDecl attr = getCollDecl(k);
-      tt.bind("AttrSign", attr.signature());
+    for (CollDecl decl : collDecls()) {
+      tt.bind("AttrSign", decl.signature());
       res.append(tt.expand("ASTDecl.dumpCollAttributeValue"));
     }
     return res.toString();

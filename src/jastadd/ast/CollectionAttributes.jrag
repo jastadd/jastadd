@@ -100,25 +100,8 @@ aspect CollectionAttributes {
     return type;
   }
 
-  /**
-   * Find interface collection attribute declarations.
-   */
-  public Collection<CollDecl> TypeDecl.interfaceCollDecls() {
-    LinkedList<CollDecl> list = new LinkedList<CollDecl>();
-    for (InterfaceDecl type : implementedInterfaces()) {
-      for (CollDecl decl : type.getCollDeclList()) {
-        list.add(decl);
-      }
-      list.addAll(type.interfaceCollDecls());
-    }
-    return list;
-  }
-
   public void ASTDecl.emitCollDecls(PrintStream out) {
-    for (CollDecl decl : interfaceCollDecls()) {
-      emitCollDecl(out, decl);
-    }
-    for (CollDecl decl : getCollDeclList()) {
+    for (CollDecl decl : collDecls()) {
       emitCollDecl(out, decl);
     }
   }
@@ -467,7 +450,7 @@ aspect CollectionAttributes {
   eq ASTDecl.isPotentialRootNode() =
       !hasAbstract() && !isASTNodeDecl() && !isOptSubtype() && !isListSubtype();
 
-  eq ASTDecl.getCollDecl().hostClass() = this;
+  eq ASTDecl.collDecls().hostClass() = this;
 
   eq ASTDecl.getCollEq().hostClass() = this;
 
@@ -494,16 +477,9 @@ aspect CollectionAttributes {
     StringBuilder res = new StringBuilder();
     for (int k = 0; k < grammar().getNumTypeDecl(); k++) {
       TypeDecl typeDecl = grammar().getTypeDecl(k);
-      for (CollDecl decl : typeDecl.interfaceCollDecls()) {
+      for (CollDecl decl : typeDecl.collDecls()) {
         TemplateContext tt = decl.templateContext();
         if (decl.root() == this) {
-          res.append(tt.expand("Collection.flush"));
-        }
-      }
-      for (int i = 0; i < typeDecl.getNumCollDecl(); i++) {
-        CollDecl attr = typeDecl.getCollDecl(i);
-        TemplateContext tt = attr.templateContext();
-        if (attr.root() == this) {
           res.append(tt.expand("Collection.flush"));
         }
       }
@@ -512,10 +488,7 @@ aspect CollectionAttributes {
   }
 
   public void ASTDecl.weaveCollectionAttributes() {
-    for (CollDecl decl : interfaceCollDecls()) {
-      decl.weaveCollectionAttribute();
-    }
-    for (CollDecl decl : getCollDeclList()) {
+    for (CollDecl decl : collDecls()) {
       decl.weaveCollectionAttribute();
     }
   }
@@ -553,7 +526,7 @@ aspect CollectionAttributes {
   syn CollDecl Grammar.lookupCollDecl(String hostName, String collName) {
     TypeDecl typeDecl = lookup(hostName);
     if (typeDecl != null) {
-      for (CollDecl decl : typeDecl.getCollDeclList()) {
+      for (CollDecl decl : typeDecl.collDecls()) {
         if (decl.getName().equals(collName)) {
           return decl;
         }
@@ -566,36 +539,40 @@ aspect CollectionAttributes {
 
   CollEq contributes this when decl() != null to CollDecl.uses() for decl();
 
+  public Collection<CollDecl> Grammar.collDecls = new ArrayList<CollDecl>();
+
+  public Grammar CollDecl.grammar;
+
   public void Grammar.addCollDecl(String name, String type, String className,
       String fileName, int startLine, int endLine, String startValue,
       String combOp, boolean isCircular, ArrayList<String> annotations,
       org.jastadd.jrag.AST.SimpleNode node, String root, String aspectName) {
-    TypeDecl c = lookup(className);
-    if (c != null) {
-      CollDecl decl = new CollDecl();
-      decl.setName(name);
-      decl.setType(type);
-      decl.setCacheMode(CacheMode.LAZY);
-      decl.setFileName(fileName);
-      decl.setStartLine(startLine);
-      decl.setEndLine(endLine);
-      decl.setParameterList(new List());
-      decl.setStartValue(startValue);
-      decl.setCombOp(combOp);
-      for (String annotation : annotations) {
-        decl.addAnnotation(new Annotation(annotation));
-      }
-      decl.setCircularCollection(isCircular || annotations.contains("@Circular"));
-      decl.setComment(Unparser.unparseComment(node));
-      decl.setTarget(className);
-      decl.root = root;
-      decl.setAspectName(aspectName);
-      // TODO(joqvist): defer collection attribute weaving.
-      ((TypeDecl) c).addCollDecl(decl);
-    } else {
+/*
       errorf("Cannot add collection attribute %s %s to unknown class %s in %s at line %d",
           type, name, className, fileName, startLine);
+*/
+    CollDecl decl = new CollDecl();
+    decl.setName(name);
+    decl.setType(type);
+    decl.setCacheMode(CacheMode.LAZY);
+    decl.setFileName(fileName);
+    decl.setStartLine(startLine);
+    decl.setEndLine(endLine);
+    decl.setParameterList(new List());
+    decl.setStartValue(startValue);
+    decl.setCombOp(combOp);
+    for (String annotation : annotations) {
+      decl.addAnnotation(new Annotation(annotation));
     }
+    decl.setCircularCollection(isCircular || annotations.contains("@Circular"));
+    decl.setComment(Unparser.unparseComment(node));
+    decl.setTarget(className);
+    decl.root = root;
+    decl.setAspectName(aspectName);
+		decl.hostName = className;
+    decl.grammar = this;
+    // Defer collection attribute declaration.
+    collDecls.add(decl);
   }
 
   public String CollDecl.root = null;

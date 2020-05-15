@@ -42,14 +42,7 @@ aspect Flush {
       for (AttrDecl attr : listOfCachedAttributes()) {
         fresh.append(attr.signature() + "_fresh();\n");
       }
-      for (CollDecl decl : interfaceCollDecls()) {
-        fresh.append(
-            decl.signature() + "_value = new AtomicReference<Object>(AttributeValue.NONE);\n");
-        if (decl.root() == this) {
-          fresh.append(decl.templateContext().expand("Collection.makeFresh"));
-        }
-      }
-      for (CollDecl decl : getCollDeclList()) {
+      for (CollDecl decl : collDecls()) {
         fresh.append(
             decl.signature() + "_value = new AtomicReference<Object>(AttributeValue.NONE);\n");
         if (decl.root() == this) {
@@ -112,11 +105,7 @@ aspect Flush {
    */
   public String ASTDecl.flushCollectionCacheCode() {
     StringBuffer res = new StringBuffer();
-    for (CollDecl decl : interfaceCollDecls()) {
-      res.append(decl.resetVisit());
-      res.append(decl.resetCache());
-    }
-    for (CollDecl decl : getCollDeclList()) {
+    for (CollDecl decl : collDecls()) {
       res.append(decl.resetVisit());
       res.append(decl.resetCache());
     }

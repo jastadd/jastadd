@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, The JastAdd Team
+/* Copyright (c) 2017-2020, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,9 @@ aspect AttributeWeaving {
       map.put(type.name(), new ArrayList<SynDecl>());
     }
     for (SynDecl decl : grammar().synDecls) {
-      map.get(decl.hostName).add(decl);
+      if (map.containsKey(decl.hostName)) {
+        map.get(decl.hostName).add(decl);
+      }
     }
     for (TypeDecl type0 : getTypeDeclList()) {
       if (type0 instanceof InterfaceDecl) {
@@ -90,4 +92,43 @@ aspect AttributeWeaving {
     }
     return decls;
   }
+
+  /**
+   * Maps AST types, by name, to synthesized attribute declarations.
+   *
+   * <p>This is computed from top-level attribute declarations and interface
+   * introductions from interface types.
+   */
+  syn lazy Map<String, Collection<CollDecl>> Grammar.collDeclMap() {
+    Map<String, Collection<CollDecl>> map = new HashMap<String, Collection<CollDecl>>();
+    for (TypeDecl type : getTypeDeclList()) {
+      map.put(type.name(), new ArrayList<CollDecl>());
+    }
+    for (CollDecl decl : grammar().collDecls) {
+      if (map.containsKey(decl.hostName)) {
+        map.get(decl.hostName).add(decl);
+      }
+    }
+    return map;
+  }
+
+  /**
+   * @return the set of all synthesized declarations for this type declaration.
+   */
+  syn nta List<CollDecl> TypeDecl.collDecls() {
+    List<CollDecl> decls = new List<CollDecl>();
+    Collection<CollDecl> parsedDecls = grammar().collDeclMap().get(name());
+    if (parsedDecls != null) {
+      for (CollDecl decl : parsedDecls) {
+        decls.add((CollDecl) decl.fullCopy());
+      }
+    }
+    for (InterfaceDecl iface : implementedInterfaces()) {
+      for (CollDecl decl : iface.collDecls()) {
+        decls.add((CollDecl) decl.fullCopy());
+      }
+    }
+    return decls;
+  }
+
 }
