@@ -506,16 +506,4 @@ aspect AttributeProblems {
       when root != null && root() == null
       to TypeDecl.attributeProblems()
       for hostClass();
-
-  RewriteList contributes
-      error("list rewrites are not supported when using cnta rewrites")
-      when config().rewriteCircularNTA()
-      to TypeDecl.attributeProblems()
-      for hostClass();
-
-  RewriteList contributes
-      warning("list rewrites are deprecated and will be removed in a future version of JastAdd")
-      when config().legacyRewrite()
-      to TypeDecl.attributeProblems()
-      for hostClass();
 }

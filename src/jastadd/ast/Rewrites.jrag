@@ -90,18 +90,6 @@ aspect Rewrites {
     }
   }
 
-  public boolean RewriteList.genRewrite(PrintStream out, int index) {
-    TemplateContext tt = templateContext();
-    tt.expand("Rewrite.declaredat", out);
-    if (getCondition() != null) {
-      tt.bind("Condition", " && " + Unparser.unparse(getCondition()));
-    } else {
-      tt.bind("Condition", "");
-    }
-    tt.expand("RewriteList.genRewrite", out);
-    return false;
-  }
-
   public void Rewrite.genRewriteCondition(PrintStream out, int index) {
     TemplateContext tt = templateContext();
     tt.bind("RewriteIndex", "" + index);
@@ -124,23 +112,6 @@ aspect Rewrites {
     } else {
       templateContext().expand("Rewrite.javaDoc:internal", out);
       out.println(ind + "private " + getReturnType() + " rewriteRule" + index + "() {");
-      out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
-      out.println(ind + "}");
-    }
-  }
-
-  public void RewriteList.genRewritesExtra(PrintStream out, int index) {
-    String ind = config().indent;
-    String ind2 = config().ind(2);
-    if (getResult() instanceof org.jastadd.jrag.AST.ASTBlock) {
-      templateContext().expand("Rewrite.javaDoc:internal", out);
-      out.println(ind + "private " + getReturnType() + " rewrite"
-          + getParentName() + "_" + getChildName() + "() {");
-      out.print(Unparser.unparse(getResult()));
-      out.println(ind + "}");
-    } else {
-      templateContext().expand("Rewrite.javaDoc:internal", out);
-      out.println(ind + "private " + getReturnType() + " rewrite" + getParentName() + "_" + getChildName() + "() {");
       out.println(ind2 + "return " + Unparser.unparse(getResult()) + ";");
       out.println(ind + "}");
     }

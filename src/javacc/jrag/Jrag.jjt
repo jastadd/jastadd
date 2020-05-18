@@ -1139,22 +1139,15 @@ void AspectRewrite() :
   SimpleNode eq;
   Token first, last;
 
-  Token parent = null;
-  Token child = null;
   String type;
 }
 {
   "rewrite" {cond = null; first = token;} t = <IDENTIFIER> { className = t.image; }
-  [<IDENTIFIER> parent = <IDENTIFIER> "." child = <IDENTIFIER> <LPAREN> <RPAREN>]
   <LBRACE>
     ( ["when" { first = token; } <LPAREN> cond = Expression() <RPAREN>]
       "to" type = AspectType() ( (eq = Expression() ";" { last = token; }) | eq = Block() { last = token; } )
       {
-        if (parent != null && child != null) {
-          root.addRewriteList(className, cond, eq, type, fileName, first.beginLine, last.endLine, parent.image, child.image, enclosingAspect);
-        } else {
-          root.addRewrite(className, cond, eq, type, fileName, first.beginLine, last.endLine, enclosingAspect);
-        }
+        root.addRewrite(className, cond, eq, type, fileName, first.beginLine, last.endLine, enclosingAspect);
         cond = null;
       }
     )+
