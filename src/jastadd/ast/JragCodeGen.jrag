@@ -277,7 +277,7 @@ aspect JragCodeGen {
       } else if (n instanceof org.jastadd.jrag.AST.ASTBlock) {
         // Do not emit refined implementations.
       } else {
-        if (!obj.comments.equals("")) {
+        if (!obj.comments.isEmpty()) {
           out.print(obj.comments + " ");
         }
         out.print(obj.modifiers());
