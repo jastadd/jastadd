@@ -143,7 +143,8 @@ aspect Rewrites {
       if (config().concurrentEval()) {
         newValue = "_next";
         oldValue = "_previous.value";
-        tt.bind("CircularComputeRhs", "((" + config().astNodeType() + ") " + decl.signature() + "_value.get()).rewriteTo()");
+        tt.bind("CircularComputeRhs", String.format("((%s) %s_value.get()).rewriteTo()",
+              config().astNodeType(), decl.signature()));
       } else {
         newValue = "new_" + decl.signature() + "_value";
         oldValue = decl.signature() + "_value";
