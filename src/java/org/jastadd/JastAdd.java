@@ -306,7 +306,7 @@ public class JastAdd {
           clazz.classBodyDecls.add(decl);
         } else {
           problems.add(Problem.builder()
-              .message("can not add member to unknown class %s", className)
+              .message("cannot add member to unknown class %s", className)
               .sourceFile(decl.fileName)
               .sourceLine(decl.line)
               .buildError());
@@ -325,7 +325,7 @@ public class JastAdd {
       TypeDecl clazz = grammar.lookup(className);
       if (clazz == null) {
         problems.add(decl.errorf(
-            "can not add synthesized attribute %s %s to unknown class %s",
+            "cannot add synthesized attribute %s %s to unknown class %s",
             decl.getType(), decl.getName(), className));
       }
     }
@@ -336,7 +336,7 @@ public class JastAdd {
         clazz.addSynEq(equ);
       } else {
         problems.add(equ.errorf(
-            "can not add equation for synthesized attribute %s to unknown class %s",
+            "cannot add equation for synthesized attribute %s to unknown class %s",
             equ.getName(), className));
       }
     }
@@ -348,7 +348,7 @@ public class JastAdd {
         clazz.addInhDecl(decl);
       } else {
         problems.add(decl.errorf(
-            "can not add inherited attribute %s %s to unknown class %s",
+            "cannot add inherited attribute %s %s to unknown class %s",
             decl.getType(), decl.getName(), className));
       }
     }
@@ -360,7 +360,7 @@ public class JastAdd {
         clazz.addInhEq(equ);
       } else {
         problems.add(equ.errorf(
-            "can not add equation for inhertied attribute %s to unknown class %s",
+            "cannot add equation for inhertied attribute %s to unknown class %s",
             equ.getName(), className));
       }
     }

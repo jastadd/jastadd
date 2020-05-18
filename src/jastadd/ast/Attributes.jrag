@@ -76,7 +76,7 @@ public aspect Attributes {
   }
 
   public void ASTNode.refineError(String what, String file, int line) {
-    grammar().error("can not find " + what + " to refine\n"
+    grammar().error("cannot find " + what + " to refine\n"
         + "Warning: implicitly generated methods and equations must be refined"
         + " without an explicit aspect name", file, line);
   }
@@ -98,7 +98,7 @@ public aspect Attributes {
       String aspectName) {
 
     if (!config().rewriteEnabled()) {
-      error("can not use rewrites while rewrites are disabled (enable with --rewrite=cnta)",
+      error("cannot use rewrites while rewrites are disabled (enable with --rewrite=cnta)",
           fileName, startLine);
       return;
     }
@@ -115,9 +115,9 @@ public aspect Attributes {
       r.setAspectName(aspectName);
       ((ASTDecl)c).addRewrite(r);
     } else if (c != null) {
-      error("can not rewrite to non AST class '" + className + "'", fileName, startLine);
+      error("cannot rewrite to non AST class '" + className + "'", fileName, startLine);
     } else {
-      error("can not rewrite to unknown class '" + className + "'", fileName, startLine);
+      error("cannot rewrite to unknown class '" + className + "'", fileName, startLine);
     }
   }
 
@@ -164,7 +164,7 @@ public aspect Attributes {
     TypeDecl type = lookup(decl.hostName);
     if (type == null) {
       problems.add(Problem.builder()
-          .message("can not find attribute %s in unknown class %s", decl.attrName, decl.hostName)
+          .message("cannot find attribute %s in unknown class %s", decl.attrName, decl.hostName)
           .sourceFile(decl.fileName)
           .sourceLine(decl.startLine)
           .buildError());
@@ -175,7 +175,7 @@ public aspect Attributes {
     if ((attr = type.lookupSynDecl(decl.signature)) == null
         && (attr = type.lookupInhDecl(decl.signature)) == null) {
       problems.add(Problem.builder()
-          .message("can not find attribute %s.%s", decl.hostName, decl.attrName)
+          .message("cannot find attribute %s.%s", decl.hostName, decl.attrName)
           .sourceFile(decl.fileName)
           .sourceLine(decl.startLine)
           .buildError());
@@ -361,7 +361,7 @@ public aspect Attributes {
       obj.modifiers = modifiers;
       c.classBodyDecls.add(obj);
     } else {
-      error("can not add member to unknown class " + className, fileName, n.firstToken.beginLine);
+      error("cannot add member to unknown class " + className, fileName, n.firstToken.beginLine);
     }
   }
 
@@ -451,7 +451,7 @@ public aspect Attributes {
       c.refinedSynEqs.add(equ);
       c.numRefinedSynEqs += 1;
     } else {
-      error("can not add equation for synthesized attribute " + name + " to unknown class "
+      error("cannot add equation for synthesized attribute " + name + " to unknown class "
           + className, fileName, startLine);
     }
   }
@@ -593,7 +593,7 @@ public aspect Attributes {
         c.refinedInhEqs.add(equ); // Sort in alphabetical order, then non-NTAs first.
         c.numRefinedInhEqs += 1;
     } else {
-      error("can not add equation for inherited attribute " + name + " to unknown class "
+      error("cannot add equation for inherited attribute " + name + " to unknown class "
           + className, fileName, startLine);
     }
   }
@@ -709,7 +709,7 @@ public aspect Attributes {
       c.refinedClassBodyDecls.add(o);
       c.numRefinedCBDecls += 1;
     } else {
-      error("can not add member to unknown class " + className + " in " + fileName);
+      error("cannot add member to unknown class " + className + " in " + fileName);
     }
   }
 
@@ -869,7 +869,8 @@ public aspect Attributes {
             buf.append("\\b)");
             pattern = buf.toString();
           }
-          String newContents = "refined_" + original.aspectName() + "_" + name() + "_" + methodName;
+          String newContents = String.format("refined_%s_%s_%s",
+              original.aspectName(), name(), methodName);
           // TODO: update keep to false if no strings are replaced.
 
           Matcher matcher = Pattern.compile(pattern).matcher(s);

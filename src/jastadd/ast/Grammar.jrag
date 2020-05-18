@@ -71,7 +71,7 @@ aspect Grammar {
         c.implementsList.add(nameList);
       } else {
         int line = nameList.firstToken.beginLine;
-        error("can not add interface to unknown class " + className, fileName, line);
+        error("cannot add interface to unknown class " + className, fileName, line);
       }
     }
   }
@@ -90,7 +90,7 @@ aspect Grammar {
         error(className + " is not an interface and can therefore not be extended", fileName, line);
       } else {
         int line = nameList.firstToken.beginLine;
-        error("can not add interface to unknown interface " + className, fileName, line);
+        error("cannot add interface to unknown interface " + className, fileName, line);
       }
     }
   }

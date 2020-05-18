@@ -163,7 +163,7 @@ aspect BindSynEquations {
 }
 
 aspect LookupDecls {
-  // This can not be lazy because we remove duplicate InhDecls,
+  // This cannot be lazy because we remove duplicate InhDecls,
   // so if this were lazy it could point to removed nodes!
   syn AttrDecl AttrEq.decl();
 
