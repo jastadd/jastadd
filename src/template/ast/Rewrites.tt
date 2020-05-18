@@ -101,20 +101,6 @@ Rewrite.genRewrite:unconditional [[
     return rewriteRule$RewriteIndex();
 ]]
 
-RewriteList.genRewrite [[
-    if (getParent().getParent() instanceof #getParentName &&
-        ((#getParentName)getParent().getParent()).#(getChildName)ListNoTransform() == getParent()$Condition) {
-      $List list = ($List) getParent();
-      int i = list.getIndexOfChild(this);
-      $List newList = rewrite#(getParentName)_#getChildName();
-      // The first child is set by the normal rewrite loop.
-      for(int j = 1; j < newList.getNumChildNoTransform(); j++) {
-        list.insertChild(newList.getChildNoTransform(j), ++i);
-      }
-      return newList.getChildNoTransform(0);
-    }
-]]
-
 Rewrite.javaDoc:internal [[
   /**
    * #declaredat
