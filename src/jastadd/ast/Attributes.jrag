@@ -28,7 +28,9 @@
 import org.jastadd.ast.AST.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -402,29 +404,26 @@ public aspect Attributes {
     }
   }
 
-  public class InterTypeObject {
-    public String className;
-    public ClassBodyObject classBodyObject;
+  public Map<String, Collection<ClassBodyObject>> Grammar.interTypeDecls
+      = new HashMap<String, Collection<ClassBodyObject>>();
 
-    public InterTypeObject(String name, ClassBodyObject obj) {
-      this.className = name;
-      this.classBodyObject = obj;
+  protected void Grammar.addInterTypeDecl(String className, ClassBodyObject decl) {
+    if (!interTypeDecls.containsKey(className)) {
+      interTypeDecls.put(className, new ArrayList<ClassBodyObject>());
     }
+    interTypeDecls.get(className).add(decl);
   }
-
-  public Collection<InterTypeObject> Grammar.interTypeObjects = new LinkedList<InterTypeObject>();
 
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
       String className, String fileName, String aspectName) {
-    interTypeObjects.add(new InterTypeObject(className, new ClassBodyObject(n,
-        fileName, n.firstToken.beginLine, aspectName)));
+    addInterTypeDecl(className, new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName));
   }
 
   public void Grammar.addClassBodyDecl(org.jastadd.jrag.AST.SimpleNode n,
       String className, String fileName, String modifiers, String aspectName) {
     ClassBodyObject obj = new ClassBodyObject(n, fileName, n.firstToken.beginLine, aspectName);
     obj.modifiers = modifiers;
-    interTypeObjects.add(new InterTypeObject(className, obj));
+    addInterTypeDecl(className, obj);
   }
 
   public Collection<ClassBodyObject> TypeDecl.classBodyDecls = new LinkedHashSet<ClassBodyObject>();

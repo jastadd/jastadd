@@ -40,6 +40,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -51,12 +52,12 @@ import org.jastadd.ast.AST.Component;
 import org.jastadd.ast.AST.Grammar;
 import org.jastadd.ast.AST.InhDecl;
 import org.jastadd.ast.AST.InhEq;
-import org.jastadd.ast.AST.InterTypeObject;
 import org.jastadd.ast.AST.List;
 import org.jastadd.ast.AST.SynDecl;
 import org.jastadd.ast.AST.SynEq;
 import org.jastadd.ast.AST.TokenComponent;
 import org.jastadd.ast.AST.TypeDecl;
+import org.jastadd.jrag.ClassBodyObject;
 import org.jastadd.jrag.AST.ASTCompilationUnit;
 import org.jastadd.jrag.AST.JragParser;
 import org.jastadd.jrag.AST.TokenMgrError;
@@ -297,20 +298,23 @@ public class JastAdd {
 
   protected static Collection<Problem> weaveInterTypeObjects(Grammar grammar) {
     Collection<Problem> problems = new LinkedList<Problem>();
-    for (InterTypeObject object : grammar.interTypeObjects) {
-      TypeDecl clazz = grammar.lookup(object.className);
-      if (clazz != null) {
-        clazz.classBodyDecls.add(object.classBodyObject);
-      } else {
-        problems.add(Problem.builder()
-            .message("can not add member to unknown class %s", object.className)
-            .sourceFile(object.classBodyObject.fileName)
-            .sourceLine(object.classBodyObject.line)
-            .buildError());
+    for (Map.Entry<String, Collection<ClassBodyObject>> entry : grammar.interTypeDecls.entrySet()) {
+      String className = entry.getKey();
+      TypeDecl clazz = grammar.lookup(className);
+      for (ClassBodyObject decl : entry.getValue()) {
+        if (clazz != null) {
+          clazz.classBodyDecls.add(decl);
+        } else {
+          problems.add(Problem.builder()
+              .message("can not add member to unknown class %s", className)
+              .sourceFile(decl.fileName)
+              .sourceLine(decl.line)
+              .buildError());
+        }
       }
     }
     // TODO(jesper): Remove the below line.
-    grammar.interTypeObjects.clear(); // Reset to avoid double weaving.
+    grammar.interTypeDecls.clear(); // Reset to avoid double weaving.
     return problems;
   }
 
