@@ -540,13 +540,15 @@ public aspect Attributes {
 
   public void TypeDecl.refineWith(SynEq equ, SynEq refinedEqu) {
     StringBuffer s = new StringBuffer();
-    String newMethodName = "refined_" + equ.aspectName() + "_" + name() + "_" + equ.signature();
+    String newMethodName
+        = String.format("refined_%s_%s_%s", equ.aspectName(), name(), equ.signature());
     if (equ.decl() == null) {
-      throw new Error("Error: could not find declaration of refined synthesized equation "
-          + equ.name() + " (" + equ.getFileName() + ":" + equ.getStartLine() + ")");
+      throw new Error(String.format(
+          "Error: could not find declaration of refined synthesized equation %s (%s:%d)",
+          equ.name(), equ.getFileName(), equ.getStartLine()));
     }
-    s.append("private " + equ.decl().getType() + " " + newMethodName + "("
-        + equ.parametersDecl() + ")\n");
+    s.append(String.format("private %s %s(%s)\n",
+          equ.decl().getType(), newMethodName, equ.parametersDecl()));
     if (equ.getRHS() instanceof ASTBlock) {
       s.append(Unparser.unparse(equ.getRHS()));
     } else {
@@ -689,8 +691,8 @@ public aspect Attributes {
       }
     }
 
-    s.append("private " + equ.decl().getType() + " " + newMethodName + "(" +
-      indexDecl + equ.parametersDecl() + ")\n");
+    s.append(String.format("private %s %s(%s%s)\n",
+      equ.decl().getType(), newMethodName, indexDecl, equ.parametersDecl()));
     if (equ.getRHS() instanceof ASTBlock) {
       s.append(Unparser.unparse(equ.getRHS()));
     } else {
@@ -785,8 +787,9 @@ public aspect Attributes {
             if (refinedDecl == null) {
               refinedDecl = refinedCandidate;
             } else {
-              grammar().error("refinement previously defined at "
-                  + refinedCandidate.getFileName() + ":" + refinedCandidate.getStartLine(),
+              grammar().error(
+                  String.format("refinement previously defined at %s:%s",
+                      refinedCandidate.getFileName(), refinedCandidate.getStartLine()),
                   refinedDecl.getFileName(), refinedDecl.getStartLine());
             }
             outerIter.remove();
