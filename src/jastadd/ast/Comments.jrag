@@ -142,7 +142,7 @@ outer: while (true) {
    * @param obj original class body object
    * @return generated javadoc comment
    */
-  public String ASTDecl.docComment(ClassBodyObject obj) {
+  public String TypeDecl.docComment(ClassBodyObject obj) {
     JavaDocParser parser = new JavaDocParser();
     TemplateContext tt = templateContext();
     tt.bind("SourceComment", parser.parse(obj.comments));

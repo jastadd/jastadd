@@ -289,9 +289,7 @@ aspect JragCodeGen {
     }
   }
 
-  public void TypeDecl.emitMembers(PrintStream out) { }
-
-  public void ASTDecl.emitMembers(PrintStream out) {
+  public void TypeDecl.emitMembers(PrintStream out) {
     for (ClassBodyObject obj : classBodyDecls) {
       org.jastadd.jrag.AST.SimpleNode node = obj.node;
       out.print(obj.modifiers());

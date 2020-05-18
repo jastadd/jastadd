@@ -298,15 +298,7 @@ aspect JastAddCodeGen {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       PrintStream stream = new PrintStream(bos, true, "UTF-8");
       stream.println(typeDeclarationString());
-      StringBuffer buf = new StringBuffer();
-      for (ClassBodyObject obj : classBodyDecls) {
-        org.jastadd.jrag.AST.SimpleNode n = obj.node;
-        buf.append(config().indent);
-        buf.append(obj.modifiers());
-        n.jjtAccept(new ClassBodyDeclUnparser(), buf);
-        buf.append("\n\n");
-      }
-      stream.println(buf.toString());
+      emitMembers(stream);
       emitAbstractSyns(stream);
       emitInhDeclarations(stream);
       stream.close();
