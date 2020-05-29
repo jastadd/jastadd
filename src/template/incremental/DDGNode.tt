@@ -477,6 +477,21 @@ $if (IncrementalLevelAttr)
 $endif
 ]]
 
+# Create DDG node for lazy attribute equations.
+SynEq.createEquationHandler = [[
+$if (IncrementalLevelParam)
+$if (#isParameterized)
+  protected java.util.Map #hostClass.#(signature)_handler = new java.util.HashMap(4);
+$else
+  protected $DDGNodeName #hostClass.#(signature)_handler;
+$endif
+$endif
+$if (IncrementalLevelAttr)
+  protected $DDGNodeName #hostClass.#(signature)_handler;
+$endif
+]]
+
+
 # Initialize DDG node for children
 ASTDecl.incrementalInitChildHandlers = [[
 $if (IncrementalLevelParam)

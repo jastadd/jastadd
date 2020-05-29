@@ -661,6 +661,7 @@ aspect JragCodeGen {
   }
 
   syn boolean AttrDecl.isParameterized() = getNumParameter() != 0;
+  syn boolean SynEq.isParameterized() = decl().isParameterized();
 
   /**
    * Generate code to test if two attribute values differ based on the type of the attribute.

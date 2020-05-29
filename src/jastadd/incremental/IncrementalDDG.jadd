@@ -82,26 +82,46 @@ aspect IncrementalDDG {
       if (hasRewriteAttribute()) {
         tt.expand("ASTDecl.createRewriteAttributeHandler", out);
       }
-      // Collect attributes.
-      ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
-      for (AttrDecl attr : synDecls()) {
-        if (attr.isMemoized()) {
-          decls.add(attr);
-        }
-      }
-      for (AttrDecl attr : getInhDeclList()) {
-        if (attr.isMemoized()) {
-          decls.add(attr);
-        }
-      }
-      for (CollDecl decl : collDecls()) {
-        decls.add(decl);
-      }
-      // Attribute code.
-      for (AttrDecl attr : decls) {
+      // Attribute declaration handlers.
+      for (AttrDecl attr : gatherIncrementalHandlersForAttrDecls()) {
         attr.templateContext().expand("AttrDecl.createAttributeHandler", out);
       }
+      // Attribute equation handlers.
+     for (SynEq eq : gatherIncrementalHandlersForSynEqs()) {
+        eq.templateContext().expand("SynEq.createEquationHandler", out);
+      }
+   }
+  }
+
+  public ArrayList<AttrDecl> ASTDecl.gatherIncrementalHandlersForAttrDecls() {
+    // Collect lazy attribute declarations.
+    ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
+    for (AttrDecl attr : synDecls()) {
+      if (attr.isMemoized()) {
+        decls.add(attr);
+      }
     }
+    for (AttrDecl attr : getInhDeclList()) {
+      if (attr.isMemoized()) {
+        decls.add(attr);
+      }
+    }
+    for (CollDecl decl : collDecls()) {
+      decls.add(decl);
+    }
+    return decls;
+  }
+
+  public ArrayList<SynEq> ASTDecl.gatherIncrementalHandlersForSynEqs() {
+    // Collect eq for lazy syn attributes where eq is defined on a subtype.
+    ArrayList<SynEq> eqs = new ArrayList<SynEq>();
+    for (SynEq eq : getSynEqList()) {
+      AttrDecl decl = eq.decl();
+      if (decl.isMemoized() && !decl.hostClass().equals(eq.hostClass())) {
+        eqs.add(eq);
+      }
+    }
+    return eqs;
   }
 
   /**
@@ -182,21 +202,13 @@ aspect IncrementalDDG {
   public String ASTDecl.emitCopyAttributeHandlersString() {
     StringBuilder res = new StringBuilder();
     if (config().incrementalLevelParam() || config().incrementalLevelAttr()) {
-      // Collect attributes.
-      ArrayList<AttrDecl> decls = new ArrayList<AttrDecl>();
-      for (AttrDecl attr : synDecls()) {
-        if (attr != null && attr.isMemoized()) {
-          decls.add(attr);
-        }
-      }
-      for (AttrDecl attr : getInhDeclList()) {
-        if (attr != null && attr.isMemoized()) {
-          decls.add(attr);
-        }
-      }
-      // Attribute code.
-      for (AttrDecl attr : decls) {
+      // Copy attribute declaration handlers.
+      for (AttrDecl attr : gatherIncrementalHandlersForAttrDecls()) {
         res.append(attr.templateContext().expand("AttrDecl.copyAttributeHandler"));
+      }
+      // Copy syn attribute equation handlers.
+      for (SynEq eq : gatherIncrementalHandlersForSynEqs()) {
+        res.append(eq.templateContext().expand("SynEq.copyAttributeHandler"));
       }
     }
     return res.toString();

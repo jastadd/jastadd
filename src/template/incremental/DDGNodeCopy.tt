@@ -105,3 +105,23 @@ $if (IncrementalLevelAttr)
     }
 $endif
 ]]
+
+# Copy attribute equation DDG node
+SynEq.copyAttributeHandler = [[
+$if (IncrementalLevelParam)
+  $if (#isParameterized)
+    if (#(signature)_handler != null) {
+      copy.#(signature)_handler = new java.util.HashMap(4);
+    }
+  $else
+    if (#(signature)_handler != null) {
+      copy.#(signature)_handler = $DDGNodeName.createAttrHandler(#(signature)_handler, copy);
+    }
+  $endif
+$endif
+$if (IncrementalLevelAttr)
+    if (#(signature)_handler != null) {
+      copy.#(signature)_handler = new $DDGNodeName(#(signature)_handler, copy);
+    }
+$endif
+]]
