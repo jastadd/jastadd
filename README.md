@@ -44,9 +44,10 @@ Builds are done by using the Gradle script (`gradlew` on Unix-likes, `gradlew.ba
 
         > ./gradlew
 
-* Build a new release (builds jar file, source- and binary zip files):
+* Build a new release (builds jar file, source- and binary zip files). Requires the release
+  version to be specified with `-PnewVersion=XX`
 
-        > ./gradlew release
+        > ./gradlew release -PnewVersion=2.123
 
 * Delete generated files:
 
