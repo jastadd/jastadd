@@ -56,7 +56,7 @@ public abstract class Problem {
 
     public ProblemBuilder sourceFile(String filename) {
       if (filename == null) {
-        throw new NullPointerException("filename can not be null");
+        throw new NullPointerException("filename cannot be null");
       }
       this.filename = filename;
       return this;
@@ -84,7 +84,7 @@ public abstract class Problem {
 
     private void checkNotNull() {
       if (message == null) {
-        throw new NullPointerException("message can not be null");
+        throw new NullPointerException("message cannot be null");
       }
     }
   }

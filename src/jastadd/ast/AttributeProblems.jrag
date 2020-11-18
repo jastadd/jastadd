@@ -467,7 +467,7 @@ aspect AttributeProblems {
       if (value == null) {
         msg = "missing CollectionGroup argument";
       } else if (value.equals("")) {
-        msg = "CollectionGroup argument can not be empty";
+        msg = "CollectionGroup argument cannot be empty";
       } else if (!isValidIdentifierPart(value)) {
         msg = "CollectionGroup argument must be a valid identifier part";
       }
