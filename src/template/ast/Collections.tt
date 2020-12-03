@@ -234,6 +234,7 @@ $endif
 ]]
 
 CollEq.contributeStatement [[
+$include(CollEq.traceContributionBegin)
 $if(#hasCondition)
     if (#getCondition) {
       $include(CollEq.addValueToCollection)
@@ -241,6 +242,7 @@ $if(#hasCondition)
 $else
     $include(CollEq.addValueToCollection)
 $endif
+$include(CollEq.traceContributionEnd)
 ]]
 
 CollEq.addValueToCollection [[
