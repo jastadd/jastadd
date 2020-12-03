@@ -325,12 +325,12 @@ $endif
 
 CollEq.traceContributionBegin [[
 $if (TraceColl)
-state().trace.contributionBegin(this, "#hostClassName.#signatureJavaStyle", "", "");
+state().trace().contributionBegin(this, "#collectionId");
 $endif
 ]]
 
 CollEq.traceContributionEnd [[
 $if (TraceColl)
-state().trace.contributionEnd(this, "#hostClassName.#signatureJavaStyle", "", "");
+state().trace().contributionEnd(this, "#collectionId");
 $endif
 ]]
