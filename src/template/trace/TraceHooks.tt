@@ -322,3 +322,15 @@ state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(sign
     $endif
 $endif
 ]]
+
+CollEq.traceContributionBegin [[
+$if (TraceColl)
+state().trace().contributionBegin(this, "#collectionId");
+$endif
+]]
+
+CollEq.traceContributionEnd [[
+$if (TraceColl)
+state().trace().contributionEnd(this, "#collectionId");
+$endif
+]]

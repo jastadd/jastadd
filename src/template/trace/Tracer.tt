@@ -79,7 +79,11 @@ public static class Trace {
     FLUSH_ATTR,
     FLUSH_REWRITE,
     FLUSH_REWRITE_INIT,
-    INC_FLUSH_ATTR;
+    INC_FLUSH_ATTR,
+
+    // Flag: --tracing=coll
+    CONTRIBUTION_BEGIN,
+    CONTRIBUTION_END;
   }
 
   /**
@@ -331,6 +335,20 @@ public static class Trace {
    */
   public void flushIncAttr($ASTNode node, String attr, Object params, Object value) {
     receiver.accept($StateClass.Trace.Event.INC_FLUSH_ATTR, node, attr, params, value);
+  }
+
+  /**
+   * Trace that a contribution to a collection attribute begun.
+   */
+  public void contributionBegin($ASTNode node, String attr) {
+    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_BEGIN, node, attr, "", "");
+  }
+
+  /**
+   * Trace that a contribution to a collection attribute ended.
+   */
+  public void contributionEnd($ASTNode node, String attr) {
+    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_END, node, attr, "", "");
   }
 }
 $endif

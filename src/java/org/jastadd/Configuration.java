@@ -249,6 +249,7 @@ public class Configuration {
       .addAcceptedValue("circularNTA", "trace circular attribute evaluation")
       .addAcceptedValue("copy", "trace node copy operations")
       .addAcceptedValue("flush", "trace flush operations")
+      .addAcceptedValue("coll", "trace collection attribute contributions")
       .additionalDescription("All events are collected by default.\n"
           + "Listen to events by calling ASTState.Trace.setReceiver()");
 
@@ -534,6 +535,7 @@ public class Configuration {
     tt.bind("TraceCircular", traceCircular());
     tt.bind("TraceCopy", traceCopy());
     tt.bind("TraceFlush", traceFlush());
+    tt.bind("TraceColl", traceColl());
 
     // Set template variables to accommodate deprecated options
     // (the deprecated options may alter the value of the template variable).
@@ -821,6 +823,14 @@ public class Configuration {
   public boolean traceFlush() {
     return traceAll() || tracingOption.hasValue("flush");
   }
+
+/**
+   * @return {@code true} if collection attributes should be traced
+   */
+  public boolean traceColl() {
+    return traceAll() || tracingOption.hasValue("coll");
+  }
+
 
   /**
    * @return ASTNode type name
