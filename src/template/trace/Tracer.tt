@@ -341,7 +341,7 @@ public static class Trace {
   /**
    * Trace that a contribution check to a collection attribute begun.
    */
-  public void contributioniCheckBegin($ASTNode node, String attr, String check) {
+  public void contributionCheckBegin($ASTNode node, String attr, String check) {
     receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_BEGIN, node, attr, check, "");
   }
 
