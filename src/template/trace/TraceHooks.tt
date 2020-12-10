@@ -325,18 +325,18 @@ $endif
 
 CollEq.traceContributionCheckBegin [[
 $if (TraceColl)
-state().trace().contributionCheckBegin(this, "#collectionId", "#getConditionNoNewline");
+state().trace().contributionCheckBegin(this, "#collectionId", "#getConditionStringified");
 $endif
 ]]
 
 CollEq.traceContributionCheckEnd [[
 $if (TraceColl)
-state().trace().contributionCheckEnd(this, "#collectionId", "#getConditionNoNewline");
+state().trace().contributionCheckEnd(this, "#collectionId", "#getConditionStringified");
 $endif
 ]]
 
 CollEq.traceContributionCheckMatch [[
 $if (TraceColl)
-state().trace().contributionCheckMatch(this, "#collectionId", "#getConditionNoNewline", #getValue);
+state().trace().contributionCheckMatch(this, "#collectionId", "#getConditionStringified", #getValue);
 $endif
 ]]
