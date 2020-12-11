@@ -325,18 +325,22 @@ $endif
 
 CollEq.traceContributionCheckBegin [[
 $if (TraceColl)
-state().trace().contributionCheckBegin(this, "#collectionId", "#getConditionStringified");
+state().trace().contributionCheckBegin(this, "#collectionId", "#escapeConditionForTemplate");
 $endif
 ]]
 
 CollEq.traceContributionCheckEnd [[
 $if (TraceColl)
-state().trace().contributionCheckEnd(this, "#collectionId", "#getConditionStringified");
+state().trace().contributionCheckEnd(this, "#collectionId", "#escapeConditionForTemplate");
 $endif
 ]]
 
 CollEq.traceContributionCheckMatch [[
 $if (TraceColl)
-state().trace().contributionCheckMatch(this, "#collectionId", "#getConditionStringified", #getValue);
+$if(#iterableValue)
+state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionForTemplate", value);
+$else
+state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionForTemplate", #getValue);
+$endif
 $endif
 ]]
