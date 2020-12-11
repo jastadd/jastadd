@@ -234,7 +234,7 @@ $endif
 ]]
 
 CollEq.contributeStatement [[
-$include(CollEq.traceContributionBegin)
+    $include(CollEq.traceContributionCheckBegin)
 $if(#hasCondition)
     if (#getCondition) {
       $include(CollEq.addValueToCollection)
@@ -242,16 +242,18 @@ $if(#hasCondition)
 $else
     $include(CollEq.addValueToCollection)
 $endif
-$include(CollEq.traceContributionEnd)
+    $include(CollEq.traceContributionCheckEnd)
 ]]
 
 CollEq.addValueToCollection [[
 $if(#iterableValue)
 for (#elementType value : #getValue) {
   collection.$CombOp(value);
+  $include(CollEq.traceContributionCheckMatch)
 }
 $else
 collection.$CombOp(#getValue);
+$include(CollEq.traceContributionCheckMatch)
 $endif
 ]]
 

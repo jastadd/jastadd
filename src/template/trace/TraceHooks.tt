@@ -323,14 +323,24 @@ state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(sign
 $endif
 ]]
 
-CollEq.traceContributionBegin [[
+CollEq.traceContributionCheckBegin [[
 $if (TraceColl)
-state().trace().contributionBegin(this, "#collectionId");
+state().trace().contributionCheckBegin(this, "#collectionId", "#escapeConditionForTemplate");
 $endif
 ]]
 
-CollEq.traceContributionEnd [[
+CollEq.traceContributionCheckEnd [[
 $if (TraceColl)
-state().trace().contributionEnd(this, "#collectionId");
+state().trace().contributionCheckEnd(this, "#collectionId", "#escapeConditionForTemplate");
+$endif
+]]
+
+CollEq.traceContributionCheckMatch [[
+$if (TraceColl)
+$if(#iterableValue)
+state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionForTemplate", value);
+$else
+state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionForTemplate", #getValue);
+$endif
 $endif
 ]]

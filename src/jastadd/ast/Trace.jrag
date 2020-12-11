@@ -99,6 +99,8 @@ aspect Trace {
   syn String AttrDecl.traceBeginAttr() = trace("begin " + traceSignature());
   syn String AttrDecl.traceEndAttr() = trace("end " + traceSignature());
   syn String AttrDecl.traceEndCachedAttr() = trace("end cached " + traceSignature());
+
+  syn String CollEq.escapeConditionForTemplate() = getCondition().replace("\n", " ").replace("\"", "\\\"");
 }
 
 aspect NewTrace {
