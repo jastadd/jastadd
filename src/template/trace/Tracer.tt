@@ -84,7 +84,10 @@ public static class Trace {
     // Flag: --tracing=coll
     CONTRIBUTION_CHECK_BEGIN,
     CONTRIBUTION_CHECK_MATCH,
-    CONTRIBUTION_CHECK_END;
+    CONTRIBUTION_CHECK_END,
+    
+    // Flag: --tracing=token
+    TOKEN_READ;
   }
 
   /**
@@ -357,6 +360,13 @@ public static class Trace {
    */
   public void contributionCheckMatch($ASTNode node, String attr, String check, Object value) {
     receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_MATCH, node, attr, check, value);
+  }
+
+  /**
+   * Trace that a token was read.
+   */
+  public void tokenRead($ASTNode node, String token, Object value) {
+    receiver.accept($StateClass.Trace.Event.TOKEN_READ, node, token, "", value);
   }
 
 }
