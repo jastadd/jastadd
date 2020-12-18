@@ -344,3 +344,9 @@ state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionF
 $endif
 $endif
 ]]
+
+TokenComponent.traceTokenRead [[
+$if (TraceToken)
+state().trace().tokenRead(this, "$Id", token$(TypeInSignature)_$Id);
+$endif
+]]
