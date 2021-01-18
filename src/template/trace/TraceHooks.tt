@@ -279,13 +279,13 @@ $endif
 
 ASTNode.traceRewriteCached [[
 $if (TraceRewrite)
-state().trace().cacheWrite(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().cacheWrite("AST", this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceRewriteCacheAbort [[
 $if (TraceRewrite)
-state().trace().cacheAbort(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().cacheAbort("AST", this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
