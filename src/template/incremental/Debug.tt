@@ -247,9 +247,11 @@ if ($(AttrSign)_proxy != null) {
   $(AttrSign)_proxy.dumpDependencies();
 }
 $else
+$if (!IsToken)
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.dumpDependencies();
 }
+$endif
 $endif
 $endif
 $endif
@@ -263,9 +265,11 @@ if ($(AttrSign)_proxy != null) {
   $(AttrSign)_proxy.dumpDependencies();
 }
 $else
+$if (!IsToken)
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.dumpDependencies();
 }
+$endif
 $endif
 $endif
 $endif
@@ -299,8 +303,10 @@ if ($(AttrSign)_proxy != null) {
   $(AttrSign)_proxy.dumpDepsInTree();
 }
 $else
+$if (!IsToken)
 if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
   $(AttrSign)_value.dumpDepsInTree();
 }
+$endif
 $endif
 ]]

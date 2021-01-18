@@ -59,6 +59,7 @@ aspect IncrementalDebug {
       if (attr.isHOA()) {
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.signature());
+	tt.bind("IsToken", attr.isToken());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
     }
@@ -73,7 +74,7 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     // Add dump string for each coll attribute.
     for (CollDecl decl : collDecls()) {
-      tt.bind("AttrSign",  decl.signature());
+      tt.bind("AttrSign", decl.signature());
       res.append(tt.expand("ASTDecl.checkAndDumpCollAttributeDeps"));
     }
     return res.toString();
@@ -89,7 +90,8 @@ aspect IncrementalDebug {
     for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsParameterized", attr.isParameterized());
       tt.bind("IsNTA", attr.isHOA());
-      tt.bind("AttrSign",  attr.signature());
+      tt.bind("AttrSign", attr.signature());
+      tt.bind("IsToken", attr.isToken());
       res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
     }
     return res.toString();
