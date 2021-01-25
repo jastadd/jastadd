@@ -233,45 +233,45 @@ $endif
 ]]
 
 # Generate code for checking an attribute handler and dumping its dependencies
-ASTDecl.checkAndDumpAttributeDeps = [[
+AttrDecl.checkAndDumpAttributeDeps = [[
 $if (IncrementalLevelParam)
-$if (IsParameterized)
-for (java.util.Iterator itr = $(AttrSign)_handler.values().iterator(); itr.hasNext();) {
+$if (#isParameterized)
+for (java.util.Iterator itr = #(signature)_handler.values().iterator(); itr.hasNext();) {
   $DDGNodeName handler = ($DDGNodeName)itr.next();
   handler.dumpDeps();
 }
 $else
-if ($(AttrSign)_handler != null) {
-  $(AttrSign)_handler.dumpDeps();
+if (#(signature)_handler != null) {
+  #(signature)_handler.dumpDeps();
 }
 $endif
-$if (IsNTA)
-$if (IsParameterized)
-if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.dumpDependencies();
+$if (#isHOA)
+$if (#isParameterized)
+if (#(signature)_proxy != null) {
+  #(signature)_proxy.dumpDependencies();
 }
 $else
-$if (!IsToken)
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.dumpDependencies();
+$if (!#isToken)
+if (#(signature)_computed && (#(signature)_value instanceof $ASTNode)) {
+  #(signature)_value.dumpDependencies();
 }
 $endif
 $endif
 $endif
 $endif
 $if (IncrementalLevelAttr)
-if ($(AttrSign)_handler != null) {
-  $(AttrSign)_handler.dumpDeps();
+if (#(signature)_handler != null) {
+  #(signature)_handler.dumpDeps();
 }
-$if (IsNTA)
-$if (IsParameterized)
-if ($(AttrSign)_proxy != null) {
-  $(AttrSign)_proxy.dumpDependencies();
+$if (#isHOA)
+$if (#isParameterized)
+if (#(signature)_proxy != null) {
+  #(signature)_proxy.dumpDependencies();
 }
 $else
-$if (!IsToken)
-if ($(AttrSign)_computed && ($(AttrSign)_value instanceof $ASTNode)) {
-  $(AttrSign)_value.dumpDependencies();
+$if (!#isToken)
+if (#(signature)_computed && (#(signature)_value instanceof $ASTNode)) {
+  #(signature)_value.dumpDependencies();
 }
 $endif
 $endif
