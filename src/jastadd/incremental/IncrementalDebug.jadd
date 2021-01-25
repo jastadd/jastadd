@@ -59,7 +59,7 @@ aspect IncrementalDebug {
       if (attr.isHOA()) {
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.signature());
-	tt.bind("IsToken", attr.isToken());
+        tt.bind("IsToken", attr.isToken());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
     }
