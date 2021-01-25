@@ -122,6 +122,7 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
+      tt.bind("IsCircular", attr.isCircular());
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));

@@ -139,7 +139,11 @@ if ($(AttrSign)_values != null) {
   }
 }
 $else
+$if (IsCircular)
+if ($(AttrSign)_computed == $StateClass.NON_CYCLE || $(AttrSign)_computed == state().cycle()) {
+$else
 if ($(AttrSign)_computed) {
+$endif
 $if (PrintAsObject)
   System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
 $else
