@@ -59,6 +59,7 @@ aspect IncrementalDebug {
       if (attr.isHOA()) {
         tt.bind("IsParameterized", attr.getNumParameter() > 0);
         tt.bind("AttrSign", attr.signature());
+        tt.bind("IsToken", attr.isToken());
         res.append(tt.expand("ASTDecl.checkAndDumpNTADeps"));
       }
     }
@@ -73,7 +74,7 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     // Add dump string for each coll attribute.
     for (CollDecl decl : collDecls()) {
-      tt.bind("AttrSign",  decl.signature());
+      tt.bind("AttrSign", decl.signature());
       res.append(tt.expand("ASTDecl.checkAndDumpCollAttributeDeps"));
     }
     return res.toString();
@@ -84,13 +85,10 @@ aspect IncrementalDebug {
    */
   public String ASTDecl.genDumpAttributeDepsString() {
     StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
     // Add dump string for each attribute
     for (AttrDecl attr : listOfCachedAttributes()) {
-      tt.bind("IsParameterized", attr.isParameterized());
-      tt.bind("IsNTA", attr.isHOA());
-      tt.bind("AttrSign",  attr.signature());
-      res.append(tt.expand("ASTDecl.checkAndDumpAttributeDeps"));
+      TemplateContext tt = attr.templateContext();
+      res.append(tt.expand("AttrDecl.checkAndDumpAttributeDeps"));
     }
     return res.toString();
   }
@@ -120,6 +118,7 @@ aspect IncrementalDebug {
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
+      tt.bind("IsCircular", attr.isCircular());
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));
