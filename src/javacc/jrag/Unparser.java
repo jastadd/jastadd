@@ -194,14 +194,6 @@ public class Unparser implements JragParserVisitor {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;
   }
-  public Object visit(ASTAspectInterfaceMethodDeclarationLookahead self, Object data) {
-    Unparser.unparseSimple(this, self, (StringBuffer) data);
-    return null;
-  }
-  public Object visit(ASTAspectInterfaceMethodDeclaration self, Object data) {
-    Unparser.unparseSimple(this, self, (StringBuffer) data);
-    return null;
-  }
   public Object visit(ASTAspectInterfaceFieldDeclaration self, Object data) {
     Unparser.unparseSimple(this, self, (StringBuffer) data);
     return null;

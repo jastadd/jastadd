@@ -553,6 +553,12 @@ String Modifiers() :
      buf.append(token.image);
    }
   |
+   "default"
+   {
+     if (buf.length() > 0) buf.append(" ");
+     buf.append(token.image);
+   }
+  |
    annotation = Annotation()
    {
      if (buf.length() > 0) buf.append(" ");
@@ -746,7 +752,9 @@ void AspectInterfaceDeclaration() :
 }
 
 void AspectInterfaceMemberDeclaration() :
-{}
+{
+  String modifiers;
+}
 {
   LOOKAHEAD( Modifiers() "class" )
   AspectNestedClassDeclaration()
@@ -760,10 +768,15 @@ void AspectInterfaceMemberDeclaration() :
   LOOKAHEAD("inh")
   AspectInterfaceInhAttributeDeclaration()
 |
-  LOOKAHEAD( AspectInterfaceMethodDeclarationLookahead() )
-  AspectInterfaceMethodDeclaration()
-|
-  AspectInterfaceFieldDeclaration()
+  modifiers = Modifiers()
+  (
+    LOOKAHEAD( AspectType() JavaIdentifier() ( "[" "]" )* ( "," | "=" | ";" ) )
+    FieldDeclaration(modifiers)
+    { root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect); }
+  |
+    MethodDeclaration(modifiers)
+    { root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect); }
+  )
 }
 
 void AspectInterfaceSynAttributeDeclaration() :
@@ -857,25 +870,6 @@ void AspectInterfaceInhAttributeDeclaration() :
         isLazy, fileName, first.beginLine,
         last.endLine, list, bottomValue == null ? "" : Unparser.unparse(bottomValue),
         isFinal, false, jjtThis, enclosingAspect, annotations);
-  }
-}
-
-void AspectInterfaceMethodDeclarationLookahead() :
-{}
-{
-  ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" )*
-  AspectResultType() JavaIdentifier() "("
-}
-
-void AspectInterfaceMethodDeclaration() :
-{
-  Token t;
-}
-{
-  ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" )*
-  AspectResultType() MethodDeclarator() [ "throws" NameList() ]
-  ";" {
-    root.addClassBodyDecl(jjtThis, className, fileName, enclosingAspect);
   }
 }
 
