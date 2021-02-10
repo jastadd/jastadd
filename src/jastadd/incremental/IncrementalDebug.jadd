@@ -115,14 +115,10 @@ aspect IncrementalDebug {
    */
   public String ASTDecl.genDumpAttributeValuesString() {
     StringBuffer res = new StringBuffer();
-    TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
-      // TODO(joqvist): use AttrDecl as template context instead.
-      tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("SimpleCacheCheck", attr.simpleCacheCheck());
+      TemplateContext tt = attr.templateContext();
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
-      tt.bind("AttrSign", attr.signature());
-      res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));
+      res.append(tt.expand("AttrDecl.dumpCachedAttributeValue"));
     }
     return res.toString();
   }

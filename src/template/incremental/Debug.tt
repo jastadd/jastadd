@@ -126,29 +126,29 @@ $endif
 ]]
 
 # Generate code for dumping a cached attribute value
-ASTDecl.dumpCachedAttributeValue = [[
-$if (IsParameterized)
-if ($(AttrSign)_values != null) {
-  for (java.util.Iterator itr = $(AttrSign)_values.keySet().iterator();itr.hasNext();) {
+AttrDecl.dumpCachedAttributeValue = [[
+$if (#isParameterized)
+if (#(signature)_values != null) {
+  for (java.util.Iterator itr = #(signature)_values.keySet().iterator();itr.hasNext();) {
     Object key = (Object)itr.next();
-    Object value = $(AttrSign)_values.get(key);
-    System.out.println("value(" + relativeNodeID() + ":$(AttrSign)[" +
+    Object value = #(signature)_values.get(key);
+    System.out.println("value(" + relativeNodeID() + ":#(signature)[" +
       (key instanceof $ASTNode ? (($ASTNode) key).relativeNodeID() :
         (key instanceof java.util.List ? printParamList((java.util.List)key) : key) ) + "], " +
       (value instanceof $ASTNode ? (($ASTNode) value).relativeNodeID() : printValue(value)) + ")");
   }
 }
 $else
-  $if (SimpleCacheCheck)
-if ($(AttrSign)_computed) {
+  $if (#simpleCacheCheck)
+if (#(signature)_computed) {
   $else
-if ($(AttrSign)_computed == $StateClass.NON_CYCLE || $(AttrSign)_computed == state().cycle()) {
+if (#(signature)_computed == $StateClass.NON_CYCLE || #(signature)_computed == state().cycle()) {
   $endif
   $if (PrintAsObject)
-  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
+  System.out.println("value(" + relativeNodeID() + ":#(signature), " + #(signature)_value + ")");
   $else
-  Object obj = $(AttrSign)_value;
-  System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " +
+  Object obj = #(signature)_value;
+  System.out.println("value(" + relativeNodeID() + ":#(signature), " +
     (obj instanceof $ASTNode ? (($ASTNode) obj).relativeNodeID() : obj) + ")");
   $endif
 }
