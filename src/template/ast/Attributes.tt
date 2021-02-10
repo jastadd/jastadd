@@ -39,7 +39,23 @@ $endif
 ]]
 
 AttrDecl.cacheDeclarations [[
-$if(!#isParameterized)
+$if(#isParameterized)
+  $if(#declaredNTA)
+  /** @apilevel internal */
+  protected $ASTNode #(signature)_proxy;
+  $endif
+  $if(LazyMaps)
+  /** @apilevel internal */
+  protected $DefaultMapType #(signature)_values;
+  $else
+  /** @apilevel internal */
+  protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
+  $endif
+  $if(!#simpleCacheCheck)
+  /** @apilevel internal */
+  protected $DefaultMapType #(signature)_computed;
+  $endif
+$else
   /** @apilevel internal */
   $if(#simpleCacheCheck)
   protected boolean #(signature)_computed = false;
@@ -49,25 +65,9 @@ $if(!#isParameterized)
 
   /** @apilevel internal */
   protected #getType #(signature)_value;
-$if(#isCircular)
+  $if(#isCircular)
   /** @apilevel internal */
   protected boolean #(signature)_initialized = false;
-$endif
-$else
-$if(#declaredNTA)
-  /** @apilevel internal */
-  protected $ASTNode #(signature)_proxy;
-$endif
-$if(LazyMaps)
-  /** @apilevel internal */
-  protected $DefaultMapType #(signature)_values;
-$else
-  /** @apilevel internal */
-  protected $DefaultMapType #(signature)_values = $CreateDefaultMap;
-$endif
-  $if(!#simpleCacheCheck)
-  /** @apilevel internal */
-  protected $DefaultMapType #(signature)_computed;
   $endif
 $endif
 ]]
