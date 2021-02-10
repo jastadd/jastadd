@@ -139,18 +139,18 @@ if ($(AttrSign)_values != null) {
   }
 }
 $else
-$if (IsCircular)
-if ($(AttrSign)_computed == $StateClass.NON_CYCLE || $(AttrSign)_computed == state().cycle()) {
-$else
+  $if (SimpleCacheCheck)
 if ($(AttrSign)_computed) {
-$endif
-$if (PrintAsObject)
+  $else
+if ($(AttrSign)_computed == $StateClass.NON_CYCLE || $(AttrSign)_computed == state().cycle()) {
+  $endif
+  $if (PrintAsObject)
   System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " + $(AttrSign)_value + ")");
-$else
+  $else
   Object obj = $(AttrSign)_value;
   System.out.println("value(" + relativeNodeID() + ":$(AttrSign), " +
     (obj instanceof $ASTNode ? (($ASTNode) obj).relativeNodeID() : obj) + ")");
-$endif
+  $endif
 }
 $endif
 ]]

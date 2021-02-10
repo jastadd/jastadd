@@ -117,8 +117,9 @@ aspect IncrementalDebug {
     StringBuffer res = new StringBuffer();
     TemplateContext tt = templateContext();
     for (AttrDecl attr : listOfCachedAttributes()) {
+      // TODO(joqvist): use AttrDecl as template context instead.
       tt.bind("IsParameterized", attr.getNumParameter() > 0);
-      tt.bind("IsCircular", attr.isCircular());
+      tt.bind("SimpleCacheCheck", attr.simpleCacheCheck());
       tt.bind("PrintAsObject", attr.isPrimitive() || attr.getType().equals("String"));
       tt.bind("AttrSign", attr.signature());
       res.append(tt.expand("ASTDecl.dumpCachedAttributeValue"));
