@@ -1,8 +1,53 @@
 # JastAdd2 Release Notes
 
+## 2.3.5 - 2021-02-11
+
+Improvements to Java 8 support, bug fixes and various internal code cleanups.
+
+### Java 8 Support
+
+* [Issue 320:](https://bitbucket.org/jastadd/jastadd2/issues/320)
+  Default and static interface methods are now able to be used in aspects.
+* [Issue 323:](https://bitbucket.org/jastadd/jastadd2/issues/323)
+  Array constructor references can now be used in aspects.
+
+### Bug Fixes
+
+* [Issue 312:](https://bitbucket.org/jastadd/jastadd2/issues/312)
+  Fixed errors in generated code when generateAnnotations disabled.
+* [Issue 313:](https://bitbucket.org/jastadd/jastadd2/issues/313)
+  Fixed errors in generated code for incremental token NTAs.
+* [Issue 324:](https://bitbucket.org/jastadd/jastadd2/issues/324)
+  Improve multiple interface handling in implements statement.
+* [Issue 322:](https://bitbucket.org/jastadd/jastadd2/issues/322)
+  Fixed problem with collection attributes and implements statements.
+* [Issue 328:](https://bitbucket.org/jastadd/jastadd2/issues/328)
+  Fixed error in generated code for NTA tokens with incremental=param,debug.
+* [Issue 332:](https://bitbucket.org/jastadd/jastadd2/issues/332)
+  Fixed crash in incremental code generator with tracing enabled.
+* [Issue 333:](https://bitbucket.org/jastadd/jastadd2/issues/333)
+  Fixed error in incremental code generation.
+
+### Other Changes
+
+* [Issue 316:](https://bitbucket.org/jastadd/jastadd2/issues/316)
+  Disabled `setParent()` on empty container singleton.
+* [Issue 318:](https://bitbucket.org/jastadd/jastadd2/issues/318)
+  The `grammar` option is now optional when using the `jjtree` option.
+* Removed an obsolete warning message.
+* Removed JastAddTask to get rid of Ant dependency for building JastAdd.
+* Removed deprecated options: noVisitCheck, noCacheCycle, noLazyMaps,
+  doxygen, cacheAll, noCaching, cacheNone, cacheImplicit, ignoreLazy,
+  fullFlush, doc, java1.4, suppressWarnings, noComponentCheck, deterministic,
+  noRefineLegacy, noInhEqCheck, noStatic.
+* Some existing options have been deprecated: lazyMaps, private, traceVisitCheck, inhEqCheck,
+  refineLegacy, debug.
+* Removed duplicate cleanup for incremental NTA listeners.
+* New attribute tracing events added for collection attributes.
+
 ## 2.3.4 - 2019-07-25
 
-## Incremental Evaluation
+### Incremental Evaluation
 
 Performance improvements and bugfixes were added for incremental evaluation.
 A very simplified summary of the changes:
@@ -12,7 +57,7 @@ A very simplified summary of the changes:
 * Improved attribute flushing dependency (removed linear search over attributes
   for each flushed instance).
 
-## Fluent Interface for AST Construction
+### Fluent Interface for AST Construction
 
 The component setting methods (setChild, addChild, setX, etc.) now return the
 reference to the modified node so that AST construction calls can be chained
@@ -21,12 +66,12 @@ together in a sequence of method calls.
 This feature was contributed by Alexandru Dura in [pull request
 10](https://bitbucket.org/jastadd/jastadd2/pull-requests/10/fluent-interface-for-ast-nodes).
 
-## Option to Optimizie Imports
+### Option to Optimize Imports
 
 JastAdd can now remove most unused imports in generated code.  Enable this by
 adding the `--optimize-imports` option to the JastAdd command.
 
-## Bugfixes
+### Bugfixes
 
 * [Issue 308:](https://bitbucket.org/jastadd/jastadd2/issues/308/java-7-multi-catch-clauses-are-not)
   Java 7 multi-catch syntax is now allowed in JastAdd aspects.
