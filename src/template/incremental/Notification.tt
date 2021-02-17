@@ -235,7 +235,7 @@ $endif
   #resetCache
   #(signature)_handler.notifyDependencies();
   $if (TraceFlush)
-  state().trace().flushIncAttr(#hostClassName.this, "#hostClassName.#signatureJavaStyle", "", "");
+  state().trace().flushIncAttr($HostClass.this, "#signature", "", "");
   $endif
 }
 $endif

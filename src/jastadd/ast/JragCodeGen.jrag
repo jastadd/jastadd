@@ -631,10 +631,12 @@ aspect JragCodeGen {
    * Generates the Java method to evaluate an attribute.
    */
   public void AttrDecl.emitAttrEquation(PrintStream out) {
+    TemplateContext tc = templateContext();
+    tc.bind("HostClass", hostClassName());
     if (isCircular()) {
-      templateContext().bind("CircularComputeRhs", circularComputeRhs());
+      tc.bind("CircularComputeRhs", circularComputeRhs());
     } else {
-      templateContext().bind("ComputeRhs", computeRhs());
+      tc.bind("ComputeRhs", computeRhs());
     }
     emitAttrEquationWithComment(out, parametersDecl(), docComment());
   }
