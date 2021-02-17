@@ -1758,7 +1758,7 @@ Option                 | Purpose
 `--flush=ARGS`         | Generate methods for flushing attribute caches.
 `--dot`                | Generate a DOT graph of the abstract grammar.
 `--emptyContainerSingletons` | Use singleton objects for empty List or Opt nodes.
-`--optimizeImports`    | Remove unused imports in generated code.
+`--optimize-imports`    | Remove unused imports in generated code.
 `--statistics=PATH`    | Output attribute statistics in CSV format to a file.
 `--minListSize=NUM`    | Performance tuning: minimum non-empty child list size.
 `--staticState=yes/no` | Performance tuning: use a static field to store reference to AST state object.
