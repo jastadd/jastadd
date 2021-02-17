@@ -570,7 +570,7 @@ public class JastAdd {
     jp.root = grammar;
     jp.setFileName(sourceName);
     jp.className = sourceName;
-    jp.pushTopLevelOrAspect("aspect");
+    jp.pushContext("aspect");
     try {
       jp.AspectBodyDeclarationsEOF();
       problems.addAll(JastAdd.weaveInterTypeObjects(grammar));
@@ -579,7 +579,7 @@ public class JastAdd {
           .message("Internal Error in %s: %s", sourceName, e.getMessage())
           .buildError());
     }
-    jp.popTopLevelOrAspect();
+    jp.popContext();
     return problems;
   }
 

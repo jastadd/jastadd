@@ -1,5 +1,5 @@
 /* Copyright (c) 2006, Sun Microsystems, Inc.
- *               2006-2018, The JastAdd Team
+ *               2006-2021, The JastAdd Team
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,8 @@ public class JragParser {
   public String enclosingAspect = ""; // The name of the aspect currently being parsed.
   public String fileName; // Name of parsed file.
 
+  // TODO(joqvist): the mechanisms for adding class body decl to the enclosing class is very ugly
+  // and needs to be cleaned up. Either use the context everywhere or remove it?
   private java.util.List<String> contextStack = new java.util.ArrayList<String>();
 
   public boolean inTopLevelOrAspect() {
@@ -74,11 +76,11 @@ public class JragParser {
          contextStack.get(0).equals("interface"));
   }
 
-  public void pushTopLevelOrAspect(String context) {
+  public void pushContext(String context) {
     contextStack.add(context);
   }
 
-  public void popTopLevelOrAspect() {
+  public void popContext() {
     contextStack.remove(contextStack.size()-1);
   }
 
@@ -593,13 +595,13 @@ void TypeDeclaration() :
 void AspectDeclaration(String modifiers) :
 { Token t; }
 {
-  "aspect" { pushTopLevelOrAspect("aspect"); }
+  "aspect" { pushContext("aspect"); }
     t = <IDENTIFIER> {
     enclosingAspect = t.image;
     root.registerAspect(enclosingAspect, Unparser.unparseComment(jjtThis));
   }
   AspectBody()
-  { popTopLevelOrAspect(); enclosingAspect = ""; }
+  { popContext(); enclosingAspect = ""; }
 }
 
 void AspectBody() :
@@ -697,7 +699,7 @@ void AspectClassDeclaration() :
   modifiers = Modifiers()
   first = "class"
   t = <IDENTIFIER> {
-    pushTopLevelOrAspect("class");
+    pushContext("class");
     outerClassName = className;
     className = t.image;
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
@@ -714,7 +716,7 @@ void AspectClassDeclaration() :
     }
   ]
   [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
-  AspectClassBody() { className = outerClassName; popTopLevelOrAspect(); }
+  AspectClassBody() { className = outerClassName; popContext(); }
 }
 
 void AspectClassBody() :
@@ -739,7 +741,7 @@ void AspectInterfaceDeclaration() :
   modifiers = Modifiers()
   first = "interface"
   t = <IDENTIFIER> {
-    pushTopLevelOrAspect("interface");
+    pushContext("interface");
     outerClassName = className;
     className = t.image;
     typeDecl = root.findInterfaceDecl(className, Unparser.unparseComment(jjtThis),
@@ -748,7 +750,7 @@ void AspectInterfaceDeclaration() :
   }
   [ typeParameters = TypeParameters() { typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { root.addInterface(nameList, className, fileName); } ]
-  "{" ( AspectInterfaceMemberDeclaration() )* "}" { className = outerClassName; popTopLevelOrAspect(); }
+  "{" ( AspectInterfaceMemberDeclaration() )* "}" { className = outerClassName; popContext(); }
 }
 
 void AspectInterfaceMemberDeclaration() :
@@ -894,14 +896,14 @@ void AspectNestedInterfaceDeclaration() :
 }
 {
   modifiers = Modifiers()
-  "interface" { pushTopLevelOrAspect("interface"); } <IDENTIFIER>
+  "interface" { pushContext("interface"); } <IDENTIFIER>
   [ TypeParameters() ]
   [ "extends" TypeNameList() ]
   "{" ( InterfaceMemberDeclaration() )* "}"
   {
     className = outerClassName;
     root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
-    popTopLevelOrAspect();
+    popContext();
   }
 }
 
@@ -914,7 +916,7 @@ void AspectNestedClassDeclaration() :
 }
 {
   modifiers = Modifiers()
-  "class" { pushTopLevelOrAspect("class"); } <IDENTIFIER>
+  "class" { pushContext("class"); } <IDENTIFIER>
   [ TypeParameters() ]
   [ "extends" ClassOrInterfaceType() ]
   [ "implements" TypeNameList() ]
@@ -922,7 +924,7 @@ void AspectNestedClassDeclaration() :
   {
     className = outerClassName;
     root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
-    popTopLevelOrAspect();
+    popContext();
   }
 }
 
@@ -1468,7 +1470,7 @@ void ClassDeclaration(String modifiers) :
 {
   first = "class"
   t = <IDENTIFIER> {
-    pushTopLevelOrAspect("class");
+    pushContext("class");
     outerClassName = className;
     className = t.image;
     typeDecl = root.findClassDecl(className, Unparser.unparseComment(jjtThis),
@@ -1483,7 +1485,7 @@ void ClassDeclaration(String modifiers) :
     }
   ]
   [ "implements" nameList = TypeNameList() { root.addInterface(nameList, className, fileName);} ]
-  ClassBody() { className = outerClassName; popTopLevelOrAspect(); }
+  ClassBody() { className = outerClassName; popContext(); }
 }
 
 SimpleNode TypeNameList():
@@ -1505,10 +1507,10 @@ void UnmodifiedClassDeclaration(String modifiers) :
   String outerClassName;
 }
 {
-  "class" t = <IDENTIFIER> { pushTopLevelOrAspect("class"); outerClassName = className; className = t.image; }
+  "class" t = <IDENTIFIER> { pushContext("class"); outerClassName = className; className = t.image; }
   [ TypeParameters() ]
   [ "extends" ClassOrInterfaceType() ] [ "implements" nameList = TypeNameList() ]
-  ClassBody() { className = outerClassName; popTopLevelOrAspect(); }
+  ClassBody() { className = outerClassName; popContext(); }
   { if (shouldAddClassBodyDecl()) {
       root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
     }
@@ -1529,7 +1531,7 @@ void AspectEnumDeclaration():
   modifiers = Modifiers()
   first = "enum"
   t = <IDENTIFIER> {
-    pushTopLevelOrAspect("enum");
+    pushContext("enum");
     outerClassName = className;
     className = t.image;
     typeDecl = (org.jastadd.ast.AST.EnumDecl) root.findEnumDecl(className, Unparser.unparseComment(jjtThis),
@@ -1538,16 +1540,16 @@ void AspectEnumDeclaration():
     typeDecl.simpleNode = jjtThis;
   }
   [ "implements" TypeNameList() ]
-  EnumBody() { className = outerClassName; popTopLevelOrAspect(); }
+  EnumBody() { className = outerClassName; popContext(); }
 }
 
 void UnmodifiedEnumDeclaration(String modifiers):
 {}
 {
-  "enum" { pushTopLevelOrAspect("enum"); } JavaIdentifier()
+  "enum" { pushContext("enum"); } JavaIdentifier()
   [ "implements" TypeNameList() ]
   EnumBody()
-  { popTopLevelOrAspect();
+  { popContext();
     if (shouldAddClassBodyDecl()) {
       root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
     }
@@ -1658,7 +1660,7 @@ void UnmodifiedInterfaceDeclaration(String modifiers) :
   first = "interface"
   t = <IDENTIFIER> {
     isTopLevel = inTopLevelOrAspect();
-    pushTopLevelOrAspect("interface");
+    pushContext("interface");
     outerClassName = className;
     className = t.image;
     if (isTopLevel) {
@@ -1669,7 +1671,7 @@ void UnmodifiedInterfaceDeclaration(String modifiers) :
   }
   [ typeParameters = TypeParameters() { if (isTopLevel) typeDecl.typeParameters = typeParameters; } ]
   [ "extends" nameList = TypeNameList() { if (isTopLevel) root.addInterface(nameList, className, fileName); } ]
-  "{" ( InterfaceMemberDeclaration() )* "}" { className = outerClassName; popTopLevelOrAspect(); }
+  "{" ( InterfaceMemberDeclaration() )* "}" { className = outerClassName; popContext(); }
   { if (shouldAddClassBodyDecl()) {
       root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
     }
@@ -2224,7 +2226,7 @@ void ArgumentList() :
 void AllocationExpression() :
 { String outerClassName = className;
   className = "D$u$m$m$y";
-  pushTopLevelOrAspect("expr");
+  pushContext("expr");
 }
 {
   (
@@ -2242,7 +2244,7 @@ void AllocationExpression() :
   )
   {
     className = outerClassName;
-    popTopLevelOrAspect();
+    popContext();
   }
 }
 
@@ -2611,7 +2613,7 @@ void  MemberValueArrayInitializer():
 void AnnotationTypeDeclaration(String modifiers):
 {}
 {
-  "@" "interface" { pushTopLevelOrAspect("annotation"); } JavaIdentifier() AnnotationTypeBody() { popTopLevelOrAspect(); }
+  "@" "interface" { pushContext("annotation"); } JavaIdentifier() AnnotationTypeBody() { popContext(); }
   { if (shouldAddClassBodyDecl()) {
       root.addClassBodyDecl(jjtThis, className, fileName, modifiers, enclosingAspect);
     }
