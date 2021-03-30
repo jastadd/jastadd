@@ -1,6 +1,6 @@
 # JastAdd2 Release Notes
 
-## 2.3.5 - 2021-02-11
+## 2.3.5 - 2021-03-30
 
 Improvements to Java 8 support, bug fixes and various internal code cleanups.
 
