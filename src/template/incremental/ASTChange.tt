@@ -63,6 +63,10 @@ $endif
 
 ASTNode.incHookSetChild1 = [[
 $if(IncrementalEnabled)
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "setChild", flushIncToken);
+$endif
 
 $if(IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
@@ -162,7 +166,9 @@ $endif
 
 ASTNode.incHookSetChild5 = [[
 $if(IncrementalEnabled)
-
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "setChild", flushIncToken);
+$endif
 $endif
 ]]
 
@@ -320,6 +326,10 @@ $endif
 
 TokenComponent.incHookSetToken = [[
 $if(IncrementalEnabled)
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "set$(Id)", flushIncToken);
+$endif
 
 $if(IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
@@ -390,6 +400,8 @@ if (state().disableDeps == 0 && !(state().IN_COMPUTATION > 0)) {
 $endif
 
 }
-
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "set$(Id)", flushIncToken);
+$endif
 $endif
 ]]
