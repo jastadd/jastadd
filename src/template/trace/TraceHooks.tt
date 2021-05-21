@@ -325,7 +325,7 @@ $endif
 
 AttrDecl.traceFlushIncAttr [[
 $if (TraceFlush)
-state().trace().flushIncAttr("#getAspectName", fNode, fAttrID, "", "");
+state.trace().flushIncAttr("#getAspectName", fNode, fAttrID, "", "");
 $endif
 ]]
 
