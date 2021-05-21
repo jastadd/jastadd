@@ -99,8 +99,11 @@ public static class Trace {
    * This can be implemented by applications that want to trace attribute evaluation.
    */
   public interface Receiver {
-    void accept($StateClass.Trace.Event event, String aspect, $ASTNode node, String attribute,
-        Object params, Object value);
+    void accept($StateClass.Trace.Event event, $ASTNode node, String attribute, Object params, Object value);
+    default void accept($StateClass.Trace.Event event, String aspect, $ASTNode node, String attribute,
+        Object params, Object value) {
+	accept(event, node, attribute, params, value);
+    }
   }
 
   public Trace(Receiver receiver) {
@@ -112,7 +115,7 @@ public static class Trace {
 
   // The default event receiver does nothing.
   private Receiver receiver = new Receiver() {
-    public void accept($StateClass.Trace.Event event, String aspect, $ASTNode node, String attribute,
+    public void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
         Object params, Object value) {
     }
   };
