@@ -234,9 +234,7 @@ $endif
   #resetVisit
   #resetCache
   #(signature)_handler.notifyDependencies();
-  $if (TraceFlush)
-  $HostClass.this.state().trace().flushIncAttr($HostClass.this, "#signature", "", "");
-  $endif
+  $include(AttrDecl.traceFlushIncAttr)
 }
 $endif
 $endif

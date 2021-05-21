@@ -323,6 +323,12 @@ state().trace().flushAttr("#getAspectName", this, "#hostClassName.#signatureJava
 $endif
 ]]
 
+AttrDecl.traceFlushIncAttr [[
+$if (TraceFlush)
+state().trace().flushIncAttr("#getAspectName", fNode, fAttrID, "", "");
+$endif
+]]
+
 CollEq.traceContributionCheckBegin [[
 $if (TraceColl)
 state().trace().contributionCheckBegin("#getAspectName", this, "#collectionId", "#escapeConditionForTemplate");
