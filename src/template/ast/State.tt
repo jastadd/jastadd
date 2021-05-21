@@ -441,7 +441,7 @@ $if(TracingEnabled)
   public static ReceiverFactory receiverFactory = new ReceiverFactory() {
     public Trace.Receiver build() {
       return new Trace.Receiver() {
-        public void accept($StateClass.Trace.Event event, String aspect, $ASTNode node, String attribute,
+        public void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
             Object params, Object value) {
         }
       };
