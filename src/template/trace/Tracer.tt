@@ -90,13 +90,20 @@ public static class Trace {
     TOKEN_READ;
   }
 
+  // For traced operations inherent in all ASTs, e.g., copy, or from elements
+  // derived from the grammar, e.g., tokens.
+  public static final String ASPECT_AST = "AST";
+
   /**
    * Functional interface for a trace event receiver.
    * This can be implemented by applications that want to trace attribute evaluation.
    */
   public interface Receiver {
-    void accept($StateClass.Trace.Event event, $ASTNode node, String attribute,
-        Object params, Object value);
+    void accept($StateClass.Trace.Event event, $ASTNode node, String attribute, Object params, Object value);
+    default void accept($StateClass.Trace.Event event, String aspect, $ASTNode node, String attribute,
+        Object params, Object value) {
+	accept(event, node, attribute, params, value);
+    }
   }
 
   public Trace(Receiver receiver) {
@@ -129,40 +136,40 @@ public static class Trace {
    * Trace that an attribute instance started its computation.
    * @param value The value of the attribute instance.
    */
-  public void computeBegin($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept(Event.COMPUTE_BEGIN, node, attr, params, value);
+  public void computeBegin(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept(Event.COMPUTE_BEGIN, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that an attribute instance ended its computation.
    * @param value The value of the attribute instance.
    */
-  public void computeEnd($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.COMPUTE_END, node, attr, params, value);
+  public void computeEnd(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.COMPUTE_END, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that the cache of an attribute instances was read.
    * @param value The value of the attribute instance.
    */
-  public void cacheRead($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CACHE_READ, node, attr, params, value);
+  public void cacheRead(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CACHE_READ, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that an attribute instance was cached.
    * @param value The value of the attribute instance.
    */
-  public void cacheWrite($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CACHE_WRITE, node, attr, params, value);
+  public void cacheWrite(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CACHE_WRITE, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that the caching of an attribute instance was aborted.
    * @param value The value of the attribute instance.
    */
-  public void cacheAbort($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CACHE_ABORT, node, attr, params, value);
+  public void cacheAbort(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CACHE_ABORT, aspect, node, attr, params, value);
   }
 
   /**
@@ -170,7 +177,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void enterRewriteCase1($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_START, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_START, ASPECT_AST, node, attr, params, value);
   }
 
   /**
@@ -178,7 +185,7 @@ public static class Trace {
    * @param value The value of the rewrite before and after.
    */
   public void rewriteChange($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_CHANGE, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_CHANGE, ASPECT_AST, node, attr, params, value);
   }
 
   /**
@@ -186,7 +193,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void exitRewriteCase1($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE1_RETURN, ASPECT_AST, node, attr, params, value);
   }
 
   /**
@@ -194,7 +201,7 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void exitRewriteCase2($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.REWRITE_CASE2_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE2_RETURN, ASPECT_AST, node, attr, params, value);
   }
 
   /**
@@ -202,119 +209,119 @@ public static class Trace {
    * @param value The value of the rewrite.
    */
   public void exitRewriteCase3($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.REWRITE_CASE3_RETURN, node, attr, params, value);
+    receiver.accept($StateClass.Trace.Event.REWRITE_CASE3_RETURN, ASPECT_AST, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance entered evaluation case 1.
    * @param value The value of the circular attribute instance.
    */
-  public void enterCircularCase1($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_START, node, attr, params, value);
+  public void enterCircularCase1(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_START, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance in evaluation case 1 changed value.
    * @param value The value of the circular attribute instance, before and after.
    */
-  public void circularCase1Change($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_CHANGE, node, attr, params, value);
+  public void circularCase1Change(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_CHANGE, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance returned from evaluation case 1.
    * @param value The value of the circular attribute instance.
    */
-  public void exitCircularCase1($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_RETURN, node, attr, params, value);
+  public void exitCircularCase1(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE1_RETURN, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance entered evaluation case 2.
    * @param value The value of the circular attribute instance.
    */
-  public void enterCircularCase2($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_START, node, attr, params, value);
+  public void enterCircularCase2(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_START, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance in evaluation case 2 changed value.
    * @param value The value of the circular attribute instance, before and after.
    */
-  public void circularCase2Change($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_CHANGE, node, attr, params, value);
+  public void circularCase2Change(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_CHANGE, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance returned from evaluation case 2.
    * @param value The value of the circular attribute instance.
    */
-  public void exitCircularCase2($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_RETURN, node, attr, params, value);
+  public void exitCircularCase2(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE2_RETURN, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular attribute instance returned from evaluation case 2.
    * @param value The value of the circular attribute instance.
    */
-  public void exitCircularCase3($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE3_RETURN, node, attr, params, value);
+  public void exitCircularCase3(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_CASE3_RETURN, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA entered evaluation case 1.
    * @param value The value of the circular NTA.
    */
-  public void enterCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START, node, attr, params, value);
+  public void enterCircularNTACase1(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_START, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA in evaluation case 1 changed value.
    * @param value The value of the circular NTA, before and after.
    */
-  public void circularNTACase1Change($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_CHANGE, node, attr, params, value);
+  public void circularNTACase1Change(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_CHANGE, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA returned from evaluation case 1.
    * @param value The value of the circular NTA.
    */
-  public void exitCircularNTACase1($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN, node, attr, params, value);
+  public void exitCircularNTACase1(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE1_RETURN, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA entered evaluation case 2.
    * @param value The value of the circular NTA.
    */
-  public void enterCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START, node, attr, params, value);
+  public void enterCircularNTACase2(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_START, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA in evaluation case 2 changed value.
    * @param value The value of the circular NTA, before and after.
    */
-  public void circularNTACase2Change($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_CHANGE, node, attr, params, value);
+  public void circularNTACase2Change(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_CHANGE, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA returned from evaluation case 2.
    * @param value The value of the circular NTA.
    */
-  public void exitCircularNTACase2($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN, node, attr, params, value);
+  public void exitCircularNTACase2(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE2_RETURN, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a circular NTA returned from evaluation case 2.
    * @param value The value of the circular NTA.
    */
-  public void exitCircularNTACase3($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE3_RETURN, node, attr, params, value);
+  public void exitCircularNTACase3(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.CIRCULAR_NTA_CASE3_RETURN, aspect, node, attr, params, value);
   }
 
   /**
@@ -323,50 +330,50 @@ public static class Trace {
    * @param value The value of the node.
    */
   public void copyNode($ASTNode node, Object value) {
-    receiver.accept($StateClass.Trace.Event.COPY_NODE, node, "ASTNode.copy", "", value);
+    receiver.accept($StateClass.Trace.Event.COPY_NODE, ASPECT_AST, node, "ASTNode.copy", "", value);
   }
 
   /**
    * Trace that an attribute was flushed.
    * @param value The value of the attribute.
    */
-  public void flushAttr($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.FLUSH_ATTR, node, attr, params, value);
+  public void flushAttr(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.FLUSH_ATTR, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that an attribute was flushed by incremental evaluation.
    */
-  public void flushIncAttr($ASTNode node, String attr, Object params, Object value) {
-    receiver.accept($StateClass.Trace.Event.INC_FLUSH_ATTR, node, attr, params, value);
+  public void flushIncAttr(String aspect, $ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.INC_FLUSH_ATTR, aspect, node, attr, params, value);
   }
 
   /**
    * Trace that a contribution check to a collection attribute begun.
    */
-  public void contributionCheckBegin($ASTNode node, String attr, String check) {
-    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_BEGIN, node, attr, check, "");
+  public void contributionCheckBegin(String aspect, $ASTNode node, String attr, String check) {
+    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_BEGIN, aspect, node, attr, check, "");
   }
 
   /**
    * Trace that a contribution check to a collection attribute ended.
    */
-  public void contributionCheckEnd($ASTNode node, String attr, String check) {
-    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_END, node, attr, check, "");
+  public void contributionCheckEnd(String aspect, $ASTNode node, String attr, String check) {
+    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_END, aspect, node, attr, check, "");
   }
 
   /**
    * Trace that a contribution check to a collection attribute found a match.
    */
-  public void contributionCheckMatch($ASTNode node, String attr, String check, Object value) {
-    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_MATCH, node, attr, check, value);
+  public void contributionCheckMatch(String aspect, $ASTNode node, String attr, String check, Object value) {
+    receiver.accept($StateClass.Trace.Event.CONTRIBUTION_CHECK_MATCH, aspect, node, attr, check, value);
   }
 
   /**
    * Trace that a token was read.
    */
   public void tokenRead($ASTNode node, String token, Object value) {
-    receiver.accept($StateClass.Trace.Event.TOKEN_READ, node, token, "", value);
+    receiver.accept($StateClass.Trace.Event.TOKEN_READ, ASPECT_AST, node, token, "", value);
   }
 
 }
