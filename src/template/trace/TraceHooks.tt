@@ -37,7 +37,7 @@ AttrDecl.traceComputeBegin [[
 $if (TraceCompute)
   $if(#isParameterized)
     $if(#isCircular)
-state().trace().computeBegin(this, "#hostClassName.#signatureJavaStyle", _parameters, "");
+state().trace().computeBegin("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, "");
     $else
       $if(!#isMemoized)
         $if(!VisitCheckEnabled)
@@ -48,10 +48,10 @@ Object _parameters = java.util.Arrays.asList(#parameters);
           $endif
         $endif
       $endif
-state().trace().computeBegin(this, "#hostClassName.#signatureJavaStyle", _parameters, "");
+state().trace().computeBegin("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, "");
     $endif
   $else
-state().trace().computeBegin(this, "#hostClassName.#signatureJavaStyle", "", "");
+state().trace().computeBegin("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", "");
   $endif
 $endif
 ]]
@@ -60,12 +60,12 @@ AttrDecl.traceComputeEnd [[
 $if (TraceCompute)
   $if(#isParameterized)
     $if(#isCircular)
-state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().computeEnd("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
     $else
-state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
+state().trace().computeEnd("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
     $endif
   $else
-state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().computeEnd("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
 $endif
 ]]
@@ -73,9 +73,9 @@ $endif
 AttrDecl.traceComputeEndInline [[
 $if (TraceCompute)
   $if(#isParameterized)
-state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", _parameters, "");
+state().trace().computeEnd("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, "");
   $else
-state().trace().computeEnd(this, "#hostClassName.#signatureJavaStyle", "", "");
+state().trace().computeEnd("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", "");
   $endif
 $endif
 ]]
@@ -85,12 +85,12 @@ $if (TraceCache)
   $if(#isMemoized)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, _cache);
+state().trace().cacheRead("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _cache);
       $else
-state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_values.get(_parameters));
+state().trace().cacheRead("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_values.get(_parameters));
       $endif
     $else
-state().trace().cacheRead(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().cacheRead("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
   $endif
 $endif
@@ -101,12 +101,12 @@ $if (TraceCache)
   $if(#isMemoized)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().cacheWrite("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
       $else
-state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
+state().trace().cacheWrite("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
       $endif
     $else
-state().trace().cacheWrite(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().cacheWrite("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
   $endif
 $endif
@@ -117,12 +117,12 @@ $if (TraceCache)
   $if(#isMemoized)
     $if(#isParameterized)
       $if(#isCircular)
-state().trace().cacheAbort(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().cacheAbort("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
       $else
-state().trace().cacheAbort(this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
+state().trace().cacheAbort("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, #(signature)_value);
       $endif
     $else
-state().trace().cacheAbort(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().cacheAbort("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
   $endif
 $endif
@@ -132,15 +132,15 @@ AttrDecl.traceCircularEnterCase1 [[
 $if (TraceCircular)
  $if(#getNTA)
    $if(#isParameterized)
-state().trace().enterCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().enterCircularNTACase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().enterCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().enterCircularNTACase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().enterCircularCase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().enterCircularCase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().enterCircularCase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().enterCircularCase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
@@ -150,18 +150,18 @@ AttrDecl.traceCircularCase1Change [[
 $if (TraceCircular)
  $if(#getNTA)
    $if(#isParameterized)
-state().trace().circularNTACase1Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
+state().trace().circularNTACase1Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, 
     _value.value + "->" + new_#(signature)_value);
   $else
-state().trace().circularNTACase1Change(this, "#hostClassName.#signatureJavaStyle", "", 
+state().trace().circularNTACase1Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", 
     #(signature)_value + "->" + new_#(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().circularCase1Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
+state().trace().circularCase1Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, 
     _value.value + "->" + new_#(signature)_value);
   $else
-state().trace().circularCase1Change(this, "#hostClassName.#signatureJavaStyle", "", 
+state().trace().circularCase1Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", 
     #(signature)_value + "->" + new_#(signature)_value);
   $endif
  $endif
@@ -172,15 +172,15 @@ AttrDecl.traceCircularExitCase1 [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().exitCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().exitCircularNTACase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().exitCircularNTACase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().exitCircularNTACase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().exitCircularCase1(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().exitCircularCase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().exitCircularCase1(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().exitCircularCase1("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
@@ -190,15 +190,15 @@ AttrDecl.traceCircularEnterCase2 [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().enterCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().enterCircularNTACase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().enterCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().enterCircularNTACase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().enterCircularCase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().enterCircularCase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().enterCircularCase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().enterCircularCase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
@@ -208,18 +208,18 @@ AttrDecl.traceCircularCase2Change [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().circularNTACase2Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
+state().trace().circularNTACase2Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, 
     _value.value + "->" + new_#(signature)_value);
   $else
-state().trace().circularNTACase2Change(this, "#hostClassName.#signatureJavaStyle", "", 
+state().trace().circularNTACase2Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", 
     #(signature)_value + "->" + new_#(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().circularCase2Change(this, "#hostClassName.#signatureJavaStyle", _parameters, 
+state().trace().circularCase2Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, 
     _value.value + "->" + new_#(signature)_value);
   $else
-state().trace().circularCase2Change(this, "#hostClassName.#signatureJavaStyle", "", 
+state().trace().circularCase2Change("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", 
     #(signature)_value + "->" + new_#(signature)_value);
   $endif
  $endif
@@ -230,15 +230,15 @@ AttrDecl.traceCircularExitCase2 [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().exitCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().exitCircularNTACase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().exitCircularNTACase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().exitCircularNTACase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().exitCircularCase2(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().exitCircularCase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().exitCircularCase2(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().exitCircularCase2("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
@@ -248,15 +248,15 @@ AttrDecl.traceCircularExitCase3 [[
 $if (TraceCircular)
  $if(#getNTA)
   $if(#isParameterized)
-state().trace().exitCircularNTACase3(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().exitCircularNTACase3("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().exitCircularNTACase3(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().exitCircularNTACase3("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $else
   $if(#isParameterized)
-state().trace().exitCircularCase3(this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
+state().trace().exitCircularCase3("#getAspectName", this, "#hostClassName.#signatureJavaStyle", _parameters, _value.value);
   $else
-state().trace().exitCircularCase3(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().exitCircularCase3("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
   $endif
  $endif
 $endif
@@ -279,13 +279,13 @@ $endif
 
 ASTNode.traceRewriteCached [[
 $if (TraceRewrite)
-state().trace().cacheWrite(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().cacheWrite("AST", this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
 ASTNode.traceRewriteCacheAbort [[
 $if (TraceRewrite)
-state().trace().cacheAbort(this, "ASTNode.getChild", i, nodeToString(node));
+state().trace().cacheAbort("AST", this, "ASTNode.getChild", i, nodeToString(node));
 $endif
 ]]
 
@@ -316,31 +316,37 @@ $endif
 AttrDecl.traceFlushAttr [[
 $if (TraceFlush)
     $if(#isParameterized)
-state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_values);
+state().trace().flushAttr("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_values);
     $else
-state().trace().flushAttr(this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
+state().trace().flushAttr("#getAspectName", this, "#hostClassName.#signatureJavaStyle", "", #(signature)_value);
     $endif
+$endif
+]]
+
+AttrDecl.traceFlushIncAttr [[
+$if (TraceFlush)
+state.trace().flushIncAttr("#getAspectName", fNode, fAttrID, "", "");
 $endif
 ]]
 
 CollEq.traceContributionCheckBegin [[
 $if (TraceColl)
-state().trace().contributionCheckBegin(this, "#collectionId", "#escapeConditionForTemplate");
+state().trace().contributionCheckBegin("#getAspectName", this, "#collectionId", "#escapeConditionForTemplate");
 $endif
 ]]
 
 CollEq.traceContributionCheckEnd [[
 $if (TraceColl)
-state().trace().contributionCheckEnd(this, "#collectionId", "#escapeConditionForTemplate");
+state().trace().contributionCheckEnd("#getAspectName", this, "#collectionId", "#escapeConditionForTemplate");
 $endif
 ]]
 
 CollEq.traceContributionCheckMatch [[
 $if (TraceColl)
 $if(#iterableValue)
-state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionForTemplate", value);
+state().trace().contributionCheckMatch("#getAspectName", this, "#collectionId", "#escapeConditionForTemplate", value);
 $else
-state().trace().contributionCheckMatch(this, "#collectionId", "#escapeConditionForTemplate", #getValue);
+state().trace().contributionCheckMatch("#getAspectName", this, "#collectionId", "#escapeConditionForTemplate", #getValue);
 $endif
 $endif
 ]]
