@@ -323,6 +323,71 @@ state().trace().flushAttr("#getAspectName", this, "#hostClassName.#signatureJava
 $endif
 ]]
 
+ASTNode.traceFlushIncBeginSetChild [[
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "setChild", flushIncToken);
+$endif
+]]
+
+TokenComponent.traceFlushIncBeginSetToken [[
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "set$(Id)", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncBeginInsertChild [[
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "insertChild", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncBeginRemoveChild [[
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "removeChild", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncBeginSetParent [[
+$if (TraceFlush)
+Object flushIncToken = new Object();
+state().trace().flushIncStart(this, "setParent", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncEndSetChild [[
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "setChild", flushIncToken);
+$endif
+]]
+
+TokenComponent.traceFlushIncEndSetToken [[
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "set$(Id)", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncEndInsertChild [[
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "insertChild", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncEndRemoveChild [[
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "removeChild", flushIncToken);
+$endif
+]]
+
+ASTNode.traceFlushIncEndSetParent [[
+$if (TraceFlush)
+state().trace().flushIncEnd(this, "setParent", flushIncToken);
+$endif
+]]
+
 AttrDecl.traceFlushIncAttr [[
 $if (TraceFlush)
 state.trace().flushIncAttr("#getAspectName", fNode, fAttrID, "", "");
