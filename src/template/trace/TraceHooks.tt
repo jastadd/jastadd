@@ -325,66 +325,61 @@ $endif
 
 ASTNode.traceFlushIncBeginSetChild [[
 $if (TraceFlush)
-Object flushIncToken = new Object();
-state().trace().flushIncStart(this, "setChild", flushIncToken);
+state().trace().flushIncStart(this, "ASTNode.setChild", i, node);
 $endif
 ]]
 
 TokenComponent.traceFlushIncBeginSetToken [[
 $if (TraceFlush)
-Object flushIncToken = new Object();
-state().trace().flushIncStart(this, "set$(Id)", flushIncToken);
+state().trace().flushIncStart(this, "set$(Id)", "", value);
 $endif
 ]]
 
 ASTNode.traceFlushIncBeginInsertChild [[
 $if (TraceFlush)
-Object flushIncToken = new Object();
-state().trace().flushIncStart(this, "insertChild", flushIncToken);
+state().trace().flushIncStart(this, "ASTNode.insertChild", i, node);
 $endif
 ]]
 
 ASTNode.traceFlushIncBeginRemoveChild [[
 $if (TraceFlush)
-Object flushIncToken = new Object();
-state().trace().flushIncStart(this, "removeChild", flushIncToken);
+state().trace().flushIncStart(this, "ASTNode.removeChild", i, "");
 $endif
 ]]
 
 ASTNode.traceFlushIncBeginSetParent [[
 $if (TraceFlush)
-Object flushIncToken = new Object();
-state().trace().flushIncStart(this, "setParent", flushIncToken);
+state().trace().flushIncStart(this, "ASTNode.setParent", "", node);
 $endif
 ]]
 
 ASTNode.traceFlushIncEndSetChild [[
 $if (TraceFlush)
-state().trace().flushIncEnd(this, "setChild", flushIncToken);
+state().trace().flushIncEnd(this, "ASTNode.setChild", i, node);
 $endif
 ]]
 
 TokenComponent.traceFlushIncEndSetToken [[
 $if (TraceFlush)
-state().trace().flushIncEnd(this, "set$(Id)", flushIncToken);
+state().trace().flushIncEnd(this, "set$(Id)", "", value);
 $endif
 ]]
 
 ASTNode.traceFlushIncEndInsertChild [[
 $if (TraceFlush)
-state().trace().flushIncEnd(this, "insertChild", flushIncToken);
+state().trace().flushIncEnd(this, "ASTNode.insertChild", i, node);
 $endif
 ]]
 
 ASTNode.traceFlushIncEndRemoveChild [[
 $if (TraceFlush)
-state().trace().flushIncEnd(this, "removeChild", flushIncToken);
+state().trace().flushIncEnd(this, "ASTNode.removeChild", i, "");
 $endif
 ]]
 
 ASTNode.traceFlushIncEndSetParent [[
 $if (TraceFlush)
-state().trace().flushIncEnd(this, "setParent", flushIncToken);
+state().trace().flushIncEnd(this, "ASTNode.setParent", "", node);
 $endif
 ]]
 
