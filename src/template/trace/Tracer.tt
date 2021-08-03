@@ -79,7 +79,9 @@ public static class Trace {
     FLUSH_ATTR,
     FLUSH_REWRITE,
     FLUSH_REWRITE_INIT,
+    INC_FLUSH_START,
     INC_FLUSH_ATTR,
+    INC_FLUSH_END,
 
     // Flag: --tracing=coll
     CONTRIBUTION_CHECK_BEGIN,
@@ -346,6 +348,20 @@ public static class Trace {
    */
   public void flushIncAttr(String aspect, $ASTNode node, String attr, Object params, Object value) {
     receiver.accept($StateClass.Trace.Event.INC_FLUSH_ATTR, aspect, node, attr, params, value);
+  }
+
+  /**
+   * Trace that flushing done by incremental evaluation begun.
+   */
+  public void flushIncStart($ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.INC_FLUSH_START, ASPECT_AST, node, attr, params, value);
+  }
+
+  /**
+   * Trace that flushing done by incremental evaluation ended.
+   */
+  public void flushIncEnd($ASTNode node, String attr, Object params, Object value) {
+    receiver.accept($StateClass.Trace.Event.INC_FLUSH_END, ASPECT_AST, node, attr, params, value);
   }
 
   /**

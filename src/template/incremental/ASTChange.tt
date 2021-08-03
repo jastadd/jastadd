@@ -27,6 +27,7 @@
 
 ASTNode.incHookSetParent = [[
 $if (IncrementalEnabled)
+$include(ASTNode.traceFlushIncBeginSetParent)
 $if (IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
   getParent_handler.notifyDependencies();
@@ -51,6 +52,7 @@ if (state().disableDeps == 0 && !(state().IN_COMPUTATION > 0)) {
   }
 }
 $endif
+$include(ASTNode.traceFlushIncEndSetParent)
 /*
 if (node != null) {
   inc_changeState(node.inc_state);
@@ -63,6 +65,7 @@ $endif
 
 ASTNode.incHookSetChild1 = [[
 $if(IncrementalEnabled)
+$include(ASTNode.traceFlushIncBeginSetChild)
 
 $if(IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
@@ -162,13 +165,13 @@ $endif
 
 ASTNode.incHookSetChild5 = [[
 $if(IncrementalEnabled)
-
+$include(ASTNode.traceFlushIncEndSetChild)
 $endif
 ]]
 
 ASTNode.incHookInsertChild1 = [[
 $if(IncrementalEnabled)
-
+$include(ASTNode.traceFlushIncBeginInsertChild)
 $if(IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
   numChildren_handler.notifyDependencies();
@@ -235,6 +238,7 @@ if (getChild_handler != null) {
   getChild_handler = h;
 }
 $endif
+$include(ASTNode.traceFlushIncEndInsertChild)
 
 $endif
 ]]
@@ -242,7 +246,7 @@ $endif
 
 ASTNode.incHookRemoveChild1 = [[
 $if(IncrementalEnabled)
-
+$include(ASTNode.traceFlushIncBeginRemoveChild)
 $if(IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
   if (children[i] != null) {
@@ -314,12 +318,14 @@ if (getChild_handler != null && this instanceof $List) {
   getChild_handler[numChildren] = null;
 }
 $endif
+$include(ASTNode.traceFlushIncEndRemoveChild)
 
 $endif
 ]]
 
 TokenComponent.incHookSetToken = [[
 $if(IncrementalEnabled)
+$include(TokenComponent.traceFlushIncBeginSetToken)
 
 $if(IncrementalLevelParam)
 if (state().disableDeps == 0 && !state().IN_ATTR_STORE_EVAL) {
@@ -390,6 +396,6 @@ if (state().disableDeps == 0 && !(state().IN_COMPUTATION > 0)) {
 $endif
 
 }
-
+$include(TokenComponent.traceFlushIncEndSetToken)
 $endif
 ]]
